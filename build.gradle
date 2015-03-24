@@ -1,0 +1,82 @@
+import org.gradle.internal.os.OperatingSystem
+
+apply plugin: eclipsebuild.BuildDefinitionPlugin
+
+// declare that by default the plugins are built and tested against Eclipse 3.7
+eclipseBuild {
+    eclipseVersion = '37'
+}
+
+// read the current version from an external file and add a timestamp suffix if requested by the caller
+version = getVersion(file('version.txt').text.trim())
+
+subprojects {
+    // set the calculated version on all projects in the hierarchy
+    version = rootProject.version
+
+    // the built plugins must be Java 6 compatible, try to compile with JDK 6 if the location is specified by the caller or if it can be derived
+    plugins.withType(eclipsebuild.BundlePlugin) {
+        sourceCompatibility = 1.6
+        targetCompatibility = 1.6
+
+        tasks.withType(AbstractCompile).all {
+            options.compilerArgs << '-Xlint:all'
+            options.fork = true
+
+            if (OperatingSystem.current().isMacOsX()) {
+                options.compilerArgs << '-Werror'
+                options.forkOptions.executable = "/usr/libexec/java_home -v $targetCompatibility".execute().text.trim() + "/bin/javac"
+            } else if (project.hasProperty('compiler.location')) {
+                // quotes required on TeamCity to pass property with spaces, e.g. a Windows file path
+                String compilerLocation = project.property('compiler.location').replace('\"', '').replace('\'', '')
+                options.compilerArgs << '-Werror'
+                options.forkOptions.executable = compilerLocation
+            }
+        }
+    }
+
+    // apply Checkstyle plugin, mainly to ensure license/copyright and javadoc is present
+    apply plugin: 'checkstyle'
+
+    // share checkstyle config across all sub-projects
+    def checkstyleConfigDir = "$rootDir/gradle/config/checkstyle"
+    tasks.withType(Checkstyle).all {
+      configFile = "$checkstyleConfigDir/checkstyle.xml" as File
+      configProperties = ['checkstyleConfigDir': checkstyleConfigDir]
+      inputs.file "$checkstyleConfigDir/suppressions.xml" as File
+    }
+
+    // configure the repositories where the external dependencies can be found
+    repositories {
+        maven {
+            name = 'mavenized-target-platform'
+            url "${eclipsebuild.Config.on(project).mavenizedTargetPlatformDir}"
+        }
+
+        maven {
+            name = 'gradle-snapshots'
+            url gradleSnapshotsRepositoryUrl
+        }
+
+        maven {
+            name = 'gradle-releases'
+            url gradleReleasesRepositoryUrl
+        }
+
+        maven {
+            name = 'gradle-remote'
+            url gradleRemoteRepositoryUrl
+        }
+    }
+}
+
+String getVersion(def baseVersion) {
+    if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
+        // note that for Eclipse plugin versions, the '-' and '.' character are invalid in front of the build id
+        baseVersion + new Date().format('yyyyMMddkkmmss', TimeZone.getTimeZone('GMT'))
+    } else {
+        baseVersion + new Date().format('yyyyMMdd', TimeZone.getTimeZone('GMT'))
+    }
+}
+
+wrapper.gradleVersion = '2.4-20150209230027+0000'

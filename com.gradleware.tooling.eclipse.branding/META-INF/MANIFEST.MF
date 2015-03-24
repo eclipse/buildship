@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Buildship, Eclipse Plug-ins for Gradle
+Bundle-SymbolicName: com.gradleware.tooling.eclipse.branding
+Bundle-Version: 1.0.0
+Bundle-Vendor: Gradle Inc.
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: .

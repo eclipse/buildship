@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- don't modify the feature's version attribute as it will be replaced by the build --> 
+<feature
+      id="com.gradleware.tooling.eclipse.feature"
+      label="%featureName"
+      version="0.0.1.featureversion"
+      provider-name="%providerName"
+      plugin="com.gradleware.tooling.eclipse.branding">
+
+   <description>
+      %description
+   </description>
+
+   <copyright>
+      %copyright
+   </copyright>
+
+   <license url="%licenseUrl">
+      %license
+   </license>
+
+   <plugin
+         id="com.gradleware.tooling.eclipse.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.gradleware.tooling.eclipse.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.gradleware.tooling.eclipse.branding"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+	<category-def name="Buildship" label="Buildship: Eclipse Plug-ins for Gradle" />
+	<feature id="com.gradleware.tooling.eclipse.feature"
+		url="features/com.gradleware.tooling.eclipse.feature_0.0.0.jar"
+		version="0.0.0">
+		<category name="Buildship" />
+	</feature>
+</site>

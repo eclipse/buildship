@@ -1,0 +1,134 @@
+/*
+ * Copyright (c) 2015 the original author or authors.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
+ */
+
+package eclipsebuild
+
+import org.gradle.internal.os.OperatingSystem
+
+
+/**
+ * Constant store for the Eclipse build
+ */
+class Constants {
+
+    /**
+     * @return The name of the group where all tasks defined in this project should show upon the execution of
+     * <code>gradle tasks</code>.
+     */
+    static String getGradleTaskGroupName() {
+        return "Eclipse Plugin Build"
+    }
+
+    /**
+     * Eclipse runtime abbreviation of the operating system.
+     * http://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html
+     *
+     * @return The operating system: 'linux', 'win32' or 'macosx'
+     */
+    static String getOs() {
+        OperatingSystem os = OperatingSystem.current()
+        os.isLinux() ? 'linux' : os.isWindows() ? 'win32' : os.isMacOsX() ? 'macosx': null
+    }
+
+    /**
+     * Eclipse runtime abbreviation of the windowing system.
+     * http://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html
+     *
+     * @return The windowing system: 'gtk', 'win32' or 'cocoa'
+     */
+    static String getWs() {
+        OperatingSystem os = OperatingSystem.current()
+        os.isLinux() ? 'gtk' : os.isWindows() ? 'win32' : os.isMacOsX() ? 'cocoa' : null
+    }
+
+    /**
+     * Eclipse runtime abbreviation of the architecture.
+     * http://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html
+     *
+     * @return The architecture: x86, x86_64 or ppc
+     */
+    static String getArch() {
+        System.getProperty("os.arch").contains("64") ? "x86_64" : "x86"
+    }
+
+    /**
+     * @return The list of Eclipse versions supported by this Eclipse build. Possible values: '37', '42', '43' or '44',
+     */
+    static List<String> getAcceptedEclipseVersions() {
+        return Arrays.asList("36", "37", "42", "43", "44", "45" );
+    }
+
+    /**
+     * @return The group ID for referencing eclipse bundles in the local Maven repository.
+     */
+    static String getMavenEclipsPluginGroupName() {
+        return "eclipse"
+    }
+
+    /**
+     * Returns an Eclipse release repository update site URL for a given version of Eclipse.
+     * @param version the version of Eclipse (from {@link #getAcceptedEclipseVersions})
+     * @return The update site URL as String
+     */
+    static String getEclipseReleaseUpdateSite(String version) {
+        switch (version) {
+            case "36": return "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-helios/";
+            case "37": return "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-indigo/";
+            case "42": return "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-juno/";
+            case "43": return "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-kepler/";
+            case "44": return "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-luna/";
+            case "45": return "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-mars/";
+            default : throw new RuntimeException("Not supported eclipse version: ${version}")
+        }
+    }
+
+    /**
+     * Returns the concrete Eclipse build version for a given Eclipse version.
+     * @param version the version of Eclipse (from {@link #getAcceptedEclipseVersions})
+     * @return The concrete Eclipse build version
+     */
+    static String getEclipseReleaseBuildVersion(String version) {
+        switch (version) {
+            case "36": return "3.6.2.M20110210-1200";
+            case "37": return "3.7.2.M20120208-0800";
+            case "42": return "4.2.2.M20130204-1200";
+            case "43": return "4.3.2.M20140221-1700";
+            case "44": return "4.4.2.M20150204-1700";
+            case "45": return "4.5.0.I20150203-1300";
+            default : throw new RuntimeException("Not supported eclipse version: ${version}")
+        }
+    }
+
+    /**
+     * @return The subpath of the Eclipse executable for the current platform.
+     */
+    static String getEclipseExePath() {
+        OperatingSystem os = OperatingSystem.current()
+        os.isLinux() ? "eclipse/eclipse" :
+                os.isWindows() ? "eclipse/eclipse.exe" :
+                os.isMacOsX() ? "eclipse/Eclipse.app/Contents/MacOS/eclipse" :
+                null
+    }
+
+    /**
+     * @return A URL which always redirect to a mirror from where and Eclipse SDK can be downloaded.
+     */
+    static URL getEclipseSdkDownloadUrl() {
+        def archInUrl = getArch() == "x86_64" ? "-x86_64" : "";
+        if (getOs() == "win32") {
+            return new URL("http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops4/R-4.4.2-201502041700/eclipse-SDK-4.4.2-win32${archInUrl}.zip&r=1")
+        }
+        else {
+            return new URL("http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops4/R-4.4.2-201502041700/eclipse-SDK-4.4.2-${getOs()}-${getWs()}${archInUrl}.tar.gz&r=1");
+        }
+    }
+
+}

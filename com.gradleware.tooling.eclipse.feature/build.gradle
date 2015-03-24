@@ -1,0 +1,5 @@
+apply plugin: eclipsebuild.FeaturePlugin
+
+feature { 
+    featureXml = file('feature.xml') 
+}

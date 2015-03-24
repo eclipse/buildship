@@ -1,0 +1,13 @@
+.DS_Store
+
+.gradle
+.settings
+.eclipse
+build
+target
+bin
+
+.idea
+*.iml
+*.ipr
+*.iws

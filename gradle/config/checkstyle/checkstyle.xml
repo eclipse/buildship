@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE module PUBLIC
+        "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
+        "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+
+<module name="Checker">
+
+    <!-- allow to suppress certain checks for specific scenarios -->
+    <module name="SuppressionFilter">
+        <property name="file" value="${checkstyleConfigDir}/suppressions.xml"/>
+    </module>
+
+    <!-- allow checkstyle suppression using the //CHECKSTYLE:ON //CHECKSTYLE:OFF -->
+    <module name="SuppressionCommentFilter"/>
+
+    <!-- avoid tabs in the source code -->
+    <module name="FileTabCharacter"/>
+
+    <!-- require the copyright header -->
+    <module name="RegexpHeader">
+        <property name="headerFile" value="${checkstyleConfigDir}/required-header.txt"/>
+    </module>
+
+    <module name="TreeWalker">
+        <!-- ensure class and interface Javadoc is available -->
+        <module name="JavadocType"/>
+
+        <!-- ensure consistent style of Javadoc -->
+        <module name="JavadocStyle"/>
+
+        <!-- Braces -->
+        <module name="LeftCurly"/>
+        <module name="RightCurly"/>
+        <module name="NeedBraces"/>
+
+        <!-- Imports -->
+        <module name="RedundantImport"/>
+        <module name="UnusedImports"/>
+
+        <!-- to enable SuppressionCommentFilter -->
+        <module name="FileContentsHolder"/>
+    </module>
+
+</module>

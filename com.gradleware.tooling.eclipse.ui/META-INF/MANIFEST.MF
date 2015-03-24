@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Buildship, Eclipse Plug-ins for Gradle - UI
+Bundle-SymbolicName: com.gradleware.tooling.eclipse.ui;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Vendor: Gradle Inc.
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Activator: com.gradleware.tooling.eclipse.ui.UiPlugin
+Require-Bundle: com.gradleware.tooling.eclipse.core,
+ org.eclipse.help,
+ org.eclipse.ui,
+ org.eclipse.ui.ide,
+ org.eclipse.ui.console,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.views,
+ org.eclipse.debug.ui,
+ org.eclipse.jdt.ui
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .

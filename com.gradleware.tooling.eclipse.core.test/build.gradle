@@ -1,0 +1,30 @@
+apply plugin: eclipsebuild.TestBundlePlugin
+apply plugin: 'groovy'
+
+dependencies {
+    compile project(':com.gradleware.tooling.eclipse.core')
+
+    bundled "org.spockframework:spock-core:$spockLibVersion"
+    bundled "cglib:cglib-nodep:$cglibLibVersion"
+    bundled "com.gradleware.tooling:testing-junit:$commonsLibVersion"
+    bundled "org.slf4j:slf4j-simple:$slf4jLibVersion"
+}
+
+eclipseTest {
+    fragmentHost 'com.gradleware.tooling.eclipse.core'
+    applicationName 'org.eclipse.pde.junit.runtime.coretestapplication'
+    optionsFile rootProject.project(':com.gradleware.tooling.eclipse.core').file('.options')
+}
+
+// append the sources of each first-level dependency and its transitive dependencies of
+// the 'bundled' configuration to the 'bundledSource' configuration
+configurations.bundled.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
+    addSourcesRecursively(dep)
+}
+
+def addSourcesRecursively(dep) {
+    dependencies {
+        bundledSource group: dep.moduleGroup, name: dep.moduleName, version: dep.moduleVersion, classifier: 'sources'
+    }
+    dep.children.each { addSourcesRecursively(it) }
+}

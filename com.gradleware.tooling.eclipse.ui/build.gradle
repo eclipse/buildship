@@ -1,0 +1,15 @@
+apply plugin: eclipsebuild.BundlePlugin
+
+dependencies {
+    compile project(':com.gradleware.tooling.eclipse.core')
+    compile "eclipse:org.eclipse.help:+"
+    compile "eclipse:org.eclipse.ui:+"
+    compile "eclipse:org.eclipse.ui.ide:+"
+    compile "eclipse:org.eclipse.ui.console:+"
+    compile "eclipse:org.eclipse.ui.editors:+"
+    compile "eclipse:org.eclipse.ui.views:+"
+    compile "eclipse:org.eclipse.debug.ui:+"
+    compile "eclipse:org.eclipse.jdt.ui:+"
+    compile "eclipse:org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}:+"
+}
+

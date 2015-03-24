@@ -1,0 +1,6 @@
+<contexts>
+  <context id="projectimport">
+    <description>The Gradle Project Import Wizard allows you to import existing Gradle projects into the Eclipse workspace.</description>
+    <topic href="help/html/project-import.html" label="Importing a Gradle Project" />
+  </context>
+</contexts>

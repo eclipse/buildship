@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+    <!-- initialization of the classpath container-->
+    <extension
+            point="org.eclipse.jdt.core.classpathContainerInitializer">
+        <classpathContainerInitializer
+                id="com.gradleware.tooling.eclipse.core.gradleclasspathcontainer"
+                class="com.gradleware.tooling.eclipse.core.workspace.internal.GradleClasspathContainerInitializer">
+        </classpathContainerInitializer>
+    </extension>
+
+    <!-- addition of a Gradle nature -->
+    <extension
+         id="nature"
+         name="Gradle Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run class="com.gradleware.tooling.eclipse.core.GradleNature"/>
+      </runtime>
+   </extension>
+
+    <!-- integration of a Gradle run configuration -->
+    <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            id="com.gradleware.tooling.eclipse.core.launch.runconfiguration"
+            delegate="com.gradleware.tooling.eclipse.core.launch.GradleRunConfigurationDelegate"
+            name="Gradle Project"
+            modes="run">
+      </launchConfigurationType>
+   </extension>
+
+</plugin>

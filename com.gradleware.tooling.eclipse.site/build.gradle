@@ -1,0 +1,10 @@
+apply plugin: eclipsebuild.UpdateSitePlugin
+
+updateSite { siteDescriptor = file("category.xml") }
+
+dependencies {
+    compile project(':com.gradleware.tooling.eclipse.core')
+    compile project(':com.gradleware.tooling.eclipse.ui')
+    compile project(':com.gradleware.tooling.eclipse.branding')
+    compile project(':com.gradleware.tooling.eclipse.feature')
+}

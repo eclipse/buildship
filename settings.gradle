@@ -1,0 +1,7 @@
+include ':com.gradleware.tooling.eclipse.core'
+include ':com.gradleware.tooling.eclipse.ui'
+include ':com.gradleware.tooling.eclipse.feature'
+include ':com.gradleware.tooling.eclipse.site'
+include ':com.gradleware.tooling.eclipse.branding'
+include ':com.gradleware.tooling.eclipse.core.test'
+include ':com.gradleware.tooling.eclipse.ui.test'
