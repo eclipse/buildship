@@ -147,15 +147,12 @@ The possible values for `eclipse.version` are: 36, 37, 42, 43, 44, and 45.
 * Create a _build.gradle_ file and apply the `BundlePlugin`
 * Add the project to the _settings.gradle_ file
 
+### Continuous Integration
+
+Buildship is continuously built on our [Continuous Integration Server](https://builds.gradle.org/project.html?projectId=Tooling_Buildship&tab=projectOverview).
+
 ### References
 
 * [Eclipse Testing](http://wiki.eclipse.org/Eclipse/Testing)
 * [PDE Test Automation](http://www.eclipse.org/articles/article.php?file=Article-PDEJUnitAntAutomation/index.html)
 
-## Continuous Integration
-
-The automated builds for each supported Eclipse version can be found on TeamCity:
-`https://builds.gradle.org/project.html?projectId=Tooling_Buildship&tab=projectOverview`
-
-It is possible to reference the last successful run of a given TeamCity configuration like this:
-`https://builds.gradle.org/repository/download/Tooling_Master_Commit_Eclipse44Build/.lastSuccessful/update-site`
