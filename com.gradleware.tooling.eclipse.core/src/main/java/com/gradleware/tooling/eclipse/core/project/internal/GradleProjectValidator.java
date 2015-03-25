@@ -22,6 +22,9 @@ import org.eclipse.core.runtime.CoreException;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.eclipse.core.project.GradleProjectMarkers;
 
+/**
+ * Adds error markers to {@link IProject}s where the Gradle project configuration is missing.
+ */
 public final class GradleProjectValidator {
 
     private final IProject project;

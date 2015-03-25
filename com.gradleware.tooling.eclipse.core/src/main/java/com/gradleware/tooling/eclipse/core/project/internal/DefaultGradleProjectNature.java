@@ -15,7 +15,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
 
 import com.gradleware.tooling.eclipse.core.project.GradleProjectBuilders;
-import com.gradleware.tooling.eclipse.core.project.GradleProjectNatures;
 
 /**
  * Implementation class for the {@link GradleProjectNatures#DEFAULT_NATURE} nature definition.

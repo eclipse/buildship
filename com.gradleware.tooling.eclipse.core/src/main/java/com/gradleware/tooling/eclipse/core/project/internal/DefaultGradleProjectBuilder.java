@@ -21,6 +21,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import com.gradleware.tooling.eclipse.core.project.GradleProjectMarkers;
 
+/**
+ * Implementation class for the {@link GradleProjectBuilders#DEFAULT_BUILDER} builder definition.
+ */
 public final class DefaultGradleProjectBuilder extends IncrementalProjectBuilder {
 
     @Override

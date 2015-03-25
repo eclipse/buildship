@@ -36,7 +36,7 @@ import com.gradleware.tooling.eclipse.core.CorePlugin;
 public enum GradleProjectBuilders {
 
     /**
-     * The default builders. Initiates project validation upon resource change.
+     * The default builder for a Gradle project. Initiates project validation upon resource change.
      */
     DEFAULT_BUILDER("builder");
 

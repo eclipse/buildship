@@ -18,6 +18,12 @@ import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 
+/**
+ * Resource delta visitor triggering validation only when a relevant resource changed.
+ * <p/>
+ * The list of relevant resources is retrieved from
+ * {@link GradleProjectValidator#resourcesToValidate()}.
+ */
 public final class ValidationTriggeringResourceDeltaVisitor implements IResourceDeltaVisitor {
 
     private final GradleProjectValidator gradleProjectValidation;
