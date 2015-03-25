@@ -11,19 +11,5 @@ dependencies {
     compile "eclipse:org.eclipse.debug.ui:+"
     compile "eclipse:org.eclipse.jdt.ui:+"
     compile "eclipse:org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}:+"
-
-    bundled "com.google.guava:guava:$guavaLibVersion"
 }
 
-// append the sources of each first-level dependency and its transitive dependencies of
-// the 'bundled' configuration to the 'bundledSource' configuration
-configurations.bundled.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
-    addSourcesRecursively(dep)
-}
-
-def addSourcesRecursively(dep) {
-    dependencies {
-        bundledSource group: dep.moduleGroup, name: dep.moduleName, version: dep.moduleVersion, classifier: 'sources'
-    }
-    dep.children.each { addSourcesRecursively(it) }
-}

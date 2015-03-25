@@ -16,5 +16,4 @@ Require-Bundle: com.gradleware.tooling.eclipse.core,
  org.eclipse.debug.ui,
  org.eclipse.jdt.ui
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: .,
- lib/guava-18.0.jar
+Bundle-ClassPath: .
