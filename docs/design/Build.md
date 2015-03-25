@@ -96,3 +96,10 @@ generated repository is available in the _build/repository_ folder.
     updateSite {
         siteDescriptor = file("category.xml")
     }
+
+### Adding a new Eclipse plugin
+
+* Create a new folder under the _buildship_ root folder
+* Create a project in that folder through Eclipse and use the same name for the project as for the folder
+* Create a _build.gradle_ file and apply the `BundlePlugin`
+* Add the project to the _settings.gradle_ file

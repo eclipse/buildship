@@ -140,13 +140,6 @@ Eclipse version to use as the target platform, set the `eclipse.version` accordi
 
 The possible values for `eclipse.version` are: 36, 37, 42, 43, 44, and 45.
 
-### Adding a new Eclipse plugin
-
-* Create a new folder under the _buildship_ root folder
-* Create a project in that folder with Eclipse and use the same name for the project as for the folder
-* Create a _build.gradle_ file and apply the `BundlePlugin`
-* Add the project to the _settings.gradle_ file
-
 ### Continuous Integration
 
 Buildship is continuously built on our [Continuous Integration Server](https://builds.gradle.org/project.html?projectId=Tooling_Buildship&tab=projectOverview).
