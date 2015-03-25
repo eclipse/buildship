@@ -11,7 +11,7 @@ dependencies {
     compile "eclipse:org.eclipse.debug.ui:+"
     compile "eclipse:org.eclipse.jdt.ui:+"
     compile "eclipse:org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}:+"
-    
+
     bundled "com.google.guava:guava:$guavaLibVersion"
 }
 
