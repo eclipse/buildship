@@ -11,15 +11,33 @@
         </classpathContainerInitializer>
     </extension>
 
-    <!-- addition of a Gradle nature -->
+    <!-- Gradle builder and nature -->
     <extension
          id="nature"
          name="Gradle Nature"
          point="org.eclipse.core.resources.natures">
+         <builder id="com.gradleware.tooling.eclipse.core.builder"/>
       <runtime>
-         <run class="com.gradleware.tooling.eclipse.core.GradleNature"/>
+         <run class="com.gradleware.tooling.eclipse.core.project.internal.DefaultGradleProjectNature"/>
       </runtime>
-   </extension>
+    </extension>
+    <extension
+          id="builder"
+          name="Gradle Builder"
+          point="org.eclipse.core.resources.builders">
+       <builder hasNature="true">
+          <run class="com.gradleware.tooling.eclipse.core.project.internal.DefaultGradleProjectBuilder" /> 
+       </builder>
+    </extension>
+    
+     <!-- error marker definition -->
+     <extension
+         id="missingconfiguration"
+         name="Missing Gradle Project Configuration"
+         point="org.eclipse.core.resources.markers">
+       <super type="org.eclipse.core.resources.problemmarker" />
+       <persistent value="true" />
+     </extension>
 
     <!-- integration of a Gradle run configuration -->
     <extension
@@ -31,5 +49,4 @@
             modes="run">
       </launchConfigurationType>
    </extension>
-
 </plugin>

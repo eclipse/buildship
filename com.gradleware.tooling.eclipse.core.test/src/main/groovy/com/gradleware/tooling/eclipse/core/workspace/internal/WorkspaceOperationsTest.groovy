@@ -13,13 +13,15 @@ package com.gradleware.tooling.eclipse.core.workspace.internal
 
 import com.google.common.collect.ImmutableList
 import com.gradleware.tooling.eclipse.core.CorePlugin
-import com.gradleware.tooling.eclipse.core.GradleNature
 import com.gradleware.tooling.eclipse.core.GradlePluginsRuntimeException
 import com.gradleware.tooling.eclipse.core.configuration.ProjectConfiguration
+import com.gradleware.tooling.eclipse.core.project.GradleProjectNatures;
+import com.gradleware.tooling.eclipse.core.project.internal.DefaultGradleProjectNature;
 import com.gradleware.tooling.eclipse.core.workspace.ClasspathDefinition
 import com.gradleware.tooling.eclipse.core.workspace.WorkspaceOperations
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
+
 import org.eclipse.core.resources.IMarker
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
@@ -27,9 +29,11 @@ import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.launching.JavaRuntime
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -51,12 +55,12 @@ class WorkspaceOperationsTest extends Specification {
         def projectFolder = tempFolder.newFolder("sample-project-folder")
 
         when:
-        IProject project = workspaceOperations.createProject("sample-project", projectFolder, ImmutableList.of(), ImmutableList.of(GradleNature.ID), null)
+        IProject project = workspaceOperations.createProject("sample-project", projectFolder, ImmutableList.of(), ImmutableList.of(GradleProjectNatures.DEFAULT_NATURE.getId()), null)
 
         then:
         project.exists()
         project.isAccessible()
-        project.hasNature(GradleNature.ID)
+        project.hasNature(GradleProjectNatures.DEFAULT_NATURE.getId())
         project.getDescription().natureIds.length == 1
     }
 
@@ -78,12 +82,12 @@ class WorkspaceOperationsTest extends Specification {
         def projectFolder = tempFolder.newFolder("sample-project-folder")
 
         when:
-        IProject project = workspaceOperations.createProject("sample-project", projectFolder, ImmutableList.of(), ImmutableList.of("dummy-nature-1", "dummy-nature-2"), new NullProgressMonitor())
+        IProject project = workspaceOperations.createProject("sample-project", projectFolder, ImmutableList.of(), ImmutableList.of(JavaCore.NATURE_ID, GradleProjectNatures.DEFAULT_NATURE.getId()), new NullProgressMonitor())
 
         then:
         project.getDescription().natureIds.length == 2
-        project.getDescription().natureIds[0] == "dummy-nature-1"
-        project.getDescription().natureIds[1] == "dummy-nature-2"
+        project.getDescription().natureIds[0] == JavaCore.NATURE_ID
+        project.getDescription().natureIds[1] == GradleProjectNatures.DEFAULT_NATURE.getId()
 
     }
 
@@ -216,7 +220,7 @@ class WorkspaceOperationsTest extends Specification {
     def "A Java project can be created"() {
         setup:
         def rootFolder = tempFolder.newFolder()
-        IProject project = workspaceOperations.createProject("sample-project", rootFolder, ImmutableList.of(), ImmutableList.of("dummy-project"), new NullProgressMonitor())
+        IProject project = workspaceOperations.createProject("sample-project", rootFolder, ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
         def attributes = new FixedRequestAttributes(rootFolder, null, GradleDistribution.fromBuild(), null, ImmutableList.<String> of(), ImmutableList.<String> of())
         ProjectConfiguration projectConfiguration = ProjectConfiguration.from(attributes, com.gradleware.tooling.toolingmodel.Path.from(':'), rootFolder);
         CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, project);
@@ -256,7 +260,7 @@ class WorkspaceOperationsTest extends Specification {
 
     def "A Java classpath can't be null"() {
         setup:
-        IProject project = workspaceOperations.createProject("sample-project", tempFolder.newFolder(), ImmutableList.of(), ImmutableList.of("dummy-project"), new NullProgressMonitor())
+        IProject project = workspaceOperations.createProject("sample-project", tempFolder.newFolder(), ImmutableList.of(), ImmutableList.of(JavaCore.NATURE_ID), new NullProgressMonitor())
 
         when:
         workspaceOperations.createJavaProject(project, null, new NullProgressMonitor())

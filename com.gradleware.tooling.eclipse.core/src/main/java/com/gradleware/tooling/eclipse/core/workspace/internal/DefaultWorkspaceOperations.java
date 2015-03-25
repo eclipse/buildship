@@ -96,7 +96,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         Preconditions.checkArgument(location.isDirectory(), String.format("Project location %s must be a directory.", location));
 
         monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
-        monitor.beginTask(String.format("Create Eclipse project %s", name), 4);
+        monitor.beginTask(String.format("Create Eclipse project %s", name), 6);
         try {
             // make sure no project with the specified name already exists
             Preconditions.checkState(!findProjectByName(name).isPresent(), String.format("Workspace already contains project with name %s.", name));
@@ -104,9 +104,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
             // get an IProject instance and create the project
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
-            IProjectDescription desc = workspace.newProjectDescription(name);
+            final IProjectDescription desc = workspace.newProjectDescription(name);
             desc.setLocation(Path.fromOSString(location.getPath()));
-            desc.setNatureIds(natureIds.toArray(new String[natureIds.size()]));
             IProject project = workspace.getRoot().getProject(name);
             project.create(desc, new SubProgressMonitor(monitor, 1));
 
@@ -115,6 +114,12 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
             // open the project and return it
             project.open(new SubProgressMonitor(monitor, 1));
+
+            // add project nature separately to activate IProjectNature#configure
+            for (String natureId : natureIds) {
+                addNature(project, natureId, new NullProgressMonitor());
+            }
+
             return project;
         } catch (Exception e) {
             String message = String.format("Cannot create Eclipse project %s.", name);
