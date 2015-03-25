@@ -20,9 +20,8 @@ import org.gradle.api.Project;
  * A feature project can specify its feature.xml with a very simple build script:
  * <pre>
  apply plugin: eclipsebuild.Feature
-
  feature {
-   featureXml = file('feature.xml')
+ featureXml = file('feature.xml')
  }
  </pre>
  * <p>
@@ -57,5 +56,4 @@ class FeaturePlugin implements Plugin<Project> {
         // assemble task does't change anything outside the buildDir folder
         project.tasks.assemble.outputs.dir project.buildDir
     }
-
 }
