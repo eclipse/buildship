@@ -8,7 +8,7 @@ Buildship interacts with, certain features of Buildship may not be available.
 
 ## Documentation
 
-Documentation is available on [GitHub](https://github.com/gradleware/buildship).
+Documentation is available on [GitHub](https://github.com/eclipse/buildship).
 
 
 ## Usage Setup instructions
