@@ -11,13 +11,11 @@
 
 package eclipsebuild
 
-import java.io.File;
-
-import org.akhikhl.unpuzzle.eclipse2maven.EclipseSource
-import org.akhikhl.unpuzzle.osgi2maven.Deployer;
-import org.akhikhl.unpuzzle.utils.IConsole;
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.logging.LogLevel;
+
+import eclipsebuild.mavenize.BundleMavenDeployer
 
 /**
  * Gradle plugin for the root project of the Eclipse plugin build.
@@ -184,14 +182,9 @@ class BuildDefinitionPlugin implements Plugin<Project> {
                         '-nosplash')
             }
 
-            // TODO (donat) refactor the parts taken from unpuzzle and remove everything which we don't use
-
-            // finally create the maven repository based on the target platform
-            def mavenDeployer = new Deployer([:], config.mavenizedTargetPlatformDir.toURI().toURL())
-            def source = new EclipseSource()
-            source.url = config.mavenizedTargetPlatformDir.toURI().toURL().toString()
-            def simpleDeployer = new SimpleDeployer(config.targetPlatformDir, Constants.mavenEclipsPluginGroupName, mavenDeployer);
-            simpleDeployer.deploy(Arrays.asList(source))
+            // create the maven repository based on the target platform
+            def deployer = new BundleMavenDeployer(project.ant, Constants.mavenEclipsePluginGroupName, project.logger);
+            deployer.deploy(config.targetPlatformDir, config.mavenizedTargetPlatformDir)
 
             // save the version in a file under the target platform directory
             def versionFile = new File(config.targetPlatformDir, 'version')

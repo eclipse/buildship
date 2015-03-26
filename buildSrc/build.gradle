@@ -12,8 +12,8 @@ dependencies {
     compile gradleApi()
     compile localGroovy()
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'org.akhikhl.unpuzzle:unpuzzle-plugin:0.0.17'
     compile 'nu.studer:java-ordered-properties:1.0.1'
+    compile 'org.apache.maven:maven-ant-tasks:2.1.3'
     compile 'bcel:bcel:5.1'
 }
 
