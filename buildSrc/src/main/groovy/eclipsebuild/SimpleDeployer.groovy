@@ -43,6 +43,8 @@ import org.akhikhl.unpuzzle.osgi2maven.Deployer
  */
 final class SimpleDeployer {
 
+    // TODO (donat) cleanup the unused parts from this code
+
     private final File targetDir
     private final String eclipseGroup
     private final Deployer mavenDeployer
@@ -63,7 +65,7 @@ final class SimpleDeployer {
         installGroupChecksum = DigestUtils.md5Hex(installGroupPath)
     }
 
-  private void collectArtifactsInFolder(EclipseSource source, artifactsSourceDir) {
+    private void collectArtifactsInFolder(EclipseSource source, artifactsSourceDir) {
         def processFile = { File file ->
             console.info("Collecting artifacts: ${file.name}")
             try {
