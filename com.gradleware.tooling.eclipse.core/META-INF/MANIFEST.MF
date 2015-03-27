@@ -10,10 +10,12 @@ Require-Bundle: org.eclipse.core.runtime;visibility:=reexport,
  org.eclipse.core.resources;visibility:=reexport,
  org.eclipse.core.variables;visibility:=reexport,
  org.eclipse.core.filesystem;visibility:=reexport,
+ org.eclipse.debug.core,
+ org.eclipse.debug.ui,
  org.eclipse.jdt.core;visibility:=reexport,
  org.eclipse.jdt.junit.core;visibility:=reexport,
  org.eclipse.jdt.launching,
- org.eclipse.debug.core
+ org.eclipse.ui.workbench
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
  lib/gradle-tooling-api-2.4-20150310170129+0000.jar,
