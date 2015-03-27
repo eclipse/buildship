@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package com.gradleware.tooling.eclipse.ui
+package com.gradleware.tooling.eclipse.ui.projectimport
 
 import org.eclipse.swt.widgets.Display;
 
