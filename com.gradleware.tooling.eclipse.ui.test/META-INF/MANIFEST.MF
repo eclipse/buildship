@@ -6,7 +6,10 @@ Bundle-Version: 1.0.0
 Bundle-Vendor: Gradle Inc.
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Fragment-Host: com.gradleware.tooling.eclipse.ui
-Require-Bundle: org.junit
+Require-Bundle: org.junit,
+ org.eclipse.swtbot.junit4_x,
+ org.eclipse.swtbot.eclipse.finder,
+ org.eclipse.swtbot.swt.finder
 Bundle-ClassPath: .,
  lib/groovy-all-2.0.5.jar,
  lib/guava-18.0.jar,

@@ -69,7 +69,7 @@ class Constants {
     /**
      * @return The group ID for referencing eclipse bundles in the local Maven repository.
      */
-    static String getMavenEclipsPluginGroupName() {
+    static String getMavenEclipsePluginGroupName() {
         return "eclipse"
     }
 

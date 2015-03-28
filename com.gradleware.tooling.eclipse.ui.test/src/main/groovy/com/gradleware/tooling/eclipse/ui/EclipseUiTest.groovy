@@ -17,7 +17,7 @@ import spock.lang.Specification;
 
 class EclipseUiTest extends Specification {
 
-    def "Ui tests can run as Spock tets"() {
+    def "Ui tests can run as Spock tests"() {
         expect:
         Display.getDefault() != null
     }
