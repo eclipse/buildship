@@ -2,9 +2,83 @@ import org.gradle.internal.os.OperatingSystem
 
 apply plugin: eclipsebuild.BuildDefinitionPlugin
 
-// declare that by default the plugins are built and tested against Eclipse 3.7
+// target platform definition for all major Eclipse releases between version 3.6 and 4.5
+// the default version is 44 which can be overridden through -Peclipse.version=<version>
+// also the target platforms contain 1) the Eclipse SDK 2) the latest junit 3) SWTBot 2.2.1
 eclipseBuild {
-    eclipseVersion = '37'
+     defaultEclipseVersion = '44'
+
+    targetPlatform {
+        eclipseVersion = '36'
+        sdkVersion = "3.6.2.M20110210-1200"
+        updateSites = [
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-helios",
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit"
+        ]
+        features = [
+            "org.junit"
+        ]
+    }
+
+    targetPlatform {
+        eclipseVersion = '37'
+        sdkVersion =  "3.7.2.M20120208-0800"
+        updateSites = [
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-indigo",
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit"
+        ]
+        features = [
+            "org.junit"
+        ]
+    }
+
+    targetPlatform {
+        eclipseVersion = '42'
+        sdkVersion = "4.2.2.M20130204-1200"
+        updateSites = [
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-juno",
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit"
+        ]
+        features = [
+            "org.junit"
+        ]
+    }
+
+    targetPlatform {
+        eclipseVersion = '43'
+        sdkVersion = "4.3.2.M20140221-1700"
+        updateSites = [
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-kepler",
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit"
+        ]
+        features = [
+            "org.junit"
+        ]
+    }
+
+    targetPlatform {
+        eclipseVersion = '44'
+        sdkVersion = "4.4.2.M20150204-1700"
+        updateSites = [
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-luna",
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit"
+        ]
+        features = [
+            "org.junit"
+        ]
+    }
+
+    targetPlatform {
+        eclipseVersion = '45'
+        sdkVersion = "4.5.0.I20150203-1300"
+        updateSites = [
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-mars",
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit"
+        ]
+        features = [
+            "org.junit"
+        ]
+    }
 }
 
 // read the current version from an external file and add a timestamp suffix if requested by the caller

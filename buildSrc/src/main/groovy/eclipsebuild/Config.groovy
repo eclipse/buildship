@@ -13,6 +13,7 @@ package eclipsebuild
 
 import org.gradle.api.Project
 
+import eclipsebuild.BuildDefinitionPlugin.TargetPlatform;
 
 class Config {
 
@@ -26,8 +27,12 @@ class Config {
         this.project = project
     }
 
+    TargetPlatform getTargetPlatform() {
+        project.rootProject.eclipseBuild.targetPlatforms[getEclipseVersion()];
+    }
+
     String getEclipseVersion() {
-        String version = project.hasProperty("eclipse.version") ? project.property("eclipse.version") : project.rootProject.eclipseBuild.eclipseVersion
+        String version = project.hasProperty("eclipse.version") ? project.property("eclipse.version") : project.rootProject.eclipseBuild.defaultEclipseVersion
         if (version == null) {
             throw new RuntimeException('No Eclipse version specified')
         }

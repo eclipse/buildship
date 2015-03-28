@@ -74,40 +74,6 @@ class Constants {
     }
 
     /**
-     * Returns an Eclipse release repository update site URL for a given version of Eclipse.
-     * @param version the version of Eclipse (from {@link #getAcceptedEclipseVersions})
-     * @return The update site URL as String
-     */
-    static String getEclipseReleaseUpdateSite(String version) {
-        switch (version) {
-            case "36": return "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-helios/";
-            case "37": return "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-indigo/";
-            case "42": return "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-juno/";
-            case "43": return "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-kepler/";
-            case "44": return "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-luna/";
-            case "45": return "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-mars/";
-            default : throw new RuntimeException("Not supported eclipse version: ${version}")
-        }
-    }
-
-    /**
-     * Returns the concrete Eclipse build version for a given Eclipse version.
-     * @param version the version of Eclipse (from {@link #getAcceptedEclipseVersions})
-     * @return The concrete Eclipse build version
-     */
-    static String getEclipseReleaseBuildVersion(String version) {
-        switch (version) {
-            case "36": return "3.6.2.M20110210-1200";
-            case "37": return "3.7.2.M20120208-0800";
-            case "42": return "4.2.2.M20130204-1200";
-            case "43": return "4.3.2.M20140221-1700";
-            case "44": return "4.4.2.M20150204-1700";
-            case "45": return "4.5.0.I20150203-1300";
-            default : throw new RuntimeException("Not supported eclipse version: ${version}")
-        }
-    }
-
-    /**
      * @return The subpath of the Eclipse executable for the current platform.
      */
     static String getEclipseExePath() {
