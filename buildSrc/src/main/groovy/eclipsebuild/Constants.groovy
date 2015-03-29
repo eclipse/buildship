@@ -61,6 +61,7 @@ class Constants {
 
     /**
      * @return The list of Eclipse versions supported by this Eclipse build. Possible values: '37', '42', '43' or '44',
+     *  // TODO (DONAT) this code is not used anywhere. either use it or remove the method.
      */
     static List<String> getAcceptedEclipseVersions() {
         return Arrays.asList("36", "37", "42", "43", "44", "45" );
@@ -76,6 +77,7 @@ class Constants {
     /**
      * @return The subpath of the Eclipse executable for the current platform.
      */
+    // TODO (DONAT) this method does not seem right to me here, I would move it to the Config class
     static String getEclipseExePath() {
         OperatingSystem os = OperatingSystem.current()
         os.isLinux() ? "eclipse/eclipse" :
@@ -87,7 +89,8 @@ class Constants {
     /**
      * @return A URL which always redirect to a mirror from where and Eclipse SDK can be downloaded.
      */
-    static URL getEclipseSdkDownloadUrl() {
+     // TODO (DONAT) this method does not seem right to me here, I would move it to the Config class
+     static URL getEclipseSdkDownloadUrl() {
         def archInUrl = getArch() == "x86_64" ? "-x86_64" : "";
         if (getOs() == "win32") {
             return new URL("http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops4/R-4.4.2-201502041700/eclipse-SDK-4.4.2-win32${archInUrl}.zip&r=1")

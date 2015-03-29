@@ -31,6 +31,7 @@ import org.gradle.api.Project;
  */
 class FeaturePlugin implements Plugin<Project> {
 
+    // TODO (DONAT) class-level javadoc
     static class Extension {
         File featureXml
     }
@@ -40,13 +41,15 @@ class FeaturePlugin implements Plugin<Project> {
         configureProject(project)
     }
 
-    void configureProject(Project project) {
+  static void configureProject(Project project) {
         // Add a 'feature' extension to configure the location of the descriptor
-        project.extensions.create('feature', Extension)
+        project.extensions.create('feature', Extension)  // TODO (DONAT) extract constant (do similarly for all other extension names of this builds)
+        // TODO (DONAT) I think it is okay for now to apply the Java plugin and I would remove your TODO below and the 'quick solution' comment
         // Quick solution to make the 'jar' task available
         // TODO: remove this and implement a custom jar task
-        project.plugins.apply('java')
+        project.plugins.apply('java') // TODO (DONAT) use signature that takes a class (JavaPlugin), do it like this everywhere
 
+        // TODO (DONAT) add more assertions (feature.properties, feature.xml, license.html, epl-v10.html)
         // make sure the descriptors exist
         assert project.file('build.properties').exists()
         assert project.file('META-INF/MANIFEST.MF').exists()
@@ -54,8 +57,8 @@ class FeaturePlugin implements Plugin<Project> {
         // sync jar content with the build.properties file
         PluginUtils.syncJarContentWithBuildProperties(project)
 
-        // assemble task does't change anything outside the buildDir folder
-        project.tasks.assemble.outputs.dir project.buildDir
+        // assemble task does't change anything outside the buildDir folder // TODO (DONAT) fix typo
+        project.tasks.assemble.outputs.dir project.buildDir  // TODO (DONAT) I would remove this line, seems more like a bug in Gradle
     }
 
 }

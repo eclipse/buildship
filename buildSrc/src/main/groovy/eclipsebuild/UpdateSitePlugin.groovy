@@ -46,6 +46,8 @@ class UpdateSitePlugin implements Plugin<Project> {
         addCreateP2RepoTask(project)
     }
 
+     // TODO (DONAT) apply all the todos that were already mentioned for the other plugins (constants, applying plugins, uptodate checks, task description, etc.)
+
     void configureProject(Project project) {
         project.plugins.apply('java')
         project.extensions.create('updateSite', Extension)
@@ -71,11 +73,16 @@ class UpdateSitePlugin implements Plugin<Project> {
             outputs.dir bundlesDir
             outputs.dir pluginsDir
             outputs.dir featuresDir
+            // TODO (DONAT) why are the inner directories also added to the outputs when the outer directory is already added to the outputs?
+            // TODO (DONAT) seriously rethink the inputs and outputs of this task
 
             doLast {
                 // delete old content
                 bundlesDir.deleteDir()
 
+                // TODO (DONAT) allow to define in DSL of the BuildDefinition what files to include top-level in the update-site,
+                // TODO (DONAT) org.gradle.api.file.FileCollection should be a suitable type to hold them
+                // TODO (DONAT) as default, use the two files epl-v10.html and notice.html
                 // copy the license files, as required by the Legal Process of the Eclipse Foundation
                 project.copy {
                    from project.rootProject.file('epl-v10.html')
@@ -192,6 +199,7 @@ class UpdateSitePlugin implements Plugin<Project> {
                 def unsignedRootDir = new File(project.buildDir, 'unsigned-bundles')
                 def signedRootDir = new File(project.buildDir, 'signed-bundles')
 
+                // TODO (DONAT) resolve this todo
                 // TODO refactor config object to a parameter (like in the other plugins)
                 def version = new File(Config.on(project).targetPlatformDir, "version").text
                 def rootDir = version == '3.7.2' ? unsignedRootDir : signedRootDir
@@ -228,7 +236,7 @@ class UpdateSitePlugin implements Plugin<Project> {
         }
 
         project.tasks.assemble.dependsOn createP2RepositoryTask
-        project.tasks.assemble.outputs.dir project.buildDir
+        project.tasks.assemble.outputs.dir project.buildDir  // TODO (DONAT) I would remove this line, seems more like a bug in Gradle
     }
 
 }
