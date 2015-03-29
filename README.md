@@ -13,9 +13,28 @@ Documentation is available on [GitHub](https://github.com/eclipse/buildship).
 
 ## Usage Setup instructions
 
-This section describes the steps to install the latest snapshot version of Buildship into Eclipse.
+### Installing from eclipse.org downloads section
 
-### Installing from snapshot update site
+This section describes the steps to install a recent snapshot version of Buildship into Eclipse.
+
+In regular intervals, new snapshot versions of Buildship for Eclipse Mars are
+posted on [eclipse.org](https://projects.eclipse.org/projects/tools.buildship/downloads) as a zipped Eclipse update site.
+
+Apply the following instructions to use one of the zipped Eclipse update sites:
+
+ 1. Download and extract the .zip file to your local system.
+ 1. In Eclipse, open the menu item _Help >> Install New Software_.
+ 1. Click the _Add..._ button to add a new repository.
+ 1. Click the _Local..._ button, point to the root folder of the extracted .zip file, and press _OK_.
+ 1. Ensure that the option _Group Items by Category_ is enabled.
+ 1. Select the top-level node _Buildship: Eclipse Plug-ins for Gradle_ once it appears.
+ 1. Click _Next_. This may take a while.
+ 1. Review the list of software that will be installed. Click _Next_ again.
+ 1. Review and accept the licence agreement and click _Finish_.
+
+### Installing from CI update site
+
+This section describes the steps to install the very latest snapshot version of Buildship into Eclipse.
 
 Each commit to the master repository creates a new snapshot version of Buildship on
 our [Continuous Integration Server](https://builds.gradle.org/project.html?projectId=Tooling_Master_Eclipse&tab=projectOverview).
@@ -35,7 +54,7 @@ Apply the following instructions to use one of the Eclipse update sites previous
  1. Click the _Add_ button at the top of the screen, give the update site a name, and press _OK_.
  1. Ensure that the option _Group Items by Category_ is enabled.
  1. Select the top-level node _Buildship: Eclipse Plug-ins for Gradle_ once it appears. This may take a moment.
- 1. Click _Next_.  This may take a while.
+ 1. Click _Next_. This may take a while.
  1. Review the list of software that will be installed. Click _Next_ again.
  1. Review and accept the licence agreement and click _Finish_.
 
