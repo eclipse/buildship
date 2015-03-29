@@ -134,7 +134,7 @@ class UpdateSitePlugin implements Plugin<Project> {
             def signedPluginsDir = new File(signedRootDir, 'plugins')
             def signedFeaturesDir = new File(signedRootDir, 'features')
 
-            outputs.dir unsignedRootDir
+            outputs.dir unsignedRootDir  // TODO (DONAT) how can the input be part of the outputs?
             outputs.dir signedPluginsDir
             outputs.dir signedFeaturesDir
             outputs.dir unsignedPluginsDir
