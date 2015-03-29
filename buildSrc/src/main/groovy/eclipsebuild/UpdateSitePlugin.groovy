@@ -76,6 +76,14 @@ class UpdateSitePlugin implements Plugin<Project> {
                 // delete old content
                 bundlesDir.deleteDir()
 
+                // copy the license files, as required by the Legal Process of the Eclipse Foundation
+                project.copy {
+                   from project.rootProject.file('epl-v10.html')
+                   from project.rootProject.file('notice.html')
+                   into bundlesDir
+                }
+
+                // iterate over all the project dependencies to populate the update site with the plugins and features
                 for (ProjectDependency projectDep : project.configurations.compile.dependencies.withType(ProjectDependency)) {
                     def dep = projectDep.dependencyProject
                     // copy the output jar for each java plugin dependency
@@ -88,6 +96,7 @@ class UpdateSitePlugin implements Plugin<Project> {
                         }
                     }
 
+                    // copy the output jar for each feature plugin dependency
                     if (dep.plugins.hasPlugin(FeaturePlugin)) {
                         project.logger.debug("Copy project ${dep.name} feature jar ${dep.tasks.jar.outputs.files.singleFile} to ${featuresDir}")
                         project.copy {
@@ -110,7 +119,7 @@ class UpdateSitePlugin implements Plugin<Project> {
             // task input is the copyBundles task output
             inputs.files project.tasks.copyBundles.outputs.files
 
-            // task output is the the plugins and features direcory
+            // task output is the the plugins and features directory
             def unsignedRootDir = new File(project.buildDir, 'unsigned-bundles')
             def signedRootDir = new File(project.buildDir, 'signed-bundles')
             def unsignedPluginsDir = new File(unsignedRootDir, 'plugins')
@@ -153,6 +162,12 @@ class UpdateSitePlugin implements Plugin<Project> {
                 unsignedPluginsDir.listFiles().each signBundle
                 targetDir = signedFeaturesDir
                 unsignedFeaturesDir.listFiles().each signBundle
+
+                project.copy {
+                  from unsignedRootDir
+                  include '*.*'
+                  into signedRootDir
+                }
             }
         }
     }
@@ -160,7 +175,7 @@ class UpdateSitePlugin implements Plugin<Project> {
     void addCreateP2RepoTask(Project project) {
         // task output is a repository
 
-        def createP2RepositoryTask = project.task("createP2Repository", dependsOn: ['copyBundles', 'signBundles', ":installTargetPlatform"]) {
+        def createP2RepositoryTask = project.task("createP2Repository", dependsOn: ['copyBundles', 'signBundles', ':installTargetPlatform']) {
             group Constants.gradleTaskGroupName
             description 'Generates P2 repository with selected bundles and features.'
 
@@ -202,6 +217,12 @@ class UpdateSitePlugin implements Plugin<Project> {
                         '-metadataRepository', repoDir.toURI().toURL(),
                         '-categoryDefinition',  project.updateSite.siteDescriptor.toURI().toURL(),
                         '-compress')
+                }
+
+                project.copy {
+                  from rootDir
+                  include '*.*'
+                  into repoDir
                 }
             }
         }
