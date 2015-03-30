@@ -13,16 +13,18 @@ package eclipsebuild
 
 import org.gradle.api.Project
 
+
 /**
  * Static helper functions which can be used different places around the Eclipse plugin build.
  */
 public class PluginUtils {
 
     /**
-     * Configure the project manifest file to use the META-INF/MANIFEST.MF file as a base of the output manifest instead
-     * of generating one. In addition it sets the Bundle-Version attribute to the project version.
+     * Instead of generating one, this method configures the project to use the
+     * META-INF/MANIFEST.MF file. In addition it sets the Bundle-Version attribute to be in sync
+     * with the current build.
      *
-     * @param project The project to configure
+     * @param project the project to configure
      */
     static void updatePluginManifest(Project project) {
         project.jar {
@@ -40,20 +42,30 @@ public class PluginUtils {
     }
 
     /**
-     * Parse the build.properties file from the project and set the projec output jar to have the same entries when created.
+     * Parses the {@code build.properties} file from the project and sets the output jar to have the same
+     * entries when created.
      *
-     * @param project The project to configure
+     * @param project the target project to configure
      */
     static void syncJarContentWithBuildProperties(Project project) {
         // load the content of the build.properties file
+        def buildProperties = loadBuildPropertiesFileToObject(project)
+        // parse the content
+        Set effectiveResources = parseResourcesFromBinIncludesSection(buildProperties)
+        // configure the content of the jar file based on the file content
+        configureJarToIncludeResources(effectiveResources, project)
+    }
+
+    private static Properties loadBuildPropertiesFileToObject(Project project) {
         def buildProperties = new Properties()
         File buildPropertiesFile = project.file('build.properties')
         def fos = new FileInputStream(buildPropertiesFile)
         buildProperties.load(fos)
         fos.close()
+        return buildProperties
+    }
 
-
-        // parse the content
+    private static Set parseResourcesFromBinIncludesSection(Properties buildProperties) {
         Set effectiveResources = new LinkedHashSet()
         if (buildProperties) {
             def virtualResources = ['.']
@@ -63,8 +75,10 @@ public class PluginUtils {
                 }
             }
         }
+        return effectiveResources
+    }
 
-        // configure the content of the jar file based on the file content
+    private static void configureJarToIncludeResources(Set effectiveResources, Project project) {
         for (String location in effectiveResources) {
             File resource = project.file(location)
             if (resource.isDirectory()) {
@@ -82,5 +96,4 @@ public class PluginUtils {
             }
         }
     }
-
 }
