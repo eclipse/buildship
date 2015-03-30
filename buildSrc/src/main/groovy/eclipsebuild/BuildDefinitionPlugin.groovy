@@ -188,7 +188,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
     }
 
   // TODO (DONAT) remove the 'do' prefix
-    void doInstallTargetPlatform(Project project, Config config) {
+    static void doInstallTargetPlatform(Project project, Config config) {
       // TODO (DONAT) remove these checks once the proper uptodate checks of the install task are in place
         if (!config.targetPlatformDir.exists() || !config.targetPlatformDir.list().length == 0) {
           // TODO (DONAT) do we have to delete the target directory first or is this already handled by the command being invoked?
