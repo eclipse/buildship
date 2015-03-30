@@ -9,49 +9,43 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package com.gradleware.tooling.eclipse.core;
+package com.gradleware.tooling.eclipse.core.project;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
 
+import com.gradleware.tooling.eclipse.core.CorePlugin;
+import com.gradleware.tooling.eclipse.core.GradlePluginsRuntimeException;
+
 /**
- * Gradle nature definition registered via the <code>org.eclipse.core.resources.natures</code>
- * extension point in the plugin.xml.
+ * Nature definitions which can be associated with Gradle projects.
+ * <p/>
+ * All entries are defined as extensions of the <code>org.eclipse.core.resources.natures</code>
+ * point in the plugin.xml.
+ *
  */
-public final class GradleNature implements IProjectNature {
+public enum GradleProjectNatures {
 
-    // the nature ID has to be in the following format: ${PLUGIN_ID}.${NATURE_ID}
-    // the nature id is defined in the external (xml) file specified in the plugin.xml
-    public static final String ID = CorePlugin.PLUGIN_ID + ".nature";
+    DEFAULT_NATURE("nature");
 
-    private IProject project;
+    private final String natureId;
 
-    @Override
-    public void configure() {
+    GradleProjectNatures(String natureId) {
+        // the nature ID has to be in the following format: ${PLUGIN_ID}.${NATURE_ID}
+        this.natureId = CorePlugin.PLUGIN_ID + "." + natureId;
     }
 
-    @Override
-    public void deconfigure() {
-    }
-
-    @Override
-    public IProject getProject() {
-        return this.project;
-    }
-
-    @Override
-    public void setProject(IProject project) {
-        this.project = project;
+    public String getId() {
+        return this.natureId;
     }
 
     /**
-     * Determines if the specified project has the Gradle nature applied.
+     * Determines if the target project has the nature applied.
      *
      * @param project the project to verify
-     * @return {@code true} iff the specified project has the Gradle nature applied
+     * @return {@code true} if the specified project has the nature applied
      */
-    public static boolean isPresentOn(IProject project) {
+    public boolean isPresentOn(IProject project) {
         // abort if the project is closed since we cannot investigate closed projects
         if (!project.isOpen()) {
             String message = String.format("Cannot investigate Gradle nature on closed project %s.", project);
@@ -61,7 +55,7 @@ public final class GradleNature implements IProjectNature {
 
         // check if the Gradle nature is applied
         try {
-            return project.hasNature(ID);
+            return project.hasNature(this.natureId);
         } catch (CoreException e) {
             String message = String.format("Cannot check for Gradle nature on project %s.", project);
             CorePlugin.logger().error(message, e);

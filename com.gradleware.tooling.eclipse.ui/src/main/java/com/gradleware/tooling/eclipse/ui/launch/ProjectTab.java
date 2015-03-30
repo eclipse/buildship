@@ -41,10 +41,10 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.gradleware.tooling.eclipse.core.CorePlugin;
-import com.gradleware.tooling.eclipse.core.GradleNature;
 import com.gradleware.tooling.eclipse.core.gradle.GradleConnectionValidators;
 import com.gradleware.tooling.eclipse.core.i18n.CoreMessages;
 import com.gradleware.tooling.eclipse.core.launch.GradleRunConfigurationAttributes;
+import com.gradleware.tooling.eclipse.core.project.GradleProjectNatures;
 import com.gradleware.tooling.eclipse.core.util.collections.CollectionsUtils;
 import com.gradleware.tooling.eclipse.core.util.file.FileUtils;
 import com.gradleware.tooling.eclipse.core.util.variable.ExpressionUtils;
@@ -193,7 +193,7 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
 
             @Override
             public boolean apply(IProject project) {
-                return project.isOpen() && GradleNature.isPresentOn(project);
+                return project.isOpen() && GradleProjectNatures.DEFAULT_NATURE.isPresentOn(project);
             }
         }).toArray(IProject.class);
     }

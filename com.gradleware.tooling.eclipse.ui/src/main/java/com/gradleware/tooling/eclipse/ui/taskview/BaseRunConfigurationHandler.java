@@ -11,27 +11,29 @@
 
 package com.gradleware.tooling.eclipse.ui.taskview;
 
+import java.util.List;
+
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.resources.IProject;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.eclipse.core.CorePlugin;
-import com.gradleware.tooling.eclipse.core.GradleNature;
 import com.gradleware.tooling.eclipse.core.configuration.ProjectConfiguration;
 import com.gradleware.tooling.eclipse.core.launch.GradleRunConfigurationAttributes;
+import com.gradleware.tooling.eclipse.core.project.GradleProjectNatures;
 import com.gradleware.tooling.eclipse.core.util.file.FileUtils;
 import com.gradleware.tooling.eclipse.core.util.variable.ExpressionUtils;
 import com.gradleware.tooling.eclipse.ui.generic.NodeSelection;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.resources.IProject;
-
-import java.util.List;
 
 /**
  * Base class for handlers that operate on the selected tasks.
  */
 public abstract class BaseRunConfigurationHandler extends SelectionDependentHandler {
 
+    @Override
     protected boolean isEnabledFor(NodeSelection selection) {
         return TaskViewActionStateRules.taskScopedTaskExecutionActionsEnabledFor(selection) ||
                 TaskViewActionStateRules.projectScopedTaskExecutionActionsEnabledFor(selection);
@@ -80,7 +82,7 @@ public abstract class BaseRunConfigurationHandler extends SelectionDependentHand
 
     private Optional<FixedRequestAttributes> getFixedRequestAttributes(ProjectNode projectNode) {
         Optional<IProject> workspaceProject = projectNode.getWorkspaceProject();
-        if (workspaceProject.isPresent() && workspaceProject.get().isOpen() && GradleNature.isPresentOn(workspaceProject.get())) {
+        if (workspaceProject.isPresent() && workspaceProject.get().isOpen() && GradleProjectNatures.DEFAULT_NATURE.isPresentOn(workspaceProject.get())) {
             ProjectConfiguration projectConfiguration = CorePlugin.projectConfigurationManager().readProjectConfiguration(workspaceProject.get());
             return Optional.of(projectConfiguration.getRequestAttributes());
         } else {
