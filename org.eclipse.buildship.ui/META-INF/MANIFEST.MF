@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Buildship, Eclipse Plug-ins for Gradle - UI
-Bundle-SymbolicName: com.gradleware.tooling.eclipse.ui;singleton:=true
+Bundle-SymbolicName: org.eclipse.buildship.ui;singleton:=true
 Bundle-Version: 1.0.0
 Bundle-Vendor: Gradle Inc.
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

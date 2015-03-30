@@ -27,7 +27,7 @@
          unpack="false"/>
 
    <plugin
-         id="com.gradleware.tooling.eclipse.ui"
+         id="org.eclipse.buildship.ui"
          download-size="0"
          install-size="0"
          version="0.0.0"

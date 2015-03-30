@@ -4,7 +4,7 @@ updateSite { siteDescriptor = file("category.xml") }
 
 dependencies {
     compile project(':com.gradleware.tooling.eclipse.core')
-    compile project(':com.gradleware.tooling.eclipse.ui')
+    compile project(':org.eclipse.buildship.ui')
     compile project(':org.eclipse.buildship.branding')
     compile project(':org.eclipse.buildship.feature')
 }

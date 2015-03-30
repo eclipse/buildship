@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.eclipse.buildship.ui.test;singleton:=true
 Bundle-Version: 1.0.0
 Bundle-Vendor: Gradle Inc.
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Fragment-Host: com.gradleware.tooling.eclipse.ui
+Fragment-Host: org.eclipse.buildship.ui
 Require-Bundle: org.junit,
  org.eclipse.swtbot.junit4_x,
  org.eclipse.swtbot.eclipse.finder,

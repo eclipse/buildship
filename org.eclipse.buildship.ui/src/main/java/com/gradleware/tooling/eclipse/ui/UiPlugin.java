@@ -38,7 +38,7 @@ import com.gradleware.tooling.eclipse.ui.console.ConsoleProcessStreamsProvider;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public final class UiPlugin extends AbstractUIPlugin {
 
-    public static final String PLUGIN_ID = "com.gradleware.tooling.eclipse.ui"; //$NON-NLS-1$
+    public static final String PLUGIN_ID = "org.eclipse.buildship.ui"; //$NON-NLS-1$
 
     private static UiPlugin plugin;
 
