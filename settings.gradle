@@ -1,6 +1,6 @@
 include ':com.gradleware.tooling.eclipse.core'
 include ':com.gradleware.tooling.eclipse.ui'
-include ':com.gradleware.tooling.eclipse.feature'
+include ':org.eclipse.buildship.feature'
 include ':org.eclipse.buildship.site'
 include ':com.gradleware.tooling.eclipse.branding'
 include ':com.gradleware.tooling.eclipse.core.test'

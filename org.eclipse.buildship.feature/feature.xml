@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- don't modify the feature's version attribute as it will be replaced by the build --> 
+<!-- don't modify the feature's version attribute as it will be replaced by the build -->
 <feature
-      id="com.gradleware.tooling.eclipse.feature"
+      id="org.eclipse.buildship.feature"
       label="%featureName"
       version="0.0.1.featureversion"
       provider-name="%providerName"

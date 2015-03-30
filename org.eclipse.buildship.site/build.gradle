@@ -6,5 +6,5 @@ dependencies {
     compile project(':com.gradleware.tooling.eclipse.core')
     compile project(':com.gradleware.tooling.eclipse.ui')
     compile project(':com.gradleware.tooling.eclipse.branding')
-    compile project(':com.gradleware.tooling.eclipse.feature')
+    compile project(':org.eclipse.buildship.feature')
 }
