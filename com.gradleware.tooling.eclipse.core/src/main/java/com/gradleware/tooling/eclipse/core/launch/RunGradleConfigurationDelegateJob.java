@@ -21,11 +21,13 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.gradle.tooling.BuildCancelledException;
@@ -44,6 +46,9 @@ import com.gradleware.tooling.eclipse.core.CorePlugin;
 import com.gradleware.tooling.eclipse.core.GradlePluginsRuntimeException;
 import com.gradleware.tooling.eclipse.core.console.ProcessDescription;
 import com.gradleware.tooling.eclipse.core.console.ProcessStreams;
+import com.gradleware.tooling.eclipse.core.console.internal.CompositeProcessStream;
+import com.gradleware.tooling.eclipse.core.console.internal.FileInputProcessStream;
+import com.gradleware.tooling.eclipse.core.console.internal.FileOutputProcessStream;
 import com.gradleware.tooling.eclipse.core.gradle.GradleDistributionFormatter;
 import com.gradleware.tooling.eclipse.core.i18n.CoreMessages;
 import com.gradleware.tooling.eclipse.core.testprogress.GradleTestRunSession;
@@ -52,6 +57,7 @@ import com.gradleware.tooling.eclipse.core.util.collections.CollectionsUtils;
 import com.gradleware.tooling.eclipse.core.util.file.FileUtils;
 import com.gradleware.tooling.eclipse.core.util.progress.DelegatingProgressListener;
 import com.gradleware.tooling.eclipse.core.util.progress.ToolingApiJob;
+import com.gradleware.tooling.eclipse.core.util.variable.ExpressionUtils;
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
@@ -122,7 +128,7 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         // configure the request with the transient request attributes
         String processName = createProcessName(tasks, workingDir);
         ProcessDescription processDescription = ProcessDescription.with(processName, this.launch, this);
-        ProcessStreams processStreams = CorePlugin.processStreamsProvider().createProcessStreams(processDescription);
+        ProcessStreams processStreams = getProcessStream(processDescription);
         request.standardOutput(processStreams.getOutput());
         request.standardError(processStreams.getError());
         request.standardInput(processStreams.getInput());
@@ -152,6 +158,32 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         }
     }
 
+    private ProcessStreams getProcessStream(ProcessDescription processDescription) {
+        String outputFileLocation = null; // null if the setting is not enabled
+        String inputFileLocation = null;
+        boolean appendToFile = false;
+        try {
+            inputFileLocation = this.launchConfiguration.getAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_FILE, (String) null);
+            appendToFile = this.launchConfiguration.getAttribute(IDebugUIConstants.ATTR_APPEND_TO_FILE, false);
+            outputFileLocation = this.launchConfiguration.getAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_FILE, (String) null);
+            outputFileLocation = outputFileLocation == null ? null :ExpressionUtils.decode(outputFileLocation);
+            inputFileLocation = inputFileLocation == null ? null : ExpressionUtils.decode(inputFileLocation);
+        } catch (CoreException e) {
+            CorePlugin.logger().error("Failed to load attributes launch configuration attributes", e);
+        }
+
+        ProcessStreams baseProcessStream = CorePlugin.processStreamsProvider().createProcessStreams(processDescription);
+        if (outputFileLocation == null) {
+            return baseProcessStream;
+        } else {
+            File outputFile = new File(outputFileLocation);
+            FileOutputProcessStream fileProcessStream = new FileOutputProcessStream(outputFile, appendToFile);
+
+            ProcessStreams inputProcessStream = inputFileLocation == null ? baseProcessStream : new FileInputProcessStream(new File(inputFileLocation));
+            return new CompositeProcessStream(inputProcessStream, fileProcessStream, fileProcessStream);
+        }
+    }
+
     private String createProcessName(List<String> tasks, File workingDir) {
         return String.format("%s [Gradle Project] %s in %s (%s)", this.launchConfiguration.getName(), Joiner.on(' ').join(tasks), workingDir.getAbsolutePath(), DateFormat
                 .getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(new Date()));
@@ -160,12 +192,16 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
     private void writeRunConfigurationDescription(GradleRunConfigurationAttributes runConfiguration, OutputStream output) {
         OutputStreamWriter writer = new OutputStreamWriter(output);
         try {
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleTasks, toNonEmpty(runConfiguration.getTasks(), CoreMessages.RunConfiguration_Value_RunDefaultTasks)));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleTasks,
+                    toNonEmpty(runConfiguration.getTasks(), CoreMessages.RunConfiguration_Value_RunDefaultTasks)));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_WorkingDirectory, FileUtils.getAbsolutePath(runConfiguration.getWorkingDir()).get()));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleDistribution, GradleDistributionFormatter.toString(runConfiguration.getGradleDistribution())));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleUserHome, toNonEmpty(runConfiguration.getGradleUserHome(), CoreMessages.Value_UseGradleDefault)));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleDistribution,
+                    GradleDistributionFormatter.toString(runConfiguration.getGradleDistribution())));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleUserHome,
+                    toNonEmpty(runConfiguration.getGradleUserHome(), CoreMessages.Value_UseGradleDefault)));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JavaHome, toNonEmpty(runConfiguration.getJavaHome(), CoreMessages.Value_UseGradleDefault)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JvmArguments, toNonEmpty(runConfiguration.getJvmArguments(), CoreMessages.Value_UseGradleDefault)));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JvmArguments,
+                    toNonEmpty(runConfiguration.getJvmArguments(), CoreMessages.Value_UseGradleDefault)));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Arguments, toNonEmpty(runConfiguration.getArguments(), CoreMessages.Value_None)));
             writer.write('\n');
             writer.flush();
