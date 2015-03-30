@@ -5,7 +5,7 @@
       label="%featureName"
       version="0.0.1.featureversion"
       provider-name="%providerName"
-      plugin="com.gradleware.tooling.eclipse.branding">
+      plugin="org.eclipse.buildship.branding">
 
    <description>
       %description
@@ -34,7 +34,7 @@
          unpack="false"/>
 
    <plugin
-         id="com.gradleware.tooling.eclipse.branding"
+         id="org.eclipse.buildship.branding"
          download-size="0"
          install-size="0"
          version="0.0.0"
