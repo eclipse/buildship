@@ -1,8 +1,6 @@
 package com.gradleware.tooling.eclipse.core
 
-import static org.junit.Assert.assertNotNull;
 import spock.lang.Specification;
-
 
 class CorePluginTest extends Specification {
 
@@ -18,4 +16,5 @@ class CorePluginTest extends Specification {
         CorePlugin.workbenchOperations() != null
         CorePlugin.workspaceOperations() != null
     }
+
 }
