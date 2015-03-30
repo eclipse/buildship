@@ -141,7 +141,7 @@ To run the full build, execute
 
     ./gradlew build
 
-The final P2 repository will be created in the `com.gradleware.tooling.eclipse.site/build/repository` directory. If
+The final P2 repository will be created in the `org.eclipse.buildship.site/build/repository` directory. If
 the target platform had not been downloaded previously, it will appear in the _~/.tooling/eclipse/targetPlatforms_ folder.
 
 To run the build without running the tests, exclude the `eclipseTest` task:
