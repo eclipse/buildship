@@ -2,7 +2,7 @@ apply plugin: eclipsebuild.TestBundlePlugin
 apply plugin: 'groovy'
 
 dependencies {
-    compile project(':com.gradleware.tooling.eclipse.core')
+    compile project(':org.eclipse.buildship.core')
 
     bundled "org.spockframework:spock-core:$spockLibVersion"
     bundled "cglib:cglib-nodep:$cglibLibVersion"
@@ -11,9 +11,9 @@ dependencies {
 }
 
 eclipseTest {
-    fragmentHost 'com.gradleware.tooling.eclipse.core'
+    fragmentHost 'org.eclipse.buildship.core'
     applicationName 'org.eclipse.pde.junit.runtime.coretestapplication'
-    optionsFile rootProject.project(':com.gradleware.tooling.eclipse.core').file('.options')
+    optionsFile rootProject.project(':org.eclipse.buildship.core').file('.options')
 }
 
 // append the sources of each first-level dependency and its transitive dependencies of

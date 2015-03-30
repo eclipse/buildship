@@ -59,7 +59,7 @@ import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public final class CorePlugin extends Plugin {
 
-    public static final String PLUGIN_ID = "com.gradleware.tooling.eclipse.core";
+    public static final String PLUGIN_ID = "org.eclipse.buildship.core"; //$NON-NLS-1$
 
     private static CorePlugin plugin;
 

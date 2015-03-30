@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.eclipse.buildship.core.test;singleton:=true
 Bundle-Version: 1.0.0
 Bundle-Vendor: Gradle Inc.
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Fragment-Host: com.gradleware.tooling.eclipse.core
+Fragment-Host: org.eclipse.buildship.core
 Require-Bundle: org.junit
 Bundle-ClassPath: .,
  lib/cglib-nodep-3.1.jar,

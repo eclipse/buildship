@@ -1,8 +1,8 @@
 apply plugin: eclipsebuild.BundlePlugin
 
 dependencies {
-    compile project(':com.gradleware.tooling.eclipse.core')
-    compile "eclipse:org.eclipse.help:+"
+    compile project(':org.eclipse.buildship.core')
+    compile "eclipse:org.eclipse .help:+"
     compile "eclipse:org.eclipse.ui:+"
     compile "eclipse:org.eclipse.ui.ide:+"
     compile "eclipse:org.eclipse.ui.console:+"

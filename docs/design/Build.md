@@ -55,7 +55,7 @@ The `TestBundlePlugin` Gradle plugin is an extension of the `BundlePlugin` and k
     apply plugin: eclipsebuild.TestBundlePlugin
 
     eclipseTest {
-        fragmentHost 'com.gradleware.tooling.eclipse.core'
+        fragmentHost 'org.eclipse.buildship.core'
         applicationName 'org.eclipse.pde.junit.runtime.coretestapplication'
         optionsFile file('.options')
     }

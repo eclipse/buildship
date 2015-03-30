@@ -6,7 +6,7 @@ Bundle-Version: 1.0.0
 Bundle-Vendor: Gradle Inc.
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Activator: com.gradleware.tooling.eclipse.ui.UiPlugin
-Require-Bundle: com.gradleware.tooling.eclipse.core,
+Require-Bundle: org.eclipse.buildship.core,
  org.eclipse.help,
  org.eclipse.ui,
  org.eclipse.ui.ide,

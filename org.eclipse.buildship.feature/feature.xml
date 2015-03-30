@@ -20,7 +20,7 @@
    </license>
 
    <plugin
-         id="com.gradleware.tooling.eclipse.core"
+         id="org.eclipse.buildship.core"
          download-size="0"
          install-size="0"
          version="0.0.0"

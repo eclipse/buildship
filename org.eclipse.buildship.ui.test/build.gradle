@@ -2,7 +2,7 @@ apply plugin: eclipsebuild.TestBundlePlugin
 apply plugin: 'groovy'
 
 dependencies {
-    compile project(':com.gradleware.tooling.eclipse.core')
+    compile project(':org.eclipse.buildship.core')
     compile project(':org.eclipse.buildship.ui')
     compile "eclipse:org.eclipse.swtbot.junit4_x:+"
     compile "eclipse:org.eclipse.swtbot.eclipse.finder:+"
@@ -13,9 +13,9 @@ dependencies {
 }
 
 eclipseTest {
-    applicationName 'org.eclipse.swtbot.eclipse.core.swtbottestapplication'
     fragmentHost 'org.eclipse.buildship.ui'
-    optionsFile rootProject.project(':com.gradleware.tooling.eclipse.core').file('.options')
+    applicationName 'org.eclipse.swtbot.eclipse.core.swtbottestapplication'
+    optionsFile rootProject.project(':org.eclipse.buildship.core').file('.options')
     consoleLog = true
 }
 
