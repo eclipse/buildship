@@ -11,15 +11,34 @@
         </classpathContainerInitializer>
     </extension>
 
-    <!-- addition of a Gradle nature -->
+    <!-- registration of a Gradle project builder and Gradle project nature -->
     <extension
-         id="nature"
-         name="Gradle Nature"
-         point="org.eclipse.core.resources.natures">
-      <runtime>
-         <run class="com.gradleware.tooling.eclipse.core.GradleNature"/>
-      </runtime>
-   </extension>
+            id="gradleprojectnature"
+            name="Gradle Project Nature"
+            point="org.eclipse.core.resources.natures">
+        <builder id="com.gradleware.tooling.eclipse.core.gradleprojectbuilder"/>
+        <runtime>
+            <run class="com.gradleware.tooling.eclipse.core.configuration.internal.DefaultGradleProjectNature"/>
+        </runtime>
+    </extension>
+
+    <extension
+            id="gradleprojectbuilder"
+            name="Gradle Project Builder"
+            point="org.eclipse.core.resources.builders">
+        <builder hasNature="true">
+            <run class="com.gradleware.tooling.eclipse.core.configuration.internal.DefaultGradleProjectBuilder" />
+        </builder>
+    </extension>
+
+    <!-- registration of error markers -->
+    <extension
+            id="gradleprojectconfigurationmarker"
+            name="Gradle Project Configuration Marker"
+            point="org.eclipse.core.resources.markers">
+        <super type="org.eclipse.core.resources.problemmarker" />
+        <persistent value="true" />
+    </extension>
 
     <!-- integration of a Gradle run configuration -->
     <extension

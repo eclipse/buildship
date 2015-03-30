@@ -9,50 +9,31 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package com.gradleware.tooling.eclipse.core;
+package com.gradleware.tooling.eclipse.core.configuration;
 
+import com.gradleware.tooling.eclipse.core.CorePlugin;
+import com.gradleware.tooling.eclipse.core.GradlePluginsRuntimeException;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
 
 /**
- * Gradle nature definition registered via the <code>org.eclipse.core.resources.natures</code>
- * extension point in the plugin.xml.
+ * Project nature for Gradle projects.
  */
-public final class GradleNature implements IProjectNature {
+public enum GradleProjectNature {
+
+    INSTANCE;
 
     // the nature ID has to be in the following format: ${PLUGIN_ID}.${NATURE_ID}
-    // the nature id is defined in the external (xml) file specified in the plugin.xml
-    public static final String ID = CorePlugin.PLUGIN_ID + ".nature";
-
-    private IProject project;
-
-    @Override
-    public void configure() {
-    }
-
-    @Override
-    public void deconfigure() {
-    }
-
-    @Override
-    public IProject getProject() {
-        return this.project;
-    }
-
-    @Override
-    public void setProject(IProject project) {
-        this.project = project;
-    }
+    public static final String ID = CorePlugin.PLUGIN_ID + ".gradleprojectnature";
 
     /**
-     * Determines if the specified project has the Gradle nature applied.
+     * Determines if the target project has the Gradle nature applied.
      *
      * @param project the project to verify
-     * @return {@code true} iff the specified project has the Gradle nature applied
+     * @return {@code true} if the specified project has the nature applied
      */
-    public static boolean isPresentOn(IProject project) {
-        // abort if the project is closed since we cannot investigate closed projects
+    public boolean isPresentOn(IProject project) {
+        // abort if the project is not open since we can only investigate open projects
         if (!project.isOpen()) {
             String message = String.format("Cannot investigate Gradle nature on closed project %s.", project);
             CorePlugin.logger().error(message);

@@ -19,10 +19,10 @@ import org.eclipse.core.resources.IProject;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.gradleware.tooling.eclipse.core.CorePlugin;
-import com.gradleware.tooling.eclipse.core.GradleNature;
 import com.gradleware.tooling.eclipse.core.GradlePluginsRuntimeException;
 import com.gradleware.tooling.eclipse.core.configuration.ProjectConfiguration;
 import com.gradleware.tooling.eclipse.core.configuration.ProjectConfigurationManager;
+import com.gradleware.tooling.eclipse.core.configuration.GradleProjectNature;
 import com.gradleware.tooling.eclipse.core.workspace.WorkspaceOperations;
 import com.gradleware.tooling.toolingmodel.Path;
 
@@ -45,7 +45,7 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
         // project with a Gradle nature for the Gradle root project it belongs to
         ImmutableSet.Builder<ProjectConfiguration> rootConfigurations = ImmutableSet.builder();
         for (IProject workspaceProject : this.workspaceOperations.getAllProjects()) {
-            if (workspaceProject.isOpen() && GradleNature.isPresentOn(workspaceProject)) {
+            if (workspaceProject.isOpen() && GradleProjectNature.INSTANCE.isPresentOn(workspaceProject)) {
                 // calculate the root configuration to which the current configuration belongs
                 ProjectConfiguration projectConfiguration = this.projectConfigurationPersistence.readProjectConfiguration(workspaceProject);
                 File rootProjectDir = projectConfiguration.getRequestAttributes().getProjectDir();
@@ -79,7 +79,7 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
         // collect all the Gradle project configurations in the workspace
         ImmutableSet.Builder<ProjectConfiguration> allConfigurations = ImmutableSet.builder();
         for (IProject workspaceProject : this.workspaceOperations.getAllProjects()) {
-            if (workspaceProject.isOpen() && GradleNature.isPresentOn(workspaceProject)) {
+            if (workspaceProject.isOpen() && GradleProjectNature.INSTANCE.isPresentOn(workspaceProject)) {
                 ProjectConfiguration projectConfiguration = this.projectConfigurationPersistence.readProjectConfiguration(workspaceProject);
                 allConfigurations.add(projectConfiguration);
             }

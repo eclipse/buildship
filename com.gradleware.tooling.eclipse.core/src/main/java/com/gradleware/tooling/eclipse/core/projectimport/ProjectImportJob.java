@@ -14,7 +14,6 @@ package com.gradleware.tooling.eclipse.core.projectimport;
 import java.io.File;
 import java.util.List;
 
-import com.gradleware.tooling.eclipse.core.gradle.Specs;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -31,9 +30,10 @@ import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.eclipse.core.CorePlugin;
-import com.gradleware.tooling.eclipse.core.GradleNature;
 import com.gradleware.tooling.eclipse.core.configuration.ProjectConfiguration;
 import com.gradleware.tooling.eclipse.core.console.ProcessStreams;
+import com.gradleware.tooling.eclipse.core.gradle.Specs;
+import com.gradleware.tooling.eclipse.core.configuration.GradleProjectNature;
 import com.gradleware.tooling.eclipse.core.util.progress.DelegatingProgressListener;
 import com.gradleware.tooling.eclipse.core.util.progress.ToolingApiWorkspaceJob;
 import com.gradleware.tooling.eclipse.core.workspace.ClasspathDefinition;
@@ -112,7 +112,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
 
             // create a new project in the Eclipse workspace for the current Gradle project
             IProject workspaceProject = workspaceOperations.createProject(project.getName(), project.getProjectDirectory(), collectChildProjectLocations(project),
-                    ImmutableList.of(GradleNature.ID), new SubProgressMonitor(monitor, 1));
+                    ImmutableList.of(GradleProjectNature.ID), new SubProgressMonitor(monitor, 1));
 
             // persist the Gradle-specific configuration in the Eclipse project's .settings folder
             ProjectConfiguration projectConfiguration = ProjectConfiguration.from(this.fixedAttributes, project);

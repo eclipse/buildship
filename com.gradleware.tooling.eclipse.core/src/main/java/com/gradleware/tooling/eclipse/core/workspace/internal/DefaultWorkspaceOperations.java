@@ -96,7 +96,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         Preconditions.checkArgument(location.isDirectory(), String.format("Project location %s must be a directory.", location));
 
         monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
-        monitor.beginTask(String.format("Create Eclipse project %s", name), 4);
+        monitor.beginTask(String.format("Create Eclipse project %s", name), 4 + natureIds.size());
         try {
             // make sure no project with the specified name already exists
             Preconditions.checkState(!findProjectByName(name).isPresent(), String.format("Workspace already contains project with name %s.", name));
@@ -106,15 +106,22 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
             IProjectDescription desc = workspace.newProjectDescription(name);
             desc.setLocation(Path.fromOSString(location.getPath()));
-            desc.setNatureIds(natureIds.toArray(new String[natureIds.size()]));
             IProject project = workspace.getRoot().getProject(name);
             project.create(desc, new SubProgressMonitor(monitor, 1));
 
             // attach filters to the project to hide the sub-projects of this project
             ResourceFilter.attachFilters(project, childProjectLocations, new SubProgressMonitor(monitor, 1));
 
-            // open the project and return it
+            // open the project
             project.open(new SubProgressMonitor(monitor, 1));
+
+            // add project natures separately to trigger IProjectNature#configure
+            // the project needs to be open while the natures are added
+            for (String natureId : natureIds) {
+                addNature(project, natureId, new SubProgressMonitor(monitor, 1));
+            }
+
+            // return the created, open project
             return project;
         } catch (Exception e) {
             String message = String.format("Cannot create Eclipse project %s.", name);
@@ -167,7 +174,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     private void addNature(IProject project, String natureId, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Add Java nature to Eclipse project %s", project.getName()), 1);
+        monitor.beginTask(String.format("Add nature %s to Eclipse project %s", natureId, project.getName()), 1);
         try {
             // get the description
             IProjectDescription description = project.getDescription();
@@ -178,14 +185,14 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
                 return;
             }
 
-            // add the Gradle nature to the project
+            // add the nature to the project
             ImmutableList<String> newIds = ImmutableList.<String> builder().addAll(currentNatureIds).add(natureId).build();
             description.setNatureIds(newIds.toArray(new String[newIds.size()]));
 
             // save the updated description
             project.setDescription(description, new SubProgressMonitor(monitor, 1));
         } catch (CoreException e) {
-            String message = String.format("Cannot add Java nature to Eclipse project %s.", project.getName());
+            String message = String.format("Cannot add nature %s to Eclipse project %s.", natureId, project.getName());
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
         } finally {
