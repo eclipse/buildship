@@ -11,13 +11,13 @@
 
 package org.eclipse.buildship.ui.generic;
 
+import com.google.common.base.Preconditions;
+
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
-
-import com.google.common.base.Preconditions;
 
 /**
  * Stores the sequence in which the currently selected nodes were selected in the {@link TreeViewer}.

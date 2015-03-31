@@ -11,7 +11,6 @@
 
 package org.eclipse.buildship.ui.taskview;
 
-import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
@@ -21,6 +20,7 @@ import org.eclipse.ui.console.IConsoleConstants;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 
 /**
  * Runs the currently selected Gradle tasks. The tasks are run through an

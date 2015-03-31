@@ -13,7 +13,13 @@ package org.eclipse.buildship.ui.launch;
 
 import java.io.File;
 
-import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
+import com.google.common.collect.FluentIterable;
+
+import com.gradleware.tooling.toolingutils.binding.Validator;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -37,21 +43,17 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
-import com.google.common.collect.FluentIterable;
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.gradle.GradleConnectionValidators;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
-import com.gradleware.tooling.toolingutils.binding.Validator;
+import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 
 /**
  * Specifies a root project and a list of tasks to execute via the run configurations.

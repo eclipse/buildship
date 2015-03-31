@@ -14,12 +14,6 @@ package org.eclipse.buildship.ui.util.image;
 import java.net.URL;
 import java.util.List;
 
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.resource.ImageRegistry;
-import org.eclipse.jface.viewers.DecorationOverlayIcon;
-import org.eclipse.swt.graphics.Image;
 import org.osgi.framework.Bundle;
 
 import com.google.common.base.Function;
@@ -27,6 +21,13 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.jface.viewers.DecorationOverlayIcon;
+import org.eclipse.swt.graphics.Image;
 
 /**
  * Contains helper methods related to images.

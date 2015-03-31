@@ -14,15 +14,16 @@ package org.eclipse.buildship.ui;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.buildship.ui.util.image.ImageUtils;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.resource.ImageRegistry;
-import org.eclipse.swt.graphics.Image;
-
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.swt.graphics.Image;
+
+import org.eclipse.buildship.ui.util.image.ImageUtils;
 
 /**
  * Enumerates all the images used in this plugin. Uses the {@link ImageRegistry} provided by the

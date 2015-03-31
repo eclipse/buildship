@@ -11,9 +11,10 @@
 
 package org.eclipse.buildship.ui.taskview.adapter;
 
-import org.eclipse.buildship.ui.taskview.ProjectNode;
 import org.eclipse.core.runtime.IAdapterFactory;
 import org.eclipse.ui.views.properties.IPropertySource;
+
+import org.eclipse.buildship.ui.taskview.ProjectNode;
 
 /**
  * Adapts {@link ProjectNode} instances to {@link IPropertySource} instances.

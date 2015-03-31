@@ -11,10 +11,11 @@
 
 package org.eclipse.buildship.core.util.logging;
 
-import org.eclipse.buildship.core.Logger;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+
+import org.eclipse.buildship.core.Logger;
 
 /**
  * Logs to the Eclipse logging infrastructure.

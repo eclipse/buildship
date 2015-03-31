@@ -11,11 +11,11 @@
 
 package org.eclipse.buildship.ui.taskview;
 
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerFilter;
-
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 
 /**
  * Filters {@link TaskNode} instances based on their type and visibility.

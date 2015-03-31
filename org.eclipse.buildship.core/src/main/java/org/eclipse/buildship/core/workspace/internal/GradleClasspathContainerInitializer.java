@@ -13,12 +13,25 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.List;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import org.gradle.tooling.CancellationToken;
+import org.gradle.tooling.GradleConnector;
+import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.TestProgressListener;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.console.ProcessStreams;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+
+import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
+import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -33,24 +46,13 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.gradle.tooling.CancellationToken;
-import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.TestProgressListener;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.workspace.ClasspathDefinition;
-import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 /**
  * Initializes the classpath of each Eclipse workspace project that has a Gradle nature with the

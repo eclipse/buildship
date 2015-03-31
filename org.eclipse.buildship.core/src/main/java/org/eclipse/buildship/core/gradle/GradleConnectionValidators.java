@@ -11,14 +11,16 @@
 
 package org.eclipse.buildship.core.gradle;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
-import org.eclipse.buildship.core.i18n.CoreMessages;
-import com.gradleware.tooling.toolingutils.binding.Validator;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+
+import com.gradleware.tooling.toolingutils.binding.Validator;
+
+import org.eclipse.buildship.core.i18n.CoreMessages;
 
 /**
  * Factory class for {@link Validator} instances that validate Gradle connections attributes.

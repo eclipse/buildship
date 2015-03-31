@@ -11,11 +11,11 @@
 
 package org.eclipse.buildship.ui.taskview;
 
+import com.google.common.base.Preconditions;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Tree;
-
-import com.google.common.base.Preconditions;
 
 /**
  * An action on the {@link TaskView} to toggle whether to show/hide the tree header.

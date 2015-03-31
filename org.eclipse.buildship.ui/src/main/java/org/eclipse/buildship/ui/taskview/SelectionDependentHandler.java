@@ -11,7 +11,6 @@
 
 package org.eclipse.buildship.ui.taskview;
 
-import org.eclipse.buildship.ui.generic.NodeSelection;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -19,6 +18,8 @@ import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
+
+import org.eclipse.buildship.ui.generic.NodeSelection;
 
 /**
  * Base class for all {@code AbstractHandler} classes that contain execution logic that depends on the current selection.

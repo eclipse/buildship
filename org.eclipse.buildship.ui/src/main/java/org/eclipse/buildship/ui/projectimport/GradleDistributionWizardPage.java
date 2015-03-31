@@ -13,6 +13,16 @@ package org.eclipse.buildship.ui.projectimport;
 
 import java.util.List;
 
+import org.gradle.util.GradleVersion;
+
+import com.google.common.base.Function;
+import com.google.common.base.Strings;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+
+import com.gradleware.tooling.toolingutils.binding.Property;
+import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
+
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -21,23 +31,16 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
-import org.gradle.util.GradleVersion;
 
-import com.google.common.base.Function;
-import com.google.common.base.Strings;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.gradle.GradleDistributionWrapper.DistributionType;
 import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.layout.LayoutUtils;
 import org.eclipse.buildship.ui.util.selection.Enabler;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
-import com.gradleware.tooling.toolingutils.binding.Property;
-import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
 
 /**
  * Second page on the {@link ProjectImportWizard} declaring the used gradle distribution for the

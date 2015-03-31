@@ -11,12 +11,13 @@
 
 package org.eclipse.buildship.ui.taskview;
 
-import org.eclipse.buildship.ui.PluginImages;
+import com.google.common.base.Preconditions;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 
-import com.google.common.base.Preconditions;
 import org.eclipse.buildship.ui.PluginImage;
+import org.eclipse.buildship.ui.PluginImages;
 
 /**
  * An action on the {@link TaskView} to include the visibility of the task node in the sort

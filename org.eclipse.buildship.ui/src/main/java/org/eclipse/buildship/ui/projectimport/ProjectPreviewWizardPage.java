@@ -15,7 +15,19 @@ import java.io.File;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.buildship.ui.util.widget.UiBuilder;
+import org.gradle.tooling.ProgressListener;
+
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.FutureCallback;
+
+import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
+import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
+import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
+import com.gradleware.tooling.toolingmodel.util.Pair;
+import com.gradleware.tooling.toolingutils.binding.Property;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -29,27 +41,18 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.gradle.tooling.ProgressListener;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.FutureCallback;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.gradle.GradleDistributionFormatter;
+import org.eclipse.buildship.core.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
-import org.eclipse.buildship.core.gradle.GradleDistributionFormatter;
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.layout.LayoutUtils;
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
-import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
-import com.gradleware.tooling.toolingmodel.util.Pair;
-import com.gradleware.tooling.toolingutils.binding.Property;
+import org.eclipse.buildship.ui.util.widget.UiBuilder;
 
 /**
  * Fourth page in the {@link ProjectImportWizard} showing a preview about the project about to be

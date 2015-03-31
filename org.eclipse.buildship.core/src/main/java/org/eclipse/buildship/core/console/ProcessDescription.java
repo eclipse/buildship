@@ -11,11 +11,11 @@
 
 package org.eclipse.buildship.core.console;
 
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.debug.core.ILaunch;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.debug.core.ILaunch;
 
 /**
  * Describes a process.

@@ -11,19 +11,11 @@
 
 package org.eclipse.buildship.core.testprogress.internal;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.testprogress.GradleTestRunSession;
-import org.eclipse.debug.core.ILaunch;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.internal.junit.JUnitCorePlugin;
-import org.eclipse.jdt.internal.junit.model.ITestSessionListener;
-import org.eclipse.jdt.internal.junit.model.TestCaseElement;
-import org.eclipse.jdt.internal.junit.model.TestElement.Status;
-import org.eclipse.jdt.internal.junit.model.TestRunSession;
-import org.eclipse.jdt.internal.junit.model.TestSuiteElement;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.List;
+import java.util.Map;
+
 import org.gradle.tooling.TestDescriptor;
 import org.gradle.tooling.TestFailedEvent;
 import org.gradle.tooling.TestFailure;
@@ -37,10 +29,21 @@ import org.gradle.tooling.TestSuiteSkippedEvent;
 import org.gradle.tooling.TestSuiteStartedEvent;
 import org.gradle.tooling.TestSuiteSucceededEvent;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.List;
-import java.util.Map;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.internal.junit.JUnitCorePlugin;
+import org.eclipse.jdt.internal.junit.model.ITestSessionListener;
+import org.eclipse.jdt.internal.junit.model.TestCaseElement;
+import org.eclipse.jdt.internal.junit.model.TestElement.Status;
+import org.eclipse.jdt.internal.junit.model.TestRunSession;
+import org.eclipse.jdt.internal.junit.model.TestSuiteElement;
+
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.testprogress.GradleTestRunSession;
 
 /**
  * Default implementation of the {@code GradleTestRunSession} interface. Converts and delegates all received

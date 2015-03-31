@@ -11,19 +11,21 @@
 
 package org.eclipse.buildship.core.configuration;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import org.eclipse.buildship.core.CorePlugin;
+
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-import java.util.Arrays;
-import java.util.List;
+import org.eclipse.buildship.core.CorePlugin;
 
 /**
  * Project builder for Gradle projects.

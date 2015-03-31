@@ -12,11 +12,14 @@
 package org.eclipse.buildship.ui.taskview.adapter;
 
 import com.google.common.base.Preconditions;
-import org.eclipse.buildship.ui.taskview.TaskSelectorNode;
+
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
+
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
+
+import org.eclipse.buildship.ui.taskview.TaskSelectorNode;
 
 /**
  * Adapts a {@link TaskSelectorNode} instance to a {@link IPropertySource} instance.

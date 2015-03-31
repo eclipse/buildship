@@ -14,12 +14,12 @@ package org.eclipse.buildship.core.workspace;
 import java.io.File;
 import java.util.List;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 
 /**
  * Provides operations related to querying and modifying the Eclipse elements that exist in a

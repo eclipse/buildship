@@ -14,13 +14,14 @@ package org.eclipse.buildship.core.projectimport;
 import java.io.File;
 import java.util.List;
 
-import org.eclipse.buildship.core.util.collections.CollectionsUtils;
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingutils.binding.Property;
 import com.gradleware.tooling.toolingutils.binding.Validator;
 import com.gradleware.tooling.toolingutils.binding.Validators;
+
+import org.eclipse.buildship.core.gradle.GradleDistributionWrapper;
+import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 
 /**
  * Serves as the data model of the project import wizard.

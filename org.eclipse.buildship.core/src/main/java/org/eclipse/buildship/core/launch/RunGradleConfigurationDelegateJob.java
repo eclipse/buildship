@@ -20,21 +20,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.console.ProcessStreams;
-import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.testprogress.GradleTestRunSession;
-import org.eclipse.buildship.core.testprogress.GradleTestRunSessionFactory;
-import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
-import org.eclipse.buildship.core.util.progress.ToolingApiJob;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
 import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.BuildException;
 import org.gradle.tooling.TestProgressEvent;
@@ -47,15 +32,33 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.gradle.GradleDistributionFormatter;
-import org.eclipse.buildship.core.util.collections.CollectionsUtils;
-import org.eclipse.buildship.core.util.file.FileUtils;
+
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import com.gradleware.tooling.toolingclient.ToolingClient;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
+
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.gradle.GradleDistributionFormatter;
+import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.testprogress.GradleTestRunSession;
+import org.eclipse.buildship.core.testprogress.GradleTestRunSessionFactory;
+import org.eclipse.buildship.core.util.collections.CollectionsUtils;
+import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
+import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 
 /**
  * Runs the given {@link ILaunch} instance.

@@ -11,16 +11,17 @@
 
 package org.eclipse.buildship.ui.taskview;
 
-import org.eclipse.buildship.ui.generic.NodeSelection;
-import org.eclipse.buildship.ui.UiPlugin;
+import com.google.common.base.Preconditions;
+
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.IHandlerService;
 
-import com.google.common.base.Preconditions;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.generic.NodeSelection;
 
 /**
  * Runs the selected Gradle tasks.

@@ -13,20 +13,22 @@ package org.eclipse.buildship.ui.taskview;
 
 import java.util.List;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IProject;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 import org.eclipse.buildship.ui.generic.NodeSelection;
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 /**
  * Base class for handlers that operate on the selected tasks.

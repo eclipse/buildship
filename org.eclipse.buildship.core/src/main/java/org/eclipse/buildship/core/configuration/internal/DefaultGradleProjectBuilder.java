@@ -11,14 +11,15 @@
 
 package org.eclipse.buildship.core.configuration.internal;
 
-import org.eclipse.buildship.core.configuration.GradleProjectMarker;
+import java.util.Map;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import java.util.Map;
+import org.eclipse.buildship.core.configuration.GradleProjectMarker;
 
 /**
  * Backing implementation class for the {@link org.eclipse.buildship.core.configuration.GradleProjectBuilder}.

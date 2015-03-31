@@ -11,11 +11,13 @@
 
 package org.eclipse.buildship.ui.taskview;
 
+import java.io.File;
+
 import com.google.common.base.Optional;
-import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.generic.NodeSelection;
+
 import com.gradleware.tooling.toolingmodel.OmniGradleScript;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
+
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorRegistry;
@@ -26,7 +28,8 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
-import java.io.File;
+import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.generic.NodeSelection;
 
 /**
  * Opens the build file for the selected {@link ProjectNode}.

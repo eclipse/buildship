@@ -15,8 +15,10 @@ import java.util.Set;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
+
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 
 /**
  * Encapsulates the content backing the {@link TaskView}. The content consists 1) of the set of root

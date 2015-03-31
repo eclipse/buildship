@@ -11,14 +11,14 @@
 
 package org.eclipse.buildship.ui.taskview;
 
+import com.google.common.base.Preconditions;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.swt.widgets.Display;
-
-import com.google.common.base.Preconditions;
 
 /**
  * Tracks the creation/deletion of projects in the workspace and updates the {@link TaskView}

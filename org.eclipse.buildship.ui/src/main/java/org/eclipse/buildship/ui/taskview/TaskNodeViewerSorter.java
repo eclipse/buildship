@@ -11,12 +11,14 @@
 
 package org.eclipse.buildship.ui.taskview;
 
+import com.google.common.collect.Ordering;
+
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
+
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 
-import com.google.common.collect.Ordering;
 import org.eclipse.buildship.ui.taskview.TaskNode.TaskNodeType;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 
 /**
  * Sorts {@link TaskNode} instances based on their type and/or visibility.

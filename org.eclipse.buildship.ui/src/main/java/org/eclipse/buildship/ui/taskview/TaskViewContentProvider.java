@@ -13,11 +13,6 @@ package org.eclipse.buildship.ui.taskview;
 
 import java.util.List;
 
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.swt.widgets.Display;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
@@ -28,11 +23,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.console.ProcessStreamsProvider;
-import org.eclipse.buildship.core.gradle.Specs;
-import org.eclipse.buildship.core.model.LoadEclipseGradleBuildsJob;
-import org.eclipse.buildship.core.workspace.WorkspaceOperations;
+
 import com.gradleware.tooling.toolingclient.Consumer;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
@@ -41,9 +32,21 @@ import com.gradleware.tooling.toolingmodel.OmniProjectTask;
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
 import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.widgets.Display;
+
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.console.ProcessStreamsProvider;
+import org.eclipse.buildship.core.gradle.Specs;
+import org.eclipse.buildship.core.model.LoadEclipseGradleBuildsJob;
+import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 /**
  * Content provider for the {@link TaskView}.

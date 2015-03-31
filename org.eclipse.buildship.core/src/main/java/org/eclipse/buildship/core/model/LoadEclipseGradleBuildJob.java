@@ -13,13 +13,6 @@ package org.eclipse.buildship.core.model;
 
 import java.util.List;
 
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.console.ProcessStreamsProvider;
-import org.eclipse.buildship.core.util.progress.ToolingApiJob;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
 import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.TestProgressListener;
@@ -27,15 +20,25 @@ import org.gradle.tooling.TestProgressListener;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.console.ProcessStreams;
-import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
+
 import com.gradleware.tooling.toolingclient.Consumer;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubProgressMonitor;
+
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.console.ProcessStreamsProvider;
+import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
+import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 
 /**
  * Loads the {@link OmniEclipseGradleBuild} model for a given {@link org.eclipse.buildship.core.configuration.ProjectConfiguration} instance.

@@ -13,13 +13,6 @@ package org.eclipse.buildship.core.projectimport;
 
 import java.util.List;
 
-import org.eclipse.buildship.core.util.progress.ToolingApiJob;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.TestProgressListener;
@@ -27,8 +20,7 @@ import org.gradle.tooling.TestProgressListener;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.console.ProcessStreams;
+
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
@@ -36,6 +28,17 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.Pair;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 
 /**
  * A job that fetches the models required for the project import preview.

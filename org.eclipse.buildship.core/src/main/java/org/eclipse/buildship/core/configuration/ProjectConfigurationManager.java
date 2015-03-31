@@ -11,9 +11,9 @@
 
 package org.eclipse.buildship.core.configuration;
 
-import org.eclipse.core.resources.IProject;
-
 import com.google.common.collect.ImmutableSet;
+
+import org.eclipse.core.resources.IProject;
 
 /**
  * Manages the persisted configuration of Gradle projects in the Eclipse workspace.

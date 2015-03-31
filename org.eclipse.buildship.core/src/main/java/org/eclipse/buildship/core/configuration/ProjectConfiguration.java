@@ -15,6 +15,7 @@ import java.io.File;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;

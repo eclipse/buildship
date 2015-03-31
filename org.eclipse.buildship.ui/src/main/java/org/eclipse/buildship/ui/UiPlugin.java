@@ -14,19 +14,20 @@ package org.eclipse.buildship.ui;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import org.eclipse.buildship.core.workbench.WorkbenchOperations;
-import org.eclipse.buildship.ui.workbench.DefaultWorkbenchOperations;
-import org.eclipse.jface.resource.ImageRegistry;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
+import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
+
 import org.eclipse.buildship.core.Logger;
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.util.logging.EclipseLogger;
+import org.eclipse.buildship.core.workbench.WorkbenchOperations;
 import org.eclipse.buildship.ui.console.ConsoleProcessStreamsProvider;
+import org.eclipse.buildship.ui.workbench.DefaultWorkbenchOperations;
 
 /**
  * The plug-in runtime class for the Gradle integration plug-in containing the UI-related elements.

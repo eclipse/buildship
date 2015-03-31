@@ -13,16 +13,18 @@ package org.eclipse.buildship.ui.taskview.adapter;
 
 import java.io.File;
 
-import org.eclipse.buildship.ui.taskview.ProjectNode;
+import com.google.common.base.Preconditions;
+
+import com.gradleware.tooling.toolingmodel.OmniGradleProject;
+import com.gradleware.tooling.toolingmodel.OmniGradleScript;
+import com.gradleware.tooling.toolingmodel.util.Maybe;
+
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
-import com.google.common.base.Preconditions;
 import org.eclipse.buildship.core.util.file.FileUtils;
-import com.gradleware.tooling.toolingmodel.OmniGradleProject;
-import com.gradleware.tooling.toolingmodel.OmniGradleScript;
-import com.gradleware.tooling.toolingmodel.util.Maybe;
+import org.eclipse.buildship.ui.taskview.ProjectNode;
 
 /**
  * Adapts a {@link org.eclipse.buildship.ui.taskview.ProjectNode} instance to a {@link IPropertySource} instance.

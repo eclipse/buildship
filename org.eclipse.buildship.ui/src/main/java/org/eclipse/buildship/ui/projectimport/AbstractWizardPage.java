@@ -13,7 +13,11 @@ package org.eclipse.buildship.ui.projectimport;
 
 import java.util.List;
 
-import org.eclipse.buildship.ui.util.widget.UiBuilder;
+import com.google.common.base.Optional;
+
+import com.gradleware.tooling.toolingutils.binding.Property;
+import com.gradleware.tooling.toolingutils.binding.ValidationListener;
+
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.WizardPage;
@@ -24,12 +28,10 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 
-import com.google.common.base.Optional;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.util.font.FontUtils;
-import com.gradleware.tooling.toolingutils.binding.Property;
-import com.gradleware.tooling.toolingutils.binding.ValidationListener;
+import org.eclipse.buildship.ui.util.widget.UiBuilder;
 
 /**
  * Common base class for all pages in the {@link ProjectImportWizard}.

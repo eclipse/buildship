@@ -17,6 +17,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import com.google.common.base.Preconditions;
+
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 
 /**

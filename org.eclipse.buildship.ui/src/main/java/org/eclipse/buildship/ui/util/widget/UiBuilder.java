@@ -11,6 +11,10 @@
 
 package org.eclipse.buildship.ui.util.widget;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
@@ -21,10 +25,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
-
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 
 /**
  * Creates SWT widgets and aligns them through a fluent API.
@@ -220,8 +220,7 @@ public final class UiBuilder<T extends Control> {
          * Fills the next cell in the gridlayout with nothing, i.e. with an empty button to enforce
          * a certain minimum row height.
          *
-         * @param parent the control having the {@link GridLayout} having the next column to be
-         *            empty
+         * @param parent the control having the {@link org.eclipse.swt.layout.GridLayout} having the next column to be empty
          */
         public void span(Composite parent) {
             Button b = new Button(parent, SWT.NONE);

@@ -11,7 +11,6 @@
 
 package org.eclipse.buildship.ui.taskview;
 
-import org.eclipse.buildship.ui.UiPluginConstants;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.ui.DebugUITools;
@@ -20,6 +19,7 @@ import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.ui.UiPluginConstants;
 
 /**
  * Opens a run configuration dialog for the selected Gradle tasks. Either a new

@@ -13,19 +13,21 @@ package org.eclipse.buildship.ui.projectimport;
 
 import java.io.File;
 
-import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
-import org.eclipse.buildship.ui.util.widget.UiBuilder;
+import com.google.common.collect.ImmutableList;
+
+import com.gradleware.tooling.toolingutils.binding.Property;
+
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import com.google.common.collect.ImmutableList;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.layout.LayoutUtils;
-import com.gradleware.tooling.toolingutils.binding.Property;
+import org.eclipse.buildship.ui.util.widget.UiBuilder;
 
 /**
  * First page in the {@link ProjectImportWizard} specifying the Gradle root project folder to

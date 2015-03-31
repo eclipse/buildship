@@ -12,6 +12,7 @@
 package org.eclipse.buildship.ui.console;
 
 import com.google.common.base.Preconditions;
+
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 

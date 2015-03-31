@@ -11,10 +11,11 @@
 
 package org.eclipse.buildship.core.configuration;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+
+import org.eclipse.buildship.core.CorePlugin;
 
 /**
  * Project configuration error marker.

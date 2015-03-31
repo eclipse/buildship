@@ -17,8 +17,7 @@ import java.io.OutputStream;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.UiPlugin;
+
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.swt.SWT;
@@ -31,6 +30,8 @@ import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.buildship.ui.UiPlugin;
 
 /**
  * Provides a console to display the output of interacting with Gradle.

@@ -11,8 +11,6 @@
 
 package org.eclipse.buildship.core.configuration.internal;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.GradleProjectMarker;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -20,6 +18,9 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.GradleProjectMarker;
 
 /**
  * Validates the project configuration when a relevant resources changes.
@@ -107,6 +108,8 @@ final class GradleProjectValidationResourceDeltaVisitor implements IResourceDelt
             GradleProjectMarker.INSTANCE.removeMarkerFromResourceRecursively(this.project);
 
             // todo (etst) extract i18n keys
+
+            //CHECKSTYLE:OFF, required due to false negative in Checkstyle
             // validate the existence of the .settings folder
             if (!this.settingsFolder.exists()) {
                 String message = String.format("Missing Gradle project configuration folder: %s", this.settingsFolder.getProjectRelativePath());
@@ -129,6 +132,7 @@ final class GradleProjectValidationResourceDeltaVisitor implements IResourceDelt
                     return false;
                 }
             }
+            //CHECKSTYLE:ON
 
             return true;
         }

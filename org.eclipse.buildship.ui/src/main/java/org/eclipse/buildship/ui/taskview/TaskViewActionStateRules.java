@@ -13,6 +13,7 @@ package org.eclipse.buildship.ui.taskview;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+
 import org.eclipse.buildship.ui.generic.NodeSelection;
 
 /**

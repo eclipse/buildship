@@ -13,10 +13,11 @@ package org.eclipse.buildship.core.workspace;
 
 import java.util.List;
 
-import org.eclipse.core.runtime.IPath;
-
 import com.google.common.collect.ImmutableList;
+
 import com.gradleware.tooling.toolingmodel.util.Pair;
+
+import org.eclipse.core.runtime.IPath;
 
 /**
  * Value holder for defining the sources and classpath of a Java project.

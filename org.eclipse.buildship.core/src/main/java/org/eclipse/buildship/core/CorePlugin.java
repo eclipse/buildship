@@ -14,28 +14,30 @@ package org.eclipse.buildship.core;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
-import org.eclipse.buildship.core.console.ProcessStreamsProvider;
-import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
-import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager;
-import org.eclipse.buildship.core.workbench.WorkbenchOperations;
-import org.eclipse.buildship.core.workbench.internal.EmptyWorkbenchOperations;
-import org.eclipse.buildship.core.workspace.internal.DefaultWorkspaceOperations;
-import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 
-import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigurationManager;
-import org.eclipse.buildship.core.console.internal.StdProcessStreamsProvider;
-import org.eclipse.buildship.core.util.logging.EclipseLogger;
-import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 import com.gradleware.tooling.toolingclient.ToolingClient;
 import com.gradleware.tooling.toolingmodel.repository.Environment;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import com.gradleware.tooling.toolingmodel.repository.internal.DefaultModelRepositoryProvider;
 import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
+
+import org.eclipse.core.runtime.Plugin;
+
+import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
+import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigurationManager;
+import org.eclipse.buildship.core.console.ProcessStreamsProvider;
+import org.eclipse.buildship.core.console.internal.StdProcessStreamsProvider;
+import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
+import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager;
+import org.eclipse.buildship.core.util.logging.EclipseLogger;
+import org.eclipse.buildship.core.workbench.WorkbenchOperations;
+import org.eclipse.buildship.core.workbench.internal.EmptyWorkbenchOperations;
+import org.eclipse.buildship.core.workspace.WorkspaceOperations;
+import org.eclipse.buildship.core.workspace.internal.DefaultWorkspaceOperations;
 
 /**
  * The plug-in runtime class for the Gradle integration plugin containing the non-UI elements.

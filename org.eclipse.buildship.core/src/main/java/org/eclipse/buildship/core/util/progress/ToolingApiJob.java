@@ -11,10 +11,11 @@
 
 package org.eclipse.buildship.core.util.progress;
 
-import org.eclipse.core.runtime.jobs.Job;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.GradleConnector;
+
+import org.eclipse.core.runtime.jobs.Job;
 
 /**
  * Base class for cancellable jobs that invoke the Gradle Tooling API.

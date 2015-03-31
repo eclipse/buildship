@@ -11,12 +11,13 @@
 
 package org.eclipse.buildship.ui.taskview;
 
-import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.jface.action.Action;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+
+import org.eclipse.jface.action.Action;
+
 import org.eclipse.buildship.ui.PluginImage.ImageState;
+import org.eclipse.buildship.ui.PluginImages;
 
 /**
  * An action on the {@link TaskView} to include/exclude the task selector nodes in the filter

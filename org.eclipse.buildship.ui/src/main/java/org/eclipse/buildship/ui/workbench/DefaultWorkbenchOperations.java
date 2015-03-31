@@ -11,10 +11,11 @@
 
 package org.eclipse.buildship.ui.workbench;
 
-import org.eclipse.buildship.core.workbench.WorkbenchOperations;
-import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
+
+import org.eclipse.buildship.core.workbench.WorkbenchOperations;
+import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 
 /**
  * Default implementation of the {@code WorkbenchOperations} interface.

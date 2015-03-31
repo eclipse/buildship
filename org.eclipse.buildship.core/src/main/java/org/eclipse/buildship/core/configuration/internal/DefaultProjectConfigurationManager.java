@@ -14,17 +14,19 @@ package org.eclipse.buildship.core.configuration.internal;
 import java.io.File;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
+
+import com.gradleware.tooling.toolingmodel.Path;
+
+import org.eclipse.core.resources.IProject;
+
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
-import org.eclipse.core.resources.IProject;
-
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
-import com.gradleware.tooling.toolingmodel.Path;
 
 /**
  * Manages the persistence and querying of information related to {@code ProjectConfiguration}s.

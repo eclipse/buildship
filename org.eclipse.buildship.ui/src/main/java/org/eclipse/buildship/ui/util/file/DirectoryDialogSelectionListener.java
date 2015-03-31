@@ -13,6 +13,8 @@ package org.eclipse.buildship.ui.util.file;
 
 import java.io.File;
 
+import com.google.common.base.Strings;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -20,7 +22,6 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.google.common.base.Strings;
 import org.eclipse.buildship.ui.projectimport.ProjectImportMessages;
 
 /**

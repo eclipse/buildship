@@ -11,8 +11,8 @@
 
 package org.eclipse.buildship.ui.console;
 
-import org.eclipse.buildship.ui.PluginImage;
-import org.eclipse.buildship.ui.PluginImages;
+import com.google.common.base.Preconditions;
+
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchesListener2;
@@ -20,7 +20,8 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 
-import com.google.common.base.Preconditions;
+import org.eclipse.buildship.ui.PluginImage;
+import org.eclipse.buildship.ui.PluginImages;
 
 /**
  * Removes the finished {@link ILaunch} instance associated with a given {@link GradleConsole}

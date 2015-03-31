@@ -11,13 +11,14 @@
 
 package org.eclipse.buildship.ui.generic;
 
+import com.google.common.base.Preconditions;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.IHandlerService;
 
-import com.google.common.base.Preconditions;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.ui.UiPlugin;
 

@@ -12,9 +12,11 @@
 package org.eclipse.buildship.core.gradle;
 
 import com.google.common.base.Preconditions;
+
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.i18n.CoreMessages;
-import com.gradleware.tooling.toolingclient.GradleDistribution;
 
 /**
  * Formats a {@link GradleDistribution} to a human-readable display string.

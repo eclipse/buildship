@@ -16,13 +16,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.gradle.GradleDistributionSerializer;
-import org.eclipse.buildship.core.util.collections.CollectionsUtils;
-import org.eclipse.core.resources.IProject;
-
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
 import com.google.common.io.CharSource;
@@ -30,9 +23,18 @@ import com.google.common.io.Files;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.eclipse.buildship.core.util.file.FileUtils;
+
 import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+
+import org.eclipse.core.resources.IProject;
+
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.gradle.GradleDistributionSerializer;
+import org.eclipse.buildship.core.util.collections.CollectionsUtils;
+import org.eclipse.buildship.core.util.file.FileUtils;
 
 /**
  * Manages reading and writing of the Gradle-specific configuration of an Eclipse project.

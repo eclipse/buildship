@@ -13,9 +13,17 @@ package org.eclipse.buildship.ui.launch;
 
 import java.util.List;
 
-import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
-import org.eclipse.buildship.ui.util.widget.ButtonUtils;
-import org.eclipse.buildship.ui.util.widget.UiBuilder;
+import org.gradle.util.GradleVersion;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+
+import com.gradleware.tooling.toolingutils.binding.Validator;
+import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
+
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
@@ -34,13 +42,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
-import org.gradle.util.GradleVersion;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.gradle.GradleConnectionValidators;
@@ -51,10 +53,11 @@ import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.projectimport.ProjectImportMessages;
+import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.selection.Enabler;
-import com.gradleware.tooling.toolingutils.binding.Validator;
-import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
+import org.eclipse.buildship.ui.util.widget.ButtonUtils;
+import org.eclipse.buildship.ui.util.widget.UiBuilder;
 
 /**
  * Specifies the Gradle distribution to apply when executing tasks via the run configurations.

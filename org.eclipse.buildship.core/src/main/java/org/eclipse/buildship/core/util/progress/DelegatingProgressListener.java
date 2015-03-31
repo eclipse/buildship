@@ -11,9 +11,10 @@
 
 package org.eclipse.buildship.core.util.progress;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.gradle.tooling.ProgressEvent;
 import org.gradle.tooling.ProgressListener;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
  * {@link ProgressListener} implementation which delegates all Gradle {@link ProgressEvent}s to a

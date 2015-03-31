@@ -11,7 +11,8 @@
 
 package org.eclipse.buildship.ui.projectimport;
 
-import org.eclipse.buildship.ui.UiPlugin;
+import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
+
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
@@ -20,7 +21,7 @@ import org.eclipse.ui.IWorkbench;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
+import org.eclipse.buildship.ui.UiPlugin;
 
 /**
  * Eclipse wizard for importing Gradle projects into the workspace.

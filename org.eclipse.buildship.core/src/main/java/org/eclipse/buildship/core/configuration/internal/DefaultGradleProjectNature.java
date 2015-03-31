@@ -11,9 +11,10 @@
 
 package org.eclipse.buildship.core.configuration.internal;
 
-import org.eclipse.buildship.core.configuration.GradleProjectBuilder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
+
+import org.eclipse.buildship.core.configuration.GradleProjectBuilder;
 
 /**
  * Backing implementation class for the {@link org.eclipse.buildship.core.configuration.GradleProjectNature}.

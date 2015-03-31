@@ -13,6 +13,7 @@ package org.eclipse.buildship.ui.taskview;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+
 import com.gradleware.tooling.toolingmodel.OmniProjectTask;
 
 /**

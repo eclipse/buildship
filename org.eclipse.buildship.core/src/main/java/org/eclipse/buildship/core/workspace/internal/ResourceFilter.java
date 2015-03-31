@@ -14,7 +14,9 @@ package org.eclipse.buildship.core.workspace.internal;
 import java.io.File;
 import java.util.List;
 
-import org.eclipse.buildship.core.CorePlugin;
+import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableList;
+
 import org.eclipse.core.resources.FileInfoMatcherDescription;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -26,8 +28,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.collect.ImmutableList;
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**

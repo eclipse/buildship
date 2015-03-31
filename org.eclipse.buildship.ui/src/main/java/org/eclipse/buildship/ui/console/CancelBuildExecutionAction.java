@@ -11,15 +11,16 @@
 
 package org.eclipse.buildship.ui.console;
 
-import org.eclipse.buildship.ui.PluginImages;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.action.Action;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
+import org.eclipse.buildship.ui.PluginImages;
 
 /**
  * Cancel the build execution attached to the given {@link GradleConsole} instance.

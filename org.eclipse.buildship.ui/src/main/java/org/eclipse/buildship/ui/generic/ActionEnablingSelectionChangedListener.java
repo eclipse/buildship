@@ -13,12 +13,12 @@ package org.eclipse.buildship.ui.generic;
 
 import java.util.List;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 
 /**
  * Enables {@link SelectionSpecificAction} instances, after querying each action if it should be

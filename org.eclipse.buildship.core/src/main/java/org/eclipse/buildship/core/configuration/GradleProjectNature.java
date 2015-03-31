@@ -11,10 +11,11 @@
 
 package org.eclipse.buildship.core.configuration;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
  * Project nature for Gradle projects.

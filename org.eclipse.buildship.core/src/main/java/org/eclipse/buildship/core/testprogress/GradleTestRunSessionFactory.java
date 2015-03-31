@@ -11,9 +11,10 @@
 
 package org.eclipse.buildship.core.testprogress;
 
-import org.eclipse.buildship.core.testprogress.internal.DefaultGradleTestRunSession;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.jdt.core.IJavaProject;
+
+import org.eclipse.buildship.core.testprogress.internal.DefaultGradleTestRunSession;
 
 /**
  * Factory to create {@link GradleTestRunSession} instances.

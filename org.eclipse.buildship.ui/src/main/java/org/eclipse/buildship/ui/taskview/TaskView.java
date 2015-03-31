@@ -13,6 +13,8 @@ package org.eclipse.buildship.ui.taskview;
 
 import java.util.Set;
 
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
@@ -29,7 +31,6 @@ import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.ui.generic.NodeSelection;
 import org.eclipse.buildship.ui.generic.QuickSearchManager;
 import org.eclipse.buildship.ui.generic.SelectionHistoryManager;
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
 /**
  * A view displaying the Gradle tasks of the Gradle projects in the workspace.

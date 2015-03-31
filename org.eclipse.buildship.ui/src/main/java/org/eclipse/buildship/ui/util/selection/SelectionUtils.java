@@ -13,6 +13,9 @@ package org.eclipse.buildship.ui.util.selection;
 
 import java.util.List;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -24,9 +27,6 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.part.ISetSelectionTarget;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 
 /**
  * Contains helper methods related to selections.

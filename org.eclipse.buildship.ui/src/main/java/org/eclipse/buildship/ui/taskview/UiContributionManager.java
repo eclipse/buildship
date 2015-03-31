@@ -13,11 +13,7 @@ package org.eclipse.buildship.ui.taskview;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import org.eclipse.buildship.ui.UiPluginConstants;
-import org.eclipse.buildship.ui.generic.ActionEnablingSelectionChangedListener;
-import org.eclipse.buildship.ui.generic.ActionShowingContextMenuListener;
-import org.eclipse.buildship.ui.generic.ContextActivatingViewPartListener;
-import org.eclipse.buildship.ui.generic.SelectionSpecificAction;
+
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.IMenuManager;
@@ -26,6 +22,12 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
+
+import org.eclipse.buildship.ui.UiPluginConstants;
+import org.eclipse.buildship.ui.generic.ActionEnablingSelectionChangedListener;
+import org.eclipse.buildship.ui.generic.ActionShowingContextMenuListener;
+import org.eclipse.buildship.ui.generic.ContextActivatingViewPartListener;
+import org.eclipse.buildship.ui.generic.SelectionSpecificAction;
 
 /**
  * Adds UI contributions to the {@link TaskView}.
