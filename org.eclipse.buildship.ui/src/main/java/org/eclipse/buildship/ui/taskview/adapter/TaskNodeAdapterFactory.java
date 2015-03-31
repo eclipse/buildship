@@ -11,7 +11,7 @@
 
 package org.eclipse.buildship.ui.taskview.adapter;
 
-import com.gradleware.tooling.eclipse.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.ui.taskview.ProjectTaskNode;
 import org.eclipse.buildship.ui.taskview.TaskNode;
 import org.eclipse.buildship.ui.taskview.TaskSelectorNode;

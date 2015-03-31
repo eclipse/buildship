@@ -24,8 +24,8 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
 
-import com.gradleware.tooling.eclipse.core.CorePlugin;
-import com.gradleware.tooling.eclipse.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.ui.generic.NodeSelection;
 import org.eclipse.buildship.ui.generic.QuickSearchManager;
 import org.eclipse.buildship.ui.generic.SelectionHistoryManager;

@@ -18,12 +18,12 @@ import org.eclipse.core.resources.IProject;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.eclipse.core.CorePlugin;
-import com.gradleware.tooling.eclipse.core.configuration.ProjectConfiguration;
-import com.gradleware.tooling.eclipse.core.launch.GradleRunConfigurationAttributes;
-import com.gradleware.tooling.eclipse.core.configuration.GradleProjectNature;
-import com.gradleware.tooling.eclipse.core.util.file.FileUtils;
-import com.gradleware.tooling.eclipse.core.util.variable.ExpressionUtils;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 import org.eclipse.buildship.ui.generic.NodeSelection;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;

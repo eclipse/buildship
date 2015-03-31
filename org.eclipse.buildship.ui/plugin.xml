@@ -165,7 +165,7 @@
             point="org.eclipse.debug.ui.launchConfigurationTypeImages">
         <launchConfigurationTypeImage
                 id="org.eclipse.buildship.ui.launch.runconfigurationtypeimage"
-                configTypeID="com.gradleware.tooling.eclipse.core.launch.runconfiguration"
+                configTypeID="org.eclipse.buildship.core.launch.runconfiguration"
                 icon="icons/full/obj16/launch_config.png">
         </launchConfigurationTypeImage>
     </extension>
@@ -173,7 +173,7 @@
             point="org.eclipse.debug.ui.launchConfigurationTabGroups">
         <launchConfigurationTabGroup
                 id="org.eclipse.buildship.ui.launch.runconfigurationtabgroup"
-                type="com.gradleware.tooling.eclipse.core.launch.runconfiguration"
+                type="org.eclipse.buildship.core.launch.runconfiguration"
                 class="org.eclipse.buildship.ui.launch.GradleRunConfigurationTabGroup">
         </launchConfigurationTabGroup>
     </extension>

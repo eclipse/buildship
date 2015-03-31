@@ -18,8 +18,8 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
-import com.gradleware.tooling.eclipse.core.CorePlugin;
-import com.gradleware.tooling.eclipse.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
 
 /**

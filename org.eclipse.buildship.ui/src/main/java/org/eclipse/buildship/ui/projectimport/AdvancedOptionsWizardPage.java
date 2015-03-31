@@ -23,8 +23,8 @@ import org.eclipse.swt.widgets.Text;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.eclipse.core.projectimport.ProjectImportConfiguration;
-import com.gradleware.tooling.eclipse.core.util.file.FileUtils;
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.ui.util.layout.LayoutUtils;
 import com.gradleware.tooling.toolingutils.binding.Property;
 

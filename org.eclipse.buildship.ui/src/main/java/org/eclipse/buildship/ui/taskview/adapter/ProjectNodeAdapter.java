@@ -19,7 +19,7 @@ import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
 import com.google.common.base.Preconditions;
-import com.gradleware.tooling.eclipse.core.util.file.FileUtils;
+import org.eclipse.buildship.core.util.file.FileUtils;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleScript;
 import com.gradleware.tooling.toolingmodel.util.Maybe;

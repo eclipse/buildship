@@ -35,11 +35,11 @@ import org.eclipse.swt.widgets.Text;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.gradleware.tooling.eclipse.core.gradle.GradleConnectionValidators;
-import com.gradleware.tooling.eclipse.core.i18n.CoreMessages;
-import com.gradleware.tooling.eclipse.core.launch.GradleRunConfigurationAttributes;
-import com.gradleware.tooling.eclipse.core.util.file.FileUtils;
-import com.gradleware.tooling.eclipse.core.util.variable.ExpressionUtils;
+import org.eclipse.buildship.core.gradle.GradleConnectionValidators;
+import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import com.gradleware.tooling.toolingutils.binding.Validator;
 

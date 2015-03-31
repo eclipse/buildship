@@ -19,8 +19,8 @@ import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.console.IConsoleConstants;
 
-import com.gradleware.tooling.eclipse.core.CorePlugin;
-import com.gradleware.tooling.eclipse.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 
 /**
  * Runs the currently selected Gradle tasks. The tasks are run through an

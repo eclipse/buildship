@@ -28,9 +28,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 
-import com.gradleware.tooling.eclipse.core.i18n.CoreMessages;
-import com.gradleware.tooling.eclipse.core.launch.GradleRunConfigurationAttributes;
-import com.gradleware.tooling.eclipse.core.util.collections.CollectionsUtils;
+import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
 

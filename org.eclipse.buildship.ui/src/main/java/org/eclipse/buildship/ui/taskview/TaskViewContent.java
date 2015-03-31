@@ -15,7 +15,7 @@ import java.util.Set;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import com.gradleware.tooling.eclipse.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
 /**

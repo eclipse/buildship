@@ -18,8 +18,8 @@ import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import com.gradleware.tooling.eclipse.core.CorePlugin;
-import com.gradleware.tooling.eclipse.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 
 /**
  * Opens a run configuration dialog for the selected Gradle tasks. Either a new

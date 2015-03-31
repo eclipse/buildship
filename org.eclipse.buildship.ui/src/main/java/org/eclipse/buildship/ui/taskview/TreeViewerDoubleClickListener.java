@@ -20,7 +20,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.IHandlerService;
 
 import com.google.common.base.Preconditions;
-import com.gradleware.tooling.eclipse.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
  * Runs the selected Gradle tasks.

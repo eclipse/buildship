@@ -6,8 +6,8 @@
     <extension
             point="org.eclipse.jdt.core.classpathContainerInitializer">
         <classpathContainerInitializer
-                id="com.gradleware.tooling.eclipse.core.gradleclasspathcontainer"
-                class="com.gradleware.tooling.eclipse.core.workspace.internal.GradleClasspathContainerInitializer">
+                id="org.eclipse.buildship.core.gradleclasspathcontainer"
+                class="org.eclipse.buildship.core.workspace.internal.GradleClasspathContainerInitializer">
         </classpathContainerInitializer>
     </extension>
 
@@ -16,9 +16,9 @@
             id="gradleprojectnature"
             name="Gradle Project Nature"
             point="org.eclipse.core.resources.natures">
-        <builder id="com.gradleware.tooling.eclipse.core.gradleprojectbuilder"/>
+        <builder id="org.eclipse.buildship.core.gradleprojectbuilder"/>
         <runtime>
-            <run class="com.gradleware.tooling.eclipse.core.configuration.internal.DefaultGradleProjectNature"/>
+            <run class="org.eclipse.buildship.core.configuration.internal.DefaultGradleProjectNature"/>
         </runtime>
     </extension>
 
@@ -27,7 +27,7 @@
             name="Gradle Project Builder"
             point="org.eclipse.core.resources.builders">
         <builder hasNature="true">
-            <run class="com.gradleware.tooling.eclipse.core.configuration.internal.DefaultGradleProjectBuilder" />
+            <run class="org.eclipse.buildship.core.configuration.internal.DefaultGradleProjectBuilder" />
         </builder>
     </extension>
 
@@ -44,8 +44,8 @@
     <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
-            id="com.gradleware.tooling.eclipse.core.launch.runconfiguration"
-            delegate="com.gradleware.tooling.eclipse.core.launch.GradleRunConfigurationDelegate"
+            id="org.eclipse.buildship.core.launch.runconfiguration"
+            delegate="org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate"
             name="Gradle Project"
             modes="run">
       </launchConfigurationType>

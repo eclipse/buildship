@@ -28,9 +28,9 @@ import org.eclipse.ui.console.IOConsole;
 import org.eclipse.ui.console.IOConsoleInputStream;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 
-import com.gradleware.tooling.eclipse.core.GradlePluginsRuntimeException;
-import com.gradleware.tooling.eclipse.core.console.ProcessDescription;
-import com.gradleware.tooling.eclipse.core.console.ProcessStreams;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.core.console.ProcessStreams;
 
 /**
  * Provides a console to display the output of interacting with Gradle.

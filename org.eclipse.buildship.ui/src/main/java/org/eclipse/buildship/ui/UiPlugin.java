@@ -14,7 +14,7 @@ package org.eclipse.buildship.ui;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import com.gradleware.tooling.eclipse.core.workbench.WorkbenchOperations;
+import org.eclipse.buildship.core.workbench.WorkbenchOperations;
 import org.eclipse.buildship.ui.workbench.DefaultWorkbenchOperations;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -23,9 +23,9 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
-import com.gradleware.tooling.eclipse.core.Logger;
-import com.gradleware.tooling.eclipse.core.console.ProcessStreamsProvider;
-import com.gradleware.tooling.eclipse.core.util.logging.EclipseLogger;
+import org.eclipse.buildship.core.Logger;
+import org.eclipse.buildship.core.console.ProcessStreamsProvider;
+import org.eclipse.buildship.core.util.logging.EclipseLogger;
 import org.eclipse.buildship.ui.console.ConsoleProcessStreamsProvider;
 
 /**

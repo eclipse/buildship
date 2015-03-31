@@ -128,7 +128,7 @@ version of Eclipse.
 ### Running the tests inside of Eclipse
 
 To run the complete set of core tests from inside Eclipse, right-click
-on the package _com.gradleware.tooling.eclipse.core.test_ and choose _Run As >> JUnit Plug-In-Test_
+on the package _org.eclipse.buildship.core.test_ and choose _Run As >> JUnit Plug-In-Test_
 (not as a _JUnit Test_!). Individual tests can be run the same way.
 
 To run the complete set of ui tests from inside Eclipse, right-click

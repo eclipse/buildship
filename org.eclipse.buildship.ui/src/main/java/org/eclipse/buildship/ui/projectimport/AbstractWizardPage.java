@@ -25,7 +25,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 
 import com.google.common.base.Optional;
-import com.gradleware.tooling.eclipse.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import com.gradleware.tooling.toolingutils.binding.Property;
