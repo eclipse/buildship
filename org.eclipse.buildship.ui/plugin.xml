@@ -13,9 +13,9 @@
     <extension
          point="org.eclipse.ui.importWizards">
       <wizard
-            id="com.gradleware.tooling.eclipse.ui.wizards.projectimport"
-            class="com.gradleware.tooling.eclipse.ui.projectimport.ProjectImportWizard"
-            category="com.gradleware.tooling.eclipse.ui.wizards"
+            id="org.eclipse.buildship.ui.wizards.projectimport"
+            class="org.eclipse.buildship.ui.projectimport.ProjectImportWizard"
+            category="org.eclipse.buildship.ui.wizards"
             icon="icons/full/etool16/import_wiz.png"
             name="Gradle Project">
          <description>
@@ -24,7 +24,7 @@
          <selection class="org.eclipse.core.resources.IResource"/>
       </wizard>
       <category
-            id="com.gradleware.tooling.eclipse.ui.wizards"
+            id="org.eclipse.buildship.ui.wizards"
             name="Gradle">
       </category>
     </extension>
@@ -33,7 +33,7 @@
     <extension
             point="org.eclipse.ui.editors">
       <editor
-            id="com.gradleware.tooling.eclipse.ui.gradlebuildscripteditor"
+            id="org.eclipse.buildship.ui.gradlebuildscripteditor"
             class="org.eclipse.ui.editors.text.TextEditor"
             icon="icons/full/obj16/gradle_logo.png"
             name="Gradle Build Script Editor"
@@ -46,15 +46,15 @@
     <extension
          point="org.eclipse.ui.views">
       <view
-            id="com.gradleware.tooling.eclipse.ui.views.taskview"
-            class="com.gradleware.tooling.eclipse.ui.taskview.TaskView"
-            category="com.gradleware.tooling.eclipse.ui.views"
+            id="org.eclipse.buildship.ui.views.taskview"
+            class="org.eclipse.buildship.ui.taskview.TaskView"
+            category="org.eclipse.buildship.ui.views"
             icon="icons/full/eview16/tasks.png"
             name="Gradle Tasks"
             restorable="true">
       </view>
       <category
-            id="com.gradleware.tooling.eclipse.ui.views"
+            id="org.eclipse.buildship.ui.views"
             name="Gradle">
       </category>
     </extension>
@@ -63,31 +63,31 @@
     <extension
           point="org.eclipse.ui.commands">
       <command
-             id="com.gradleware.tooling.eclipse.ui.commands.refreshtaskview"
+             id="org.eclipse.buildship.ui.commands.refreshtaskview"
              categoryId="org.eclipse.ui.category.views"
              name="Refresh View (Gradle Tasks)"
              description="Refreshes the Gradle Tasks view">
       </command>
       <command
-            id="com.gradleware.tooling.eclipse.ui.commands.runtasks"
+            id="org.eclipse.buildship.ui.commands.runtasks"
             categoryId="org.eclipse.debug.ui.category.run"
             name="Run Gradle Tasks"
             description="Runs all the selected Gradle tasks">
       </command>
       <command
-              id="com.gradleware.tooling.eclipse.ui.commands.rundefaulttasks"
+              id="org.eclipse.buildship.ui.commands.rundefaulttasks"
               categoryId="org.eclipse.debug.ui.category.run"
               name="Run Gradle Default Tasks"
               description="Runs the default tasks of the selected Gradle project">
       </command>
         <command
-            id="com.gradleware.tooling.eclipse.ui.commands.openrunconfiguration"
+            id="org.eclipse.buildship.ui.commands.openrunconfiguration"
             categoryId="org.eclipse.debug.ui.category.run"
             name="Open Gradle Run Configuration"
             description="Opens the Run Configuration for the selected Gradle tasks">
       </command>
       <command
-            id="com.gradleware.tooling.eclipse.ui.commands.openbuildscript"
+            id="org.eclipse.buildship.ui.commands.openbuildscript"
             categoryId="org.eclipse.ui.category.navigate"
             name="Open Gradle Build Script"
             description="Opens the Gradle build script for the selected Gradle project">
@@ -96,30 +96,30 @@
     <extension
           point="org.eclipse.ui.handlers">
       <handler
-             commandId="com.gradleware.tooling.eclipse.ui.commands.refreshtaskview"
-             class="com.gradleware.tooling.eclipse.ui.taskview.RefreshViewHandler">
+             commandId="org.eclipse.buildship.ui.commands.refreshtaskview"
+             class="org.eclipse.buildship.ui.taskview.RefreshViewHandler">
       </handler>
       <handler
-            commandId="com.gradleware.tooling.eclipse.ui.commands.runtasks"
-            class="com.gradleware.tooling.eclipse.ui.taskview.RunTasksHandler">
+            commandId="org.eclipse.buildship.ui.commands.runtasks"
+            class="org.eclipse.buildship.ui.taskview.RunTasksHandler">
       </handler>
         <handler
-                commandId="com.gradleware.tooling.eclipse.ui.commands.rundefaulttasks"
-                class="com.gradleware.tooling.eclipse.ui.taskview.RunTasksHandler">
+                commandId="org.eclipse.buildship.ui.commands.rundefaulttasks"
+                class="org.eclipse.buildship.ui.taskview.RunTasksHandler">
       </handler>
       <handler
-            commandId="com.gradleware.tooling.eclipse.ui.commands.openrunconfiguration"
-            class="com.gradleware.tooling.eclipse.ui.taskview.OpenRunConfigurationHandler">
+            commandId="org.eclipse.buildship.ui.commands.openrunconfiguration"
+            class="org.eclipse.buildship.ui.taskview.OpenRunConfigurationHandler">
       </handler>
       <handler
-            commandId="com.gradleware.tooling.eclipse.ui.commands.openbuildscript"
-            class="com.gradleware.tooling.eclipse.ui.taskview.OpenBuildScriptHandler">
+            commandId="org.eclipse.buildship.ui.commands.openbuildscript"
+            class="org.eclipse.buildship.ui.taskview.OpenBuildScriptHandler">
       </handler>
     </extension>
     <extension
             point="org.eclipse.ui.contexts">
         <context
-                id="com.gradleware.tooling.eclipse.ui.contexts.taskview"
+                id="org.eclipse.buildship.ui.contexts.taskview"
                 name="In Gradle Tasks View"
                 parentId="org.eclipse.ui.contexts.window">
         </context>
@@ -127,8 +127,8 @@
     <extension
           point="org.eclipse.ui.bindings">
        <key
-             commandId="com.gradleware.tooling.eclipse.ui.commands.refreshtaskview"
-             contextId="com.gradleware.tooling.eclipse.ui.contexts.taskview"
+             commandId="org.eclipse.buildship.ui.commands.refreshtaskview"
+             contextId="org.eclipse.buildship.ui.contexts.taskview"
              schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
              sequence="F5">
        </key>
@@ -136,7 +136,7 @@
    <extension
           point="org.eclipse.ui.commandImages">
        <image
-             commandId="com.gradleware.tooling.eclipse.ui.commands.refreshtaskview"
+             commandId="org.eclipse.buildship.ui.commands.refreshtaskview"
              icon="icons/full/elcl16/refresh.gif"
              disabledIcon="icons/full/dlcl16/refresh.gif">
        </image>
@@ -144,7 +144,7 @@
     <extension
           point="org.eclipse.ui.commandImages">
        <image
-             commandId="com.gradleware.tooling.eclipse.ui.commands.runtasks"
+             commandId="org.eclipse.buildship.ui.commands.runtasks"
              icon="icons/full/elcl16/run.png"
              disabledIcon="icons/full/dlcl16/run.png">
        </image>
@@ -154,8 +154,8 @@
     <extension
             point="org.eclipse.ui.console.consolePageParticipants">
         <consolePageParticipant
-                id="com.gradleware.tooling.eclipse.ui.console.gradle"
-                class="com.gradleware.tooling.eclipse.ui.console.GradleConsolePageParticipant">
+                id="org.eclipse.buildship.ui.console.gradle"
+                class="org.eclipse.buildship.ui.console.GradleConsolePageParticipant">
             <enablement/>
         </consolePageParticipant>
     </extension>
@@ -164,7 +164,7 @@
     <extension
             point="org.eclipse.debug.ui.launchConfigurationTypeImages">
         <launchConfigurationTypeImage
-                id="com.gradleware.tooling.eclipse.ui.launch.runconfigurationtypeimage"
+                id="org.eclipse.buildship.ui.launch.runconfigurationtypeimage"
                 configTypeID="com.gradleware.tooling.eclipse.core.launch.runconfiguration"
                 icon="icons/full/obj16/launch_config.png">
         </launchConfigurationTypeImage>
@@ -172,9 +172,9 @@
     <extension
             point="org.eclipse.debug.ui.launchConfigurationTabGroups">
         <launchConfigurationTabGroup
-                id="com.gradleware.tooling.eclipse.ui.launch.runconfigurationtabgroup"
+                id="org.eclipse.buildship.ui.launch.runconfigurationtabgroup"
                 type="com.gradleware.tooling.eclipse.core.launch.runconfiguration"
-                class="com.gradleware.tooling.eclipse.ui.launch.GradleRunConfigurationTabGroup">
+                class="org.eclipse.buildship.ui.launch.GradleRunConfigurationTabGroup">
         </launchConfigurationTabGroup>
     </extension>
 
@@ -182,8 +182,8 @@
     <extension
           point="org.eclipse.core.runtime.adapters">
        <factory
-             adaptableType="com.gradleware.tooling.eclipse.ui.taskview.TaskNode"
-             class="com.gradleware.tooling.eclipse.ui.taskview.adapter.TaskNodeAdapterFactory">
+             adaptableType="org.eclipse.buildship.ui.taskview.TaskNode"
+             class="org.eclipse.buildship.ui.taskview.adapter.TaskNodeAdapterFactory">
           <adapter
                 type="org.eclipse.ui.views.properties.IPropertySource">
           </adapter>
@@ -192,8 +192,8 @@
     <extension
           point="org.eclipse.core.runtime.adapters">
        <factory
-             adaptableType="com.gradleware.tooling.eclipse.ui.taskview.ProjectNode"
-             class="com.gradleware.tooling.eclipse.ui.taskview.adapter.ProjectNodeAdapterFactory">
+             adaptableType="org.eclipse.buildship.ui.taskview.ProjectNode"
+             class="org.eclipse.buildship.ui.taskview.adapter.ProjectNodeAdapterFactory">
           <adapter
                 type="org.eclipse.ui.views.properties.IPropertySource">
           </adapter>
