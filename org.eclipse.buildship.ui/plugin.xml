@@ -92,6 +92,12 @@
             name="Open Gradle Build Script"
             description="Opens the Gradle build script for the selected Gradle project">
       </command>
+      <command
+          id="org.eclipse.buildship.ui.commands.runeditorselection"
+          categoryId="org.eclipse.debug.ui.category.run"
+          name="Launch Gradle Test"
+          description="Launches the Gradle test from selection">
++      </command>
     </extension>
     <extension
           point="org.eclipse.ui.handlers">
@@ -131,6 +137,12 @@
              contextId="org.eclipse.buildship.ui.contexts.taskview"
              schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
              sequence="F5">
+       </key>
+       <key
+             commandId="org.eclipse.buildship.ui.commands.runeditorselection"
+             contextId="org.eclipse.ui.contexts.window"
+             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+             sequence="M1+M3+X G">
        </key>
    </extension>
    <extension
@@ -199,4 +211,63 @@
           </adapter>
        </factory>
     </extension>
+    
+    <!-- property tester calculating when to show the gradle test launch shortcut -->  
+    <extension point="org.eclipse.core.expressions.propertyTesters">
+        <propertyTester
+          id="org.eclipse.buildship.ui.launch.editorpropertytester"
+          type="org.eclipse.ui.IEditorInput"
+          namespace="org.eclipse.buildship.ui.editor"
+          properties="canlaunch"
+          class="org.eclipse.buildship.ui.launch.GradleLaunchShortcutPropertyTester">
+        </propertyTester>
+        <propertyTester
+          id="org.eclipse.buildship.ui.launch.viewpropertyTester"
+          type="org.eclipse.jdt.core.IJavaElement"
+          namespace="org.eclipse.buildship.ui.view"
+          properties="canlaunch"
+          class="org.eclipse.buildship.ui.launch.GradleLaunchShortcutPropertyTester">
+        </propertyTester>
+      </extension>
+      
+     <!-- Launch shortcut to run Gradle tests based on the selection -->   
+     <extension
+          point="org.eclipse.debug.ui.launchShortcuts">
+       <shortcut
+             class="org.eclipse.buildship.ui.launch.GradleTestLaunchShortcut"
+             description="Executes Gradle build based on the current selection"
+             icon="icons/full/obj16/launch_config.png"
+             id="org.eclipse.buildship.ui.launch.runeditorselection"
+             label="Gradle Build"
+             modes="run">
+             <contextualLaunch>
+                <contextLabel mode="run" label="Gradle Test" />
+                 <enablement>
+                    <or>
+                      <!-- enable if either in a view a package/class/method/field is selected -->
+                      <and>
+                        <with variable="activePart">
+                          <instanceof value="org.eclipse.ui.IViewPart" />
+                        </with>
+                        <with variable="selection">
+                          <count value="1"/>
+                          <iterate>
+                            <adapt type="org.eclipse.jdt.core.IJavaElement">
+                             <test property="org.eclipse.buildship.ui.view.canlaunch" />
+                            </adapt>
+                          </iterate>
+                        </with>
+                      </and>
+                    
+                      <!-- Or when a class/method is selected in the Java editor -->
+                      <with variable="activeEditorInput">
+                        <adapt type="org.eclipse.ui.IEditorInput">
+                          <test property="org.eclipse.buildship.ui.editor.canlaunch" />
+                        </adapt>
+                      </with> 
+                    </or>
+               </enablement>
+             </contextualLaunch>
+       </shortcut>
+    </extension>    
  </plugin>
