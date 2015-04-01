@@ -72,21 +72,22 @@ We use Eclipse
  - as our development environment of Buildship and
  - as our target platform against which we compile and run Buildship.
 
-We use our internally-packaged Eclipse distribution, but the latest Eclipse for RCP Developers package should be fine, too.
+We use our internally-packaged Eclipse distribution, but the latest Eclipse for RCP Developers package should be fine,
+too. The internal one is available at http://dev1.gradle.org:8000/eclipse/distro/. In case you'd like to use your own
+IDE for development import our project preferences:
+  
+  1. Download the preference file from http://dev1.gradle.org:8000/eclipse/config/formatter.epf
+  1. Import the preferences from the menu by clicking File > Import > Preferences
 
-Proceed as following to get all the required software installed:
-
- 1. Download the Eclipse distribution matching your OS from the http://dev1.gradle.org:8000/eclipse/distro/ site.
- 1. Untar the downloaded distribution and start Eclipse.
- 1. Install the latest version of Buildship from the e44 update site listed above.
+Soon we're going to release an Oomph setup model to provide a smooth way set up a development environment.
 
 ### Getting the source code
 
-The project and its source code is hosted on GitHub: `https://github.com/gradleware/buildship`.
+The project and its source code is hosted on GitHub: `https://github.com/eclipse/buildship`.
 
 Apply the following command to get a clone of the source code:
 
-    git clone git@github.com:gradleware/buildship.git
+    git clone git@github.com:eclipse/buildship.git
 
 #### Committers
 
@@ -120,7 +121,7 @@ can then press _Finish_.
 ### Setting the target platform
 
 After importing all the projects into Eclipse, there will be some build errors due to code references to missing
-plugins. To add these missing plugins to Eclipse, open the _tooling-e44.target_ file (or the one matching your
+plugins. To add these missing plugins to Eclipse, open the _tooling-e45.target_ file (or the one matching your
 Eclipse version) located in the project root folder and click _Set as Target Platform_ in the top-right corner. This
 will fix all compilation issues. Note, that it might take a while as it will download a whole SDK for the specified
 version of Eclipse.
@@ -152,12 +153,11 @@ To have full build ids in the name of the generated jars and in the manifest fil
 
     ./gradlew build -Pbuild.invoker=ci
 
-The default Eclipse version to use as the target platform is defined in the root project's _build.gradle_ file. To override the
-Eclipse version to use as the target platform, set the `eclipse.version` accordingly:
+The available target platforms are defined in the root project's _build.gradle_ file, under the _eclipseBuild_ section. 
+By default the eclipse version _44_ is selected. To build against a different target platform you can use the `eclipse.version`
+runtime property:
 
-    ./gradlew build -Peclipse.version=44
-
-The possible values for `eclipse.version` are: 36, 37, 42, 43, 44, and 45.
+    ./gradlew build -Peclipse.version=37
 
 ### Continuous Integration
 

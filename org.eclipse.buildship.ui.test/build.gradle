@@ -6,7 +6,6 @@ dependencies {
     compile project(':org.eclipse.buildship.ui')
     compile "eclipse:org.eclipse.swtbot.junit4_x:+"
     compile "eclipse:org.eclipse.swtbot.eclipse.finder:+"
-
     bundled "org.spockframework:spock-core:$spockLibVersion"
     bundled "com.gradleware.tooling:testing-junit:$commonsLibVersion"
     bundled "org.slf4j:slf4j-simple:$slf4jLibVersion"

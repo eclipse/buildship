@@ -11,27 +11,29 @@
 
 package eclipsebuild
 
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.gradle.api.plugins.JavaPlugin
 
 /**
- * Gradle plugin for building Eclipse features.
- * <p>
- * A feature project can specify its feature.xml with a very simple build script:
+ * Gradle plug-in for building Eclipse features.
+ * <p/>
+ * The plug-in uses a DSL to specify the feature.xml file:
  * <pre>
- apply plugin: eclipsebuild.Feature
-
- feature {
-   featureXml = file('feature.xml')
- }
- </pre>
- * <p>
- * Only thing this plugin does is basic validation if the feature.xml file and the build.properties file exists and
- * It add everything to the plugin jar what is defined in the build.properties (just line in {@link EclipsePlugin#syncJarContentWithBuildProperties(Project)})
+ * apply plugin: eclipsebuild.Feature
+ *
+ * feature {
+ *     featureXml = file('feature.xml')
+ * }
+ * </pre>
+ * It validates the existence of the feature.xml and the build.properties file. Also it adds
+ * everything to the plugin jar what is defined in the build.properties.
  */
 class FeaturePlugin implements Plugin<Project> {
 
-    // TODO (DONAT) class-level javadoc
+    /**
+     *  Extension class providing top-level content of the DSL definition for the plug-in.
+     */
     static class Extension {
         File featureXml
     }
@@ -41,24 +43,27 @@ class FeaturePlugin implements Plugin<Project> {
         configureProject(project)
     }
 
-  static void configureProject(Project project) {
-        // Add a 'feature' extension to configure the location of the descriptor
-        project.extensions.create('feature', Extension)  // TODO (DONAT) extract constant (do similarly for all other extension names of this builds)
-        // TODO (DONAT) I think it is okay for now to apply the Java plugin and I would remove your TODO below and the 'quick solution' comment
-        // Quick solution to make the 'jar' task available
-        // TODO: remove this and implement a custom jar task
-        project.plugins.apply('java') // TODO (DONAT) use signature that takes a class (JavaPlugin), do it like this everywhere
+    // name of the root node in the DSL
+    static String DSL_EXTENSION_NAME = "feature"
 
-        // TODO (DONAT) add more assertions (feature.properties, feature.xml, license.html, epl-v10.html)
-        // make sure the descriptors exist
-        assert project.file('build.properties').exists()
-        assert project.file('META-INF/MANIFEST.MF').exists()
+    static void configureProject(Project project) {
+        // add a 'feature' extension to configure the location of the descriptor
+        project.extensions.create(DSL_EXTENSION_NAME, Extension)
+        project.plugins.apply(JavaPlugin)
 
         // sync jar content with the build.properties file
         PluginUtils.syncJarContentWithBuildProperties(project)
 
-        // assemble task does't change anything outside the buildDir folder // TODO (DONAT) fix typo
-        project.tasks.assemble.outputs.dir project.buildDir  // TODO (DONAT) I would remove this line, seems more like a bug in Gradle
+        // validate the content
+        validateFeatureBeforeBuildStarts(project)
     }
 
+    static void validateFeatureBeforeBuildStarts(Project project) {
+        project.gradle.taskGraph.whenReady {
+            // make sure the required descriptors exist
+            assert project.file('build.properties').exists()
+            assert project.file('META-INF/MANIFEST.MF').exists()
+            assert project.file(project.feature.featureXml).exists()
+        }
+    }
 }
