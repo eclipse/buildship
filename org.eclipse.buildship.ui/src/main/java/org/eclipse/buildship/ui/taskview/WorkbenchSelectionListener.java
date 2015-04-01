@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 the original author or authors.
+ * Copyright (c) 2015 the original author or authors and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
+ *     Wayne Beaton (The Eclipse Foundation) - Bug 463693
  */
 
 package org.eclipse.buildship.ui.taskview;
@@ -26,7 +27,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.ISelectionListener;
@@ -50,7 +50,7 @@ public final class WorkbenchSelectionListener implements ISelectionListener {
     public void selectionChanged(IWorkbenchPart part, ISelection selection) {
         if (this.taskView.getState().isLinkToSelection() && part != this.taskView) {
             if (selection instanceof IStructuredSelection) {
-                StructuredSelection structuredSelection = (StructuredSelection) selection;
+                IStructuredSelection structuredSelection = (IStructuredSelection) selection;
                 if (!structuredSelection.isEmpty()) {
                     selectionChanged(structuredSelection);
                 }
@@ -58,7 +58,7 @@ public final class WorkbenchSelectionListener implements ISelectionListener {
         }
     }
 
-    private void selectionChanged(StructuredSelection structuredSelection) {
+    private void selectionChanged(IStructuredSelection structuredSelection) {
         ImmutableList<IProject> projects = convertToProjects(ImmutableList.copyOf(structuredSelection.toArray()));
         selectProjectsInTree(projects);
     }
