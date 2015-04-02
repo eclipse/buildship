@@ -83,7 +83,7 @@ class Config {
     }
 
     File getTargetPlatformProperties() {
-        new File(targetPlatformDir, 'tpp')
+        new File(targetPlatformDir, 'target-platform.properties')
     }
 
     File getEclipseSdkArchive() {
