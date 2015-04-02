@@ -198,6 +198,10 @@ class BuildDefinitionPlugin implements Plugin<Project> {
     static void saveTargetPlatformDefinition(Project project, Config config) {
         TargetPlatform targetPlatform = project.eclipseBuild.targetPlatforms[config.eclipseVersion]
         File propertiesFile = config.targetPlatformProperties
+        if (!propertiesFile.exists()) {
+            propertiesFile.getParentFile().mkdirs()
+            propertiesFile.createNewFile()
+        }
         project.logger.info("Save target platform properties to '${propertiesFile.absolutePath}'")
         propertiesFile.withPrintWriter { writer ->
             writer.write("eclipseVersion=${targetPlatform.eclipseVersion}\n")
