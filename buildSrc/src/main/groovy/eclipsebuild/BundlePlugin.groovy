@@ -47,6 +47,7 @@ class BundlePlugin implements Plugin<Project> {
 
         addTaskCopyLibs(project)
         addTaskUpdateManifest(project)
+        addTaskUpdateLibs(project)
     }
 
     static void configureProject(Project project) {
@@ -85,7 +86,7 @@ class BundlePlugin implements Plugin<Project> {
             ":${BuildDefinitionPlugin.TASK_NAME_INSTALL_TARGET_PLATFORM}"
         ], type: Copy) {
             group = Constants.gradleTaskGroupName
-            description = 'Copies the bundled dependencies into the lib folder'
+            description = 'Copies the bundled dependencies into the lib folder.'
 
             def libDir = project.file('lib')
 
@@ -109,7 +110,7 @@ class BundlePlugin implements Plugin<Project> {
     static void addTaskUpdateManifest(Project project) {
         project.task(TASK_NAME_UPDATE_MANIFEST, dependsOn: project.configurations.bundled) {
             group = Constants.gradleTaskGroupName
-            description = 'Updates the manifest file with all the dependencies of the Tooling API'
+            description = 'Updates the manifest file with the bundled dependencies.'
             doLast { updateManifest(project) }
         }
     }
@@ -179,6 +180,13 @@ class BundlePlugin implements Plugin<Project> {
         }
         new XmlNodePrinter(new PrintWriter(new FileWriter(classpathFile))).print(classpathXml)
         project.logger.debug(".classpath content:\n${classpathFile.text}")
+    }
+
+    static void addTaskUpdateLibs(Project project) {
+        project.task(TASK_NAME_UPDATE_LIBS, dependsOn: [TASK_NAME_COPY_LIBS, TASK_NAME_UPDATE_MANIFEST]) {
+            group = Constants.gradleTaskGroupName
+            description = 'Copies the bundled dependencies into the lib folder and updates the manifest file.'
+        }
     }
 
 }
