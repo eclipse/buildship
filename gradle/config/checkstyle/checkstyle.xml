@@ -18,9 +18,9 @@
     <module name="FileTabCharacter"/>
 
     <!-- require the copyright header -->
-    <module name="RegexpHeader">
-        <property name="headerFile" value="${checkstyleConfigDir}/required-header.txt"/>
-    </module>
+    <!--<module name="RegexpHeader">-->
+        <!--<property name="headerFile" value="${checkstyleConfigDir}/required-header.txt"/>-->
+    <!--</module>-->
 
     <module name="TreeWalker">
         <!-- ensure class and interface Javadoc is available -->
