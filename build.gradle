@@ -6,7 +6,7 @@ apply plugin: eclipsebuild.BuildDefinitionPlugin
 // the default version is 44 which can be overridden through -Peclipse.version=<version>
 // also the target platforms contain 1) the Eclipse SDK 2) the latest junit 3) SWTBot 2.2.1
 eclipseBuild {
-    defaultEclipseVersion = '45'
+    defaultEclipseVersion = '44'
 
     targetPlatform {
         eclipseVersion = '36'
