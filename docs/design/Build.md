@@ -11,46 +11,84 @@ plugins are defined in the `eclipsebuild` package.
 
 The plugin version is specified in the _version.txt_ file.
 
+
 ### BuildDefinitionPlugin
 
-The `BuildDefinitionPlugin` Gradle plugin has to be applied on the root project. It defines the target platform for the build. It
-contributes the `downloadEclipseSdk` and the `installTargetPlatform` tasks which are hooked into every build. This
-ensures that the target platform plugins are available for dependency resolution. The location of the target
-platform is _~/.tooling/eclipse/targetPlatforms_.
+The `BuildDefinitionPlugin` Gradle plugin has to be applied on the root project. It defines the target platform for
+the build and makes all Eclipse plugins available for dependency resolution. The `BundlePlugin`, `FeaturePlugin`, and
+`UpdateSitePlugin` Gradle plugins all depend on the tasks provided by the `BuildDefinitionPlugin`.
 
-The build definition specifies the default target Eclipse version which we build against.
+The set of supported target platforms are declared in the root _build.gradle_ file. For example:
 
     apply plugin: eclipsebuild.BuildDefinitionPlugin
 
     eclipseBuild {
-        eclipseVersion = '37'
-    }
+        defaultEclipseVersion = '44'
 
-This configuration can be overridden through the `-Peclipse.version=<version>` Gradle property.
+        targetPlatform {
+            eclipseVersion = '44'
+            sdkVersion = "4.4.2.M20150204-1700"
+            updateSites = [
+                "http://download.eclipse.org/release/luna",
+                "http://download.eclipse.org/technology/swtbot/releases/latest/"
+            ]
+            features = [
+               "org.eclipse.swtbot.eclipse.feature.group",
+               "org.eclipse.swtbot.ide.feature.group"
+            ]
+        }
+
+        targetPlatform {
+             eclipseVersion = '43'
+             ...
+         }
+     }
+
+When running a Gradle build using the above configuration, the build uses the Eclipse target platform version `44`. The
+build can use an alternative target platform by specifying the `eclipse.version` Gradle project property. For example:
+
+    gradle build -Peclipse.version=43
+
+The contributed task `installTargetPlatform` creates the target platform. It does the following:
+
+1. Downloads an Eclipse SDK in the specified version
+2. Installs the specified features from the specified update sites into the downloaded Eclipse SDK
+3. Converts all plugins from the downloaded Eclipse SDK into a Maven repository
+
+Once the 'mavenized' target platform is available, the Gradle build configuration can reference Eclipse plugin dependencies
+like any other dependency. The _groupId_ is always `eclipse`. For example:
+
+    compile 'eclipse:org.eclipse.jdt.ui:+'
+
+By default, the location of the generated target platform is _~/.tooling/eclipse/targetPlatforms_. The location can be
+customized by specifying the `targetPlatformsDir` Gradle project property:
+
+    gradle installTargetPlatform -PtargetPlatformsDir=/path/to/target/platform
+
 
 ### BundlePlugin
 
-The `BundlePlugin` Gradle plugin knows how to build Eclipse bundles. It extends the Java plugin and configures the project based
-on the Eclipse descriptors. When applied, it configures to build the resources based on the content of the _build.properties_
-file. Once built, the bundle manifest file _META-INF/MANIFEST.MF_ is copied and the version is replaced with the one configured
-in the containing Gradle project.
+The `BundlePlugin` Gradle plugin knows how to build Eclipse plugins and needs to be applied on the plugin project(s). The plugin creates
+a jar file containing all elements defined in the feature project's _build.properties_. The bundle manifest file _META-INF/MANIFEST.MF_
+is copied into the generated jar file and the version is replaced with the one from the current build.
 
-The `BundlePlugin` also adds the capability to bundle jars along with the dependencies from the target platform. This
-is enabled by declaring a `bundled` dependency.
+The `BundlePlugin` also adds the capability to bundle jars along with the dependencies from the target platform. This can be
+achieved by declaring `bundled` dependencies. For example:
 
     apply plugin: eclipsebuild.BundlePlugin
 
     dependencies {
-        compile "eclipse:org.eclipse.core.runtime:+"
-        bundled "com.google.guava:guava:+"
+        compile 'eclipse:org.eclipse.core.runtime:+'
+        bundled 'com.google.guava:guava:18.0'
     }
 
-The (transitive) dependencies of the `bundled` configuration are used by the `updateLibs` task which downloads the jars into
-the _lib_ folder and updates the manifest file to export all packages of these these external dependencies.
+The dependencies of the `bundled` configuration are used by the `updateLibs` task. This task downloads the transitive
+dependencies into the _lib_ folder, updates the manifest file to reference these dependencies and updates the _.classpath_ file.
+
 
 ### TestBundlePlugin
 
-The `TestBundlePlugin` Gradle plugin is an extension of the `BundlePlugin` and knows how to run tests.
+The `TestBundlePlugin` Gradle plugin is an extension of the `BundlePlugin` and knows how to run tests. For example:
 
     apply plugin: eclipsebuild.TestBundlePlugin
 
@@ -63,39 +101,38 @@ The `TestBundlePlugin` Gradle plugin is an extension of the `BundlePlugin` and k
 The plugin adds a task called `eclipseTest`. This task does the following:
 
 1. Clears the _buildDir/eclipseTest_ folder in order to have a clean environment for testing.
-2. Copies the target platform to the _buildDir/eclipseTest_ folder.
+2. Copies the non-mavenized target platform to the _buildDir/eclipseTest_ folder.
 3. Installs the project dependency plugins into the target platform with the _P2 director_.
 4. Executes the target platform and runs the tests with a custom Gradle test runner (which is an `ITestRunListener` implementation).
 
-The test results are collected and can be reviewed from the build/reports folder.
+Currently all concrete classes are gathered by the test plugin for test execution. The test results are collected in the _build/reports_ folder.
 
-Many other things that depend on Eclipse will have to be tested in the context of a running Eclipse application. The current idea is
-to run these IDE tests using [fragments](http://wiki.eclipse.org/FAQ_What_is_a_plug-in_fragment%3F) or plugins and to test similarly
-as described in [PDE Unit Tests using Ant](http://www.eclipse.org/articles/article.php?file=Article-PDEJUnitAntAutomation/index.html).
+The implementation uses techniques defined in the article [PDE Unit Tests using Ant](http://www.eclipse.org/articles/article.php?file=Article-PDEJUnitAntAutomation/index.html).
+
 
 ### FeaturePlugin
 
-The `FeaturePlugin` Gradle plugin knows how to build an Eclipse feature. It comes with a very simple DSL.
+The `FeaturePlugin` Gradle plugin knows how to build an Eclipse feature and needs to be applied on the feature project(s). The plugin creates
+a jar file containing all elements defined in the feature project's _build.properties_.
 
-    apply plugin: eclipsebuild.FeaturePlugin
-
-    feature {
-        featureXml = file('feature.xml')
-    }
-
-The result is a jar containing all elements defined in the DSL and in the project's _build.properties_.
 
 ### UpdateSitePlugin
 
-The `UpdateSitePlugin` Gradle plugin knows how to build an update site. It adds a task called `createP2Repository`. This task
-takes all project dependencies and, if they are either Eclipse plugins or features, publishes them to a local P2 repository. The
-generated repository is available in the _build/repository_ folder.
+The `UpdateSitePlugin` Gradle plugin knows how to build an update site and needs to be applied on the site project. The plugins adds
+a task called `createP2Repository`. This task takes all project dependencies and, if they are either Eclipse plugins or Eclipse features, publishes
+them to a local P2 repository. The generated repository is available in the _build/repository_ folder. For example:
 
     apply plugin: eclipsebuild.UpdateSitePlugin
 
     updateSite {
         siteDescriptor = file("category.xml")
+        extraResources = files('epl-v10.html', 'readme.txt')
+        signBundles = true
     }
+
+The `siteDescriptor` should point to a category descriptor which is used to publish update sites. The `extraResources` allows to reference
+extra resources to add to the update site. The `signBundles` specifies whether the artifacts of the update site should be signed (default is false).
+
 
 ### Adding a new Eclipse plugin
 

@@ -26,7 +26,7 @@ import org.gradle.api.plugins.JavaPlugin
  *
  * updateSite {
  *   siteDescriptor = file('category.xml')
- *   extraResources = rootProject.files('epl-v10.html', 'readme.txt')
+ *   extraResources = files('epl-v10.html', 'readme.txt')
  *   signBundles = true
  * }
  * </pre>
