@@ -87,11 +87,21 @@ class UpdateSitePlugin implements Plugin<Project> {
     }
 
     static void addTaskCopyBundles(Project project) {
-        project.task(COPY_BUNDLES_TASK_NAME) {
+        def copyBundlesTask = project.task(COPY_BUNDLES_TASK_NAME) {
             group = Constants.gradleTaskGroupName
             description = 'Copies over the bundles that make up the update site.'
             outputs.dir new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
             doLast { copyBundles(project) }
+        }
+
+        // add inputs for each plugin/feature project once this build script has been evaluated (before that, the dependencies are empty)
+        project.afterEvaluate {
+          for (ProjectDependency projectDependency : project.configurations.compile.dependencies.withType(ProjectDependency)) {
+            def dependency = projectDependency.dependencyProject
+            if (dependency.plugins.hasPlugin(BundlePlugin) || dependency.plugins.hasPlugin(FeaturePlugin)) {
+                copyBundlesTask.inputs.files dependency.tasks.jar
+            }
+          }
         }
     }
 

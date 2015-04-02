@@ -2,7 +2,7 @@ apply plugin: eclipsebuild.UpdateSitePlugin
 
 updateSite {
     siteDescriptor = file('category.xml')
-    extraResources = rootProject.files('epl-v10.html', 'notice.html')
+    extraResources = files('epl-v10.html', 'notice.html')
     signBundles = true
 }
 
