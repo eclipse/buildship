@@ -1,6 +1,10 @@
 apply plugin: eclipsebuild.UpdateSitePlugin
 
-updateSite { siteDescriptor = file("category.xml") }
+updateSite {
+    siteDescriptor = file('category.xml')
+    extraResources = rootProject.files('epl-v10.html', 'notice.html')
+    signBundles = true
+}
 
 dependencies {
     compile project(':org.eclipse.buildship.core')

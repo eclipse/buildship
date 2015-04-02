@@ -13,41 +13,87 @@ package eclipsebuild
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.logging.LogLevel;
-
-import eclipsebuild.mavenize.BundleMavenDeployer
+import org.gradle.api.logging.LogLevel
 import org.gradle.internal.os.OperatingSystem
 
-import java.nio.channels.FileLock
+import eclipsebuild.mavenize.BundleMavenDeployer
 
 /**
  * Gradle plugin for the root project of the Eclipse plugin build.
- * // TODO (DONAT) what does this plugin offer in terms of functionality?
+ * <p/>
+ * Applying this plugin offers a DSL to specify Eclipse target platforms which will be the base
+ * of the compilation of the sub-projects applying applying the following plug-ins:
+ * {@link BundlePlugin}, {@link TestBundlePlugin}, {@link FeaturePlugin}, {@link UpdateSitePlugin}.
+ * <p/>
+ * A target platform consists of a set of Eclipse update sites and a subset of their contained
+ * features. Upon each build the plug-in ensures if the specified features are downloaded and
+ * converted to a Maven repository.
+ * <p/>
+ * A valid target platform definition DSL looks like this:
+ * <pre>
+ * eclipseBuild {
+ *     defaultEclipseVersion = '44'
+ *
+ *     targetPlatform {
+ *         eclipseVersion = '44'
+ *         sdkVersion = "4.4.2.M20150204-1700"
+ *         updateSites = [
+ *            "http://download.eclipse.org/release/luna",
+ *            "http://download.eclipse.org/technology/swtbot/releases/latest/"
+ *         ]
+ *         features = [
+ *             "org.eclipse.swtbot.eclipse.feature.group",
+ *             "org.eclipse.swtbot.ide.feature.group"
+ *         ]
+ *     }
+ *
+ *     targetPlatform {
+ *        eclipseVersion = '43'
+ *        ...
+ *     }
+ * }
+ * </pre>
+ * The result is a target platform containing the Eclipse 4.4.2 SDK and the latest SWTBot. The
+ * sub-projects can reference the plugins simply by defining a dependency to the required bundle
+ * just like with with other dependency management tools:
+ * {@code compile "eclipse:org.eclipse.swtbot.eclipse.finder:+"}. <b>Note</b> that the Eclipse SDK
+ * feature is always included in the target platform.
+ * <p/>
+ * If no target platform version is defined for the build then the one matches to the value of the
+ * {@link defaultEclipseVersion} attribute will be selected. This can be changed by appending the
+ * the {@code -Peclipse.version=[version-number]} argument to he build. In the context of the
+ * example above it would be:
+ * <pre>
+ * gradle clean build -Peclipse.version=43
+ * </pre>
+ * The directory layout where the target platform and it's mavenized counterpart stored is defined
+ * in the {@link Config} class. The directory containing the target platforms can be redefined with
+ * the {@code -PtargetPlatformsDir=<path>} argument.
  */
 class BuildDefinitionPlugin implements Plugin<Project> {
 
-       // TODO (DONAT) class-level javadoc
-        static class Extension {
+    /**
+     *  Extension class providing top-level content of the DSL definition for the plug-in.
+     */
+    static class EclipseBuild {
 
-        // TODO (DONAT) this seems to be a mandatory attribute? is their an annotation for that in Gradle?
-        // TODO (DONAT) if not, where do you verify the value is set and set properly and a clear error message is shown if not
-        String defaultEclipseVersion
-        def targetPlatforms = [:]  // why not final? initialize field in constructor
+        def defaultEclipseVersion
+        final def targetPlatforms
 
-        // TODO (DONAT) who calls this method? anyone?
-        def targetPlatform() {
-            return targetPlatforms[defaultEclipseVersion]
+        EclipseBuild() {
+            targetPlatforms = [:]
         }
 
         def targetPlatform(Closure closure) {
             def tp = new TargetPlatform()
             tp.apply(closure)
-            targetPlatforms[tp.getEclipseVersion()] = tp // TODO (DONAT) since this is groovy, we might as well use the groovy convenience to get the value
+            targetPlatforms[tp.eclipseVersion] = tp
         }
-
     }
 
-    // TODO (DONAT) class-level javadoc
+    /**
+     * POJO class describing one target platform. Instances are stored in the {@link EclipseBuild#targetPlatforms} map.
+     */
     static class TargetPlatform {
 
         def eclipseVersion
@@ -60,186 +106,237 @@ class BuildDefinitionPlugin implements Plugin<Project> {
             closure.delegate = this
             closure.call()
         }
-
     }
 
+    // name of the root node in the DSL
+    static String DSL_EXTENSION_NAME = "eclipseBuild"
+
+    // task names
+    static final String TASK_NAME_DOWNLOAD_ECLIPSE_SDK = "downloadEclipseSdk"
+    static final String TASK_NAME_SAVE_TARGET_PLATFORM_DEFINITION = "saveTargetPlatformDefinition"
+    static final String TASK_NAME_ASSEMBLE_TARGET_PLATFORM = "assembleTargetPlatform"
+    static final String TASK_NAME_INSTALL_TARGET_PLATFORM = "installTargetPlatform"
+    static final String TASK_NAME_UNINSTALL_TARGET_PLATFORM = "uninstallTargetPlatform"
+    static final String TASK_NAME_UNINSTALL_ALL_TARGET_PLATFORMS = "uninstallAllTargetPlatforms"
 
     @Override
     public void apply(Project project) {
-        def targetPlatforms = project.container(TargetPlatform) // TODO (DONAT) is this line required? the return value is never used/
-        project.extensions.create("eclipseBuild", Extension) // TODO (DONAT)  extract this string to a static constant with a good name
+        project.extensions.create(DSL_EXTENSION_NAME, EclipseBuild)
 
         Config config = Config.on(project)
-        installTargetPlatformTask(project, config) // TODO (DONAT) I would first call downloadEclipseSdkTask since it logically comes before installTargetPlatformTask
-        downloadEclipseSdkTask(project, config)
+        validateDslBeforeBuildStarts(project, config)
+        addTaskDownloadEclipseSdk(project, config)
+        addTaskSaveTargetPlatformDefinition(project, config)
+        addTaskAssembleTargetPlatform(project, config)
+        addTaskInstallTargetPlatform(project, config)
+        addTaskUninstallTargetPlatform(project, config)
+        addTaskUninstallAllTargetPlatforms(project, config)
     }
 
-  // TODO (DONAT) rename to something like addTaskDownloadEclipseSdk
-  static void downloadEclipseSdkTask(Project project, Config config) {
-        project.task("downloadEclipseSdk") {  // TODO (DONAT)  extract this string to a static constant with a good name
+    static void validateDslBeforeBuildStarts(Project project, Config config) {
+        // check if the build definition is valid just before the build starts
+        project.gradle.taskGraph.whenReady {
+            if (project.eclipseBuild.defaultEclipseVersion == null) {
+                throw new RuntimeException("$DSL_EXTENSION_NAME must specify 'defaultEclipseVersion'")
+            }
+            else if (project.eclipseBuild.targetPlatforms[config.eclipseVersion] == null) {
+                throw new RuntimeException("Target platform is not defined for selected Eclipse version '${config.eclipseVersion}'")
+            }
+        }
+    }
+
+    static void addTaskDownloadEclipseSdk(Project project, Config config) {
+        project.task(TASK_NAME_DOWNLOAD_ECLIPSE_SDK) {
             group = Constants.gradleTaskGroupName
-          // TODO (DONAT) description is missing
-
-            // TODO (DONAT) to weak of a check (remove it)
-            outputs.upToDateWhen {
-                config.eclipseSdkExe.exists()
-            }
-
-          // TODO (DONAT) define inputs as a property that points to the full path of the sdk being downloaded
-          // TODO (DONAT) define outputs as an OutputFile pointing to the location where the sdk is downloaded to
-
-          // TODO (DONAT) add a separate task for extracting the downloaded sdk
-          // TODO (DONAT) add inputs as an InputFile pointing to the location where the sdk was downloaded to (i.e. the outputs of the download tasks)
-          // TODO (DONAT) add outputs as the directory where the sdk is extracted to
-
-          // TODO (DONAT) in general (for all tasks of this class and of this build, add logging so it is clear form the log what is going on (from which utl is something downloaded?, which file is extracted, etc.)
-          // TODO (DONAT) when running the build from the cmd line, you should understand what is going on (without being verbose)
-
-          // TODO (DONAT) add an explanation on what this locking is all about
-            doLast {
-                File dotLock = new File(config.eclipseSdkDir, ".lock")
-                if (!dotLock.exists()) {
-                    dotLock.getParentFile().mkdirs();
-                    dotLock.createNewFile()
-                }
-                FileOutputStream fos = new FileOutputStream(dotLock);
-                FileLock lock = fos.getChannel().lock();
-                try {
-                    doDownloadEclipseSdk(project, config)
-                } finally {
-                    lock.release();
-                    fos.close();
-                }
-            }
+            description = "Downloads an Eclipse SDK to perform P2 operations with."
+            outputs.file config.eclipseSdkArchive
+            doLast { downloadEclipseSdk(project, config) }
         }
     }
 
-  // TODO (DONAT) remove the 'do' prefix
-  static void doDownloadEclipseSdk(Project project, Config config) {
-        config.eclipseSdkDir.mkdirs() // TODO (DONAT) why is this needed if above you already create the dirs if they do not exist already
-        if (Constants.getOs() == "win32") { // // TODO (DONAT) why not just OperatingSystem.current().isWindows()?
-            File targetZip = new File(config.eclipseSdkDir, "eclipse-sdk.zip")
-            project.ant.get(src: Constants.eclipseSdkDownloadUrl, dest: targetZip)
-            project.ant.unzip(src: targetZip, dest: targetZip.parentFile)
-        } else {
-            File targetTar = new File(config.eclipseSdkDir, "eclipse-sdk.tar.gz")
-            project.ant.get(src: Constants.eclipseSdkDownloadUrl, dest: targetTar)
-            project.ant.untar(src: targetTar, dest: targetTar.parentFile, compression: "gzip")
+    static void downloadEclipseSdk(Project project, Config config) {
+        // if multiple builds start on the same machine (which is the case with a CI server)
+        // we want to prevent them downloading the same file to the same destination
+        def directoryLock = new FileSemaphore(config.eclipseSdkDir)
+        try {
+            directoryLock.lock()
+            downloadEclipseSdkUnprotected(project, config)
+        } finally {
+            directoryLock.unlock()
         }
-        // TODO (DONAT) make sure that untaring / unzipping happens with _replacing_ all of the existing content
+    }
 
-        project.logger.info("Set ${config.eclipseSdkExe} executable")
+    static void downloadEclipseSdkUnprotected(Project project, Config config) {
+        // download the archive
+        File sdkArchive = config.eclipseSdkArchive
+        project.logger.info("Download Eclipse SDK from '${Constants.eclipseSdkDownloadUrl}' to '${sdkArchive.absolutePath}'")
+        project.ant.get(src: Constants.eclipseSdkDownloadUrl, dest: sdkArchive)
+
+        // extract it to the same location where it was extracted
+        project.logger.info("Extract '$sdkArchive' to '$sdkArchive.parentFile.absolutePath'")
+        if (OperatingSystem.current().isWindows()) {
+            project.ant.unzip(src: sdkArchive, dest: sdkArchive.parentFile, overwrite: true)
+        } else {
+            project.ant.untar(src: sdkArchive, dest: sdkArchive.parentFile, compression: "gzip", overwrite: true)
+        }
+
+        // make it executable
+        project.logger.info("Set '${config.eclipseSdkExe}' executable")
         config.eclipseSdkExe.setExecutable(true)
     }
 
-  // TODO (DONAT) rename to something like addTaskInstallTargetPlatformTask
-  static void installTargetPlatformTask(Project project, Config config) {
-        project.task("installTargetPlatform", dependsOn: 'downloadEclipseSdk') {  // TODO (DONAT) extract this string to a static constant with a good name
+    static void addTaskSaveTargetPlatformDefinition(Project project, Config config) {
+        project.task(TASK_NAME_SAVE_TARGET_PLATFORM_DEFINITION) {
             group = Constants.gradleTaskGroupName
-            description = "Installs an Eclipse SDK along with a set of additional plugins to a local Eclipse installation located in the target platform location. To modify the used Eclipse version add -Peclipse.version=[37|42|43|44] parameter"
-            // TODO (DONAT) the description above does not list all eclipse version that we can handle
+            description = "Persists the active target platform information to a file."
+            inputs.file project.buildFile
+            project.afterEvaluate { outputs.file config.targetPlatformProperties }
+            doLast { saveTargetPlatformDefinition(project, config) }
+        }
+    }
 
-          // TODO (DONAT) to weak of a check (remove it)
-          outputs.upToDateWhen {
-                config.mavenizedTargetPlatformDir.exists() && config.mavenizedTargetPlatformDir.list().length > 0
-            }
-
-          // TODO (DONAT) have proper inputs and outputs (the pattern should be clear by now)
-          // TODO (DONAT) I guess something like 'config.eclipseSdkExe.path' as input and 'config.targetPlatformDir.path' as output
-
-            doLast {
-                File dotLock = new File(config.eclipseSdkDir, ".lock")
-                if (!dotLock.exists()) {
-                  // TODO (DONAT) for consistency with the method above, also call dotLock.getParentFile().mkdirs();
-                  dotLock.createNewFile()
-                }
-                FileOutputStream fos = new FileOutputStream(dotLock);
-                FileLock lock = fos.getChannel().lock();
-                try {
-                    doInstallTargetPlatform(project, config)
-                } finally {
-                    lock.release();
-                    fos.close();
-                }
-            }
+    static void saveTargetPlatformDefinition(Project project, Config config) {
+        TargetPlatform targetPlatform = project.eclipseBuild.targetPlatforms[config.eclipseVersion]
+        File propertiesFile = config.targetPlatformProperties
+        project.logger.info("Save target platform properties to '${propertiesFile.absolutePath}'")
+        propertiesFile.withPrintWriter { writer ->
+            writer.write("eclipseVersion=${targetPlatform.eclipseVersion}\n")
+            writer.write("sdkVersion=${targetPlatform.sdkVersion}\n")
+            writer.write("eclipseVersion=${targetPlatform.eclipseVersion}\n")
+            writer.write("updateSites=${targetPlatform.updateSites.sort { it }.join(",")}\n")
+            writer.write("features=${targetPlatform.features.sort{ it }.join(",")}")
         }
 
-        // TODO (DONAT) put into its own method (addTaskUninstallTargetPlatformTask) and call from apply method
-        project.task("uninstallTargetPlatform") {
+        project.logger.debug("Target platform properties: ${propertiesFile.text}")
+    }
+
+    static void addTaskAssembleTargetPlatform(Project project, Config config) {
+        project.task(TASK_NAME_ASSEMBLE_TARGET_PLATFORM, dependsOn: [
+            TASK_NAME_DOWNLOAD_ECLIPSE_SDK,
+            TASK_NAME_SAVE_TARGET_PLATFORM_DEFINITION
+        ]) {
             group = Constants.gradleTaskGroupName
-          // TODO (DONAT) description is missing
+            description = "Assembles an Eclipse distribution based on the target platform definition."
+            project.afterEvaluate { inputs.file config.targetPlatformProperties }
+            project.afterEvaluate { outputs.dir config.nonMavenizedTargetPlatformDir }
+            doLast { assembleTargetPlatform(project, config) }
+        }
+    }
 
-          // TODO (DONAT) why are all target platforms deleted and not just the one currently configured? be more specific in what is deleted (which will also make the uninstall method symmetric to the 'install' method)
-          // TODO (DONAT) config.targetPlatformDir.path vs. targetPlatformDirectory
-          doLast {
-                File targetPlatformDirectory = config.containerDir
-                if(!targetPlatformDirectory.exists()){
-                    logger.info("Directory '${config.containerDir}' does not exist. Nothing to uninstall.")
-                    return
-                }
+    static void assembleTargetPlatform(Project project, Config config) {
+        // if multiple builds start on the same machine (which is the case with a CI server)
+        // we want to prevent them assembling the same target platform at the same time
+        def lock = new FileSemaphore(config.nonMavenizedTargetPlatformDir)
+        try {
+            lock.lock()
+            assembleTargetPlatformUnprotected(project, config)
+        }finally  {
+            lock.unlock()
+        }
+    }
 
-                logger.info("Deleting target platform directory '${config.containerDir}'.")
-                def success = targetPlatformDirectory.deleteDir()
-                if (!success) {
-                    throw new RuntimeException("Deleting target platform directory '${targetPlatformDirectory}' did not succeed.")
-                }
+    static void assembleTargetPlatformUnprotected(Project project, Config config) {
+        // delete the target platform directory to ensure that the P2 Director creates a fresh product
+        if (config.nonMavenizedTargetPlatformDir.exists()) {
+            project.logger.info("Delete mavenized platform directory '${config.nonMavenizedTargetPlatformDir}'")
+            config.nonMavenizedTargetPlatformDir.deleteDir()
+        }
+
+        // invoke the P2 director application to assemble the 'org.eclipse.sdk.ide' product
+        // http://help.eclipse.org/luna/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_director.html
+        project.logger.info("Assemble org.eclipse.sdk.ide product in '${config.nonMavenizedTargetPlatformDir.absolutePath}'.\n    Update sites: '${config.targetPlatform.updateSites.join(' ')}'")
+        project.exec {
+
+            // redirect the external process output to the logging
+            standardOutput = new LogOutputStream(project.logger, LogLevel.INFO)
+            errorOutput = new LogOutputStream(project.logger, LogLevel.INFO)
+
+            commandLine(config.eclipseSdkExe.path,
+                    '-application', 'org.eclipse.equinox.p2.director',
+                    '-repository', config.targetPlatform.updateSites.join(','),
+                    '-installIU', 'org.eclipse.sdk.ide/' + config.targetPlatform.sdkVersion,
+                    '-tag', '1-Initial-State',
+                    '-destination', config.nonMavenizedTargetPlatformDir.path,
+                    '-profile', 'SDKProfile',
+                    '-bundlepool', config.nonMavenizedTargetPlatformDir.path,
+                    '-p2.os', Constants.os,
+                    '-p2.ws', Constants.ws,
+                    '-p2.arch', Constants.arch,
+                    '-roaming',
+                    '-nosplash')
+        }
+
+        // install the features defined in the target platform into the 'org.eclipse.sdk.ide' using
+        // the P2 Director application. after it is finished, the destination folder contains a
+        // complete Eclipse distribution with the SDK and the required features installed and can
+        // be converted into a Maven repository.
+        project.logger.info("Installing the extra features into the sdk. \nFatures: '${config.targetPlatform.features.join(' ')}'.\n    Update sites: '${config.targetPlatform.updateSites.join(' ')}'")
+        project.exec {
+            // redirect the external process output to the logging
+            standardOutput = new LogOutputStream(project.logger, LogLevel.INFO)
+            errorOutput = new LogOutputStream(project.logger, LogLevel.INFO)
+
+            commandLine(config.eclipseSdkExe.path,
+                    '-application', 'org.eclipse.equinox.p2.director',
+                    '-repository', config.targetPlatform.updateSites.join(','),
+                    '-installIU', config.targetPlatform.features.join(','),
+                    '-tag', '2-Additional-Features',
+                    '-destination', config.nonMavenizedTargetPlatformDir.path,
+                    '-profile', 'SDKProfile',
+                    '-nosplash')
+        }
+    }
+
+    static void addTaskInstallTargetPlatform(Project project, Config config) {
+        project.task(TASK_NAME_INSTALL_TARGET_PLATFORM, dependsOn: TASK_NAME_ASSEMBLE_TARGET_PLATFORM) {
+            group = Constants.gradleTaskGroupName
+            description = "Converts the assembled Eclipse distribution to a Maven repoository."
+            project.afterEvaluate { inputs.dir config.nonMavenizedTargetPlatformDir }
+            project.afterEvaluate { outputs.dir config.mavenizedTargetPlatformDir }
+            doLast { installTargetPlatform(project, config) }
+        }
+    }
+
+    static void installTargetPlatform(Project project, Config config) {
+        // delete the mavenized target platform directory to ensure that the deployment doesn't
+        // have outdated artifacts
+        if (config.mavenizedTargetPlatformDir.exists()) {
+            project.logger.info("Delete mavenized platform directory '${config.mavenizedTargetPlatformDir}'")
+            config.mavenizedTargetPlatformDir.deleteDir()
+        }
+
+        // install bundles
+        project.logger.info("Convert Eclipse target platform '${config.nonMavenizedTargetPlatformDir}' to Maven repository '${config.mavenizedTargetPlatformDir}'")
+        def deployer = new BundleMavenDeployer(project.ant, Constants.mavenizedEclipsePluginGroupName, project.logger)
+        deployer.deploy(config.nonMavenizedTargetPlatformDir, config.mavenizedTargetPlatformDir)
+    }
+
+    static void addTaskUninstallTargetPlatform(Project project, Config config) {
+        project.task(TASK_NAME_UNINSTALL_TARGET_PLATFORM) {
+            group = Constants.gradleTaskGroupName
+            description = "Deletes the target platform."
+            doLast { deleteFolder(project, config.targetPlatformDir) }
+        }
+    }
+
+    static void deleteFolder(Project project, File folder) {
+        if (!folder.exists()) {
+            project.logger.info("'$folder' doesn't exist")
+        }
+        else {
+            project.logger.info("Delete '$folder'")
+            def success = folder.deleteDir()
+            if (!success) {
+                throw new RuntimeException("Failed to delete '$folder'")
             }
         }
     }
 
-  // TODO (DONAT) remove the 'do' prefix
-    static void doInstallTargetPlatform(Project project, Config config) {
-      // TODO (DONAT) remove these checks once the proper uptodate checks of the install task are in place
-        if (!config.targetPlatformDir.exists() || !config.targetPlatformDir.list().length == 0) {
-          // TODO (DONAT) do we have to delete the target directory first or is this already handled by the command being invoked?
-            def targetPlatform = Config.on(project).targetPlatform
-            project.exec {
-                // TODO (DONAT) why are these 2 defined if never used
-                standardOutput = new ByteArrayOutputStream()
-                errorOutput = new ByteArrayOutputStream()
-
-                // TODO (DONAT) explain what is going on here
-                commandLine(config.eclipseSdkExe.path,
-                        '-application', 'org.eclipse.equinox.p2.director',
-                        '-repository', targetPlatform.updateSites.join(','),
-                        '-installIU', 'org.eclipse.sdk.ide/' + targetPlatform.sdkVersion,
-                        '-tag', '1-Initial-State',
-                        '-destination', config.targetPlatformDir.path,
-                        '-profile', 'SDKProfile',
-                        '-bundlepool', config.targetPlatformDir.path,
-                        '-p2.os', Constants.os,
-                        '-p2.ws', Constants.ws,
-                        '-p2.arch', Constants.arch,
-                        '-roaming',
-                        '-nosplash')
-            }
-            project.exec {
-                // TODO (DONAT) why are these 2 defined if never used
-                standardOutput = new ByteArrayOutputStream()
-                errorOutput = new ByteArrayOutputStream()
-
-                // TODO (DONAT) explain what is going on here
-                commandLine(config.eclipseSdkExe.path,
-                        '-application', 'org.eclipse.equinox.p2.director',
-                        '-repository', targetPlatform.updateSites.join(','),
-                        '-installIU', targetPlatform.features.join(','),
-                        '-tag', '2-Additional-Features',
-                        '-destination', config.targetPlatformDir.path,
-                        '-profile', 'SDKProfile',
-                        '-nosplash')
-            }
-
-            // TODO (DONAT) that should be in its own task, shouldn't it?
-            // TODO (DONAT) as usual, with proper input and outputs and logging
-            // create the maven repository based on the target platform
-            def deployer = new BundleMavenDeployer(project.ant, Constants.mavenEclipsePluginGroupName, project.logger);
-            deployer.deploy(config.targetPlatformDir, config.mavenizedTargetPlatformDir)
-
-            // save the version in a file under the target platform directory
-            def versionFile = new File(config.targetPlatformDir, 'version')
-            versionFile.createNewFile()
-            versionFile.text = config.eclipseVersion
+    static void addTaskUninstallAllTargetPlatforms(Project project, Config config) {
+        project.task(TASK_NAME_UNINSTALL_ALL_TARGET_PLATFORMS) {
+            group = Constants.gradleTaskGroupName
+            description = "Deletes all target platforms from the current machine."
+            doLast { deleteFolder(project, config.targetPlatformsDir) }
         }
     }
-
 }

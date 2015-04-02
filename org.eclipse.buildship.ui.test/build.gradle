@@ -4,8 +4,8 @@ apply plugin: 'groovy'
 dependencies {
     compile project(':org.eclipse.buildship.core')
     compile project(':org.eclipse.buildship.ui')
-    compile "eclipse:org.eclipse.swtbot.junit4_x:+"
     compile "eclipse:org.eclipse.swtbot.eclipse.finder:+"
+    compile "eclipse:org.eclipse.swtbot.junit4_x:+"
 
     bundled "org.spockframework:spock-core:$spockLibVersion"
     bundled "com.gradleware.tooling:testing-junit:$commonsLibVersion"

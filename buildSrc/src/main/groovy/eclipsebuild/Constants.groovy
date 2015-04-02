@@ -13,25 +13,26 @@ package eclipsebuild
 
 import org.gradle.internal.os.OperatingSystem
 
-
 /**
- * Constant store for the Eclipse build
+ * Contains all constants which are independent from the configuration.
  */
 class Constants {
 
     /**
-     * @return The name of the group where all tasks defined in this project should show upon the execution of
-     * <code>gradle tasks</code>.
+     * Returns the group name of all tasks that contribute to the Eclipse Plugin build.
+     *
+     * @return the name of the group where all tasks defined in this project should show upon the execution of <code>gradle tasks</code>
      */
     static String getGradleTaskGroupName() {
         return "Eclipse Plugin Build"
     }
 
     /**
-     * Eclipse runtime abbreviation of the operating system.
+     * Returns the Eclipse runtime abbreviation of the operating system.
+     *
      * http://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html
      *
-     * @return The operating system: 'linux', 'win32' or 'macosx'
+     * @return the operating system: 'linux', 'win32', 'macosx', or null
      */
     static String getOs() {
         OperatingSystem os = OperatingSystem.current()
@@ -39,10 +40,11 @@ class Constants {
     }
 
     /**
-     * Eclipse runtime abbreviation of the windowing system.
+     * Return the Eclipse runtime abbreviation of the windowing system.
+     *
      * http://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html
      *
-     * @return The windowing system: 'gtk', 'win32' or 'cocoa'
+     * @return the windowing system: 'gtk', 'win32', 'cocoa', or null
      */
     static String getWs() {
         OperatingSystem os = OperatingSystem.current()
@@ -50,34 +52,30 @@ class Constants {
     }
 
     /**
-     * Eclipse runtime abbreviation of the architecture.
+     * Returns the Eclipse runtime abbreviation of the architecture.
+     *
      * http://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/misc/runtime-options.html
      *
-     * @return The architecture: x86, x86_64 or ppc
+     * @return the architecture: x86_64 or x86
      */
     static String getArch() {
         System.getProperty("os.arch").contains("64") ? "x86_64" : "x86"
     }
 
     /**
-     * @return The list of Eclipse versions supported by this Eclipse build. Possible values: '37', '42', '43' or '44',
-     *  // TODO (DONAT) this code is not used anywhere. either use it or remove the method.
+     * Returns the group ID of the mavenized Eclipse plugins.
+     *
+     * @return the group ID referencing Eclipse plugins of the mavenized target platform
      */
-    static List<String> getAcceptedEclipseVersions() {
-        return Arrays.asList("36", "37", "42", "43", "44", "45" );
-    }
-
-    /**
-     * @return The group ID for referencing eclipse bundles in the local Maven repository.
-     */
-    static String getMavenEclipsePluginGroupName() {
+    static String getMavenizedEclipsePluginGroupName() {
         return "eclipse"
     }
 
     /**
-     * @return The subpath of the Eclipse executable for the current platform.
+     * Returns the OS-specific part of the path of the Eclipse executable.
+     *
+     * @return the OS-specific part of the path of the Eclipse executable, or null
      */
-    // TODO (DONAT) this method does not seem right to me here, I would move it to the Config class
     static String getEclipseExePath() {
         OperatingSystem os = OperatingSystem.current()
         os.isLinux() ? "eclipse/eclipse" :
@@ -87,15 +85,16 @@ class Constants {
     }
 
     /**
-     * @return A URL which always redirect to a mirror from where and Eclipse SDK can be downloaded.
+     * Returns the URL from where the Eclipse SDK (4.4.2) can be downloaded. The URL always redirects to a mirror from
+     * where the Eclipse SDK can be downloaded.
+     *
+     * @return the URL from where the Eclipse SDK can be downloaded
      */
-     // TODO (DONAT) this method does not seem right to me here, I would move it to the Config class
-     static URL getEclipseSdkDownloadUrl() {
+    static URL getEclipseSdkDownloadUrl() {
         def archInUrl = getArch() == "x86_64" ? "-x86_64" : "";
         if (getOs() == "win32") {
             return new URL("http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops4/R-4.4.2-201502041700/eclipse-SDK-4.4.2-win32${archInUrl}.zip&r=1")
-        }
-        else {
+        } else {
             return new URL("http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops4/R-4.4.2-201502041700/eclipse-SDK-4.4.2-${getOs()}-${getWs()}${archInUrl}.tar.gz&r=1");
         }
     }

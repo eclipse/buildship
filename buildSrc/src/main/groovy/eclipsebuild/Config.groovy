@@ -12,68 +12,86 @@
 package eclipsebuild
 
 import org.gradle.api.Project
+import org.gradle.internal.os.OperatingSystem
 
-import eclipsebuild.BuildDefinitionPlugin.TargetPlatform;
+import eclipsebuild.BuildDefinitionPlugin.TargetPlatform
 
-// TODO (DONAT) add class-level javadoc
+
+/**
+ * Holds configuration-dependent settings for the plug-ins.
+ */
 class Config {
 
-    // TODO (DONAT) make final
-    Project project
+    private final Project project
 
     static Config on(Project project) {
-        return new Config(project);
+        return new Config(project)
     }
 
-    // TODO (DONAT) why not private when there is a factory method?
-    public Config(Project project) {
+    private Config(Project project) {
         this.project = project
     }
 
-    // TODO (DONAT) in general in this file and all others, use Groovy style to call getters (since we are using Groovy here)
-
     TargetPlatform getTargetPlatform() {
-        project.rootProject.eclipseBuild.targetPlatforms[getEclipseVersion()];
+        project.rootProject.eclipseBuild.targetPlatforms[eclipseVersion]
     }
 
     String getEclipseVersion() {
-      // TODO (DONAT) move this logic to the constructor and keep value in a field (and turn this method into a simple getter method)
-        String version = project.hasProperty("eclipse.version") ? project.property("eclipse.version") : project.rootProject.eclipseBuild.defaultEclipseVersion
-        if (version == null) {
-            throw new RuntimeException('No Eclipse version specified')
-        }
-        else {
-            version
-        }
+        // to avoid configuration timing issues we don't cache the values in fields
+        project.hasProperty('eclipse.version') ?
+                project.property('eclipse.version') :
+                project.rootProject.eclipseBuild.defaultEclipseVersion
     }
 
-    // TODO (DONAT) I would rename this to getTargetPlatformsDir
-    // TODO (DONAT) I would also rename the property to targetPlatformsDir
-    // TODO (DONAT) document on the BuildDefinitionPlugin that this can be configured via project property
-    File getContainerDir() {
-      // TODO (DONAT) move this logic to the constructor and keep value in a field (and turn this method into a simple getter method)
-      if (project.hasProperty("containerDir")) {
-            return new File(project.property("containerDir") as String)
-        }
-        else {
-            return new File(System.getProperty("user.home"), ".tooling/eclipse/targetPlatforms")
-        }
+    File getTargetPlatformsDir() {
+        // to avoid configuration timing issues we don't cache the values in fields
+        project.hasProperty('targetPlatformsDir') ?
+                new File(project.property('targetPlatformsDir') as String) :
+                new File(System.getProperty('user.home'), '.tooling/eclipse/targetPlatforms')
     }
+
+    // the hierarchy obtainable with the API below:
+    //
+    //   targetPlatformsDir
+    //    |--eclipse-sdk
+    //    |  |--eclipse-sdk.tar.gz
+    //    |  |--eclipse
+    //    |     |--Eclipse.app/Contents/MacOS/eclipse
+    //    |     |--plugins
+    //    |     |--features
+    //    |--45
+    //    |  |--target-platform
+    //    |  |--mavenized-target-platform
+    //    |     |--version
+    //    |--37
+    //       |--...
 
     File getEclipseSdkDir() {
-        project.file("${getContainerDir()}/eclipse-sdk");
-    }
-
-    File getEclipseSdkExe() {
-        project.file("${getEclipseSdkDir()}/${Constants.eclipseExePath}")
+        new File(targetPlatformsDir, 'eclipse-sdk')
     }
 
     File getTargetPlatformDir() {
-        return project.file("${getContainerDir()}/${getEclipseVersion()}/target-platform");
+        new File(targetPlatformsDir, eclipseVersion)
+    }
+
+    File getNonMavenizedTargetPlatformDir() {
+        new File(targetPlatformDir, 'target-platform')
     }
 
     File getMavenizedTargetPlatformDir() {
-        return project.file("${getContainerDir()}/${getEclipseVersion()}/mavenized-target-platform");
+        new File(targetPlatformDir, 'mavenized-target-platform')
+    }
+
+    File getTargetPlatformProperties() {
+        new File(targetPlatformDir, 'tpp')
+    }
+
+    File getEclipseSdkArchive() {
+        new File(eclipseSdkDir, OperatingSystem.current().isWindows() ? 'eclipse-sdk.zip' : 'eclipse-sdk.tar.gz')
+    }
+
+    File getEclipseSdkExe() {
+        new File(eclipseSdkDir, Constants.eclipseExePath)
     }
 
 }

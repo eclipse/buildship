@@ -3,7 +3,7 @@
 <feature
       id="org.eclipse.buildship.feature"
       label="%featureName"
-      version="0.0.1.featureversion"
+      version="0.0.1.featureVersion"
       provider-name="%providerName"
       plugin="org.eclipse.buildship.branding">
 

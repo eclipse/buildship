@@ -63,7 +63,7 @@ If you have already installed the plugin previously, you can update to the most 
 
 ## Development Setup Instructions
 
-This section describes the steps to setup Eclipse such that it can be used for development of Buildship.
+This section describes the steps to set up Eclipse such that it can be used for development of Buildship.
 
 ### Setting up Eclipse
 
@@ -72,21 +72,25 @@ We use Eclipse
  - as our development environment of Buildship and
  - as our target platform against which we compile and run Buildship.
 
-We use our internally-packaged Eclipse distribution, but the latest Eclipse for RCP Developers package should be fine, too.
+We use a custom-packaged Eclipse distribution as our development environment, but the latest Eclipse for RCP Developers package should
+be fine, too.
 
-Proceed as following to get all the required software installed:
+Our custom-packaged Eclipse distribution is available
+at [http://dev1.gradle.org:8000/eclipse/distro](http://dev1.gradle.org:8000/eclipse/distro).
 
- 1. Download the Eclipse distribution matching your OS from the http://dev1.gradle.org:8000/eclipse/distro/ site.
- 1. Untar the downloaded distribution and start Eclipse.
- 1. Install the latest version of Buildship from the e44 update site listed above.
+If you do not use our custom-packaged Eclipse distribution, we suggest to still import our project preferences which are available
+at [http://dev1.gradle.org:8000/eclipse/config/formatter.epf](http://dev1.gradle.org:8000/eclipse/config/formatter.epf).
+
+We plan to soon release an [Oomph](https://wiki.eclipse.org/Eclipse_Oomph_Installer) setup model to provide a convenient
+way to set up the local development environment.
 
 ### Getting the source code
 
-The project and its source code is hosted on GitHub: `https://github.com/gradleware/buildship`.
+The project and its source code is hosted on GitHub: `https://github.com/eclipse/buildship`.
 
 Apply the following command to get a clone of the source code:
 
-    git clone git@github.com:gradleware/buildship.git
+    git clone git@github.com:eclipse/buildship.git
 
 #### Committers
 
@@ -120,10 +124,10 @@ can then press _Finish_.
 ### Setting the target platform
 
 After importing all the projects into Eclipse, there will be some build errors due to code references to missing
-plugins. To add these missing plugins to Eclipse, open the _tooling-e44.target_ file (or the one matching your
-Eclipse version) located in the project root folder and click _Set as Target Platform_ in the top-right corner. This
-will fix all compilation issues. Note, that it might take a while as it will download a whole SDK for the specified
-version of Eclipse.
+plugins. To add these missing plugins to Eclipse, open the _tooling-e45.target_ file (or the one matching your
+desired target platform version) located in the project root folder and click _Set as Target Platform_
+in the top-right corner. This will fix all compilation issues. Note that this might take a while since the entire
+SDK for the specified Eclipse version will be downloaded.
 
 ### Running the tests inside of Eclipse
 
@@ -152,12 +156,11 @@ To have full build ids in the name of the generated jars and in the manifest fil
 
     ./gradlew build -Pbuild.invoker=ci
 
-The default Eclipse version to use as the target platform is defined in the root project's _build.gradle_ file. To override the
-Eclipse version to use as the target platform, set the `eclipse.version` accordingly:
+The available target platforms are defined in the root project's _build.gradle_ file, under the _eclipseBuild_ node.
+By default, the build runs against target platform version _45_. To build against a different target platform version,
+you can set the `eclipse.version` Gradle project property:
 
     ./gradlew build -Peclipse.version=44
-
-The possible values for `eclipse.version` are: 36, 37, 42, 43, 44, and 45.
 
 ### Continuous Integration
 
