@@ -15,6 +15,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.logging.LogLevel
 import org.gradle.internal.os.OperatingSystem
+
+import de.undercouch.gradle.tasks.download.Download
 import eclipsebuild.mavenize.BundleMavenDeployer
 
 /**
@@ -187,33 +189,25 @@ class BuildDefinitionPlugin implements Plugin<Project> {
     }
 
     static void addTaskDownloadEclipseSdk(Project project, Config config) {
-        project.task(TASK_NAME_DOWNLOAD_ECLIPSE_SDK) {
+        project.task(TASK_NAME_DOWNLOAD_ECLIPSE_SDK, type: Download) {
             group = Constants.gradleTaskGroupName
             description = "Downloads an Eclipse SDK to perform P2 operations with."
             outputs.file config.eclipseSdkArchive
-            doLast { downloadEclipseSdk(project, config) }
+            src Constants.eclipseSdkDownloadUrl
+            dest config.eclipseSdkArchive
+            doLast { extractArchive(project, config) }
+
+            // if multiple builds start on the same machine (which is the case with a CI server)
+            // we want to prevent them downloading the same file to the same destination
+            def directoryLock = new FileSemaphore(config.eclipseSdkDir)
+            doFirst { directoryLock.lock() }
+            doLast { directoryLock.unlock() }
         }
     }
 
-    static void downloadEclipseSdk(Project project, Config config) {
-        // if multiple builds start on the same machine (which is the case with a CI server)
-        // we want to prevent them downloading the same file to the same destination
-        def directoryLock = new FileSemaphore(config.eclipseSdkDir)
-        try {
-            directoryLock.lock()
-            downloadEclipseSdkUnprotected(project, config)
-        } finally {
-            directoryLock.unlock()
-        }
-    }
-
-    static void downloadEclipseSdkUnprotected(Project project, Config config) {
-        // download the archive
-        File sdkArchive = config.eclipseSdkArchive
-        project.logger.info("Download Eclipse SDK from '${Constants.eclipseSdkDownloadUrl}' to '${sdkArchive.absolutePath}'")
-        project.ant.get(src: Constants.eclipseSdkDownloadUrl, dest: sdkArchive)
-
+    static void extractArchive(Project project, Config config) {
         // extract it to the same location where it was extracted
+        File sdkArchive = config.eclipseSdkArchive
         project.logger.info("Extract '$sdkArchive' to '$sdkArchive.parentFile.absolutePath'")
         if (OperatingSystem.current().isWindows()) {
             project.ant.unzip(src: sdkArchive, dest: sdkArchive.parentFile, overwrite: true)
