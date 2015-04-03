@@ -29,6 +29,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
 import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.domain.ProjectNode;
 import org.eclipse.buildship.ui.generic.NodeSelection;
 
 /**

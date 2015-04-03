@@ -44,7 +44,11 @@
 
     <!-- integration of Gradle views -->
     <extension
-         point="org.eclipse.ui.views">
+          point="org.eclipse.ui.views">
+      <category
+            id="org.eclipse.buildship.ui.views"
+            name="Gradle">
+      </category>
       <view
             id="org.eclipse.buildship.ui.views.taskview"
             class="org.eclipse.buildship.ui.taskview.TaskView"
@@ -53,10 +57,14 @@
             name="Gradle Tasks"
             restorable="true">
       </view>
-      <category
-            id="org.eclipse.buildship.ui.views"
-            name="Gradle">
-      </category>
+      <view
+            id="org.eclipse.buildship.ui.views.dependenciesview"
+            class="org.eclipse.buildship.ui.depsview.DependenciesView"
+            category="org.eclipse.buildship.ui.views"
+            icon="icons/full/eview16/dependencies.png"
+            name="Gradle Dependencies"
+            restorable="true">
+      </view>
     </extension>
 
     <!-- integration of Gradle commands -->
@@ -182,7 +190,7 @@
     <extension
           point="org.eclipse.core.runtime.adapters">
        <factory
-             adaptableType="org.eclipse.buildship.ui.taskview.TaskNode"
+             adaptableType="org.eclipse.buildship.ui.domain.TaskNode"
              class="org.eclipse.buildship.ui.taskview.adapter.TaskNodeAdapterFactory">
           <adapter
                 type="org.eclipse.ui.views.properties.IPropertySource">
@@ -192,7 +200,7 @@
     <extension
           point="org.eclipse.core.runtime.adapters">
        <factory
-             adaptableType="org.eclipse.buildship.ui.taskview.ProjectNode"
+             adaptableType="org.eclipse.buildship.ui.domain.ProjectNode"
              class="org.eclipse.buildship.ui.taskview.adapter.ProjectNodeAdapterFactory">
           <adapter
                 type="org.eclipse.ui.views.properties.IPropertySource">

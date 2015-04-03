@@ -15,9 +15,9 @@ import org.eclipse.core.runtime.IAdapterFactory;
 import org.eclipse.ui.views.properties.IPropertySource;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.ui.taskview.ProjectTaskNode;
-import org.eclipse.buildship.ui.taskview.TaskNode;
-import org.eclipse.buildship.ui.taskview.TaskSelectorNode;
+import org.eclipse.buildship.ui.domain.ProjectTaskNode;
+import org.eclipse.buildship.ui.domain.TaskNode;
+import org.eclipse.buildship.ui.domain.TaskSelectorNode;
 
 /**
  * Adapts {@link TaskNode} instances to {@link IPropertySource} instances.

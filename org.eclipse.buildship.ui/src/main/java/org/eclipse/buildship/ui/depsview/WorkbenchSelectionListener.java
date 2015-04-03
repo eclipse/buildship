@@ -10,7 +10,7 @@
  *     Wayne Beaton (The Eclipse Foundation) - Bug 463693
  */
 
-package org.eclipse.buildship.ui.taskview;
+package org.eclipse.buildship.ui.depsview;
 
 import java.util.List;
 
@@ -35,22 +35,22 @@ import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 
 /**
- * Links the selection from the workspace to the {@link TaskView}.
+ * Links the selection from the workspace to the {@link DependenciesView}.
  * <p>
  * If an {@link IProject} object is selected anywhere in the UI - like in the project explorer - the
  * corresponding node is selected in the task view.
  */
 public final class WorkbenchSelectionListener implements ISelectionListener {
 
-    private final TaskView taskView;
+    private final DependenciesView dependenciesView;
 
-    public WorkbenchSelectionListener(TaskView taskView) {
-        this.taskView = Preconditions.checkNotNull(taskView);
+    public WorkbenchSelectionListener(DependenciesView taskView) {
+        this.dependenciesView = Preconditions.checkNotNull(taskView);
     }
 
     @Override
     public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-        if (this.taskView.getState().isLinkToSelection() && part != this.taskView) {
+        if (this.dependenciesView.getState().isLinkToSelection() && part != this.dependenciesView) {
             if (selection instanceof IStructuredSelection) {
                 IStructuredSelection structuredSelection = (IStructuredSelection) selection;
                 if (!structuredSelection.isEmpty()) {
@@ -86,7 +86,7 @@ public final class WorkbenchSelectionListener implements ISelectionListener {
     private void selectProjectsInTree(List<IProject> projects) {
         Builder<TreeItem> selection = ImmutableList.builder();
 
-        Tree tree = this.taskView.getTreeViewer().getTree();
+        Tree tree = this.dependenciesView.getTreeViewer().getTree();
         for (TreeItem treeItem : tree.getItems()) {
             Object data = treeItem.getData();
             if (data != null && data instanceof ProjectNode) {

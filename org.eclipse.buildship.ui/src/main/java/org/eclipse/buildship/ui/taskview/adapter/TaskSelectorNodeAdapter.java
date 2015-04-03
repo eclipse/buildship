@@ -19,7 +19,7 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
-import org.eclipse.buildship.ui.taskview.TaskSelectorNode;
+import org.eclipse.buildship.ui.domain.TaskSelectorNode;
 
 /**
  * Adapts a {@link TaskSelectorNode} instance to a {@link IPropertySource} instance.

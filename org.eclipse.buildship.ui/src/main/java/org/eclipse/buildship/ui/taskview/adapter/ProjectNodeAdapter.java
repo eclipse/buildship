@@ -24,10 +24,10 @@ import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
 import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.ui.taskview.ProjectNode;
+import org.eclipse.buildship.ui.domain.ProjectNode;
 
 /**
- * Adapts a {@link org.eclipse.buildship.ui.taskview.ProjectNode} instance to a {@link IPropertySource} instance.
+ * Adapts a {@link org.eclipse.buildship.ui.domain.ProjectNode} instance to a {@link IPropertySource} instance.
  */
 final class ProjectNodeAdapter implements IPropertySource {
 

@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.taskview;
+package org.eclipse.buildship.ui.depsview;
 
 import java.util.List;
 
@@ -29,23 +29,23 @@ import org.eclipse.buildship.ui.domain.TaskNode;
 import org.eclipse.buildship.ui.util.selection.SelectionUtils;
 
 /**
- * Links the selection from the {@link TaskView} to the workspace.
+ * Links the selection from the {@link DependenciesView} to the workspace.
  * <p>
  * If a task or project node is selected in the task view, the corresponding {@link IProject} is
  * selected everywhere in the UI.
  */
 public final class TreeViewerSelectionChangeListener implements ISelectionChangedListener {
 
-    private final TaskView taskView;
+    private final DependenciesView dependenciesView;
 
-    public TreeViewerSelectionChangeListener(TaskView taskView) {
-        this.taskView = Preconditions.checkNotNull(taskView);
+    public TreeViewerSelectionChangeListener(DependenciesView dependenciesView) {
+        this.dependenciesView = Preconditions.checkNotNull(dependenciesView);
     }
 
     @Override
     public void selectionChanged(SelectionChangedEvent event) {
         // update the viewers if 'linked to selection' is enabled
-        if (this.taskView.getState().isLinkToSelection()) {
+        if (this.dependenciesView.getState().isLinkToSelection()) {
             findAndUpdateViewSelections(event.getSelection());
         }
     }

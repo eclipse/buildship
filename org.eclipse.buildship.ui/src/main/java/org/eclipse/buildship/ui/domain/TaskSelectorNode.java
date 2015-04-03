@@ -9,15 +9,19 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.taskview;
+package org.eclipse.buildship.ui.domain;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
 
 /**
- * Tree node in the {@link TaskView} representing a task selector.
+ * Domain object representing a Gradle project task.
+ * <p/>
+ * It holds a reference to a {@link OmniTaskSelector} and is aware of the parent containing this
+ * task.
+ * <p/>
+ * This object is presented in various places in the UI.
  */
 public final class TaskSelectorNode implements TaskNode {
 
