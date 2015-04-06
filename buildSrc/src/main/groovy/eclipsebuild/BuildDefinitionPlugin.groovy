@@ -11,11 +11,10 @@
 
 package eclipsebuild
 
+import eclipsebuild.mavenize.BundleMavenDeployer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.logging.LogLevel
 import org.gradle.internal.os.OperatingSystem
-import eclipsebuild.mavenize.BundleMavenDeployer
 
 /**
  * Gradle plugin for the root project of the Eclipse plugin build.
@@ -132,7 +131,6 @@ class BuildDefinitionPlugin implements Plugin<Project> {
 
     // task names
     static final String TASK_NAME_DOWNLOAD_ECLIPSE_SDK = "downloadEclipseSdk"
-    static final String TASK_NAME_SAVE_TARGET_PLATFORM_DEFINITION = "saveTargetPlatformDefinition"
     static final String TASK_NAME_ASSEMBLE_TARGET_PLATFORM = "assembleTargetPlatform"
     static final String TASK_NAME_INSTALL_TARGET_PLATFORM = "installTargetPlatform"
     static final String TASK_NAME_UNINSTALL_TARGET_PLATFORM = "uninstallTargetPlatform"
@@ -145,11 +143,12 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         Config config = Config.on(project)
         validateDslBeforeBuildStarts(project, config)
         addTaskDownloadEclipseSdk(project, config)
-        addTaskSaveTargetPlatformDefinition(project, config)
         addTaskAssembleTargetPlatform(project, config)
         addTaskInstallTargetPlatform(project, config)
         addTaskUninstallTargetPlatform(project, config)
         addTaskUninstallAllTargetPlatforms(project, config)
+
+        defineConventionMapping(project)
     }
 
     static void configureProject(Project project) {
@@ -186,7 +185,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         }
     }
 
-    static void addTaskDownloadEclipseSdk(Project project, Config config) {
+    static addTaskDownloadEclipseSdk(Project project, Config config) {
         project.task(TASK_NAME_DOWNLOAD_ECLIPSE_SDK) {
             group = Constants.gradleTaskGroupName
             description = "Downloads an Eclipse SDK to perform P2 operations with."
@@ -195,7 +194,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         }
     }
 
-    static void downloadEclipseSdk(Project project, Config config) {
+    static downloadEclipseSdk(Project project, Config config) {
         // if multiple builds start on the same machine (which is the case with a CI server)
         // we want to prevent them downloading the same file to the same destination
         def directoryLock = new FileSemaphore(config.eclipseSdkDir)
@@ -207,7 +206,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         }
     }
 
-    static void downloadEclipseSdkUnprotected(Project project, Config config) {
+    static downloadEclipseSdkUnprotected(Project project, Config config) {
         // download the archive
         File sdkArchive = config.eclipseSdkArchive
         project.logger.info("Download Eclipse SDK from '${Constants.eclipseSdkDownloadUrl}' to '${sdkArchive.absolutePath}'")
@@ -226,113 +225,16 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         config.eclipseSdkExe.setExecutable(true)
     }
 
-    static void addTaskSaveTargetPlatformDefinition(Project project, Config config) {
-        project.task(TASK_NAME_SAVE_TARGET_PLATFORM_DEFINITION) {
-            group = Constants.gradleTaskGroupName
-            description = "Persists the active target platform information to a file."
-            inputs.file project.buildFile
-            project.afterEvaluate { outputs.file config.targetPlatformProperties }
-            doLast { saveTargetPlatformDefinition(project, config) }
-        }
-    }
-
-    static void saveTargetPlatformDefinition(Project project, Config config) {
-        TargetPlatform targetPlatform = project.eclipseBuild.targetPlatforms[config.eclipseVersion]
-        File propertiesFile = config.targetPlatformProperties
-        if (!propertiesFile.exists()) {
-            propertiesFile.getParentFile().mkdirs()
-            propertiesFile.createNewFile()
-        }
-        project.logger.info("Save target platform properties to '${propertiesFile.absolutePath}'")
-        propertiesFile.withPrintWriter { writer ->
-            writer.write("eclipseVersion=${targetPlatform.eclipseVersion}\n")
-            writer.write("sdkVersion=${targetPlatform.sdkVersion}\n")
-            writer.write("eclipseVersion=${targetPlatform.eclipseVersion}\n")
-            writer.write("updateSites=${targetPlatform.updateSites.sort { it }.join(",")}\n")
-            writer.write("features=${targetPlatform.features.sort{ it }.join(",")}")
-        }
-
-        project.logger.debug("Target platform properties: ${propertiesFile.text}")
-    }
-
-    static void addTaskAssembleTargetPlatform(Project project, Config config) {
+    static addTaskAssembleTargetPlatform(Project project, Config config) {
         project.task(TASK_NAME_ASSEMBLE_TARGET_PLATFORM, dependsOn: [
-            TASK_NAME_DOWNLOAD_ECLIPSE_SDK,
-            TASK_NAME_SAVE_TARGET_PLATFORM_DEFINITION
-        ]) {
+            TASK_NAME_DOWNLOAD_ECLIPSE_SDK
+        ], type: AssembleTargetPlatformTask) {
             group = Constants.gradleTaskGroupName
             description = "Assembles an Eclipse distribution based on the target platform definition."
-            project.afterEvaluate { inputs.file config.targetPlatformProperties }
-            project.afterEvaluate { outputs.dir config.nonMavenizedTargetPlatformDir }
-            doLast { assembleTargetPlatform(project, config) }
         }
     }
 
-    static void assembleTargetPlatform(Project project, Config config) {
-        // if multiple builds start on the same machine (which is the case with a CI server)
-        // we want to prevent them assembling the same target platform at the same time
-        def lock = new FileSemaphore(config.nonMavenizedTargetPlatformDir)
-        try {
-            lock.lock()
-            assembleTargetPlatformUnprotected(project, config)
-        }finally  {
-            lock.unlock()
-        }
-    }
-
-    static void assembleTargetPlatformUnprotected(Project project, Config config) {
-        // delete the target platform directory to ensure that the P2 Director creates a fresh product
-        if (config.nonMavenizedTargetPlatformDir.exists()) {
-            project.logger.info("Delete mavenized platform directory '${config.nonMavenizedTargetPlatformDir}'")
-            config.nonMavenizedTargetPlatformDir.deleteDir()
-        }
-
-        // invoke the P2 director application to assemble the 'org.eclipse.sdk.ide' product
-        // http://help.eclipse.org/luna/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_director.html
-        project.logger.info("Assemble org.eclipse.sdk.ide product in '${config.nonMavenizedTargetPlatformDir.absolutePath}'.\n    Update sites: '${config.targetPlatform.updateSites.join(' ')}'")
-        project.exec {
-
-            // redirect the external process output to the logging
-            standardOutput = new LogOutputStream(project.logger, LogLevel.INFO)
-            errorOutput = new LogOutputStream(project.logger, LogLevel.INFO)
-
-            commandLine(config.eclipseSdkExe.path,
-                    '-application', 'org.eclipse.equinox.p2.director',
-                    '-repository', config.targetPlatform.updateSites.join(','),
-                    '-installIU', 'org.eclipse.sdk.ide/' + config.targetPlatform.sdkVersion,
-                    '-tag', '1-Initial-State',
-                    '-destination', config.nonMavenizedTargetPlatformDir.path,
-                    '-profile', 'SDKProfile',
-                    '-bundlepool', config.nonMavenizedTargetPlatformDir.path,
-                    '-p2.os', Constants.os,
-                    '-p2.ws', Constants.ws,
-                    '-p2.arch', Constants.arch,
-                    '-roaming',
-                    '-nosplash')
-        }
-
-        // install the features defined in the target platform into the 'org.eclipse.sdk.ide' using
-        // the P2 Director application. after it is finished, the destination folder contains a
-        // complete Eclipse distribution with the SDK and the required features installed and can
-        // be converted into a Maven repository.
-        project.logger.info("Installing the extra features into the sdk. \nFatures: '${config.targetPlatform.features.join(' ')}'.\n    Update sites: '${config.targetPlatform.updateSites.join(' ')}'")
-        project.exec {
-            // redirect the external process output to the logging
-            standardOutput = new LogOutputStream(project.logger, LogLevel.INFO)
-            errorOutput = new LogOutputStream(project.logger, LogLevel.INFO)
-
-            commandLine(config.eclipseSdkExe.path,
-                    '-application', 'org.eclipse.equinox.p2.director',
-                    '-repository', config.targetPlatform.updateSites.join(','),
-                    '-installIU', config.targetPlatform.features.join(','),
-                    '-tag', '2-Additional-Features',
-                    '-destination', config.nonMavenizedTargetPlatformDir.path,
-                    '-profile', 'SDKProfile',
-                    '-nosplash')
-        }
-    }
-
-    static void addTaskInstallTargetPlatform(Project project, Config config) {
+    static addTaskInstallTargetPlatform(Project project, Config config) {
         project.task(TASK_NAME_INSTALL_TARGET_PLATFORM, dependsOn: TASK_NAME_ASSEMBLE_TARGET_PLATFORM) {
             group = Constants.gradleTaskGroupName
             description = "Converts the assembled Eclipse distribution to a Maven repoository."
@@ -342,7 +244,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         }
     }
 
-    static void installTargetPlatform(Project project, Config config) {
+    static installTargetPlatform(Project project, Config config) {
         // delete the mavenized target platform directory to ensure that the deployment doesn't
         // have outdated artifacts
         if (config.mavenizedTargetPlatformDir.exists()) {
@@ -356,7 +258,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         deployer.deploy(config.nonMavenizedTargetPlatformDir, config.mavenizedTargetPlatformDir)
     }
 
-    static void addTaskUninstallTargetPlatform(Project project, Config config) {
+    static addTaskUninstallTargetPlatform(Project project, Config config) {
         project.task(TASK_NAME_UNINSTALL_TARGET_PLATFORM) {
             group = Constants.gradleTaskGroupName
             description = "Deletes the target platform."
@@ -364,7 +266,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         }
     }
 
-    static void deleteFolder(Project project, File folder) {
+    static deleteFolder(Project project, File folder) {
         if (!folder.exists()) {
             project.logger.info("'$folder' doesn't exist")
         }
@@ -377,11 +279,23 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         }
     }
 
-    static void addTaskUninstallAllTargetPlatforms(Project project, Config config) {
+    static addTaskUninstallAllTargetPlatforms(Project project, Config config) {
         project.task(TASK_NAME_UNINSTALL_ALL_TARGET_PLATFORMS) {
             group = Constants.gradleTaskGroupName
             description = "Deletes all target platforms from the current machine."
             doLast { deleteFolder(project, config.targetPlatformsDir) }
+        }
+    }
+
+    static defineConventionMapping(Project project) {
+        def convention = new AssembleTargetPlatformConvention(project)
+        project.convention.plugins.assembletargetplatform = convention
+        project.tasks.withType(AssembleTargetPlatformTask.class).all { AssembleTargetPlatformTask task ->
+            task.conventionMapping.updateSites = { convention.updateSites }
+            task.conventionMapping.features = { convention.features }
+            task.conventionMapping.nonMavenizedTargetPlatformDir = { convention.nonMavenizedTargetPlatformDir }
+            task.conventionMapping.eclipseSdkExe = { convention.eclipseSdkExe }
+            task.conventionMapping.sdkVersion = { convention.sdkVersion }
         }
     }
 }
