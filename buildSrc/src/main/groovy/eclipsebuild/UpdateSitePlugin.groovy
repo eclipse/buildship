@@ -96,12 +96,15 @@ class UpdateSitePlugin implements Plugin<Project> {
 
         // add inputs for each plugin/feature project once this build script has been evaluated (before that, the dependencies are empty)
         project.afterEvaluate {
-          for (ProjectDependency projectDependency : project.configurations.compile.dependencies.withType(ProjectDependency)) {
-            def dependency = projectDependency.dependencyProject
-            if (dependency.plugins.hasPlugin(BundlePlugin) || dependency.plugins.hasPlugin(FeaturePlugin)) {
-                copyBundlesTask.inputs.files dependency.tasks.jar
+            for (ProjectDependency projectDependency : project.configurations.compile.dependencies.withType(ProjectDependency)) {
+                def dependency = projectDependency.dependencyProject
+                dependency.afterEvaluate {
+                    // check if the dependent project is a bundle or feature, once its build script has been evaluated
+                    if (dependency.plugins.hasPlugin(BundlePlugin) || dependency.plugins.hasPlugin(FeaturePlugin)) {
+                        copyBundlesTask.inputs.files dependency.tasks.jar.outputs.files
+                    }
+                }
             }
-          }
         }
     }
 
