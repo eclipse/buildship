@@ -144,26 +144,26 @@ public final class GradleDistributionTab extends AbstractLaunchConfigurationTab 
 
     private void createGradleDistributionSelectionControl(Group container) {
         // first line: gradle wrapper
-        this.useGradleWrapperOption = this.builderFactory.newRadio(container).alignLeft().text(CoreMessages.GradleDistribution_Label_GradleWrapper).control();
+        this.useGradleWrapperOption = this.builderFactory.newRadio(container).alignLeft().text(CoreMessages.GradleOptions_Label_GradleWrapper).control();
         this.useGradleWrapperOption.setSelection(true);
 
         this.builderFactory.span(container);
         this.builderFactory.span(container);
 
         // second line: local installation directory
-        this.useLocalInstallationDirOption = this.builderFactory.newRadio(container).alignLeft().text(CoreMessages.GradleDistribution_Label_LocalInstallationDirectory).control();
+        this.useLocalInstallationDirOption = this.builderFactory.newRadio(container).alignLeft().text(CoreMessages.GradleOptions_Label_LocalInstallationDirectory).control();
         this.localInstallationDirText = this.builderFactory.newText(container).alignFillHorizontal().disabled().control();
         Button localInstallationDirBrowseButton = this.builderFactory.newButton(container).alignLeft().disabled().text(ProjectImportMessages.Button_Label_Browse).control();
         localInstallationDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(container.getShell(), this.localInstallationDirText,
-                CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
+                CoreMessages.GradleOptions_Label_LocalInstallationDirectory));
 
         // third line: remote distribution installation
-        this.useRemoteDistributionUriOption = this.builderFactory.newRadio(container).alignLeft().text(CoreMessages.GradleDistribution_Label_RemoteDistributionUri).control();
+        this.useRemoteDistributionUriOption = this.builderFactory.newRadio(container).alignLeft().text(CoreMessages.GradleOptions_Label_RemoteDistributionUri).control();
         this.remoteDistributionUriText = this.builderFactory.newText(container).alignFillHorizontal().disabled().control();
         this.builderFactory.span(container);
 
         // fourth line: gradle version
-        this.useGradleVersionOption = this.builderFactory.newRadio(container).alignLeft().text(CoreMessages.GradleDistribution_Label_SpecificGradleVersion).control();
+        this.useGradleVersionOption = this.builderFactory.newRadio(container).alignLeft().text(CoreMessages.GradleOptions_Label_SpecificGradleVersion).control();
         this.gradleVersionCombo = this.builderFactory.newCombo(container).alignLeft().disabled().control();
         this.gradleVersionCombo.setSize(150, this.gradleVersionCombo.getSize().y);
         this.gradleVersionCombo.setItems(getGradleVersions());

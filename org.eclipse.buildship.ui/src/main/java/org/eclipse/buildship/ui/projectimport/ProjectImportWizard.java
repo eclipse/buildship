@@ -38,8 +38,7 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
 
     // the pages to display in the wizard
     private final GradleProjectWizardPage gradleProjectPage;
-    private final GradleDistributionWizardPage gradleDistributionPage;
-    private final AdvancedOptionsWizardPage advancedOptionsPage;
+    private final GradleOptionsWizardPage gradleDistributionPage;
     private final ProjectPreviewWizardPage projectPreviewPage;
 
     // the controller that contains the wizard logic
@@ -72,8 +71,7 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
         // the wizard
         ProjectImportConfiguration configuration = this.controller.getConfiguration();
         this.gradleProjectPage = new GradleProjectWizardPage(configuration);
-        this.gradleDistributionPage = new GradleDistributionWizardPage(configuration, publishedGradleVersions);
-        this.advancedOptionsPage = new AdvancedOptionsWizardPage(configuration);
+        this.gradleDistributionPage = new GradleOptionsWizardPage(configuration, publishedGradleVersions);
         this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller);
     }
 
@@ -92,7 +90,6 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
         // assign wizard pages to this wizard
         addPage(this.gradleProjectPage);
         addPage(this.gradleDistributionPage);
-        addPage(this.advancedOptionsPage);
         addPage(this.projectPreviewPage);
 
         // show progress bar when getContainer().run() is called
