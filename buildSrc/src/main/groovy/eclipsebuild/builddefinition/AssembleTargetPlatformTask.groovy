@@ -1,11 +1,24 @@
-package eclipsebuild
+/*
+ * Copyright (c) 2015 the original author or authors.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
+ */
 
+package eclipsebuild.builddefinition
+
+import eclipsebuild.Constants
+import eclipsebuild.util.file.FileSemaphore
+import eclipsebuild.util.log.LogOutputStream
 import org.gradle.api.internal.ConventionTask
 import org.gradle.api.logging.LogLevel
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-
 
 /**
  * Task definition to assemble an Eclipse target platform.

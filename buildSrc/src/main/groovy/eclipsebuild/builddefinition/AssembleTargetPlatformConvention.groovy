@@ -1,10 +1,18 @@
-    package eclipsebuild
+/*
+ * Copyright (c) 2015 the original author or authors.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
+ */
 
-import java.io.File;
+package eclipsebuild.builddefinition
 
-import org.gradle.api.Project;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.OutputDirectory;
+import eclipsebuild.Config
+import org.gradle.api.Project
 
 
 /**
@@ -43,5 +51,4 @@ class AssembleTargetPlatformConvention {
     def getEclipseSdkExe() {
         Config.on(project).eclipseSdkExe
     }
-
 }

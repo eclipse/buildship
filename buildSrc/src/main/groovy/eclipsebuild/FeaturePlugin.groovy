@@ -11,6 +11,7 @@
 
 package eclipsebuild
 
+import eclipsebuild.util.bundle.BundleUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
@@ -29,7 +30,7 @@ class FeaturePlugin implements Plugin<Project> {
       project.plugins.apply(JavaPlugin)
 
       // sync jar content with the build.properties file
-      PluginUtils.configureFeatureJarInput(project)
+      BundleUtils.configureFeatureJarInput(project)
 
       // validate the content
       validateRequiredFilesExist(project)

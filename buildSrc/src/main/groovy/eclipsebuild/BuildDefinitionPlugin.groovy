@@ -12,6 +12,10 @@
 package eclipsebuild
 
 import eclipsebuild.mavenize.BundleMavenDeployer
+import eclipsebuild.builddefinition.AssembleTargetPlatformConvention
+import eclipsebuild.builddefinition.AssembleTargetPlatformTask
+import eclipsebuild.mavenize.BundleMavenDeployer
+import eclipsebuild.util.file.FileSemaphore
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.internal.os.OperatingSystem
