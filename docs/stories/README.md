@@ -11,7 +11,5 @@ This document provides references to all story documentation.
 1. [Run Configurations](RunConfigurations.md)
 1. [Tooling Commons](ToolingCommons.md)
 1. [Tooling API](ToolingAPI.md)
-1. [Build](Build.md)
 1. [Editor](Editor.md)
-
-
+1. [Build](Build.md)
