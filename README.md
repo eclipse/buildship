@@ -52,6 +52,7 @@ Apply the following instructions to use one of the Eclipse update sites previous
  1. In Eclipse, open the menu item _Help >> Install New Software_.
  1. Paste the update site link that matches your Eclipse version into the _Work with_ text box.
  1. Click the _Add_ button at the top of the screen, give the update site a name, and press _OK_.
+ 1. If prompted, set the following credentials: username=guest, password=guest.
  1. Ensure that the option _Group Items by Category_ is enabled.
  1. Select the top-level node _Buildship: Eclipse Plug-ins for Gradle_ once it appears. This may take a moment.
  1. Click _Next_. This may take a while.
