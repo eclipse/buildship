@@ -13,21 +13,19 @@ package org.eclipse.buildship.ui.projectimport;
 
 import java.io.File;
 
-import com.google.common.collect.ImmutableList;
-
-import com.gradleware.tooling.toolingutils.binding.Property;
-
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
+import org.eclipse.buildship.ui.util.layout.LayoutUtils;
+import org.eclipse.buildship.ui.util.widget.UiBuilder;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
-import org.eclipse.buildship.ui.util.layout.LayoutUtils;
-import org.eclipse.buildship.ui.util.widget.UiBuilder;
+import com.google.common.collect.ImmutableList;
+import com.gradleware.tooling.toolingutils.binding.Property;
 
 /**
  * First page in the {@link ProjectImportWizard} specifying the Gradle root project folder to
@@ -73,6 +71,11 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
                 getConfiguration().setProjectDir(FileUtils.getAbsoluteFile(GradleProjectWizardPage.this.projectDirText.getText()).orNull());
             }
         });
+    }
+
+    @Override
+    protected String getPageContextInformation() {
+        return ProjectImportMessages.InfoMessage_GradleProjectWizardPageContext;
     }
 
 }

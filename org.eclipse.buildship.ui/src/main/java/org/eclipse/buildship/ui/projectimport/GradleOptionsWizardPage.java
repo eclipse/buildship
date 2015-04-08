@@ -35,7 +35,6 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
-
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.gradle.GradleDistributionWrapper.DistributionType;
@@ -105,7 +104,8 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
         this.useLocalInstallationDirOption = uiBuilderFactory.newRadio(root).alignLeft().text(CoreMessages.GradleDistribution_Label_LocalInstallationDirectory).control();
         this.localInstallationDirText = uiBuilderFactory.newText(root).alignFillHorizontal().disabled().control();
         Button localInstallationDirBrowseButton = uiBuilderFactory.newButton(root).alignLeft().disabled().text(ProjectImportMessages.Button_Label_Browse).control();
-        localInstallationDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.localInstallationDirText, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
+        localInstallationDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.localInstallationDirText,
+                CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
 
         // third line: remote distribution installation
         this.useRemoteDistributionUriOption = uiBuilderFactory.newRadio(root).alignLeft().text(CoreMessages.GradleDistribution_Label_RemoteDistributionUri).control();
@@ -350,9 +350,13 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
     private GradleDistributionWrapper getSpecificVersion() {
         int selectionIndex = this.gradleVersionCombo.getSelectionIndex();
         return GradleDistributionWrapper.from(DistributionType.VERSION,
-                Strings.emptyToNull(selectionIndex == -1 || !Strings.isNullOrEmpty(this.gradleVersionCombo.getText()) ?
-                        this.gradleVersionCombo.getText() :
-                        this.gradleVersionCombo.getItem(selectionIndex)));
+                Strings.emptyToNull(selectionIndex == -1 || !Strings.isNullOrEmpty(this.gradleVersionCombo.getText()) ? this.gradleVersionCombo.getText() : this.gradleVersionCombo
+                        .getItem(selectionIndex)));
+    }
+
+    @Override
+    protected String getPageContextInformation() {
+        return ProjectImportMessages.InfoMessage_GradleDistributionWizardPageContext;
     }
 
 }
