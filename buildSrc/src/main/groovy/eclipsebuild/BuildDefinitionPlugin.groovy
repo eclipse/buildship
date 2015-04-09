@@ -77,7 +77,7 @@ import eclipsebuild.mavenize.BundleMavenDeployer
  * <pre>
  * compile withDependency("org.eclipse.core.runtime")
  * </pre>
- * If active target platform has a version mapped for the dependency then that version is used,
+ * If the active target platform has a version mapped for the dependency then that version is used,
  * otherwise an unbound version range (+) is applied.
  */
 class BuildDefinitionPlugin implements Plugin<Project> {
@@ -156,7 +156,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         // add extension
         project.extensions.create(DSL_EXTENSION_NAME, EclipseBuild)
 
-        // make new variables for the build.gradle file e.g. for platform-dependent dependencies
+        // expose some constants to the build files, e.g. for platform-dependent dependencies
         Constants.exposePublicConstantsFor(project)
 
         // make the withDependency(String) method available in the build script
@@ -170,7 +170,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         Config config = Config.on(project)
         def mappedVersion = config.targetPlatform.versionMapping[pluginName]
         def version = mappedVersion == null ? "+" : mappedVersion
-        project.logger.debug("Version mapped for $pluginName: $version")
+        project.logger.debug("Plugin $pluginName mapped to version $version")
         "${Constants.mavenizedEclipsePluginGroupName}:${pluginName}:${version}"
     }
 

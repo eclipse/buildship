@@ -21,10 +21,10 @@ the build and makes all Eclipse plugins available for dependency resolution. The
 The set of supported target platforms are declared in the root _build.gradle_ file. For example:
 
     apply plugin: eclipsebuild.BuildDefinitionPlugin
-    
+
     eclipseBuild {
         defaultEclipseVersion = '44'
-    
+
         targetPlatform {
             eclipseVersion = '44'
             sdkVersion = "4.4.2.M20150204-1700"
@@ -40,7 +40,7 @@ The set of supported target platforms are declared in the root _build.gradle_ fi
                 'org.eclipse.core.runtime' : '3.10.0.v20140318-2214'
             ]
         }
-    
+
         targetPlatform {
              eclipseVersion = '43'
              ...
@@ -69,12 +69,13 @@ customized by specifying the `targetPlatformsDir` Gradle project property:
     gradle installTargetPlatform -PtargetPlatformsDir=/path/to/target/platform
 
 
-The `versionMapping` can be used to define exact plugin dependency versions per target platform. A bundle can define a dependency 
+The `versionMapping` can be used to define exact plugin dependency versions per target platform. A bundle can define a dependency
 through the {@code withDependency()} method like
 
     compile withDependency("org.eclipse.core.runtime")
 
-If active target platform has a version mapped for the dependency then that version is used, otherwise an unbound version range (+) is applied.
+If the active target platform has a version mapped for the dependency then that version is used, otherwise an unbound version range (+) is applied.
+
 
 ### BundlePlugin
 
@@ -94,6 +95,7 @@ achieved by declaring `bundled` dependencies. For example:
 
 The dependencies of the `bundled` configuration are used by the `updateLibs` task. This task downloads the transitive
 dependencies into the _lib_ folder, updates the manifest file to reference these dependencies and updates the _.classpath_ file.
+
 
 ### TestBundlePlugin
 

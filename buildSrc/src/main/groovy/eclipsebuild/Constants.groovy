@@ -102,7 +102,7 @@ class Constants {
     }
 
     /**
-     * Enable variables in the target project's build script.
+     * Sets some constants in the target project's build script.
      */
     static exposePublicConstantsFor(Project project) {
         project.ext.ECLIPSE_OS = os
