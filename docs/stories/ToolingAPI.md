@@ -25,7 +25,7 @@ such that _all_ JVM arguments that make up the target JVM are returned.
 
 In the Gradle project import wizard, we want to display the JVM arguments that make up the target JVM. Currently, the arguments returned by
 `JavaEnvironment#getJvmArguments` are quite confusing to the user since they do not represent the total set of arguments that make up the
-target JVM. For example, system properties defined by the user in the import wizard are not part of `JavaEnvironment#getAllJvmArguments`
+target JVM. For example, system properties defined by the user in the import wizard are not part of `JavaEnvironment#getJvmArguments`
 that are currently shown to the user.
 
 
