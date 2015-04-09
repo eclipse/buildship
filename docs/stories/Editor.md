@@ -29,8 +29,8 @@ A build author expects syntax highlighting for Gradle build files to facilitate 
 ### Requested Change
 
 Support code completion in Gradle build files for project properties and methods, tasks properties and methods,
-dependency configuration, etc. Implement a parser for the Gradle DSL that creates an AST that can be consumed by
-the Eclipse code completion engine.
+dependency configuration, plugins, etc. Implement a parser for the Gradle DSL that creates an AST that can be
+consumed by the Eclipse code completion engine.
 
 ### Motivation
 
