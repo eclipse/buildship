@@ -60,7 +60,7 @@ Upload each daily snapshot of Buildship to the eclipse.org downloads area via SF
 We want to offer the latest snapshot of Buildship to our users in an automated manner.
 
 
-## Restrict Eclipse plugin dependency lookups to the mavenized repository
+## ~~Restrict Eclipse plugin dependency lookups to the mavenized repository~~
 
 ### Requested Change
 
