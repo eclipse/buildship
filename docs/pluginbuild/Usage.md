@@ -70,9 +70,9 @@ customized by specifying the `targetPlatformsDir` Gradle project property:
 
 
 The `versionMapping` can be used to define exact plugin dependency versions per target platform. A bundle can define a dependency
-through the {@code withDependency()} method like
+through the {@code withEclipseBundle()} method like
 
-    compile withDependency("org.eclipse.core.runtime")
+    compile withEclipseBundle('org.eclipse.core.runtime')
 
 If the active target platform has a version mapped for the dependency then that version is used, otherwise an unbound version range (+) is applied.
 

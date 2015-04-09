@@ -27,7 +27,7 @@ import org.gradle.api.tasks.Copy
  * <pre>
  * compile "eclipse:org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}:+"
  * </pre>
- * A {@code withDependency} method is declared that can use the target platform's version mapping and fix
+ * A {@code withEclipseBundle} method is declared that can use the target platform's version mapping and fix
  * the dependency version to a concrete value. For example:
  * <pre>
  * compile withDependencies("org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}")

@@ -73,9 +73,9 @@ import eclipsebuild.mavenize.BundleMavenDeployer
  * the {@code -PtargetPlatformsDir=<path>} argument.
  * <p/>
  * The {@code versionMapping} can be used to define exact plugin dependency versions per target platform.
- * A bundle can define a dependency through the {@code withDependency()} method like
+ * A bundle can define a dependency through the {@code withEclipseBundle()} method like
  * <pre>
- * compile withDependency("org.eclipse.core.runtime")
+ * compile withEclipseBundle('org.eclipse.core.runtime')
  * </pre>
  * If the active target platform has a version mapped for the dependency then that version is used,
  * otherwise an unbound version range (+) is applied.
@@ -159,8 +159,8 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         // expose some constants to the build files, e.g. for platform-dependent dependencies
         Constants.exposePublicConstantsFor(project)
 
-        // make the withDependency(String) method available in the build script
-        project.ext.withDependency = { String pluginName -> calculatePluginDependencyVersion(project, pluginName) }
+        // make the withEclipseBundle(String) method available in the build script
+        project.ext.withEclipseBundle = { String pluginName -> calculatePluginDependencyVersion(project, pluginName) }
     }
 
     static def calculatePluginDependencyVersion(Project project, String pluginName) {

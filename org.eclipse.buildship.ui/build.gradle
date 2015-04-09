@@ -2,14 +2,14 @@ apply plugin: eclipsebuild.BundlePlugin
 
 dependencies {
     compile project(':org.eclipse.buildship.core')
-    compile withDependency("org.eclipse.help")
-    compile withDependency("org.eclipse.ui")
-    compile withDependency("org.eclipse.ui.ide")
-    compile withDependency("org.eclipse.ui.console")
-    compile withDependency("org.eclipse.ui.editors")
-    compile withDependency("org.eclipse.ui.views")
-    compile withDependency("org.eclipse.debug.ui")
-    compile withDependency("org.eclipse.jdt.ui")
-    compile withDependency("org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}")
+    compile withEclipseBundle('org.eclipse.help')
+    compile withEclipseBundle('org.eclipse.ui')
+    compile withEclipseBundle('org.eclipse.ui.ide')
+    compile withEclipseBundle('org.eclipse.ui.console')
+    compile withEclipseBundle('org.eclipse.ui.editors')
+    compile withEclipseBundle('org.eclipse.ui.views')
+    compile withEclipseBundle('org.eclipse.debug.ui')
+    compile withEclipseBundle('org.eclipse.jdt.ui')
+    compile withEclipseBundle("org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}")
 }
 
