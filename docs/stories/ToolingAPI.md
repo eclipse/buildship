@@ -132,6 +132,18 @@ he wants to run. We currently assume that the selected test can be run by the `T
 apart, for example, when having a separate `Test` task for the integration tests.
 
 
+## Allow to run tests in debug mode
+
+### Requested Change
+
+Provide an API to run tests in remote debug mode such that the consumer can connect to the remote VM and debug the tests in Eclipse.
+
+### Motivation
+
+Once we can run tests from Eclipse through Gradle, debugging tests through Gradle is the next logical step. This functionality is part
+of the deep integration since it allows the user to work with the Debugger UIs that he is already familiar with.
+
+
 ## Notify Tooling API consumer about Gradle build files changes
 
 ### Requested Change
