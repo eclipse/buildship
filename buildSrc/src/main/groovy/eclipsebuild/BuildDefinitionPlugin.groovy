@@ -15,7 +15,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.logging.LogLevel
 import org.gradle.internal.os.OperatingSystem
-
 import eclipsebuild.mavenize.BundleMavenDeployer
 
 /**
@@ -45,6 +44,9 @@ import eclipsebuild.mavenize.BundleMavenDeployer
  *             "org.eclipse.swtbot.eclipse.feature.group",
  *             "org.eclipse.swtbot.ide.feature.group"
  *         ]
+ *         versionMapping = [
+ *             'org.eclipse.core.runtime' : '3.10.0.v20140318-2214'
+ *         ]
  *     }
  *
  *     targetPlatform {
@@ -69,6 +71,14 @@ import eclipsebuild.mavenize.BundleMavenDeployer
  * The directory layout where the target platform and it's mavenized counterpart stored is defined
  * in the {@link Config} class. The directory containing the target platforms can be redefined with
  * the {@code -PtargetPlatformsDir=<path>} argument.
+ * <p/>
+ * The {@code versionMapping} can be used to define exact plugin dependency versions per target platform.
+ * A bundle can define a dependency through the {@code withDependency()} method like
+ * <pre>
+ * compile withDependency("org.eclipse.core.runtime")
+ * </pre>
+ * If active target platform has a version mapped for the dependency then that version is used,
+ * otherwise an unbound version range (+) is applied.
  */
 class BuildDefinitionPlugin implements Plugin<Project> {
 
@@ -100,11 +110,20 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         def sdkVersion
         def updateSites
         def features
+        def versionMapping
+
+        TargetPlatform() {
+            this.updateSites = []
+            this.features = []
+            this.versionMapping = [:]
+        }
 
         def apply (Closure closure) {
             closure.resolveStrategy = Closure.DELEGATE_FIRST
             closure.delegate = this
             closure.call()
+            // convert GStrings to Strings in the versionMapping key to avoid lookup misses
+            versionMapping = versionMapping.collectEntries { k, v -> [k.toString(), v]}
         }
     }
 
@@ -121,7 +140,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        project.extensions.create(DSL_EXTENSION_NAME, EclipseBuild)
+        configureProject(project)
 
         Config config = Config.on(project)
         validateDslBeforeBuildStarts(project, config)
@@ -131,6 +150,28 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         addTaskInstallTargetPlatform(project, config)
         addTaskUninstallTargetPlatform(project, config)
         addTaskUninstallAllTargetPlatforms(project, config)
+    }
+
+    static void configureProject(Project project) {
+        // add extension
+        project.extensions.create(DSL_EXTENSION_NAME, EclipseBuild)
+
+        // make new variables for the build.gradle file e.g. for platform-dependent dependencies
+        Constants.exposePublicConstantsFor(project)
+
+        // make the withDependency(String) method available in the build script
+        project.ext.withDependency = { String pluginName -> calculatePluginDependencyVersion(project, pluginName) }
+    }
+
+    static def calculatePluginDependencyVersion(Project project, String pluginName) {
+        // if the target platform defines a version in the versionMapping
+        // for the argument it returns eclipse:pluginName:versionNumber
+        // otherwise it returns eclipse:pluginName:+
+        Config config = Config.on(project)
+        def mappedVersion = config.targetPlatform.versionMapping[pluginName]
+        def version = mappedVersion == null ? "+" : mappedVersion
+        project.logger.debug("Version mapped for $pluginName: $version")
+        "${Constants.mavenizedEclipsePluginGroupName}:${pluginName}:${version}"
     }
 
     static void validateDslBeforeBuildStarts(Project project, Config config) {

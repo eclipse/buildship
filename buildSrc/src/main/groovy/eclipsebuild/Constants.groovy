@@ -11,6 +11,8 @@
 
 package eclipsebuild
 
+import org.gradle.api.Project;
+
 import org.gradle.internal.os.OperatingSystem
 
 /**
@@ -97,6 +99,15 @@ class Constants {
         } else {
             return new URL("http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops4/R-4.4.2-201502041700/eclipse-SDK-4.4.2-${getOs()}-${getWs()}${archInUrl}.tar.gz&r=1");
         }
+    }
+
+    /**
+     * Enable variables in the target project's build script.
+     */
+    static exposePublicConstantsFor(Project project) {
+        project.ext.ECLIPSE_OS = os
+        project.ext.ECLIPSE_WS = ws
+        project.ext.ECLIPSE_ARCH = arch
     }
 
 }
