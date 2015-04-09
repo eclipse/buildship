@@ -74,7 +74,7 @@ and targetCompatibility in order to properly set up the Eclipse project.
 ### Requested Change
 
 Provide a `Plugins' model that, for a given project, returns the plugins applied to that project. For each plugin, its id, version, and
-origin (build, remote repository, etc.) must be available.
+origin (build, remote repository, etc.) should be available.
 
 ### Motivation
 
