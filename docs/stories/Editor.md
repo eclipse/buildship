@@ -35,3 +35,19 @@ the Eclipse code completion engine.
 ### Motivation
 
 A build author expects code completion for Gradle build files to facilitate writing and maintaining build files.
+
+
+## Build script debugging
+
+### Requested Change
+
+Allow the Eclipse user to set break points in the Gradle build scripts such that when a Gradle build is run
+in debug mode, the build stops when one of the set breakpoints is reached.
+
+This story is about debugging the Gradle builds scripts themselves, and is not related to debugging the
+execution of tests.
+
+### Motivation
+
+Debugging Gradle builds is currently very cumbersome and for the common user, it usually means resorting to
+printing out variables to the console.
