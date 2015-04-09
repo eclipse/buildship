@@ -25,7 +25,12 @@ import org.gradle.api.tasks.Copy
  * It makes OSGi-related variables like os, ws and arch available for the project (via project.ext)
  * for building against platform-dependent dependencies. An example dependency on SWT:
  * <pre>
- * compile "eclipse:org.eclipse.swt.${project.ext.ws}.${project.ext.os}.${project.ext.arch}:+"
+ * compile "eclipse:org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}:+"
+ * </pre>
+ * A {@code withDependency} method is declared to use the target platform's version mapping and fix
+ * the dependency version to a concrete value. For example:
+ * <pre>
+ * compile withDependencies("org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}")
  * </pre>
  * To construct the output jar the plugin loads the contents of the <code>build.properties</code>
  * file and sync it with the jar's content.
@@ -55,10 +60,7 @@ class BundlePlugin implements Plugin<Project> {
         project.plugins.apply(JavaPlugin)
 
         // make new variables for the build.gradle file e.g. for platform-dependent dependencies
-        project.ext.ECLIPSE_OS = Constants.os
-        project.ext.ECLIPSE_WS = Constants.ws
-        project.ext.ECLIPSE_ARCH = Constants.arch
-        project.ext.ECLIPSE_VERSION = Config.on(project).eclipseVersion
+        Constants.exposePublicConstantsFor(project)
 
         // add new configuration scope
         project.configurations.create('bundled')
@@ -183,7 +185,10 @@ class BundlePlugin implements Plugin<Project> {
     }
 
     static void addTaskUpdateLibs(Project project) {
-        project.task(TASK_NAME_UPDATE_LIBS, dependsOn: [TASK_NAME_COPY_LIBS, TASK_NAME_UPDATE_MANIFEST]) {
+        project.task(TASK_NAME_UPDATE_LIBS, dependsOn: [
+            TASK_NAME_COPY_LIBS,
+            TASK_NAME_UPDATE_MANIFEST
+        ]) {
             group = Constants.gradleTaskGroupName
             description = 'Copies the bundled dependencies into the lib folder and updates the manifest file.'
         }

@@ -1,14 +1,14 @@
 apply plugin: eclipsebuild.BundlePlugin
 
 dependencies {
-    compile "eclipse:org.eclipse.core.runtime:+"
-    compile "eclipse:org.eclipse.core.resources:+"
-    compile "eclipse:org.eclipse.core.variables:+"
-    compile "eclipse:org.eclipse.core.filesystem:+"
-    compile "eclipse:org.eclipse.jdt.core:+"
-    compile "eclipse:org.eclipse.jdt.junit.core:+"
-    compile "eclipse:org.eclipse.jdt.launching:+"
-    compile "eclipse:org.eclipse.debug.core:+"
+    compile withDependency("org.eclipse.core.runtime")
+    compile withDependency("org.eclipse.core.resources")
+    compile withDependency("org.eclipse.core.variables")
+    compile withDependency("org.eclipse.core.filesystem")
+    compile withDependency("org.eclipse.jdt.core")
+    compile withDependency("org.eclipse.jdt.junit.core")
+    compile withDependency("org.eclipse.jdt.launching")
+    compile withDependency("org.eclipse.debug.core")
 
     bundled "com.gradleware.tooling:toolingmodel:$commonsLibVersion"
     bundled "org.slf4j:slf4j-simple:$slf4jLibVersion"
