@@ -144,6 +144,18 @@ Once we can run tests from Eclipse through Gradle, debugging tests through Gradl
 of the deep integration since it allows the user to work with the Debugger UIs that he is already familiar with.
 
 
+## Make dependencies collection more correct
+
+### Requested Change
+
+Fix all known issues related to the dependencies collection returned by the Tooling API.
+
+### Motivation
+
+The dependency resolution process should be as similar as possible when the build is invoked from the Tooling API as when it is
+invoked from the command line.
+
+
 ## Notify Tooling API consumer about Gradle build files changes
 
 ### Requested Change
