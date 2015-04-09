@@ -40,6 +40,8 @@ Provide a new API `org.gradle.tooling.model.Task#getGroup` that provides the gro
 In the Task View, we want the user to be able to see the tasks grouped by their _group_ attribute. This display is very similar
 to how tasks are displayed on the command line.
 
+Since all of the task view is displayed using the task information from the `GradleProject` model, adding the _group_ attribute to the `Task` class is sufficient for Buildship.
+
 
 ## Add new API BuildLauncher#withTaskArguments(Map<String, List<String>)
 
