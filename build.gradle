@@ -38,7 +38,7 @@ eclipseBuild {
             'org.eclipse.ui.views' : '3.5.1.M20110202-0800',
             'org.eclipse.debug.ui' : '3.6.3.v20101201_r362',
             'org.eclipse.jdt.ui' : '3.6.2.r362_v20110203',
-            "org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}" : '3.7.2.v3740f',
+            "org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}" : '3.6.2.v3659b',
             'org.eclipse.swtbot.eclipse.finder' : '2.2.1.201402241301',
             'org.eclipse.swtbot.junit4_x' : '2.2.1.201402241301'
         ]
@@ -110,7 +110,7 @@ eclipseBuild {
             'org.eclipse.ui.views' : '3.6.100.v20120705-114010',
             'org.eclipse.debug.ui' : '3.8.2.v20130130-171415',
             'org.eclipse.jdt.ui' : '3.8.2.v20130107-165834',
-            "org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}" : '3.102.1.v20140206-1358',
+            "org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}" : '3.100.1.v4236b',
             'org.eclipse.swtbot.eclipse.finder' : '2.2.1.201402241301',
             'org.eclipse.swtbot.junit4_x' : '2.2.1.201402241301'
         ]
@@ -219,7 +219,7 @@ eclipseBuild {
             "org.eclipse.ui.views" : "3.7.100.v20141003-0011",
             "org.eclipse.debug.ui" : "3.11.0.v20150116-1131",
             "org.eclipse.jdt.ui" : "3.10.100.v20150116-1347",
-            "org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}" : "3.7.2.v3740f",
+            "org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}" : "3.104.0.v20150203-2243",
             "org.eclipse.swtbot.eclipse.finder" : "2.2.1.201402241301",
             "org.eclipse.swtbot.junit4_x" : "2.2.1.201402241301"
         ]
