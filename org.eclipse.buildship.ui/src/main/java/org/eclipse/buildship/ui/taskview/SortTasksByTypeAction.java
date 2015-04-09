@@ -32,7 +32,7 @@ public final class SortTasksByTypeAction extends Action {
         super(null, IAction.AS_CHECK_BOX);
         this.taskView = Preconditions.checkNotNull(taskView);
 
-        setToolTipText(TaskViewMessages.Action_SortByType_Tooltip);
+        setText(TaskViewMessages.Action_SortByType_Text);
         setImageDescriptor(PluginImages.SORT_BY_TYPE.withState(PluginImage.ImageState.ENABLED).getImageDescriptor());
         setChecked(taskView.getState().isSortByType());
     }
