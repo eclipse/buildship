@@ -20,6 +20,7 @@ import org.eclipse.ui.part.IPageBookViewPage;
 /**
  * Contributes actions to {@link GradleConsole} instances at the time a new console is initialized.
  */
+@SuppressWarnings("unchecked") // Eclipse Mars M6 introduced type parameters on the IAdaptable interface
 public final class GradleConsolePageParticipant implements IConsolePageParticipant {
 
     private CancelBuildExecutionAction cancelBuildExecutionAction;
