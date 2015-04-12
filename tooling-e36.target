@@ -3,7 +3,7 @@
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.sdk.ide" version="3.6.2.M20110210-1200"/>
-<repository location="http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-helios"/>
+<repository location="http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-helios-sr2"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.junit" version="4.11.0.v201303080030"/>

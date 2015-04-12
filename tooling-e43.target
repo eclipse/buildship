@@ -3,7 +3,7 @@
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.sdk.ide" version="4.3.2.M20140221-1700"/>
-<repository location="http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-kepler"/>
+<repository location="http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-kepler-sr2"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.junit" version="4.11.0.v201303080030"/>

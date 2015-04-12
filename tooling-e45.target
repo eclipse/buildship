@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="gradleware-tooling-mars" sequenceNumber="24">
+<?pde version="3.8"?><target name="gradleware-tooling-mars" sequenceNumber="27">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.sdk.ide" version="4.5.0.I20150203-1300"/>
-<repository location="http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-mars/"/>
+<unit id="org.eclipse.sdk.ide" version="4.5.0.I20150320-0800"/>
+<repository location="http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-mars-m6"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.junit" version="4.11.0.v201303080030"/>

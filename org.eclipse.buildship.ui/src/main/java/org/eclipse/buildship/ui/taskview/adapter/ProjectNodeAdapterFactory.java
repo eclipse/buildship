@@ -27,7 +27,7 @@ import org.eclipse.buildship.ui.taskview.ProjectNode;
  * Description on the adapters is available at <a href= "http://www.programcreek.com/2012/01/decipher-eclipse-architecture-iadaptable-part-1-brief-introduction">
  * http://www.programcreek.com/2012/01/decipher-eclipse-architecture-iadaptable-part-1-brief-introduction</a>.
  */
-@SuppressWarnings("rawtypes")
+@SuppressWarnings({ "unchecked", "rawtypes" }) // Eclipse Mars M6 introduced type parameters on the IAdaptable interface
 public final class ProjectNodeAdapterFactory implements IAdapterFactory {
 
     @Override

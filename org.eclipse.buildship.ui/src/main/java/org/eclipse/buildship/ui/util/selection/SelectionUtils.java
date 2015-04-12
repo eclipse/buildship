@@ -56,6 +56,7 @@ public final class SelectionUtils {
      * @param resources the resources to be selected and revealed
      * @param window the workbench window to select and reveal the resources
      */
+    @SuppressWarnings("cast") // Eclipse Mars M6 introduced type parameters on the IAdaptable interface
     public static void selectAndReveal(List<? extends IResource> resources, IWorkbenchWindow window) {
         // validate the input
         if (window == null || resources == null || resources.isEmpty()) {

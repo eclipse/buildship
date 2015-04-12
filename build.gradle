@@ -12,7 +12,7 @@ eclipseBuild {
         eclipseVersion = '36'
         sdkVersion = "3.6.2.M20110210-1200"
         updateSites = [
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-helios",
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-helios-sr2",
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit",
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"
         ]
@@ -48,7 +48,7 @@ eclipseBuild {
         eclipseVersion = '37'
         sdkVersion =  "3.7.2.M20120208-0800"
         updateSites = [
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-indigo",
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-indigo-sr2",
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit",
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"
         ]
@@ -84,7 +84,7 @@ eclipseBuild {
         eclipseVersion = '42'
         sdkVersion = "4.2.2.M20130204-1200"
         updateSites = [
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-juno",
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-juno-sr2",
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit",
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"
         ]
@@ -120,7 +120,7 @@ eclipseBuild {
         eclipseVersion = '43'
         sdkVersion = "4.3.2.M20140221-1700"
         updateSites = [
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-kepler",
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-kepler-sr2",
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit",
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"
         ]
@@ -157,7 +157,7 @@ eclipseBuild {
         eclipseVersion = '44'
         sdkVersion = "4.4.2.M20150204-1700"
         updateSites = [
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-luna",
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-luna-sr2",
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit",
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"
         ]
@@ -191,9 +191,9 @@ eclipseBuild {
 
     targetPlatform {
         eclipseVersion = '45'
-        sdkVersion = "4.5.0.I20150203-1300"
+        sdkVersion = "4.5.0.I20150320-0800"
         updateSites = [
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-mars",
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-mars-m6",
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit",
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"
         ]
@@ -203,23 +203,23 @@ eclipseBuild {
             "org.eclipse.swtbot.ide.feature.group"
         ]       
         versionMapping = [
-            "org.eclipse.core.runtime" : "3.10.0.v20150112-1422",
-            "org.eclipse.core.resources" : "3.9.100.v20150114-1351",
+            "org.eclipse.core.runtime" : "3.11.0.v20150316-1241",
+            "org.eclipse.core.resources" : "3.9.100.v20150313-1707",
             "org.eclipse.core.variables" : "3.2.800.v20130819-1716",
-            "org.eclipse.core.filesystem" : "1.4.200.v20150115-1924",
-            "org.eclipse.jdt.core" : "3.11.0.v20150126-2015",
+            "org.eclipse.core.filesystem" : "1.5.0.v20150313-1707",
+            "org.eclipse.jdt.core" : "3.11.0.v20150317-0048",
             "org.eclipse.jdt.junit.core" : "3.7.300.v20141114-1947",
-            "org.eclipse.jdt.launching" : "3.7.200.v20150116-1130",
-            "org.eclipse.debug.core" : "3.10.0.v20141009-1205",
+            "org.eclipse.jdt.launching" : "3.8.0.v20150316-0938",
+            "org.eclipse.debug.core" : "3.10.0.v20150303-1130",
             "org.eclipse.help" : "3.6.0.v20130326-1254",
-            "org.eclipse.ui" : "3.107.0.v20150107-0903",
-            "org.eclipse.ui.ide" : "3.10.100.v20150126-1117",
-            "org.eclipse.ui.console" : "3.6.0.v20141210-1834",
-            "org.eclipse.ui.editors" : "3.9.0.v20141118-1526",
-            "org.eclipse.ui.views" : "3.7.100.v20141003-0011",
-            "org.eclipse.debug.ui" : "3.11.0.v20150116-1131",
-            "org.eclipse.jdt.ui" : "3.10.100.v20150116-1347",
-            "org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}" : "3.104.0.v20150203-2243",
+            "org.eclipse.ui" : "3.107.0.v20150315-0703",
+            "org.eclipse.ui.ide" : "3.11.0.v20150309-2044",
+            "org.eclipse.ui.console" : "3.6.0.v20150310-1028",
+            "org.eclipse.ui.editors" : "3.9.0.v20150213-1939",
+            "org.eclipse.ui.views" : "3.7.100.v20150316-1432",
+            "org.eclipse.debug.ui" : "3.11.0.v20150303-1130",
+            "org.eclipse.jdt.ui" : "3.11.0.v20150316-2042",
+            "org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}" : "3.104.0.v20150319-1901",
             "org.eclipse.swtbot.eclipse.finder" : "2.2.1.201402241301",
             "org.eclipse.swtbot.junit4_x" : "2.2.1.201402241301"
         ]
@@ -234,12 +234,16 @@ subprojects {
     version = rootProject.version
 
     // the built plugins must be Java 6 compatible, try to compile with JDK 6 if the location is specified by the caller or if it can be derived
+    // The minimum execution environment for Eclipse Mars is Java 1.7:
+    // https://www.eclipse.org/projects/project-plan.php?planurl=/eclipse/development/plans/eclipse_project_plan_4_5.xml
     plugins.withType(eclipsebuild.BundlePlugin) {
         sourceCompatibility = 1.6
-        targetCompatibility = 1.6
+        targetCompatibility = eclipsebuild.Config.on(project).targetPlatform.eclipseVersion == "45" ? 1.7 : 1.6
 
         tasks.withType(AbstractCompile).all {
             options.compilerArgs << '-Xlint:all'
+            // disable warning for different sourceCompatibility and targetCompatibility value
+            options.compilerArgs << '-Xlint:-options'
             options.fork = true
 
             if (OperatingSystem.current().isMacOsX()) {
