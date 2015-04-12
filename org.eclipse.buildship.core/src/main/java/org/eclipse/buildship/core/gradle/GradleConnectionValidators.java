@@ -76,23 +76,23 @@ public final class GradleConnectionValidators {
 
                 if (GradleDistributionWrapper.DistributionType.LOCAL_INSTALLATION == type) {
                     if (Strings.isNullOrEmpty(configuration)) {
-                        return Optional.of(String.format(CoreMessages.ErrorMessage_0_MustBeSpecified, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
+                        return Optional.of(String.format(CoreMessages.ErrorMessage_0_MustBeSpecified, CoreMessages.GradleOptions_Label_LocalInstallationDirectory));
                     } else if (!new File(configuration).exists()) {
-                        return Optional.of(String.format(CoreMessages.ErrorMessage_0_DoesNotExist, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
+                        return Optional.of(String.format(CoreMessages.ErrorMessage_0_DoesNotExist, CoreMessages.GradleOptions_Label_LocalInstallationDirectory));
                     } else {
                         return Optional.absent();
                     }
                 } else if (GradleDistributionWrapper.DistributionType.REMOTE_DISTRIBUTION == type) {
                     if (Strings.isNullOrEmpty(configuration)) {
-                        return Optional.of(String.format(CoreMessages.ErrorMessage_0_MustBeSpecified, CoreMessages.GradleDistribution_Label_RemoteDistributionUri));
+                        return Optional.of(String.format(CoreMessages.ErrorMessage_0_MustBeSpecified, CoreMessages.GradleOptions_Label_RemoteDistributionUri));
                     } else if (!isValidURI(configuration)) {
-                        return Optional.of(String.format(CoreMessages.ErrorMessage_0_IsNotValid, CoreMessages.GradleDistribution_Label_RemoteDistributionUri));
+                        return Optional.of(String.format(CoreMessages.ErrorMessage_0_IsNotValid, CoreMessages.GradleOptions_Label_RemoteDistributionUri));
                     } else {
                         return Optional.absent();
                     }
                 } else if (GradleDistributionWrapper.DistributionType.VERSION == type) {
                     if (Strings.isNullOrEmpty(configuration)) {
-                        return Optional.of(String.format(CoreMessages.ErrorMessage_0_MustBeSpecified, CoreMessages.GradleDistribution_Label_SpecificGradleVersion));
+                        return Optional.of(String.format(CoreMessages.ErrorMessage_0_MustBeSpecified, CoreMessages.GradleOptions_Label_SpecificGradleVersion));
                     } else {
                         return Optional.absent();
                     }

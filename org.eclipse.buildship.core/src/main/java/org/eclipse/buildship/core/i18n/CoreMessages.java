@@ -20,10 +20,10 @@ public final class CoreMessages extends NLS {
 
     private static final String BUNDLE_NAME = "org.eclipse.buildship.core.i18n.CoreMessages"; //$NON-NLS-1$
 
-    public static String GradleDistribution_Label_GradleWrapper;
-    public static String GradleDistribution_Label_LocalInstallationDirectory;
-    public static String GradleDistribution_Label_RemoteDistributionUri;
-    public static String GradleDistribution_Label_SpecificGradleVersion;
+    public static String GradleOptions_Label_GradleWrapper;
+    public static String GradleOptions_Label_LocalInstallationDirectory;
+    public static String GradleOptions_Label_RemoteDistributionUri;
+    public static String GradleOptions_Label_SpecificGradleVersion;
 
     public static String GradleDistribution_Value_UseGradleWrapper;
     public static String GradleDistribution_Value_UseLocalInstallation_0;
