@@ -17,6 +17,18 @@
 We currently do not provide a lot of information, links, etc. on eclipse.org.
 
 
+## Support Oomph setup
+
+### Requested Change
+
+Provide an Oomph model for the Buildship project.
+
+### Motivation
+
+As of Eclipse Mars, Oomph is the default Eclipse installer. Having an Oomph model for Buildship will allow developers
+to easily get to a working setup of the Buildship project.
+
+
 ## Reference Orbit for external dependencies
 
 ### Requested Change
