@@ -1,3 +1,4 @@
+import eclipsebuild.Config
 import org.gradle.internal.os.OperatingSystem
 
 apply plugin: eclipsebuild.BuildDefinitionPlugin
@@ -129,7 +130,7 @@ eclipseBuild {
             "org.eclipse.swtbot.eclipse.feature.group",
             "org.eclipse.swtbot.ide.feature.group"
         ]
-        
+
         versionMapping = [
             'org.eclipse.core.runtime' : '3.9.100.v20131218-1515',
             'org.eclipse.core.resources' : '3.8.101.v20130717-0806',
@@ -201,7 +202,7 @@ eclipseBuild {
             "org.junit",
             "org.eclipse.swtbot.eclipse.feature.group",
             "org.eclipse.swtbot.ide.feature.group"
-        ]       
+        ]
         versionMapping = [
             "org.eclipse.core.runtime" : "3.11.0.v20150316-1241",
             "org.eclipse.core.resources" : "3.9.100.v20150313-1707",
@@ -233,16 +234,16 @@ subprojects {
     // set the calculated version on all projects in the hierarchy
     version = rootProject.version
 
-    // the built plugins must be Java 6 compatible, try to compile with JDK 6 if the location is specified by the caller or if it can be derived
-    // The minimum execution environment for Eclipse Mars is Java 1.7:
-    // https://www.eclipse.org/projects/project-plan.php?planurl=/eclipse/development/plans/eclipse_project_plan_4_5.xml
+    // for all Eclipse versions before Mars, the built plugins must be Java 6 compatible
+    // for Mars and later Eclipse versions, the minimum execution environment is Java 7 (https://www.eclipse.org/projects/project-plan.php?planurl=/eclipse/development/plans/eclipse_project_plan_4_5.xml)
+    // try to compile with the minimum required JDK if the location is specified by the caller or if it can be derived
     plugins.withType(eclipsebuild.BundlePlugin) {
         sourceCompatibility = 1.6
-        targetCompatibility = eclipsebuild.Config.on(project).targetPlatform.eclipseVersion == "45" ? 1.7 : 1.6
+        targetCompatibility = Config.on(project).targetPlatform.eclipseVersion >= "45" ? 1.7 : 1.6
 
         tasks.withType(AbstractCompile).all {
+            // disable all warnings except for different sourceCompatibility and targetCompatibility value
             options.compilerArgs << '-Xlint:all'
-            // disable warning for different sourceCompatibility and targetCompatibility value
             options.compilerArgs << '-Xlint:-options'
             options.fork = true
 
@@ -251,9 +252,8 @@ subprojects {
                 options.forkOptions.executable = "/usr/libexec/java_home -v $targetCompatibility".execute().text.trim() + "/bin/javac"
             } else if (project.hasProperty('compiler.location')) {
                 // quotes required on TeamCity to pass property with spaces, e.g. a Windows file path
-                String compilerLocation = project.property('compiler.location').replace('\"', '').replace('\'', '')
                 options.compilerArgs << '-Werror'
-                options.forkOptions.executable = compilerLocation
+                options.forkOptions.executable = project.property('compiler.location').replace('\"', '').replace('\'', '')
             }
         }
     }
