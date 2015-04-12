@@ -31,7 +31,7 @@ import org.eclipse.buildship.ui.taskview.TaskSelectorNode;
  * <a href= "http://www.programcreek.com/2012/01/decipher-eclipse-architecture-iadaptable-part-1-brief-introduction">
  *     http://www.programcreek.com/2012/01/decipher-eclipse-architecture-iadaptable-part-1-brief-introduction</a>.
  */
-@SuppressWarnings({ "unchecked", "rawtypes" }) // Eclipse Mars M6 introduced type parameters on the IAdaptable interface
+@SuppressWarnings({ "unchecked", "rawtypes" }) // Eclipse Mars M6 introduced type parameters on the IAdapterFactory interface
 public final class TaskNodeAdapterFactory implements IAdapterFactory {
 
     @Override
