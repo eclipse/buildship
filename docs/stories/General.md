@@ -25,8 +25,8 @@ Provide an Oomph model for the Buildship project.
 
 ### Motivation
 
-As of Eclipse Mars, Oomph is the default Eclipse installer. Having an Oomph model for Buildship will allow developers
-to easily get to a working setup of the Buildship project.
+As of Eclipse Mars, Oomph is the default [Eclipse installer](https://wiki.eclipse.org/Eclipse_Installer). Having an Oomph model
+for Buildship will allow developers to easily get to a working setup of the Buildship project.
 
 
 ## Reference Orbit for external dependencies
@@ -74,6 +74,20 @@ Design a Buildship logo and integrate it into the plugins.
 ### Motivation
 
 Each Eclipse core application should have its own logo for easy recognition in the Eclipse ecosystem.
+
+
+## Integrate into Eclipse Error Reporter
+
+### Requested Change
+
+Hook into the Eclipse Mars Error Reporter to automatically receive error reports detected when executing Buildship.
+
+### Motivation
+
+Make it easy for users to report bugs.
+
+ * [https://docs.google.com/document/d/14vRLXcgSwy0rEbpJArsR_FftOJW1SjWUAmZuzc2O8YI/pub](https://docs.google.com/document/d/14vRLXcgSwy0rEbpJArsR_FftOJW1SjWUAmZuzc2O8YI/pub)
+ * [http://www.infoq.com/news/2015/03/eclipse-mars-reporting](http://www.infoq.com/news/2015/03/eclipse-mars-reporting)
 
 
 ## Optionally track plugin usage
