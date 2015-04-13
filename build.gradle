@@ -294,11 +294,27 @@ subprojects {
 }
 
 String getVersion(def baseVersion) {
+    // determine suffix for snapshot and milestone builds
+    def suffix = ''
+    if (project.hasProperty('release.type')) {
+        def releaseType = project.property('release.type')
+        if (releaseType == 'release') {
+            suffix = ''
+        } else if (releaseType == 'milestone') {
+            suffix = '-m'
+        } else if (releaseType == 'snapshot') {
+            suffix = '-s'
+        } else {
+            throw new IllegalArgumentException("Unsupported value for project property 'release.type': " + releaseType)
+        }
+    }
+
+    // use full timestamp on CI vs. date-only for local builds
     if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
         // note that for Eclipse plugin versions, the '-' and '.' character are invalid in front of the build id
-        baseVersion + new Date().format('yyyyMMddkkmmss', TimeZone.getTimeZone('GMT'))
+        baseVersion + '.v' + new Date().format('yyyyMMdd-kkmm', TimeZone.getTimeZone('GMT')) + suffix
     } else {
-        baseVersion + new Date().format('yyyyMMdd', TimeZone.getTimeZone('GMT'))
+        baseVersion + '.v' + new Date().format('yyyyMMdd', TimeZone.getTimeZone('GMT')) + suffix
     }
 }
 
