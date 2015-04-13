@@ -80,7 +80,8 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
         root.setLayout(new GridLayout(1, false));
         createGradleDistributionContent(createGroup(root, ProjectImportMessages.Label_GradleDistribution));
         createAdvancedOptionsContent(createGroup(root, ProjectImportMessages.Label_AdvancedOptions));
-        bindToConfiguration();
+        bindGradleDistributionToConfiguration();
+        bindAdvancedOptionsToConfiguration();
     }
 
     private static Group createGroup(Composite parent, String text) {
@@ -233,7 +234,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
         uiBuilderFactory.span(root);
     }
 
-    private void bindToConfiguration() {
+    private void bindGradleDistributionToConfiguration() {
         // add modify listeners to the texts and to the combo box
         this.localInstallationDirText.addModifyListener(new ModifyListener() {
 
@@ -257,7 +258,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
 
             @Override
             public void modifyText(ModifyEvent e) {
-                GradleDistributionWrapper gradleDistribution = getGradleDistributionWrapper();
+                GradleDistributionWrapper gradleDistribution = getSpecificVersion();
                 getConfiguration().setGradleDistribution(gradleDistribution);
             }
         });
@@ -265,7 +266,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                GradleDistributionWrapper gradleDistribution = getGradleDistributionWrapper();
+                GradleDistributionWrapper gradleDistribution = getSpecificVersion();
                 getConfiguration().setGradleDistribution(gradleDistribution);
             }
         });
@@ -308,12 +309,14 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 if (GradleOptionsWizardPage.this.useGradleVersionOption.getSelection()) {
-                    GradleDistributionWrapper gradleDistribution = getGradleDistributionWrapper();
+                    GradleDistributionWrapper gradleDistribution = getSpecificVersion();
                     getConfiguration().setGradleDistribution(gradleDistribution);
                 }
             }
         });
+    }
 
+    private void bindAdvancedOptionsToConfiguration() {
         this.gradleUserHomeText.addModifyListener(new ModifyListener() {
 
             @Override
@@ -344,7 +347,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
         });
     }
 
-    private GradleDistributionWrapper getGradleDistributionWrapper() {
+    private GradleDistributionWrapper getSpecificVersion() {
         int selectionIndex = this.gradleVersionCombo.getSelectionIndex();
         return GradleDistributionWrapper.from(DistributionType.VERSION,
                 Strings.emptyToNull(selectionIndex == -1 || !Strings.isNullOrEmpty(this.gradleVersionCombo.getText()) ?
