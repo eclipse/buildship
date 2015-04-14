@@ -10,39 +10,39 @@
 	</natures>
 	<filteredResources>
 		<filter>
-			<id>1340825059592</id>
+			<id>1429025690130</id>
 			<name></name>
 			<type>10</type>
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-org.gradle.*</arguments>
+				<arguments>1.0-name-matches-false-false-org.eclipse.*</arguments>
 			</matcher>
 		</filter>
 		<filter>
-			<id>1340825059596</id>
+			<id>1429025690160</id>
 			<name></name>
 			<type>10</type>
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-projectRelativePath-matches-false-false-commons</arguments>
+				<arguments>1.0-name-matches-false-false-buildSrc</arguments>
 			</matcher>
 		</filter>
 		<filter>
-			<id>1340825059599</id>
-			<name></name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-projectRelativePath-matches-false-false-docs</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1340825059602</id>
+			<id>1429025690220</id>
 			<name></name>
 			<type>10</type>
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-projectRelativePath-matches-false-false-docs</arguments>
+				<arguments>1.0-name-matches-false-false-.settings</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1429025690244</id>
+			<name></name>
+			<type>10</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-.git</arguments>
 			</matcher>
 		</filter>
 	</filteredResources>
