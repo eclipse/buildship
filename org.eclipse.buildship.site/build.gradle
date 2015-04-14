@@ -1,4 +1,10 @@
 apply plugin: eclipsebuild.UpdateSitePlugin
+apply plugin: 'org.hidetake.ssh'
+
+buildscript {
+    repositories { jcenter() }
+    dependencies { classpath 'org.hidetake:gradle-ssh-plugin:1.1.2' }
+}
 
 updateSite {
     extraResources = files('epl-v10.html', 'notice.html')
@@ -10,4 +16,61 @@ dependencies {
     compile project(':org.eclipse.buildship.ui')
     compile project(':org.eclipse.buildship.branding')
     compile project(':org.eclipse.buildship.feature')
+}
+
+remotes {
+    eclipseDotOrg {
+        // TODO (donat) target eclipse.org with the attributes
+        host = ECLIPSE_ORG_HOST
+        user =  ECLIPSE_ORG_USER
+        password = ECLIPSE_ORG_PASSWORD
+        // TODO (donat) remove the agent attribute to use the password attribute directly
+        agent = true
+    }
+}
+
+task uploadUpdateSite(dependsOn : 'createP2Repository') {
+    description = "Uploads the generated update site to the eclipse.org server"
+
+    def remoteRepositoryRoot = ECLIPSE_ORG_LOCATION
+
+    // Crop the major.minor segment from the version number
+    def matcher = version =~ /(\d+\.\d+)\.\d+\..*/
+    def releaseVersion = matcher[0][1]
+
+    doLast {
+        // folder structure
+        // releases                    (main folder - composite update site if release repository)
+        //  |--1.0                     (version folder - always a composite update site)
+        //     |--1.0.0.v20150413-1512 (repository folder - simple update site)
+        def releaseType = project.property("release.type")
+
+        // define the folder structure
+        def config = eclipsebuild.BuildshipConfig.on(project)
+        def mainFolder = config.isRelease() ? "${remoteRepositoryRoot}/releases" :
+                config.isMilestone() ? "${remoteRepositoryRoot}/milestones" :
+                config.isSnapshot() ? "${remoteRepositoryRoot}/snapshots" :
+                null
+        def versionFolder = "${mainFolder}/${releaseVersion}"
+        def repositoryFolder = "${mainFolder}/${releaseVersion}/${project.version}"
+
+        // create composite update site for the root of the release repository and for for the versions
+        // folder
+        def compositeFolders = config.isRelease() ? [mainFolder, versionFolder] : [versionFolder]
+
+        ssh.run {
+            session(remotes.eclipseDotOrg) {
+                // create the leaf directory if not exist
+                execute "mkdir -p $repositoryFolder"
+
+                // copy the update site from the build directory to the remote location
+                put from: files{ file("$buildDir/repository").listFiles() }, into: repositoryFolder
+
+                // recreate the compositeArtifacts.jar and the compositeContent.jar files
+                compositeFolders.each { execute("""cd ${it}
+                    ${file('updateCompositeUpdateSite.sh').text}""" )
+                }
+            }
+        }
+    }
 }

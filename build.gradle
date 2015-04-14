@@ -1,4 +1,5 @@
 import eclipsebuild.Config
+import eclipsebuild.BuildshipConfig
 import org.gradle.internal.os.OperatingSystem
 
 apply plugin: eclipsebuild.BuildDefinitionPlugin
@@ -296,17 +297,11 @@ subprojects {
 String getVersion(def baseVersion) {
     // determine suffix for snapshot and milestone builds
     def suffix = ''
-    if (project.hasProperty('release.type')) {
-        def releaseType = project.property('release.type')
-        if (releaseType == 'release') {
-            suffix = ''
-        } else if (releaseType == 'milestone') {
-            suffix = '-m'
-        } else if (releaseType == 'snapshot') {
-            suffix = '-s'
-        } else {
-            throw new IllegalArgumentException("Unsupported value for project property 'release.type': " + releaseType)
-        }
+    def config = BuildshipConfig.on(project)
+    if (config.isMilestone()) {
+        suffix = '-m'
+    } else if (config.isSnapshot()) {
+        suffix = '-s'
     }
 
     // use full timestamp on CI vs. date-only for local builds
