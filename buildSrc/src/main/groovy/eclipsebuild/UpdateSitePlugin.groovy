@@ -27,14 +27,16 @@ import org.gradle.api.plugins.JavaPlugin
  * updateSite {
  *   siteDescriptor = file('category.xml')
  *   extraResources = files('epl-v10.html', 'readme.txt')
+ *   p2ExtraProperties = ['p2.mirrorsURL' : 'http://www.eclipse.org/downloads/download.php?file=/path/to/repository&format=xml' ]
  *   signBundles = true
  * }
  * </pre>
- * The {@code siteDescriptor} is the category definition for the P2 update site. The
- * {@code extraResources} enumerates all extra files that should be included in the update site.
+ * The {@code siteDescriptor} is the category definition for the P2 update site.
+ * The {@code extraResources} enumerates all extra files that should be included in the update site.
+ * The {@code p2ExtraProperties} allows to add properties elements to the update site's artifacts.xml file under the _repository/properties_ node.
  * The {@code signBundles} flag indicates whether the site's content should be signed.
  * <p>
- * The main tasks contributed by this plugin are responsible to generate an Eclipse Update site.
+ * The main tasks contributed by this plugin are responsible to generate an Eclipse Update Site.
  * They are attached to the 'assemble' task. When executed, all project dependency jars are copied
  * to the build folder, signed and published to the buildDir/repository folder.
  */
@@ -46,6 +48,7 @@ class UpdateSitePlugin implements Plugin<Project> {
     static class Extension {
         File siteDescriptor
         FileCollection extraResources
+        Map p2ExtraProperties
         boolean signBundles
     }
 
@@ -80,6 +83,7 @@ class UpdateSitePlugin implements Plugin<Project> {
         project.extensions.create(DSL_EXTENSION_NAME, Extension)
         project.updateSite.siteDescriptor = project.file('category.xml')
         project.updateSite.extraResources = project.files()
+        project.updateSite.p2ExtraProperties = [:]
         project.updateSite.signBundles = false
 
         // validate the content
@@ -207,16 +211,18 @@ class UpdateSitePlugin implements Plugin<Project> {
             COPY_BUNDLES_TASK_NAME, SIGN_BUNDLES_TASK_NAME, ":${BuildDefinitionPlugin.TASK_NAME_INSTALL_TARGET_PLATFORM}"]) {
                 group = Constants.gradleTaskGroupName
                 description = 'Generates the P2 repository.'
-                inputs.dir project.updateSite.signBundles ? new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME) : new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
+                inputs.file project.updateSite.siteDescriptor
                 inputs.files project.updateSite.extraResources
+                inputs.properties project.updateSite.p2ExtraProperties
+                inputs.dir project.updateSite.signBundles ? new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME) : new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
                 outputs.dir new File(project.buildDir, REPOSITORY_DIR_NAME)
-                doLast { createP2Repo(project) }
+                doLast { createP2Repository(project) }
         }
 
         project.tasks.assemble.dependsOn createP2RepositoryTask
     }
 
-    static void createP2Repo(Project project) {
+    static void createP2Repository(Project project) {
         def repositoryDir = new File(project.buildDir, REPOSITORY_DIR_NAME)
 
         // delete old content
@@ -225,6 +231,17 @@ class UpdateSitePlugin implements Plugin<Project> {
             repositoryDir.deleteDir()
         }
 
+        // create the P2 update site
+        publishContentToLocalP2Repository(project, repositoryDir)
+
+        // add custom properties to the artifacts.xml file
+        def p2ExtraProperties = project.updateSite.p2ExtraProperties
+        if (p2ExtraProperties) {
+            addExtraPropertiesToRepository(project, repositoryDir, p2ExtraProperties)
+        }
+    }
+
+    static void publishContentToLocalP2Repository(Project project, File repositoryDir) {
         def unsignedRootDir = new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
         def signedRootDir = new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME)
         def rootDir = project.updateSite.signBundles ? signedRootDir : unsignedRootDir
@@ -259,6 +276,24 @@ class UpdateSitePlugin implements Plugin<Project> {
             from project.updateSite.extraResources
             into repositoryDir
         }
+    }
+
+    static void addExtraPropertiesToRepository(Project project, File repositoryLocation, Map<String, String> properties) {
+        // get the artifacts.xml file from the artifacts.jar
+        def artifactsJarFile = new File(repositoryLocation, "artifacts.jar")
+        def artifactsXmlFile = project.zipTree(artifactsJarFile).matching { 'artifacts.xml' }.singleFile
+
+        // parse the xml
+        def xml = new XmlParser().parse(artifactsXmlFile)
+
+        // get the repository 'properties' node and append the extra information there
+        def propertiesNode = xml.depthFirst().find { it.parent()?.name() == 'repository' && it.name() == 'properties' }
+        properties.each { key, value -> new Node(propertiesNode, 'property', ['name': key, 'value': value] ) }
+
+        // write the updated artifacts.xml back to its source
+        // the artifacts.xml is a temporary file hence it has to be copied back to the archive
+        new XmlNodePrinter(new PrintWriter(new FileWriter(artifactsXmlFile)), "  ", "'").print(xml)
+        project.ant.zip(update: true, filesonly: true, destfile: artifactsJarFile) { fileset(file: artifactsXmlFile) }
     }
 
     static void validateRequiredFilesExist(Project project) {

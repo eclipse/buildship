@@ -8,6 +8,7 @@ buildscript {
 
 updateSite {
     extraResources = files('epl-v10.html', 'notice.html')
+    p2ExtraProperties = [ 'p2.mirrorsURL' : calculateP2MirrorsUrl(project) ]
     signBundles = true
 }
 
@@ -27,50 +28,23 @@ dependencies {
     compile project(':org.eclipse.buildship.feature')
 }
 
-createP2Repository.doLast {
-  logger.info("Adding p2.mirrorsURL property to the artifact.xml file")
-
-  // get the artifacts.xml file from the artifacts.jar
-  def artifactsJarFile = new File(buildDir, "repository/artifacts.jar")
-  def artifactsXmlFile = zipTree(artifactsJarFile).matching { 'artifacts.xml' }.singleFile
-
-  // parse the xml
-  def xml = new XmlParser().parse(artifactsXmlFile)
-
-  // get the repository 'properties' node and append the extra information there
-  def propertiesNode = xml.depthFirst().find { it.parent()?.name() == 'repository' && it.name() == 'properties' }
-  new Node(propertiesNode, 'property', ['name': 'p2.mirrorsURL', 'value': calculateP2MirrorUrl(project)])
-
-  // write the updated artifacts.xml back to its source
-  // the artifacts.xml is a temporary file hence it has to be copied back to the archive
-  new XmlNodePrinter(new PrintWriter(new FileWriter(artifactsXmlFile)), "  ", "'").print(xml)
-  ant.zip(update: true, filesonly: true, destfile: artifactsJarFile) { fileset(file: artifactsXmlFile) }
-}
-
-def calculateP2MirrorUrl(Project project) {
-  def config = eclipsebuild.BuildshipConfig.on(project)
-  def repositoryPath = "${mainFolder(config)}/${releaseVersion()}/${project.version}"
-  "http://www.eclipse.org/downloads/download.php?file=${repositoryPath}&format=xml"
-}
-
 task uploadUpdateSite(dependsOn : 'createP2Repository') {
     description = "Uploads the generated update site to the eclipse.org server."
 
     doLast {
-        def config = eclipsebuild.BuildshipConfig.on(project)
-
         // folder structure
         // releases                    (main folder - composite update site if release repository)
         //  |--1.0                     (version folder - always a composite update site)
         //     |--1.0.0.v20150413-1512 (repository folder - simple update site)
 
         // define the folder structure
-        def mainFolder = mainFolder(config)
-        def versionFolder = "${mainFolder}/${releaseVersion()}"
+        def releaseTypeFolder = releaseTypeFolder(project)
+        def versionFolder = "${releaseTypeFolder}/${releaseVersion()}"
         def repositoryFolder = "${versionFolder}/${project.version}"
 
         // create composite update site for the root of the release repository and for the versions folder
-        def compositeFolders = config.isRelease() ? [mainFolder, versionFolder]: [versionFolder]
+        def config = eclipsebuild.BuildshipConfig.on(project)
+        def compositeFolders = config.isRelease() ? [releaseTypeFolder, versionFolder]: [versionFolder]
 
         // upload the update site and update the composite descriptors
         ssh.run {
@@ -89,11 +63,23 @@ task uploadUpdateSite(dependsOn : 'createP2Repository') {
     }
 }
 
-def mainFolder(eclipsebuild.BuildshipConfig config) {
-    config.isRelease() ? "${ECLIPSE_ORG_LOCATION}/releases" :
-            config.isMilestone() ? "${ECLIPSE_ORG_LOCATION}/milestones" :
-            config.isSnapshot() ? "${ECLIPSE_ORG_LOCATION}/snapshots" :
-            null
+// utility methods
+def calculateP2MirrorsUrl(Project project) {
+    def repositoryPath = "${releaseTypeFolder(project)}/${releaseVersion()}/${project.version}"
+    "http://www.eclipse.org/downloads/download.php?file=${repositoryPath}&format=xml"
+}
+
+def releaseTypeFolder(Project project) {
+    def config = eclipsebuild.BuildshipConfig.on(project)
+    if(config.isRelease()) {
+        "${ECLIPSE_ORG_LOCATION}/releases"
+    } else if(config.isMilestone()){
+        "${ECLIPSE_ORG_LOCATION}/milestones"
+    } else if(config.isSnapshot()) {
+        "${ECLIPSE_ORG_LOCATION}/snapshots"
+    } else {
+        throw new IllegalStateException("BuildshipConfig must either be a release, milestone, or snapshot.")
+    }
 }
 
 def releaseVersion() {
