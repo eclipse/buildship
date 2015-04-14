@@ -27,13 +27,16 @@ import org.gradle.api.plugins.JavaPlugin
  * updateSite {
  *   siteDescriptor = file('category.xml')
  *   extraResources = files('epl-v10.html', 'readme.txt')
+ *   p2ExtraProperties = ['p2.mirrorsURL' : 'http://www.eclipse.org/downloads/download.php?file=/path/to/repository&format=xml' ]
  *   signBundles = true
  * }
  * </pre>
  * The {@code siteDescriptor} is the category definition for the P2 update site. The
  * {@code extraResources} enumerates all extra files that should be included in the update site.
- * The {@code signBundles} flag indicates whether the site's content should be signed.
- * <p>
+ * The {@code signBundles} flag indicates whether the site's content should be signed. The
+ * {@code p2ExtraProperties} is an optional field: if specified, the key-value pairs will be added
+ * to the update site's artifacts.xml under the repository/properties node.
+ * <p/>
  * The main tasks contributed by this plugin are responsible to generate an Eclipse Update site.
  * They are attached to the 'assemble' task. When executed, all project dependency jars are copied
  * to the build folder, signed and published to the buildDir/repository folder.
@@ -46,6 +49,7 @@ class UpdateSitePlugin implements Plugin<Project> {
     static class Extension {
         File siteDescriptor
         FileCollection extraResources
+        Map p2ExtraProperties
         boolean signBundles
     }
 
@@ -210,33 +214,43 @@ class UpdateSitePlugin implements Plugin<Project> {
                 inputs.dir project.updateSite.signBundles ? new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME) : new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
                 inputs.files project.updateSite.extraResources
                 outputs.dir new File(project.buildDir, REPOSITORY_DIR_NAME)
-                doLast { createP2Repo(project) }
+                doLast { createP2Repository(project) }
         }
 
         project.tasks.assemble.dependsOn createP2RepositoryTask
     }
 
-    static void createP2Repo(Project project) {
-        def repositoryDir = new File(project.buildDir, REPOSITORY_DIR_NAME)
-
-        // delete old content
-        if (repositoryDir.exists()) {
-            project.logger.info("Delete P2 repository directory '${repositoryDir.absolutePath}'")
-            repositoryDir.deleteDir()
+    static void createP2Repository(Project project) {
+        def repositoryLocation = cleanP2RepositoryFolder(project)
+        publishContentToLocalP2Repository(project, repositoryLocation)
+        if (project.updateSite.p2ExtraProperties != null) {
+            addExtraPropertiesToRepository(project, repositoryLocation, project.updateSite.p2ExtraProperties)
         }
+    }
 
+    static File cleanP2RepositoryFolder(Project project) {
+        def location = new File(project.buildDir, REPOSITORY_DIR_NAME)
+        // delete old content
+        if (location.exists()) {
+            project.logger.info("Delete P2 repository directory '${location.absolutePath}'")
+            location.deleteDir()
+        }
+        location
+    }
+
+    static void publishContentToLocalP2Repository(Project project, File repositoryLocation) {
         def unsignedRootDir = new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
         def signedRootDir = new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME)
         def rootDir = project.updateSite.signBundles ? signedRootDir : unsignedRootDir
 
         // publish features/plugins to the update site
-        project.logger.info("Publish plugins and features from '${rootDir.absolutePath}' to the update site '${repositoryDir.absolutePath}'")
+        project.logger.info("Publish plugins and features from '${rootDir.absolutePath}' to the update site '${repositoryLocation.absolutePath}'")
         project.exec {
             commandLine(Config.on(project).eclipseSdkExe,
                     '-nosplash',
                     '-application', 'org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher',
-                    '-metadataRepository', repositoryDir.toURI().toURL(),
-                    '-artifactRepository', repositoryDir.toURI().toURL(),
+                    '-metadataRepository', repositoryLocation.toURI().toURL(),
+                    '-artifactRepository', repositoryLocation.toURI().toURL(),
                     '-source', rootDir,
                     '-compress',
                     '-publishArtifacts',
@@ -244,12 +258,12 @@ class UpdateSitePlugin implements Plugin<Project> {
         }
 
         // publish P2 category defined in the category.xml to the update site
-        project.logger.info("Publish categories defined in '${project.updateSite.siteDescriptor.absolutePath}' to the update site '${repositoryDir.absolutePath}'")
+        project.logger.info("Publish categories defined in '${project.updateSite.siteDescriptor.absolutePath}' to the update site '${repositoryLocation.absolutePath}'")
         project.exec {
             commandLine(Config.on(project).eclipseSdkExe,
                     '-nosplash',
                     '-application', 'org.eclipse.equinox.p2.publisher.CategoryPublisher',
-                    '-metadataRepository', repositoryDir.toURI().toURL(),
+                    '-metadataRepository', repositoryLocation.toURI().toURL(),
                     '-categoryDefinition',  project.updateSite.siteDescriptor.toURI().toURL(),
                     '-compress')
         }
@@ -257,8 +271,28 @@ class UpdateSitePlugin implements Plugin<Project> {
         // copy the extra resources to the update site
         project.copy {
             from project.updateSite.extraResources
-            into repositoryDir
+            into repositoryLocation
         }
+    }
+
+    static void addExtraPropertiesToRepository(Project project, File repositoryLocation, Map<String, String> properties) {
+        def repositoryDir = new File(project.buildDir, REPOSITORY_DIR_NAME)
+
+        // get the artifacts.xml file from the artifacts.jar
+        def artifactsJarFile = new File(repositoryLocation, "artifacts.jar")
+        def artifactsXmlFile = project.zipTree(artifactsJarFile).matching { 'artifacts.xml' }.singleFile
+
+        // parse the xml
+        def xml = new XmlParser().parse(artifactsXmlFile)
+
+        // get the repository 'properties' node and append the extra information there
+        def propertiesNode = xml.depthFirst().find { it.parent()?.name() == 'repository' && it.name() == 'properties' }
+        properties.each { key, value -> new Node(propertiesNode, 'property', ['name': key, 'value': value] ) }
+
+        // write the updated artifacts.xml back to its source
+        // the artifacts.xml is a temporary file hence it has to be copied back to the archive
+        new XmlNodePrinter(new PrintWriter(new FileWriter(artifactsXmlFile)), "  ", "'").print(xml)
+        project.ant.zip(update: true, filesonly: true, destfile: artifactsJarFile) { fileset(file: artifactsXmlFile) }
     }
 
     static void validateRequiredFilesExist(Project project) {
@@ -267,5 +301,4 @@ class UpdateSitePlugin implements Plugin<Project> {
             assert project.file(project.updateSite.siteDescriptor).exists()
         }
     }
-
 }

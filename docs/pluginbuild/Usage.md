@@ -138,12 +138,13 @@ them to a local P2 repository. The generated repository is available in the _bui
     updateSite {
         siteDescriptor = file("category.xml")
         extraResources = files('epl-v10.html', 'readme.txt')
+        p2ExtraProperties = ['p2.mirrorsURL' : 'http://www.eclipse.org/downloads/download.php?file=/path/to/repository&format=xml' ]
         signBundles = true
     }
 
 The `siteDescriptor` should point to a category descriptor which is used to publish update sites. The `extraResources` allows to reference
-extra resources to add to the update site. The `signBundles` specifies whether the artifacts of the update site should be signed (default is false).
-
+extra resources to add to the update site. The `p2ExtraProperties` is an optional field: if specified, the key-value pairs will be added to
+the update site's artifacts.xml under the repository/properties node.
 
 ### Adding a new Eclipse plugin
 
