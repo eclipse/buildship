@@ -16,7 +16,7 @@ remotes {
         host = ECLIPSE_ORG_HOST
         user =  ECLIPSE_ORG_USER
         password = ECLIPSE_ORG_PASSWORD
-        knownHost = allowAnyHosts
+        knownHosts = project.rootProject.file('gradle/ssh/known_hosts')
     }
 }
 
