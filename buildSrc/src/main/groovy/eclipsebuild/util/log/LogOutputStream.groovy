@@ -9,10 +9,11 @@
  *     Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package eclipsebuild
+package eclipsebuild.util.log
 
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.LogLevel
+
 
 /**
  * Output stream forwarding the content of the stream to Gradle logging.

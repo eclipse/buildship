@@ -11,6 +11,7 @@
 
 package eclipsebuild
 
+import eclipsebuild.util.bundle.BundleUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
@@ -75,10 +76,10 @@ class BundlePlugin implements Plugin<Project> {
         assert project.file('META-INF/MANIFEST.MF').exists()
 
         // use the same MANIFEST.MF file as it is in the project except the Bundle-Version
-        PluginUtils.updatePluginManifest(project)
+        BundleUtils.updatePluginManifest(project)
 
         // parse build.properties and sync it with output jar
-        PluginUtils.configurePluginJarInput(project)
+        BundleUtils.configurePluginJarInput(project)
     }
 
     static void addTaskCopyLibs(Project project) {

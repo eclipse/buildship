@@ -11,11 +11,9 @@
 
 package eclipsebuild
 
+import eclipsebuild.BuildDefinitionPlugin.TargetPlatform
 import org.gradle.api.Project
 import org.gradle.internal.os.OperatingSystem
-
-import eclipsebuild.BuildDefinitionPlugin.TargetPlatform
-
 
 /**
  * Holds configuration-dependent settings for the plug-ins.
@@ -80,10 +78,6 @@ class Config {
 
     File getMavenizedTargetPlatformDir() {
         new File(targetPlatformDir, 'mavenized-target-platform')
-    }
-
-    File getTargetPlatformProperties() {
-        new File(targetPlatformDir, 'target-platform.properties')
     }
 
     File getEclipseSdkArchive() {

@@ -11,6 +11,10 @@
 
 package eclipsebuild
 
+import eclipsebuild.updatesite.CopyBundlesTask
+import eclipsebuild.updatesite.CreateP2RepositoryConvention
+import eclipsebuild.updatesite.CreateP2RepositoryTask
+import eclipsebuild.updatesite.SignBundlesTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ProjectDependency
@@ -60,8 +64,6 @@ class UpdateSitePlugin implements Plugin<Project> {
     // temporary folder names during build
     static final String UNSIGNED_BUNDLES_DIR_NAME = 'unsigned-bundles'
     static final String SIGNED_BUNDLES_DIR_NAME = 'signed-bundles'
-    static final String FEATURES_DIR_NAME = 'features'
-    static final String PLUGINS_DIR_NAME = 'plugins'
     static final String REPOSITORY_DIR_NAME = 'repository'
 
     @Override
@@ -70,6 +72,8 @@ class UpdateSitePlugin implements Plugin<Project> {
         addTaskCopyBundles(project)
         addTaskSignBundles(project)
         addTaskCreateP2Repository(project)
+        validateRequiredFilesExist(project)
+        defineConventionMapping(project)
     }
 
     static void configureProject(Project project) {
@@ -87,11 +91,11 @@ class UpdateSitePlugin implements Plugin<Project> {
     }
 
     static void addTaskCopyBundles(Project project) {
-        def copyBundlesTask = project.task(COPY_BUNDLES_TASK_NAME) {
+
+        def copyBundlesTask = project.task(COPY_BUNDLES_TASK_NAME, type: CopyBundlesTask, dependsOn: project.tasks.findByName('jar')) {
             group = Constants.gradleTaskGroupName
             description = 'Copies over the bundles that make up the update site.'
-            outputs.dir new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
-            doLast { copyBundles(project) }
+            targetLocation = new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
         }
 
         // add inputs for each plugin/feature project once this build script has been evaluated (before that, the dependencies are empty)
@@ -112,159 +116,49 @@ class UpdateSitePlugin implements Plugin<Project> {
         }
     }
 
-    static void copyBundles(Project project) {
-        def rootDir = new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
-        def pluginsDir = new File(rootDir, PLUGINS_DIR_NAME)
-        def featuresDir = new File(rootDir, FEATURES_DIR_NAME)
-
-        // delete old content
-        if (rootDir.exists()) {
-            project.logger.info("Delete bundles directory '${rootDir.absolutePath}'")
-            rootDir.deleteDir()
-        }
-
-        // iterate over all the project dependencies to populate the update site with the plugins and features
-        project.logger.info("Copy features and plugins to bundles directory '${rootDir.absolutePath}'")
-        for (ProjectDependency projectDependency : project.configurations.compile.dependencies.withType(ProjectDependency)) {
-            def dependency = projectDependency.dependencyProject
-
-            // copy the output jar for each plugin project dependency
-            if (dependency.plugins.hasPlugin(BundlePlugin)) {
-                project.logger.debug("Copy plugin project '${dependency.name}' with jar '${dependency.tasks.jar.outputs.files.singleFile.absolutePath}' to '${pluginsDir}'")
-                project.copy {
-                    from dependency.tasks.jar.outputs.files.singleFile
-                    into pluginsDir
-                }
-            }
-
-            // copy the output jar for each feature project dependency
-            if (dependency.plugins.hasPlugin(FeaturePlugin)) {
-                project.logger.debug("Copy feature project '${dependency.name}' with jar '${dependency.tasks.jar.outputs.files.singleFile.absolutePath}' to '${pluginsDir}'")
-                project.copy {
-                    from dependency.tasks.jar.outputs.files.singleFile
-                    into featuresDir
-                }
-            }
-        }
-    }
-
     static void addTaskSignBundles(Project project) {
-        project.task(SIGN_BUNDLES_TASK_NAME, dependsOn: COPY_BUNDLES_TASK_NAME) {
+        project.task(SIGN_BUNDLES_TASK_NAME, dependsOn: COPY_BUNDLES_TASK_NAME, type: SignBundlesTask) {
             group = Constants.gradleTaskGroupName
             description = 'Signs the bundles that make up the update site.'
-            inputs.dir new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
-            outputs.dir new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME)
-            doLast { signBundles(project) }
+            unsignedBundlesDirectory = new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
+            signedBundlesDirectory = new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME)
             onlyIf { project.updateSite.signBundles }
         }
     }
 
-    static void signBundles(Project project) {
-        def unsignedRootDir = new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
-        def unsignedPluginsDir = new File(unsignedRootDir, PLUGINS_DIR_NAME)
-        def unsignedFeaturesDir = new File(unsignedRootDir, FEATURES_DIR_NAME)
-        def signedRootDir = new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME)
-        def signedPluginsDir = new File(signedRootDir, PLUGINS_DIR_NAME)
-        def signedFeaturesDir = new File(signedRootDir, FEATURES_DIR_NAME)
-
-        // delete old content
-        if (signedRootDir.exists()) {
-            project.logger.info("Delete signed bundles directory '${signedRootDir.absolutePath}'")
-            signedRootDir.deleteDir()
-        }
-
-        // create the target folders
-        signedRootDir.mkdirs()
-        signedPluginsDir.mkdirs()
-        signedFeaturesDir.mkdirs()
-
-        // sign each plugin and feature into target location
-        File targetDir = signedPluginsDir
-        def signBundle = {
-            project.logger.info("Sign '${it.absolutePath}'")
-            project.ant.signjar(
-                verbose: 'true',
-                destDir: targetDir,
-                alias: 'EclipsePlugins',
-                jar: it,
-                keystore: project.findProject(':').file('gradle/config/signing/DevKeystore.ks'),
-                storepass: 'tooling',
-                keypass: 'tooling',
-                sigalg: 'SHA1withDSA',
-                digestalg: 'SHA1',
-                preservelastmodified: 'true')
-        }
-        project.logger.info("Sign plugins into '${targetDir.absolutePath}'")
-        unsignedPluginsDir.listFiles().each signBundle
-
-        project.logger.info("Sign features into '${targetDir.absolutePath}'")
-        targetDir = signedFeaturesDir
-        unsignedFeaturesDir.listFiles().each signBundle
-    }
-
     static void addTaskCreateP2Repository(Project project) {
-        def createP2RepositoryTask = project.task(CREATE_P2_REPOSITORY_TASK_NAME, dependsOn: [
-            COPY_BUNDLES_TASK_NAME, SIGN_BUNDLES_TASK_NAME, ":${BuildDefinitionPlugin.TASK_NAME_INSTALL_TARGET_PLATFORM}"]) {
-                group = Constants.gradleTaskGroupName
-                description = 'Generates the P2 repository.'
-                inputs.dir project.updateSite.signBundles ? new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME) : new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
-                inputs.files project.updateSite.extraResources
-                outputs.dir new File(project.buildDir, REPOSITORY_DIR_NAME)
-                doLast { createP2Repo(project) }
+        def createP2RepositoryTask = project.task(CREATE_P2_REPOSITORY_TASK_NAME, type: CreateP2RepositoryTask, dependsOn: [
+            COPY_BUNDLES_TASK_NAME,
+            SIGN_BUNDLES_TASK_NAME,
+            ":${BuildDefinitionPlugin.TASK_NAME_INSTALL_TARGET_PLATFORM}"
+        ]) {
+            group = Constants.gradleTaskGroupName
+            description = 'Generates the P2 repository.'
+            bundlesDirectory = project.updateSite.signBundles ? new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME) : new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
+            targetDirectory = new File(project.buildDir, REPOSITORY_DIR_NAME)
         }
 
         project.tasks.assemble.dependsOn createP2RepositoryTask
-    }
-
-    static void createP2Repo(Project project) {
-        def repositoryDir = new File(project.buildDir, REPOSITORY_DIR_NAME)
-
-        // delete old content
-        if (repositoryDir.exists()) {
-            project.logger.info("Delete P2 repository directory '${repositoryDir.absolutePath}'")
-            repositoryDir.deleteDir()
-        }
-
-        def unsignedRootDir = new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
-        def signedRootDir = new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME)
-        def rootDir = project.updateSite.signBundles ? signedRootDir : unsignedRootDir
-
-        // publish features/plugins to the update site
-        project.logger.info("Publish plugins and features from '${rootDir.absolutePath}' to the update site '${repositoryDir.absolutePath}'")
-        project.exec {
-            commandLine(Config.on(project).eclipseSdkExe,
-                    '-nosplash',
-                    '-application', 'org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher',
-                    '-metadataRepository', repositoryDir.toURI().toURL(),
-                    '-artifactRepository', repositoryDir.toURI().toURL(),
-                    '-source', rootDir,
-                    '-compress',
-                    '-publishArtifacts',
-                    '-configs', 'ANY')
-        }
-
-        // publish P2 category defined in the category.xml to the update site
-        project.logger.info("Publish categories defined in '${project.updateSite.siteDescriptor.absolutePath}' to the update site '${repositoryDir.absolutePath}'")
-        project.exec {
-            commandLine(Config.on(project).eclipseSdkExe,
-                    '-nosplash',
-                    '-application', 'org.eclipse.equinox.p2.publisher.CategoryPublisher',
-                    '-metadataRepository', repositoryDir.toURI().toURL(),
-                    '-categoryDefinition',  project.updateSite.siteDescriptor.toURI().toURL(),
-                    '-compress')
-        }
-
-        // copy the extra resources to the update site
-        project.copy {
-            from project.updateSite.extraResources
-            into repositoryDir
-        }
     }
 
     static void validateRequiredFilesExist(Project project) {
         project.gradle.taskGraph.whenReady {
             // make sure the required descriptors exist
             assert project.file(project.updateSite.siteDescriptor).exists()
+            // todo (donat) check for extra resources if they exist
+        }
+    }
+
+    static defineConventionMapping(Project project) {
+        def convention = new CreateP2RepositoryConvention(project)
+        project.convention.plugins.createp2repository = convention
+        project.tasks.withType(CreateP2RepositoryTask.class).all { CreateP2RepositoryTask task ->
+            task.conventionMapping.siteDescriptor = { convention.siteDescriptor }
+            task.conventionMapping.extraResources = { convention.extraResources }
+            task.conventionMapping.signBundles = { convention.signBundles }
+        }
+        project.tasks.withType(SignBundlesTask.class).all { SignBundlesTask task ->
+            task.conventionMapping.signBundles = { convention.signBundles }
         }
     }
 

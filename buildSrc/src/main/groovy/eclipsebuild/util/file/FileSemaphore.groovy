@@ -9,7 +9,7 @@
  *     Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package eclipsebuild
+package eclipsebuild.util.file
 
 import java.nio.channels.FileLock
 
