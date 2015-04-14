@@ -243,7 +243,7 @@ subprojects {
         targetCompatibility = Config.on(project).targetPlatform.eclipseVersion >= "45" ? 1.7 : 1.6
 
         tasks.withType(AbstractCompile).all {
-            // disable all warnings except for different sourceCompatibility and targetCompatibility value
+            // enable all warnings except for different sourceCompatibility and targetCompatibility value
             options.compilerArgs << '-Xlint:all'
             options.compilerArgs << '-Xlint:-options'
             options.fork = true
