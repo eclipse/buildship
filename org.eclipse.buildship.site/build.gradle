@@ -14,9 +14,9 @@ updateSite {
 
 remotes {
     eclipseDotOrg {
-        host = ECLIPSE_ORG_HOST
-        user =  ECLIPSE_ORG_USER
-        password = ECLIPSE_ORG_PASSWORD
+        host = ECLIPSE_ORG_FTP_HOST
+        user =  ECLIPSE_ORG_FTP_USER
+        password = ECLIPSE_ORG_FTP_PASSWORD
         knownHosts = project.rootProject.file('gradle/ssh/known_hosts')
     }
 }
@@ -66,7 +66,7 @@ task uploadUpdateSite(dependsOn : 'createP2Repository') {
 // utility methods
 
 def getP2ExtraProperties() {
-    if (ECLIPSE_ORG_LOCATION) {
+    if (ECLIPSE_ORG_FTP_PATH) {
         ['p2.mirrorsURL': calculateP2MirrorsUrl(project)]
     } else{
         [:]
@@ -81,11 +81,11 @@ def calculateP2MirrorsUrl(Project project) {
 def releaseTypeFolder(Project project) {
     def config = eclipsebuild.BuildshipConfig.on(project)
     if(config.isRelease()) {
-        "${ECLIPSE_ORG_LOCATION}/releases"
+        "${ECLIPSE_ORG_FTP_PATH}/releases"
     } else if(config.isMilestone()){
-        "${ECLIPSE_ORG_LOCATION}/milestones"
+        "${ECLIPSE_ORG_FTP_PATH}/milestones"
     } else if(config.isSnapshot()) {
-        "${ECLIPSE_ORG_LOCATION}/snapshots"
+        "${ECLIPSE_ORG_FTP_PATH}/snapshots"
     } else {
         throw new IllegalStateException("BuildshipConfig must either be a release, milestone, or snapshot.")
     }
