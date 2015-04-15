@@ -8,7 +8,7 @@ buildscript {
 
 updateSite {
     extraResources = files('epl-v10.html', 'notice.html')
-    p2ExtraProperties = [ 'p2.mirrorsURL' : calculateP2MirrorsUrl(project) ]
+    p2ExtraProperties = getP2ExtraProperties()
     signBundles = true
 }
 
@@ -49,6 +49,9 @@ task uploadUpdateSite(dependsOn : 'createP2Repository') {
         // upload the update site and update the composite descriptors
         ssh.run {
             session(remotes.eclipseDotOrg) {
+                // create the leaf directory if not exist
+                execute "mkdir -p $repositoryFolder"
+
                 // copy the update site from the build directory to the remote location
                 put from: files { file("$buildDir/repository").listFiles() }, into: repositoryFolder
 
@@ -61,6 +64,15 @@ task uploadUpdateSite(dependsOn : 'createP2Repository') {
 }
 
 // utility methods
+
+def getP2ExtraProperties() {
+    if (ECLIPSE_ORG_LOCATION) {
+        ['p2.mirrorsURL': calculateP2MirrorsUrl(project)]
+    } else{
+        [:]
+    }
+}
+
 def calculateP2MirrorsUrl(Project project) {
     def repositoryPath = "${releaseTypeFolder(project)}/${releaseVersion()}/${project.version}"
     "http://www.eclipse.org/downloads/download.php?file=${repositoryPath}&format=xml"
