@@ -8,7 +8,7 @@ buildscript {
 
 updateSite {
     extraResources = files('epl-v10.html', 'notice.html')
-    p2ExtraProperties = getP2ExtraProperties()
+    p2ExtraProperties = collectP2ExtraProperties()
     signBundles = true
 }
 
@@ -65,10 +65,10 @@ task uploadUpdateSite(dependsOn : 'createP2Repository') {
 
 // utility methods
 
-def getP2ExtraProperties() {
+def collectP2ExtraProperties() {
     if (ECLIPSE_ORG_MIRROR_PATH) {
         ['p2.mirrorsURL': calculateP2MirrorsUrl(project)]
-    } else{
+    } else {
         [:]
     }
 }
