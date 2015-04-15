@@ -21,7 +21,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
-
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
@@ -41,7 +40,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.gradle.GradleDistributionFormatter;
 import org.eclipse.buildship.core.gradle.GradleDistributionWrapper;
@@ -347,6 +345,11 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         this.keyFont.dispose();
         this.valueFont.dispose();
         super.dispose();
+    }
+
+    @Override
+    protected String getPageContextInformation() {
+        return null;
     }
 
 }
