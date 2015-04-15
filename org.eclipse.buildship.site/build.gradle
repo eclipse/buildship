@@ -38,7 +38,7 @@ task uploadUpdateSite(dependsOn : 'createP2Repository') {
         //     |--1.0.0.v20150413-1512 (repository folder - simple update site)
 
         // define the folder structure
-        def releaseTypeFolder = releaseTypeFolder(project)
+        def releaseTypeFolder = "${ECLIPSE_ORG_FTP_PATH}/${releaseTypeFolder(project)}"
         def versionFolder = "${releaseTypeFolder}/${releaseVersion()}"
         def repositoryFolder = "${versionFolder}/${project.version}"
 
@@ -66,7 +66,7 @@ task uploadUpdateSite(dependsOn : 'createP2Repository') {
 // utility methods
 
 def getP2ExtraProperties() {
-    if (ECLIPSE_ORG_FTP_PATH) {
+    if (ECLIPSE_ORG_MIRROR_PATH) {
         ['p2.mirrorsURL': calculateP2MirrorsUrl(project)]
     } else{
         [:]
@@ -74,18 +74,18 @@ def getP2ExtraProperties() {
 }
 
 def calculateP2MirrorsUrl(Project project) {
-    def repositoryPath = "${releaseTypeFolder(project)}/${releaseVersion()}/${project.version}"
+    def repositoryPath = "${ECLIPSE_ORG_MIRROR_PATH}/${releaseTypeFolder(project)}/${releaseVersion()}/${project.version}"
     "http://www.eclipse.org/downloads/download.php?file=${repositoryPath}&format=xml"
 }
 
 def releaseTypeFolder(Project project) {
     def config = eclipsebuild.BuildshipConfig.on(project)
     if(config.isRelease()) {
-        "${ECLIPSE_ORG_FTP_PATH}/releases"
+        "releases"
     } else if(config.isMilestone()){
-        "${ECLIPSE_ORG_FTP_PATH}/milestones"
+        "milestones"
     } else if(config.isSnapshot()) {
-        "${ECLIPSE_ORG_FTP_PATH}/snapshots"
+        "snapshots"
     } else {
         throw new IllegalStateException("BuildshipConfig must either be a release, milestone, or snapshot.")
     }
