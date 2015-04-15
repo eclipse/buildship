@@ -73,62 +73,60 @@ We use Eclipse
  - as our development environment of Buildship and
  - as our target platform against which we compile and run Buildship.
 
-We use a custom-packaged Eclipse distribution as our development environment, but the latest Eclipse for RCP Developers package should
-be fine, too.
+To provide a consistent working environment for the development we use [Oomph](https://projects.eclipse.org/projects/tools.oomph). Oomph is a model-based tool to install custom Eclipse distributions. The model instructs Oomph to set up the environment such that
 
-Our custom-packaged Eclipse distribution is available
-at [http://dev1.gradle.org:8000/eclipse/distro](http://dev1.gradle.org:8000/eclipse/distro).
+ - the JDK is aligned to the project,
+ - the target platform is set,
+ - the Buildship git repository is cloned and imported into the workspace, and
+ - the code formatter settings are customized.
 
-If you do not use our custom-packaged Eclipse distribution, we suggest to still import our project preferences which are available
-at [http://dev1.gradle.org:8000/eclipse/config/formatter.epf](http://dev1.gradle.org:8000/eclipse/config/formatter.epf).
+To get started apply the following instructions:
 
-We plan to soon release an [Oomph](https://wiki.eclipse.org/Eclipse_Oomph_Installer) setup model to provide a convenient
-way to set up the local development environment.
+#### First installation
 
-### Getting the source code
+##### 1. Download the setup model and the latest Oomph installer
 
-The project and its source code is hosted on GitHub: `https://github.com/eclipse/buildship`.
+The setup model is available at the [project's git repository](https://raw.githubusercontent.com/eclipse/buildship/master/buildship.setup). The latest version of the installer is available at the [project's wiki page](https://wiki.eclipse.org/Eclipse_Oomph_Installer).
+Download and extract the one matching to your local environment. The first screen of Oomph should look like this. 
 
-Apply the following command to get a clone of the source code:
+![Oomph initial screen](/docs/development/oomph/install-1.png)
 
-    git clone git@github.com:eclipse/buildship.git
+##### 2. Add the setup model
 
-#### Committers
+On the first screen choose _Eclipse Platform_ to install the minimum set of plugins for the IDE. Check if the _VM_ and the _Bundle pool_ to have proper values and click _Next_. Then, on the second page click on the plus sign on the top and specify the downloaded setup model. If it was successful, double-click on the _Buildship_ node. If everything is OK you should see the following screen. Click _Next_.
 
-Navigate into the created _buildship_ directory and set the git username and email address:
+![Buildship setup model added](/docs/development/oomph/install-2.png)
 
-    git config user.name "johnsmith"
-    git config user.email "john.smith@gradleware.com"
+##### 3. Specify installer properties
 
-And make sure to properly map the part before the domain of your email address in TeamCity under _My Settings & Tools_ >>
-_General_ >> _Version Control Username Settings_ >> _Default for all of the Git roots_.
+On the properties screen you have to specify the environment-specific variables: 
+ 
+ - the location of the custom Eclipse distribution,
+ - the location of workspace and the git clone, 
+ - the JDK, and
+ - the target platform against the project is compiled.
+ 
+When done it should look something like this.
 
-    john.smith
+![Variables page](/docs/development/oomph/install-3.png)
 
-From now on, when you commit to the _buildship_ project through Git, the change will be properly associated with your user in
-TeamCity. You can verify that the setup is correct by seeing your full name next to each commit.
+Click _Next_ and _Finish_ to start the installation. *Note:* If you try to run the installer multiple times Oomph might remember some of the preferences. To make all variables visible, enable the _Show all variables_ checkbox.
 
-In order to avoid extra commits in the Git history after merging local changes with remote changes, apply the
-_rebase_ strategy when pulling in the remote changes. By applying the _update_ alias listed below, you can conveniently
-pull in the remote changes from master without ending up with ‘merge branch’ commits in the Git history later on.
+##### 4. Start the IDE
 
-    git config --global alias.update=“pull --rebase origin master”
-    git update
+When the installer finishes the IDE starts up automatically. There are a few setup tasks running on startup (importing projects, setting up preferences). Wait for these to finish before doing anything! When finished you should see the following workspace.
 
-### Importing the source code into Eclipse
+![Initial workspace](/docs/development/oomph/install-4.png)
 
-The source code consists of a single root project and several sub-projects nested within it. You can use the
-generic Eclipse 'Import Existing Projects' wizard. Select the root folder _buildship_ and
-check the option 'Search for nested projects'. Select all _com.gradleware.*_ projects. You
-can then press _Finish_.
+#### Change the target platform 
 
-### Setting the target platform
+The target platform selected during the installation can be changed, even if it's a bit hidden. In the menu click _Help_ > _Perform Setup tasks_ then click **_Back_**. Select the _Show all variables_ checkbox and change the _Buildship Target Platform_ to the desired version. Click _Next_ and _Finish_ then wait for the target platform to download. When finished the source code will be compiled against the new target platform.
 
-After importing all the projects into Eclipse, there will be some build errors due to code references to missing
-plugins. To add these missing plugins to Eclipse, open the _tooling-e45.target_ file (or the one matching your
-desired target platform version) located in the project root folder and click _Set as Target Platform_
-in the top-right corner. This will fix all compilation issues. Note that this might take a while since the entire
-SDK for the specified Eclipse version will be downloaded.
+![Specify new target platform](/docs/development/oomph/install-5.png)
+
+#### Future plans
+
+Right now one has to download the setup model manually. We plan to move the model into Oomph's central product catalog. From then on every time the model is changed the users of the model will also receive the updates. 
 
 ### Running the tests inside of Eclipse
 
