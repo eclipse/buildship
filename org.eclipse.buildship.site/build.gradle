@@ -49,9 +49,6 @@ task uploadUpdateSite(dependsOn : 'createP2Repository') {
         // upload the update site and update the composite descriptors
         ssh.run {
             session(remotes.eclipseDotOrg) {
-                // create the leaf directory if not exist
-                execute "mkdir -p $repositoryFolder"
-
                 // copy the update site from the build directory to the remote location
                 put from: files { file("$buildDir/repository").listFiles() }, into: repositoryFolder
 
