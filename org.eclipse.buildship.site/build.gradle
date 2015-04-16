@@ -37,14 +37,14 @@ gradle.taskGraph.whenReady {
             ssh.run {
                 session(remotes.eclipseDotOrg) {
                     // the remote folder where the jars are signed
-                    def remoteFolder = '/home/data/httpd/download.eclipse.org/buildship/temp/signed-bundles'
+                    def remoteFolder = "${ECLIPSE_ORG_TEMP_PATH}/${eclipsebuild.UpdateSitePlugin.SIGNED_BUNDLES_DIR_NAME}"
 
                     // clean up the folder used for signing if the previous build failed
                     execute """rm -rf $remoteFolder
                         mkdir -p $remoteFolder"""
 
                     // transfer the unsigned files to the remote host
-                    put from: file("$buildDir/unsigned-bundles").listFiles() as List, into: remoteFolder
+                    put from: file("$buildDir/${eclipsebuild.UpdateSitePlugin.UNSIGNED_BUNDLES_DIR_NAME}").listFiles() as List, into: remoteFolder
 
                     // perform the signing
                     execute """ cd $remoteFolder
@@ -79,7 +79,7 @@ task uploadUpdateSite(dependsOn : createP2Repository) {
         //     |--1.0.0.v20150413-1512 (repository folder - simple update site)
 
         // define the folder structure
-        def releaseTypeFolder = "${ECLIPSE_ORG_FTP_PATH}/${releaseTypeFolder(project)}"
+        def releaseTypeFolder = "${ECLIPSE_ORG_FTP_UPDATE_SITES_PATH}/${releaseTypeFolder(project)}"
         def versionFolder = "${releaseTypeFolder}/${releaseVersion()}"
         def repositoryFolder = "${versionFolder}/${project.version}"
 
