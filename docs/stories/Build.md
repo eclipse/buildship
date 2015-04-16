@@ -1,4 +1,4 @@
-# Eclipse Plugin Build
+# Gradle-based Eclipse project build
 
 ## Include extension elements in uptodate checks
 
