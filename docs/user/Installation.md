@@ -10,8 +10,8 @@ version of Gradle that Buildship interacts with, certain features of Buildship m
 
 We propose you install Buildship from one of the provided composite update sites listed on [eclipse.org](https://projects.eclipse.org/projects/tools.buildship/downloads):
 
-  * `http://download.eclipse.org/buildship/updates/milestones`
-  * `http://download.eclipse.org/buildship/updates/snapshots`
+  * `http://download.eclipse.org/buildship/updates/milestones/1.0`
+  * `http://download.eclipse.org/buildship/updates/snapshots/1.0`
 
 Each commit to the Buildship project creates a new snapshot version that is ready for download from eclipse.org. In regular intervals, the Buildship team
 creates a new milestone version and makes it available on eclipse.org.
