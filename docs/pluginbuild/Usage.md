@@ -1,4 +1,4 @@
-# Gradle-based Build
+# Gradle-based Eclipse project build
 
 ## Building
 
