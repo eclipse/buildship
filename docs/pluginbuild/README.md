@@ -1,8 +1,6 @@
-# Design
+# Gradle-based Eclipse project build
 
-This document provides references to all documentation on the Eclipse Plugin Build.
+The following documentation of the Gradle-based Eclipse project build is currently available:
 
-1. [Usage](Usage.md)
-2. [Stories](../stories/Build.md)
-
-
+1. [Build Usage](Usage.md)
+2. [Build Stories](../stories/Build.md)

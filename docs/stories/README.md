@@ -1,6 +1,6 @@
 # Stories
 
-This document provides references to all story documentation.
+We capture our ideas for features of Buildship in _stories_. The following stories are currently available:
 
 1. [General](General.md)
 1. [Project](Project.md)

@@ -23,6 +23,8 @@ We currently do not provide a lot of information, links, etc. on eclipse.org.
 
 Provide an Oomph model for the Buildship project.
 
+Include the Oomph model in the main catalog.
+
 ### Motivation
 
 As of Eclipse Mars, Oomph is the default [Eclipse installer](https://wiki.eclipse.org/Eclipse_Installer). Having an Oomph model
