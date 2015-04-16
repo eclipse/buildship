@@ -28,7 +28,48 @@ dependencies {
     compile project(':org.eclipse.buildship.feature')
 }
 
-task uploadUpdateSite(dependsOn : 'createP2Repository') {
+// if the result update site is published, then replace the local signing with the one available on eclipse.org
+gradle.taskGraph.whenReady {
+    if (gradle.taskGraph.hasTask(uploadUpdateSite)) {
+        signBundles.actions.clear()
+        signBundles.doLast {
+            ssh.run {
+                session(remotes.eclipseDotOrg) {
+                    // the remote folder where the jars are signed
+                    // TODO what is the best location to do the signing?
+                    def remoteFolder = '/home/data/httpd/download.eclipse.org/buildship/staging/signed-bundles'
+
+                    // clean up the folder used for signing if the previous build failed
+                    execute """rm -rf $remoteFolder
+                        mkdir -p $remoteFolder"""
+
+                    // transfer the unsigned files to the remote host
+                    put from: file("$buildDir/unsigned-bundles").listFiles() as List, into: remoteFolder
+
+                    // perform the signing
+                    execute """ cd $remoteFolder
+                        # iterate all jars in the subfolders
+                        for jar in \$(find `pwd` -name '*.jar');
+                        do
+                            # save the signed jar into a temporary file copy and write it's content to the unsigned jar
+                            curl -o signed.jar -F filedata=@\$jar http://build.eclipse.org:31338/sign
+                            cp signed.jar \$jar
+                            rm signed.jar
+                        done
+                    """
+
+                    // retrieve the signed content from the remote host into the build/signed-bundles folder
+                    get from: remoteFolder, into: "$buildDir"
+
+                    // clean up the remote folder
+                    execute "rm -rf $remoteFolder"
+                }
+            }
+        }
+    }
+}
+
+task uploadUpdateSite(dependsOn : createP2Repository) {
     description = "Uploads the generated update site to the eclipse.org server."
 
     doLast {
