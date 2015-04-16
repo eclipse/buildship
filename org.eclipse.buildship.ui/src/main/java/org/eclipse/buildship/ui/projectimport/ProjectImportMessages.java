@@ -43,6 +43,10 @@ public final class ProjectImportMessages extends NLS {
     public static String InfoMessage_GradleOptionsWizardPageDefault;
     public static String InfoMessage_PreviewImportWizardPageDefault;
 
+    public static String InfoMessage_GradleProjectWizardPageContext;
+    public static String InfoMessage_GradleOptionsWizardPageContext;
+    public static String InfoMessage_GradlePreviewWizardPageContext;
+
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, ProjectImportMessages.class);

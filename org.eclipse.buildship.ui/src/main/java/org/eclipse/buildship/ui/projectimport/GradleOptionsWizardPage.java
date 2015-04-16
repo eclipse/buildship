@@ -355,4 +355,9 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
                         this.gradleVersionCombo.getItem(selectionIndex)));
     }
 
+    @Override
+    protected String getPageContextInformation() {
+        return ProjectImportMessages.InfoMessage_GradleOptionsWizardPageContext;
+    }
+
 }

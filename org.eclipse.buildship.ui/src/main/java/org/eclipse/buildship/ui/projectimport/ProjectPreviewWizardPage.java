@@ -349,4 +349,9 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         super.dispose();
     }
 
+    @Override
+    protected String getPageContextInformation() {
+        return ProjectImportMessages.InfoMessage_GradlePreviewWizardPageContext;
+    }
+
 }
