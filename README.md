@@ -30,6 +30,14 @@ We are very interested in feedback from the Gradle and Eclipse communities. All 
  * [Eclipse Mailinglist](https://dev.eclipse.org/mhonarc/lists/buildship-dev)
 
 
+## Issue Tracking
+
+You can report issues that you find in Buildship as well as in Gradle through
+
+ * [Bugzilla](https://bugs.eclipse.org/bugs/enter_bug.cgi?product=Buildship) (for Buildship issues)
+ * [Gradle Forums](http://discuss.gradle.org/c/bugs) (for Gradle issues)
+
+
 ## License
 
 Buildship is available under the Eclipse Public License, Version 1.0.
