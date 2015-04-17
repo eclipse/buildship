@@ -19,8 +19,10 @@
       label="Project Development Tools">
     <requirement
         name="org.eclipse.sdk.ide"/>
+    <requirement
+        name="org.eclipse.buildship.feature.feature.group"/>
     <repository
-        url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-mars-m6/"/>
+        url="http://download.eclipse.org/buildship/updates/snapshots/${buildship.latest.version}"/>
     <description>Installs the required plugins to the IDE.</description>
   </setupTask>
   <setupTask
@@ -36,6 +38,11 @@
           id="buildship.preferences.eclipse.eclipseini"
           option="-Xmx"
           value="2048m"
+          vm="true"/>
+      <setupTask
+          xsi:type="setup:EclipseIniTask"
+          option="-Doomph.redirection.buildship"
+          value="https://raw.githubusercontent.com/donat/buildship/oomph-setup-model/buildship.setup->${buildship.git.clone.location}/buildship.setup"
           vm="true"/>
     </setupTask>
     <setupTask
@@ -185,6 +192,12 @@
           label="Eclipse Helios - 3.6"/>
       <description>Buildship Target Platform</description>
     </setupTask>
+    <setupTask
+        xsi:type="setup:VariableTask"
+        id="buildship.variables.latestversion"
+        name="buildship.latest.version"
+        value="1.0"
+        defaultValue=""/>
   </setupTask>
   <setupTask
       xsi:type="git:GitCloneTask"
@@ -192,6 +205,21 @@
       remoteURI="https://github.com/eclipse/buildship"
       pushURI="https://github.com/eclipse/buildship"
       checkoutBranch="${git.checkout.branch}">
+    <annotation
+        source="http://www.eclipse.org/oomph/setup/InducedChoices">
+      <detail
+          key="inherit">
+        <value>github.remoteURIs</value>
+      </detail>
+      <detail
+          key="label">
+        <value>Buildship Git Repository</value>
+      </detail>
+      <detail
+          key="target">
+        <value>remoteURI</value>
+      </detail>
+    </annotation>
     <description>Buildship</description>
   </setupTask>
   <setupTask
