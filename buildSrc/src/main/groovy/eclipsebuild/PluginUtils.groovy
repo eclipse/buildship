@@ -111,7 +111,7 @@ public class PluginUtils {
                 project.jar {
                     from location
                     if (resource.name == 'feature.xml') {
-                        filter(ReplaceTokens, tokens:['0.0.1.featureVersion' :'"' + project.version + '"'], beginToken: '"', endToken: '"')
+                        filter(ReplaceTokens, tokens:['1.0.0.qualifier' :'"' + project.version + '"'], beginToken: '"', endToken: '"')
                     }
                 }
             }
