@@ -1,6 +1,7 @@
 # Buildship: Eclipse Plug-ins for Gradle
 
-Buildship is a set of Eclipse Plug-ins that provide a deep integration of Gradle into Eclipse.
+Buildship is a set of Eclipse Plug-ins that provide a deep integration of Gradle into Eclipse. Buildship is hosted
+on [eclipse.org](https://projects.eclipse.org/projects/tools.buildship).
 
 
 ## Requirements
