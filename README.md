@@ -22,6 +22,14 @@ More specifically, you can find
  * [Outline of upcoming stories](docs/stories/README.md)
 
 
+## Discussions &amp; News
+
+We are very interested in feedback from the Gradle and Eclipse communities. All things Buildship are discussed on
+
+ * [Gradle Forums](http://discuss.gradle.org/c/help-discuss/buildship)
+ * [Eclipse Mailinglist](https://dev.eclipse.org/mhonarc/lists/buildship-dev)
+
+
 ## License
 
 Buildship is available under the Eclipse Public License, Version 1.0.
