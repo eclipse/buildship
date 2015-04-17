@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- don't modify the feature's version attribute as it will be replaced by the build -->
 <feature
-      id="org.eclipse.buildship.feature"
+      id="org.eclipse.buildship"
       label="%featureName"
       version="1.0.0.qualifier"
       provider-name="%providerName"

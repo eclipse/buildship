@@ -20,7 +20,7 @@
     <requirement
         name="org.eclipse.sdk.ide"/>
     <requirement
-        name="org.eclipse.buildship.feature.feature.group"/>
+        name="org.eclipse.buildship.feature.group"/>
     <repository
         url="http://download.eclipse.org/buildship/updates/snapshots/${buildship.latest.version}"/>
     <description>Installs the required plugins to the IDE.</description>
