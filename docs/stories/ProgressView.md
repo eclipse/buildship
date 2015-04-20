@@ -1,10 +1,10 @@
 # Progress View
 
-## Provide a Progress View
+## Provide a Build Progress View
 
 ### Requested Change
 
-When running a build, show a new Progress View that visualizes the execution of the build. Show when the builds starts and
+When running a build, show a new Build Progress View that visualizes the execution of the build. Show when the builds starts and
 finishes, when the different phases of the build start and finish, when a task starts and finishes, and when tests start
 and finish.
 
