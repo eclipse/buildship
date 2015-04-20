@@ -17,7 +17,7 @@
 We currently do not provide a lot of information, links, etc. on eclipse.org.
 
 
-## Support Oomph setup
+## ~~Support Oomph setup~~
 
 ### Requested Change
 
@@ -44,7 +44,7 @@ Currently, the external dependencies of Buildship (Tooling API, Guava, etc.) liv
 the _core_ plugin. This is not the Eclipse policy for features shipped with the core distribution.
 
 
-## Sign plugins with Eclipse certificate
+## ~~Sign plugins with Eclipse certificate~~
 
 ### Requested Change
 
