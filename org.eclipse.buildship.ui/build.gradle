@@ -11,5 +11,7 @@ dependencies {
     compile withEclipseBundle('org.eclipse.debug.ui')
     compile withEclipseBundle('org.eclipse.jdt.ui')
     compile withEclipseBundle("org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}")
+
+    compile "eclipse:com.google.guava:$guavaPluginVersion"
 }
 
