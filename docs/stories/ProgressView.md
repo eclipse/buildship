@@ -1,6 +1,6 @@
 # Progress View
 
-## Provide a progress view
+## Provide a Progress View
 
 ### Requested Change
 
