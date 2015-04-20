@@ -10,6 +10,7 @@ We capture our ideas for features of Buildship in _stories_. The following stori
 1. [Plugins View](PluginsView.md)
 1. [Progress View](ProgressView.md)
 1. [Run Configuration](RunConfiguration.md)
+1. [Settings](Settings.md)
 1. [Tooling Commons](ToolingCommons.md)
 1. [Tooling API](ToolingAPI.md)
 1. [Editor](Editor.md)
