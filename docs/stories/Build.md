@@ -49,7 +49,7 @@ Avoid the redundancy between the declaration of target platforms in the .target 
 file of the Gradle root project.
 
 
-## Upload daily snapshots to eclipse.org
+## ~~Upload daily snapshots to eclipse.org~~
 
 ### Requested Change
 
