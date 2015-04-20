@@ -5,7 +5,8 @@
 ### Requested Change
 
 Persist the loaded models of the Tooling Model on disk such that the next time the Tooling Model is started, the
-models are initialized with the persisted models.
+models are initialized with the persisted models. The models can then be refreshed in the background while the user
+can already continue to work.
 
 ### Motivation
 
