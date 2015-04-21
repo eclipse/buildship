@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="gradleware-tooling-indigo" sequenceNumber="20">
+<?pde version="3.8"?><target name="gradleware-tooling-indigo" sequenceNumber="21">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.sdk.ide" version="3.7.2.M20120208-0800"/>
@@ -13,6 +13,14 @@
 <unit id="org.eclipse.swtbot.eclipse.feature.group" version="2.2.1.201402241301"/>
 <unit id="org.eclipse.swtbot.ide.feature.group" version="2.2.1.201402241301"/>
 <repository location="http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="com.google.gson" version="2.2.4.v201311231704"/>
+<repository location="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.buildship.orbit.stagining.feature.group" version="1.0.0"/>
+<repository location="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging/"/>
 </location>
 </locations>
 <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/Java SE 6 [1.6.0_65-b14-466.1]"/>

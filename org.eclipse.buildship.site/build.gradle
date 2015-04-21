@@ -22,10 +22,20 @@ remotes {
 }
 
 dependencies {
-    compile project(':org.eclipse.buildship.core')
-    compile project(':org.eclipse.buildship.ui')
-    compile project(':org.eclipse.buildship.branding')
-    compile project(':org.eclipse.buildship.feature')
+    localPlugin project(':org.eclipse.buildship.core')
+    localPlugin project(':org.eclipse.buildship.ui')
+    localPlugin project(':org.eclipse.buildship.branding')
+    localFeature project(':org.eclipse.buildship.feature')
+    
+    // include 3rd party dependencies in the update site
+    externalPlugin "eclipse:com.gradleware.tooling.utils:$commonsPluginVersion"
+    externalPlugin "eclipse:com.gradleware.tooling.client:$commonsPluginVersion"
+    externalPlugin "eclipse:com.gradleware.tooling.model:$commonsPluginVersion"
+    externalPlugin "eclipse:org.slf4j.api:$slf4jPluginVersion"
+    externalPlugin "eclipse:org.slf4j.simple:$slf4jPluginVersion"
+    externalPlugin "eclipse:org.gradle.toolingapi:$toolingApiPluginVersion"
+    externalPlugin "eclipse:com.google.guava:$guavaPluginVersion"
+    externalPlugin "eclipse:com.google.gson:$gsonPluginVersion"
 }
 
 // if the created update site is going to be published remotely, replace the local signing with the one available on eclipse.org
