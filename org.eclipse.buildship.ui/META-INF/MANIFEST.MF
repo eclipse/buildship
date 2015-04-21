@@ -7,13 +7,14 @@ Bundle-Vendor: Eclipse Buildship
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Activator: org.eclipse.buildship.ui.UiPlugin
 Require-Bundle: org.eclipse.buildship.core,
+ org.eclipse.debug.ui,
+ org.eclipse.jdt.ui,
+ org.eclipse.jface.text,
  org.eclipse.help,
  org.eclipse.ui,
- org.eclipse.ui.ide,
  org.eclipse.ui.console,
  org.eclipse.ui.editors,
- org.eclipse.ui.views,
- org.eclipse.debug.ui,
- org.eclipse.jdt.ui
+ org.eclipse.ui.ide,
+ org.eclipse.ui.views
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
