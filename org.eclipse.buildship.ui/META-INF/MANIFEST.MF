@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Buildship, Eclipse Plug-ins for Gradle - UI
 Bundle-SymbolicName: org.eclipse.buildship.ui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: Gradle Inc.
+Bundle-Vendor: Eclipse Buildship
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Activator: org.eclipse.buildship.ui.UiPlugin
 Require-Bundle: org.eclipse.buildship.core,
