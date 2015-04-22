@@ -28,14 +28,14 @@ dependencies {
     localFeature project(':org.eclipse.buildship.feature')
 
     // include 3rd party dependencies in the update site
-    externalPlugin "eclipse:com.gradleware.tooling.utils:$commonsPluginVersion"
-    externalPlugin "eclipse:com.gradleware.tooling.client:$commonsPluginVersion"
-    externalPlugin "eclipse:com.gradleware.tooling.model:$commonsPluginVersion"
-    externalPlugin "eclipse:org.gradle.toolingapi:$toolingApiPluginVersion"
-    externalPlugin "eclipse:org.slf4j.api:$slf4jPluginVersion"
-    externalPlugin "eclipse:org.slf4j.simple:$slf4jPluginVersion"
-    externalPlugin "eclipse:com.google.guava:$guavaPluginVersion"
-    externalPlugin "eclipse:com.google.gson:$gsonPluginVersion"
+    externalPlugin withEclipseBundle("com.gradleware.tooling.utils")
+    externalPlugin withEclipseBundle("com.gradleware.tooling.client")
+    externalPlugin withEclipseBundle("com.gradleware.tooling.model")
+    externalPlugin withEclipseBundle("org.gradle.toolingapi")
+    externalPlugin withEclipseBundle("org.slf4j.api")
+    externalPlugin withEclipseBundle("org.slf4j.simple")
+    externalPlugin withEclipseBundle("com.google.guava")
+    externalPlugin withEclipseBundle("com.google.gson")
 }
 
 // if the created update site is going to be published remotely, replace the local signing with the one available on eclipse.org
