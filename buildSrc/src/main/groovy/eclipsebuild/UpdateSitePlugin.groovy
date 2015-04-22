@@ -11,6 +11,9 @@
 
 package eclipsebuild
 
+import org.gradle.api.artifacts.ResolvedDependency;
+
+import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ProjectDependency
@@ -38,7 +41,10 @@ import org.gradle.api.plugins.JavaPlugin
  * <p>
  * The main tasks contributed by this plugin are responsible to generate an Eclipse Update Site.
  * They are attached to the 'assemble' task. When executed, all project dependency jars are copied
- * to the build folder, signed and published to the buildDir/repository folder.
+ * to the build folder, signed and published to the buildDir/repository folder. To include a
+ * the local plugin or feature project, the {@code localPlugin} and {@code localFeature}
+ * configuration scope should be used. An external plugin can be also included by using the
+ * {@code externalPlugin} configuration scope.
  */
 class UpdateSitePlugin implements Plugin<Project> {
 
@@ -79,6 +85,11 @@ class UpdateSitePlugin implements Plugin<Project> {
         // apply the Java plugin to have the life-cycle tasks
         project.plugins.apply(JavaPlugin)
 
+        // create scopes for local and external plugins and features
+        project.configurations.create('localPlugin')
+        project.configurations.create('localFeature')
+        project.configurations.create('externalPlugin')
+
         // add the 'updateSite' extension
         project.extensions.create(DSL_EXTENSION_NAME, Extension)
         project.updateSite.siteDescriptor = project.file('category.xml')
@@ -100,16 +111,32 @@ class UpdateSitePlugin implements Plugin<Project> {
 
         // add inputs for each plugin/feature project once this build script has been evaluated (before that, the dependencies are empty)
         project.afterEvaluate {
-            for (ProjectDependency projectDependency : project.configurations.compile.dependencies.withType(ProjectDependency)) {
+            for (ProjectDependency projectDependency : project.configurations.localPlugin.dependencies.withType(ProjectDependency)) {
               // check if the dependent project is a bundle or feature, once its build script has been evaluated
               def dependency = projectDependency.dependencyProject
-                if (dependency.plugins.hasPlugin(BundlePlugin) || dependency.plugins.hasPlugin(FeaturePlugin)) {
+                if (dependency.plugins.hasPlugin(BundlePlugin)) {
                     copyBundlesTask.inputs.files dependency.tasks.jar.outputs.files
                 } else {
                     dependency.afterEvaluate {
-                      if (dependency.plugins.hasPlugin(BundlePlugin) || dependency.plugins.hasPlugin(FeaturePlugin)) {
+                      if (dependency.plugins.hasPlugin(BundlePlugin)) {
                         copyBundlesTask.inputs.files dependency.tasks.jar.outputs.files
                       }
+                    }
+                }
+            }
+        }
+
+        project.afterEvaluate {
+            for (ProjectDependency projectDependency : project.configurations.localFeature.dependencies.withType(ProjectDependency)) {
+              // check if the dependent project is a bundle or feature, once its build script has been evaluated
+              def dependency = projectDependency.dependencyProject
+                if (dependency.plugins.hasPlugin(FeaturePlugin)) {
+                    copyBundlesTask.inputs.files dependency.tasks.jar.outputs.files
+                } else {
+                    dependency.afterEvaluate {
+                        if (dependency.plugins.hasPlugin(FeaturePlugin)) {
+                            copyBundlesTask.inputs.files dependency.tasks.jar.outputs.files
+                        }
                     }
                 }
             }
@@ -129,7 +156,7 @@ class UpdateSitePlugin implements Plugin<Project> {
 
         // iterate over all the project dependencies to populate the update site with the plugins and features
         project.logger.info("Copy features and plugins to bundles directory '${rootDir.absolutePath}'")
-        for (ProjectDependency projectDependency : project.configurations.compile.dependencies.withType(ProjectDependency)) {
+        for (ProjectDependency projectDependency : project.configurations.localPlugin.dependencies.withType(ProjectDependency)) {
             def dependency = projectDependency.dependencyProject
 
             // copy the output jar for each plugin project dependency
@@ -140,6 +167,10 @@ class UpdateSitePlugin implements Plugin<Project> {
                     into pluginsDir
                 }
             }
+        }
+
+        for (ProjectDependency projectDependency : project.configurations.localFeature.dependencies.withType(ProjectDependency)) {
+            def dependency = projectDependency.dependencyProject
 
             // copy the output jar for each feature project dependency
             if (dependency.plugins.hasPlugin(FeaturePlugin)) {
@@ -149,6 +180,12 @@ class UpdateSitePlugin implements Plugin<Project> {
                     into featuresDir
                 }
             }
+        }
+
+        // iterate over all external dependencies and them to the plugins (without transitives)
+        project.copy {
+            from project.configurations.externalPlugin
+            into pluginsDir
         }
     }
 

@@ -16,12 +16,22 @@ eclipseBuild {
         updateSites = [
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-helios-sr2",
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release",
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6",
+            "http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"
         ]
         features = [
             "org.junit",
             "org.eclipse.swtbot.eclipse.feature.group",
-            "org.eclipse.swtbot.ide.feature.group"
+            "org.eclipse.swtbot.ide.feature.group",
+            "com.gradleware.tooling.model",
+            "com.gradleware.tooling.client",
+            "com.gradleware.tooling.utils",
+            "org.gradle.toolingapi",
+            "com.google.gson",
+            "com.google.guava",
+            "org.slf4j.api",
+            "org.slf4j.simple"
         ]
         versionMapping = [
             'org.eclipse.core.runtime' : '3.6.0.v20100505',
@@ -52,12 +62,22 @@ eclipseBuild {
         updateSites = [
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-indigo-sr2",
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release",
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6",
+            "http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"
         ]
         features = [
             "org.junit",
             "org.eclipse.swtbot.eclipse.feature.group",
-            "org.eclipse.swtbot.ide.feature.group"
+            "org.eclipse.swtbot.ide.feature.group",
+            "com.gradleware.tooling.model",
+            "com.gradleware.tooling.client",
+            "com.gradleware.tooling.utils",
+            "org.gradle.toolingapi",
+            "com.google.gson",
+            "com.google.guava",
+            "org.slf4j.api",
+            "org.slf4j.simple"
         ]
         versionMapping = [
             'org.eclipse.core.runtime' : '3.7.0.v20110110',
@@ -88,12 +108,22 @@ eclipseBuild {
         updateSites = [
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-juno-sr2",
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release",
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6",
+            "http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"
         ]
         features = [
             "org.junit",
             "org.eclipse.swtbot.eclipse.feature.group",
-            "org.eclipse.swtbot.ide.feature.group"
+            "org.eclipse.swtbot.ide.feature.group",
+            "com.gradleware.tooling.model",
+            "com.gradleware.tooling.client",
+            "com.gradleware.tooling.utils",
+            "org.gradle.toolingapi",
+            "com.google.gson",
+            "com.google.guava",
+            "org.slf4j.api",
+            "org.slf4j.simple"
         ]
         versionMapping = [
             'org.eclipse.core.runtime' : '3.8.0.v20120912-155025',
@@ -124,12 +154,22 @@ eclipseBuild {
         updateSites = [
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-kepler-sr2",
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release",
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6",
+            "http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"
         ]
         features = [
             "org.junit",
             "org.eclipse.swtbot.eclipse.feature.group",
-            "org.eclipse.swtbot.ide.feature.group"
+            "org.eclipse.swtbot.ide.feature.group",
+            "com.gradleware.tooling.model",
+            "com.gradleware.tooling.client",
+            "com.gradleware.tooling.utils",
+            "org.gradle.toolingapi",
+            "com.google.gson",
+            "com.google.guava",
+            "org.slf4j.api",
+            "org.slf4j.simple"
         ]
 
         versionMapping = [
@@ -161,12 +201,22 @@ eclipseBuild {
         updateSites = [
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-luna-sr2",
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release",
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6",
+            "http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"
         ]
         features = [
             "org.junit",
             "org.eclipse.swtbot.eclipse.feature.group",
-            "org.eclipse.swtbot.ide.feature.group"
+            "org.eclipse.swtbot.ide.feature.group",
+            "com.gradleware.tooling.model",
+            "com.gradleware.tooling.client",
+            "com.gradleware.tooling.utils",
+            "org.gradle.toolingapi",
+            "com.google.gson",
+            "com.google.guava",
+            "org.slf4j.api",
+            "org.slf4j.simple"
         ]
         versionMapping = [
             'org.eclipse.core.runtime' : '3.10.0.v20140318-2214',
@@ -197,12 +247,22 @@ eclipseBuild {
         updateSites = [
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-mars-m6",
             "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release",
+            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6",
+            "http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"
         ]
         features = [
             "org.junit",
             "org.eclipse.swtbot.eclipse.feature.group",
-            "org.eclipse.swtbot.ide.feature.group"
+            "org.eclipse.swtbot.ide.feature.group",
+            "com.gradleware.tooling.model",
+            "com.gradleware.tooling.client",
+            "com.gradleware.tooling.utils",
+            "org.gradle.toolingapi",
+            "com.google.gson",
+            "com.google.guava",
+            "org.slf4j.api",
+            "org.slf4j.simple"
         ]
         versionMapping = [
             "org.eclipse.core.runtime" : "3.11.0.v20150316-1241",
