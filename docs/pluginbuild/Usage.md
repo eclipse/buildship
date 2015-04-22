@@ -27,15 +27,7 @@ The set of supported target platforms are declared in the root _build.gradle_ fi
 
         targetPlatform {
             eclipseVersion = '44'
-            sdkVersion = "4.4.2.M20150204-1700"
-            updateSites = [
-                "http://download.eclipse.org/release/luna",
-                "http://download.eclipse.org/technology/swtbot/releases/latest/"
-            ]
-            features = [
-               "org.eclipse.swtbot.eclipse.feature.group",
-               "org.eclipse.swtbot.ide.feature.group"
-            ]
+            targetDefinition = file('tooling-e44.target')
             versionMapping = [
                 'org.eclipse.core.runtime' : '3.10.0.v20140318-2214'
             ]
@@ -55,7 +47,7 @@ build can use an alternative target platform by specifying the `eclipse.version`
 The contributed task `installTargetPlatform` creates the target platform. It does the following:
 
 1. Downloads an Eclipse SDK in the specified version
-2. Installs the specified features from the specified update sites into the downloaded Eclipse SDK
+2. Installs the specified features defined in the target definition file
 3. Converts all plugins from the downloaded Eclipse SDK into a Maven repository
 
 Once the 'mavenized' target platform is available, the Gradle build configuration can reference Eclipse plugin dependencies

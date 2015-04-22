@@ -24,9 +24,8 @@ import eclipsebuild.mavenize.BundleMavenDeployer
  * of the compilation of the sub-projects applying applying the following plug-ins:
  * {@link BundlePlugin}, {@link TestBundlePlugin}, {@link FeaturePlugin}, {@link UpdateSitePlugin}.
  * <p/>
- * A target platform consists of a set of Eclipse update sites and a subset of their contained
- * features. Upon each build the plug-in ensures if the specified features are downloaded and
- * converted to a Maven repository.
+ * A target platform references a standard target definition file to define the composing features.
+ * When building, the platform is assembled by using the P2 director application.
  * <p/>
  * A valid target platform definition DSL looks like this:
  * <pre>
@@ -35,15 +34,7 @@ import eclipsebuild.mavenize.BundleMavenDeployer
  *
  *     targetPlatform {
  *         eclipseVersion = '44'
- *         sdkVersion = "4.4.2.M20150204-1700"
- *         updateSites = [
- *            "http://download.eclipse.org/release/luna",
- *            "http://download.eclipse.org/technology/swtbot/releases/latest/"
- *         ]
- *         features = [
- *             "org.eclipse.swtbot.eclipse.feature.group",
- *             "org.eclipse.swtbot.ide.feature.group"
- *         ]
+ *         targetDefinition = file('tooling-e44.target')
  *         versionMapping = [
  *             'org.eclipse.core.runtime' : '3.10.0.v20140318-2214'
  *         ]
@@ -55,12 +46,6 @@ import eclipsebuild.mavenize.BundleMavenDeployer
  *     }
  * }
  * </pre>
- * The result is a target platform containing the Eclipse 4.4.2 SDK and the latest SWTBot. The
- * sub-projects can reference the plugins simply by defining a dependency to the required bundle
- * just like with with other dependency management tools:
- * {@code compile "eclipse:org.eclipse.swtbot.eclipse.finder:+"}. <b>Note</b> that the Eclipse SDK
- * feature is always included in the target platform.
- * <p/>
  * If no target platform version is defined for the build then the one matches to the value of the
  * {@link defaultEclipseVersion} attribute will be selected. This can be changed by appending the
  * the {@code -Peclipse.version=[version-number]} argument to he build. In the context of the
@@ -107,14 +92,10 @@ class BuildDefinitionPlugin implements Plugin<Project> {
     static class TargetPlatform {
 
         def eclipseVersion
-        def sdkVersion
-        def updateSites
-        def features
+        def targetDefinition
         def versionMapping
 
         TargetPlatform() {
-            this.updateSites = []
-            this.features = []
             this.versionMapping = [:]
         }
 
@@ -132,7 +113,6 @@ class BuildDefinitionPlugin implements Plugin<Project> {
 
     // task names
     static final String TASK_NAME_DOWNLOAD_ECLIPSE_SDK = "downloadEclipseSdk"
-    static final String TASK_NAME_SAVE_TARGET_PLATFORM_DEFINITION = "saveTargetPlatformDefinition"
     static final String TASK_NAME_ASSEMBLE_TARGET_PLATFORM = "assembleTargetPlatform"
     static final String TASK_NAME_INSTALL_TARGET_PLATFORM = "installTargetPlatform"
     static final String TASK_NAME_UNINSTALL_TARGET_PLATFORM = "uninstallTargetPlatform"
@@ -145,7 +125,6 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         Config config = Config.on(project)
         validateDslBeforeBuildStarts(project, config)
         addTaskDownloadEclipseSdk(project, config)
-        addTaskSaveTargetPlatformDefinition(project, config)
         addTaskAssembleTargetPlatform(project, config)
         addTaskInstallTargetPlatform(project, config)
         addTaskUninstallTargetPlatform(project, config)
@@ -180,8 +159,21 @@ class BuildDefinitionPlugin implements Plugin<Project> {
             if (project.eclipseBuild.defaultEclipseVersion == null) {
                 throw new RuntimeException("$DSL_EXTENSION_NAME must specify 'defaultEclipseVersion'")
             }
-            else if (project.eclipseBuild.targetPlatforms[config.eclipseVersion] == null) {
+
+            // the selected target platform exists and has the required attributes
+            def targetPlatform = config.targetPlatform
+            if (targetPlatform == null) {
                 throw new RuntimeException("Target platform is not defined for selected Eclipse version '${config.eclipseVersion}'")
+            }
+            def targetDefinition = targetPlatform.targetDefinition
+            if (targetDefinition == null || !targetDefinition.exists()) {
+                throw new RuntimeException("Target platform expected an existing targetDefinition file but found '${targetDefinition}'")
+            }
+            // the target definition file is a valid XML
+            try {
+                new XmlSlurper().parseText(targetDefinition.text)
+            } catch(Exception e) {
+                throw new RuntimeException("Target definition file '$targetDefinition' must be a valid XML document", e)
             }
         }
     }
@@ -226,43 +218,13 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         config.eclipseSdkExe.setExecutable(true)
     }
 
-    static void addTaskSaveTargetPlatformDefinition(Project project, Config config) {
-        project.task(TASK_NAME_SAVE_TARGET_PLATFORM_DEFINITION) {
-            group = Constants.gradleTaskGroupName
-            description = "Persists the active target platform information to a file."
-            inputs.file project.buildFile
-            project.afterEvaluate { outputs.file config.targetPlatformProperties }
-            doLast { saveTargetPlatformDefinition(project, config) }
-        }
-    }
-
-    static void saveTargetPlatformDefinition(Project project, Config config) {
-        TargetPlatform targetPlatform = project.eclipseBuild.targetPlatforms[config.eclipseVersion]
-        File propertiesFile = config.targetPlatformProperties
-        if (!propertiesFile.exists()) {
-            propertiesFile.getParentFile().mkdirs()
-            propertiesFile.createNewFile()
-        }
-        project.logger.info("Save target platform properties to '${propertiesFile.absolutePath}'")
-        propertiesFile.withPrintWriter { writer ->
-            writer.write("eclipseVersion=${targetPlatform.eclipseVersion}\n")
-            writer.write("sdkVersion=${targetPlatform.sdkVersion}\n")
-            writer.write("eclipseVersion=${targetPlatform.eclipseVersion}\n")
-            writer.write("updateSites=${targetPlatform.updateSites.sort { it }.join(",")}\n")
-            writer.write("features=${targetPlatform.features.sort{ it }.join(",")}")
-        }
-
-        project.logger.debug("Target platform properties: ${propertiesFile.text}")
-    }
-
     static void addTaskAssembleTargetPlatform(Project project, Config config) {
         project.task(TASK_NAME_ASSEMBLE_TARGET_PLATFORM, dependsOn: [
             TASK_NAME_DOWNLOAD_ECLIPSE_SDK,
-            TASK_NAME_SAVE_TARGET_PLATFORM_DEFINITION
         ]) {
             group = Constants.gradleTaskGroupName
             description = "Assembles an Eclipse distribution based on the target platform definition."
-            project.afterEvaluate { inputs.file config.targetPlatformProperties }
+            project.afterEvaluate { inputs.file config.targetPlatform.targetDefinition }
             project.afterEvaluate { outputs.dir config.nonMavenizedTargetPlatformDir }
             doLast { assembleTargetPlatform(project, config) }
         }
@@ -287,9 +249,18 @@ class BuildDefinitionPlugin implements Plugin<Project> {
             config.nonMavenizedTargetPlatformDir.deleteDir()
         }
 
-        // invoke the P2 director application to assemble the 'org.eclipse.sdk.ide' product
-        // http://help.eclipse.org/luna/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_director.html
-        project.logger.info("Assemble org.eclipse.sdk.ide product in '${config.nonMavenizedTargetPlatformDir.absolutePath}'.\n    Update sites: '${config.targetPlatform.updateSites.join(' ')}'")
+        // collect  update sites and feature names
+        def updateSites = []
+        def features = []
+        def rootNode = new XmlSlurper().parseText(config.targetPlatform.targetDefinition.text)
+        rootNode.locations.location.each { location ->
+            updateSites.add(location.repository.@location)
+            location.unit.each {unit -> features.add("${unit.@id}/${unit.@version}") }
+        }
+
+        // invoke the P2 director application to assemble install all features from the target
+        // definition file to the target platform: http://help.eclipse.org/luna/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_director.html
+        project.logger.info("Assemble target platfrom in '${config.nonMavenizedTargetPlatformDir.absolutePath}'.\n    Update sites: '${updateSites.join(' ')}'\n    Features: '${features.join(' ')}'")
         project.exec {
 
             // redirect the external process output to the logging
@@ -298,9 +269,9 @@ class BuildDefinitionPlugin implements Plugin<Project> {
 
             commandLine(config.eclipseSdkExe.path,
                     '-application', 'org.eclipse.equinox.p2.director',
-                    '-repository', config.targetPlatform.updateSites.join(','),
-                    '-installIU', 'org.eclipse.sdk.ide/' + config.targetPlatform.sdkVersion,
-                    '-tag', '1-Initial-State',
+                    '-repository', updateSites.join(','),
+                    '-installIU', features.join(','),
+                    '-tag', 'target-platform',
                     '-destination', config.nonMavenizedTargetPlatformDir.path,
                     '-profile', 'SDKProfile',
                     '-bundlepool', config.nonMavenizedTargetPlatformDir.path,
@@ -308,26 +279,6 @@ class BuildDefinitionPlugin implements Plugin<Project> {
                     '-p2.ws', Constants.ws,
                     '-p2.arch', Constants.arch,
                     '-roaming',
-                    '-nosplash')
-        }
-
-        // install the features defined in the target platform into the 'org.eclipse.sdk.ide' using
-        // the P2 Director application. after it is finished, the destination folder contains a
-        // complete Eclipse distribution with the SDK and the required features installed and can
-        // be converted into a Maven repository.
-        project.logger.info("Installing the extra features into the sdk. \nFatures: '${config.targetPlatform.features.join(' ')}'.\n    Update sites: '${config.targetPlatform.updateSites.join(' ')}'")
-        project.exec {
-            // redirect the external process output to the logging
-            standardOutput = new LogOutputStream(project.logger, LogLevel.INFO)
-            errorOutput = new LogOutputStream(project.logger, LogLevel.INFO)
-
-            commandLine(config.eclipseSdkExe.path,
-                    '-application', 'org.eclipse.equinox.p2.director',
-                    '-repository', config.targetPlatform.updateSites.join(','),
-                    '-installIU', config.targetPlatform.features.join(','),
-                    '-tag', '2-Additional-Features',
-                    '-destination', config.nonMavenizedTargetPlatformDir.path,
-                    '-profile', 'SDKProfile',
                     '-nosplash')
         }
     }

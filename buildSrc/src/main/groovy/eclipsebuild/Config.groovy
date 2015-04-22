@@ -82,10 +82,6 @@ class Config {
         new File(targetPlatformDir, 'mavenized-target-platform')
     }
 
-    File getTargetPlatformProperties() {
-        new File(targetPlatformDir, 'target-platform.properties')
-    }
-
     File getEclipseSdkArchive() {
         new File(eclipseSdkDir, OperatingSystem.current().isWindows() ? 'eclipse-sdk.zip' : 'eclipse-sdk.tar.gz')
     }
