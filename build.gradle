@@ -12,27 +12,7 @@ eclipseBuild {
 
     targetPlatform {
         eclipseVersion = '36'
-        sdkVersion = "3.6.2.M20110210-1200"
-        updateSites = [
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-helios-sr2",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6",
-            "http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"
-        ]
-        features = [
-            "org.junit",
-            "org.eclipse.swtbot.eclipse.feature.group",
-            "org.eclipse.swtbot.ide.feature.group",
-            "com.gradleware.tooling.model",
-            "com.gradleware.tooling.client",
-            "com.gradleware.tooling.utils",
-            "org.gradle.toolingapi",
-            "com.google.gson",
-            "com.google.guava",
-            "org.slf4j.api",
-            "org.slf4j.simple"
-        ]
+        targetDefinition = file('tooling-e36.target')
         versionMapping = [
             'org.eclipse.core.runtime' : '3.6.0.v20100505',
             'org.eclipse.core.resources' : '3.6.1.R36x_v20110131-1630',
@@ -66,27 +46,7 @@ eclipseBuild {
 
     targetPlatform {
         eclipseVersion = '37'
-        sdkVersion =  "3.7.2.M20120208-0800"
-        updateSites = [
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-indigo-sr2",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6",
-            "http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"
-        ]
-        features = [
-            "org.junit",
-            "org.eclipse.swtbot.eclipse.feature.group",
-            "org.eclipse.swtbot.ide.feature.group",
-            "com.gradleware.tooling.model",
-            "com.gradleware.tooling.client",
-            "com.gradleware.tooling.utils",
-            "org.gradle.toolingapi",
-            "com.google.gson",
-            "com.google.guava",
-            "org.slf4j.api",
-            "org.slf4j.simple"
-        ]
+        targetDefinition = file('tooling-e37.target')
         versionMapping = [
             'org.eclipse.core.runtime' : '3.7.0.v20110110',
             'org.eclipse.core.resources' : '3.7.101.v20120125-1505',
@@ -120,27 +80,7 @@ eclipseBuild {
 
     targetPlatform {
         eclipseVersion = '42'
-        sdkVersion = "4.2.2.M20130204-1200"
-        updateSites = [
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-juno-sr2",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6",
-            "http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"
-        ]
-        features = [
-            "org.junit",
-            "org.eclipse.swtbot.eclipse.feature.group",
-            "org.eclipse.swtbot.ide.feature.group",
-            "com.gradleware.tooling.model",
-            "com.gradleware.tooling.client",
-            "com.gradleware.tooling.utils",
-            "org.gradle.toolingapi",
-            "com.google.gson",
-            "com.google.guava",
-            "org.slf4j.api",
-            "org.slf4j.simple"
-        ]
+        targetDefinition = file('tooling-e42.target')
         versionMapping = [
             'org.eclipse.core.runtime' : '3.8.0.v20120912-155025',
             'org.eclipse.core.resources' : '3.8.1.v20121114-124432',
@@ -174,28 +114,7 @@ eclipseBuild {
 
     targetPlatform {
         eclipseVersion = '43'
-        sdkVersion = "4.3.2.M20140221-1700"
-        updateSites = [
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-kepler-sr2",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6",
-            "http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"
-        ]
-        features = [
-            "org.junit",
-            "org.eclipse.swtbot.eclipse.feature.group",
-            "org.eclipse.swtbot.ide.feature.group",
-            "com.gradleware.tooling.model",
-            "com.gradleware.tooling.client",
-            "com.gradleware.tooling.utils",
-            "org.gradle.toolingapi",
-            "com.google.gson",
-            "com.google.guava",
-            "org.slf4j.api",
-            "org.slf4j.simple"
-        ]
-
+        targetDefinition = file('tooling-e43.target')
         versionMapping = [
             'org.eclipse.core.runtime' : '3.9.100.v20131218-1515',
             'org.eclipse.core.resources' : '3.8.101.v20130717-0806',
@@ -229,27 +148,7 @@ eclipseBuild {
 
     targetPlatform {
         eclipseVersion = '44'
-        sdkVersion = "4.4.2.M20150204-1700"
-        updateSites = [
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-luna-sr2",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6",
-            "http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"
-        ]
-        features = [
-            "org.junit",
-            "org.eclipse.swtbot.eclipse.feature.group",
-            "org.eclipse.swtbot.ide.feature.group",
-            "com.gradleware.tooling.model",
-            "com.gradleware.tooling.client",
-            "com.gradleware.tooling.utils",
-            "org.gradle.toolingapi",
-            "com.google.gson",
-            "com.google.guava",
-            "org.slf4j.api",
-            "org.slf4j.simple"
-        ]
+        targetDefinition = file('tooling-e44.target')
         versionMapping = [
             'org.eclipse.core.runtime' : '3.10.0.v20140318-2214',
             'org.eclipse.core.resources' : '3.9.1.v20140825-1431',
@@ -283,27 +182,7 @@ eclipseBuild {
 
     targetPlatform {
         eclipseVersion = '45'
-        sdkVersion = "4.5.0.I20150320-0800"
-        updateSites = [
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-mars-m6",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release",
-            "http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6",
-            "http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"
-        ]
-        features = [
-            "org.junit",
-            "org.eclipse.swtbot.eclipse.feature.group",
-            "org.eclipse.swtbot.ide.feature.group",
-            "com.gradleware.tooling.model",
-            "com.gradleware.tooling.client",
-            "com.gradleware.tooling.utils",
-            "org.gradle.toolingapi",
-            "com.google.gson",
-            "com.google.guava",
-            "org.slf4j.api",
-            "org.slf4j.simple"
-        ]
+        targetDefinition = file('tooling-e45.target')
         versionMapping = [
             "org.eclipse.core.runtime" : "3.11.0.v20150316-1241",
             "org.eclipse.core.resources" : "3.9.100.v20150313-1707",
