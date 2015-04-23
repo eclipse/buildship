@@ -275,11 +275,7 @@
           name="com.google.gson"
           versionRange="2.2.4"/>
       <requirement
-          name="org.slf4j.api"
-          versionRange="1.7.2"/>
-      <requirement
-          name="org.slf4j.nop"
-          versionRange="1.7.2"/>
+          name="org.eclipse.buildship.orbit.stagining.feature.group"/>
       <repositoryList
           name="Mars">
         <repository
@@ -290,6 +286,8 @@
             url="http://download.eclipse.org/tools/orbit/downloads/drops/S20150316021154/repository/"/>
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
+        <repository
+            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
       </repositoryList>
       <repositoryList
           name="Luna">
@@ -301,6 +299,8 @@
             url="http://download.eclipse.org/tools/orbit/downloads/drops/S20150316021154/repository/"/>
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
+        <repository
+            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
       </repositoryList>
       <repositoryList
           name="Kepler">
@@ -312,6 +312,8 @@
             url="http://download.eclipse.org/tools/orbit/downloads/drops/S20150316021154/repository/"/>
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
+        <repository
+            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
       </repositoryList>
       <repositoryList
           name="Juno">
@@ -323,6 +325,8 @@
             url="http://download.eclipse.org/tools/orbit/downloads/drops/S20150316021154/repository/"/>
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
+        <repository
+            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
       </repositoryList>
       <repositoryList
           name="Indigo">
@@ -334,6 +338,8 @@
             url="http://download.eclipse.org/tools/orbit/downloads/drops/S20150316021154/repository/"/>
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
+        <repository
+            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
       </repositoryList>
       <repositoryList
           name="Helios">
@@ -345,6 +351,8 @@
             url="http://download.eclipse.org/tools/orbit/downloads/drops/S20150316021154/repository/"/>
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
+        <repository
+            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
       </repositoryList>
     </targlet>
     <targlet
