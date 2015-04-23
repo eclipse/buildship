@@ -11,7 +11,7 @@
 
 package org.eclipse.buildship.core.testprogress;
 
-import org.gradle.tooling.TestProgressEvent;
+import org.gradle.tooling.events.test.TestProgressEvent;
 
 /**
  * Decorates a {@code TestRunSession} that can be started, finished, and fed with {@code TestProgressEvent} instances that mark test execution progress.

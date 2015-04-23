@@ -15,12 +15,11 @@ import java.util.List;
 
 import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.TestProgressListener;
+import org.gradle.tooling.events.test.TestProgressListener;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingclient.Consumer;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
@@ -32,7 +31,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
-
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;

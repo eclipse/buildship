@@ -11,26 +11,10 @@
 
 package org.eclipse.buildship.core.testprogress.internal;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 
-import org.gradle.tooling.TestDescriptor;
-import org.gradle.tooling.TestFailedEvent;
-import org.gradle.tooling.TestFailure;
-import org.gradle.tooling.TestProgressEvent;
-import org.gradle.tooling.TestSkippedEvent;
-import org.gradle.tooling.TestStartedEvent;
-import org.gradle.tooling.TestSucceededEvent;
-import org.gradle.tooling.TestSuccess;
-import org.gradle.tooling.TestSuiteFailedEvent;
-import org.gradle.tooling.TestSuiteSkippedEvent;
-import org.gradle.tooling.TestSuiteStartedEvent;
-import org.gradle.tooling.TestSuiteSucceededEvent;
-
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 import org.eclipse.debug.core.ILaunch;
@@ -41,9 +25,21 @@ import org.eclipse.jdt.internal.junit.model.TestCaseElement;
 import org.eclipse.jdt.internal.junit.model.TestElement.Status;
 import org.eclipse.jdt.internal.junit.model.TestRunSession;
 import org.eclipse.jdt.internal.junit.model.TestSuiteElement;
-
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.testprogress.GradleTestRunSession;
+import org.gradle.tooling.Failure;
+import org.gradle.tooling.events.OperationDescriptor;
+import org.gradle.tooling.events.test.JvmTestKind;
+import org.gradle.tooling.events.test.JvmTestOperationDescriptor;
+import org.gradle.tooling.events.test.TestFailureResult;
+import org.gradle.tooling.events.test.TestFinishEvent;
+import org.gradle.tooling.events.test.TestOperationDescriptor;
+import org.gradle.tooling.events.test.TestOperationResult;
+import org.gradle.tooling.events.test.TestProgressEvent;
+import org.gradle.tooling.events.test.TestSkippedResult;
+import org.gradle.tooling.events.test.TestStartEvent;
+import org.gradle.tooling.events.test.TestSuccessResult;
 
 /**
  * Default implementation of the {@code GradleTestRunSession} interface. Converts and delegates all received
@@ -55,8 +51,8 @@ public final class DefaultGradleTestRunSession extends TestRunSession implements
     private final TestSessionListenerContainer testSessionListeners;
     private final TestRunSessionStateTracker testSessionState;
     private final TestCounter testCounter;
-    private final Map<TestDescriptor, TestSuiteElement> testSuites;
-    private final Map<TestDescriptor, TestCaseElement> testCases;
+    private final Map<OperationDescriptor, TestSuiteElement> testSuites;
+    private final Map<OperationDescriptor, TestCaseElement> testCases;
 
     public DefaultGradleTestRunSession(ILaunch launch, IJavaProject project) {
         super(launch, project, 9999);
@@ -86,35 +82,69 @@ public final class DefaultGradleTestRunSession extends TestRunSession implements
     public void process(TestProgressEvent event) {
         //CHECKSTYLE:OFF, required due to false negative in Checkstyle
         // suites
-        if (event instanceof TestSuiteStartedEvent) {
-            suiteStarted((TestSuiteStartedEvent) event);
-        } else if (event instanceof TestSuiteSucceededEvent) {
-            suiteSucceeded((TestSuiteSucceededEvent) event);
-        } else if (event instanceof TestSuiteFailedEvent) {
-            suiteFailed((TestSuiteFailedEvent) event);
-        } else if (event instanceof TestSuiteSkippedEvent) {
-            suiteSkipped((TestSuiteSkippedEvent) event);
+        if (event instanceof TestStartEvent) {
+            TestStartEvent startedEvent = (TestStartEvent) event;
+            TestOperationDescriptor descriptor = startedEvent.getDescriptor();
+            if (descriptor instanceof JvmTestOperationDescriptor) {
+                JvmTestOperationDescriptor jvmDescriptor = (JvmTestOperationDescriptor) descriptor;
+                if (jvmDescriptor.getJvmTestKind() == JvmTestKind.ATOMIC) {
+                    testStarted(jvmDescriptor);
+                }
+                else {
+                    suiteStarted(jvmDescriptor);
+                }
+            }
+            else {
+                CorePlugin.logger().warn("Test descriptor is not recognized: " + descriptor.getClass());
+            }
         }
-
-        // tests
-        else if (event instanceof TestStartedEvent) {
-            testStarted((TestStartedEvent) event);
-        } else if (event instanceof TestSucceededEvent) {
-            testSucceeded((TestSucceededEvent) event);
-        } else if (event instanceof TestFailedEvent) {
-            testFailed((TestFailedEvent) event);
-        } else if (event instanceof TestSkippedEvent) {
-            testSkipped((TestSkippedEvent) event);
+        else if (event instanceof TestFinishEvent) {
+            TestFinishEvent finishedEvent = (TestFinishEvent) event;
+            TestOperationDescriptor descriptor = finishedEvent.getDescriptor();
+            if (descriptor instanceof JvmTestOperationDescriptor) {
+                JvmTestOperationDescriptor jvmDescriptor = (JvmTestOperationDescriptor) descriptor;
+                TestOperationResult result = finishedEvent.getResult();
+                if (jvmDescriptor.getJvmTestKind() == JvmTestKind.ATOMIC) {
+                    if (result instanceof TestSuccessResult) {
+                        testSucceeded(jvmDescriptor, (TestSuccessResult) result);
+                    }
+                    else if (result instanceof TestFailureResult) {
+                        testFailed(jvmDescriptor, (TestFailureResult) result);
+                    }
+                    else if (result instanceof TestSkippedResult) {
+                        testSkipped(jvmDescriptor, (TestSkippedResult)result);
+                    }
+                    else {
+                        CorePlugin.logger().warn("Test kind is not recognized: " + jvmDescriptor.getJvmTestKind().getClass());
+                    }
+                }
+                else {
+                    if (result instanceof TestSuccessResult) {
+                        suiteSucceeded(jvmDescriptor, (TestSuccessResult) result);
+                    }
+                    else if (result instanceof TestFailureResult) {
+                        suiteFailed(jvmDescriptor, (TestFailureResult) result);
+                    }
+                    else if (result instanceof TestSkippedResult) {
+                        suiteSkipped(jvmDescriptor, (TestSkippedResult)result);
+                    }
+                    else {
+                        CorePlugin.logger().warn("Test kind is not recognized: " + jvmDescriptor.getJvmTestKind().getClass());
+                    }
+                }
+            }
+            else {
+                CorePlugin.logger().warn("Test descriptor is not recognized: " + descriptor.getClass());
+            }
+        }
+        else {
+            CorePlugin.logger().warn("Test event is not recognized: " + event.getClass());
         }
         //CHECKSTYLE:ON
     }
 
-    private void suiteStarted(TestSuiteStartedEvent event) {
-        Preconditions.checkNotNull(event);
-        Preconditions.checkNotNull(event.getDescriptor());
-
-        TestDescriptor descriptor = event.getDescriptor();
-        Optional<TestDescriptor> parentCandidate = Optional.fromNullable(descriptor.getParent());
+    private void suiteStarted(JvmTestOperationDescriptor descriptor) {
+        Optional<OperationDescriptor> parentCandidate = Optional.fromNullable(descriptor.getParent());
         TestSuiteElement parent = parentCandidate.isPresent() ? this.testSuites.get(parentCandidate.get()) : getTestRoot();
         TestSuiteElement testSuite = new TestSuiteElement(parent, String.valueOf(System.identityHashCode(descriptor)), descriptor.getName(), 0);
         testSuite.setStatus(Status.RUNNING);
@@ -122,65 +152,43 @@ public final class DefaultGradleTestRunSession extends TestRunSession implements
         this.testSessionListeners.notifySuiteStarted(testSuite);
     }
 
-    private void suiteSucceeded(TestSuiteSucceededEvent event) {
-        Preconditions.checkNotNull(event);
-        Preconditions.checkNotNull(event.getDescriptor());
-
-        TestDescriptor descriptor = event.getDescriptor();
+    private void suiteSucceeded(JvmTestOperationDescriptor descriptor, TestSuccessResult result) {
         TestSuiteElement testSuite = this.testSuites.get(descriptor);
         if (testSuite == null) {
             throw new GradlePluginsRuntimeException(String.format("Cannot find test suite %s.", descriptor.getName()));
         }
-
-        TestSuccess result = event.getResult();
         long elapsedTimeMilliseconds = result.getEndTime() - result.getStartTime();
         testSuite.setElapsedTimeInSeconds(elapsedTimeMilliseconds / 1000d);
         testSuite.setStatus(Status.OK);
         this.testSessionListeners.notifySuiteFinished(testSuite, Status.OK, null, null, null);
     }
 
-    private void suiteFailed(TestSuiteFailedEvent event) {
-        Preconditions.checkNotNull(event);
-        Preconditions.checkNotNull(event.getDescriptor());
-
-        TestDescriptor descriptor = event.getDescriptor();
+    private void suiteFailed(JvmTestOperationDescriptor descriptor, TestFailureResult result) {
         TestSuiteElement testSuite = this.testSuites.get(descriptor);
         if (testSuite == null) {
             throw new GradlePluginsRuntimeException(String.format("Cannot find test suite %s.", descriptor.getName()));
         }
-
-        TestFailure result = event.getResult();
-        String trace = toString(result.getExceptions());
+        String trace = toString(result.getFailures());
         long elapsedTimeMilliseconds = result.getEndTime() - result.getStartTime();
         testSuite.setElapsedTimeInSeconds(elapsedTimeMilliseconds / 1000d);
         testSuite.setStatus(Status.FAILURE, trace, null, null);
         this.testSessionListeners.notifySuiteFinished(testSuite, Status.FAILURE, trace, null, null);
     }
 
-    private void suiteSkipped(TestSuiteSkippedEvent event) {
-        Preconditions.checkNotNull(event);
-        Preconditions.checkNotNull(event.getDescriptor());
-
-        TestDescriptor descriptor = event.getDescriptor();
+    private void suiteSkipped(JvmTestOperationDescriptor descriptor, TestSkippedResult result) {
         TestSuiteElement testSuite = this.testSuites.get(descriptor);
         if (testSuite == null) {
             throw new GradlePluginsRuntimeException(String.format("Cannot find test suite %s.", descriptor.getName()));
         }
-
         testSuite.setStatus(Status.NOT_RUN);
         this.testSessionListeners.notifySuiteFinished(testSuite, Status.NOT_RUN, null, null, null);
     }
 
-    private void testStarted(TestStartedEvent event) {
-        Preconditions.checkNotNull(event);
-        Preconditions.checkNotNull(event.getDescriptor());
-
-        TestDescriptor descriptor = event.getDescriptor();
+    private void testStarted(JvmTestOperationDescriptor descriptor) {
         TestSuiteElement parentSuite = this.testSuites.get(descriptor.getParent());
         if (parentSuite == null) {
             throw new GradlePluginsRuntimeException(String.format("Cannot find parent for test %s.", descriptor.getName()));
         }
-
         TestCaseElement testCase = new TestCaseElement(parentSuite, String.valueOf(System.identityHashCode(descriptor)), descriptor.getName() + "(" + descriptor.getClassName() + ")");
         testCase.setStatus(Status.RUNNING);
         this.testCases.put(descriptor, testCase);
@@ -188,17 +196,11 @@ public final class DefaultGradleTestRunSession extends TestRunSession implements
         this.testCounter.incrementStarted();
     }
 
-    private void testSucceeded(TestSucceededEvent event) {
-        Preconditions.checkNotNull(event);
-        Preconditions.checkNotNull(event.getDescriptor());
-
-        TestDescriptor descriptor = event.getDescriptor();
+    private void testSucceeded(JvmTestOperationDescriptor descriptor, TestSuccessResult result) {
         TestCaseElement testCase = this.testCases.get(descriptor);
         if (testCase == null) {
             throw new GradlePluginsRuntimeException(String.format("Cannot find test %s.", descriptor.getName()));
         }
-
-        TestSuccess result = event.getResult();
         long elapsedTimeMilliseconds = result.getEndTime() - result.getStartTime();
         testCase.setElapsedTimeInSeconds(elapsedTimeMilliseconds / 1000d);
         testCase.setStatus(Status.OK);
@@ -206,18 +208,12 @@ public final class DefaultGradleTestRunSession extends TestRunSession implements
         this.testCounter.incrementSuccess();
     }
 
-    private void testFailed(TestFailedEvent event) {
-        Preconditions.checkNotNull(event);
-        Preconditions.checkNotNull(event.getDescriptor());
-
-        TestDescriptor descriptor = event.getDescriptor();
+    private void testFailed(JvmTestOperationDescriptor descriptor, TestFailureResult result) {
         TestCaseElement testCase = this.testCases.get(descriptor);
         if (testCase == null) {
             throw new GradlePluginsRuntimeException(String.format("Cannot find test %s.", descriptor.getName()));
         }
-
-        TestFailure result = event.getResult();
-        String trace = toString(result.getExceptions());
+        String trace = toString(result.getFailures());
         long elapsedTimeMilliseconds = result.getEndTime() - result.getStartTime();
         testCase.setElapsedTimeInSeconds(elapsedTimeMilliseconds / 1000d);
         testCase.setStatus(Status.FAILURE, trace, null, null);
@@ -225,16 +221,11 @@ public final class DefaultGradleTestRunSession extends TestRunSession implements
         this.testCounter.incrementFailure();
     }
 
-    private void testSkipped(TestSkippedEvent event) {
-        Preconditions.checkNotNull(event);
-        Preconditions.checkNotNull(event.getDescriptor());
-
-        TestDescriptor descriptor = event.getDescriptor();
+    private void testSkipped(JvmTestOperationDescriptor descriptor, TestSkippedResult result) {
         TestCaseElement testCase = this.testCases.get(descriptor);
         if (testCase == null) {
             throw new GradlePluginsRuntimeException(String.format("Cannot find test %s.", descriptor.getName()));
         }
-
         testCase.setStatus(Status.NOT_RUN);
         this.testSessionListeners.notifyTestEnded(testCase);
         this.testCounter.incrementIgnored();
@@ -301,13 +292,14 @@ public final class DefaultGradleTestRunSession extends TestRunSession implements
     public void swapOut() {
     }
 
-    private static String toString(List<Throwable> exceptions) {
-        StringWriter stackTrace = new StringWriter();
-        PrintWriter writer = new PrintWriter(stackTrace);
-        for (Throwable t : exceptions) {
-            t.printStackTrace(writer);
+    private static String toString(List<? extends Failure> failures) {
+        StringBuilder result = new StringBuilder();
+        for (Failure failure : failures) {
+            result.append(failure.getMessage());
+            result.append('\n');
+            result.append(failure.getDescription());
+            result.append('\n');
         }
-        return stackTrace.toString();
+        return result.toString();
     }
-
 }

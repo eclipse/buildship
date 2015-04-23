@@ -22,8 +22,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.BuildException;
-import org.gradle.tooling.TestProgressEvent;
-import org.gradle.tooling.TestProgressListener;
+import org.gradle.tooling.events.test.TestProgressEvent;
+import org.gradle.tooling.events.test.TestProgressListener;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -32,7 +32,6 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
@@ -46,7 +45,6 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.console.ProcessDescription;
