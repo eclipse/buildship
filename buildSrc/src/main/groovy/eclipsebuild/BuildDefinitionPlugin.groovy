@@ -157,23 +157,26 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         // check if the build definition is valid just before the build starts
         project.gradle.taskGraph.whenReady {
             if (project.eclipseBuild.defaultEclipseVersion == null) {
-                throw new RuntimeException("$DSL_EXTENSION_NAME must specify 'defaultEclipseVersion'")
+                throw new RuntimeException("$DSL_EXTENSION_NAME must specify 'defaultEclipseVersion'.")
             }
 
-            // the selected target platform exists and has the required attributes
+            // check if the selected target platform exists for the given Eclipse version
             def targetPlatform = config.targetPlatform
             if (targetPlatform == null) {
-                throw new RuntimeException("Target platform is not defined for selected Eclipse version '${config.eclipseVersion}'")
+                throw new RuntimeException("No target platform is defined for selected Eclipse version '${config.eclipseVersion}'.")
             }
+
+            // check if a target platform file is referenced
             def targetDefinition = targetPlatform.targetDefinition
             if (targetDefinition == null || !targetDefinition.exists()) {
-                throw new RuntimeException("Target platform expected an existing targetDefinition file but found '${targetDefinition}'")
+                throw new RuntimeException("No target definition file found for '${targetDefinition}'.")
             }
-            // the target definition file is a valid XML
+
+            // check if target definition file is a valid XML
             try {
                 new XmlSlurper().parseText(targetDefinition.text)
             } catch(Exception e) {
-                throw new RuntimeException("Target definition file '$targetDefinition' must be a valid XML document", e)
+                throw new RuntimeException("Target definition file '$targetDefinition' must be a valid XML document.", e)
             }
         }
     }
