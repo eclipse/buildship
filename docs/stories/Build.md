@@ -36,7 +36,7 @@ the dependency information described in the _MANIFEST.MF_ file.
 Avoid the redundancy between the declaration of Eclipse plugin dependencies in _build.gradle_ and in _MANIFEST.MF_.
 
 
-## Only declare target definitions in the .target files
+## ~~Only declare target definitions in the .target files~~
 
 ### Requested Change
 
