@@ -15,3 +15,6 @@ We capture our ideas for features of Buildship in _stories_. The following stori
 1. [Tooling API](ToolingAPI.md)
 1. [Editor](Editor.md)
 1. [Build](Build.md)
+
+Note that all stories that have been implemented already do have a strike-through title. They will be archived
+from the stories documents at some point.
