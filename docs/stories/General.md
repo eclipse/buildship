@@ -60,8 +60,8 @@ distribution, the plugins must be signed with the _real_ Eclipse certificate.
 
 ### Requested Change
 
-The plugins of the Buildship update site need to be compressed with pack200. We can do this as part of the
-automated Gradle build.
+The plugins of the Buildship update site need to be compressed with pack200, and p2.index files should be added. We
+can do this as part of the automated Gradle build.
 
 ### Motivation
 
