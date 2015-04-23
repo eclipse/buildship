@@ -48,7 +48,7 @@
       <setupTask
           xsi:type="setup:EclipseIniTask"
           option="-Doomph.redirection.buildship"
-          value="https://raw.githubusercontent.com/donat/buildship/oomph-setup-model/buildship.setup->${buildship.git.clone.location}/buildship.setup"
+          value="=https://raw.githubusercontent.com/eclipse/buildship/master/buildship.setup->${buildship.git.clone.location}/buildship.setup"
           vm="true"/>
     </setupTask>
     <setupTask
