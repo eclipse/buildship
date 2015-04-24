@@ -11,12 +11,10 @@
 
 package org.eclipse.buildship.core.testprogress.internal;
 
-import java.util.List;
-import java.util.Map;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
-
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.testprogress.GradleTestRunSession;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.internal.junit.JUnitCorePlugin;
@@ -25,9 +23,6 @@ import org.eclipse.jdt.internal.junit.model.TestCaseElement;
 import org.eclipse.jdt.internal.junit.model.TestElement.Status;
 import org.eclipse.jdt.internal.junit.model.TestRunSession;
 import org.eclipse.jdt.internal.junit.model.TestSuiteElement;
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.testprogress.GradleTestRunSession;
 import org.gradle.tooling.Failure;
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.test.JvmTestKind;
@@ -40,6 +35,9 @@ import org.gradle.tooling.events.test.TestProgressEvent;
 import org.gradle.tooling.events.test.TestSkippedResult;
 import org.gradle.tooling.events.test.TestStartEvent;
 import org.gradle.tooling.events.test.TestSuccessResult;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Default implementation of the {@code GradleTestRunSession} interface. Converts and delegates all received
@@ -81,64 +79,50 @@ public final class DefaultGradleTestRunSession extends TestRunSession implements
     @Override
     public void process(TestProgressEvent event) {
         //CHECKSTYLE:OFF, required due to false negative in Checkstyle
-        // suites
+
+        // we only handle JvmTestOperationDescriptor for now
+        TestOperationDescriptor descriptor = event.getDescriptor();
+        if (!(descriptor instanceof JvmTestOperationDescriptor)) {
+            throw new IllegalArgumentException("Unsupported test descriptor type: " + JvmTestOperationDescriptor.class);
+        }
+        JvmTestOperationDescriptor jvmDescriptor = (JvmTestOperationDescriptor) descriptor;
+        JvmTestKind jvmTestKind = jvmDescriptor.getJvmTestKind();
+
         if (event instanceof TestStartEvent) {
-            TestStartEvent startedEvent = (TestStartEvent) event;
-            TestOperationDescriptor descriptor = startedEvent.getDescriptor();
-            if (descriptor instanceof JvmTestOperationDescriptor) {
-                JvmTestOperationDescriptor jvmDescriptor = (JvmTestOperationDescriptor) descriptor;
-                if (jvmDescriptor.getJvmTestKind() == JvmTestKind.ATOMIC) {
-                    testStarted(jvmDescriptor);
-                }
-                else {
-                    suiteStarted(jvmDescriptor);
-                }
+            if (jvmTestKind == JvmTestKind.SUITE) {
+                suiteStarted(jvmDescriptor);
+            } else if (jvmTestKind == JvmTestKind.ATOMIC) {
+                testStarted(jvmDescriptor);
+            } else {
+                throw new IllegalArgumentException("Unsupported JVM test kind: " + jvmTestKind);
             }
-            else {
-                CorePlugin.logger().warn("Test descriptor is not recognized: " + descriptor.getClass());
-            }
-        }
-        else if (event instanceof TestFinishEvent) {
-            TestFinishEvent finishedEvent = (TestFinishEvent) event;
-            TestOperationDescriptor descriptor = finishedEvent.getDescriptor();
-            if (descriptor instanceof JvmTestOperationDescriptor) {
-                JvmTestOperationDescriptor jvmDescriptor = (JvmTestOperationDescriptor) descriptor;
-                TestOperationResult result = finishedEvent.getResult();
-                if (jvmDescriptor.getJvmTestKind() == JvmTestKind.ATOMIC) {
-                    if (result instanceof TestSuccessResult) {
-                        testSucceeded(jvmDescriptor, (TestSuccessResult) result);
-                    }
-                    else if (result instanceof TestFailureResult) {
-                        testFailed(jvmDescriptor, (TestFailureResult) result);
-                    }
-                    else if (result instanceof TestSkippedResult) {
-                        testSkipped(jvmDescriptor, (TestSkippedResult)result);
-                    }
-                    else {
-                        CorePlugin.logger().warn("Test kind is not recognized: " + jvmDescriptor.getJvmTestKind().getClass());
-                    }
+        } else if (event instanceof TestFinishEvent) {
+            TestOperationResult result = ((TestFinishEvent) event).getResult();
+            if (jvmTestKind == JvmTestKind.SUITE) {
+                if (result instanceof TestSuccessResult) {
+                    suiteSucceeded(jvmDescriptor, (TestSuccessResult) result);
+                } else if (result instanceof TestFailureResult) {
+                    suiteFailed(jvmDescriptor, (TestFailureResult) result);
+                } else if (result instanceof TestSkippedResult) {
+                    suiteSkipped(jvmDescriptor, (TestSkippedResult) result);
+                } else {
+                    throw new IllegalArgumentException("Unsupported test result type: " + result.getClass());
                 }
-                else {
-                    if (result instanceof TestSuccessResult) {
-                        suiteSucceeded(jvmDescriptor, (TestSuccessResult) result);
-                    }
-                    else if (result instanceof TestFailureResult) {
-                        suiteFailed(jvmDescriptor, (TestFailureResult) result);
-                    }
-                    else if (result instanceof TestSkippedResult) {
-                        suiteSkipped(jvmDescriptor, (TestSkippedResult)result);
-                    }
-                    else {
-                        CorePlugin.logger().warn("Test kind is not recognized: " + jvmDescriptor.getJvmTestKind().getClass());
-                    }
+            } else if (jvmTestKind == JvmTestKind.ATOMIC) {
+                if (result instanceof TestSuccessResult) {
+                    testSucceeded(jvmDescriptor, (TestSuccessResult) result);
+                } else if (result instanceof TestFailureResult) {
+                    testFailed(jvmDescriptor, (TestFailureResult) result);
+                } else if (result instanceof TestSkippedResult) {
+                    testSkipped(jvmDescriptor, (TestSkippedResult) result);
+                } else {
+                    throw new IllegalArgumentException("Unsupported test result type: " + result.getClass());
                 }
+            } else {
+                throw new IllegalArgumentException("Unsupported JVM test kind: " + jvmTestKind);
             }
-            else {
-                CorePlugin.logger().warn("Test descriptor is not recognized: " + descriptor.getClass());
-            }
-        }
-        else {
-            CorePlugin.logger().warn("Test event is not recognized: " + event.getClass());
+        } else {
+            throw new IllegalArgumentException("Unsupported test event type: " + event.getClass());
         }
         //CHECKSTYLE:ON
     }
