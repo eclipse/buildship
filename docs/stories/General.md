@@ -90,7 +90,7 @@ Design a Buildship logo and integrate it into the plugins.
 Each Eclipse core application should have its own logo for easy recognition in the Eclipse ecosystem.
 
 
-## Integrate into Eclipse Error Reporter
+## ~~Integrate into Eclipse Error Reporter~~
 
 ### Requested Change
 
