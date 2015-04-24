@@ -68,28 +68,6 @@ can do this as part of the automated Gradle build.
 This is part of the simultaneous release requirements.
 
 
-## Professionally designed icons
-
-### Requested Change
-
-Have professionally designed icons for all views, buttons, and other UI elements.
-
-### Motivation
-
-As part of the UX, we need professionally designed icons.
-
-
-## Buildship logo
-
-### Requested Change
-
-Design a Buildship logo and integrate it into the plugins.
-
-### Motivation
-
-Each Eclipse core application should have its own logo for easy recognition in the Eclipse ecosystem.
-
-
 ## ~~Integrate into Eclipse Error Reporter~~
 
 ### Requested Change
@@ -116,3 +94,25 @@ gathered from all participating users.
 
 In order to constantly improve Buildship, we need to understand what functionality of Buildship people are
 using and how they are using it.
+
+
+## Professionally designed icons
+
+### Requested Change
+
+Have professionally designed icons for all views, buttons, and other UI elements.
+
+### Motivation
+
+As part of the UX, we need professionally designed icons.
+
+
+## Buildship logo
+
+### Requested Change
+
+Design a Buildship logo and integrate it into the plugins.
+
+### Motivation
+
+Each Eclipse core application should have its own logo for easy recognition in the Eclipse ecosystem.
