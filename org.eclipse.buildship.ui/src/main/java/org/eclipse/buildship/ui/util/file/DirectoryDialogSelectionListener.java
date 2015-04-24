@@ -15,6 +15,7 @@ import java.io.File;
 
 import com.google.common.base.Strings;
 
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -37,7 +38,7 @@ public final class DirectoryDialogSelectionListener extends SelectionAdapter {
     public DirectoryDialogSelectionListener(Shell shell, Text target, String entity) {
         this.shell = shell;
         this.target = target;
-        this.title = String.format(ProjectImportMessages.Title_Select_0, entity);
+        this.title = NLS.bind(ProjectImportMessages.Title_Select_0, entity);
     }
 
     @Override

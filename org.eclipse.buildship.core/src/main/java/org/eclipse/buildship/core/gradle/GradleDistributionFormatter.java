@@ -11,9 +11,11 @@
 
 package org.eclipse.buildship.core.gradle;
 
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+
 import com.google.common.base.Preconditions;
 
-import com.gradleware.tooling.toolingclient.GradleDistribution;
+import org.eclipse.osgi.util.NLS;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.i18n.CoreMessages;
@@ -49,11 +51,11 @@ public final class GradleDistributionFormatter {
             case WRAPPER:
                 return CoreMessages.GradleDistribution_Value_UseGradleWrapper;
             case LOCAL_INSTALLATION:
-                return String.format(CoreMessages.GradleDistribution_Value_UseLocalInstallation_0, gradleDistributionWrapper.getConfiguration());
+                return NLS.bind(CoreMessages.GradleDistribution_Value_UseLocalInstallation_0, gradleDistributionWrapper.getConfiguration());
             case REMOTE_DISTRIBUTION:
-                return String.format(CoreMessages.GradleDistribution_Value_UseRemoteDistribution_0, gradleDistributionWrapper.getConfiguration());
+                return NLS.bind(CoreMessages.GradleDistribution_Value_UseRemoteDistribution_0, gradleDistributionWrapper.getConfiguration());
             case VERSION:
-                return String.format(CoreMessages.GradleDistribution_Value_UseGradleVersion_0, gradleDistributionWrapper.getConfiguration());
+                return NLS.bind(CoreMessages.GradleDistribution_Value_UseGradleVersion_0, gradleDistributionWrapper.getConfiguration());
             default:
                 throw new GradlePluginsRuntimeException("Unrecognized Gradle distribution type: " + gradleDistributionWrapper.getType()); //$NON-NLS-1$
         }
