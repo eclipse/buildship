@@ -21,7 +21,7 @@ import org.eclipse.core.variables.VariablesPlugin;
  */
 public final class ExpressionUtils {
 
-    private static final String WORKSPACE_LOC_VARIABLE = "workspace_loc";
+    private static final String WORKSPACE_LOC_VARIABLE = "workspace_loc"; //$NON-NLS-1$
 
     private ExpressionUtils() {
     }

@@ -69,7 +69,7 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
     private final ILaunchConfiguration launchConfiguration;
 
     public RunGradleConfigurationDelegateJob(ILaunch launch, ILaunchConfiguration launchConfiguration) {
-        super("Launching Gradle tasks");
+        super(CoreMessages.RunGradleConfigurationDelegateJob_LaunchGradleTask);
 
         this.launch = Preconditions.checkNotNull(launch);
         this.launchConfiguration = Preconditions.checkNotNull(launchConfiguration);
@@ -87,9 +87,9 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         } catch (BuildException e) {
             // return only a warning if there was a problem while running the Gradle build since the
             // error is also visible in the Gradle console
-            return new Status(IStatus.WARNING, CorePlugin.PLUGIN_ID, "Gradle build failure during task execution.", e);
+            return new Status(IStatus.WARNING, CorePlugin.PLUGIN_ID, CoreMessages.RunGradleConfigurationDelegateJob_ErrorMessage_GradleBuildFailed, e);
         } catch (Exception e) {
-            return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, "Launching the Gradle tasks failed.", e);
+            return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, CoreMessages.RunGradleConfigurationDelegateJob_ErrorMessage_LaunchingGradleTaskFailed, e);
         } finally {
             monitor.done();
         }
@@ -108,7 +108,7 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         ImmutableList<String> arguments = configurationAttributes.getArguments();
 
         // start tracking progress
-        monitor.beginTask(String.format("Launch Gradle tasks %s", tasks), IProgressMonitor.UNKNOWN);
+        monitor.beginTask(String.format(CoreMessages.RunGradleConfigurationDelegateJob_LauchGradleTasks, tasks), IProgressMonitor.UNKNOWN);
 
         // configure the request with the build launch settings derived from the launch
         // configuration
@@ -154,24 +154,24 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
     }
 
     private String createProcessName(List<String> tasks, File workingDir) {
-        return String.format("%s [Gradle Project] %s in %s (%s)", this.launchConfiguration.getName(), Joiner.on(' ').join(tasks), workingDir.getAbsolutePath(), DateFormat
+        return String.format(CoreMessages.RunGradleConfigurationDelegateJob_createProcessName, this.launchConfiguration.getName(), Joiner.on(' ').join(tasks), workingDir.getAbsolutePath(), DateFormat
                 .getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(new Date()));
     }
 
     private void writeRunConfigurationDescription(GradleRunConfigurationAttributes runConfiguration, OutputStream output) {
         OutputStreamWriter writer = new OutputStreamWriter(output);
         try {
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleTasks, toNonEmpty(runConfiguration.getTasks(), CoreMessages.RunConfiguration_Value_RunDefaultTasks)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_WorkingDirectory, FileUtils.getAbsolutePath(runConfiguration.getWorkingDir()).get()));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleDistribution, GradleDistributionFormatter.toString(runConfiguration.getGradleDistribution())));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleUserHome, toNonEmpty(runConfiguration.getGradleUserHome(), CoreMessages.Value_UseGradleDefault)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JavaHome, toNonEmpty(runConfiguration.getJavaHome(), CoreMessages.Value_UseGradleDefault)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JvmArguments, toNonEmpty(runConfiguration.getJvmArguments(), CoreMessages.Value_UseGradleDefault)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Arguments, toNonEmpty(runConfiguration.getArguments(), CoreMessages.Value_None)));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleTasks, toNonEmpty(runConfiguration.getTasks(), CoreMessages.RunConfiguration_Value_RunDefaultTasks))); //$NON-NLS-1$
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_WorkingDirectory, FileUtils.getAbsolutePath(runConfiguration.getWorkingDir()).get())); //$NON-NLS-1$
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleDistribution, GradleDistributionFormatter.toString(runConfiguration.getGradleDistribution()))); //$NON-NLS-1$
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleUserHome, toNonEmpty(runConfiguration.getGradleUserHome(), CoreMessages.Value_UseGradleDefault))); //$NON-NLS-1$
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JavaHome, toNonEmpty(runConfiguration.getJavaHome(), CoreMessages.Value_UseGradleDefault))); //$NON-NLS-1$
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JvmArguments, toNonEmpty(runConfiguration.getJvmArguments(), CoreMessages.Value_UseGradleDefault))); //$NON-NLS-1$
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Arguments, toNonEmpty(runConfiguration.getArguments(), CoreMessages.Value_None))); //$NON-NLS-1$
             writer.write('\n');
             writer.flush();
         } catch (IOException e) {
-            String message = String.format("Cannot write run configuration description to Gradle console.");
+            String message = String.format(CoreMessages.RunGradleConfigurationDelegateJob_ErrorMessage_CanNotWriteConfigDescription);
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
         }

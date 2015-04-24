@@ -36,6 +36,7 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 
 /**
@@ -50,7 +51,7 @@ public final class ProjectPreviewJob extends ToolingApiJob {
 
     public ProjectPreviewJob(ProjectImportConfiguration configuration, List<ProgressListener> listeners,
             final FutureCallback<Optional<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>>> resultHandler) {
-        super("Loading project preview");
+        super(CoreMessages.ProjectPreviewJob_LoadingProjectPreview);
 
         this.fixedAttributes = configuration.toFixedAttributes();
         ProcessStreams stream = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
@@ -83,14 +84,14 @@ public final class ProjectPreviewJob extends ToolingApiJob {
             return Status.CANCEL_STATUS;
         } catch (Exception e) {
             this.result = null;
-            return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, "Loading the project preview failed.", e);
+            return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, CoreMessages.ProjectPreviewJob_ErrorMessage_LoadingPreviewFailed, e);
         } finally {
             monitor.done();
         }
     }
 
     public Optional<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> previewProject(IProgressMonitor monitor) {
-        monitor.beginTask("Load project preview", 10);
+        monitor.beginTask(CoreMessages.ProjectPreviewJob_LoadProjectPreview, 10);
 
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(new SubProgressMonitor(monitor, 2));
         OmniGradleBuildStructure gradleBuildStructure = fetchGradleBuildStructure(new SubProgressMonitor(monitor, 8));
@@ -98,7 +99,7 @@ public final class ProjectPreviewJob extends ToolingApiJob {
     }
 
     private OmniBuildEnvironment fetchBuildEnvironment(IProgressMonitor monitor) {
-        monitor.beginTask("Load Gradle Build Environment", IProgressMonitor.UNKNOWN);
+        monitor.beginTask(CoreMessages.ProjectPreviewJob_LoadGradleBuildEnviroment, IProgressMonitor.UNKNOWN);
         try {
             ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(this.fixedAttributes);
             return repository.fetchBuildEnvironment(this.transientAttributes, FetchStrategy.FORCE_RELOAD);
@@ -108,7 +109,7 @@ public final class ProjectPreviewJob extends ToolingApiJob {
     }
 
     private OmniGradleBuildStructure fetchGradleBuildStructure(IProgressMonitor monitor) {
-        monitor.beginTask("Load Gradle Project Structure", IProgressMonitor.UNKNOWN);
+        monitor.beginTask(CoreMessages.ProjectPreviewJob_LoadGradleProjectStructure, IProgressMonitor.UNKNOWN);
         try {
             ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(this.fixedAttributes);
             return repository.fetchGradleBuildStructure(this.transientAttributes, FetchStrategy.FORCE_RELOAD);

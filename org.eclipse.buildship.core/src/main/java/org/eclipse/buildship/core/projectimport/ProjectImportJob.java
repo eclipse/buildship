@@ -45,6 +45,7 @@ import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.gradle.Specs;
+import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 import org.eclipse.buildship.core.workspace.ClasspathDefinition;
@@ -58,7 +59,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
     private final FixedRequestAttributes fixedAttributes;
 
     public ProjectImportJob(ProjectImportConfiguration configuration) {
-        super("Importing project");
+        super(CoreMessages.ProjectImportJob_ImportingProject);
 
         this.fixedAttributes = configuration.toFixedAttributes();
 
@@ -76,14 +77,14 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
             CorePlugin.logger().info(e.getMessage());
             return Status.CANCEL_STATUS;
         } catch (Exception e) {
-            return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, "Importing the project failed.", e);
+            return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, CoreMessages.ProjectImportJob_ErrorMessage_ImportingProjectFailed, e);
         } finally {
             monitor.done();
         }
     }
 
     public void importProject(IProgressMonitor monitor) {
-        monitor.beginTask("Import Gradle Project", 100);
+        monitor.beginTask(CoreMessages.ProjectImportJob_ImportGradleProject, 100);
 
         OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(new SubProgressMonitor(monitor, 50));
         OmniEclipseProject rootProject = eclipseGradleBuild.getRootEclipseProject();
@@ -94,7 +95,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
     }
 
     private OmniEclipseGradleBuild fetchEclipseGradleBuild(IProgressMonitor monitor) {
-        monitor.beginTask("Load Eclipse Project", IProgressMonitor.UNKNOWN);
+        monitor.beginTask(CoreMessages.ProjectImportJob_LoadEclipseProject, IProgressMonitor.UNKNOWN);
         try {
             ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
             List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
@@ -107,7 +108,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
     }
 
     private void importProject(OmniEclipseProject project, OmniEclipseProject rootProject, IProgressMonitor monitor) {
-        monitor.beginTask("Import project " + project.getName(), 3);
+        monitor.beginTask(CoreMessages.ProjectImportJob_ImportProject + project.getName(), 3);
         try {
             WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations();
 
@@ -171,7 +172,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
             @Override
             public IPath apply(OmniEclipseProjectDependency dependency) {
                 OmniEclipseProject dependentProject = rootProject.tryFind(Specs.eclipseProjectMatchesProjectPath(dependency.getTargetProjectPath())).get();
-                return new Path("/" + dependentProject.getName());
+                return new Path("/" + dependentProject.getName()); //$NON-NLS-1$
             }
         }).toList();
     }

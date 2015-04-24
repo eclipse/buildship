@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.i18n.CoreMessages;
 
 /**
  * Project nature for Gradle projects.
@@ -25,7 +26,7 @@ public enum GradleProjectNature {
     INSTANCE;
 
     // the nature ID has to be in the following format: ${PLUGIN_ID}.${NATURE_ID}
-    public static final String ID = CorePlugin.PLUGIN_ID + ".gradleprojectnature";
+    public static final String ID = CorePlugin.PLUGIN_ID + ".gradleprojectnature"; //$NON-NLS-1$
 
     /**
      * Determines if the target project has the Gradle nature applied.
@@ -36,7 +37,7 @@ public enum GradleProjectNature {
     public boolean isPresentOn(IProject project) {
         // abort if the project is not open since we can only investigate open projects
         if (!project.isOpen()) {
-            String message = String.format("Cannot investigate Gradle nature on closed project %s.", project);
+            String message = String.format(CoreMessages.GradleProjectNature_ErrorMessage_ProjectClosed, project);
             CorePlugin.logger().error(message);
             throw new GradlePluginsRuntimeException(message);
         }
@@ -45,7 +46,7 @@ public enum GradleProjectNature {
         try {
             return project.hasNature(ID);
         } catch (CoreException e) {
-            String message = String.format("Cannot check for Gradle nature on project %s.", project);
+            String message = String.format(CoreMessages.GradleProjectNature_ErrorMessage_CanNotCheckOnProject, project);
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
         }

@@ -23,6 +23,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.i18n.CoreMessages;
 
 /**
  * Execute Gradle tasks from the run configurations.
@@ -33,11 +34,11 @@ import org.eclipse.buildship.core.CorePlugin;
 public final class GradleRunConfigurationDelegate extends LaunchConfigurationDelegate {
 
     // configuration type id declared in the plugin.xml
-    public static final String ID = "org.eclipse.buildship.core.launch.runconfiguration";
+    public static final String ID = "org.eclipse.buildship.core.launch.runconfiguration"; //$NON-NLS-1$
 
     @Override
     public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) {
-        monitor.beginTask("Launch Gradle tasks", IProgressMonitor.UNKNOWN);
+        monitor.beginTask(CoreMessages.GradleRunConfigurationDelegate_LaunchGradleTasks, IProgressMonitor.UNKNOWN);
         try {
             // schedule the task
             final CountDownLatch latch = new CountDownLatch(1);
@@ -66,7 +67,7 @@ public final class GradleRunConfigurationDelegate extends LaunchConfigurationDel
                     }
                 }
             } catch (InterruptedException e) {
-                CorePlugin.logger().error("Failed to launch Gradle tasks.", e);
+                CorePlugin.logger().error(CoreMessages.GradleRunConfigurationDelegate_ErrorMessage_FailToLaunchTasks, e);
             }
         } finally {
             monitor.done();

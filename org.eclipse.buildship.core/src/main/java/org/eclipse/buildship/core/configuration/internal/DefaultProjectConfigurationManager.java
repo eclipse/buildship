@@ -26,6 +26,7 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
+import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 /**
@@ -51,7 +52,7 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
                 // calculate the root configuration to which the current configuration belongs
                 ProjectConfiguration projectConfiguration = this.projectConfigurationPersistence.readProjectConfiguration(workspaceProject);
                 File rootProjectDir = projectConfiguration.getRequestAttributes().getProjectDir();
-                ProjectConfiguration rootProjectConfiguration = ProjectConfiguration.from(projectConfiguration.getRequestAttributes(), Path.from(":"), rootProjectDir);
+                ProjectConfiguration rootProjectConfiguration = ProjectConfiguration.from(projectConfiguration.getRequestAttributes(), Path.from(":"), rootProjectDir); //$NON-NLS-1$
                 rootConfigurations.add(rootProjectConfiguration);
             }
         }
@@ -66,7 +67,7 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
             if (!rootProjectDirs.containsKey(rootProjectDirPath)) {
                 rootProjectDirs.put(rootProjectDirPath, rootProjectConfiguration);
             } else {
-                String message = String.format("Inconsistent Gradle project configuration for project at %s.", rootProjectDirPath);
+                String message = String.format(CoreMessages.DefaultProjectConfigurationManager_ErrorMessage_InconsitentConfiguration, rootProjectDirPath);
                 CorePlugin.logger().error(message);
                 throw new GradlePluginsRuntimeException(message);
             }
