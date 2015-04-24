@@ -140,13 +140,10 @@
              icon="icons/full/elcl16/refresh.gif"
              disabledIcon="icons/full/dlcl16/refresh.gif">
        </image>
-    </extension>
-    <extension
-          point="org.eclipse.ui.commandImages">
        <image
              commandId="org.eclipse.buildship.ui.commands.runtasks"
-             icon="icons/full/elcl16/run.png"
-             disabledIcon="icons/full/dlcl16/run.png">
+             disabledIcon="icons/full/dlcl16/run.png"
+             icon="icons/full/elcl16/run.png">
        </image>
     </extension>
 
@@ -188,9 +185,6 @@
                 type="org.eclipse.ui.views.properties.IPropertySource">
           </adapter>
        </factory>
-    </extension>
-    <extension
-          point="org.eclipse.core.runtime.adapters">
        <factory
              adaptableType="org.eclipse.buildship.ui.taskview.ProjectNode"
              class="org.eclipse.buildship.ui.taskview.adapter.ProjectNodeAdapterFactory">
