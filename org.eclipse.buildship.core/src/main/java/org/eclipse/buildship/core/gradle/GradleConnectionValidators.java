@@ -15,10 +15,10 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import com.gradleware.tooling.toolingutils.binding.Validator;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+
+import com.gradleware.tooling.toolingutils.binding.Validator;
 
 import org.eclipse.osgi.util.NLS;
 

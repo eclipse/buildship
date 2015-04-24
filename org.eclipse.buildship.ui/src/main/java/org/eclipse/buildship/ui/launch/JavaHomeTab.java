@@ -13,10 +13,10 @@ package org.eclipse.buildship.ui.launch;
 
 import java.io.File;
 
-import com.gradleware.tooling.toolingutils.binding.Validator;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+
+import com.gradleware.tooling.toolingutils.binding.Validator;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;

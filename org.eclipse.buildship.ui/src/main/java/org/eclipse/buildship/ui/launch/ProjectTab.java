@@ -13,12 +13,12 @@ package org.eclipse.buildship.ui.launch;
 
 import java.io.File;
 
-import com.gradleware.tooling.toolingutils.binding.Validator;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
+
+import com.gradleware.tooling.toolingutils.binding.Validator;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;

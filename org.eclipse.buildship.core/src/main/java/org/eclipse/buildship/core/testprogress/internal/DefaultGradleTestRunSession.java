@@ -11,18 +11,9 @@
 
 package org.eclipse.buildship.core.testprogress.internal;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Maps;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.testprogress.GradleTestRunSession;
-import org.eclipse.debug.core.ILaunch;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.internal.junit.JUnitCorePlugin;
-import org.eclipse.jdt.internal.junit.model.ITestSessionListener;
-import org.eclipse.jdt.internal.junit.model.TestCaseElement;
-import org.eclipse.jdt.internal.junit.model.TestElement.Status;
-import org.eclipse.jdt.internal.junit.model.TestRunSession;
-import org.eclipse.jdt.internal.junit.model.TestSuiteElement;
+import java.util.List;
+import java.util.Map;
+
 import org.gradle.tooling.Failure;
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.test.JvmTestKind;
@@ -36,8 +27,20 @@ import org.gradle.tooling.events.test.TestSkippedResult;
 import org.gradle.tooling.events.test.TestStartEvent;
 import org.gradle.tooling.events.test.TestSuccessResult;
 
-import java.util.List;
-import java.util.Map;
+import com.google.common.base.Optional;
+import com.google.common.collect.Maps;
+
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.internal.junit.JUnitCorePlugin;
+import org.eclipse.jdt.internal.junit.model.ITestSessionListener;
+import org.eclipse.jdt.internal.junit.model.TestCaseElement;
+import org.eclipse.jdt.internal.junit.model.TestElement.Status;
+import org.eclipse.jdt.internal.junit.model.TestRunSession;
+import org.eclipse.jdt.internal.junit.model.TestSuiteElement;
+
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.testprogress.GradleTestRunSession;
 
 /**
  * Default implementation of the {@code GradleTestRunSession} interface. Converts and delegates all received

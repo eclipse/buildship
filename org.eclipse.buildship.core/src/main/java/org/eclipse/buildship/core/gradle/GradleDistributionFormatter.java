@@ -11,9 +11,9 @@
 
 package org.eclipse.buildship.core.gradle;
 
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-
 import com.google.common.base.Preconditions;
+
+import com.gradleware.tooling.toolingclient.GradleDistribution;
 
 import org.eclipse.osgi.util.NLS;
 
