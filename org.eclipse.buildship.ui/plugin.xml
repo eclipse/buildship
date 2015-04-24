@@ -142,8 +142,8 @@
        </image>
        <image
              commandId="org.eclipse.buildship.ui.commands.runtasks"
-             disabledIcon="icons/full/dlcl16/run.png"
-             icon="icons/full/elcl16/run.png">
+             icon="icons/full/elcl16/run.png"
+             disabledIcon="icons/full/dlcl16/run.png">
        </image>
     </extension>
 
