@@ -56,7 +56,7 @@ Currently, the Buildship plugins are signed with a self-signed test certificate.
 distribution, the plugins must be signed with the _real_ Eclipse certificate.
 
 
-## Compress plugins with pack200
+## ~~Compress plugins with pack200~~
 
 ### Requested Change
 
