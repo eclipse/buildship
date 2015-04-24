@@ -28,6 +28,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -235,7 +236,7 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
         try {
             workingDirectoryResolved = ExpressionUtils.decode(workingDirectoryExpression);
         } catch (CoreException e) {
-            setErrorMessage(String.format(LaunchMessages.ErrorMessage_CannotResolveExpression_0, workingDirectoryExpression));
+            setErrorMessage(NLS.bind(LaunchMessages.ErrorMessage_CannotResolveExpression_0, workingDirectoryExpression));
             return false;
         }
 

@@ -14,21 +14,6 @@ package org.eclipse.buildship.core.testprogress.internal;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Maps;
-
-import org.eclipse.debug.core.ILaunch;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.internal.junit.JUnitCorePlugin;
-import org.eclipse.jdt.internal.junit.model.ITestSessionListener;
-import org.eclipse.jdt.internal.junit.model.TestCaseElement;
-import org.eclipse.jdt.internal.junit.model.TestElement.Status;
-import org.eclipse.jdt.internal.junit.model.TestRunSession;
-import org.eclipse.jdt.internal.junit.model.TestSuiteElement;
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.testprogress.GradleTestRunSession;
 import org.gradle.tooling.Failure;
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.test.JvmTestKind;
@@ -41,6 +26,22 @@ import org.gradle.tooling.events.test.TestProgressEvent;
 import org.gradle.tooling.events.test.TestSkippedResult;
 import org.gradle.tooling.events.test.TestStartEvent;
 import org.gradle.tooling.events.test.TestSuccessResult;
+
+import com.google.common.base.Optional;
+import com.google.common.collect.Maps;
+
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.internal.junit.JUnitCorePlugin;
+import org.eclipse.jdt.internal.junit.model.ITestSessionListener;
+import org.eclipse.jdt.internal.junit.model.TestCaseElement;
+import org.eclipse.jdt.internal.junit.model.TestElement.Status;
+import org.eclipse.jdt.internal.junit.model.TestRunSession;
+import org.eclipse.jdt.internal.junit.model.TestSuiteElement;
+
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.testprogress.GradleTestRunSession;
 
 /**
  * Default implementation of the {@code GradleTestRunSession} interface. Converts and delegates all received
@@ -82,64 +83,50 @@ public final class DefaultGradleTestRunSession extends TestRunSession implements
     @Override
     public void process(TestProgressEvent event) {
         //CHECKSTYLE:OFF, required due to false negative in Checkstyle
-        // suites
+
+        // we only handle JvmTestOperationDescriptor for now
+        TestOperationDescriptor descriptor = event.getDescriptor();
+        if (!(descriptor instanceof JvmTestOperationDescriptor)) {
+            throw new IllegalArgumentException(CoreMessages.DefaultGradleTestRunSession_ErrorMessageUnsupportedDescriptorType + JvmTestOperationDescriptor.class);
+        }
+        JvmTestOperationDescriptor jvmDescriptor = (JvmTestOperationDescriptor) descriptor;
+        JvmTestKind jvmTestKind = jvmDescriptor.getJvmTestKind();
+
         if (event instanceof TestStartEvent) {
-            TestStartEvent startedEvent = (TestStartEvent) event;
-            TestOperationDescriptor descriptor = startedEvent.getDescriptor();
-            if (descriptor instanceof JvmTestOperationDescriptor) {
-                JvmTestOperationDescriptor jvmDescriptor = (JvmTestOperationDescriptor) descriptor;
-                if (jvmDescriptor.getJvmTestKind() == JvmTestKind.ATOMIC) {
-                    testStarted(jvmDescriptor);
-                }
-                else {
-                    suiteStarted(jvmDescriptor);
-                }
+            if (jvmTestKind == JvmTestKind.SUITE) {
+                suiteStarted(jvmDescriptor);
+            } else if (jvmTestKind == JvmTestKind.ATOMIC) {
+                testStarted(jvmDescriptor);
+            } else {
+                throw new IllegalArgumentException(CoreMessages.DefaultGradleTestRunSession_ErrorMessageUnsupportedJVMKind + jvmTestKind);
             }
-            else {
-                CorePlugin.logger().warn(CoreMessages.DefaultGradleTestRunSession_WarningMessage_TestDescriptorNotRecognized + descriptor.getClass());
-            }
-        }
-        else if (event instanceof TestFinishEvent) {
-            TestFinishEvent finishedEvent = (TestFinishEvent) event;
-            TestOperationDescriptor descriptor = finishedEvent.getDescriptor();
-            if (descriptor instanceof JvmTestOperationDescriptor) {
-                JvmTestOperationDescriptor jvmDescriptor = (JvmTestOperationDescriptor) descriptor;
-                TestOperationResult result = finishedEvent.getResult();
-                if (jvmDescriptor.getJvmTestKind() == JvmTestKind.ATOMIC) {
-                    if (result instanceof TestSuccessResult) {
-                        testSucceeded(jvmDescriptor, (TestSuccessResult) result);
-                    }
-                    else if (result instanceof TestFailureResult) {
-                        testFailed(jvmDescriptor, (TestFailureResult) result);
-                    }
-                    else if (result instanceof TestSkippedResult) {
-                        testSkipped(jvmDescriptor, (TestSkippedResult)result);
-                    }
-                    else {
-                        CorePlugin.logger().warn(CoreMessages.DefaultGradleTestRunSession_WarningMessage_TestKindNotRecognized + jvmDescriptor.getJvmTestKind().getClass());
-                    }
+        } else if (event instanceof TestFinishEvent) {
+            TestOperationResult result = ((TestFinishEvent) event).getResult();
+            if (jvmTestKind == JvmTestKind.SUITE) {
+                if (result instanceof TestSuccessResult) {
+                    suiteSucceeded(jvmDescriptor, (TestSuccessResult) result);
+                } else if (result instanceof TestFailureResult) {
+                    suiteFailed(jvmDescriptor, (TestFailureResult) result);
+                } else if (result instanceof TestSkippedResult) {
+                    suiteSkipped(jvmDescriptor, (TestSkippedResult) result);
+                } else {
+                    throw new IllegalArgumentException(CoreMessages.DefaultGradleTestRunSession_ErrorMessageUnsupportedResultType + result.getClass());
                 }
-                else {
-                    if (result instanceof TestSuccessResult) {
-                        suiteSucceeded(jvmDescriptor, (TestSuccessResult) result);
-                    }
-                    else if (result instanceof TestFailureResult) {
-                        suiteFailed(jvmDescriptor, (TestFailureResult) result);
-                    }
-                    else if (result instanceof TestSkippedResult) {
-                        suiteSkipped(jvmDescriptor, (TestSkippedResult)result);
-                    }
-                    else {
-                        CorePlugin.logger().warn(CoreMessages.DefaultGradleTestRunSession_WarningMessage_TestKindNotRecognized + jvmDescriptor.getJvmTestKind().getClass());
-                    }
+            } else if (jvmTestKind == JvmTestKind.ATOMIC) {
+                if (result instanceof TestSuccessResult) {
+                    testSucceeded(jvmDescriptor, (TestSuccessResult) result);
+                } else if (result instanceof TestFailureResult) {
+                    testFailed(jvmDescriptor, (TestFailureResult) result);
+                } else if (result instanceof TestSkippedResult) {
+                    testSkipped(jvmDescriptor, (TestSkippedResult) result);
+                } else {
+                    throw new IllegalArgumentException(CoreMessages.DefaultGradleTestRunSession_ErrorMessageUnsupportedResultType + result.getClass());
                 }
+            } else {
+                throw new IllegalArgumentException(CoreMessages.DefaultGradleTestRunSession_ErrorMessageUnsupportedJVMKind + jvmTestKind);
             }
-            else {
-                CorePlugin.logger().warn(CoreMessages.DefaultGradleTestRunSession_WarningMessage_TestDescriptorNotRecognized + descriptor.getClass());
-            }
-        }
-        else {
-            CorePlugin.logger().warn(CoreMessages.DefaultGradleTestRunSession_WarningMessage_TestEventNotRecognized + event.getClass());
+        } else {
+            throw new IllegalArgumentException(CoreMessages.DefaultGradleTestRunSession_ErrorMessageUnsupportedEventType + event.getClass());
         }
         //CHECKSTYLE:ON
     }
@@ -156,7 +143,7 @@ public final class DefaultGradleTestRunSession extends TestRunSession implements
     private void suiteSucceeded(JvmTestOperationDescriptor descriptor, TestSuccessResult result) {
         TestSuiteElement testSuite = this.testSuites.get(descriptor);
         if (testSuite == null) {
-            throw new GradlePluginsRuntimeException(String.format(CoreMessages.DefaultGradleTestRunSession_ErrorMessage_CanNotFindTestSuite, descriptor.getName()));
+            throw new GradlePluginsRuntimeException(String.format(CoreMessages.DefaultGradleTestRunSession_ErrorMessageCanNotFindTestSuite, descriptor.getName()));
         }
         long elapsedTimeMilliseconds = result.getEndTime() - result.getStartTime();
         testSuite.setElapsedTimeInSeconds(elapsedTimeMilliseconds / 1000d);
@@ -167,7 +154,7 @@ public final class DefaultGradleTestRunSession extends TestRunSession implements
     private void suiteFailed(JvmTestOperationDescriptor descriptor, TestFailureResult result) {
         TestSuiteElement testSuite = this.testSuites.get(descriptor);
         if (testSuite == null) {
-            throw new GradlePluginsRuntimeException(String.format(CoreMessages.DefaultGradleTestRunSession_ErrorMessage_CanNotFindTestSuite, descriptor.getName()));
+            throw new GradlePluginsRuntimeException(String.format(CoreMessages.DefaultGradleTestRunSession_ErrorMessageCanNotFindTestSuite, descriptor.getName()));
         }
         String trace = toString(result.getFailures());
         long elapsedTimeMilliseconds = result.getEndTime() - result.getStartTime();
@@ -179,7 +166,7 @@ public final class DefaultGradleTestRunSession extends TestRunSession implements
     private void suiteSkipped(JvmTestOperationDescriptor descriptor, TestSkippedResult result) {
         TestSuiteElement testSuite = this.testSuites.get(descriptor);
         if (testSuite == null) {
-            throw new GradlePluginsRuntimeException(String.format(CoreMessages.DefaultGradleTestRunSession_ErrorMessage_CanNotFindTestSuite, descriptor.getName()));
+            throw new GradlePluginsRuntimeException(String.format(CoreMessages.DefaultGradleTestRunSession_ErrorMessageCanNotFindTestSuite, descriptor.getName()));
         }
         testSuite.setStatus(Status.NOT_RUN);
         this.testSessionListeners.notifySuiteFinished(testSuite, Status.NOT_RUN, null, null, null);
@@ -188,7 +175,7 @@ public final class DefaultGradleTestRunSession extends TestRunSession implements
     private void testStarted(JvmTestOperationDescriptor descriptor) {
         TestSuiteElement parentSuite = this.testSuites.get(descriptor.getParent());
         if (parentSuite == null) {
-            throw new GradlePluginsRuntimeException(String.format(CoreMessages.DefaultGradleTestRunSession_ErrorMessage_CanNotFindParent, descriptor.getName()));
+            throw new GradlePluginsRuntimeException(String.format(CoreMessages.DefaultGradleTestRunSession_ErrorMessageCanNotFindParent, descriptor.getName()));
         }
         TestCaseElement testCase = new TestCaseElement(parentSuite, String.valueOf(System.identityHashCode(descriptor)), descriptor.getName() + "(" + descriptor.getClassName() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
         testCase.setStatus(Status.RUNNING);
@@ -200,7 +187,7 @@ public final class DefaultGradleTestRunSession extends TestRunSession implements
     private void testSucceeded(JvmTestOperationDescriptor descriptor, TestSuccessResult result) {
         TestCaseElement testCase = this.testCases.get(descriptor);
         if (testCase == null) {
-            throw new GradlePluginsRuntimeException(String.format(CoreMessages.DefaultGradleTestRunSession_ErrorMessage_CanNotFindTest, descriptor.getName()));
+            throw new GradlePluginsRuntimeException(String.format(CoreMessages.DefaultGradleTestRunSession_ErrorMessageCanNotFindTest, descriptor.getName()));
         }
         long elapsedTimeMilliseconds = result.getEndTime() - result.getStartTime();
         testCase.setElapsedTimeInSeconds(elapsedTimeMilliseconds / 1000d);
@@ -212,7 +199,7 @@ public final class DefaultGradleTestRunSession extends TestRunSession implements
     private void testFailed(JvmTestOperationDescriptor descriptor, TestFailureResult result) {
         TestCaseElement testCase = this.testCases.get(descriptor);
         if (testCase == null) {
-            throw new GradlePluginsRuntimeException(String.format(CoreMessages.DefaultGradleTestRunSession_ErrorMessage_CanNotFindTest, descriptor.getName()));
+            throw new GradlePluginsRuntimeException(String.format(CoreMessages.DefaultGradleTestRunSession_ErrorMessageCanNotFindTest, descriptor.getName()));
         }
         String trace = toString(result.getFailures());
         long elapsedTimeMilliseconds = result.getEndTime() - result.getStartTime();
@@ -225,7 +212,7 @@ public final class DefaultGradleTestRunSession extends TestRunSession implements
     private void testSkipped(JvmTestOperationDescriptor descriptor, TestSkippedResult result) {
         TestCaseElement testCase = this.testCases.get(descriptor);
         if (testCase == null) {
-            throw new GradlePluginsRuntimeException(String.format(CoreMessages.DefaultGradleTestRunSession_ErrorMessage_CanNotFindTest, descriptor.getName()));
+            throw new GradlePluginsRuntimeException(String.format(CoreMessages.DefaultGradleTestRunSession_ErrorMessageCanNotFindTest, descriptor.getName()));
         }
         testCase.setStatus(Status.NOT_RUN);
         this.testSessionListeners.notifyTestEnded(testCase);

@@ -24,6 +24,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.jdt.ui.ISharedImages;
 import org.eclipse.jdt.ui.JavaUI;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -125,7 +126,7 @@ public final class JavaHomeTab extends AbstractLaunchConfigurationTab {
         try {
             javaHomeResolved = ExpressionUtils.decode(javaHomeExpression);
         } catch (CoreException e) {
-            setErrorMessage(String.format(LaunchMessages.ErrorMessage_CannotResolveExpression_0, javaHomeExpression));
+            setErrorMessage(NLS.bind(LaunchMessages.ErrorMessage_CannotResolveExpression_0, javaHomeExpression));
             return false;
         }
 

@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -126,7 +127,7 @@ public final class GradleUserHomeTab extends AbstractLaunchConfigurationTab {
         try {
             gradleUserHomeResolved = ExpressionUtils.decode(gradleUserHomeExpression);
         } catch (CoreException e) {
-            setErrorMessage(String.format(LaunchMessages.ErrorMessage_CannotResolveExpression_0, gradleUserHomeExpression));
+            setErrorMessage(NLS.bind(LaunchMessages.ErrorMessage_CannotResolveExpression_0, gradleUserHomeExpression));
             return false;
         }
 

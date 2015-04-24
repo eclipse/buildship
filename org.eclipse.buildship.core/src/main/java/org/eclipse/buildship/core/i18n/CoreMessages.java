@@ -24,17 +24,19 @@ public final class CoreMessages extends NLS {
 
 	public static String DefaultGradleLaunchConfigurationManager_ErrorMessage_CanNotGetLaunchConfig;
 
-	public static String DefaultGradleTestRunSession_ErrorMessage_CanNotFindParent;
+	public static String DefaultGradleTestRunSession_ErrorMessageCanNotFindParent;
 
-	public static String DefaultGradleTestRunSession_ErrorMessage_CanNotFindTest;
+	public static String DefaultGradleTestRunSession_ErrorMessageCanNotFindTest;
 
-	public static String DefaultGradleTestRunSession_ErrorMessage_CanNotFindTestSuite;
+	public static String DefaultGradleTestRunSession_ErrorMessageCanNotFindTestSuite;
 
-	public static String DefaultGradleTestRunSession_WarningMessage_TestDescriptorNotRecognized;
+	public static String DefaultGradleTestRunSession_ErrorMessageUnsupportedDescriptorType;
 
-	public static String DefaultGradleTestRunSession_WarningMessage_TestEventNotRecognized;
+	public static String DefaultGradleTestRunSession_ErrorMessageUnsupportedEventType;
 
-	public static String DefaultGradleTestRunSession_WarningMessage_TestKindNotRecognized;
+	public static String DefaultGradleTestRunSession_ErrorMessageUnsupportedJVMKind;
+
+	public static String DefaultGradleTestRunSession_ErrorMessageUnsupportedResultType;
 
 	public static String DefaultProjectConfigurationManager_ErrorMessage_InconsitentConfiguration;
 
