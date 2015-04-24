@@ -15,10 +15,12 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import com.gradleware.tooling.toolingutils.binding.Validator;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
-import com.gradleware.tooling.toolingutils.binding.Validator;
+import org.eclipse.osgi.util.NLS;
 
 import org.eclipse.buildship.core.i18n.CoreMessages;
 
@@ -36,11 +38,11 @@ public final class GradleConnectionValidators {
             @Override
             public Optional<String> validate(File file) {
                 if (file == null) {
-                    return Optional.of(String.format(CoreMessages.ErrorMessage_0_MustBeSpecified, prefix));
+                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeSpecified, prefix));
                 } else if (!file.exists()) {
-                    return Optional.of(String.format(CoreMessages.ErrorMessage_0_DoesNotExist, prefix));
+                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_DoesNotExist, prefix));
                 } else if (!file.isDirectory()) {
-                    return Optional.of(String.format(CoreMessages.ErrorMessage_0_MustBeDirectory, prefix));
+                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeDirectory, prefix));
                 } else {
                     return Optional.absent();
                 }
@@ -56,9 +58,9 @@ public final class GradleConnectionValidators {
                 if (file == null) {
                     return Optional.absent();
                 } else if (!file.exists()) {
-                    return Optional.of(String.format(CoreMessages.ErrorMessage_0_DoesNotExist, prefix));
+                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_DoesNotExist, prefix));
                 } else if (!file.isDirectory()) {
-                    return Optional.of(String.format(CoreMessages.ErrorMessage_0_MustBeDirectory, prefix));
+                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeDirectory, prefix));
                 } else {
                     return Optional.absent();
                 }
@@ -76,23 +78,23 @@ public final class GradleConnectionValidators {
 
                 if (GradleDistributionWrapper.DistributionType.LOCAL_INSTALLATION == type) {
                     if (Strings.isNullOrEmpty(configuration)) {
-                        return Optional.of(String.format(CoreMessages.ErrorMessage_0_MustBeSpecified, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
+                        return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeSpecified, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
                     } else if (!new File(configuration).exists()) {
-                        return Optional.of(String.format(CoreMessages.ErrorMessage_0_DoesNotExist, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
+                        return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_DoesNotExist, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
                     } else {
                         return Optional.absent();
                     }
                 } else if (GradleDistributionWrapper.DistributionType.REMOTE_DISTRIBUTION == type) {
                     if (Strings.isNullOrEmpty(configuration)) {
-                        return Optional.of(String.format(CoreMessages.ErrorMessage_0_MustBeSpecified, CoreMessages.GradleDistribution_Label_RemoteDistributionUri));
+                        return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeSpecified, CoreMessages.GradleDistribution_Label_RemoteDistributionUri));
                     } else if (!isValidURI(configuration)) {
-                        return Optional.of(String.format(CoreMessages.ErrorMessage_0_IsNotValid, CoreMessages.GradleDistribution_Label_RemoteDistributionUri));
+                        return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_IsNotValid, CoreMessages.GradleDistribution_Label_RemoteDistributionUri));
                     } else {
                         return Optional.absent();
                     }
                 } else if (GradleDistributionWrapper.DistributionType.VERSION == type) {
                     if (Strings.isNullOrEmpty(configuration)) {
-                        return Optional.of(String.format(CoreMessages.ErrorMessage_0_MustBeSpecified, CoreMessages.GradleDistribution_Label_SpecificGradleVersion));
+                        return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeSpecified, CoreMessages.GradleDistribution_Label_SpecificGradleVersion));
                     } else {
                         return Optional.absent();
                     }
