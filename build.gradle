@@ -4,6 +4,18 @@ import org.gradle.internal.os.OperatingSystem
 
 apply plugin: eclipsebuild.BuildDefinitionPlugin
 
+// define version mapping for the 3rd-party dependencies that are not specific to a particular Eclipse version
+def eclipseVersionAgnosticDependencies = [
+    "com.gradleware.tooling.utils" : "0.3.0.201504241116",
+    "com.gradleware.tooling.client": "0.3.0.201504241116",
+    "com.gradleware.tooling.model" : "0.3.0.201504241116",
+    "org.gradle.toolingapi"        : "2.4.0.201504241116",
+    "org.slf4j.api"                : "1.7.10.201504241116",
+    "org.slf4j.simple"             : "1.7.10.201504241116",
+    "com.google.guava"             : "18.0.0.201504241116",
+    "com.google.gson"              : "2.2.4.v201311231704"
+]
+
 // target platform definition for all major Eclipse releases between version 3.6 and 4.5
 // the default version is 44 which can be overridden through -Peclipse.version=<version>
 // also the target platforms contain 1) the Eclipse SDK 2) the latest junit 3) SWTBot 2.2.1
@@ -32,16 +44,8 @@ eclipseBuild {
             'org.eclipse.jdt.ui' : '3.6.2.r362_v20110203',
             "org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}" : '3.6.2.v3659b',
             'org.eclipse.swtbot.eclipse.finder' : '2.2.1.201402241301',
-            'org.eclipse.swtbot.junit4_x' : '2.2.1.201402241301',
-            "com.gradleware.tooling.utils" : "0.3.0.201504241116",
-            "com.gradleware.tooling.client" : "0.3.0.201504241116",
-            "com.gradleware.tooling.model" : "0.3.0.201504241116",
-            "org.gradle.toolingapi" : "2.4.0.201504241116",
-            "org.slf4j.api" : "1.7.10.201504241116",
-            "org.slf4j.simple" : "1.7.10.201504241116",
-            "com.google.guava" : "18.0.0.201504241116",
-            "com.google.gson" : "2.2.4.v201311231704"
-        ]
+            'org.eclipse.swtbot.junit4_x' : '2.2.1.201402241301'
+        ] + eclipseVersionAgnosticDependencies
     }
 
     targetPlatform {
@@ -66,16 +70,8 @@ eclipseBuild {
             'org.eclipse.jdt.ui' : '3.7.2.v20120109-1427',
             "org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}" : '3.7.2.v3740f',
             'org.eclipse.swtbot.eclipse.finder' : '2.2.1.201402241301',
-            'org.eclipse.swtbot.junit4_x' : '2.2.1.201402241301',
-            "com.gradleware.tooling.utils" : "0.3.0.201504241116",
-            "com.gradleware.tooling.client" : "0.3.0.201504241116",
-            "com.gradleware.tooling.model" : "0.3.0.201504241116",
-            "org.gradle.toolingapi" : "2.4.0.201504241116",
-            "org.slf4j.api" : "1.7.10.201504241116",
-            "org.slf4j.simple" : "1.7.10.201504241116",
-            "com.google.guava" : "18.0.0.201504241116",
-            "com.google.gson" : "2.2.4.v201311231704"
-        ]
+            'org.eclipse.swtbot.junit4_x' : '2.2.1.201402241301'
+        ] + eclipseVersionAgnosticDependencies
     }
 
     targetPlatform {
@@ -100,16 +96,8 @@ eclipseBuild {
             'org.eclipse.jdt.ui' : '3.8.2.v20130107-165834',
             "org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}" : '3.100.1.v4236b',
             'org.eclipse.swtbot.eclipse.finder' : '2.2.1.201402241301',
-            'org.eclipse.swtbot.junit4_x' : '2.2.1.201402241301',
-            "com.gradleware.tooling.utils" : "0.3.0.201504241116",
-            "com.gradleware.tooling.client" : "0.3.0.201504241116",
-            "com.gradleware.tooling.model" : "0.3.0.201504241116",
-            "org.gradle.toolingapi" : "2.4.0.201504241116",
-            "org.slf4j.api" : "1.7.10.201504241116",
-            "org.slf4j.simple" : "1.7.10.201504241116",
-            "com.google.guava" : "18.0.0.201504241116",
-            "com.google.gson" : "2.2.4.v201311231704"
-        ]
+            'org.eclipse.swtbot.junit4_x' : '2.2.1.201402241301'
+        ] + eclipseVersionAgnosticDependencies
     }
 
     targetPlatform {
@@ -134,16 +122,8 @@ eclipseBuild {
             'org.eclipse.jdt.ui' : '3.9.2.v20131106-1600',
             "org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}" : '3.102.1.v20140206-1358',
             'org.eclipse.swtbot.eclipse.finder' : '2.2.1.201402241301',
-            'org.eclipse.swtbot.junit4_x' : '2.2.1.201402241301',
-            "com.gradleware.tooling.utils" : "0.3.0.201504241116",
-            "com.gradleware.tooling.client" : "0.3.0.201504241116",
-            "com.gradleware.tooling.model" : "0.3.0.201504241116",
-            "org.gradle.toolingapi" : "2.4.0.201504241116",
-            "org.slf4j.api" : "1.7.10.201504241116",
-            "org.slf4j.simple" : "1.7.10.201504241116",
-            "com.google.guava" : "18.0.0.201504241116",
-            "com.google.gson" : "2.2.4.v201311231704"
-        ]
+            'org.eclipse.swtbot.junit4_x' : '2.2.1.201402241301'
+        ] + eclipseVersionAgnosticDependencies
     }
 
     targetPlatform {
@@ -168,16 +148,8 @@ eclipseBuild {
             'org.eclipse.jdt.ui' : '3.10.2.v20141014-1419',
             "org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}" : '3.103.2.v20150203-1351',
             'org.eclipse.swtbot.eclipse.finder' : '2.2.1.201402241301',
-            'org.eclipse.swtbot.junit4_x' : '2.2.1.201402241301',
-            "com.gradleware.tooling.utils" : "0.3.0.201504241116",
-            "com.gradleware.tooling.client" : "0.3.0.201504241116",
-            "com.gradleware.tooling.model" : "0.3.0.201504241116",
-            "org.gradle.toolingapi" : "2.4.0.201504241116",
-            "org.slf4j.api" : "1.7.10.201504241116",
-            "org.slf4j.simple" : "1.7.10.201504241116",
-            "com.google.guava" : "18.0.0.201504241116",
-            "com.google.gson" : "2.2.4.v201311231704"
-        ]
+            'org.eclipse.swtbot.junit4_x' : '2.2.1.201402241301'
+        ] + eclipseVersionAgnosticDependencies
     }
 
     targetPlatform {
@@ -202,16 +174,8 @@ eclipseBuild {
             "org.eclipse.jdt.ui" : "3.11.0.v20150316-2042",
             "org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}" : "3.104.0.v20150319-1901",
             "org.eclipse.swtbot.eclipse.finder" : "2.2.1.201402241301",
-            "org.eclipse.swtbot.junit4_x" : "2.2.1.201402241301",
-            "com.gradleware.tooling.utils" : "0.3.0.201504241116",
-            "com.gradleware.tooling.client" : "0.3.0.201504241116",
-            "com.gradleware.tooling.model" : "0.3.0.201504241116",
-            "org.gradle.toolingapi" : "2.4.0.201504241116",
-            "org.slf4j.api" : "1.7.10.201504241116",
-            "org.slf4j.simple" : "1.7.10.201504241116",
-            "com.google.guava" : "18.0.0.201504241116",
-            "com.google.gson" : "2.2.4.v201311231704"
-        ]
+            "org.eclipse.swtbot.junit4_x" : "2.2.1.201402241301"
+        ] + eclipseVersionAgnosticDependencies
     }
 }
 
