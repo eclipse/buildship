@@ -45,11 +45,6 @@
           option="-Xmx"
           value="2048m"
           vm="true"/>
-      <setupTask
-          xsi:type="setup:EclipseIniTask"
-          option="-Doomph.redirection.buildship"
-          value="=https://raw.githubusercontent.com/eclipse/buildship/master/buildship.setup->${buildship.git.clone.location}/buildship.setup"
-          vm="true"/>
     </setupTask>
     <setupTask
         xsi:type="setup:CompoundTask"
