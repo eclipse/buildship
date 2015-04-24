@@ -70,6 +70,10 @@ class Config {
         new File(targetPlatformsDir, 'eclipse-sdk')
     }
 
+    File getJarProcessorJar() {
+        new File(eclipseSdkDir.path, '/eclipse/plugins').listFiles().find { it.name.startsWith ('org.eclipse.equinox.p2.jarprocessor_') }
+    }
+
     File getTargetPlatformDir() {
         new File(targetPlatformsDir, eclipseVersion)
     }

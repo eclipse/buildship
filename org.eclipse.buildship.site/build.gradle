@@ -7,7 +7,7 @@ buildscript {
 }
 
 updateSite {
-    extraResources = files('epl-v10.html', 'notice.html')
+    extraResources = files('epl-v10.html', 'notice.html', 'p2.index')
     p2ExtraProperties = collectP2ExtraProperties()
     signBundles = true
 }
