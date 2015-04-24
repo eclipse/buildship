@@ -12,6 +12,6 @@ dependencies {
     compile withEclipseBundle('org.eclipse.jdt.ui')
     compile withEclipseBundle("org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}")
 
-    compile withEclipseBundle("com.google.guava")
+    compile withEclipseBundle("com.gradleware.tooling.model")
 }
 
