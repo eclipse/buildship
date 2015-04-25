@@ -31,7 +31,7 @@ public final class FilterTaskSelectorsAction extends Action {
         super(null, AS_CHECK_BOX);
         this.taskViewer = Preconditions.checkNotNull(taskViewer);
 
-        setToolTipText(TaskViewMessages.Action_FilterTaskSelectors_Tooltip);
+        setText(TaskViewMessages.Action_FilterTaskSelectors_Text);
         setImageDescriptor(PluginImages.TASK.withState(ImageState.ENABLED).getOverlayImageDescriptor(
                 ImmutableList.of(PluginImages.OVERLAY_TASK_SELECTOR.withState(ImageState.ENABLED))));
         setChecked(taskViewer.getState().isTaskSelectorsVisible());
