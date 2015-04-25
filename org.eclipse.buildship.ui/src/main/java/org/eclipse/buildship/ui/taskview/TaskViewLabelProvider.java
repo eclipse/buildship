@@ -28,6 +28,9 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.themes.ITheme;
 
 import org.eclipse.buildship.ui.PluginImage.ImageState;
+import org.eclipse.buildship.ui.domain.ProjectNode;
+import org.eclipse.buildship.ui.domain.ProjectTaskNode;
+import org.eclipse.buildship.ui.domain.TaskSelectorNode;
 import org.eclipse.buildship.ui.PluginImageWithState;
 import org.eclipse.buildship.ui.PluginImages;
 

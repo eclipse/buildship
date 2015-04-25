@@ -19,7 +19,7 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
-import org.eclipse.buildship.ui.taskview.ProjectTaskNode;
+import org.eclipse.buildship.ui.domain.ProjectTaskNode;
 
 /**
  * Adapts a {@link ProjectTaskNode} instance to a {@link IPropertySource} instance.

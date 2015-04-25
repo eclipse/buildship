@@ -14,6 +14,8 @@ package org.eclipse.buildship.ui.taskview;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
+import org.eclipse.buildship.ui.domain.TaskNode;
+
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 

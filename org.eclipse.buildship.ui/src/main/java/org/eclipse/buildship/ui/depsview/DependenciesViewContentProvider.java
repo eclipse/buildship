@@ -9,14 +9,28 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.taskview;
+package org.eclipse.buildship.ui.depsview;
 
 import java.util.List;
+
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.console.ProcessStreamsProvider;
+import org.eclipse.buildship.core.gradle.Specs;
+import org.eclipse.buildship.core.model.LoadEclipseGradleBuildsJob;
+import org.eclipse.buildship.core.workspace.WorkspaceOperations;
+import org.eclipse.buildship.ui.domain.DependencyNode;
+import org.eclipse.buildship.ui.domain.ProjectNode;
+import org.eclipse.buildship.ui.taskview.TaskViewContent;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.widgets.Display;
 
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.events.test.TestProgressListener;
+import org.gradle.tooling.TestProgressListener;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -27,9 +41,8 @@ import com.google.common.collect.Lists;
 import com.gradleware.tooling.toolingclient.Consumer;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
+import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
-import com.gradleware.tooling.toolingmodel.OmniProjectTask;
-import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
 import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
@@ -37,40 +50,21 @@ import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.swt.widgets.Display;
-
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.console.ProcessStreamsProvider;
-import org.eclipse.buildship.core.gradle.Specs;
-import org.eclipse.buildship.core.model.LoadEclipseGradleBuildsJob;
-import org.eclipse.buildship.core.workspace.WorkspaceOperations;
-import org.eclipse.buildship.ui.domain.ProjectNode;
-import org.eclipse.buildship.ui.domain.ProjectTaskNode;
-import org.eclipse.buildship.ui.domain.TaskNode;
-import org.eclipse.buildship.ui.domain.TaskSelectorNode;
-
 /**
- * Content provider for the {@link TaskView}.
- * <p>
- * The 'UI-model' behind the task view provided by this class are nodes; {@link ProjectNode},
- * {@link ProjectTaskNode} and {@link TaskSelectorNode}. With this we can connect the mode and the
- * UI elements.
+ * Content provider for the {@link DependenciesView}.
  */
-public final class TaskViewContentProvider implements ITreeContentProvider {
+public final class DependenciesViewContentProvider implements ITreeContentProvider {
 
     private static final Object[] NO_CHILDREN = new Object[0];
 
-    private final TaskView taskView;
+    private final DependenciesView dependenciesView;
     private final ModelRepositoryProvider modelRepositoryProvider;
     private final ProcessStreamsProvider processStreamsProvider;
     private final WorkspaceOperations workspaceOperations;
 
-    public TaskViewContentProvider(TaskView taskView, ModelRepositoryProvider modelRepositoryProvider, ProcessStreamsProvider processStreamsProvider,
+    DependenciesViewContentProvider(DependenciesView dependenciesView, ModelRepositoryProvider modelRepositoryProvider, ProcessStreamsProvider processStreamsProvider,
             WorkspaceOperations workspaceOperations) {
-        this.taskView = Preconditions.checkNotNull(taskView);
+        this.dependenciesView = dependenciesView;
         this.modelRepositoryProvider = Preconditions.checkNotNull(modelRepositoryProvider);
         this.processStreamsProvider = Preconditions.checkNotNull(processStreamsProvider);
         this.workspaceOperations = Preconditions.checkNotNull(workspaceOperations);
@@ -88,7 +82,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         // through TaskView#setInput(TaskViewContent)
         TaskViewContent content = TaskViewContent.class.cast(newInput);
         LoadEclipseGradleBuildsJob loadEclipseGradleBuildsJob = new LoadEclipseGradleBuildsJob(this.modelRepositoryProvider, this.processStreamsProvider,
-                content.getModelFetchStrategy(), content.getRootProjectConfigurations(), new LoadEclipseGradleBuildPostProcess(this.taskView));
+                content.getModelFetchStrategy(), content.getRootProjectConfigurations(), new LoadEclipseGradleBuildPostProcess(this.dependenciesView));
         loadEclipseGradleBuildsJob.schedule();
     }
 
@@ -138,7 +132,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         // find the native Eclipse project in the Eclipse workspace
         // (search by the name defined on the OmniEclipseProject since this is
         // the name we use to create a native Eclipse project)
-        Optional<IProject> workspaceProject = TaskViewContentProvider.this.workspaceOperations.findProjectByName(eclipseProject.getName());
+        Optional<IProject> workspaceProject = DependenciesViewContentProvider.this.workspaceOperations.findProjectByName(eclipseProject.getName());
 
         // create a new node for the given Eclipse project and then recurse into the children
         ProjectNode projectNode = new ProjectNode(parentProjectNode, eclipseProject, gradleProject, workspaceProject);
@@ -159,22 +153,19 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
     }
 
     private Object[] childrenOf(ProjectNode projectNode) {
-        ImmutableList.Builder<TaskNode> result = ImmutableList.builder();
-        for (OmniProjectTask projectTask : projectNode.getGradleProject().getProjectTasks()) {
-            result.add(new ProjectTaskNode(projectNode, projectTask));
+        ImmutableList.Builder<DependencyNode> result = ImmutableList.builder();
+        for (OmniExternalDependency dependency : projectNode.getEclipseProject().getExternalDependencies()) {
+            result.add(new DependencyNode(projectNode, dependency));
         }
-        for (OmniTaskSelector taskSelector : projectNode.getGradleProject().getTaskSelectors()) {
-            result.add(new TaskSelectorNode(projectNode, taskSelector));
-        }
-        return FluentIterable.from(result.build()).toArray(TaskNode.class);
+        return FluentIterable.from(result.build()).toArray(DependencyNode.class);
     }
 
     @Override
     public Object getParent(Object element) {
         if (element instanceof ProjectNode) {
             return ((ProjectNode) element).getParentProjectNode();
-        } else if (element instanceof TaskNode) {
-            return ((TaskNode) element).getParentProjectNode();
+        } else if (element instanceof DependencyNode) {
+            return ((DependencyNode) element).getParentProjectNode();
         } else {
             return null;
         }
@@ -189,10 +180,10 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
      */
     private static final class LoadEclipseGradleBuildPostProcess implements Consumer<Optional<OmniEclipseGradleBuild>> {
 
-        private final TaskView taskView;
+        private final DependenciesView dependenciesView;
 
-        private LoadEclipseGradleBuildPostProcess(TaskView taskView) {
-            this.taskView = taskView;
+        private LoadEclipseGradleBuildPostProcess(DependenciesView dependenciesView) {
+            this.dependenciesView = Preconditions.checkNotNull(dependenciesView);
         }
 
         @Override
@@ -204,11 +195,9 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
                 @Override
                 public void run() {
                     // todo (etst) only refresh the node that corresponds to the loaded Gradle build
-                    LoadEclipseGradleBuildPostProcess.this.taskView.refresh();
+                    LoadEclipseGradleBuildPostProcess.this.dependenciesView.refresh();
                 }
             });
         }
-
     }
-
 }

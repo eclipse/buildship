@@ -14,6 +14,10 @@ package org.eclipse.buildship.ui.taskview;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 
+import org.eclipse.buildship.ui.domain.ProjectNode;
+import org.eclipse.buildship.ui.domain.ProjectTaskNode;
+import org.eclipse.buildship.ui.domain.TaskNode;
+import org.eclipse.buildship.ui.domain.TaskSelectorNode;
 import org.eclipse.buildship.ui.generic.NodeSelection;
 
 /**

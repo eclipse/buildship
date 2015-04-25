@@ -9,10 +9,10 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.taskview;
+package org.eclipse.buildship.ui.domain;
 
 /**
- * Describes the common features of all task nodes.
+ * Common domain interface for representing project tasks and task selectors.
  */
 public interface TaskNode {
 

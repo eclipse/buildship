@@ -28,6 +28,10 @@ import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
+import org.eclipse.buildship.ui.domain.ProjectNode;
+import org.eclipse.buildship.ui.domain.ProjectTaskNode;
+import org.eclipse.buildship.ui.domain.TaskNode;
+import org.eclipse.buildship.ui.domain.TaskSelectorNode;
 import org.eclipse.buildship.ui.generic.NodeSelection;
 
 /**

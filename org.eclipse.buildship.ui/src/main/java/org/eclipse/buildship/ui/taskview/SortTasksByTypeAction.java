@@ -18,6 +18,7 @@ import org.eclipse.jface.action.IAction;
 
 import org.eclipse.buildship.ui.PluginImage;
 import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.buildship.ui.domain.TaskNode;
 
 /**
  * An action on the {@link TaskView} to include the type of the task node in the sort criteria.

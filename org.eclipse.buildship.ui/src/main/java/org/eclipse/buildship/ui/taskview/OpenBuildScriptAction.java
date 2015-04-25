@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.ui.taskview;
 
+import org.eclipse.buildship.ui.domain.ProjectNode;
 import org.eclipse.buildship.ui.generic.CommandBackedAction;
 import org.eclipse.buildship.ui.generic.NodeSelection;
 import org.eclipse.buildship.ui.generic.SelectionSpecificAction;
