@@ -34,9 +34,10 @@ import org.eclipse.buildship.ui.generic.SelectionSpecificAction;
  */
 public final class UiContributionManager {
 
-    private static final String TASK_MISC_GROUP = "taskMiscGroup";
-    private static final String TASK_FILTERING_GROUP = "taskFilteringGroup";
-    private static final String TASK_SORTING_GROUP = "taskSortingGroup";
+    private static final String TOOLBAR_MISC_GROUP = "toolbarMiscGroup";
+    private static final String MENU_SORTING_GROUP = "toolbarSortingGroup";
+    private static final String MENU_FILTERING_GROUP = "menuFilteringGroup";
+    private static final String MENU_MISC_GROUP = "menuMiscGroup";
 
     private final TaskView taskView;
     private final ImmutableList<SelectionSpecificAction> managedActions;
@@ -55,7 +56,7 @@ public final class UiContributionManager {
         RunDefaultTasksAction runDefaultTasksAction = new RunDefaultTasksAction(UiPluginConstants.RUN_DEFAULT_TASKS_COMMAND_ID);
         OpenRunConfigurationAction openRunConfigurationAction = new OpenRunConfigurationAction(UiPluginConstants.OPEN_RUN_CONFIGURATION_COMMAND_ID);
         OpenBuildScriptAction openBuildScriptAction = new OpenBuildScriptAction(UiPluginConstants.OPEN_BUILD_SCRIPT_COMMAND_ID);
-        this.managedActions = ImmutableList.<SelectionSpecificAction>of(runTasksAction, runDefaultTasksAction, openRunConfigurationAction, openBuildScriptAction);
+        this.managedActions = ImmutableList.<SelectionSpecificAction> of(runTasksAction, runDefaultTasksAction, openRunConfigurationAction, openBuildScriptAction);
 
         this.managedActionsSelectionChangedListener = new ActionEnablingSelectionChangedListener(taskView.getTreeViewer(), this.managedActions);
         this.treeViewerSelectionChangeListener = new TreeViewerSelectionChangeListener(taskView);
@@ -77,22 +78,22 @@ public final class UiContributionManager {
 
     private void fillToolbar() {
         IToolBarManager manager = this.taskView.getViewSite().getActionBars().getToolBarManager();
-
-        manager.add(new GroupMarker(TASK_MISC_GROUP));
-        manager.appendToGroup(TASK_MISC_GROUP, new RefreshViewAction(UiPluginConstants.REFRESH_TASKVIEW_COMMAND_ID));
-        manager.appendToGroup(TASK_MISC_GROUP, new ToggleLinkToSelectionAction(this.taskView));
-        manager.add(new Separator(TASK_FILTERING_GROUP));
-        manager.appendToGroup(TASK_FILTERING_GROUP, new FilterTaskSelectorsAction(this.taskView));
-        manager.appendToGroup(TASK_FILTERING_GROUP, new FilterProjectTasksAction(this.taskView));
-        manager.appendToGroup(TASK_FILTERING_GROUP, new FilterPrivateTasksAction(this.taskView));
-        manager.add(new Separator(TASK_SORTING_GROUP));
-        manager.appendToGroup(TASK_SORTING_GROUP, new SortTasksByTypeAction(this.taskView));
-        manager.appendToGroup(TASK_SORTING_GROUP, new SortTasksByVisibilityAction(this.taskView));
+        manager.add(new GroupMarker(TOOLBAR_MISC_GROUP));
+        manager.appendToGroup(TOOLBAR_MISC_GROUP, new RefreshViewAction(UiPluginConstants.REFRESH_TASKVIEW_COMMAND_ID));
+        manager.appendToGroup(TOOLBAR_MISC_GROUP, new ToggleLinkToSelectionAction(this.taskView));
     }
 
     private void fillMenu() {
         IMenuManager manager = this.taskView.getViewSite().getActionBars().getMenuManager();
-        manager.add(new ToggleShowTreeHeaderAction(this.taskView));
+        manager.add(new Separator(MENU_FILTERING_GROUP));
+        manager.appendToGroup(MENU_FILTERING_GROUP, new FilterTaskSelectorsAction(this.taskView));
+        manager.appendToGroup(MENU_FILTERING_GROUP, new FilterProjectTasksAction(this.taskView));
+        manager.appendToGroup(MENU_FILTERING_GROUP, new FilterPrivateTasksAction(this.taskView));
+        manager.add(new Separator(MENU_SORTING_GROUP));
+        manager.appendToGroup(MENU_SORTING_GROUP, new SortTasksByTypeAction(this.taskView));
+        manager.appendToGroup(MENU_SORTING_GROUP, new SortTasksByVisibilityAction(this.taskView));
+        manager.add(new Separator(MENU_MISC_GROUP));
+        manager.appendToGroup(MENU_MISC_GROUP, new ToggleShowTreeHeaderAction(this.taskView));
     }
 
     private void fillContextMenu() {

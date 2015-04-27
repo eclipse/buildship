@@ -26,24 +26,29 @@ public final class TaskViewMessages extends NLS {
     public static String Tree_Column_Name_Text;
     public static String Tree_Column_Description_Text;
 
+    // context menu entries
+
     public static String Action_RunTasks_Text;
     public static String Action_RunDefaultTasks_Text;
     public static String Action_OpenRunConfiguration_Text;
     public static String Action_OpenBuildScript_Text;
     public static String Action_Refresh_Text;
-    public static String Action_ShowTreeHeader_Text;
 
-    public static String Action_FilterProjectTasks_Tooltip;
-    public static String Action_FilterTaskSelectors_Tooltip;
-    public static String Action_FilterPrivateTasks_Tooltip;
-    public static String Action_SortByType_Tooltip;
-    public static String Action_SortByVisibility_Tooltip;
     public static String Action_RunTasks_Tooltip;
     public static String Action_RunDefaultTasks_Tooltip;
     public static String Action_OpenRunConfiguration_Tooltip;
     public static String Action_OpenBuildScript_Tooltip;
     public static String Action_Refresh_Tooltip;
     public static String Action_LinkToSelection_Tooltip;
+
+    // toolbar menu entries
+
+    public static String Action_FilterProjectTasks_Text;
+    public static String Action_FilterTaskSelectors_Text;
+    public static String Action_FilterPrivateTasks_Text;
+    public static String Action_SortByType_Text;
+    public static String Action_SortByVisibility_Text;
+    public static String Action_ShowTreeHeader_Text;
 
     static {
         // initialize resource bundle

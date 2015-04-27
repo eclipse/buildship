@@ -44,7 +44,7 @@ public final class TaskViewState {
         // in Eclipse 3.6 the method InstanceScope.INSTANCE does not exist
         @SuppressWarnings("deprecation")
         IEclipsePreferences prefs = new InstanceScope().getNode(UiPlugin.PLUGIN_ID);
-        this.projectTasksVisible = prefs.getBoolean(this.PREF_PROJECT_TASKS_VISIBLE, true);
+        this.projectTasksVisible = prefs.getBoolean(this.PREF_PROJECT_TASKS_VISIBLE, false);
         this.taskSelectorsVisible = prefs.getBoolean(this.PREF_TASK_SELECTORS_VISIBLE, true);
         this.privateTasksVisible = prefs.getBoolean(this.PREF_PRIVATE_TASKS_VISIBLE, false);
         this.sortByType = prefs.getBoolean(this.PREF_SORT_BY_TYPE, true);
