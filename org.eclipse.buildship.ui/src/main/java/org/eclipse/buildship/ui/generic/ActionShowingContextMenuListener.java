@@ -47,6 +47,7 @@ public final class ActionShowingContextMenuListener implements IMenuListener {
         for (SelectionSpecificAction action : this.actions) {
             if (action.isVisibleFor(selection)) {
                 manager.add(action);
+                action.setEnabled(action.isEnabledFor(selection));
             }
         }
     }

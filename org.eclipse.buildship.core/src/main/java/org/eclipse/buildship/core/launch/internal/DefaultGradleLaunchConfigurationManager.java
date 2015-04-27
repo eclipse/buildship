@@ -45,11 +45,13 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
     @Override
     public ILaunchConfiguration getOrCreateRunConfiguration(GradleRunConfigurationAttributes configurationAttributes) {
         Preconditions.checkNotNull(configurationAttributes);
-        Optional<ILaunchConfiguration> launchConfiguration = findLaunchConfiguration(configurationAttributes);
+        Optional<ILaunchConfiguration> launchConfiguration = getRunConfiguration(configurationAttributes);
         return launchConfiguration.isPresent() ? launchConfiguration.get() : createLaunchConfiguration(configurationAttributes);
     }
 
-    private Optional<ILaunchConfiguration> findLaunchConfiguration(GradleRunConfigurationAttributes configurationAttributes) {
+
+    @Override
+    public Optional<ILaunchConfiguration> getRunConfiguration(GradleRunConfigurationAttributes configurationAttributes) {
         for (ILaunchConfiguration launchConfiguration : getGradleLaunchConfigurations()) {
             if (configurationAttributes.hasSameUniqueAttributes(launchConfiguration)) {
                 return Optional.of(launchConfiguration);

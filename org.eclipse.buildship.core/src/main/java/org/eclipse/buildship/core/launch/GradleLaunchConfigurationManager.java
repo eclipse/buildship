@@ -11,12 +11,24 @@
 
 package org.eclipse.buildship.core.launch;
 
+import com.google.common.base.Optional;
+
 import org.eclipse.debug.core.ILaunchConfiguration;
 
 /**
  * Manages the interactions with the Gradle {@link ILaunchConfiguration} instances.
  */
 public interface GradleLaunchConfigurationManager {
+
+    /**
+     * Returns an existing {@link ILaunchConfiguration} instance corresponding to the specified
+     * {@link GradleRunConfigurationAttributes}.
+     *
+     * @param configurationAttributes the run configuration attributes to look up
+     * @return an existing Gradle run configuration or {@link Optional#absent()} if no such
+     *         ILaunchConfiguration exists
+     */
+    Optional<ILaunchConfiguration> getRunConfiguration(GradleRunConfigurationAttributes configurationAttributes);
 
     /**
      * Returns either a new Gradle {@link ILaunchConfiguration} instance or an existing one,

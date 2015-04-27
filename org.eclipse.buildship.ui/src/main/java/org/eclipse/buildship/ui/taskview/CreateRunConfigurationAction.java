@@ -24,12 +24,12 @@ import org.eclipse.buildship.ui.generic.SelectionSpecificAction;
 /**
  * Opens an existing run configuration for the selected Gradle tasks.
  */
-public final class OpenRunConfigurationAction extends CommandBackedAction implements SelectionSpecificAction {
+public final class CreateRunConfigurationAction extends CommandBackedAction implements SelectionSpecificAction {
 
-    public OpenRunConfigurationAction(String commandId) {
+    public CreateRunConfigurationAction(String commandId) {
         super(commandId);
-        setText(TaskViewMessages.Action_OpenRunConfiguration_Text);
-        setToolTipText(TaskViewMessages.Action_OpenRunConfiguration_Tooltip);
+        setText(TaskViewMessages.Action_CreateRunConfiguration_Text);
+        setToolTipText(TaskViewMessages.Action_CreateRunConfiguration_Tooltip);
     }
 
     @Override
@@ -46,6 +46,6 @@ public final class OpenRunConfigurationAction extends CommandBackedAction implem
         Optional<GradleRunConfigurationAttributes> attributes = TaskNodeSelectionUtils.getRunConfigurationAttributes(selection);
         Optional<ILaunchConfiguration> launchConfiguration = attributes.isPresent() ? CorePlugin.gradleLaunchConfigurationManager().getRunConfiguration(attributes.get())
                 : Optional.<ILaunchConfiguration> absent();
-        return (TaskViewActionStateRules.taskScopedTaskExecutionActionsEnabledFor(selection) || TaskViewActionStateRules.projectScopedTaskExecutionActionsEnabledFor(selection)) && launchConfiguration.isPresent();
+        return (TaskViewActionStateRules.taskScopedTaskExecutionActionsEnabledFor(selection) || TaskViewActionStateRules.projectScopedTaskExecutionActionsEnabledFor(selection)) && !launchConfiguration.isPresent();
     }
 }

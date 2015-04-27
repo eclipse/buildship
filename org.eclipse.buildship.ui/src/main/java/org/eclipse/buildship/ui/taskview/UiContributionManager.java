@@ -54,9 +54,11 @@ public final class UiContributionManager {
         // add selection-sensitive actions
         RunTasksAction runTasksAction = new RunTasksAction(UiPluginConstants.RUN_TASKS_COMMAND_ID);
         RunDefaultTasksAction runDefaultTasksAction = new RunDefaultTasksAction(UiPluginConstants.RUN_DEFAULT_TASKS_COMMAND_ID);
+        CreateRunConfigurationAction createRunConfigurationAction = new CreateRunConfigurationAction(UiPluginConstants.OPEN_RUN_CONFIGURATION_COMMAND_ID);
         OpenRunConfigurationAction openRunConfigurationAction = new OpenRunConfigurationAction(UiPluginConstants.OPEN_RUN_CONFIGURATION_COMMAND_ID);
         OpenBuildScriptAction openBuildScriptAction = new OpenBuildScriptAction(UiPluginConstants.OPEN_BUILD_SCRIPT_COMMAND_ID);
-        this.managedActions = ImmutableList.<SelectionSpecificAction> of(runTasksAction, runDefaultTasksAction, openRunConfigurationAction, openBuildScriptAction);
+        this.managedActions = ImmutableList
+                .<SelectionSpecificAction> of(runTasksAction, runDefaultTasksAction, createRunConfigurationAction, openRunConfigurationAction, openBuildScriptAction);
 
         this.managedActionsSelectionChangedListener = new ActionEnablingSelectionChangedListener(taskView.getTreeViewer(), this.managedActions);
         this.treeViewerSelectionChangeListener = new TreeViewerSelectionChangeListener(taskView);
