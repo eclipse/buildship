@@ -33,7 +33,7 @@ public final class SortTasksByVisibilityAction extends Action {
         super(null, IAction.AS_CHECK_BOX);
         this.taskView = Preconditions.checkNotNull(taskView);
 
-        setToolTipText(TaskViewMessages.Action_SortByVisibility_Tooltip);
+        setText(TaskViewMessages.Action_SortByVisibility_Text);
         setImageDescriptor(PluginImages.SORT_BY_VISIBILITY.withState(PluginImage.ImageState.ENABLED).getImageDescriptor());
         setChecked(taskView.getState().isSortByVisibility());
     }

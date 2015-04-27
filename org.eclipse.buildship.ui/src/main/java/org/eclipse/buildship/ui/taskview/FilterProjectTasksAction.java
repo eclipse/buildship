@@ -31,7 +31,7 @@ public final class FilterProjectTasksAction extends Action {
         super(null, AS_CHECK_BOX);
         this.taskViewer = Preconditions.checkNotNull(taskViewer);
 
-        setToolTipText(TaskViewMessages.Action_FilterProjectTasks_Tooltip);
+        setText(TaskViewMessages.Action_FilterProjectTasks_Text);
         setImageDescriptor(PluginImages.TASK.withState(PluginImage.ImageState.ENABLED).getOverlayImageDescriptor(
                 ImmutableList.of(PluginImages.OVERLAY_PROJECT_TASK.withState(PluginImage.ImageState.ENABLED))));
         setChecked(taskViewer.getState().isProjectTasksVisible());
