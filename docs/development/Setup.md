@@ -74,14 +74,6 @@ finished, the source code will be compiled against the new target platform.
 
 ## Manual setup (deprecated)
 
-We have a custom-packaged Eclipse distribution for development, but the latest Eclipse for RCP Developers package should be fine, too.
-
-Our custom-packaged Eclipse distribution is available
-at [http://dev1.gradle.org:8000/eclipse/distro](http://dev1.gradle.org:8000/eclipse/distro).
-
-If you do not use our custom-packaged Eclipse distribution, we suggest to still import our project preferences which are available
-at [http://dev1.gradle.org:8000/eclipse/config/formatter.epf](http://dev1.gradle.org:8000/eclipse/config/formatter.epf).
-
 ### Getting the source code
 
 The project and its source code is hosted on GitHub: `https://github.com/eclipse/buildship`.
