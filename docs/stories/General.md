@@ -1,6 +1,6 @@
 # General
 
-## Fill info on eclipse.org
+## ~~Fill info on eclipse.org~~
 
 ### Requested Change
 
