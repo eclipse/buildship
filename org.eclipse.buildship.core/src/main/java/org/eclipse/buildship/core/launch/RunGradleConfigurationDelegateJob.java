@@ -20,6 +20,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+import com.gradleware.tooling.toolingclient.LaunchableConfig;
+import com.gradleware.tooling.toolingclient.ToolingClient;
 import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.BuildException;
 import org.gradle.tooling.events.test.TestProgressEvent;
@@ -32,11 +36,6 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingclient.LaunchableConfig;
-import com.gradleware.tooling.toolingclient.ToolingClient;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -51,6 +50,8 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.event.BuildLaunchRequestEvent;
+import org.eclipse.buildship.core.event.internal.DefaultBuildLaunchRequestEvent;
 import org.eclipse.buildship.core.gradle.GradleDistributionFormatter;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.testprogress.GradleTestRunSession;
@@ -141,6 +142,10 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         if (testProgressListener.isPresent()) {
             request.testProgressListeners(testProgressListener.get());
         }
+
+        // Send BuildLaunchRequestEvent
+        BuildLaunchRequestEvent buildLaunchEvent = new DefaultBuildLaunchRequestEvent(this, request);
+        CorePlugin.eventBus().post(buildLaunchEvent);
 
         // launch the build (optionally with test execution progress being tracked)
         if (testProgressListener.isPresent()) {

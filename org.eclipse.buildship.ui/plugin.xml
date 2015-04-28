@@ -53,6 +53,15 @@
             name="Gradle Tasks"
             restorable="true">
       </view>
+      <view
+            allowMultiple="true"
+            category="org.eclipse.buildship.ui.views"
+            class="org.eclipse.buildship.ui.progressview.ProgressView"
+            icon="icons/full/eview16/tasks.png"
+            id="org.eclipse.buildship.ui.views.progressview"
+            name="Gradle Progress"
+            restorable="true">
+      </view>
       <category
             id="org.eclipse.buildship.ui.views"
             name="Gradle">

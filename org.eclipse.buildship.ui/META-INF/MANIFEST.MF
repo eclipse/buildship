@@ -17,6 +17,11 @@ Require-Bundle: org.eclipse.buildship.core,
  org.eclipse.ui.views,
  org.eclipse.debug.ui,
  org.eclipse.jdt.ui,
- com.gradleware.tooling.model;bundle-version="0.3.0"
+ com.gradleware.tooling.model;bundle-version="0.3.0",
+ com.ibm.icu,
+ org.eclipse.core.databinding,
+ org.eclipse.core.databinding.beans,
+ org.eclipse.core.databinding.property,
+ org.eclipse.jface.databinding
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .

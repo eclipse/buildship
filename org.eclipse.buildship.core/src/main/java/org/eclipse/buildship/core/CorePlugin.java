@@ -14,19 +14,6 @@ package org.eclipse.buildship.core;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.util.tracker.ServiceTracker;
-
-import com.gradleware.tooling.toolingclient.ToolingClient;
-import com.gradleware.tooling.toolingmodel.repository.Environment;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
-import com.gradleware.tooling.toolingmodel.repository.internal.DefaultModelRepositoryProvider;
-import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
-
-import org.eclipse.core.runtime.Plugin;
-
 import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
 import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigurationManager;
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
@@ -38,6 +25,18 @@ import org.eclipse.buildship.core.workbench.WorkbenchOperations;
 import org.eclipse.buildship.core.workbench.internal.EmptyWorkbenchOperations;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 import org.eclipse.buildship.core.workspace.internal.DefaultWorkspaceOperations;
+import org.eclipse.core.runtime.Plugin;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.util.tracker.ServiceTracker;
+
+import com.google.common.eventbus.EventBus;
+import com.gradleware.tooling.toolingclient.ToolingClient;
+import com.gradleware.tooling.toolingmodel.repository.Environment;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
+import com.gradleware.tooling.toolingmodel.repository.internal.DefaultModelRepositoryProvider;
+import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
 
 /**
  * The plug-in runtime class for the Gradle integration plugin containing the non-UI elements.
@@ -75,6 +74,7 @@ public final class CorePlugin extends Plugin {
     private ServiceRegistration processStreamsProviderService;
     private ServiceRegistration gradleLaunchConfigurationService;
     private ServiceRegistration workbenchOperationsService;
+    private ServiceRegistration eventBusService;
 
     // service tracker for each service to allow to register other service implementations of the
     // same type but with higher prioritization, useful for testing
@@ -86,6 +86,7 @@ public final class CorePlugin extends Plugin {
     private ServiceTracker processStreamsProviderServiceTracker;
     private ServiceTracker gradleLaunchConfigurationServiceTracker;
     private ServiceTracker workbenchOperationsServiceTracker;
+    private ServiceTracker eventBusServiceTracker;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
@@ -116,7 +117,8 @@ public final class CorePlugin extends Plugin {
         this.processStreamsProviderServiceTracker = createServiceTracker(context, ProcessStreamsProvider.class);
         this.gradleLaunchConfigurationServiceTracker = createServiceTracker(context, GradleLaunchConfigurationManager.class);
         this.workbenchOperationsServiceTracker = createServiceTracker(context, WorkbenchOperations.class);
-
+        this.eventBusServiceTracker = createServiceTracker(context, EventBus.class);
+        
         // register all services
         this.loggerService = registerService(context, Logger.class, createLogger(), preferences);
         this.publishedGradleVersionsService = registerService(context, PublishedGradleVersions.class, createPublishedGradleVersions(), preferences);
@@ -126,6 +128,7 @@ public final class CorePlugin extends Plugin {
         this.processStreamsProviderService = registerService(context, ProcessStreamsProvider.class, createProcessStreamsProvider(), preferences);
         this.gradleLaunchConfigurationService = registerService(context, GradleLaunchConfigurationManager.class, createGradleLaunchConfigurationManager(), preferences);
         this.workbenchOperationsService = registerService(context, WorkbenchOperations.class, createWorkbenchOperations(), preferences);
+        this.eventBusService = registerService(context, EventBus.class, createEventBus(), preferences);
     }
 
     private ServiceTracker createServiceTracker(BundleContext context, Class<?> clazz) {
@@ -172,7 +175,11 @@ public final class CorePlugin extends Plugin {
         return new EmptyWorkbenchOperations();
     }
 
-    private void unregisterServices() {
+    private EventBus createEventBus() {
+		return new EventBus("Buildship-Core");
+	}
+
+	private void unregisterServices() {
         this.workbenchOperationsService.unregister();
         this.gradleLaunchConfigurationService.unregister();
         this.processStreamsProviderService.unregister();
@@ -181,6 +188,7 @@ public final class CorePlugin extends Plugin {
         this.modelRepositoryProviderService.unregister();
         this.publishedGradleVersionsService.unregister();
         this.loggerService.unregister();
+        this.eventBusService.unregister();
 
         this.workbenchOperationsServiceTracker.close();
         this.gradleLaunchConfigurationServiceTracker.close();
@@ -190,6 +198,7 @@ public final class CorePlugin extends Plugin {
         this.modelRepositoryProviderServiceTracker.close();
         this.publishedGradleVersionsServiceTracker.close();
         this.loggerServiceTracker.close();
+        this.eventBusServiceTracker.close();
     }
 
     public static CorePlugin getInstance() {
@@ -226,6 +235,10 @@ public final class CorePlugin extends Plugin {
 
     public static WorkbenchOperations workbenchOperations() {
         return (WorkbenchOperations) getInstance().workbenchOperationsServiceTracker.getService();
+    }
+    
+    public static EventBus eventBus() {
+    	return (EventBus) getInstance().eventBusServiceTracker.getService();
     }
 
 }
