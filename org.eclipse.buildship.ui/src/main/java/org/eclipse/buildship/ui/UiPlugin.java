@@ -19,6 +19,7 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
@@ -27,6 +28,7 @@ import org.eclipse.buildship.core.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.util.logging.EclipseLogger;
 import org.eclipse.buildship.core.workbench.WorkbenchOperations;
 import org.eclipse.buildship.ui.console.ConsoleProcessStreamsProvider;
+import org.eclipse.buildship.ui.launch.ConsoleOpenerLaunchListener;
 import org.eclipse.buildship.ui.workbench.DefaultWorkbenchOperations;
 
 /**
@@ -48,17 +50,20 @@ public final class UiPlugin extends AbstractUIPlugin {
     private ServiceRegistration loggerService;
     private ServiceRegistration processStreamsProviderService;
     private ServiceRegistration workbenchOperationsService;
+    private ConsoleOpenerLaunchListener consoleOpenerLaunchListener;
 
     @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
         registerServices(context);
+        DebugPlugin.getDefault().getLaunchManager().addLaunchListener(this.consoleOpenerLaunchListener = new ConsoleOpenerLaunchListener());
         plugin = this;
     }
 
     @Override
     public void stop(BundleContext context) throws Exception {
         plugin = null;
+        DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(this.consoleOpenerLaunchListener);
         unregisterServices();
         super.stop(context);
     }

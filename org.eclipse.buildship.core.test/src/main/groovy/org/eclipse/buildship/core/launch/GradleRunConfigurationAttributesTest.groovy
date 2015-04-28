@@ -30,13 +30,14 @@ class GradleRunConfigurationAttributesTest extends Specification {
         'javaHome' : "/.java",
         'arguments' : ["-q"],
         'jvmArguments' : ["-ea"],
-        'visualize' :  true
+        'visualize' :  true,
+        'revealConsole' : true
     ]
 
 
     def "Can create a new valid instance"() {
         when:
-        def configuration = GradleRunConfigurationAttributes.with(atr.tasks, atr.workingDir, atr.gradleDistr, atr.gradleHome, atr.javaHome, atr.jvmArguments, atr.arguments, atr.visualize)
+        def configuration = GradleRunConfigurationAttributes.with(atr.tasks, atr.workingDir, atr.gradleDistr, atr.gradleHome, atr.javaHome, atr.jvmArguments, atr.arguments, atr.visualize, atr.revealConsole)
 
         then:
         // not null
@@ -50,6 +51,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         configuration.getJvmArguments() == atr.jvmArguments
         configuration.getArguments() == atr.arguments
         configuration.isVisualizeTestProgress() == atr.visualize
+        configuration.isRevealConsoleView() == atr.revealConsole
         // check calculated value
         configuration.getArgumentExpressions() == atr.arguments
         configuration.getJvmArgumentExpressions() == atr.jvmArguments
@@ -58,11 +60,9 @@ class GradleRunConfigurationAttributesTest extends Specification {
         configuration.getJavaHome().getAbsolutePath() == new File(atr.javaHome).getAbsolutePath()
     }
 
-
-
     def "Can create a new valid instance with valid null arguments"() {
         when:
-        def configuration = GradleRunConfigurationAttributes.with(tasks, workingDir, gradleDistr, gradleHome, javaHome, jvmArguments, arguments, visualize)
+        def configuration = GradleRunConfigurationAttributes.with(tasks, workingDir, gradleDistr, gradleHome, javaHome, jvmArguments, arguments, visualize, revealConsole)
 
         then:
         configuration != null
@@ -71,30 +71,30 @@ class GradleRunConfigurationAttributesTest extends Specification {
 
 
         where:
-        tasks     | workingDir     | gradleDistr     | gradleHome     | javaHome     | jvmArguments     | arguments     | visualize
-        atr.tasks | atr.workingDir | atr.gradleDistr | null           | atr.javaHome | atr.jvmArguments | atr.arguments | atr.visualize
-        atr.tasks | atr.workingDir | atr.gradleDistr | atr.gradleHome | null         | atr.jvmArguments | atr.arguments | atr.visualize
-        atr.tasks | atr.workingDir | atr.gradleDistr | null           | null         | atr.jvmArguments | atr.arguments | atr.visualize
+        tasks     | workingDir     | gradleDistr     | gradleHome     | javaHome     | jvmArguments     | arguments     | visualize     | revealConsole
+        atr.tasks | atr.workingDir | atr.gradleDistr | null           | atr.javaHome | atr.jvmArguments | atr.arguments | atr.visualize | atr.revealConsole
+        atr.tasks | atr.workingDir | atr.gradleDistr | atr.gradleHome | null         | atr.jvmArguments | atr.arguments | atr.visualize | atr.revealConsole
+        atr.tasks | atr.workingDir | atr.gradleDistr | null           | null         | atr.jvmArguments | atr.arguments | atr.visualize | atr.revealConsole
     }
 
     def "Creation fails when null argument passed"() {
         when:
-        GradleRunConfigurationAttributes.with(tasks, workingDir, gradleDistr, gradleHome, javaHome, jvmArguments, arguments, visualize)
+        GradleRunConfigurationAttributes.with(tasks, workingDir, gradleDistr, gradleHome, javaHome, jvmArguments, arguments, visualize, revealConsole)
 
         then:
         thrown(RuntimeException)
 
         where:
-        tasks     | workingDir     | gradleDistr     | gradleHome     | javaHome     | jvmArguments     | arguments     | visualize
-        null      | atr.workingDir | atr.gradleDistr | atr.gradleHome | atr.javaHome | atr.jvmArguments | atr.arguments | atr.visualize
-        atr.tasks | null           | atr.gradleDistr | atr.gradleHome | atr.javaHome | atr.jvmArguments | atr.arguments | atr.visualize
-        atr.tasks | atr.workingDir | atr.gradleDistr | atr.gradleHome | atr.javaHome | null             | atr.arguments | atr.visualize
-        atr.tasks | atr.workingDir | atr.gradleDistr | atr.gradleHome | atr.javaHome | atr.jvmArguments | null          | atr.visualize
+        tasks     | workingDir     | gradleDistr     | gradleHome     | javaHome     | jvmArguments     | arguments     | visualize     | revealConsole
+        null      | atr.workingDir | atr.gradleDistr | atr.gradleHome | atr.javaHome | atr.jvmArguments | atr.arguments | atr.visualize | atr.revealConsole
+        atr.tasks | null           | atr.gradleDistr | atr.gradleHome | atr.javaHome | atr.jvmArguments | atr.arguments | atr.visualize | atr.revealConsole
+        atr.tasks | atr.workingDir | atr.gradleDistr | atr.gradleHome | atr.javaHome | null             | atr.arguments | atr.visualize | atr.revealConsole
+        atr.tasks | atr.workingDir | atr.gradleDistr | atr.gradleHome | atr.javaHome | atr.jvmArguments | null          | atr.visualize | atr.revealConsole
     }
 
     def "Expressions can be resolved in the parameters"() {
         when:
-        def configuration = GradleRunConfigurationAttributes.with(atr.tasks, '${workspace_loc}/working_dir', atr.gradleDistr, '${workspace_loc}/gradle_user_home', '${workspace_loc}/java_home', atr.jvmArguments, atr.arguments, atr.visualize)
+        def configuration = GradleRunConfigurationAttributes.with(atr.tasks, '${workspace_loc}/working_dir', atr.gradleDistr, '${workspace_loc}/gradle_user_home', '${workspace_loc}/java_home', atr.jvmArguments, atr.arguments, atr.visualize, atr.revealConsole)
 
         then:
         configuration.getWorkingDir().getPath().endsWith("working_dir")
@@ -107,7 +107,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
 
     def "Unresolvable expressions in Java home results in runtime exception"() {
         setup:
-        def configuration = GradleRunConfigurationAttributes.with(atr.tasks, atr.workingDir, atr.gradleDistr, atr.gradleHome, '${nonexistingvariable}/java_home', atr.jvmArguments, atr.arguments, atr.visualize)
+        def configuration = GradleRunConfigurationAttributes.with(atr.tasks, atr.workingDir, atr.gradleDistr, atr.gradleHome, '${nonexistingvariable}/java_home', atr.jvmArguments, atr.arguments, atr.visualize, atr.revealConsole)
 
         when:
         configuration.getJavaHome()
@@ -119,7 +119,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
 
     def "Unresolvable expressions in Gradle user home results in runtime exception"() {
         setup:
-        def configuration = GradleRunConfigurationAttributes.with(atr.tasks, atr.workingDir, atr.gradleDistr, '${nonexistingvariable}/gradle_user_home', atr.javaHome, atr.jvmArguments, atr.arguments, atr.visualize)
+        def configuration = GradleRunConfigurationAttributes.with(atr.tasks, atr.workingDir, atr.gradleDistr, '${nonexistingvariable}/gradle_user_home', atr.javaHome, atr.jvmArguments, atr.arguments, atr.visualize, atr.revealConsole)
 
         when:
         configuration.getGradleUserHome()
@@ -131,7 +131,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
 
     def "Unresolvable expressions in working directory results in runtime exception"() {
         setup:
-        def configuration = GradleRunConfigurationAttributes.with(atr.tasks, '${nonexistingvariable}/working_dir', atr.gradleDistr, atr.gradleHome, atr.javaHome, atr.jvmArguments, atr.arguments, atr.visualize)
+        def configuration = GradleRunConfigurationAttributes.with(atr.tasks, '${nonexistingvariable}/working_dir', atr.gradleDistr, atr.gradleHome, atr.javaHome, atr.jvmArguments, atr.arguments, atr.visualize, atr.revealConsole)
 
         when:
         configuration.getWorkingDir()
@@ -142,7 +142,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
 
     def "Unresolvable expressions in arguments results in runtime exception"() {
         setup:
-        def configuration = GradleRunConfigurationAttributes.with(atr.tasks, atr.workingDir, atr.gradleDistr, atr.gradleHome, atr.javaHome, atr.jvmArguments,  ['${nonexistingvariable}/arguments'], atr.visualize)
+        def configuration = GradleRunConfigurationAttributes.with(atr.tasks, atr.workingDir, atr.gradleDistr, atr.gradleHome, atr.javaHome, atr.jvmArguments,  ['${nonexistingvariable}/arguments'], atr.visualize, atr.revealConsole)
 
         when:
         configuration.getArguments()
@@ -153,7 +153,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
 
     def "Unresolvable expressions in jvm arguments results in runtime exception"() {
         setup:
-        def configuration = GradleRunConfigurationAttributes.with(atr.tasks, atr.workingDir, atr.gradleDistr, atr.gradleHome, atr.javaHome,  ['${nonexistingvariable}/jvmarguments'],  atr.arguments, atr.visualize)
+        def configuration = GradleRunConfigurationAttributes.with(atr.tasks, atr.workingDir, atr.gradleDistr, atr.gradleHome, atr.javaHome,  ['${nonexistingvariable}/jvmarguments'],  atr.arguments, atr.visualize, atr.revealConsole)
 
         when:
         configuration.getJvmArguments()
@@ -172,7 +172,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
 
         when:
         assert eclipseConfig.getAttributes().isEmpty()
-        def gradleConfig = GradleRunConfigurationAttributes.with(atr.tasks, atr.workingDir, atr.gradleDistr, atr.gradleHome, atr.javaHome, atr.jvmArguments, atr.arguments, atr.visualize)
+        def gradleConfig = GradleRunConfigurationAttributes.with(atr.tasks, atr.workingDir, atr.gradleDistr, atr.gradleHome, atr.javaHome, atr.jvmArguments, atr.arguments, atr.visualize, atr.revealConsole)
         gradleConfig.apply(eclipseConfig)
 
         then:
@@ -186,7 +186,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         def eclipseConfig = type.newInstance(null, "launch-config-name")
 
         when:
-        def gradleConfig1 = GradleRunConfigurationAttributes.with(tasks, workingDir, gradleDistr, gradleHome, javaHome, jvmArguments, arguments, visualize)
+        def gradleConfig1 = GradleRunConfigurationAttributes.with(tasks, workingDir, gradleDistr, gradleHome, javaHome, jvmArguments, arguments, visualize, revealConsole)
         gradleConfig1.apply(eclipseConfig)
         def gradleConfig2 = GradleRunConfigurationAttributes.from(eclipseConfig)
 
@@ -201,11 +201,11 @@ class GradleRunConfigurationAttributesTest extends Specification {
         gradleConfig1.isVisualizeTestProgress() == gradleConfig2.isVisualizeTestProgress()
 
         where:
-        tasks     | workingDir     | gradleDistr     | gradleHome     | javaHome     | jvmArguments     | arguments     | visualize
-        atr.tasks | atr.workingDir | atr.gradleDistr | atr.gradleHome | atr.javaHome | atr.jvmArguments | atr.arguments | atr.visualize
-        atr.tasks | atr.workingDir | atr.gradleDistr | null           | atr.javaHome | atr.jvmArguments | atr.arguments | atr.visualize
-        atr.tasks | atr.workingDir | atr.gradleDistr | atr.gradleHome | null         | atr.jvmArguments | atr.arguments | atr.visualize
-        atr.tasks | atr.workingDir | atr.gradleDistr | null           | null         | atr.jvmArguments | atr.arguments | atr.visualize
+        tasks     | workingDir     | gradleDistr     | gradleHome     | javaHome     | jvmArguments     | arguments     | visualize     | revealConsole
+        atr.tasks | atr.workingDir | atr.gradleDistr | atr.gradleHome | atr.javaHome | atr.jvmArguments | atr.arguments | atr.visualize | atr.revealConsole
+        atr.tasks | atr.workingDir | atr.gradleDistr | null           | atr.javaHome | atr.jvmArguments | atr.arguments | atr.visualize | atr.revealConsole
+        atr.tasks | atr.workingDir | atr.gradleDistr | atr.gradleHome | null         | atr.jvmArguments | atr.arguments | atr.visualize | atr.revealConsole
+        atr.tasks | atr.workingDir | atr.gradleDistr | null           | null         | atr.jvmArguments | atr.arguments | atr.visualize | atr.revealConsole
     }
 
 
@@ -216,7 +216,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         def eclipseConfig = type.newInstance(null, "launch-config-name")
 
         when:
-        def gradleConfig = GradleRunConfigurationAttributes.with(atr.tasks, atr.workingDir, atr.gradleDistr, atr.gradleHome, atr.javaHome, atr.jvmArguments, atr.arguments, atr.visualize)
+        def gradleConfig = GradleRunConfigurationAttributes.with(atr.tasks, atr.workingDir, atr.gradleDistr, atr.gradleHome, atr.javaHome, atr.jvmArguments, atr.arguments, atr.visualize, atr.revealConsole)
         gradleConfig.apply(eclipseConfig)
 
         then:

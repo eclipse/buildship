@@ -11,9 +11,10 @@
 
 package org.eclipse.buildship.ui.taskview;
 
+import org.eclipse.core.commands.ExecutionEvent;
+
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.ui.generic.NodeSelection;
-import org.eclipse.core.commands.ExecutionEvent;
 
 /**
  * Base class for handlers that operate on the selected tasks.

@@ -51,6 +51,11 @@ public final class UiPluginConstants {
     public static final String RUN_LAUNCH_GROUP_ID = "org.eclipse.debug.ui.launchGroup.run";
 
     /**
+     * The Console view id provided by Eclipse core.
+     */
+    public static final String CONSOLE_VIEW_ID = "org.eclipse.ui.console.ConsoleView";
+
+    /**
      * The id of the command to open the build script for the selected project.
      */
     public static final String OPEN_BUILD_SCRIPT_COMMAND_ID = "org.eclipse.buildship.ui.commands.openbuildscript";
