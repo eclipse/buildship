@@ -20,6 +20,10 @@ import com.google.common.collect.ImmutableList;
 
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.internal.ui.DebugUIPlugin;
+import org.eclipse.debug.internal.ui.preferences.IDebugPreferenceConstants;
+import org.eclipse.debug.internal.ui.views.console.ProcessConsoleManager;
+import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
@@ -42,6 +46,7 @@ import org.eclipse.buildship.ui.UiPlugin;
 public final class GradleConsole extends IOConsole implements ProcessStreams {
 
     private final ProcessDescription processDescription;
+    private final IOConsoleOutputStream configuationStream;
     private final IOConsoleOutputStream outputStream;
     private final IOConsoleOutputStream errorStream;
     private final IOConsoleInputStream inputStream;
@@ -50,20 +55,31 @@ public final class GradleConsole extends IOConsole implements ProcessStreams {
         super(processDescription.getName(), PluginImages.TASK.withState(PluginImages.ImageState.ENABLED).getImageDescriptor());
 
         this.processDescription = processDescription;
+        this.configuationStream = newOutputStream();
         this.outputStream = newOutputStream();
         this.errorStream = newOutputStream();
         this.inputStream = super.getInputStream();
 
+
+
         // set proper colors on output/error streams (needs to happen in the UI thread)
         Display.getDefault().asyncExec(new Runnable() {
 
+            @SuppressWarnings("restriction")
             @Override
             public void run() {
-                Color outputColor = Display.getDefault().getSystemColor(SWT.COLOR_BLACK);
+                Color inputColor = DebugUIPlugin.getPreferenceColor(IDebugPreferenceConstants.CONSOLE_SYS_IN_COLOR);
+                GradleConsole.this.inputStream.setColor(inputColor);
+
+                Color outputColor = DebugUIPlugin.getPreferenceColor(IDebugPreferenceConstants.CONSOLE_SYS_OUT_COLOR);
                 GradleConsole.this.outputStream.setColor(outputColor);
 
-                Color errorColor = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_RED);
+                Color errorColor = DebugUIPlugin.getPreferenceColor(IDebugPreferenceConstants.CONSOLE_SYS_ERR_COLOR);
                 GradleConsole.this.errorStream.setColor(errorColor);
+
+                // assign a static color to the configuration output stream
+                Color configurationColor = Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY);
+                GradleConsole.this.configuationStream.setColor(configurationColor);
             }
         });
     }
@@ -88,6 +104,11 @@ public final class GradleConsole extends IOConsole implements ProcessStreams {
     }
 
     @Override
+    public OutputStream getConfiguration() {
+        return this.configuationStream;
+    }
+
+    @Override
     public OutputStream getOutput() {
         return this.outputStream;
     }
@@ -109,6 +130,12 @@ public final class GradleConsole extends IOConsole implements ProcessStreams {
         try {
             this.outputStream.flush();
             this.outputStream.close();
+        } catch (IOException ioe) {
+            e = ioe;
+        }
+        try {
+            this.configuationStream.flush();
+            this.configuationStream.close();
         } catch (IOException ioe) {
             e = ioe;
         }

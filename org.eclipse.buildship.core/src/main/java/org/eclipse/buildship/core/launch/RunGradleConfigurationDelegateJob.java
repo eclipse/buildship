@@ -133,7 +133,7 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         request.cancellationToken(getToken());
 
         // print the applied run configuration settings at the beginning of the console output
-        writeRunConfigurationDescription(configurationAttributes, processStreams.getOutput());
+        writeRunConfigurationDescription(configurationAttributes, processStreams.getConfiguration());
 
         // attach a test progress listener if the run configuration has the test progress
         // visualization enabled
