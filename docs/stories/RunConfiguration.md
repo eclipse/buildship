@@ -13,7 +13,7 @@ The current behavior can be confusing since it is not clear to the user when a n
 be created and when an existing run configuration is edited.
 
 
-## Change color of run configuration arguments shown in the Gradle Console
+## ~~Change color of run configuration arguments shown in the Gradle Console~~
 
 ### Requested Change
 
