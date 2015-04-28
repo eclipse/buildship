@@ -68,7 +68,7 @@ public class ProgressViewTestListener implements TestProgressListener {
         return progressItemConfigurator;
     }
 
-    protected ProgressItem getParent(TestOperationDescriptor descriptor) {
+    protected ProgressItem getParent(OperationDescriptor descriptor) {
         OperationDescriptor parent = descriptor.getParent();
         ProgressItem parentProgressItem = progressItemMap.get(parent);
         if (null == parentProgressItem) {

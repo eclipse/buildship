@@ -24,7 +24,6 @@ public class ProgressItem extends AbstractModelObject implements IAdaptable {
 
 	private List<ProgressItem> children = new ArrayList<ProgressItem>();
 
-
 	public ProgressItem(OperationDescriptor operationDescriptor) {
 	    this(operationDescriptor, operationDescriptor == null ? null : operationDescriptor.getDisplayName());
 	}
@@ -35,7 +34,7 @@ public class ProgressItem extends AbstractModelObject implements IAdaptable {
 	}
 
 	@Override
-    public Object getAdapter(Class adapter) {
+    public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
 	    if(getOperationDescriptor() != null && OperationDescriptor.class.equals(adapter)) {
 	        return getOperationDescriptor();
 	    } else if (getLastProgressEvent() != null && ProgressEvent.class.equals(adapter)) {
