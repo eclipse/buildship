@@ -212,7 +212,6 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
             }
         });
 
-
         this.revealConsoleViewCheckbox = new Button(container, SWT.CHECK);
         this.revealConsoleViewCheckbox.setText(CoreMessages.ProgressVisualization_Label_RevealConsoleView);
         this.revealConsoleViewCheckbox.addSelectionListener(new SelectionAdapter() {
