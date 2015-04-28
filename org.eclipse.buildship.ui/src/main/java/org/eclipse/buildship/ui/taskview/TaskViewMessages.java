@@ -30,12 +30,14 @@ public final class TaskViewMessages extends NLS {
 
     public static String Action_RunTasks_Text;
     public static String Action_RunDefaultTasks_Text;
+    public static String Action_CreateRunConfiguration_Text;
     public static String Action_OpenRunConfiguration_Text;
     public static String Action_OpenBuildScript_Text;
     public static String Action_Refresh_Text;
 
     public static String Action_RunTasks_Tooltip;
     public static String Action_RunDefaultTasks_Tooltip;
+    public static String Action_CreateRunConfiguration_Tooltip;
     public static String Action_OpenRunConfiguration_Tooltip;
     public static String Action_OpenBuildScript_Tooltip;
     public static String Action_Refresh_Tooltip;
