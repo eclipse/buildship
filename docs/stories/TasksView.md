@@ -45,6 +45,30 @@ Provide the following options on how to show the projects in the Task View:
 Give the user more flexibility in how to display the projects in the Task View.
 
 
+## Configurable task filter
+
+### Requested Change
+
+Provide a menu item in the Task View toolbar to filter out tasks that should not show up in the Task View, and provide
+an option to apply/ignore the filter. Configuring and applying the filter could be combined into a split button, where the
+click-behavior is to toggle the filter and the menu item in the popup menu is to launch the filter configuration dialog.
+
+### Motivation
+
+Not all tasks of a project are relevant to the user. Allow the user to hide those tasks that are of no interest to him.
+
+
+## Task favorites
+
+### Requested Change
+
+Provide a UI to define and run task favorites.
+
+### Motivation
+
+Typically, a user runs the same tasks repeatedly and there should be as little overhead as possible to execute a favorite task.
+
+
 ## Refresh tasks of a single multi-project
 
 ### Requested Change
