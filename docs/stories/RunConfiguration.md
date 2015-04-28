@@ -37,18 +37,16 @@ that are written to the output streams.
 Having colors and in-place updates of characters in the Run Console will gives us a similarly powerful output as on the command line.
 
 
-## Add buttons for showing the console when the output changes
+## Provide run configuration option to switch to the Console when running a build
 
 ### Requested Change
 
-For the Gradle Background Console, provide buttons to display the Run Console when something is written to its output streams.
-
- * _Show Console When Standard Out Changes_
- * _Show Console When Standard Err Changes_
+Add an option to the run configuration dialog to select through a check box whether to jump to the Console View when the build is run.
 
 ### Motivation
 
-This will provide the same functionality as offered by other Eclipse Consoles that the user is already familiar with.
+The user must be able to configure whether when running the build through a given run configuration, the Console View that shows the build
+output should should automatically become active or not.
 
 
 ## Run configuration in debug mode
