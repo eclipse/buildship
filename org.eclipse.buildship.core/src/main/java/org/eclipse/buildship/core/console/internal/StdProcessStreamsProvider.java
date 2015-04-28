@@ -29,6 +29,11 @@ public final class StdProcessStreamsProvider implements ProcessStreamsProvider {
     private final ProcessStreams stdStreams = new ProcessStreams() {
 
         @Override
+        public OutputStream getConfiguration() {
+            return System.err;
+        }
+
+        @Override
         public InputStream getInput() {
             return System.in;
         }
@@ -47,7 +52,6 @@ public final class StdProcessStreamsProvider implements ProcessStreamsProvider {
         public void close() {
             // do nothing since we never want to close the std streams
         }
-
     };
 
     @Override
