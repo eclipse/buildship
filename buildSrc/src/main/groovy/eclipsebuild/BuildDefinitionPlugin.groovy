@@ -194,8 +194,8 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         // if multiple builds start on the same machine (which is the case with a CI server)
         // we want to prevent them downloading the same file to the same destination
         def directoryLock = new FileSemaphore(config.eclipseSdkDir)
+        directoryLock.lock()
         try {
-            directoryLock.lock()
             downloadEclipseSdkUnprotected(project, config)
         } finally {
             directoryLock.unlock()
@@ -240,7 +240,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         try {
             lock.lock()
             assembleTargetPlatformUnprotected(project, config)
-        }finally  {
+        } finally  {
             lock.unlock()
         }
     }
