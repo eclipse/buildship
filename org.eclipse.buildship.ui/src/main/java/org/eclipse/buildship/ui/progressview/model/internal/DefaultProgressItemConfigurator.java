@@ -26,9 +26,9 @@ public class DefaultProgressItemConfigurator implements ProgressItemConfigurator
             OperationResult result = ((FinishEvent) getPropressEvent()).getResult();
             progressItem.setDuration(result.getEndTime() - result.getStartTime() + "ms");
             if(result instanceof TestFailureResult) {
-                progressItem.setImage(PluginImages.CANCEL_TASK_EXECUTION.withState(ImageState.ENABLED).getImageDescriptor());
+                progressItem.setImage(PluginImages.TEST_FAILURE.withState(ImageState.ENABLED).getImageDescriptor());
             }else if (result instanceof TestSuccessResult) {
-                progressItem.setImage(PluginImages.RUN_TASKS.withState(ImageState.ENABLED).getImageDescriptor());
+                progressItem.setImage(PluginImages.TEST_SUCCESS.withState(ImageState.ENABLED).getImageDescriptor());
             }
         }else {
             progressItem.setDuration("Started...");
