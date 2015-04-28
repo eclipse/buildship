@@ -63,6 +63,17 @@ in the header of the Project Explorer to switch between flat view and nested vie
 Displaying the Eclipse projects in a hierarchy closely reflects the Gradle project hierarchy of a multi-project build.
 
 
+## Support partial imports
+
+### Requested Change
+
+It should probably be possible to import only a single Gradle project from a multi-project build.
+
+### Motivation
+
+It seems a very common use case for Eclipse developers to only import part of a multi-project build.
+
+
 ## Import buildSrc into workspace
 
 ### Requested Change
