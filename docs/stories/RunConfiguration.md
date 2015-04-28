@@ -49,3 +49,16 @@ For the Gradle Background Console, provide buttons to display the Run Console wh
 ### Motivation
 
 This will provide the same functionality as offered by other Eclipse Consoles that the user is already familiar with.
+
+
+## Run configuration in debug mode
+
+### Requested Change
+
+Allow to run a Gradle build in debug mode by Buildship setting the _--debug-jvm_ argument when executing the build. Once
+the target JVM is started, Buildship should automatically start a remote debugging session from within Eclipse on behalf
+of the user.
+
+### Motivation
+
+Debugging tests (and other Java executions) through Gradle is part of the deep integration into Eclipse.
