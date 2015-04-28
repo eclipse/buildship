@@ -16,6 +16,8 @@ import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.eclipse.buildship.core.i18n.CoreMessages;
+
 import com.google.common.base.Preconditions;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
@@ -70,21 +72,21 @@ public final class GradleDistributionWrapper {
         Preconditions.checkNotNull(distribution);
 
         try {
-            Field localInstallationDirField = GradleDistribution.class.getDeclaredField("localInstallationDir");
+            Field localInstallationDirField = GradleDistribution.class.getDeclaredField("localInstallationDir"); //$NON-NLS-1$
             localInstallationDirField.setAccessible(true);
             File localInstallationDir = (File) localInstallationDirField.get(distribution);
             if (localInstallationDir != null) {
                 return from(DistributionType.LOCAL_INSTALLATION, localInstallationDir.getAbsolutePath());
             }
 
-            Field remoteDistributionUriField = GradleDistribution.class.getDeclaredField("remoteDistributionUri");
+            Field remoteDistributionUriField = GradleDistribution.class.getDeclaredField("remoteDistributionUri"); //$NON-NLS-1$
             remoteDistributionUriField.setAccessible(true);
             URI remoteDistributionUri = (URI) remoteDistributionUriField.get(distribution);
             if (remoteDistributionUri != null) {
                 return from(DistributionType.REMOTE_DISTRIBUTION, remoteDistributionUri.toString());
             }
 
-            Field versionField = GradleDistribution.class.getDeclaredField("version");
+            Field versionField = GradleDistribution.class.getDeclaredField("version"); //$NON-NLS-1$
             versionField.setAccessible(true);
             String version = (String) versionField.get(distribution);
             if (version != null) {
@@ -93,7 +95,7 @@ public final class GradleDistributionWrapper {
 
             return from(DistributionType.WRAPPER, null);
         } catch (Exception e) {
-            String message = String.format("Cannot serialize Gradle distribution '%s.'", distribution);
+            String message = String.format(CoreMessages.GradleDistributionWrapper_ErrorMessage_CanNotSerialize, distribution);
             throw new RuntimeException(message, e);
         }
     }

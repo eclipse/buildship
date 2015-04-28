@@ -30,7 +30,7 @@ public final class ClasspathDefinition {
      * {@code org.eclipse.jdt.core.classpathContainerInitializer} extension populates it with the
      * actual external (source and binary) jars.
      */
-    public static final String GRADLE_CLASSPATH_CONTAINER_ID = "org.eclipse.buildship.core.gradleclasspathcontainer";
+    public static final String GRADLE_CLASSPATH_CONTAINER_ID = "org.eclipse.buildship.core.gradleclasspathcontainer"; //$NON-NLS-1$
 
     private final ImmutableList<Pair<IPath, IPath>> externalDependencies;
     private final ImmutableList<IPath> projectDependencies;

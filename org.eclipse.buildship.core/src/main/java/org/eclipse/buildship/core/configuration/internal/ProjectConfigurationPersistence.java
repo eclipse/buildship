@@ -33,6 +33,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.gradle.GradleDistributionSerializer;
+import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
 
@@ -41,14 +42,14 @@ import org.eclipse.buildship.core.util.file.FileUtils;
  */
 final class ProjectConfigurationPersistence {
 
-    private static final String PROJECT_PATH = "project_path";
-    private static final String PROJECT_DIR = "project_dir";
-    private static final String CONNECTION_PROJECT_DIR = "connection_project_dir";
-    private static final String CONNECTION_GRADLE_USER_HOME = "connection_gradle_user_home";
-    private static final String CONNECTION_GRADLE_DISTRIBUTION = "connection_gradle_distribution";
-    private static final String CONNECTION_JAVA_HOME = "connection_java_home";
-    private static final String CONNECTION_JVM_ARGUMENTS = "connection_jvm_arguments";
-    private static final String CONNECTION_ARGUMENTS = "connection_arguments";
+    private static final String PROJECT_PATH = "project_path"; //$NON-NLS-1$
+    private static final String PROJECT_DIR = "project_dir"; //$NON-NLS-1$
+    private static final String CONNECTION_PROJECT_DIR = "connection_project_dir"; //$NON-NLS-1$
+    private static final String CONNECTION_GRADLE_USER_HOME = "connection_gradle_user_home"; //$NON-NLS-1$
+    private static final String CONNECTION_GRADLE_DISTRIBUTION = "connection_gradle_distribution"; //$NON-NLS-1$
+    private static final String CONNECTION_JAVA_HOME = "connection_java_home"; //$NON-NLS-1$
+    private static final String CONNECTION_JVM_ARGUMENTS = "connection_jvm_arguments"; //$NON-NLS-1$
+    private static final String CONNECTION_ARGUMENTS = "connection_arguments"; //$NON-NLS-1$
 
     /**
      * Saves the given Gradle project configuration in the Eclipse project's <i>.settings</i>
@@ -69,7 +70,7 @@ final class ProjectConfigurationPersistence {
         projectConfig.put(CONNECTION_ARGUMENTS, CollectionsUtils.joinWithSpace(projectConfiguration.getRequestAttributes().getArguments()));
 
         Map<String, Object> config = Maps.newLinkedHashMap();
-        config.put("1.0", projectConfig);
+        config.put("1.0", projectConfig); //$NON-NLS-1$
 
         Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
         String json = gson.toJson(config, createMapTypeToken());
@@ -78,7 +79,7 @@ final class ProjectConfigurationPersistence {
             File configFile = createConfigFile(workspaceProject);
             CharSource.wrap(json).copyTo(Files.asCharSink(configFile, Charsets.UTF_8));
         } catch (IOException e) {
-            String message = String.format("Cannot persist Gradle configuration for project %s.", workspaceProject.getName());
+            String message = String.format(CoreMessages.ProjectConfigurationPersistence_ErrorMessage_CanNotPersistConfiguration, workspaceProject.getName());
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
         }
@@ -96,7 +97,7 @@ final class ProjectConfigurationPersistence {
             File configFile = createConfigFile(workspaceProject);
             json = Files.toString(configFile, Charsets.UTF_8);
         } catch (IOException e) {
-            String message = String.format("Cannot read Gradle configuration for project %s.", workspaceProject.getName());
+            String message = String.format(CoreMessages.ProjectConfigurationPersistence_ErrorMessage_CanNotReadConfiguration, workspaceProject.getName());
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
         }
@@ -113,7 +114,7 @@ final class ProjectConfigurationPersistence {
     }
 
     private File createConfigFile(IProject workspaceProject) throws IOException {
-        File file = new File(workspaceProject.getLocation().toFile(), ".settings/gradle.prefs");
+        File file = new File(workspaceProject.getLocation().toFile(), ".settings/gradle.prefs"); //$NON-NLS-1$
         Files.createParentDirs(file);
         return file;
     }
@@ -126,7 +127,7 @@ final class ProjectConfigurationPersistence {
 
     @SuppressWarnings("unchecked")
     private Map<String, String> getProjectConfigForVersion(Map<String, Object> config) {
-        return (Map<String, String>) config.get("1.0");
+        return (Map<String, String>) config.get("1.0"); //$NON-NLS-1$
     }
 
 }

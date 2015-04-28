@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IPath;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectMarker;
+import org.eclipse.buildship.core.i18n.CoreMessages;
 
 /**
  * Validates the project configuration when a relevant resources changes.
@@ -85,8 +86,8 @@ final class GradleProjectValidationResourceDeltaVisitor implements IResourceDelt
 
         private GradleProjectValidator(IProject project) {
             this.project = project;
-            this.settingsFolder = project.getFolder(".settings");
-            this.preferencesFile = project.getFile(".settings/gradle.prefs");
+            this.settingsFolder = project.getFolder(".settings"); //$NON-NLS-1$
+            this.preferencesFile = project.getFile(".settings/gradle.prefs"); //$NON-NLS-1$
         }
 
         public IFolder getSettingsFolder() {
@@ -112,13 +113,13 @@ final class GradleProjectValidationResourceDeltaVisitor implements IResourceDelt
             //CHECKSTYLE:OFF, required due to false negative in Checkstyle
             // validate the existence of the .settings folder
             if (!this.settingsFolder.exists()) {
-                String message = String.format("Missing Gradle project configuration folder: %s", this.settingsFolder.getProjectRelativePath());
+                String message = String.format(CoreMessages.GradleProjectValidationResourceDeltaVisitor_ErrorMessage_MissingConfigurationFolder, this.settingsFolder.getProjectRelativePath());
                 GradleProjectMarker.INSTANCE.addMarkerToResource(this.project, message);
                 return false;
             }
             // validate the existence of the .settings/gradle.prefs file
             else if (!this.preferencesFile.exists()) {
-                String message = String.format("Missing Gradle project configuration file: %s", this.preferencesFile.getProjectRelativePath());
+                String message = String.format(CoreMessages.GradleProjectValidationResourceDeltaVisitor_ErrorMessage_MissingConfigurationFile, this.preferencesFile.getProjectRelativePath());
                 GradleProjectMarker.INSTANCE.addMarkerToResource(this.project, message);
                 return false;
             }
@@ -127,7 +128,7 @@ final class GradleProjectValidationResourceDeltaVisitor implements IResourceDelt
                 try {
                     CorePlugin.projectConfigurationManager().readProjectConfiguration(this.project);
                 } catch (Exception e) {
-                    String message = String.format("Invalid Gradle project configuration file: %s", this.preferencesFile.getProjectRelativePath());
+                    String message = String.format(CoreMessages.GradleProjectValidationResourceDeltaVisitor_ErrorMessage_InvalidConfigurationFile, this.preferencesFile.getProjectRelativePath());
                     GradleProjectMarker.INSTANCE.addMarkerToResource(this.preferencesFile, message);
                     return false;
                 }

@@ -30,6 +30,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.i18n.CoreMessages;
 
 /**
  * Provides resource filtering on {@link IProject} instances.
@@ -42,10 +43,10 @@ final class ResourceFilter {
     // http://help.eclipse.org/luna/topic/org.eclipse.platform.doc.isv/guide/resInt_filters.htm
 
     // resource filter matcher id
-    private static final String MATCHER_ID = "org.eclipse.core.resources.regexFilterMatcher";
+    private static final String MATCHER_ID = "org.eclipse.core.resources.regexFilterMatcher"; //$NON-NLS-1$
 
     // id to merge the resource filters as a single OR statement
-    private static final String OR_ID = "org.eclipse.ui.ide.orFilterMatcher";
+    private static final String OR_ID = "org.eclipse.ui.ide.orFilterMatcher"; //$NON-NLS-1$
 
     private ResourceFilter() {
     }
@@ -76,14 +77,14 @@ final class ResourceFilter {
     }
 
     private static void setFilters(IProject project, List<FileInfoMatcherDescription> filters, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Set resource filters for project %s", project), 2);
+        monitor.beginTask(String.format(CoreMessages.ResourceFilter_SetResourceFiltersForProject, project), 2);
         try {
             // get all current filters
             IResourceFilterDescription[] currentFilters;
             try {
                 currentFilters = project.getFilters();
             } catch (CoreException e) {
-                String message = String.format("Cannot retrieve current resource filters for project %s.", project.getName());
+                String message = String.format(CoreMessages.ResourceFilter_ErrorMessage_CanNotRetrieveCurrentFilters, project.getName());
                 CorePlugin.logger().error(message, e);
                 throw new GradlePluginsRuntimeException(message, e);
             }
@@ -93,7 +94,7 @@ final class ResourceFilter {
                 try {
                     filter.delete(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1));
                 } catch (CoreException e) {
-                    String message = String.format("Cannot delete current resource filter %s.", filter);
+                    String message = String.format(CoreMessages.ResourceFilter_ErrorMessage_CanNotDeleteCurrentResource, filter);
                     CorePlugin.logger().error(message, e);
                     throw new GradlePluginsRuntimeException(message, e);
                 }
@@ -105,7 +106,7 @@ final class ResourceFilter {
                     project.createFilter(IResourceFilterDescription.EXCLUDE_ALL | IResourceFilterDescription.FOLDERS | IResourceFilterDescription.INHERITABLE,
                             createCompositeFilter(filters), IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1));
                 } catch (CoreException e) {
-                    String message = String.format("Cannot create new resource filters for project %s.", project);
+                    String message = String.format(CoreMessages.ResourceFilter_ErrorMessage_CanNotCreateNewResourceFilters, project);
                     CorePlugin.logger().error(message, e);
                     throw new GradlePluginsRuntimeException(message, e);
                 }

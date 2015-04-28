@@ -37,6 +37,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
+import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 
@@ -53,7 +54,7 @@ public final class LoadEclipseGradleBuildJob extends ToolingApiJob {
 
     public LoadEclipseGradleBuildJob(ModelRepositoryProvider modelRepositoryProvider, ProcessStreamsProvider processStreamsProvider, FetchStrategy modelFetchStrategy,
             ProjectConfiguration configuration, Consumer<Optional<OmniEclipseGradleBuild>> postProcessor) {
-        super(String.format("Loading tasks of project located at %s", configuration.getProjectDir().getAbsolutePath()));
+        super(String.format(CoreMessages.LoadEclipseGradleBuildJob_LoadingTasks, configuration.getProjectDir().getAbsolutePath()));
         this.modelRepositoryProvider = Preconditions.checkNotNull(modelRepositoryProvider);
         this.processStreamsProvider = Preconditions.checkNotNull(processStreamsProvider);
         this.modelFetchStrategy = Preconditions.checkNotNull(modelFetchStrategy);
@@ -77,7 +78,7 @@ public final class LoadEclipseGradleBuildJob extends ToolingApiJob {
             } catch (Exception e) {
                 this.postProcessor.accept(Optional.<OmniEclipseGradleBuild> absent());
                 return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID,
-                        String.format("Loading the tasks of the project located at %s failed.", this.configuration.getProjectDir().getName()), e);
+                        String.format(CoreMessages.LoadEclipseGradleBuildJob_ErrorMessage_FailToLoadTasks, this.configuration.getProjectDir().getName()), e);
             }
         } finally {
             monitor.done();
@@ -85,12 +86,12 @@ public final class LoadEclipseGradleBuildJob extends ToolingApiJob {
     }
 
     public OmniEclipseGradleBuild loadTasksOfEclipseProject(IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Load tasks of project located at %s", this.configuration.getProjectDir().getName()), 1);
+        monitor.beginTask(String.format(CoreMessages.LoadEclipseGradleBuildJob_LoadTasks, this.configuration.getProjectDir().getName()), 1);
         return fetchEclipseGradleBuild(new SubProgressMonitor(monitor, 1));
     }
 
     private OmniEclipseGradleBuild fetchEclipseGradleBuild(IProgressMonitor monitor) {
-        monitor.beginTask("Load Eclipse Project", IProgressMonitor.UNKNOWN);
+        monitor.beginTask(CoreMessages.LoadEclipseGradleBuildJob_LoadEclipseProject, IProgressMonitor.UNKNOWN);
         try {
             ProcessStreams stream = this.processStreamsProvider.getBackgroundJobProcessStreams();
             List<ProgressListener> listeners = ImmutableList.<ProgressListener> of(new DelegatingProgressListener(monitor));

@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
+import org.eclipse.buildship.core.i18n.CoreMessages;
 
 /**
  * Loads the {@link OmniEclipseGradleBuild} models for all given {@link org.eclipse.buildship.core.configuration.ProjectConfiguration}
@@ -51,7 +52,7 @@ public final class LoadEclipseGradleBuildsJob extends Job {
 
     public LoadEclipseGradleBuildsJob(ModelRepositoryProvider modelRepositoryProvider, ProcessStreamsProvider processStreamsProvider, FetchStrategy modelFetchStrategy,
             Set<ProjectConfiguration> configurations, Consumer<Optional<OmniEclipseGradleBuild>> postProcessor) {
-        super("Loading tasks of all projects");
+        super(CoreMessages.LoadEclipseGradleBuildsJob_LoadingTasksOfAllProjects);
         this.modelRepositoryProvider = Preconditions.checkNotNull(modelRepositoryProvider);
         this.processStreamsProvider = Preconditions.checkNotNull(processStreamsProvider);
         this.modelFetchStrategy = Preconditions.checkNotNull(modelFetchStrategy);
@@ -61,7 +62,7 @@ public final class LoadEclipseGradleBuildsJob extends Job {
 
     @Override
     protected IStatus run(final IProgressMonitor monitor) {
-        monitor.beginTask("Load tasks of all projects", this.configurations.size());
+        monitor.beginTask(CoreMessages.LoadEclipseGradleBuildsJob_LoadTasksOfAllProjects, this.configurations.size());
         try {
             // prepare a job listener that is notified for each job that has
             // finished and then counts down the latch
@@ -88,7 +89,7 @@ public final class LoadEclipseGradleBuildsJob extends Job {
             try {
                 latch.await();
             } catch (InterruptedException e) {
-                return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, "Loading the tasks of all projects failed.", e);
+                return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, CoreMessages.LoadEclipseGradleBuildsJob_ErrorMessage_LoadingTasksFailed, e);
             }
 
             // everything went well

@@ -28,6 +28,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.gradle.GradleDistributionSerializer;
+import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 
@@ -37,14 +38,14 @@ import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 public final class GradleRunConfigurationAttributes {
 
     // keys used when setting/getting attributes from an ILaunchConfiguration instance
-    private static final String TASKS = "tasks";
-    private static final String WORKING_DIR = "working_dir";
-    private static final String GRADLE_DISTRIBUTION = "gradle_distribution";
-    private static final String GRADLE_USER_HOME = "gradle_user_home";
-    private static final String JAVA_HOME = "java_home";
-    private static final String JVM_ARGUMENTS = "jvm_arguments";
-    private static final String ARGUMENTS = "arguments";
-    private static final String VISUALIZE_TEST_PROGRESS = "visualize_test_progress";
+    private static final String TASKS = "tasks"; //$NON-NLS-1$
+    private static final String WORKING_DIR = "working_dir"; //$NON-NLS-1$
+    private static final String GRADLE_DISTRIBUTION = "gradle_distribution"; //$NON-NLS-1$
+    private static final String GRADLE_USER_HOME = "gradle_user_home"; //$NON-NLS-1$
+    private static final String JAVA_HOME = "java_home"; //$NON-NLS-1$
+    private static final String JVM_ARGUMENTS = "jvm_arguments"; //$NON-NLS-1$
+    private static final String ARGUMENTS = "arguments"; //$NON-NLS-1$
+    private static final String VISUALIZE_TEST_PROGRESS = "visualize_test_progress"; //$NON-NLS-1$
 
     private final ImmutableList<String> tasks;
     private final String workingDirExpression;
@@ -93,7 +94,7 @@ public final class GradleRunConfigurationAttributes {
             String location = ExpressionUtils.decode(this.workingDirExpression);
             return new File(location).getAbsoluteFile();
         } catch (CoreException e) {
-            String message = String.format("Cannot resolve working directory expression %s.", this.workingDirExpression);
+            String message = String.format(CoreMessages.GradleRunConfigurationAttributes_ErrorMessage_CanNotResolveWorkingDirectoryExpression, this.workingDirExpression);
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message);
         }
@@ -112,7 +113,7 @@ public final class GradleRunConfigurationAttributes {
             String location = ExpressionUtils.decode(this.gradleUserHomeExpression);
             return FileUtils.getAbsoluteFile(location).orNull();
         } catch (CoreException e) {
-            String message = String.format("Cannot resolve Gradle user home directory expression %s.", this.gradleUserHomeExpression);
+            String message = String.format(CoreMessages.GradleRunConfigurationAttributes_ErrorMessage_CanNotResolveHomeDirectoryExpression, this.gradleUserHomeExpression);
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message);
         }
@@ -127,7 +128,7 @@ public final class GradleRunConfigurationAttributes {
             String location = ExpressionUtils.decode(this.javaHomeExpression);
             return FileUtils.getAbsoluteFile(location).orNull();
         } catch (CoreException e) {
-            String message = String.format("Cannot resolve Java home directory expression %s.", this.javaHomeExpression);
+            String message = String.format(CoreMessages.GradleRunConfigurationAttributes_ErrorMessage_CanNotResolveJavaHomeDirectoryExpression, this.javaHomeExpression);
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message);
         }
@@ -145,7 +146,7 @@ public final class GradleRunConfigurationAttributes {
                 try {
                     return ExpressionUtils.decode(input);
                 } catch (CoreException e) {
-                    String message = String.format("Cannot resolve JVM argument expression %s.", input);
+                    String message = String.format(CoreMessages.GradleRunConfigurationAttributes_ErrorMessage_CanNotResolveJVMArgumentExpression, input);
                     CorePlugin.logger().error(message, e);
                     throw new GradlePluginsRuntimeException(message);
                 }
@@ -165,7 +166,7 @@ public final class GradleRunConfigurationAttributes {
                 try {
                     return ExpressionUtils.decode(input);
                 } catch (CoreException e) {
-                    String message = String.format("Cannot resolve argument expression %s.", input);
+                    String message = String.format(CoreMessages.GradleRunConfigurationAttributes_ErrorMessage_CanNotResolveArgumentExpression, input);
                     CorePlugin.logger().error(message, e);
                     throw new GradlePluginsRuntimeException(message);
                 }
@@ -182,9 +183,9 @@ public final class GradleRunConfigurationAttributes {
         // regardless of the other settings of the launch configuration
         try {
             return this.tasks.equals(launchConfiguration.getAttribute(TASKS, ImmutableList.<String> of()))
-                    && this.workingDirExpression.equals(launchConfiguration.getAttribute(WORKING_DIR, ""));
+                    && this.workingDirExpression.equals(launchConfiguration.getAttribute(WORKING_DIR, "")); //$NON-NLS-1$
         } catch (CoreException e) {
-            String message = String.format("Cannot read Gradle launch configuration %s.", launchConfiguration);
+            String message = String.format(CoreMessages.GradleRunConfigurationAttributes_ErrorMessage_CanNotReadLaunchConfig, launchConfiguration);
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
         }
@@ -245,16 +246,16 @@ public final class GradleRunConfigurationAttributes {
         try {
             tasks = launchConfiguration.getAttribute(TASKS, ImmutableList.<String> of());
         } catch (CoreException e) {
-            String message = String.format("Cannot read launch configuration attribute '%s'.", TASKS);
+            String message = String.format(CoreMessages.GradleRunConfigurationAttributes_ErrorMessage_CanNotReadConfigAttribute, TASKS);
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message);
         }
 
         String workingDirExpression;
         try {
-            workingDirExpression = launchConfiguration.getAttribute(WORKING_DIR, "");
+            workingDirExpression = launchConfiguration.getAttribute(WORKING_DIR, ""); //$NON-NLS-1$
         } catch (CoreException e) {
-            String message = String.format("Cannot read launch configuration attribute '%s'.", WORKING_DIR);
+            String message = String.format(CoreMessages.GradleRunConfigurationAttributes_ErrorMessage_CanNotReadConfigAttribute, WORKING_DIR);
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message);
         }
@@ -264,7 +265,7 @@ public final class GradleRunConfigurationAttributes {
             String serialized = launchConfiguration.getAttribute(GRADLE_DISTRIBUTION, (String) null);
             gradleDistribution = serialized != null ? GradleDistributionSerializer.INSTANCE.deserializeFromString(serialized) : GradleDistribution.fromBuild();
         } catch (CoreException e) {
-            String message = String.format("Cannot read launch configuration attribute '%s'.", GRADLE_DISTRIBUTION);
+            String message = String.format(CoreMessages.GradleRunConfigurationAttributes_ErrorMessage_CanNotReadConfigAttribute, GRADLE_DISTRIBUTION);
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message);
         }
@@ -273,7 +274,7 @@ public final class GradleRunConfigurationAttributes {
         try {
             gradleUserHomeExpression = launchConfiguration.getAttribute(GRADLE_USER_HOME, (String) null);
         } catch (CoreException e) {
-            String message = String.format("Cannot read launch configuration attribute '%s'.", GRADLE_USER_HOME);
+            String message = String.format(CoreMessages.GradleRunConfigurationAttributes_ErrorMessage_CanNotReadConfigAttribute, GRADLE_USER_HOME);
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message);
         }
@@ -282,7 +283,7 @@ public final class GradleRunConfigurationAttributes {
         try {
             javaHomeExpression = launchConfiguration.getAttribute(JAVA_HOME, (String) null);
         } catch (CoreException e) {
-            String message = String.format("Cannot read launch configuration attribute '%s'.", JAVA_HOME);
+            String message = String.format(CoreMessages.GradleRunConfigurationAttributes_ErrorMessage_CanNotReadConfigAttribute, JAVA_HOME);
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message);
         }
@@ -291,7 +292,7 @@ public final class GradleRunConfigurationAttributes {
         try {
             jvmArgumentExpressions = launchConfiguration.getAttribute(JVM_ARGUMENTS, ImmutableList.<String> of());
         } catch (CoreException e) {
-            String message = String.format("Cannot read launch configuration attribute '%s'.", JVM_ARGUMENTS);
+            String message = String.format(CoreMessages.GradleRunConfigurationAttributes_ErrorMessage_CanNotReadConfigAttribute, JVM_ARGUMENTS);
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message);
         }
@@ -300,7 +301,7 @@ public final class GradleRunConfigurationAttributes {
         try {
             argumentExpressions = launchConfiguration.getAttribute(ARGUMENTS, ImmutableList.<String> of());
         } catch (CoreException e) {
-            String message = String.format("Cannot read launch configuration attribute '%s'.", ARGUMENTS);
+            String message = String.format(CoreMessages.GradleRunConfigurationAttributes_ErrorMessage_CanNotReadConfigAttribute, ARGUMENTS);
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message);
         }
@@ -309,7 +310,7 @@ public final class GradleRunConfigurationAttributes {
         try {
             visualizeTestProgress = launchConfiguration.getAttribute(VISUALIZE_TEST_PROGRESS, true);
         } catch (CoreException e) {
-            String message = String.format("Cannot read launch configuration attribute '%s'.", VISUALIZE_TEST_PROGRESS);
+            String message = String.format(CoreMessages.GradleRunConfigurationAttributes_ErrorMessage_CanNotReadConfigAttribute, VISUALIZE_TEST_PROGRESS);
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message);
         }

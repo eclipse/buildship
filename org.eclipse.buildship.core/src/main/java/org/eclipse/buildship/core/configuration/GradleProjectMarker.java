@@ -27,7 +27,7 @@ public enum GradleProjectMarker {
     INSTANCE;
 
     // the marker ID has to be in the following format: ${PLUGIN_ID}.${MARKER_ID}
-    public static final String ID = CorePlugin.PLUGIN_ID + ".gradleprojectconfigurationmarker";
+    public static final String ID = CorePlugin.PLUGIN_ID + ".gradleprojectconfigurationmarker"; //$NON-NLS-1$
 
     public void addMarkerToResource(IResource target, String message) throws CoreException {
         IMarker marker = target.createMarker(ID);

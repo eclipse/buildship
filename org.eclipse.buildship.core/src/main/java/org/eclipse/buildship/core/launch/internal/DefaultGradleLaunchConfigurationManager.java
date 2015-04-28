@@ -22,6 +22,7 @@ import org.eclipse.debug.core.ILaunchManager;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate;
@@ -61,8 +62,8 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
     private ILaunchConfiguration createLaunchConfiguration(GradleRunConfigurationAttributes configurationAttributes) {
         // derive the name of the launch configuration from the configuration attributes
         // since the launch configuration name must not contain ':', we replace all ':' with '.'
-        String taskNamesOrDefault = configurationAttributes.getTasks().isEmpty() ? "(default tasks)" : CollectionsUtils.joinWithSpace(configurationAttributes.getTasks());
-        String rawLaunchConfigurationName = String.format("%s - %s", configurationAttributes.getWorkingDir().getName(), taskNamesOrDefault);
+        String taskNamesOrDefault = configurationAttributes.getTasks().isEmpty() ? "(default tasks)" : CollectionsUtils.joinWithSpace(configurationAttributes.getTasks()); //$NON-NLS-1$
+        String rawLaunchConfigurationName = String.format("%s - %s", configurationAttributes.getWorkingDir().getName(), taskNamesOrDefault); //$NON-NLS-1$
         String launchConfigurationName = this.launchManager.generateLaunchConfigurationName(rawLaunchConfigurationName.replace(':', '.'));
         ILaunchConfigurationType launchConfigurationType = this.launchManager.getLaunchConfigurationType(GradleRunConfigurationDelegate.ID);
 
@@ -76,7 +77,7 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
             // persist the launch configuration and return it
             return launchConfiguration.doSave();
         } catch (Exception e) {
-            String message = String.format("Cannot create Gradle launch configuration %s.", launchConfigurationName);
+            String message = String.format(CoreMessages.DefaultGradleLaunchConfigurationManager_ErrorMessage_CanNotCreateLaunchConfig, launchConfigurationName);
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(e);
         }
@@ -88,7 +89,7 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
         try {
             return this.launchManager.getLaunchConfigurations(launchConfigurationType);
         } catch (Exception e) {
-            String message = "Cannot get Gradle launch configurations.";
+            String message = CoreMessages.DefaultGradleLaunchConfigurationManager_ErrorMessage_CanNotGetLaunchConfig;
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
         }

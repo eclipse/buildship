@@ -52,6 +52,7 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.gradle.Specs;
+import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.workspace.ClasspathDefinition;
 
 /**
@@ -76,7 +77,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
      */
     @Override
     public void initialize(final IPath containerPath, final IJavaProject project) throws CoreException {
-        new Job("Initialize Gradle classpath for project '" + project.getElementName() + "'") {
+        new Job(CoreMessages.GradleClasspathContainerInitializer_InitializeClassPath + project.getElementName() + "'") { //$NON-NLS-1$
 
             // todo (etst) review job creation
             @Override
@@ -86,7 +87,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
                     return Status.OK_STATUS;
                 } catch (Exception e) {
                     // TODO (donat) add a marker describing the problem
-                    String message = String.format("Failed to initialize Gradle classpath for project %s.", project.getProject());
+                    String message = String.format(CoreMessages.GradleClasspathContainerInitializer_ErrorMessage_FailToInitializeClassPath, project.getProject());
                     CorePlugin.logger().error(message, e);
                     return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, message, e);
                 }
@@ -101,7 +102,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
             setClasspathContainer(externalDependencies, containerPath, project);
             project.save(new NullProgressMonitor(), true);
         } else {
-            throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", project.getProject()));
+            throw new GradlePluginsRuntimeException(String.format(CoreMessages.GradleClasspathContainerInitializer_ErrorMessage_CanNotFindEclipseProjectModel, project.getProject()));
         }
     }
 
@@ -170,7 +171,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
         @Override
         public String getDescription() {
-            return "External Dependencies";
+            return CoreMessages.GradleClasspathContainerInitializer_Description_ExternalDependencies;
         }
 
     }

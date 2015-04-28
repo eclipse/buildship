@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.i18n.CoreMessages;
 
 /**
  * Project builder for Gradle projects.
@@ -35,7 +36,7 @@ public enum GradleProjectBuilder {
     INSTANCE;
 
     // the builder ID has to be in the following format: ${PLUGIN_ID}.${BUILDER_ID}
-    public static final String ID = CorePlugin.PLUGIN_ID + ".gradleprojectbuilder";
+    public static final String ID = CorePlugin.PLUGIN_ID + ".gradleprojectbuilder"; //$NON-NLS-1$
 
     /**
      * Configures the builder on the target project if it was not added previously.
@@ -66,7 +67,7 @@ public enum GradleProjectBuilder {
                 project.setDescription(description, new NullProgressMonitor());
             }
         } catch (CoreException e) {
-            CorePlugin.logger().error(String.format("Failed to add Gradle Project Builder to project %s.", project.getName()));
+            CorePlugin.logger().error(String.format(CoreMessages.GradleProjectBuilder_ErrorMessage_FailToAddProject, project.getName()));
         }
     }
 
@@ -96,7 +97,7 @@ public enum GradleProjectBuilder {
                 project.setDescription(description, new NullProgressMonitor());
             }
         } catch (CoreException e) {
-            CorePlugin.logger().error(String.format("Failed to remove Gradle Project Builder from project %s.", project.getName()));
+            CorePlugin.logger().error(String.format(CoreMessages.GradleProjectBuilder_ErrorMessage_FailToRemoveProject, project.getName()));
         }
     }
 
