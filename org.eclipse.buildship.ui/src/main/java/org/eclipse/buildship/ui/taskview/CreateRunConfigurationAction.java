@@ -19,17 +19,17 @@ import org.eclipse.buildship.ui.generic.NodeSelection;
 import org.eclipse.buildship.ui.generic.SelectionSpecificAction;
 
 /**
- * Opens the existing run configuration for the selected Gradle tasks.
+ * Creates a new run configuration for the selected Gradle tasks.
  * <p/>
- * Note that {@link OpenRunConfigurationAction} and {@link CreateRunConfigurationAction} are mutually exclusive.
+ * Note that {@link CreateRunConfigurationAction} and {@link OpenRunConfigurationAction} are mutually exclusive.
  */
-public final class OpenRunConfigurationAction extends CommandBackedAction implements SelectionSpecificAction {
+public final class CreateRunConfigurationAction extends CommandBackedAction implements SelectionSpecificAction {
 
-    public OpenRunConfigurationAction(String commandId) {
+    public CreateRunConfigurationAction(String commandId) {
         super(commandId);
 
-        setText(TaskViewMessages.Action_OpenRunConfiguration_Text);
-        setToolTipText(TaskViewMessages.Action_OpenRunConfiguration_Tooltip);
+        setText(TaskViewMessages.Action_CreateRunConfiguration_Text);
+        setToolTipText(TaskViewMessages.Action_CreateRunConfiguration_Tooltip);
     }
 
     @Override
@@ -46,7 +46,7 @@ public final class OpenRunConfigurationAction extends CommandBackedAction implem
 
     private boolean isValidSelection(NodeSelection selection) {
         Optional<GradleRunConfigurationAttributes> attributes = TaskNodeSelectionUtils.tryGetRunConfigurationAttributes(selection);
-        return attributes.isPresent() && CorePlugin.gradleLaunchConfigurationManager().getRunConfiguration(attributes.get()).isPresent();
+        return !attributes.isPresent() || !CorePlugin.gradleLaunchConfigurationManager().getRunConfiguration(attributes.get()).isPresent();
     }
 
 }
