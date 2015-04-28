@@ -20,6 +20,13 @@ import java.io.OutputStream;
 public interface ProcessStreams {
 
     /**
+     * Returns a stream dedicated to displaying configuration information.
+     *
+     * @return the configuration output stream
+     */
+    OutputStream getConfiguration();
+
+    /**
      * Returns the default output stream.
      *
      * @return the default output stream
