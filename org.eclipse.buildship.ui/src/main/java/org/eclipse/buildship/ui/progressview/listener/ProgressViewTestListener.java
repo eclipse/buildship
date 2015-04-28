@@ -1,4 +1,4 @@
-package org.eclipse.buildship.ui.progressview;
+package org.eclipse.buildship.ui.progressview.listener;
 
 import java.util.List;
 import java.util.Map;

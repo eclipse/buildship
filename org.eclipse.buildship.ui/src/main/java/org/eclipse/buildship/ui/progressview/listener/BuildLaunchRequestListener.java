@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 import com.google.common.eventbus.Subscribe;
 
 import org.eclipse.buildship.core.event.BuildLaunchRequestEvent;
-import org.eclipse.buildship.ui.progressview.ProgressViewTestListener;
 import org.eclipse.buildship.ui.progressview.model.ProgressItem;
 
 public class BuildLaunchRequestListener {
