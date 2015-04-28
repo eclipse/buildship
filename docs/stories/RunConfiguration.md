@@ -1,6 +1,6 @@
 # Run Configurations
 
-## Have explicit context menu item label for creating new run configuration
+## ~~Have explicit context menu item label for creating new run configuration~~
 
 ### Requested Change
 
