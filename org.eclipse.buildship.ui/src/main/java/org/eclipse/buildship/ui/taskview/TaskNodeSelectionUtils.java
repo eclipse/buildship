@@ -11,11 +11,17 @@
 
 package org.eclipse.buildship.ui.taskview;
 
+import java.util.List;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+
+import org.eclipse.core.resources.IProject;
+
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
@@ -23,9 +29,6 @@ import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 import org.eclipse.buildship.ui.generic.NodeSelection;
-import org.eclipse.core.resources.IProject;
-
-import java.util.List;
 
 /**
  * Utility class related to the node selection in the {@link org.eclipse.buildship.ui.taskview.TaskView}.
@@ -89,7 +92,7 @@ public final class TaskNodeSelectionUtils {
         List<String> arguments = requestAttributes.isPresent() ? requestAttributes.get().getArguments() : ImmutableList.<String>of();
 
         // create the run configuration with test progress visualization enabled by default
-        return GradleRunConfigurationAttributes.with(tasks, projectDirectoryExpression, gradleDistribution, gradleUserHome, javaHome, jvmArguments, arguments, true);
+        return GradleRunConfigurationAttributes.with(tasks, projectDirectoryExpression, gradleDistribution, gradleUserHome, javaHome, jvmArguments, arguments, true, true);
     }
 
     private static Optional<FixedRequestAttributes> getFixedRequestAttributes(NodeSelection selection) {

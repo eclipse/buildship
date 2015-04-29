@@ -45,6 +45,7 @@ public final class GradleRunConfigurationAttributes {
     private static final String JVM_ARGUMENTS = "jvm_arguments";
     private static final String ARGUMENTS = "arguments";
     private static final String VISUALIZE_TEST_PROGRESS = "visualize_test_progress";
+    private static final String REVEAL_CONSOLE_VIEW = "reveal_console_view";
 
     private final ImmutableList<String> tasks;
     private final String workingDirExpression;
@@ -54,6 +55,7 @@ public final class GradleRunConfigurationAttributes {
     private final ImmutableList<String> jvmArgumentExpressions;
     private final ImmutableList<String> argumentExpressions;
     private final boolean visualizeTestProgress;
+    private final boolean revealConsoleView;
 
     /**
      * Creates a new instance.
@@ -69,7 +71,7 @@ public final class GradleRunConfigurationAttributes {
      * @param argumentExpressions the expressions resolving to the arguments to apply
      */
     private GradleRunConfigurationAttributes(List<String> tasks, String workingDirExpression, GradleDistribution gradleDistribution, String gradleUserHomeExpression,
-            String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean visualizeTestProgress) {
+            String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean visualizeTestProgress, boolean revealConsoleView) {
         this.tasks = ImmutableList.copyOf(tasks);
         this.workingDirExpression = Preconditions.checkNotNull(workingDirExpression);
         this.gradleDistribution = Preconditions.checkNotNull(gradleDistribution);
@@ -78,6 +80,7 @@ public final class GradleRunConfigurationAttributes {
         this.jvmArgumentExpressions = ImmutableList.copyOf(jvmArgumentExpressions);
         this.argumentExpressions = ImmutableList.copyOf(argumentExpressions);
         this.visualizeTestProgress = visualizeTestProgress;
+        this.revealConsoleView = revealConsoleView;
     }
 
     public ImmutableList<String> getTasks() {
@@ -177,6 +180,10 @@ public final class GradleRunConfigurationAttributes {
         return this.visualizeTestProgress;
     }
 
+    public boolean isRevealConsoleView() {
+        return this.revealConsoleView;
+    }
+
     public boolean hasSameUniqueAttributes(ILaunchConfiguration launchConfiguration) {
         // reuse an existing run configuration if the working directory and the tasks are the same,
         // regardless of the other settings of the launch configuration
@@ -199,6 +206,7 @@ public final class GradleRunConfigurationAttributes {
         applyJvmArgumentExpressions(this.jvmArgumentExpressions, launchConfiguration);
         applyArgumentExpressions(this.argumentExpressions, launchConfiguration);
         applyVisualizeTestProgress(this.visualizeTestProgress, launchConfiguration);
+        applyRevealConsoleView(this.revealConsoleView, launchConfiguration);
     }
 
     public static void applyTasks(List<String> tasks, ILaunchConfigurationWorkingCopy launchConfiguration) {
@@ -233,10 +241,14 @@ public final class GradleRunConfigurationAttributes {
         launchConfiguration.setAttribute(VISUALIZE_TEST_PROGRESS, visualizeTestProgress);
     }
 
+    public static void applyRevealConsoleView(boolean revealConsoleView, ILaunchConfigurationWorkingCopy launchConfiguration) {
+        launchConfiguration.setAttribute(REVEAL_CONSOLE_VIEW, revealConsoleView);
+    }
+
     public static GradleRunConfigurationAttributes with(List<String> tasks, String workingDirExpression, GradleDistribution gradleDistribution, String gradleUserHomeExpression,
-            String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean visualizeTestProgress) {
+            String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean visualizeTestProgress, boolean revealConsoleView) {
         return new GradleRunConfigurationAttributes(tasks, workingDirExpression, gradleDistribution, gradleUserHomeExpression, javaHomeExpression, jvmArgumentExpressions,
-                argumentExpressions, visualizeTestProgress);
+                argumentExpressions, visualizeTestProgress, revealConsoleView);
     }
 
     @SuppressWarnings("unchecked")
@@ -314,8 +326,17 @@ public final class GradleRunConfigurationAttributes {
             throw new GradlePluginsRuntimeException(message);
         }
 
+        boolean revealConsoleView;
+        try {
+            revealConsoleView = launchConfiguration.getAttribute(REVEAL_CONSOLE_VIEW, true);
+        } catch (CoreException e) {
+            String message = String.format("Cannot read launch configuration attribute '%s'.", REVEAL_CONSOLE_VIEW);
+            CorePlugin.logger().error(message, e);
+            throw new GradlePluginsRuntimeException(message);
+        }
+
         return with(tasks, workingDirExpression, gradleDistribution, gradleUserHomeExpression, javaHomeExpression, jvmArgumentExpressions, argumentExpressions,
-                visualizeTestProgress);
+                visualizeTestProgress, revealConsoleView);
     }
 
 }

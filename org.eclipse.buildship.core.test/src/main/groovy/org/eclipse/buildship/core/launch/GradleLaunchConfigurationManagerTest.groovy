@@ -30,7 +30,7 @@ import spock.lang.Specification;
 
 class GradleLaunchConfigurationManagerTest extends Specification {
 
-    def validAttribute = GradleRunConfigurationAttributes.with( ['clean'], "/home/user/workspace/project", GradleDistributionWrapper.from(DistributionType.VERSION, "2.3").toGradleDistribution(), "/.gradle", "/.java", ["-ea"], ["-q"], true)
+    def validAttribute = GradleRunConfigurationAttributes.with( ['clean'], "/home/user/workspace/project", GradleDistributionWrapper.from(DistributionType.VERSION, "2.3").toGradleDistribution(), "/.gradle", "/.java", ["-ea"], ["-q"], true, true)
     def manager = new DefaultGradleLaunchConfigurationManager()
 
     def setup() {
@@ -79,8 +79,8 @@ class GradleLaunchConfigurationManagerTest extends Specification {
     def "Run configurations are considered equal if working directory and tasks are equal"() {
         setup:
         // only difference: argument -i or -d
-        def atr =      GradleRunConfigurationAttributes.with( ['build'], "/home/user/workspace/project-p", GradleDistribution.forVersion('2.0'), null, null, [], [], false)
-        def atrPrime = GradleRunConfigurationAttributes.with( ['build'], "/home/user/workspace/project-p", GradleDistribution.forVersion('2.1'), null, null, [], [], false)
+        def atr =      GradleRunConfigurationAttributes.with( ['build'], "/home/user/workspace/project-p", GradleDistribution.forVersion('2.0'), null, null, [], [], false, false)
+        def atrPrime = GradleRunConfigurationAttributes.with( ['build'], "/home/user/workspace/project-p", GradleDistribution.forVersion('2.1'), null, null, [], [], false, false)
 
         when:
         ILaunchConfiguration config1 = manager.getOrCreateRunConfiguration(atr)

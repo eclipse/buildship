@@ -12,6 +12,7 @@
 package org.eclipse.buildship.ui.taskview;
 
 import com.google.common.base.Optional;
+
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.ui.generic.CommandBackedAction;

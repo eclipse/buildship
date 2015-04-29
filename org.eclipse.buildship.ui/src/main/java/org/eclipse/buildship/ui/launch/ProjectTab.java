@@ -66,6 +66,7 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
     private Text tasksText;
     private Text workingDirectoryText;
     private Button visualizeTestProgressCheckbox;
+    private Button revealConsoleViewCheckbox;
 
     public ProjectTab() {
         this.workingDirValidator = GradleConnectionValidators.requiredDirectoryValidator(CoreMessages.RunConfiguration_Label_WorkingDirectory);
@@ -210,6 +211,15 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
                 updateLaunchConfigurationDialog();
             }
         });
+
+        this.revealConsoleViewCheckbox = new Button(container, SWT.CHECK);
+        this.revealConsoleViewCheckbox.setText(CoreMessages.ProgressVisualization_Label_RevealConsoleView);
+        this.revealConsoleViewCheckbox.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                updateLaunchConfigurationDialog();
+            }
+        });
     }
 
     @Override
@@ -218,6 +228,7 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
         this.tasksText.setText(CollectionsUtils.joinWithSpace(configurationAttributes.getTasks()));
         this.workingDirectoryText.setText(Strings.nullToEmpty(configurationAttributes.getWorkingDirExpression()));
         this.visualizeTestProgressCheckbox.setSelection(configurationAttributes.isVisualizeTestProgress());
+        this.revealConsoleViewCheckbox.setSelection(configurationAttributes.isRevealConsoleView());
     }
 
     @Override
@@ -225,6 +236,7 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
         GradleRunConfigurationAttributes.applyTasks(CollectionsUtils.splitBySpace(this.tasksText.getText()), configuration);
         GradleRunConfigurationAttributes.applyWorkingDirExpression(this.workingDirectoryText.getText(), configuration);
         GradleRunConfigurationAttributes.applyVisualizeTestProgress(this.visualizeTestProgressCheckbox.getSelection(), configuration);
+        GradleRunConfigurationAttributes.applyRevealConsoleView(this.revealConsoleViewCheckbox.getSelection(), configuration);
     }
 
     @SuppressWarnings("Contract")

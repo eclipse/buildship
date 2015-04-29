@@ -11,12 +11,12 @@
 
 package org.eclipse.buildship.core.console.internal;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
-
-import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * Default implementation of {@link org.eclipse.buildship.core.console.ProcessStreamsProvider} that provides {@link System#out},
