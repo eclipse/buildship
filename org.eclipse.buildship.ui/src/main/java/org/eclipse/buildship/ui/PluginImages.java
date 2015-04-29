@@ -46,6 +46,7 @@ public enum PluginImages implements PluginImage {
     CANCEL_TASK_EXECUTION(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/cancel_build_execution.png", ImageState.DISABLED, "icons/full/dlcl16/cancel_build_execution.png")),
     RUN_CONFIG_GRADLE_DISTRIBUTION(ImmutableMap.of(ImageState.ENABLED, "icons/full/eview16/gradle_distribution.png")),
     RUN_CONFIG_ARGUMENTS(ImmutableMap.of(ImageState.ENABLED, "icons/full/eview16/arguments.gif")),
+    GRADLE_ICON(ImmutableMap.of(ImageState.ENABLED, "icons/full/eview16/gradle_distribution.png")),
     PROGRESS_ERROR(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/progress_error.png")),
     TEST_SUCCESS(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/test_success.png")),
     TEST_FAILURE(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/test_failure.png"));

@@ -56,10 +56,10 @@
       <view
             allowMultiple="true"
             category="org.eclipse.buildship.ui.views"
-            class="org.eclipse.buildship.ui.progressview.ProgressView"
+            class="org.eclipse.buildship.ui.executionview.ExecutionView"
             icon="icons/full/eview16/tasks.png"
-            id="org.eclipse.buildship.ui.views.progressview"
-            name="Gradle Progress"
+            id="org.eclipse.buildship.ui.views.executionview"
+            name="Gradle Execution"
             restorable="true">
       </view>
       <category

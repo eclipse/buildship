@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
+ *     Simon Scholz (vogella GmbH) - Bug 465723
  */
 
 package org.eclipse.buildship.core;
@@ -14,10 +15,25 @@ package org.eclipse.buildship.core;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
+import com.gradleware.tooling.toolingclient.ToolingClient;
+import com.gradleware.tooling.toolingmodel.repository.Environment;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
+import com.gradleware.tooling.toolingmodel.repository.internal.DefaultModelRepositoryProvider;
+import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.util.tracker.ServiceTracker;
+
+import com.google.common.eventbus.EventBus;
+
+import org.eclipse.core.runtime.Plugin;
+
 import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
 import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigurationManager;
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.console.internal.StdProcessStreamsProvider;
+import org.eclipse.buildship.core.event.GradleEvent;
 import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.util.logging.EclipseLogger;
@@ -25,18 +41,6 @@ import org.eclipse.buildship.core.workbench.WorkbenchOperations;
 import org.eclipse.buildship.core.workbench.internal.EmptyWorkbenchOperations;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 import org.eclipse.buildship.core.workspace.internal.DefaultWorkspaceOperations;
-import org.eclipse.core.runtime.Plugin;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.util.tracker.ServiceTracker;
-
-import com.google.common.eventbus.EventBus;
-import com.gradleware.tooling.toolingclient.ToolingClient;
-import com.gradleware.tooling.toolingmodel.repository.Environment;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
-import com.gradleware.tooling.toolingmodel.repository.internal.DefaultModelRepositoryProvider;
-import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
 
 /**
  * The plug-in runtime class for the Gradle integration plugin containing the non-UI elements.
@@ -52,6 +56,9 @@ import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
  * <li>{@link #workspaceOperations()}: workspace operations to add/modify/delete projects in the
  * workspace</li>
  * <li>{@link #publishedGradleVersions()}: to retrieve all released Gradle versions</li>
+ * <li>{@link #eventBus()}: to be able to use one common {@link EventBus} within Buildship for event
+ * communication. The events, which are send by this {@link EventBus} should be an implementation of
+ * {@link GradleEvent}, in order to have a common interface for events.</li>
  * </ul>
  * <p>
  * The {@link #start(BundleContext)} and {@link #stop(BundleContext)} methods' responsibility is to
@@ -118,7 +125,7 @@ public final class CorePlugin extends Plugin {
         this.gradleLaunchConfigurationServiceTracker = createServiceTracker(context, GradleLaunchConfigurationManager.class);
         this.workbenchOperationsServiceTracker = createServiceTracker(context, WorkbenchOperations.class);
         this.eventBusServiceTracker = createServiceTracker(context, EventBus.class);
-        
+
         // register all services
         this.loggerService = registerService(context, Logger.class, createLogger(), preferences);
         this.publishedGradleVersionsService = registerService(context, PublishedGradleVersions.class, createPublishedGradleVersions(), preferences);
@@ -236,7 +243,7 @@ public final class CorePlugin extends Plugin {
     public static WorkbenchOperations workbenchOperations() {
         return (WorkbenchOperations) getInstance().workbenchOperationsServiceTracker.getService();
     }
-    
+
     public static EventBus eventBus() {
     	return (EventBus) getInstance().eventBusServiceTracker.getService();
     }

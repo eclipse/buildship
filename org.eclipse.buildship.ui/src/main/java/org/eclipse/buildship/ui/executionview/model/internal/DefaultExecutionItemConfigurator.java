@@ -1,4 +1,15 @@
-package org.eclipse.buildship.ui.progressview.model.internal;
+/*
+ * Copyright (c) 2015 the original author or authors.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
+ */
+
+package org.eclipse.buildship.ui.executionview.model.internal;
 
 import org.gradle.tooling.events.FinishEvent;
 import org.gradle.tooling.events.OperationResult;
@@ -8,17 +19,19 @@ import org.gradle.tooling.events.test.TestSuccessResult;
 
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.progressview.model.ProgressItem;
-import org.eclipse.buildship.ui.progressview.model.ProgressItemConfigurator;
+import org.eclipse.buildship.ui.executionview.model.ExecutionItem;
+import org.eclipse.buildship.ui.executionview.model.ExecutionItemConfigurator;
 
-
-public class DefaultProgressItemConfigurator implements ProgressItemConfigurator {
+/**
+ * Default implementation of the {@link ExecutionItemConfigurator}.
+ */
+public class DefaultExecutionItemConfigurator implements ExecutionItemConfigurator {
 
 
     private ProgressEvent propressEvent;
 
     @Override
-    public void configure(ProgressItem progressItem) {
+    public void configure(ExecutionItem progressItem) {
         String displayName = getPropressEvent().getDescriptor().getDisplayName();
         progressItem.setLabel(displayName);
 

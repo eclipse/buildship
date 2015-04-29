@@ -12,6 +12,9 @@ package org.eclipse.buildship.ui.viewer;
 
 import java.net.URL;
 
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
+
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -63,8 +66,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 
 /**
  * Based on org.eclipse.ui.dialogs.FilteredTree.
@@ -1118,7 +1119,6 @@ public class FilteredTree extends Composite {
 			getPatternFilter().clearCaches();
 			super.setHasChildren(elementOrTreePath, hasChildren);
 		}
-
 	}
 
 }
