@@ -19,6 +19,7 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
@@ -27,6 +28,7 @@ import org.eclipse.buildship.core.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.util.logging.EclipseLogger;
 import org.eclipse.buildship.core.workbench.WorkbenchOperations;
 import org.eclipse.buildship.ui.console.ConsoleProcessStreamsProvider;
+import org.eclipse.buildship.ui.launch.ConsoleShowingLaunchListener;
 import org.eclipse.buildship.ui.workbench.DefaultWorkbenchOperations;
 
 /**
@@ -36,7 +38,7 @@ import org.eclipse.buildship.ui.workbench.DefaultWorkbenchOperations;
  * <tt>Bundle-Activator</tt> entry in the <tt>META-INF/MANIFEST.MF</tt> file. The registered
  * instance can be obtained during runtime through the {@link UiPlugin#getInstance()} method.
  */
-@SuppressWarnings({ "unchecked", "rawtypes" })
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class UiPlugin extends AbstractUIPlugin {
 
     public static final String PLUGIN_ID = "org.eclipse.buildship.ui"; //$NON-NLS-1$
@@ -48,17 +50,20 @@ public final class UiPlugin extends AbstractUIPlugin {
     private ServiceRegistration loggerService;
     private ServiceRegistration processStreamsProviderService;
     private ServiceRegistration workbenchOperationsService;
+    private ConsoleShowingLaunchListener consoleShowingLaunchListener;
 
     @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
         registerServices(context);
+        registerListeners();
         plugin = this;
     }
 
     @Override
     public void stop(BundleContext context) throws Exception {
         plugin = null;
+        unregisterListeners();
         unregisterServices();
         super.stop(context);
     }
@@ -98,6 +103,15 @@ public final class UiPlugin extends AbstractUIPlugin {
         this.workbenchOperationsService.unregister();
         this.processStreamsProviderService.unregister();
         this.loggerService.unregister();
+    }
+
+    private void registerListeners() {
+        this.consoleShowingLaunchListener = new ConsoleShowingLaunchListener();
+        DebugPlugin.getDefault().getLaunchManager().addLaunchListener(this.consoleShowingLaunchListener);
+    }
+
+    private void unregisterListeners() {
+        DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(this.consoleShowingLaunchListener);
     }
 
     public static UiPlugin getInstance() {

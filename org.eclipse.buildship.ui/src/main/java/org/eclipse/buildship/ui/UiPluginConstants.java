@@ -23,7 +23,17 @@ public final class UiPluginConstants {
      * The context ID associated with the task view. This context is activated when the task view is
      * in focus.
      */
-    public static final String UI_TASKVIEW_CONTEXT_ID = "org.eclipse.buildship.ui.contexts.taskview";
+    public static final String TASKVIEW_CONTEXT_ID = "org.eclipse.buildship.ui.contexts.taskview";
+
+    /**
+     * The id of the <i>Console View</i> provided by Eclipse core.
+     */
+    public static final String CONSOLE_VIEW_ID = "org.eclipse.ui.console.ConsoleView";
+
+    /**
+     * The id of the <i>Run</i> launch group provided by Eclipse core.
+     */
+    public static final String RUN_LAUNCH_GROUP_ID = "org.eclipse.debug.ui.launchGroup.run";
 
     /**
      * The id of the command to refresh the task view.
@@ -44,11 +54,6 @@ public final class UiPluginConstants {
      * The id of the command to open the run configuration for the selected tasks.
      */
     public static final String OPEN_RUN_CONFIGURATION_COMMAND_ID = "org.eclipse.buildship.ui.commands.openrunconfiguration";
-
-    /**
-     * The id of the <i>Run</i> launch group provided by Eclipse core.
-     */
-    public static final String RUN_LAUNCH_GROUP_ID = "org.eclipse.debug.ui.launchGroup.run";
 
     /**
      * The id of the command to open the build script for the selected project.

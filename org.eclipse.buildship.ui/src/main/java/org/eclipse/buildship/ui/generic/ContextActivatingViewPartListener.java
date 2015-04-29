@@ -32,7 +32,7 @@ public final class ContextActivatingViewPartListener implements IPartListener2 {
     private final IContextService contextService;
     private IContextActivation activation;
 
-    @SuppressWarnings("cast")
+    @SuppressWarnings({"cast", "RedundantCast"})
     public ContextActivatingViewPartListener(String contextId, IViewPart viewPart) {
         this.viewPart = Preconditions.checkNotNull(viewPart);
         this.contextId = Preconditions.checkNotNull(contextId);

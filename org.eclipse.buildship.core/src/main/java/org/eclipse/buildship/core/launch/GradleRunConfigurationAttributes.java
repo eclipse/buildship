@@ -44,7 +44,8 @@ public final class GradleRunConfigurationAttributes {
     private static final String JAVA_HOME = "java_home";
     private static final String JVM_ARGUMENTS = "jvm_arguments";
     private static final String ARGUMENTS = "arguments";
-    private static final String VISUALIZE_TEST_PROGRESS = "visualize_test_progress";
+    private static final String SHOW_EXECUTION_VIEW = "show_execution_view";
+    private static final String SHOW_CONSOLE_VIEW = "show_console_view";
 
     private final ImmutableList<String> tasks;
     private final String workingDirExpression;
@@ -53,7 +54,8 @@ public final class GradleRunConfigurationAttributes {
     private final String javaHomeExpression;
     private final ImmutableList<String> jvmArgumentExpressions;
     private final ImmutableList<String> argumentExpressions;
-    private final boolean visualizeTestProgress;
+    private final boolean showExecutionView;
+    private final boolean showConsoleView;
 
     /**
      * Creates a new instance.
@@ -67,9 +69,11 @@ public final class GradleRunConfigurationAttributes {
      * @param javaHomeExpression the expression resolving to the Java home to use, can be null
      * @param jvmArgumentExpressions the expressions resolving to the JVM arguments to apply
      * @param argumentExpressions the expressions resolving to the arguments to apply
+     * @param showExecutionView flag to show the execution view
+     * @param showConsoleView flag to show the console view
      */
     private GradleRunConfigurationAttributes(List<String> tasks, String workingDirExpression, GradleDistribution gradleDistribution, String gradleUserHomeExpression,
-            String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean visualizeTestProgress) {
+            String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean showExecutionView, boolean showConsoleView) {
         this.tasks = ImmutableList.copyOf(tasks);
         this.workingDirExpression = Preconditions.checkNotNull(workingDirExpression);
         this.gradleDistribution = Preconditions.checkNotNull(gradleDistribution);
@@ -77,7 +81,8 @@ public final class GradleRunConfigurationAttributes {
         this.javaHomeExpression = javaHomeExpression;
         this.jvmArgumentExpressions = ImmutableList.copyOf(jvmArgumentExpressions);
         this.argumentExpressions = ImmutableList.copyOf(argumentExpressions);
-        this.visualizeTestProgress = visualizeTestProgress;
+        this.showExecutionView = showExecutionView;
+        this.showConsoleView = showConsoleView;
     }
 
     public ImmutableList<String> getTasks() {
@@ -173,8 +178,12 @@ public final class GradleRunConfigurationAttributes {
         }).toList();
     }
 
-    public boolean isVisualizeTestProgress() {
-        return this.visualizeTestProgress;
+    public boolean isShowExecutionView() {
+        return this.showExecutionView;
+    }
+
+    public boolean isShowConsoleView() {
+        return this.showConsoleView;
     }
 
     public boolean hasSameUniqueAttributes(ILaunchConfiguration launchConfiguration) {
@@ -198,7 +207,8 @@ public final class GradleRunConfigurationAttributes {
         applyJavaHomeExpression(this.javaHomeExpression, launchConfiguration);
         applyJvmArgumentExpressions(this.jvmArgumentExpressions, launchConfiguration);
         applyArgumentExpressions(this.argumentExpressions, launchConfiguration);
-        applyVisualizeTestProgress(this.visualizeTestProgress, launchConfiguration);
+        applyShowExecutionView(this.showExecutionView, launchConfiguration);
+        applyShowConsoleView(this.showConsoleView, launchConfiguration);
     }
 
     public static void applyTasks(List<String> tasks, ILaunchConfigurationWorkingCopy launchConfiguration) {
@@ -229,14 +239,18 @@ public final class GradleRunConfigurationAttributes {
         launchConfiguration.setAttribute(ARGUMENTS, argumentsExpression);
     }
 
-    public static void applyVisualizeTestProgress(boolean visualizeTestProgress, ILaunchConfigurationWorkingCopy launchConfiguration) {
-        launchConfiguration.setAttribute(VISUALIZE_TEST_PROGRESS, visualizeTestProgress);
+    public static void applyShowExecutionView(boolean showExecutionView, ILaunchConfigurationWorkingCopy launchConfiguration) {
+        launchConfiguration.setAttribute(SHOW_EXECUTION_VIEW, showExecutionView);
+    }
+
+    public static void applyShowConsoleView(boolean showConsoleView, ILaunchConfigurationWorkingCopy launchConfiguration) {
+        launchConfiguration.setAttribute(SHOW_CONSOLE_VIEW, showConsoleView);
     }
 
     public static GradleRunConfigurationAttributes with(List<String> tasks, String workingDirExpression, GradleDistribution gradleDistribution, String gradleUserHomeExpression,
-            String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean visualizeTestProgress) {
+            String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean showExecutionView, boolean showConsoleView) {
         return new GradleRunConfigurationAttributes(tasks, workingDirExpression, gradleDistribution, gradleUserHomeExpression, javaHomeExpression, jvmArgumentExpressions,
-                argumentExpressions, visualizeTestProgress);
+                argumentExpressions, showExecutionView, showConsoleView);
     }
 
     @SuppressWarnings("unchecked")
@@ -305,17 +319,26 @@ public final class GradleRunConfigurationAttributes {
             throw new GradlePluginsRuntimeException(message);
         }
 
-        boolean visualizeTestProgress;
+        boolean showExecutionView;
         try {
-            visualizeTestProgress = launchConfiguration.getAttribute(VISUALIZE_TEST_PROGRESS, true);
+            showExecutionView = launchConfiguration.getAttribute(SHOW_EXECUTION_VIEW, true);
         } catch (CoreException e) {
-            String message = String.format("Cannot read launch configuration attribute '%s'.", VISUALIZE_TEST_PROGRESS);
+            String message = String.format("Cannot read launch configuration attribute '%s'.", SHOW_EXECUTION_VIEW);
+            CorePlugin.logger().error(message, e);
+            throw new GradlePluginsRuntimeException(message);
+        }
+
+        boolean showConsoleView;
+        try {
+            showConsoleView = launchConfiguration.getAttribute(SHOW_CONSOLE_VIEW, true);
+        } catch (CoreException e) {
+            String message = String.format("Cannot read launch configuration attribute '%s'.", SHOW_CONSOLE_VIEW);
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message);
         }
 
         return with(tasks, workingDirExpression, gradleDistribution, gradleUserHomeExpression, javaHomeExpression, jvmArgumentExpressions, argumentExpressions,
-                visualizeTestProgress);
+                showExecutionView, showConsoleView);
     }
 
 }

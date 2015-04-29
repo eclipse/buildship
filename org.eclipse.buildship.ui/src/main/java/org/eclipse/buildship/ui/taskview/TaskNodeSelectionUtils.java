@@ -66,6 +66,7 @@ public final class TaskNodeSelectionUtils {
      * @param selection the selection to map
      * @return the mapped run configuration
      */
+    @SuppressWarnings("ConstantConditions")
     public static GradleRunConfigurationAttributes getRunConfigurationAttributes(NodeSelection selection) {
         Preconditions.checkNotNull(selection);
 
@@ -88,8 +89,12 @@ public final class TaskNodeSelectionUtils {
         List<String> jvmArguments = requestAttributes.isPresent() ? requestAttributes.get().getJvmArguments() : ImmutableList.<String>of();
         List<String> arguments = requestAttributes.isPresent() ? requestAttributes.get().getArguments() : ImmutableList.<String>of();
 
-        // create the run configuration with test progress visualization enabled by default
-        return GradleRunConfigurationAttributes.with(tasks, projectDirectoryExpression, gradleDistribution, gradleUserHome, javaHome, jvmArguments, arguments, true);
+        // have execution view and console view enabled by default
+        boolean showExecutionView = true;
+        boolean showConsoleView = true;
+
+        // create the run configuration
+        return GradleRunConfigurationAttributes.with(tasks, projectDirectoryExpression, gradleDistribution, gradleUserHome, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView);
     }
 
     private static Optional<FixedRequestAttributes> getFixedRequestAttributes(NodeSelection selection) {

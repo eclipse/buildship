@@ -186,7 +186,7 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
     }
 
     private Optional<GradleTestRunSessionForwardingTestProgressListener> createTestProgressListenerIfEnabled(GradleRunConfigurationAttributes configurationAttributes) {
-        if (configurationAttributes.isVisualizeTestProgress()) {
+        if (configurationAttributes.isShowExecutionView()) {
             Optional<IJavaProject> workspaceProject = findJavaProjectInWorkspace(configurationAttributes);
             GradleTestRunSessionForwardingTestProgressListener testProgressListener = new GradleTestRunSessionForwardingTestProgressListener(this.launch, workspaceProject);
             return Optional.of(testProgressListener);

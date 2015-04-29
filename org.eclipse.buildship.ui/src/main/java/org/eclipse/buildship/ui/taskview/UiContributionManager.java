@@ -62,7 +62,7 @@ public final class UiContributionManager {
         this.managedActionsSelectionChangedListener = new ActionEnablingSelectionChangedListener(taskView.getTreeViewer(), this.managedActions);
         this.treeViewerSelectionChangeListener = new TreeViewerSelectionChangeListener(taskView);
         this.treeViewerDoubleClickListener = new TreeViewerDoubleClickListener(UiPluginConstants.RUN_TASKS_COMMAND_ID, taskView.getTreeViewer());
-        this.contextActivatingViewPartListener = new ContextActivatingViewPartListener(UiPluginConstants.UI_TASKVIEW_CONTEXT_ID, taskView);
+        this.contextActivatingViewPartListener = new ContextActivatingViewPartListener(UiPluginConstants.TASKVIEW_CONTEXT_ID, taskView);
         this.workbenchSelectionListener = new WorkbenchSelectionListener(taskView);
         this.workspaceProjectsChangeListener = new WorkspaceProjectsChangeListener(taskView);
     }
