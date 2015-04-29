@@ -51,6 +51,10 @@ public class ExecutionPart extends ViewPart implements FilteredTreePart {
 
     private ExecutionItem root = new ExecutionItem(null);
 
+    private BuildLaunchRequestListener buildLaunchRequestListener;
+
+    private ProgressItemCreatedListener progressItemCreatedListener;
+
     @Override
     public void createPartControl(Composite parent) {
 
@@ -86,6 +90,13 @@ public class ExecutionPart extends ViewPart implements FilteredTreePart {
         return filteredTree.getViewer();
     }
 
+    @Override
+    public void dispose() {
+        super.dispose();
+        CorePlugin.eventBroker().unsubscribe(buildLaunchRequestListener);
+        CorePlugin.eventBroker().unsubscribe(progressItemCreatedListener);
+    }
+
     protected void createViewerColumns() {
         labelColumn = new TreeViewerColumn(getTreeViewer(), SWT.NONE);
         labelColumn.getColumn().setText("Operations");
@@ -97,11 +108,13 @@ public class ExecutionPart extends ViewPart implements FilteredTreePart {
     }
 
     protected void registerBuildLaunchRequestListener() {
-        CorePlugin.eventBus().register(new BuildLaunchRequestListener(root));
+        this.buildLaunchRequestListener = new BuildLaunchRequestListener(root);
+        CorePlugin.eventBroker().subscribe("", buildLaunchRequestListener);
     }
 
     protected void registerExpandTreeOnNewProgressListener() {
-        CorePlugin.eventBus().register(new ProgressItemCreatedListener(getTreeViewer()));
+        this.progressItemCreatedListener = new ProgressItemCreatedListener(getTreeViewer());
+        CorePlugin.eventBroker().subscribe("", progressItemCreatedListener);
     }
 
     private void bindUI() {

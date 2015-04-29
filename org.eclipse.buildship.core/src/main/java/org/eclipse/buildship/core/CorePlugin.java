@@ -33,7 +33,9 @@ import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
 import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigurationManager;
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.console.internal.StdProcessStreamsProvider;
+import org.eclipse.buildship.core.event.EventBroker;
 import org.eclipse.buildship.core.event.GradleEvent;
+import org.eclipse.buildship.core.event.internal.GuavaEventBroker;
 import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.util.logging.EclipseLogger;
@@ -56,7 +58,7 @@ import org.eclipse.buildship.core.workspace.internal.DefaultWorkspaceOperations;
  * <li>{@link #workspaceOperations()}: workspace operations to add/modify/delete projects in the
  * workspace</li>
  * <li>{@link #publishedGradleVersions()}: to retrieve all released Gradle versions</li>
- * <li>{@link #eventBus()}: to be able to use one common {@link EventBus} within Buildship for event
+ * <li>{@link #eventBroker()}: to be able to use one common {@link EventBus} within Buildship for event
  * communication. The events, which are send by this {@link EventBus} should be an implementation of
  * {@link GradleEvent}, in order to have a common interface for events.</li>
  * </ul>
@@ -81,7 +83,7 @@ public final class CorePlugin extends Plugin {
     private ServiceRegistration processStreamsProviderService;
     private ServiceRegistration gradleLaunchConfigurationService;
     private ServiceRegistration workbenchOperationsService;
-    private ServiceRegistration eventBusService;
+    private ServiceRegistration eventBrokerService;
 
     // service tracker for each service to allow to register other service implementations of the
     // same type but with higher prioritization, useful for testing
@@ -93,7 +95,7 @@ public final class CorePlugin extends Plugin {
     private ServiceTracker processStreamsProviderServiceTracker;
     private ServiceTracker gradleLaunchConfigurationServiceTracker;
     private ServiceTracker workbenchOperationsServiceTracker;
-    private ServiceTracker eventBusServiceTracker;
+    private ServiceTracker eventBrokerServiceTracker;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
@@ -124,7 +126,7 @@ public final class CorePlugin extends Plugin {
         this.processStreamsProviderServiceTracker = createServiceTracker(context, ProcessStreamsProvider.class);
         this.gradleLaunchConfigurationServiceTracker = createServiceTracker(context, GradleLaunchConfigurationManager.class);
         this.workbenchOperationsServiceTracker = createServiceTracker(context, WorkbenchOperations.class);
-        this.eventBusServiceTracker = createServiceTracker(context, EventBus.class);
+        this.eventBrokerServiceTracker = createServiceTracker(context, EventBroker.class);
 
         // register all services
         this.loggerService = registerService(context, Logger.class, createLogger(), preferences);
@@ -135,7 +137,7 @@ public final class CorePlugin extends Plugin {
         this.processStreamsProviderService = registerService(context, ProcessStreamsProvider.class, createProcessStreamsProvider(), preferences);
         this.gradleLaunchConfigurationService = registerService(context, GradleLaunchConfigurationManager.class, createGradleLaunchConfigurationManager(), preferences);
         this.workbenchOperationsService = registerService(context, WorkbenchOperations.class, createWorkbenchOperations(), preferences);
-        this.eventBusService = registerService(context, EventBus.class, createEventBus(), preferences);
+        this.eventBrokerService = registerService(context, EventBroker.class, createEventBroker(), preferences);
     }
 
     private ServiceTracker createServiceTracker(BundleContext context, Class<?> clazz) {
@@ -182,8 +184,8 @@ public final class CorePlugin extends Plugin {
         return new EmptyWorkbenchOperations();
     }
 
-    private EventBus createEventBus() {
-		return new EventBus("Buildship-Core");
+    private EventBroker createEventBroker() {
+        return new GuavaEventBroker();
 	}
 
 	private void unregisterServices() {
@@ -195,7 +197,7 @@ public final class CorePlugin extends Plugin {
         this.modelRepositoryProviderService.unregister();
         this.publishedGradleVersionsService.unregister();
         this.loggerService.unregister();
-        this.eventBusService.unregister();
+        this.eventBrokerService.unregister();
 
         this.workbenchOperationsServiceTracker.close();
         this.gradleLaunchConfigurationServiceTracker.close();
@@ -205,7 +207,7 @@ public final class CorePlugin extends Plugin {
         this.modelRepositoryProviderServiceTracker.close();
         this.publishedGradleVersionsServiceTracker.close();
         this.loggerServiceTracker.close();
-        this.eventBusServiceTracker.close();
+        this.eventBrokerServiceTracker.close();
     }
 
     public static CorePlugin getInstance() {
@@ -244,8 +246,8 @@ public final class CorePlugin extends Plugin {
         return (WorkbenchOperations) getInstance().workbenchOperationsServiceTracker.getService();
     }
 
-    public static EventBus eventBus() {
-    	return (EventBus) getInstance().eventBusServiceTracker.getService();
+    public static EventBroker eventBroker() {
+        return (EventBroker) getInstance().eventBrokerServiceTracker.getService();
     }
 
 }

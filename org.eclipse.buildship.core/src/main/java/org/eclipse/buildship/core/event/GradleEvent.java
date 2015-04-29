@@ -17,7 +17,7 @@ import org.eclipse.buildship.core.event.internal.DefaultGradleEvent;
 
 /**
  * This is supposed to be the common interface for events, which are propagated by the
- * {@link CorePlugin#eventBus()}
+ * {@link CorePlugin#eventBroker()}
  *
  * @param <T> is the type of the element, which is passed within the event
  *

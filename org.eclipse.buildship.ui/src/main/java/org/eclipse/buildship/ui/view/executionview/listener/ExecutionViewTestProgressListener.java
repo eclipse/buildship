@@ -70,7 +70,7 @@ public class ExecutionViewTestProgressListener implements TestProgressListener {
         if (null == executionItem) {
             executionItem = new ExecutionItem(descriptor);
             executionItemMap.put(descriptor, executionItem);
-            CorePlugin.eventBus().post(new ExecutionItemCreatedEvent(this, executionItem));
+            CorePlugin.eventBroker().post("", new ExecutionItemCreatedEvent(this, executionItem));
         }
         // set the last progress event, so that this can be obtained from the viewers selection
         executionItem.setLastProgressEvent(event);
