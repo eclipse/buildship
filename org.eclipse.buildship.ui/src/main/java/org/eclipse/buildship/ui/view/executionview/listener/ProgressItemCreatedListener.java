@@ -14,8 +14,9 @@ package org.eclipse.buildship.ui.view.executionview.listener;
 import com.google.common.eventbus.Subscribe;
 
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.jface.viewers.Viewer;
 
+import org.eclipse.buildship.ui.view.ViewerPart;
 import org.eclipse.buildship.ui.view.executionview.model.internal.ExecutionItemCreatedEvent;
 
 /**
@@ -24,22 +25,26 @@ import org.eclipse.buildship.ui.view.executionview.model.internal.ExecutionItemC
  */
 public class ProgressItemCreatedListener {
 
-    private TreeViewer viewer;
-    private Display display;
+    private ViewerPart viewerPart;
 
-    public ProgressItemCreatedListener(TreeViewer viewer) {
-        this.viewer = viewer;
-        this.display = viewer.getControl().getDisplay();
+    public ProgressItemCreatedListener(ViewerPart treePart) {
+        this.viewerPart = treePart;
     }
 
     @Subscribe
     public void progressItemCreated(ExecutionItemCreatedEvent progressItemCreatedEvent) {
-        display.asyncExec(new Runnable() {
+        Viewer viewer = viewerPart.getViewer();
+        if (viewer != null) {
+            viewer.getControl().getDisplay().asyncExec(new Runnable() {
 
-            @Override
-            public void run() {
-                viewer.expandAll();
-            }
-        });
+                @Override
+                public void run() {
+                    Viewer viewer = viewerPart.getViewer();
+                    if (viewer instanceof TreeViewer) {
+                        ((TreeViewer) viewer).expandAll();
+                    }
+                }
+            });
+        }
     }
 }

@@ -144,7 +144,7 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         }
 
         // Send BuildLaunchRequestEvent
-        BuildLaunchRequestEvent buildLaunchEvent = new DefaultBuildLaunchRequestEvent(this, request);
+        BuildLaunchRequestEvent buildLaunchEvent = new DefaultBuildLaunchRequestEvent(this, request, processName);
         CorePlugin.eventBroker().send("", buildLaunchEvent);
 
         // launch the build (optionally with test execution progress being tracked)

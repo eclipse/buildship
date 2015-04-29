@@ -9,17 +9,22 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.event;
+package org.eclipse.buildship.ui.view.pages;
 
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 
-/**
- * This marker interface is used for events, which contain a {@link BuildLaunchRequest} as element.
- *
- */
-public interface BuildLaunchRequestEvent extends GradleEvent<BuildLaunchRequest> {
+public interface IPage {
 
-    String getProcessName();
+    String getDisplayName();
 
-    void setProcessName(String processName);
+    void setDisplayName(String displayName);
+
+    void createPage(Composite parent);
+
+    Control getPageControl();
+
+    void setFocus();
+
+    void dispose();
 }

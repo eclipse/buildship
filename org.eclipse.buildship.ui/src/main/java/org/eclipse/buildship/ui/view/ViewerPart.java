@@ -9,17 +9,15 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.event;
+package org.eclipse.buildship.ui.view;
 
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
+import org.eclipse.jface.viewers.Viewer;
 
 /**
- * This marker interface is used for events, which contain a {@link BuildLaunchRequest} as element.
+ * Interface for parts, which contain a {@link Viewer}.
  *
  */
-public interface BuildLaunchRequestEvent extends GradleEvent<BuildLaunchRequest> {
+public interface ViewerPart {
 
-    String getProcessName();
-
-    void setProcessName(String processName);
+    Viewer getViewer();
 }

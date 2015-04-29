@@ -21,8 +21,18 @@ import org.eclipse.buildship.core.event.BuildLaunchRequestEvent;
  */
 public class DefaultBuildLaunchRequestEvent extends DefaultGradleEvent<BuildLaunchRequest> implements BuildLaunchRequestEvent {
 
-	public DefaultBuildLaunchRequestEvent(Object source,
-			BuildLaunchRequest element) {
+    private String processName;
+
+    public DefaultBuildLaunchRequestEvent(Object source, BuildLaunchRequest element, String processName) {
 		super(source, element);
+        this.setProcessName(processName);
 	}
+
+    public String getProcessName() {
+        return processName;
+    }
+
+    public void setProcessName(String processName) {
+        this.processName = processName;
+    }
 }

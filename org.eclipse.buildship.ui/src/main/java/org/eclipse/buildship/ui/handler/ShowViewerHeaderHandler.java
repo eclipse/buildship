@@ -16,32 +16,29 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import org.eclipse.buildship.ui.view.FilteredTreePart;
+import org.eclipse.buildship.ui.util.viewer.ViewerUtils;
+import org.eclipse.buildship.ui.view.ViewerPart;
 import org.eclipse.buildship.ui.view.executionview.ExecutionPartPreferences;
-import org.eclipse.buildship.ui.viewer.FilteredTree;
 
-public class ShowTreeFilterHandler extends AbstractToogleStateHandler {
+public class ShowViewerHeaderHandler extends AbstractToogleStateHandler {
 
     ExecutionPartPreferences prefs = new ExecutionPartPreferences();
 
     @Override
     protected boolean getToggleState() {
-        return prefs.getFilterVisibile();
+        return prefs.getHeaderVisibile();
     }
 
     @Override
     protected Object doExecute(ExecutionEvent event) {
 
-        // invert current filter visible state respectively the togglestate
-        prefs.setFilterVisibile(!getToggleState());
+        // invert current header visible state respectively the togglestate
+        prefs.setHeaderVisibile(!getToggleState());
 
         IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
-        if (activePart instanceof FilteredTreePart) {
-            FilteredTreePart filteredTreePart = (FilteredTreePart) activePart;
-            FilteredTree filteredTree = filteredTreePart.getFilteredTree();
-            if (filteredTree != null) {
-                filteredTree.setShowFilterControls(getToggleState());
-            }
+        if (activePart instanceof ViewerPart) {
+            ViewerPart viewerPart = (ViewerPart) activePart;
+            ViewerUtils.setHeaderVisible(viewerPart.getViewer(), getToggleState());
         }
 
         return Status.OK_STATUS;

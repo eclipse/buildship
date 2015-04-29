@@ -11,35 +11,44 @@
 
 package org.eclipse.buildship.ui.view.executionview.listener;
 
-import java.util.List;
-
-import com.google.common.collect.Lists;
 import com.google.common.eventbus.Subscribe;
 
+import org.eclipse.swt.widgets.Display;
+
 import org.eclipse.buildship.core.event.BuildLaunchRequestEvent;
-import org.eclipse.buildship.ui.PluginImage.ImageState;
-import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.view.executionview.model.ExecutionItem;
+import org.eclipse.buildship.ui.view.executionview.AbstractPagePart;
+import org.eclipse.buildship.ui.view.executionview.ExecutionPage;
 
 /**
  * This listener is invoked every time a Gradle build is started.
  */
 public class BuildLaunchRequestListener {
 
-    private ExecutionItem root;
 
-    public BuildLaunchRequestListener(ExecutionItem root) {
-        this.root = root;
+    private AbstractPagePart part;
+
+    public BuildLaunchRequestListener(AbstractPagePart part) {
+        this.part = part;
     }
 
     @Subscribe
-    public void handleBuildlaunchRequest(BuildLaunchRequestEvent event) {
-        List<ExecutionItem> rootChildren = Lists.newArrayList();
-        ExecutionItem buildStarted = new ExecutionItem(null, "Gradle Build");
-        buildStarted.setImage(PluginImages.GRADLE_ICON.withState(ImageState.ENABLED).getImageDescriptor());
-        rootChildren.add(buildStarted);
-        root.setChildren(rootChildren);
+    public void handleBuildlaunchRequest(final BuildLaunchRequestEvent event) {
 
-        event.getElement().testProgressListeners(new ExecutionViewTestProgressListener(buildStarted));
+        Display display = part.getSite().getShell().getDisplay();
+        // TODO use syncExec here, because otherwise the test progress listener might fire events
+        // too early. Once the Eclipse 4 IEventBroker is used we rather use IEventBroker.send than
+        // IEventBroker.post to avoid this
+        display.syncExec(new Runnable() {
+
+            @Override
+            public void run() {
+                ExecutionPage executionPage = new ExecutionPage();
+                executionPage.setDisplayName(event.getProcessName());
+                part.addPage(executionPage);
+                part.setCurrentPage(executionPage);
+
+                event.getElement().testProgressListeners(new ExecutionViewTestProgressListener(executionPage.getBuildStartedItem()));
+            }
+        });
     }
 }
