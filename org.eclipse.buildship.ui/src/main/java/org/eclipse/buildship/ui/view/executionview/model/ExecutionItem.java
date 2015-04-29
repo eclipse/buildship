@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.executionview.model;
+package org.eclipse.buildship.ui.view.executionview.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,11 +21,11 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 
-import org.eclipse.buildship.ui.executionview.ExecutionView;
+import org.eclipse.buildship.ui.view.executionview.ExecutionPart;
 
 /**
  * <p>
- * ProgressItems are the actual elements, which are shown in the {@link ExecutionView}.
+ * ProgressItems are the actual elements, which are shown in the {@link ExecutionPart}.
  * </p>
  * <p>
  * These object can be obtained by using the global selection provider. By calling

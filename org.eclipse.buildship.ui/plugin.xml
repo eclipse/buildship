@@ -56,7 +56,7 @@
       <view
             allowMultiple="true"
             category="org.eclipse.buildship.ui.views"
-            class="org.eclipse.buildship.ui.executionview.ExecutionView"
+            class="org.eclipse.buildship.ui.view.executionview.ExecutionPart"
             icon="icons/full/eview16/tasks.png"
             id="org.eclipse.buildship.ui.views.executionview"
             name="Gradle Execution"
@@ -101,6 +101,30 @@
             name="Open Gradle Build Script"
             description="Opens the Gradle build script for the selected Gradle project">
       </command>
+      <command
+            id="org.eclipse.buildship.ui.commands.showtreeheader"
+            name="Show Header">
+         <state
+               class="org.eclipse.ui.handlers.RegistryToggleState:true"
+               id="org.eclipse.ui.commands.toggleState">
+         </state>
+      </command>
+      <command
+            id="org.eclipse.buildship.ui.commands.showtreefilter"
+            name="Show Filter">
+         <state
+               class="org.eclipse.ui.handlers.RegistryToggleState:true"
+               id="org.eclipse.ui.commands.toggleState">
+         </state>
+      </command>
+      <command
+            id="org.eclipse.buildship.ui.commands.tree.expandall"
+            name="Expand all">
+      </command>
+      <command
+            id="org.eclipse.buildship.ui.commands.tree.collapseall"
+            name="Collapse all">
+      </command>
     </extension>
     <extension
           point="org.eclipse.ui.handlers">
@@ -123,6 +147,50 @@
       <handler
             commandId="org.eclipse.buildship.ui.commands.openbuildscript"
             class="org.eclipse.buildship.ui.taskview.OpenBuildScriptHandler">
+      </handler>
+      <handler
+            class="org.eclipse.buildship.ui.handler.ShowTreeHeaderHandler"
+            commandId="org.eclipse.buildship.ui.commands.showtreeheader">
+         <activeWhen>
+            <and>
+               <reference
+                     definitionId="org.eclipse.buildship.ui.isFilteredTreePart">
+               </reference>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.buildship.ui.handler.ShowTreeFilterHandler"
+            commandId="org.eclipse.buildship.ui.commands.showtreefilter">
+         <activeWhen>
+            <and>
+               <reference
+                     definitionId="org.eclipse.buildship.ui.isFilteredTreePart">
+               </reference>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.buildship.ui.handler.ExpandAllHandler"
+            commandId="org.eclipse.buildship.ui.commands.tree.expandall">
+         <activeWhen>
+            <and>
+               <reference
+                     definitionId="org.eclipse.buildship.ui.isFilteredTreePart">
+               </reference>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.buildship.ui.handler.CollapseAll"
+            commandId="org.eclipse.buildship.ui.commands.tree.collapseall">
+         <activeWhen>
+            <and>
+               <reference
+                     definitionId="org.eclipse.buildship.ui.isFilteredTreePart">
+               </reference>
+            </and>
+         </activeWhen>
       </handler>
     </extension>
     <extension
@@ -153,6 +221,14 @@
              commandId="org.eclipse.buildship.ui.commands.runtasks"
              icon="icons/full/elcl16/run.png"
              disabledIcon="icons/full/dlcl16/run.png">
+       </image>
+       <image
+             commandId="org.eclipse.buildship.ui.commands.tree.expandall"
+             icon="icons/full/elcl16/expandall.png">
+       </image>
+       <image
+             commandId="org.eclipse.buildship.ui.commands.tree.collapseall"
+             icon="icons/full/elcl16/collapseall.png">
        </image>
     </extension>
 
@@ -201,5 +277,47 @@
                 type="org.eclipse.ui.views.properties.IPropertySource">
           </adapter>
        </factory>
+    </extension>
+    <extension
+          name="Menus for the execution view"
+          point="org.eclipse.ui.menus">
+       <menuContribution
+             allPopups="false"
+             locationURI="menu:org.eclipse.buildship.ui.views.executionview">
+          <command
+                commandId="org.eclipse.buildship.ui.commands.showtreeheader"
+                style="toggle">
+          </command>
+          <command
+                commandId="org.eclipse.buildship.ui.commands.showtreefilter"
+                style="toggle">
+          </command>
+       </menuContribution>
+       <menuContribution
+             allPopups="false"
+             locationURI="toolbar:org.eclipse.buildship.ui.views.executionview">
+          <command
+                commandId="org.eclipse.buildship.ui.commands.tree.expandall"
+                style="push">
+          </command>
+          <command
+                commandId="org.eclipse.buildship.ui.commands.tree.collapseall"
+                style="push">
+          </command>
+       </menuContribution>
+    </extension>
+    <extension
+          point="org.eclipse.core.expressions.definitions">
+       <definition
+             id="org.eclipse.buildship.ui.isFilteredTreePart">
+          <and>
+             <with
+                   variable="activePart">
+                <instanceof
+                      value="org.eclipse.buildship.ui.view.FilteredTreePart">
+                </instanceof>
+             </with>
+          </and>
+       </definition>
     </extension>
  </plugin>

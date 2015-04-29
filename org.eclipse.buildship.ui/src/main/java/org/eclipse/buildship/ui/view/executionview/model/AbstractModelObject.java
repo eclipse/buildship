@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.executionview.model;
+package org.eclipse.buildship.ui.view.executionview.model;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;

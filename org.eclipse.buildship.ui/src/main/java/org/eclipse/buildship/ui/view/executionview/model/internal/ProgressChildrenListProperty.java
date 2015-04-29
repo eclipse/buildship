@@ -9,13 +9,13 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.executionview.model.internal;
+package org.eclipse.buildship.ui.view.executionview.model.internal;
 
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.property.list.DelegatingListProperty;
 import org.eclipse.core.databinding.property.list.IListProperty;
 
-import org.eclipse.buildship.ui.executionview.model.ExecutionItem;
+import org.eclipse.buildship.ui.view.executionview.model.ExecutionItem;
 
 /**
  * <p>

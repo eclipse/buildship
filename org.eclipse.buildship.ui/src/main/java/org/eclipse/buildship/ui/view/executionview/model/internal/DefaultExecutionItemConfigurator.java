@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.executionview.model.internal;
+package org.eclipse.buildship.ui.view.executionview.model.internal;
 
 import org.gradle.tooling.events.FinishEvent;
 import org.gradle.tooling.events.OperationResult;
@@ -19,8 +19,8 @@ import org.gradle.tooling.events.test.TestSuccessResult;
 
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.executionview.model.ExecutionItem;
-import org.eclipse.buildship.ui.executionview.model.ExecutionItemConfigurator;
+import org.eclipse.buildship.ui.view.executionview.model.ExecutionItem;
+import org.eclipse.buildship.ui.view.executionview.model.ExecutionItemConfigurator;
 
 /**
  * Default implementation of the {@link ExecutionItemConfigurator}.

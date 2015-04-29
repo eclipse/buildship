@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.executionview.listener;
+package org.eclipse.buildship.ui.view.executionview.listener;
 
 import java.util.List;
 import java.util.Map;
@@ -27,16 +27,16 @@ import com.google.common.collect.Maps;
 import org.eclipse.core.runtime.Platform;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.ui.executionview.ExecutionView;
-import org.eclipse.buildship.ui.executionview.model.ExecutionItem;
-import org.eclipse.buildship.ui.executionview.model.ExecutionItemConfigurator;
-import org.eclipse.buildship.ui.executionview.model.internal.DefaultExecutionItemConfigurator;
-import org.eclipse.buildship.ui.executionview.model.internal.ExecutionItemCreatedEvent;
+import org.eclipse.buildship.ui.view.executionview.ExecutionPart;
+import org.eclipse.buildship.ui.view.executionview.model.ExecutionItem;
+import org.eclipse.buildship.ui.view.executionview.model.ExecutionItemConfigurator;
+import org.eclipse.buildship.ui.view.executionview.model.internal.DefaultExecutionItemConfigurator;
+import org.eclipse.buildship.ui.view.executionview.model.internal.ExecutionItemCreatedEvent;
 
 /**
  * This class listens to {@link TestProgressEvent} events, which are send by the Gradle tooling API.
  * It creates appropriate {@link ExecutionItem} objects, which are shown in the
- * {@link ExecutionView}, according to the incoming events.
+ * {@link ExecutionPart}, according to the incoming events.
  *
  */
 public class ExecutionViewTestProgressListener implements TestProgressListener {

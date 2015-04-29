@@ -9,11 +9,11 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.executionview.model.internal;
+package org.eclipse.buildship.ui.view.executionview.model.internal;
 
 import org.eclipse.buildship.core.event.GradleEvent;
-import org.eclipse.buildship.ui.executionview.listener.ExecutionViewTestProgressListener;
-import org.eclipse.buildship.ui.executionview.model.ExecutionItem;
+import org.eclipse.buildship.ui.view.executionview.listener.ExecutionViewTestProgressListener;
+import org.eclipse.buildship.ui.view.executionview.model.ExecutionItem;
 
 /**
  * This event is fired, when new ExecutionItems are created and added.

@@ -9,17 +9,17 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.executionview.model;
+package org.eclipse.buildship.ui.view.executionview.model;
 
 import org.gradle.tooling.events.ProgressEvent;
 
-import org.eclipse.buildship.ui.executionview.ExecutionView;
-import org.eclipse.buildship.ui.executionview.model.internal.DefaultExecutionItemConfigurator;
+import org.eclipse.buildship.ui.view.executionview.ExecutionPart;
+import org.eclipse.buildship.ui.view.executionview.model.internal.DefaultExecutionItemConfigurator;
 
 /**
  * <p>
  * Implementations of this interface are used to configure {@link ExecutionItem} instances, which
- * are shown in the {@link ExecutionView}.
+ * are shown in the {@link ExecutionPart}.
  * </p>
  * <p>
  * Clients can offer a {@link ExecutionItemConfigurator} as an adapter of a {@link ProgressEvent}.<br/>

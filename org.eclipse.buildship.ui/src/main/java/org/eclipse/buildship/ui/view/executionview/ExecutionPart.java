@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.executionview;
+package org.eclipse.buildship.ui.view.executionview;
 
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.beans.IBeanValueProperty;
@@ -17,6 +17,7 @@ import org.eclipse.core.databinding.observable.set.IObservableSet;
 import org.eclipse.core.databinding.property.list.IListProperty;
 import org.eclipse.jface.databinding.viewers.ObservableListTreeContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapCellLabelProvider;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.ViewerColumn;
 import org.eclipse.swt.SWT;
@@ -24,10 +25,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.ui.executionview.listener.BuildLaunchRequestListener;
-import org.eclipse.buildship.ui.executionview.listener.ProgressItemCreatedListener;
-import org.eclipse.buildship.ui.executionview.model.ExecutionItem;
-import org.eclipse.buildship.ui.executionview.model.internal.ProgressChildrenListProperty;
+import org.eclipse.buildship.ui.view.FilteredTreePart;
+import org.eclipse.buildship.ui.view.executionview.listener.BuildLaunchRequestListener;
+import org.eclipse.buildship.ui.view.executionview.listener.ProgressItemCreatedListener;
+import org.eclipse.buildship.ui.view.executionview.model.ExecutionItem;
+import org.eclipse.buildship.ui.view.executionview.model.internal.ProgressChildrenListProperty;
 import org.eclipse.buildship.ui.viewer.FilteredTree;
 import org.eclipse.buildship.ui.viewer.PatternFilter;
 import org.eclipse.buildship.ui.viewer.labelprovider.ObservableMapCellWithIconLabelProvider;
@@ -37,7 +39,7 @@ import org.eclipse.buildship.ui.viewer.labelprovider.ObservableMapCellWithIconLa
  * operation and a duration column.
  *
  */
-public class ExecutionView extends ViewPart {
+public class ExecutionPart extends ViewPart implements FilteredTreePart {
 
     public static final String ID = "org.eclipse.buildship.ui.views.executionview";
 
@@ -52,9 +54,11 @@ public class ExecutionView extends ViewPart {
     @Override
     public void createPartControl(Composite parent) {
 
+        ExecutionPartPreferences partPrefs = new ExecutionPartPreferences();
+
         filteredTree = new FilteredTree(parent, SWT.BORDER, new PatternFilter());
-        filteredTree.setShowFilterControls(false);
-        filteredTree.getViewer().getTree().setHeaderVisible(true);
+        filteredTree.setShowFilterControls(partPrefs.getFilterVisibile());
+        filteredTree.getViewer().getTree().setHeaderVisible(partPrefs.getHeaderVisibile());
 
         createViewerColumns();
 
@@ -69,15 +73,25 @@ public class ExecutionView extends ViewPart {
 
     @Override
     public void setFocus() {
-        filteredTree.getViewer().getControl().setFocus();
+        getTreeViewer().getControl().setFocus();
+    }
+
+    @Override
+    public FilteredTree getFilteredTree() {
+        return filteredTree;
+    }
+
+    @Override
+    public TreeViewer getTreeViewer() {
+        return filteredTree.getViewer();
     }
 
     protected void createViewerColumns() {
-        labelColumn = new TreeViewerColumn(filteredTree.getViewer(), SWT.NONE);
+        labelColumn = new TreeViewerColumn(getTreeViewer(), SWT.NONE);
         labelColumn.getColumn().setText("Operations");
         labelColumn.getColumn().setWidth(450);
 
-        durationColumn = new TreeViewerColumn(filteredTree.getViewer(), SWT.NONE);
+        durationColumn = new TreeViewerColumn(getTreeViewer(), SWT.NONE);
         durationColumn.getColumn().setText("Duration");
         durationColumn.getColumn().setWidth(200);
     }
@@ -87,20 +101,20 @@ public class ExecutionView extends ViewPart {
     }
 
     protected void registerExpandTreeOnNewProgressListener() {
-        CorePlugin.eventBus().register(new ProgressItemCreatedListener(filteredTree.getViewer()));
+        CorePlugin.eventBus().register(new ProgressItemCreatedListener(getTreeViewer()));
     }
 
     private void bindUI() {
         IListProperty childrenProperty = new ProgressChildrenListProperty();
 
         ObservableListTreeContentProvider contentProvider = new ObservableListTreeContentProvider(childrenProperty.listFactory(), null);
-        filteredTree.getViewer().setContentProvider(contentProvider);
+        getTreeViewer().setContentProvider(contentProvider);
 
         IObservableSet knownElements = contentProvider.getKnownElements();
         attachLabelProvider(ExecutionItem.FIELD_LABEL, ExecutionItem.FIELD_IMAGE, knownElements, labelColumn);
         attachLabelProvider(ExecutionItem.FIELD_DURATION, null, knownElements, durationColumn);
 
-        filteredTree.getViewer().setInput(root);
+        getTreeViewer().setInput(root);
     }
 
     private void attachLabelProvider(String textProperty, String imageProperty, IObservableSet knownElements, ViewerColumn viewerColumn) {

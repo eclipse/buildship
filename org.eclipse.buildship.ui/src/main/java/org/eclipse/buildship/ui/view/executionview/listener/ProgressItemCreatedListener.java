@@ -9,14 +9,14 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.executionview.listener;
+package org.eclipse.buildship.ui.view.executionview.listener;
 
 import com.google.common.eventbus.Subscribe;
 
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Display;
 
-import org.eclipse.buildship.ui.executionview.model.internal.ExecutionItemCreatedEvent;
+import org.eclipse.buildship.ui.view.executionview.model.internal.ExecutionItemCreatedEvent;
 
 /**
  * This class listens to {@link ExecutionItemCreatedEvent} events and expands the TreeViewer, so
