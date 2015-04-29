@@ -18,7 +18,6 @@ import com.google.common.collect.ImmutableList;
 
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.TreeViewer;
 
 /**
  * Enables {@link SelectionSpecificAction} instances, after querying each action if it should be
@@ -28,21 +27,20 @@ import org.eclipse.jface.viewers.TreeViewer;
  */
 public final class ActionEnablingSelectionChangedListener implements ISelectionChangedListener {
 
-    private final TreeViewer treeViewer;
+    private final NodeSelectionProvider selectionProvider;
     private final ImmutableList<SelectionSpecificAction> actions;
 
-    public ActionEnablingSelectionChangedListener(TreeViewer treeViewer, List<? extends SelectionSpecificAction> actions) {
-        this.treeViewer = Preconditions.checkNotNull(treeViewer);
+    public ActionEnablingSelectionChangedListener(NodeSelectionProvider selectionProvider, List<? extends SelectionSpecificAction> actions) {
+        this.selectionProvider = Preconditions.checkNotNull(selectionProvider);
         this.actions = ImmutableList.copyOf(actions);
 
         // initialize the actions based on the current selection
-        handleSelection(NodeSelection.from(this.treeViewer.getSelection()));
+        handleSelection(this.selectionProvider.getNodeSelection());
     }
 
     @Override
     public void selectionChanged(SelectionChangedEvent event) {
-        NodeSelection selection = NodeSelection.from(this.treeViewer.getSelection());
-        handleSelection(selection);
+        handleSelection(this.selectionProvider.getNodeSelection());
     }
 
     private void handleSelection(NodeSelection selection) {

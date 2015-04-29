@@ -11,13 +11,13 @@
 
 package org.eclipse.buildship.ui.generic;
 
+import java.util.List;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.viewers.TreeViewer;
-
-import java.util.List;
 
 /**
  * Adds {@link SelectionSpecificAction} instances as menu items to the context menu of a given
@@ -28,17 +28,17 @@ import java.util.List;
  */
 public final class ActionShowingContextMenuListener implements IMenuListener {
 
-    private final TreeViewer treeViewer;
+    private final NodeSelectionProvider nodeSelectionProvider;
     private final ImmutableList<SelectionSpecificAction> actions;
 
-    public ActionShowingContextMenuListener(TreeViewer treeViewer, List<? extends SelectionSpecificAction> actions) {
-        this.treeViewer = Preconditions.checkNotNull(treeViewer);
+    public ActionShowingContextMenuListener(NodeSelectionProvider nodeSelectionProvider, List<? extends SelectionSpecificAction> actions) {
+        this.nodeSelectionProvider = Preconditions.checkNotNull(nodeSelectionProvider);
         this.actions = ImmutableList.copyOf(actions);
     }
 
     @Override
     public void menuAboutToShow(IMenuManager manager) {
-        NodeSelection selection = NodeSelection.from(this.treeViewer.getSelection());
+        NodeSelection selection = this.nodeSelectionProvider.getNodeSelection();
         handleSelection(manager, selection);
     }
 

@@ -59,7 +59,7 @@ public final class UiContributionManager {
         OpenBuildScriptAction openBuildScriptAction = new OpenBuildScriptAction(UiPluginConstants.OPEN_BUILD_SCRIPT_COMMAND_ID);
         this.managedActions = ImmutableList.<SelectionSpecificAction> of(runTasksAction, runDefaultTasksAction, createRunConfigurationAction, openRunConfigurationAction, openBuildScriptAction);
 
-        this.managedActionsSelectionChangedListener = new ActionEnablingSelectionChangedListener(taskView.getTreeViewer(), this.managedActions);
+        this.managedActionsSelectionChangedListener = new ActionEnablingSelectionChangedListener(taskView, this.managedActions);
         this.treeViewerSelectionChangeListener = new TreeViewerSelectionChangeListener(taskView);
         this.treeViewerDoubleClickListener = new TreeViewerDoubleClickListener(UiPluginConstants.RUN_TASKS_COMMAND_ID, taskView.getTreeViewer());
         this.contextActivatingViewPartListener = new ContextActivatingViewPartListener(UiPluginConstants.TASKVIEW_CONTEXT_ID, taskView);
@@ -100,7 +100,7 @@ public final class UiContributionManager {
     private void fillContextMenu() {
         MenuManager contextMenuManager = new MenuManager();
         contextMenuManager.setRemoveAllWhenShown(true);
-        contextMenuManager.addMenuListener(new ActionShowingContextMenuListener(this.taskView.getTreeViewer(), this.managedActions));
+        contextMenuManager.addMenuListener(new ActionShowingContextMenuListener(this.taskView, this.managedActions));
         Control treeViewerControl = this.taskView.getTreeViewer().getControl();
         Menu contextMenu = contextMenuManager.createContextMenu(treeViewerControl);
         this.taskView.getTreeViewer().getControl().setMenu(contextMenu);

@@ -31,7 +31,7 @@ import org.eclipse.buildship.ui.generic.NodeSelection;
         boolean enabled;
         TaskView taskView = getTaskView();
         if (taskView != null) {
-            NodeSelection selectionHistory = taskView.getSelectionHistory();
+            NodeSelection selectionHistory = taskView.getNodeSelection();
             enabled = isEnabledFor(selectionHistory);
         } else {
             enabled = false;
@@ -45,7 +45,7 @@ import org.eclipse.buildship.ui.generic.NodeSelection;
             throw new IllegalStateException(String.format("Cannot execute command '%s' in current window.", getCommandName(event)));
         }
 
-        NodeSelection selectionHistory = taskView.getSelectionHistory();
+        NodeSelection selectionHistory = taskView.getNodeSelection();
         if (!isEnabledFor(selectionHistory)) {
             throw new IllegalStateException(String.format("Cannot execute command '%s' for current selection.", getCommandName(event)));
         }

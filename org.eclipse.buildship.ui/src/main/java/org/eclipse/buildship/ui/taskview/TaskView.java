@@ -29,13 +29,14 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.ui.generic.NodeSelection;
+import org.eclipse.buildship.ui.generic.NodeSelectionProvider;
 import org.eclipse.buildship.ui.generic.QuickSearchManager;
 import org.eclipse.buildship.ui.generic.SelectionHistoryManager;
 
 /**
  * A view displaying the Gradle tasks of the Gradle projects in the workspace.
  */
-public final class TaskView extends ViewPart {
+public final class TaskView extends ViewPart implements NodeSelectionProvider {
 
     // view id declared in the plugin.xml
     public static final String ID = "org.eclipse.buildship.ui.views.taskview"; //$NON-NLS-1$
@@ -164,7 +165,8 @@ public final class TaskView extends ViewPart {
         return this.treeViewer;
     }
 
-    public NodeSelection getSelectionHistory() {
+    @Override
+    public NodeSelection getNodeSelection() {
         return this.selectionHistoryManager.getSelectionHistory();
     }
 
