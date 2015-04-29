@@ -6,13 +6,13 @@ apply plugin: eclipsebuild.BuildDefinitionPlugin
 
 // define version mapping for the 3rd-party dependencies that are not specific to a particular Eclipse version
 def eclipseVersionAgnosticDependencies = [
-    "com.gradleware.tooling.utils" : "0.3.0.201504241116",
-    "com.gradleware.tooling.client": "0.3.0.201504241116",
-    "com.gradleware.tooling.model" : "0.3.0.201504241116",
-    "org.gradle.toolingapi"        : "2.4.0.201504241116",
-    "org.slf4j.api"                : "1.7.10.201504241116",
-    "org.slf4j.simple"             : "1.7.10.201504241116",
-    "com.google.guava"             : "18.0.0.201504241116",
+    "com.gradleware.tooling.utils" : "0.3.0.201504290938",
+    "com.gradleware.tooling.client": "0.3.0.201504290938",
+    "com.gradleware.tooling.model" : "0.3.0.201504290938",
+    "org.gradle.toolingapi"        : "2.4.0.201504290938",
+    "org.slf4j.api"                : "1.7.10.201504290938",
+    "org.slf4j.simple"             : "1.7.10.201504290938",
+    "com.google.guava"             : "18.0.0.201504290938",
     "com.google.gson"              : "2.2.4.v201311231704"
 ]
 
