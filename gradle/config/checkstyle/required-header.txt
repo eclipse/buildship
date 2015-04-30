@@ -6,6 +6,6 @@
 ^ \* http://www\.eclipse\.org/legal/epl-v10\.html$
 ^ \*$
 ^ \* Contributors:$
-^ \*     (Etienne Studer & Donát Csikós \(Gradle Inc\.\) - initial API and implementation and initial documentation|.* - Bug [0-9]+.*)$
+^ \*     ((Etienne Studer & Donát Csikós \(Gradle Inc\.\)|Simon Scholz \(vogella GmbH\)) - initial API and implementation and initial documentation|.* - Bug [0-9]+.*)$
 ^ \*/$
 ^$
