@@ -365,7 +365,7 @@
              allPopups="false"
              locationURI="menu:org.eclipse.buildship.ui.commands.switchpage">
           <dynamic
-                class="org.eclipse.buildship.ui.handler.DynmaicCommandSwitch"
+                class="org.eclipse.buildship.ui.handler.DynamicCommandSwitch"
                 id="org.eclipse.buildship.ui.commands.switchtopage">
           </dynamic>
        </menuContribution>

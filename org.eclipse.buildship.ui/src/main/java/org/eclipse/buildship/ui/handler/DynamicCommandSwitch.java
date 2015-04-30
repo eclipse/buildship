@@ -28,7 +28,7 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.buildship.ui.view.executionview.AbstractPagePart;
 import org.eclipse.buildship.ui.view.pages.IPage;
 
-public class DynmaicCommandSwitch extends CompoundContributionItem {
+public class DynamicCommandSwitch extends CompoundContributionItem {
 
     @Override
     protected IContributionItem[] getContributionItems() {

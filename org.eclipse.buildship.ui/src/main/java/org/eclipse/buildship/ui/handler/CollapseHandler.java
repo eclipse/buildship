@@ -11,6 +11,8 @@
 
 package org.eclipse.buildship.ui.handler;
 
+import java.util.List;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -38,8 +40,10 @@ public class CollapseHandler extends AbstractHandler {
                 ISelection selection = HandlerUtil.getCurrentSelection(event);
                 if (selection instanceof TreeSelection) {
                     TreeSelection treeSelection = (TreeSelection) selection;
-                    Object element = treeSelection.getFirstElement();
-                    treeViewer.collapseToLevel(element, TreeViewer.ALL_LEVELS);
+                    List<?> elements = treeSelection.toList();
+                    for (Object element : elements) {
+                        treeViewer.collapseToLevel(element, TreeViewer.ALL_LEVELS);
+                    }
                 } else {
                     treeViewer.collapseAll();
                 }

@@ -62,7 +62,7 @@ public class ExecutionPage implements IPage, FilteredTreePart {
 
         ExecutionPartPreferences partPrefs = new ExecutionPartPreferences();
 
-        filteredTree = new FilteredTree(parent, SWT.BORDER, new PatternFilter());
+        filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, new PatternFilter());
         filteredTree.setShowFilterControls(partPrefs.getFilterVisibile());
         filteredTree.getViewer().getTree().setHeaderVisible(partPrefs.getHeaderVisibile());
 
