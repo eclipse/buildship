@@ -116,10 +116,11 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
     private OmniEclipseGradleBuild fetchEclipseGradleBuild(FixedRequestAttributes fixedRequestAttributes) {
         ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
         List<ProgressListener> noProgressListeners = ImmutableList.of();
+        List<BuildProgressListener> noBuildProgressListeners = ImmutableList.of();
+        List<TaskProgressListener> noTaskProgressListeners = ImmutableList.of();
         List<TestProgressListener> noTestProgressListeners = ImmutableList.of();
         CancellationToken cancellationToken = GradleConnector.newCancellationTokenSource().token();
-        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), null, noProgressListeners,
-                ImmutableList.<BuildProgressListener> of(), ImmutableList.<TaskProgressListener> of(), noTestProgressListeners, cancellationToken);
+        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), null, noProgressListeners, noBuildProgressListeners, noTaskProgressListeners, noTestProgressListeners, cancellationToken);
         ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(fixedRequestAttributes);
         return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
     }
