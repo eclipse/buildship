@@ -12,15 +12,15 @@
 package org.eclipse.buildship.ui.generic;
 
 /**
- * Gives access to the current {@link NodeSelection} instance on a UI component respecting the
- * temporal order of the selection.
+ * Provides the current selection of a visual component, respecting the temporal order of the selection.
  */
 public interface NodeSelectionProvider {
 
     /**
-     * Retrieves the node selection.
+     * Returns the current selection.
      *
-     * @return the current node selection
+     * @return the current selection
      */
-    NodeSelection getNodeSelection();
+    NodeSelection getSelection();
+
 }

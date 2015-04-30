@@ -20,25 +20,24 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 
 /**
- * Adds {@link SelectionSpecificAction} instances as menu items to the context menu of a given
- * {@link TreeViewer} instance, after querying each action if it should be shown for the current
- * selection.
+ * Adds {@link SelectionSpecificAction} instances as menu items to the context menu of the provided
+ * menu manager, after querying each action if it should be shown for the current selection.
  *
  * @see SelectionSpecificAction#isVisibleFor(NodeSelection)
  */
 public final class ActionShowingContextMenuListener implements IMenuListener {
 
-    private final NodeSelectionProvider nodeSelectionProvider;
+    private final NodeSelectionProvider selectionProvider;
     private final ImmutableList<SelectionSpecificAction> actions;
 
-    public ActionShowingContextMenuListener(NodeSelectionProvider nodeSelectionProvider, List<? extends SelectionSpecificAction> actions) {
-        this.nodeSelectionProvider = Preconditions.checkNotNull(nodeSelectionProvider);
+    public ActionShowingContextMenuListener(NodeSelectionProvider selectionProvider, List<? extends SelectionSpecificAction> actions) {
+        this.selectionProvider = Preconditions.checkNotNull(selectionProvider);
         this.actions = ImmutableList.copyOf(actions);
     }
 
     @Override
     public void menuAboutToShow(IMenuManager manager) {
-        NodeSelection selection = this.nodeSelectionProvider.getNodeSelection();
+        NodeSelection selection = this.selectionProvider.getSelection();
         handleSelection(manager, selection);
     }
 

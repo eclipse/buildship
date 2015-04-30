@@ -11,17 +11,16 @@
 
 package org.eclipse.buildship.ui.generic;
 
-import java.util.List;
-
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+
+import java.util.List;
 
 /**
  * Provides information about a given set of selected nodes.
@@ -36,22 +35,30 @@ public final class NodeSelection {
         this.nodes = ImmutableList.copyOf(nodes);
     }
 
+    /**
+     * Returns whether the selection is empty.
+     *
+     * @return {@code true} if the selection is empty, {@code false} otherwise
+     */
     public boolean isEmpty() {
         return this.nodes.isEmpty();
     }
 
+    /**
+     * Returns whether a single node is selected.
+     *
+     * @return {@code true} if a single node is selected, {@code false} otherwise
+     */
     public boolean isSingleSelection() {
         return this.nodes.size() == 1;
     }
 
-    public <T>T getFirstNode(Class<T> expectedType) {
-        if (isEmpty()) {
-            throw new IllegalStateException("Selection is empty.");
-        } else {
-            return expectedType.cast(this.nodes.get(0));
-        }
-    }
-
+    /**
+     * Returns the first node.
+     *
+     * @return the first node
+     * @throws java.lang.IllegalStateException thrown if the selection is empty
+     */
     public Object getFirstNode() {
         if (isEmpty()) {
             throw new IllegalStateException("Selection is empty.");
@@ -60,14 +67,34 @@ public final class NodeSelection {
         }
     }
 
-    public ImmutableList<?> getNodes() {
-        return this.nodes;
+    /**
+     * Returns the first node where the first node is expected to be of the given type.
+     *
+     * @param expectedType the expected type of the first node
+     * @return the first node
+     * @throws java.lang.IllegalStateException thrown if the selection is empty
+     */
+    public <T> T getFirstNode(Class<T> expectedType) {
+        if (isEmpty()) {
+            throw new IllegalStateException("Selection is empty.");
+        } else {
+            return expectedType.cast(this.nodes.get(0));
+        }
     }
 
     /**
      * Returns a list of all nodes.
      *
-     * @param expectedType the expected type of the nodes
+     * @return the list of all nodes
+     */
+    public ImmutableList<?> getNodes() {
+        return this.nodes;
+    }
+
+    /**
+     * Returns a list of all nodes where all nodes are expected to be of the given type.
+     *
+     * @param expectedType the expected type of all nodes
      * @return the list of all nodes
      * @throws ClassCastException thrown if a node is not of the expected type
      */
@@ -102,10 +129,8 @@ public final class NodeSelection {
     }
 
     /**
-     * Merges this node selection with the given node selection by removing those nodes that are not
-     * part of the new selection and by adding those nodes that are only in the new selection. The
-     * merge result is returned as a new {@code NodeSelection} instance, while this node selection
-     * is not modified.
+     * Merges this node selection with the given node selection by removing those nodes that are not part of the new selection and by adding those nodes that are only in the new
+     * selection. The merge result is returned as a new {@code NodeSelection} instance, while this node selection is not modified.
      *
      * @param newSelection the node selection to merge with
      * @return a new instance containing the merge result
@@ -158,9 +183,8 @@ public final class NodeSelection {
     }
 
     /**
-     * Creates a new instance reflecting the given {@link ISelection} instance. All selection
-     * sub-types other than the {@link IStructuredSelection} sub-type will always have an empty
-     * {@link NodeSelection} instance returned.
+     * Creates a new instance reflecting the given {@link ISelection} instance. All selection sub-types other than the {@link IStructuredSelection} sub-type will always have an
+     * empty {@link NodeSelection} instance returned.
      *
      * @param selection the selection from which to create the new instance
      * @return the new instance

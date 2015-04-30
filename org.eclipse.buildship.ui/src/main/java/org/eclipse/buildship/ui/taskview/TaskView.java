@@ -166,7 +166,7 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
     }
 
     @Override
-    public NodeSelection getNodeSelection() {
+    public NodeSelection getSelection() {
         return this.selectionHistoryManager.getSelectionHistory();
     }
 

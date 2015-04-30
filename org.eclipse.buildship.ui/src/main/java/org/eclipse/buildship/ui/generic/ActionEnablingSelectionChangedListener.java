@@ -35,12 +35,12 @@ public final class ActionEnablingSelectionChangedListener implements ISelectionC
         this.actions = ImmutableList.copyOf(actions);
 
         // initialize the actions based on the current selection
-        handleSelection(this.selectionProvider.getNodeSelection());
+        handleSelection(this.selectionProvider.getSelection());
     }
 
     @Override
     public void selectionChanged(SelectionChangedEvent event) {
-        handleSelection(this.selectionProvider.getNodeSelection());
+        handleSelection(this.selectionProvider.getSelection());
     }
 
     private void handleSelection(NodeSelection selection) {
