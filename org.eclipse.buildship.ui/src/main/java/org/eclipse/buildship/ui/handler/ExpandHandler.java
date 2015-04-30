@@ -26,6 +26,9 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import org.eclipse.buildship.ui.part.ViewerProvider;
 
+/**
+ * This handler is able to expand tree items in a {@link ViewerProvider} part.
+ */
 public class ExpandHandler extends AbstractHandler {
 
     @Override

@@ -26,6 +26,10 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import org.eclipse.buildship.ui.part.ViewerProvider;
 
+/**
+ * This handler is able to collapse tree items in a {@link ViewerProvider} part.
+ *
+ */
 public class CollapseHandler extends AbstractHandler {
 
     @Override

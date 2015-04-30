@@ -20,6 +20,10 @@ import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.graphics.Image;
 
+/**
+ * This ObservableMapCellLabelProvider implementation also supports an image for a
+ * {@link ViewerCell}.
+ */
 public class ObservableMapCellWithIconLabelProvider extends ObservableMapCellLabelProvider {
 
     private ResourceManager resourceManager;

@@ -18,12 +18,15 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import org.eclipse.buildship.ui.part.AbstractPagePart;
 import org.eclipse.buildship.ui.part.ViewerProvider;
-import org.eclipse.buildship.ui.part.execution.AbstractPagePart;
 import org.eclipse.buildship.ui.part.execution.ExecutionPartPreferences;
 import org.eclipse.buildship.ui.part.pages.IPage;
 import org.eclipse.buildship.ui.util.viewer.ViewerUtils;
 
+/**
+ * This handler toggles the visibility of the header in {@link ViewerProvider} implementations.
+ */
 public class ShowViewerHeaderHandler extends AbstractToogleStateHandler {
 
     ExecutionPartPreferences prefs = new ExecutionPartPreferences();

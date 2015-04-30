@@ -12,13 +12,12 @@
 package org.eclipse.buildship.ui.part.execution.model.internal;
 
 import org.eclipse.buildship.core.event.GradleEvent;
-import org.eclipse.buildship.ui.part.execution.listener.ExecutionTestProgressListener;
 import org.eclipse.buildship.ui.part.execution.model.OperationItem;
 
 /**
  * This event is fired, when new ExecutionItems are created and added.
- * 
- * @see ExecutionTestProgressListener
+ *
+ * @see org.eclipse.buildship.ui.part.execution.listener.ExecutionTestProgressListener
  */
 public class OperationItemCreatedEvent implements GradleEvent<OperationItem> {
 

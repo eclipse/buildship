@@ -25,10 +25,14 @@ import org.eclipse.ui.actions.CompoundContributionItem;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 
-import org.eclipse.buildship.ui.part.execution.AbstractPagePart;
+import org.eclipse.buildship.ui.part.AbstractPagePart;
 import org.eclipse.buildship.ui.part.pages.IPage;
 
-public class DynamicCommandSwitch extends CompoundContributionItem {
+/**
+ * This CompoundContributionItem creates org.eclipse.buildship.ui.commands.switchpage commands at
+ * runtime accroding to the pages in an {@link AbstractPagePart}.
+ */
+public class DynamicCommandPageSwitch extends CompoundContributionItem {
 
     @Override
     protected IContributionItem[] getContributionItems() {

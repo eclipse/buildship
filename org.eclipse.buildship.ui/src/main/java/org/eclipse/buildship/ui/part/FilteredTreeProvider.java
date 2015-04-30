@@ -11,13 +11,11 @@
 
 package org.eclipse.buildship.ui.part;
 
-import org.eclipse.jface.viewers.TreeViewer;
-
 import org.eclipse.buildship.ui.viewer.FilteredTree;
 
 /**
  * Common interface for the part in order to access the {@link FilteredTree} and also directly its
- * underlying {@link TreeViewer}.
+ * underlying {@link org.eclipse.jface.viewers.TreeViewer}.
  */
 public interface FilteredTreeProvider extends ViewerProvider {
 

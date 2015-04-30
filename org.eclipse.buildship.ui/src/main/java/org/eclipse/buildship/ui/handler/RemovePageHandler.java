@@ -18,9 +18,12 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import org.eclipse.buildship.ui.part.execution.AbstractPagePart;
+import org.eclipse.buildship.ui.part.AbstractPagePart;
 
-
+/**
+ * This command handler removes the currently selected page on an {@link AbstractPagePart}.
+ *
+ */
 public class RemovePageHandler extends AbstractHandler {
 
     @Override

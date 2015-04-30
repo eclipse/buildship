@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.part.execution;
+package org.eclipse.buildship.ui.part;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -29,9 +29,12 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
-import org.eclipse.buildship.ui.part.SelectionProviderProvider;
 import org.eclipse.buildship.ui.part.pages.IPage;
 
+/**
+ * This abstract part manages different {@link IPage} elements, which can be shown on this part.
+ *
+ */
 public abstract class AbstractPagePart extends ViewPart {
 
     private IPage currentPage;
@@ -145,6 +148,11 @@ public abstract class AbstractPagePart extends ViewPart {
         return pages;
     }
 
+    /**
+     * Offer a common ISelectionProvider the currently active page, which is shown on the
+     * {@link AbstractPagePart}.
+     *
+     */
     private class PageSelectionProvider implements ISelectionProvider {
 
         private ISelection selection;

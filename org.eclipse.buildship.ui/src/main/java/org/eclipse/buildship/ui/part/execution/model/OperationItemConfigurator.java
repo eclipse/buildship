@@ -11,20 +11,18 @@
 
 package org.eclipse.buildship.ui.part.execution.model;
 
-import org.gradle.tooling.events.ProgressEvent;
-
-import org.eclipse.buildship.ui.part.execution.ExecutionPart;
-import org.eclipse.buildship.ui.part.execution.model.internal.DefaultOperationItemConfigurator;
-
 /**
  * <p>
  * Implementations of this interface are used to configure {@link OperationItem} instances, which
- * are shown in the {@link ExecutionPart}.
+ * are shown in the {@link org.eclipse.buildship.ui.part.execution.ExecutionPart}.
  * </p>
  * <p>
- * Clients can offer a {@link OperationItemConfigurator} as an adapter of a {@link ProgressEvent}.<br/>
- * So before the {@link DefaultOperationItemConfigurator} is used, the {@link ProgressEvent} is
- * asked for an adapter for the {@link OperationItemConfigurator} type.<br/>
+ * Clients can offer a {@link OperationItemConfigurator} as an adapter of a
+ * {@link org.gradle.tooling.events.ProgressEvent}.<br/>
+ * So before the
+ * {@link org.eclipse.buildship.ui.part.execution.model.internal.DefaultOperationItemConfigurator}
+ * is used, the {@link org.gradle.tooling.events.ProgressEvent} is asked for an adapter for the
+ * {@link OperationItemConfigurator} type.<br/>
  *
  * <pre>
  * <code>OperationItemConfigurator executionItemConfigurator = (OperationItemConfigurator) Platform
@@ -33,10 +31,10 @@ import org.eclipse.buildship.ui.part.execution.model.internal.DefaultOperationIt
  *
  * By using the <code>org.eclipse.core.runtime.adapters</code> extension point, you can offer a
  * custom implementation of the {@link OperationItemConfigurator} according to the given
- * {@link ProgressEvent}.
+ * {@link org.gradle.tooling.events.ProgressEvent}.
  * </p>
  *
- * @see DefaultOperationItemConfigurator
+ * @see org.eclipse.buildship.ui.part.execution.model.internal.DefaultOperationItemConfigurator;
  */
 public interface OperationItemConfigurator {
 

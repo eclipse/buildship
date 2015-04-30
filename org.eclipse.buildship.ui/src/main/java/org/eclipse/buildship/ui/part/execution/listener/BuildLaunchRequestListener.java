@@ -16,7 +16,7 @@ import com.google.common.eventbus.Subscribe;
 import org.eclipse.swt.widgets.Display;
 
 import org.eclipse.buildship.core.event.BuildLaunchRequestEvent;
-import org.eclipse.buildship.ui.part.execution.AbstractPagePart;
+import org.eclipse.buildship.ui.part.AbstractPagePart;
 import org.eclipse.buildship.ui.part.execution.ExecutionPage;
 
 /**

@@ -22,9 +22,14 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import org.eclipse.buildship.ui.part.execution.AbstractPagePart;
+import org.eclipse.buildship.ui.part.AbstractPagePart;
 import org.eclipse.buildship.ui.part.pages.IPage;
 
+/**
+ * This handler is used to switch to a page in an AbstractPagePart. If the
+ * {@link SwitchPageHandler#PAGE_ID_PARAM} command parameter is not set it simply switches to the
+ * next page, otherwise to the one defined by the command parameter.
+ */
 public class SwitchPageHandler extends AbstractHandler {
 
     public static final String SWITCH_PAGE_COMMAND_ID = "org.eclipse.buildship.ui.commands.switchpage"; //$NON-NLS-1$

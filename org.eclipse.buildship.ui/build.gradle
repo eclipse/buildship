@@ -10,6 +10,11 @@ dependencies {
     compile withEclipseBundle('org.eclipse.ui.views')
     compile withEclipseBundle('org.eclipse.debug.ui')
     compile withEclipseBundle('org.eclipse.jdt.ui')
+    compile withEclipseBundle('com.ibm.icu')
+    compile withEclipseBundle('org.eclipse.core.databinding')
+    compile withEclipseBundle('org.eclipse.core.databinding.beans')
+    compile withEclipseBundle('org.eclipse.core.databinding.property')
+    compile withEclipseBundle('org.eclipse.jface.databinding')
     compile withEclipseBundle("org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}")
 
     compile withEclipseBundle("com.gradleware.tooling.model")

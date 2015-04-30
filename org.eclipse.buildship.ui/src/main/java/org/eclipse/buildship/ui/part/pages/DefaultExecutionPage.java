@@ -16,7 +16,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
-
+/**
+ * Default {@link IPage}, which will be shown on the
+ * {@link org.eclipse.buildship.ui.part.execution.ExecutionPart}, when no build has been started.
+ */
 public class DefaultExecutionPage implements IPage {
 
     private Label label;
@@ -39,6 +42,10 @@ public class DefaultExecutionPage implements IPage {
 
     @Override
     public void dispose() {
+        if (getPageControl() != null && !getPageControl().isDisposed()) {
+            getPageControl().dispose();
+            label = null;
+        }
     }
 
     @Override

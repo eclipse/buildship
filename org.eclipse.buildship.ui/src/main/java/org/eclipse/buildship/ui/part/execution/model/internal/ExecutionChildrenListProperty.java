@@ -30,12 +30,11 @@ import org.eclipse.buildship.ui.part.execution.model.OperationItem;
  */
 public class ExecutionChildrenListProperty extends DelegatingListProperty {
 
-	@Override
-	protected IListProperty doGetDelegate(Object source) {
-		if(source instanceof OperationItem) {
+    @Override
+    protected IListProperty doGetDelegate(Object source) {
+        if (source instanceof OperationItem) {
             return BeanProperties.list(OperationItem.class, OperationItem.FIELD_CHILDREN);
-		}
-		return null;
-	}
-
+        }
+        return null;
+    }
 }

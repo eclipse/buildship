@@ -14,6 +14,11 @@ package org.eclipse.buildship.ui.part.pages;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
+/**
+ * Interface for pages, which are shown inside an
+ * {@link org.eclipse.buildship.ui.part.AbstractPagePart}.
+ *
+ */
 public interface IPage {
 
     String getDisplayName();

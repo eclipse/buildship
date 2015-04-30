@@ -27,7 +27,6 @@ import com.google.common.collect.Maps;
 import org.eclipse.core.runtime.Platform;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.ui.part.execution.ExecutionPart;
 import org.eclipse.buildship.ui.part.execution.model.OperationItem;
 import org.eclipse.buildship.ui.part.execution.model.OperationItemConfigurator;
 import org.eclipse.buildship.ui.part.execution.model.internal.DefaultOperationItemConfigurator;
@@ -36,7 +35,7 @@ import org.eclipse.buildship.ui.part.execution.model.internal.OperationItemCreat
 /**
  * This class listens to {@link TestProgressEvent} events, which are send by the Gradle tooling API.
  * It creates appropriate {@link OperationItem} objects, which are shown in the
- * {@link ExecutionPart}, according to the incoming events.
+ * {@link org.eclipse.buildship.ui.part.execution.ExecutionPart}, according to the incoming events.
  *
  */
 public class ExecutionTestProgressListener implements TestProgressListener {
