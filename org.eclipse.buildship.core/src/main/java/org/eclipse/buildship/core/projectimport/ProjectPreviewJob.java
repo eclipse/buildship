@@ -58,8 +58,7 @@ public final class ProjectPreviewJob extends ToolingApiJob {
 
         this.fixedAttributes = configuration.toFixedAttributes();
         ProcessStreams stream = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-        this.transientAttributes = new TransientRequestAttributes(false, stream.getOutput(), stream.getError(), null, listeners, ImmutableList.<BuildProgressListener> of(),
-                ImmutableList.<TaskProgressListener> of(), ImmutableList.<TestProgressListener> of(), getToken());
+        this.transientAttributes = new TransientRequestAttributes(false, stream.getOutput(), stream.getError(), null, listeners, ImmutableList.<BuildProgressListener> of(), ImmutableList.<TaskProgressListener> of(), ImmutableList.<TestProgressListener> of(), getToken());
 
         this.result = null;
 

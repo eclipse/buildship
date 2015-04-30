@@ -119,9 +119,9 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
 
     private OmniEclipseGradleBuild fetchCachedEclipseGradleBuild(FixedRequestAttributes fixedRequestAttributes) {
         List<ProgressListener> noProgressListeners = ImmutableList.of();
-        List<TestProgressListener> noTestProgressListeners = ImmutableList.of();
         List<BuildProgressListener> noBuildListeners = ImmutableList.of();
         List<TaskProgressListener> noTaskListeners = ImmutableList.of();
+        List<TestProgressListener> noTestProgressListeners = ImmutableList.of();
         CancellationToken cancellationToken = GradleConnector.newCancellationTokenSource().token();
         TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, null, null, null, noProgressListeners, noBuildListeners, noTaskListeners, noTestProgressListeners, cancellationToken);
         ModelRepository repository = this.modelRepositoryProvider.getModelRepository(fixedRequestAttributes);
