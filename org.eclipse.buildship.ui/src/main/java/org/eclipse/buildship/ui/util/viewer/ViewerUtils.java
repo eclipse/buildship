@@ -17,7 +17,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Tree;
 
-import org.eclipse.buildship.ui.view.FilteredTreeProvider;
+import org.eclipse.buildship.ui.part.FilteredTreeProvider;
 import org.eclipse.buildship.ui.viewer.FilteredTree;
 
 /**

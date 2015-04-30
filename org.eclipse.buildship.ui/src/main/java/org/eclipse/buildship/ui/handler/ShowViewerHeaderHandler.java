@@ -18,11 +18,11 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import org.eclipse.buildship.ui.part.ViewerProvider;
+import org.eclipse.buildship.ui.part.execution.AbstractPagePart;
+import org.eclipse.buildship.ui.part.execution.ExecutionPartPreferences;
+import org.eclipse.buildship.ui.part.pages.IPage;
 import org.eclipse.buildship.ui.util.viewer.ViewerUtils;
-import org.eclipse.buildship.ui.view.ViewerProvider;
-import org.eclipse.buildship.ui.view.executionview.AbstractPagePart;
-import org.eclipse.buildship.ui.view.executionview.ExecutionPartPreferences;
-import org.eclipse.buildship.ui.view.pages.IPage;
 
 public class ShowViewerHeaderHandler extends AbstractToogleStateHandler {
 

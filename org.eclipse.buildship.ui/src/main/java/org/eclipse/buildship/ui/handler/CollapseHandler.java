@@ -24,7 +24,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import org.eclipse.buildship.ui.view.ViewerProvider;
+import org.eclipse.buildship.ui.part.ViewerProvider;
 
 public class CollapseHandler extends AbstractHandler {
 

@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.executionview;
+package org.eclipse.buildship.ui.part.execution;
 
 import java.util.List;
 
@@ -30,10 +30,10 @@ import org.eclipse.swt.widgets.Control;
 
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.view.FilteredTreeProvider;
-import org.eclipse.buildship.ui.view.executionview.model.ExecutionItem;
-import org.eclipse.buildship.ui.view.executionview.model.internal.ProgressChildrenListProperty;
-import org.eclipse.buildship.ui.view.pages.IPage;
+import org.eclipse.buildship.ui.part.FilteredTreeProvider;
+import org.eclipse.buildship.ui.part.execution.model.OperationItem;
+import org.eclipse.buildship.ui.part.execution.model.internal.ExecutionChildrenListProperty;
+import org.eclipse.buildship.ui.part.pages.IPage;
 import org.eclipse.buildship.ui.viewer.FilteredTree;
 import org.eclipse.buildship.ui.viewer.PatternFilter;
 import org.eclipse.buildship.ui.viewer.labelprovider.ObservableMapCellWithIconLabelProvider;
@@ -51,9 +51,9 @@ public class ExecutionPage implements IPage, FilteredTreeProvider {
 
     private TreeViewerColumn durationColumn;
 
-    private ExecutionItem root = new ExecutionItem(null);
+    private OperationItem root = new OperationItem(null);
 
-    private ExecutionItem buildStarted;
+    private OperationItem buildStarted;
 
     private String displayName;
 
@@ -110,19 +110,19 @@ public class ExecutionPage implements IPage, FilteredTreeProvider {
     }
 
     private void bindUI() {
-        IListProperty childrenProperty = new ProgressChildrenListProperty();
+        IListProperty childrenProperty = new ExecutionChildrenListProperty();
 
         ObservableListTreeContentProvider contentProvider = new ObservableListTreeContentProvider(childrenProperty.listFactory(), null);
         getViewer().setContentProvider(contentProvider);
 
         IObservableSet knownElements = contentProvider.getKnownElements();
-        attachLabelProvider(ExecutionItem.FIELD_LABEL, ExecutionItem.FIELD_IMAGE, knownElements, labelColumn);
-        attachLabelProvider(ExecutionItem.FIELD_DURATION, null, knownElements, durationColumn);
+        attachLabelProvider(OperationItem.FIELD_LABEL, OperationItem.FIELD_IMAGE, knownElements, labelColumn);
+        attachLabelProvider(OperationItem.FIELD_DURATION, null, knownElements, durationColumn);
 
         getViewer().setInput(root);
 
-        List<ExecutionItem> rootChildren = Lists.newArrayList();
-        buildStarted = new ExecutionItem(null, "Gradle Build");
+        List<OperationItem> rootChildren = Lists.newArrayList();
+        buildStarted = new OperationItem(null, "Gradle Build");
         buildStarted.setImage(PluginImages.GRADLE_ICON.withState(ImageState.ENABLED).getImageDescriptor());
         rootChildren.add(buildStarted);
         root.setChildren(rootChildren);
@@ -143,7 +143,7 @@ public class ExecutionPage implements IPage, FilteredTreeProvider {
         return getFilteredTree();
     }
 
-    public ExecutionItem getBuildStartedItem() {
+    public OperationItem getBuildStartedItem() {
         return buildStarted;
     }
 

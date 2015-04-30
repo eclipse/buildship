@@ -9,18 +9,18 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.executionview.model.internal;
+package org.eclipse.buildship.ui.part.execution.model.internal;
 
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.property.list.DelegatingListProperty;
 import org.eclipse.core.databinding.property.list.IListProperty;
 
-import org.eclipse.buildship.ui.view.executionview.model.ExecutionItem;
+import org.eclipse.buildship.ui.part.execution.model.OperationItem;
 
 /**
  * <p>
  * This DelegatingListProperty is used for the databinding of the ExecutionItem model and the
- * TreeViewer. It specifies that the {@link ExecutionItem#FIELD_CHILDREN} are the children, which
+ * TreeViewer. It specifies that the {@link OperationItem#FIELD_CHILDREN} are the children, which
  * should be shown as children of the ExecutionItem in the TreeViewer.
  * </p>
  * <p>
@@ -28,12 +28,12 @@ import org.eclipse.buildship.ui.view.executionview.model.ExecutionItem;
  * the children, it can be added here.
  * </p>
  */
-public class ProgressChildrenListProperty extends DelegatingListProperty {
+public class ExecutionChildrenListProperty extends DelegatingListProperty {
 
 	@Override
 	protected IListProperty doGetDelegate(Object source) {
-		if(source instanceof ExecutionItem) {
-            return BeanProperties.list(ExecutionItem.class, ExecutionItem.FIELD_CHILDREN);
+		if(source instanceof OperationItem) {
+            return BeanProperties.list(OperationItem.class, OperationItem.FIELD_CHILDREN);
 		}
 		return null;
 	}

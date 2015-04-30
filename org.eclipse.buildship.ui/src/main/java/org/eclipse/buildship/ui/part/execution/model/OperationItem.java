@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.executionview.model;
+package org.eclipse.buildship.ui.part.execution.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 
-import org.eclipse.buildship.ui.view.executionview.ExecutionPart;
+import org.eclipse.buildship.ui.part.execution.ExecutionPart;
 
 /**
  * <p>
@@ -52,7 +52,7 @@ import org.eclipse.buildship.ui.view.executionview.ExecutionPart;
  * </p>
  *
  */
-public class ExecutionItem extends AbstractModelObject implements IAdaptable {
+public class OperationItem extends AbstractModelObject implements IAdaptable {
 
     public static final String FIELD_LAST_PROGRESSEVENT = "lastProgressEvent";
     public static final String FIELD_LABEL = "label";
@@ -70,13 +70,13 @@ public class ExecutionItem extends AbstractModelObject implements IAdaptable {
 
 	private String duration;
 
-	private List<ExecutionItem> children = new ArrayList<ExecutionItem>();
+	private List<OperationItem> children = new ArrayList<OperationItem>();
 
-	public ExecutionItem(OperationDescriptor operationDescriptor) {
+	public OperationItem(OperationDescriptor operationDescriptor) {
 	    this(operationDescriptor, operationDescriptor == null ? null : operationDescriptor.getDisplayName());
 	}
 
-	public ExecutionItem(OperationDescriptor operationDescriptor, String label) {
+	public OperationItem(OperationDescriptor operationDescriptor, String label) {
 		this.operationDescriptor = operationDescriptor;
         this.label = label;
 	}
@@ -92,11 +92,11 @@ public class ExecutionItem extends AbstractModelObject implements IAdaptable {
     	return Platform.getAdapterManager().getAdapter(this, adapter);
     }
 
-    public List<ExecutionItem> getChildren() {
+    public List<OperationItem> getChildren() {
 		return children;
 	}
 
-	public void setChildren(List<ExecutionItem> children) {
+	public void setChildren(List<OperationItem> children) {
         firePropertyChange(FIELD_CHILDREN, this.children, this.children = children);
 	}
 

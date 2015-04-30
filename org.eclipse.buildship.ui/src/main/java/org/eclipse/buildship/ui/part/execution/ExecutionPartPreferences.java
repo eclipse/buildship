@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.executionview;
+package org.eclipse.buildship.ui.part.execution;
 
 import org.osgi.service.prefs.BackingStoreException;
 

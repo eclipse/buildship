@@ -9,15 +9,15 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.executionview.listener;
+package org.eclipse.buildship.ui.part.execution.listener;
 
 import com.google.common.eventbus.Subscribe;
 
 import org.eclipse.swt.widgets.Display;
 
 import org.eclipse.buildship.core.event.BuildLaunchRequestEvent;
-import org.eclipse.buildship.ui.view.executionview.AbstractPagePart;
-import org.eclipse.buildship.ui.view.executionview.ExecutionPage;
+import org.eclipse.buildship.ui.part.execution.AbstractPagePart;
+import org.eclipse.buildship.ui.part.execution.ExecutionPage;
 
 /**
  * This listener is invoked every time a Gradle build is started.
@@ -47,7 +47,7 @@ public class BuildLaunchRequestListener {
                 part.addPage(executionPage);
                 part.setCurrentPage(executionPage);
 
-                event.getElement().testProgressListeners(new ExecutionViewTestProgressListener(executionPage.getBuildStartedItem()));
+                event.getElement().testProgressListeners(new ExecutionTestProgressListener(executionPage.getBuildStartedItem()));
             }
         });
     }

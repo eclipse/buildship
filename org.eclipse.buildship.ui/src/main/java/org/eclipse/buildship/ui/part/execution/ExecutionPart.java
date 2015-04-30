@@ -9,17 +9,17 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.executionview;
+package org.eclipse.buildship.ui.part.execution;
 
 import org.eclipse.jface.viewers.Viewer;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.ui.view.FilteredTreeProvider;
-import org.eclipse.buildship.ui.view.ViewerProvider;
-import org.eclipse.buildship.ui.view.executionview.listener.BuildLaunchRequestListener;
-import org.eclipse.buildship.ui.view.executionview.listener.ProgressItemCreatedListener;
-import org.eclipse.buildship.ui.view.pages.DefaultPage;
-import org.eclipse.buildship.ui.view.pages.IPage;
+import org.eclipse.buildship.ui.part.FilteredTreeProvider;
+import org.eclipse.buildship.ui.part.ViewerProvider;
+import org.eclipse.buildship.ui.part.execution.listener.BuildLaunchRequestListener;
+import org.eclipse.buildship.ui.part.execution.listener.ProgressItemCreatedListener;
+import org.eclipse.buildship.ui.part.pages.DefaultExecutionPage;
+import org.eclipse.buildship.ui.part.pages.IPage;
 import org.eclipse.buildship.ui.viewer.FilteredTree;
 
 /**
@@ -42,7 +42,7 @@ public class ExecutionPart extends AbstractPagePart implements FilteredTreeProvi
 
         registerExpandTreeOnNewProgressListener();
 
-        return new DefaultPage();
+        return new DefaultExecutionPage();
     }
 
     @Override

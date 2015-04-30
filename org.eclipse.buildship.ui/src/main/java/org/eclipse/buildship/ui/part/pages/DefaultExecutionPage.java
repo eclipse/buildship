@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.pages;
+package org.eclipse.buildship.ui.part.pages;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
 
-public class DefaultPage implements IPage {
+public class DefaultExecutionPage implements IPage {
 
     private Label label;
     private String displayName;

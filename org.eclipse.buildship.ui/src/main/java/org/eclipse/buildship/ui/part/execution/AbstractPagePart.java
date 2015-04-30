@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.executionview;
+package org.eclipse.buildship.ui.part.execution;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -30,8 +30,8 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
-import org.eclipse.buildship.ui.view.ViewerProvider;
-import org.eclipse.buildship.ui.view.pages.IPage;
+import org.eclipse.buildship.ui.part.ViewerProvider;
+import org.eclipse.buildship.ui.part.pages.IPage;
 
 public abstract class AbstractPagePart extends ViewPart {
 

@@ -56,7 +56,7 @@
       <view
             allowMultiple="true"
             category="org.eclipse.buildship.ui.views"
-            class="org.eclipse.buildship.ui.view.executionview.ExecutionPart"
+            class="org.eclipse.buildship.ui.part.execution.ExecutionPart"
             icon="icons/full/eview16/tasks.png"
             id="org.eclipse.buildship.ui.views.executionview"
             name="Gradle Execution"
@@ -396,7 +396,7 @@
              <with
                    variable="activePart">
                 <instanceof
-                      value="org.eclipse.buildship.ui.view.FilteredTreeProvider">
+                      value="org.eclipse.buildship.ui.part.FilteredTreeProvider">
                 </instanceof>
              </with>
           </and>

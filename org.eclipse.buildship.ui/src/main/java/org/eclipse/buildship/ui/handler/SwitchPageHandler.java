@@ -22,8 +22,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import org.eclipse.buildship.ui.view.executionview.AbstractPagePart;
-import org.eclipse.buildship.ui.view.pages.IPage;
+import org.eclipse.buildship.ui.part.execution.AbstractPagePart;
+import org.eclipse.buildship.ui.part.pages.IPage;
 
 public class SwitchPageHandler extends AbstractHandler {
 

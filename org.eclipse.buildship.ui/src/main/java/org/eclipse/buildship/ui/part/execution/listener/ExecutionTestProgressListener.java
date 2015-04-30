@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.executionview.listener;
+package org.eclipse.buildship.ui.part.execution.listener;
 
 import java.util.List;
 import java.util.Map;
@@ -27,37 +27,37 @@ import com.google.common.collect.Maps;
 import org.eclipse.core.runtime.Platform;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.ui.view.executionview.ExecutionPart;
-import org.eclipse.buildship.ui.view.executionview.model.ExecutionItem;
-import org.eclipse.buildship.ui.view.executionview.model.ExecutionItemConfigurator;
-import org.eclipse.buildship.ui.view.executionview.model.internal.DefaultExecutionItemConfigurator;
-import org.eclipse.buildship.ui.view.executionview.model.internal.ExecutionItemCreatedEvent;
+import org.eclipse.buildship.ui.part.execution.ExecutionPart;
+import org.eclipse.buildship.ui.part.execution.model.OperationItem;
+import org.eclipse.buildship.ui.part.execution.model.OperationItemConfigurator;
+import org.eclipse.buildship.ui.part.execution.model.internal.DefaultOperationItemConfigurator;
+import org.eclipse.buildship.ui.part.execution.model.internal.OperationItemCreatedEvent;
 
 /**
  * This class listens to {@link TestProgressEvent} events, which are send by the Gradle tooling API.
- * It creates appropriate {@link ExecutionItem} objects, which are shown in the
+ * It creates appropriate {@link OperationItem} objects, which are shown in the
  * {@link ExecutionPart}, according to the incoming events.
  *
  */
-public class ExecutionViewTestProgressListener implements TestProgressListener {
+public class ExecutionTestProgressListener implements TestProgressListener {
 
-    private Map<OperationDescriptor, ExecutionItem> executionItemMap = Maps.newLinkedHashMap();
+    private Map<OperationDescriptor, OperationItem> executionItemMap = Maps.newLinkedHashMap();
 
-    private ExecutionItem root;
+    private OperationItem root;
 
-    private DefaultExecutionItemConfigurator executionItemConfigurator;
+    private DefaultOperationItemConfigurator executionItemConfigurator;
 
     private AtomicBoolean testExecutionItemCreated = new AtomicBoolean();
 
-    public ExecutionViewTestProgressListener(ExecutionItem root) {
+    public ExecutionTestProgressListener(OperationItem root) {
         this.root = root;
     }
 
     @Override
     public void statusChanged(TestProgressEvent event) {
         if (!testExecutionItemCreated.getAndSet(true)) {
-            List<ExecutionItem> buildStartedChildren = Lists.newArrayList();
-            ExecutionItem tests = new ExecutionItem(null, "Tests");
+            List<OperationItem> buildStartedChildren = Lists.newArrayList();
+            OperationItem tests = new OperationItem(null, "Tests");
             buildStartedChildren.add(tests);
             root.setChildren(buildStartedChildren);
 
@@ -66,42 +66,42 @@ public class ExecutionViewTestProgressListener implements TestProgressListener {
         }
 
         TestOperationDescriptor descriptor = event.getDescriptor();
-        ExecutionItem executionItem = executionItemMap.get(descriptor);
-        if (null == executionItem) {
-            executionItem = new ExecutionItem(descriptor);
-            executionItemMap.put(descriptor, executionItem);
-            CorePlugin.eventBroker().post("", new ExecutionItemCreatedEvent(this, executionItem));
+        OperationItem operationItem = executionItemMap.get(descriptor);
+        if (null == operationItem) {
+            operationItem = new OperationItem(descriptor);
+            executionItemMap.put(descriptor, operationItem);
+            CorePlugin.eventBroker().post("", new OperationItemCreatedEvent(this, operationItem));
         }
         // set the last progress event, so that this can be obtained from the viewers selection
-        executionItem.setLastProgressEvent(event);
+        operationItem.setLastProgressEvent(event);
 
         // Configure progressItem according to the given event
-        ExecutionItemConfigurator executionItemConfigurator = (ExecutionItemConfigurator) Platform.getAdapterManager().getAdapter(event, ExecutionItemConfigurator.class);
-        if (null == executionItemConfigurator) {
-            executionItemConfigurator = getDefaultProgressItemConfigurator(event);
+        OperationItemConfigurator operationItemConfigurator = (OperationItemConfigurator) Platform.getAdapterManager().getAdapter(event, OperationItemConfigurator.class);
+        if (null == operationItemConfigurator) {
+            operationItemConfigurator = getDefaultProgressItemConfigurator(event);
         }
-        executionItemConfigurator.configure(executionItem);
+        operationItemConfigurator.configure(operationItem);
 
         // attach to parent, if necessary
-        ExecutionItem parentExecutionItem = getParent(descriptor);
-        if (!parentExecutionItem.getChildren().contains(executionItem)) {
-            List<ExecutionItem> children = Lists.newArrayList(parentExecutionItem.getChildren());
-            children.add(executionItem);
+        OperationItem parentExecutionItem = getParent(descriptor);
+        if (!parentExecutionItem.getChildren().contains(operationItem)) {
+            List<OperationItem> children = Lists.newArrayList(parentExecutionItem.getChildren());
+            children.add(operationItem);
             parentExecutionItem.setChildren(children);
         }
     }
 
-    protected ExecutionItemConfigurator getDefaultProgressItemConfigurator(ProgressEvent propressEvent) {
+    protected OperationItemConfigurator getDefaultProgressItemConfigurator(ProgressEvent propressEvent) {
         if (null == executionItemConfigurator) {
-            executionItemConfigurator = new DefaultExecutionItemConfigurator();
+            executionItemConfigurator = new DefaultOperationItemConfigurator();
         }
         executionItemConfigurator.setPropressEvent(propressEvent);
         return executionItemConfigurator;
     }
 
-    protected ExecutionItem getParent(OperationDescriptor descriptor) {
+    protected OperationItem getParent(OperationDescriptor descriptor) {
         OperationDescriptor parent = descriptor.getParent();
-        ExecutionItem parentExecutionItem = executionItemMap.get(parent);
+        OperationItem parentExecutionItem = executionItemMap.get(parent);
         if (null == parentExecutionItem) {
             parentExecutionItem = root;
         }

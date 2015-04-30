@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.eclipse.core.expressions.PropertyTester;
 
-import org.eclipse.buildship.ui.view.executionview.AbstractPagePart;
-import org.eclipse.buildship.ui.view.pages.IPage;
+import org.eclipse.buildship.ui.part.execution.AbstractPagePart;
+import org.eclipse.buildship.ui.part.pages.IPage;
 
 public class PagesPartPropertyTester extends PropertyTester {
 

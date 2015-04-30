@@ -9,23 +9,23 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.executionview.model.internal;
+package org.eclipse.buildship.ui.part.execution.model.internal;
 
 import org.eclipse.buildship.core.event.GradleEvent;
-import org.eclipse.buildship.ui.view.executionview.listener.ExecutionViewTestProgressListener;
-import org.eclipse.buildship.ui.view.executionview.model.ExecutionItem;
+import org.eclipse.buildship.ui.part.execution.listener.ExecutionTestProgressListener;
+import org.eclipse.buildship.ui.part.execution.model.OperationItem;
 
 /**
  * This event is fired, when new ExecutionItems are created and added.
  * 
- * @see ExecutionViewTestProgressListener
+ * @see ExecutionTestProgressListener
  */
-public class ExecutionItemCreatedEvent implements GradleEvent<ExecutionItem> {
+public class OperationItemCreatedEvent implements GradleEvent<OperationItem> {
 
     private Object source;
-    private ExecutionItem progressItem;
+    private OperationItem progressItem;
 
-    public ExecutionItemCreatedEvent(Object source, ExecutionItem progressItem) {
+    public OperationItemCreatedEvent(Object source, OperationItem progressItem) {
         this.source = source;
         this.progressItem = progressItem;
     }
@@ -36,7 +36,7 @@ public class ExecutionItemCreatedEvent implements GradleEvent<ExecutionItem> {
     }
 
     @Override
-    public ExecutionItem getElement() {
+    public OperationItem getElement() {
         return progressItem;
     }
 }
