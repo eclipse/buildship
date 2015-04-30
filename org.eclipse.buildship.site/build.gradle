@@ -35,7 +35,9 @@ dependencies {
     externalPlugin withEclipseBundle("org.slf4j.api")
     externalPlugin withEclipseBundle("org.slf4j.simple")
     externalPlugin withEclipseBundle("com.google.guava")
-    externalPlugin withEclipseBundle("com.google.gson")
+
+    // official 3rd party dependency from Orbit which is already signed and normalized with pack200
+    signedExternalPlugin withEclipseBundle("com.google.gson")
 }
 
 // if the created update site is going to be published remotely, replace the local signing with the one available on eclipse.org

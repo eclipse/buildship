@@ -44,7 +44,9 @@ import org.gradle.api.plugins.JavaPlugin
  * to the build folder, signed and published to the buildDir/repository folder. To include a
  * the local plugin or feature project, the {@code localPlugin} and {@code localFeature}
  * configuration scope should be used. An external plugin can be also included by using the
- * {@code externalPlugin} configuration scope.
+ * {@code externalPlugin} configuration scope. The last configuration scope is the
+ * {@code signedExternalPlugin} which is the same as the externalPlugin except the content
+ * is not signed nor conditioned with pack200 when publishing.
  */
 class UpdateSitePlugin implements Plugin<Project> {
 
@@ -95,6 +97,7 @@ class UpdateSitePlugin implements Plugin<Project> {
         project.configurations.create('localPlugin')
         project.configurations.create('localFeature')
         project.configurations.create('externalPlugin')
+        project.configurations.create('signedExternalPlugin')
 
         // add the 'updateSite' extension
         project.extensions.create(DSL_EXTENSION_NAME, Extension)
@@ -276,15 +279,26 @@ class UpdateSitePlugin implements Plugin<Project> {
             NORMALIZE_BUNDLES_TASK_NAME, SIGN_BUNDLES_TASK_NAME, ":${BuildDefinitionPlugin.TASK_NAME_INSTALL_TARGET_PLATFORM}"]) {
                 group = Constants.gradleTaskGroupName
                 description = 'Compresses the bundles that make up the update using the pack200 tool.'
-                inputs.dir project.updateSite.signBundles ? new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME) : new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
-                outputs.dir new File(project.buildDir, COMPRESSED_BUNDLES_DIR_NAME)
+                project.afterEvaluate { inputs.dir project.updateSite.signBundles ? new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME) : new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME) }
+                project.afterEvaluate { outputs.dir project.updateSite.signBundles ? new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME) : new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME) }
+                outputs.dir  new File(project.buildDir, COMPRESSED_BUNDLES_DIR_NAME)
+                doFirst { copyAlreadySignedBundles(project) }
                 doLast { compressBundles(project) }
         }
     }
 
+    static void copyAlreadySignedBundles(Project project) {
+        // output for signed bundles which doesn't need to be conditioned with pack200 and signed
+        File uncompressedBundles = project.updateSite.signBundles ? new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME) : new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
+        project.copy {
+            from project.configurations.signedExternalPlugin
+            into new File(uncompressedBundles, PLUGINS_DIR_NAME)
+        }
+    }
+
     static void compressBundles(Project project) {
-        def uncompressedBundles = project.updateSite.signBundles ? new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME) : new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
-        def compressedBundles = new File(project.buildDir, COMPRESSED_BUNDLES_DIR_NAME)
+        File uncompressedBundles = project.updateSite.signBundles ? new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME) : new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
+        File compressedBundles = new File(project.buildDir, COMPRESSED_BUNDLES_DIR_NAME)
 
         // copy over all bundles
         project.copy {
