@@ -11,9 +11,11 @@
 
 package org.eclipse.buildship.core.event;
 
-
 /**
+ * EventBroker interface to have a wrapper in order to change the underlying event broker. The API
+ * is already prepared for the IEventBroker in Eclipse 4.
  *
+ * @see org.eclipse.buildship.core.event.internal.GuavaEventBroker
  */
 public interface EventBroker {
 

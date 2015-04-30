@@ -25,8 +25,6 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 
-import com.google.common.eventbus.EventBus;
-
 import org.eclipse.core.runtime.Plugin;
 
 import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
@@ -34,7 +32,6 @@ import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigura
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.console.internal.StdProcessStreamsProvider;
 import org.eclipse.buildship.core.event.EventBroker;
-import org.eclipse.buildship.core.event.GradleEvent;
 import org.eclipse.buildship.core.event.internal.GuavaEventBroker;
 import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager;
@@ -58,9 +55,9 @@ import org.eclipse.buildship.core.workspace.internal.DefaultWorkspaceOperations;
  * <li>{@link #workspaceOperations()}: workspace operations to add/modify/delete projects in the
  * workspace</li>
  * <li>{@link #publishedGradleVersions()}: to retrieve all released Gradle versions</li>
- * <li>{@link #eventBroker()}: to be able to use one common {@link EventBus} within Buildship for event
- * communication. The events, which are send by this {@link EventBus} should be an implementation of
- * {@link GradleEvent}, in order to have a common interface for events.</li>
+ * <li>{@link #eventBroker()}: to be able to use one common {@link EventBroker} within Buildship for
+ * event communication. The events, which are send by this {@link EventBroker} should be an
+ * implementation of GradleEvent, in order to have a common interface for events.</li>
  * </ul>
  * <p>
  * The {@link #start(BundleContext)} and {@link #stop(BundleContext)} methods' responsibility is to
@@ -186,9 +183,9 @@ public final class CorePlugin extends Plugin {
 
     private EventBroker createEventBroker() {
         return new GuavaEventBroker();
-	}
+    }
 
-	private void unregisterServices() {
+    private void unregisterServices() {
         this.workbenchOperationsService.unregister();
         this.gradleLaunchConfigurationService.unregister();
         this.processStreamsProviderService.unregister();

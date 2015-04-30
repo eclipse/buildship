@@ -11,23 +11,20 @@
 
 package org.eclipse.buildship.core.event;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.event.internal.DefaultBuildLaunchRequestEvent;
-import org.eclipse.buildship.core.event.internal.DefaultGradleEvent;
 
 /**
  * This is supposed to be the common interface for events, which are propagated by the
- * {@link CorePlugin#eventBroker()}
+ * {@link org.eclipse.buildship.core.CorePlugin#eventBroker()}.
  *
  * @param <T> is the type of the element, which is passed within the event
  *
  * @see BuildLaunchRequestEvent
- * @see DefaultGradleEvent
- * @see DefaultBuildLaunchRequestEvent
+ * @see org.eclipse.buildship.core.event.internal.DefaultGradleEvent
+ * @see org.eclipse.buildship.core.event.internal.DefaultBuildLaunchRequestEvent
  */
 public interface GradleEvent<T> {
 
-	public Object getSource();
+    public Object getSource();
 
-	public T getElement();
+    public T getElement();
 }

@@ -24,14 +24,16 @@ public class DefaultBuildLaunchRequestEvent extends DefaultGradleEvent<BuildLaun
     private String processName;
 
     public DefaultBuildLaunchRequestEvent(Object source, BuildLaunchRequest element, String processName) {
-		super(source, element);
+        super(source, element);
         this.setProcessName(processName);
-	}
+    }
 
+    @Override
     public String getProcessName() {
         return processName;
     }
 
+    @Override
     public void setProcessName(String processName) {
         this.processName = processName;
     }
