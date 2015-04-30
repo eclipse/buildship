@@ -191,7 +191,8 @@ class UpdateSitePlugin implements Plugin<Project> {
             }
         }
 
-        // iterate over all external dependencies and them to the plugins (without transitives)
+      println project.configurations.externalPlugin
+        // iterate over all external dependencies and add them to the plugins (this includes the transitive dependencies)
         project.copy {
             from project.configurations.externalPlugin
             into pluginsDir
