@@ -16,7 +16,6 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeItem;
 
 /**
  * Contains helper methods for {@link Viewer} objects.
@@ -40,32 +39,6 @@ public final class ViewerUtils {
         } else if (viewer instanceof TableViewer) {
             Table table = ((TableViewer) viewer).getTable();
             table.setHeaderVisible(showHeader);
-        }
-    }
-
-    public static void collapseTreeItem(TreeItem[] treeItems, Object element) {
-        for (TreeItem treeItem : treeItems) {
-            Object data = treeItem.getData();
-            if (element.equals(data)) {
-                expandOrCollapseChildItems(treeItem, false);
-            }
-        }
-    }
-
-    public static void expandTreeItem(TreeItem[] treeItems, Object element) {
-        for (TreeItem treeItem : treeItems) {
-            Object data = treeItem.getData();
-            if (element.equals(data)) {
-                expandOrCollapseChildItems(treeItem, true);
-            }
-        }
-    }
-
-    private static void expandOrCollapseChildItems(TreeItem parentTreeItem, boolean expand) {
-        parentTreeItem.setExpanded(expand);
-        TreeItem[] items = parentTreeItem.getItems();
-        for (TreeItem treeItem : items) {
-            expandOrCollapseChildItems(treeItem, expand);
         }
     }
 }

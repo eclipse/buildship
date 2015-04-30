@@ -26,16 +26,14 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
 import org.eclipse.buildship.ui.view.ViewerPart;
 import org.eclipse.buildship.ui.view.pages.IPage;
 
-public abstract class AbstractPagePart extends ViewPart implements ISelectionListener {
+public abstract class AbstractPagePart extends ViewPart {
 
     private IPage currentPage;
     private List<IPage> pages = new LinkedList<IPage>();
@@ -61,13 +59,6 @@ public abstract class AbstractPagePart extends ViewPart implements ISelectionLis
         pageSelectionProvider = new PageSelectionProvider();
 
         site.setSelectionProvider(pageSelectionProvider);
-
-        site.getPage().addSelectionListener(this);
-    }
-
-    @Override
-    public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-        System.out.println(selection);
     }
 
     @Override
@@ -90,6 +81,11 @@ public abstract class AbstractPagePart extends ViewPart implements ISelectionLis
     @Override
     public void setFocus() {
         getCurrentPage().setFocus();
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
     }
 
     public void setCurrentPage(IPage page) {
