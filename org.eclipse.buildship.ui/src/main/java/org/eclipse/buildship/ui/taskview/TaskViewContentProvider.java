@@ -16,6 +16,8 @@ import java.util.List;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.events.build.BuildProgressListener;
+import org.gradle.tooling.events.task.TaskProgressListener;
 import org.gradle.tooling.events.test.TestProgressListener;
 
 import com.google.common.base.Optional;
@@ -118,8 +120,10 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
     private OmniEclipseGradleBuild fetchCachedEclipseGradleBuild(FixedRequestAttributes fixedRequestAttributes) {
         List<ProgressListener> noProgressListeners = ImmutableList.of();
         List<TestProgressListener> noTestProgressListeners = ImmutableList.of();
+        List<BuildProgressListener> noBuildListeners = ImmutableList.of();
+        List<TaskProgressListener> noTaskListeners = ImmutableList.of();
         CancellationToken cancellationToken = GradleConnector.newCancellationTokenSource().token();
-        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, null, null, null, noProgressListeners, noTestProgressListeners, cancellationToken);
+        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, null, null, null, noProgressListeners, noBuildListeners, noTaskListeners, noTestProgressListeners, cancellationToken);
         ModelRepository repository = this.modelRepositoryProvider.getModelRepository(fixedRequestAttributes);
         return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FROM_CACHE_ONLY);
     }

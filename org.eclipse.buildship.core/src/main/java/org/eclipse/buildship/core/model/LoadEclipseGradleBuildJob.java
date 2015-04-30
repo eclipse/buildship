@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.events.build.BuildProgressListener;
 import org.gradle.tooling.events.test.TestProgressListener;
 
 import com.google.common.base.Optional;
@@ -94,7 +95,10 @@ public final class LoadEclipseGradleBuildJob extends ToolingApiJob {
         try {
             ProcessStreams stream = this.processStreamsProvider.getBackgroundJobProcessStreams();
             List<ProgressListener> listeners = ImmutableList.<ProgressListener> of(new DelegatingProgressListener(monitor));
-            TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, stream.getOutput(), stream.getError(), null, listeners, ImmutableList.<TestProgressListener> of(), getToken());
+            //(boolean colorOutput, OutputStream standardOutput, OutputStream standardError, InputStream standardInput, List<ProgressListener> progressListeners,
+//            List<BuildProgressListener> buildProgressListeners, List<TaskProgressListener> taskProgressListeners, List<TestProgressListener> testProgressListeners,
+//            CancellationToken cancellationToken)
+            TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, stream.getOutput(), stream.getError(), null, listeners, ImmutableList.<BuildProgressListener> of(), null, ImmutableList.<TestProgressListener> of(), getToken());
             ModelRepository repository = this.modelRepositoryProvider.getModelRepository(this.configuration.getRequestAttributes());
             return repository.fetchEclipseGradleBuild(transientAttributes, this.modelFetchStrategy);
         } finally {

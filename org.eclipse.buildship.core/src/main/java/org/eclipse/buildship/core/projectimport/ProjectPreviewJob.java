@@ -15,6 +15,8 @@ import java.util.List;
 
 import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.events.build.BuildProgressListener;
+import org.gradle.tooling.events.task.TaskProgressListener;
 import org.gradle.tooling.events.test.TestProgressListener;
 
 import com.google.common.base.Optional;
@@ -56,7 +58,8 @@ public final class ProjectPreviewJob extends ToolingApiJob {
 
         this.fixedAttributes = configuration.toFixedAttributes();
         ProcessStreams stream = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-        this.transientAttributes = new TransientRequestAttributes(false, stream.getOutput(), stream.getError(), null, listeners, ImmutableList.<TestProgressListener> of(), getToken());
+        this.transientAttributes = new TransientRequestAttributes(false, stream.getOutput(), stream.getError(), null, listeners, ImmutableList.<BuildProgressListener> of(),
+                ImmutableList.<TaskProgressListener> of(), ImmutableList.<TestProgressListener> of(), getToken());
 
         this.result = null;
 
