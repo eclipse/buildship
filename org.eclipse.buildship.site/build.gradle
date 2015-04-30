@@ -9,7 +9,70 @@ buildscript {
 updateSite {
     extraResources = files('epl-v10.html', 'notice.html', 'p2.index')
     p2ExtraProperties = collectP2ExtraProperties()
-    signBundles = true
+    signing { folders ->
+        // if the created update site is going to be published remotely, replace the local signing with the one available on eclipse.org
+        if (gradle.taskGraph.hasTask(uploadUpdateSite)) {
+            ssh.run {
+                session(remotes.eclipseDotOrg) {
+                    // the remote folder where the jars are signed
+                    def remoteFolder = "${ECLIPSE_ORG_TEMP_PATH}/${folders.signedFolder.name}"
+
+                    // clean up the folder used for signing if the previous build failed
+                    execute """rm -rf $remoteFolder
+                    mkdir -p $remoteFolder"""
+
+                    // transfer the unsigned files to the remote host
+                    put from: file(folders.unsignedFolder).listFiles() as List, into: remoteFolder
+
+                    // perform the signing
+                    execute """ cd $remoteFolder
+                    # iterate all jars in the subfolders
+                    for jar in \$(find `pwd` -name '*.jar');
+                    do
+                        # save the signed jar into a temporary file copy and write it's content to the unsigned jar
+                        curl -o signed.jar -F filedata=@\$jar http://build.eclipse.org:31338/sign
+                        cp signed.jar \$jar
+                        rm signed.jar
+                    done
+                    """
+
+                    // retrieve the signed content from the remote host into the build/signed-bundles folder
+                    get from: remoteFolder, into: folders.signedFolder.parentFile
+
+                    // clean up the remote folder
+                    execute "rm -rf $remoteFolder"
+                }
+            }
+        } else {
+            def unsignedPluginsDir = new File(folders.unsignedFolder, "plugins")
+            def unsignedFeaturesDir = new File(folders.unsignedFolder, "features")
+            def signedPluginsDir = new File(folders.signedFolder, "plugins")
+            def signedFeaturesDir = new File(folders.signedFolder, "features")
+
+            signedPluginsDir.mkdirs()
+            signedFeaturesDir.mkdirs()
+
+            File targetDir = signedPluginsDir
+            def signBundle = {
+                project.logger.info("Sign '${it.absolutePath}'")
+                project.ant.signjar(
+                    verbose: 'true',
+                    destDir: targetDir,
+                    alias: 'EclipsePlugins',
+                    jar: it,
+                    keystore: project.findProject(':').file('gradle/config/signing/DevKeystore.ks'),
+                    storepass: 'tooling',
+                    keypass: 'tooling',
+                    sigalg: 'SHA1withDSA',
+                    digestalg: 'SHA1',
+                    preservelastmodified: 'true')
+            }
+
+            unsignedPluginsDir.listFiles().each signBundle
+            targetDir = signedFeaturesDir
+            unsignedFeaturesDir.listFiles().each signBundle
+        }
+    }
 }
 
 remotes {
@@ -38,47 +101,6 @@ dependencies {
 
     // official 3rd party dependencies from Orbit which are already signed and normalized with pack200
     signedExternalPlugin withEclipseBundle('com.google.gson')
-}
-
-// if the created update site is going to be published remotely, replace the local signing with the one available on eclipse.org
-// it is most likely not the Gradle-way to replace the actions of another task, but it does the job for now
-gradle.taskGraph.whenReady {
-    if (gradle.taskGraph.hasTask(uploadUpdateSite)) {
-        signBundles.actions.clear()
-        signBundles.doLast {
-            ssh.run {
-                session(remotes.eclipseDotOrg) {
-                    // the remote folder where the jars are signed
-                    def remoteFolder = "${ECLIPSE_ORG_TEMP_PATH}/${eclipsebuild.UpdateSitePlugin.SIGNED_BUNDLES_DIR_NAME}"
-
-                    // clean up the folder used for signing if the previous build failed
-                    execute """rm -rf $remoteFolder
-                        mkdir -p $remoteFolder"""
-
-                    // transfer the unsigned files to the remote host
-                    put from: file("$buildDir/${eclipsebuild.UpdateSitePlugin.UNSIGNED_BUNDLES_DIR_NAME}").listFiles() as List, into: remoteFolder
-
-                    // perform the signing
-                    execute """ cd $remoteFolder
-                        # iterate all jars in the subfolders
-                        for jar in \$(find `pwd` -name '*.jar');
-                        do
-                            # save the signed jar into a temporary file copy and write it's content to the unsigned jar
-                            curl -o signed.jar -F filedata=@\$jar http://build.eclipse.org:31338/sign
-                            cp signed.jar \$jar
-                            rm signed.jar
-                        done
-                    """
-
-                    // retrieve the signed content from the remote host into the build/signed-bundles folder
-                    get from: remoteFolder, into: "$buildDir"
-
-                    // clean up the remote folder
-                    execute "rm -rf $remoteFolder"
-                }
-            }
-        }
-    }
 }
 
 task uploadUpdateSite(dependsOn : createP2Repository) {
