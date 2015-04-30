@@ -44,7 +44,7 @@ public final class ActionShowingContextMenuListener implements IMenuListener {
     private void handleSelection(IMenuManager manager, NodeSelection selection) {
         for (SelectionSpecificAction action : this.actions) {
             if (action.isVisibleFor(selection)) {
-                action.setEnabled(action.isEnabledFor(selection));
+                action.setEnabledFor(selection);
                 manager.add(action);
             }
         }

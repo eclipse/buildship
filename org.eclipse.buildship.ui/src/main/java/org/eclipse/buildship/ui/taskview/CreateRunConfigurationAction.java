@@ -49,4 +49,9 @@ public final class CreateRunConfigurationAction extends CommandBackedAction impl
         return !attributes.isPresent() || !CorePlugin.gradleLaunchConfigurationManager().getRunConfiguration(attributes.get()).isPresent();
     }
 
+    @Override
+    public void setEnabledFor(NodeSelection selection) {
+        setEnabled(isEnabledFor(selection));
+    }
+
 }

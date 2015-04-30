@@ -37,4 +37,9 @@ public final class OpenBuildScriptAction extends CommandBackedAction implements 
         return selection.hasAllNodesOfType(ProjectNode.class) && selection.isSingleSelection();
     }
 
+    @Override
+    public void setEnabledFor(NodeSelection selection) {
+        setEnabled(isEnabledFor(selection));
+    }
+
 }

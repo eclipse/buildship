@@ -41,4 +41,9 @@ public final class RunTasksAction extends CommandBackedAction implements Selecti
         return TaskViewActionStateRules.taskScopedTaskExecutionActionsEnabledFor(selection);
     }
 
+    @Override
+    public void setEnabledFor(NodeSelection selection) {
+        setEnabled(isEnabledFor(selection));
+    }
+
 }

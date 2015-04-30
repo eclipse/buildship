@@ -45,7 +45,7 @@ public final class ActionEnablingSelectionChangedListener implements ISelectionC
 
     private void handleSelection(NodeSelection selection) {
         for (SelectionSpecificAction action : this.actions) {
-            action.setEnabled(action.isEnabledFor(selection));
+            action.setEnabledFor(selection);
         }
     }
 

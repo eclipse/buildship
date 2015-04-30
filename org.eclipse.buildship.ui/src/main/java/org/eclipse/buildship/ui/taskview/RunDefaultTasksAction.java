@@ -41,4 +41,9 @@ public final class RunDefaultTasksAction extends CommandBackedAction implements 
         return TaskViewActionStateRules.projectScopedTaskExecutionActionsEnabledFor(selection);
     }
 
+    @Override
+    public void setEnabledFor(NodeSelection selection) {
+        setEnabled(isEnabledFor(selection));
+    }
+
 }

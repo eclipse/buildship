@@ -35,4 +35,11 @@ public interface SelectionSpecificAction extends IAction {
      */
     boolean isEnabledFor(NodeSelection selection);
 
+    /**
+     * Sets the enabled state of this action depending on the given selection.
+     *
+     * @param selection the selection from which to make the decision
+     */
+    void setEnabledFor(NodeSelection selection);
+
 }
