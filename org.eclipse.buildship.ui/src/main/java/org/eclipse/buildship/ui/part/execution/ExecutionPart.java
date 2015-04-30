@@ -11,23 +11,20 @@
 
 package org.eclipse.buildship.ui.part.execution;
 
-import org.eclipse.jface.viewers.Viewer;
-
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.ui.part.FilteredTreePagePart;
 import org.eclipse.buildship.ui.part.FilteredTreeProvider;
-import org.eclipse.buildship.ui.part.ViewerProvider;
 import org.eclipse.buildship.ui.part.execution.listener.BuildLaunchRequestListener;
 import org.eclipse.buildship.ui.part.execution.listener.ProgressItemCreatedListener;
 import org.eclipse.buildship.ui.part.pages.DefaultExecutionPage;
 import org.eclipse.buildship.ui.part.pages.IPage;
-import org.eclipse.buildship.ui.viewer.FilteredTree;
 
 /**
  * This part displays the Gradle executions, like a build. It contains a FilteredTree with an
  * operation and a duration column.
  *
  */
-public class ExecutionPart extends AbstractPagePart implements FilteredTreeProvider {
+public class ExecutionPart extends FilteredTreePagePart implements FilteredTreeProvider {
 
     public static final String ID = "org.eclipse.buildship.ui.views.executionview";
 
@@ -43,25 +40,6 @@ public class ExecutionPart extends AbstractPagePart implements FilteredTreeProvi
         registerExpandTreeOnNewProgressListener();
 
         return new DefaultExecutionPage();
-    }
-
-    @Override
-    public FilteredTree getFilteredTree() {
-        IPage page = getCurrentPage();
-        if (page instanceof FilteredTreeProvider) {
-            return ((FilteredTreeProvider) page).getFilteredTree();
-        }
-        return null;
-    }
-
-    @Override
-    public Viewer getViewer() {
-        IPage page = getCurrentPage();
-        if (page instanceof ViewerProvider) {
-            return ((ViewerProvider) page).getViewer();
-        }
-
-        return null;
     }
 
     @Override

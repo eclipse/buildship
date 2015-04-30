@@ -38,7 +38,7 @@ public class CollapseHandler extends AbstractHandler {
                 TreeViewer treeViewer = (TreeViewer) viewer;
 
                 ISelection selection = HandlerUtil.getCurrentSelection(event);
-                if (!selection.isEmpty() && selection instanceof TreeSelection) {
+                if (selection instanceof TreeSelection && !selection.isEmpty()) {
                     TreeSelection treeSelection = (TreeSelection) selection;
                     List<?> elements = treeSelection.toList();
                     for (Object element : elements) {

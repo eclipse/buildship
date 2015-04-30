@@ -17,6 +17,8 @@ import java.util.List;
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.ProgressEvent;
 
+import com.google.common.collect.Lists;
+
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -54,6 +56,7 @@ import org.eclipse.buildship.ui.part.execution.ExecutionPart;
  */
 public class OperationItem extends AbstractModelObject implements IAdaptable {
 
+    public static final String FIELD_OPERATION_DESCRIPTOR = "operationDescriptor";
     public static final String FIELD_LAST_PROGRESSEVENT = "lastProgressEvent";
     public static final String FIELD_LABEL = "label";
     public static final String FIELD_IMAGE = "image";
@@ -90,6 +93,20 @@ public class OperationItem extends AbstractModelObject implements IAdaptable {
         }
 
     	return Platform.getAdapterManager().getAdapter(this, adapter);
+    }
+
+    public void addChild(OperationItem operationItem) {
+        // must be done like this, so that the databinding works properly
+        List<OperationItem> children = Lists.newArrayList(getChildren());
+        children.add(operationItem);
+        setChildren(children);
+    }
+
+    public void removeChild(OperationItem operationItem) {
+        // must be done like this, so that the databinding works properly
+        List<OperationItem> children = Lists.newArrayList(getChildren());
+        children.remove(operationItem);
+        setChildren(children);
     }
 
     public List<OperationItem> getChildren() {

@@ -56,10 +56,8 @@ public class ExecutionTestProgressListener implements TestProgressListener {
     @Override
     public void statusChanged(TestProgressEvent event) {
         if (!testExecutionItemCreated.getAndSet(true)) {
-            List<OperationItem> buildStartedChildren = Lists.newArrayList();
             OperationItem tests = new OperationItem(null, "Tests");
-            buildStartedChildren.add(tests);
-            root.setChildren(buildStartedChildren);
+            root.addChild(tests);
 
             // The new root will be the tests
             root = tests;

@@ -11,16 +11,13 @@
 
 package org.eclipse.buildship.ui.part.execution;
 
-import java.util.List;
-
-import com.google.common.collect.Lists;
-
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.beans.IBeanValueProperty;
 import org.eclipse.core.databinding.observable.set.IObservableSet;
 import org.eclipse.core.databinding.property.list.IListProperty;
 import org.eclipse.jface.databinding.viewers.ObservableListTreeContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapCellLabelProvider;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.ViewerColumn;
@@ -92,6 +89,11 @@ public class ExecutionPage implements IPage, FilteredTreeProvider {
     }
 
     @Override
+    public ISelectionProvider getSelectionProvider() {
+        return getViewer();
+    }
+
+    @Override
     public void dispose() {
         if (getPageControl() != null && !getPageControl().isDisposed()) {
             getPageControl().dispose();
@@ -121,11 +123,9 @@ public class ExecutionPage implements IPage, FilteredTreeProvider {
 
         getViewer().setInput(root);
 
-        List<OperationItem> rootChildren = Lists.newArrayList();
         buildStarted = new OperationItem(null, "Gradle Build");
         buildStarted.setImage(PluginImages.GRADLE_ICON.withState(ImageState.ENABLED).getImageDescriptor());
-        rootChildren.add(buildStarted);
-        root.setChildren(rootChildren);
+        root.addChild(buildStarted);
     }
 
     private void attachLabelProvider(String textProperty, String imageProperty, IObservableSet knownElements, ViewerColumn viewerColumn) {

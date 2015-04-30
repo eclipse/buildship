@@ -21,7 +21,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -30,7 +29,7 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
-import org.eclipse.buildship.ui.part.ViewerProvider;
+import org.eclipse.buildship.ui.part.SelectionProviderProvider;
 import org.eclipse.buildship.ui.part.pages.IPage;
 
 public abstract class AbstractPagePart extends ViewPart {
@@ -93,7 +92,9 @@ public abstract class AbstractPagePart extends ViewPart {
         if (pageControl != null && !pageControl.getParent().equals(stackComposite)) {
             throw new RuntimeException("The given page does not belong to this PagePart.");
         }
+        // remove previous selectionprovider
         changeInternalSelectionProvider(currentPage, true);
+
         currentPage = page;
         stackLayout.topControl = pageControl;
         stackComposite.layout();
@@ -103,13 +104,14 @@ public abstract class AbstractPagePart extends ViewPart {
     }
 
     private void changeInternalSelectionProvider(IPage page, boolean remove) {
-        if (page instanceof ViewerProvider) {
-            Viewer viewer = ((ViewerProvider) page).getViewer();
-            if (viewer != null) {
+        if (page instanceof SelectionProviderProvider) {
+            SelectionProviderProvider selectionProviderProvider = (SelectionProviderProvider) page;
+            if (selectionProviderProvider.getSelectionProvider() != null) {
                 if (remove) {
-                    viewer.removeSelectionChangedListener(selectionChangedListener);
+                    selectionProviderProvider.getSelectionProvider().removeSelectionChangedListener(selectionChangedListener);
                 } else {
-                    viewer.addSelectionChangedListener(selectionChangedListener);
+                    selectionProviderProvider.getSelectionProvider().addSelectionChangedListener(selectionChangedListener);
+                    pageSelectionProvider.setSelection(selectionProviderProvider.getSelectionProvider().getSelection());
                 }
             }
         }
