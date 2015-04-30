@@ -14,8 +14,8 @@ package org.eclipse.buildship.ui.view.executionview;
 import org.eclipse.jface.viewers.Viewer;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.ui.view.FilteredTreePart;
-import org.eclipse.buildship.ui.view.ViewerPart;
+import org.eclipse.buildship.ui.view.FilteredTreeProvider;
+import org.eclipse.buildship.ui.view.ViewerProvider;
 import org.eclipse.buildship.ui.view.executionview.listener.BuildLaunchRequestListener;
 import org.eclipse.buildship.ui.view.executionview.listener.ProgressItemCreatedListener;
 import org.eclipse.buildship.ui.view.pages.DefaultPage;
@@ -27,7 +27,7 @@ import org.eclipse.buildship.ui.viewer.FilteredTree;
  * operation and a duration column.
  *
  */
-public class ExecutionPart extends AbstractPagePart implements FilteredTreePart {
+public class ExecutionPart extends AbstractPagePart implements FilteredTreeProvider {
 
     public static final String ID = "org.eclipse.buildship.ui.views.executionview";
 
@@ -48,8 +48,8 @@ public class ExecutionPart extends AbstractPagePart implements FilteredTreePart 
     @Override
     public FilteredTree getFilteredTree() {
         IPage page = getCurrentPage();
-        if (page instanceof FilteredTreePart) {
-            return ((FilteredTreePart) page).getFilteredTree();
+        if (page instanceof FilteredTreeProvider) {
+            return ((FilteredTreeProvider) page).getFilteredTree();
         }
         return null;
     }
@@ -57,8 +57,8 @@ public class ExecutionPart extends AbstractPagePart implements FilteredTreePart 
     @Override
     public Viewer getViewer() {
         IPage page = getCurrentPage();
-        if (page instanceof ViewerPart) {
-            return ((ViewerPart) page).getViewer();
+        if (page instanceof ViewerProvider) {
+            return ((ViewerProvider) page).getViewer();
         }
 
         return null;

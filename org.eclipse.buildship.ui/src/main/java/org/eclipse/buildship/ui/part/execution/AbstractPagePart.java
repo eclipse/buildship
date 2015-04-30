@@ -30,7 +30,7 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
-import org.eclipse.buildship.ui.view.ViewerPart;
+import org.eclipse.buildship.ui.view.ViewerProvider;
 import org.eclipse.buildship.ui.view.pages.IPage;
 
 public abstract class AbstractPagePart extends ViewPart {
@@ -103,8 +103,8 @@ public abstract class AbstractPagePart extends ViewPart {
     }
 
     private void changeInternalSelectionProvider(IPage page, boolean remove) {
-        if (page instanceof ViewerPart) {
-            Viewer viewer = ((ViewerPart) page).getViewer();
+        if (page instanceof ViewerProvider) {
+            Viewer viewer = ((ViewerProvider) page).getViewer();
             if (viewer != null) {
                 if (remove) {
                     viewer.removeSelectionChangedListener(selectionChangedListener);

@@ -19,7 +19,7 @@ import org.eclipse.buildship.ui.viewer.FilteredTree;
  * Common interface for the part in order to access the {@link FilteredTree} and also directly its
  * underlying {@link TreeViewer}.
  */
-public interface FilteredTreePart extends ViewerPart {
+public interface FilteredTreeProvider extends ViewerProvider {
 
     FilteredTree getFilteredTree();
 }

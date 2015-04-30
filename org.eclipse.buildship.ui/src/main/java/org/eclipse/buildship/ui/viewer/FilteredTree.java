@@ -998,6 +998,10 @@ public class FilteredTree extends Composite {
 	}
 
 	public void setShowFilterControls(boolean showFilterControls) {
+        if (isShowFilterControls() == showFilterControls) {
+            return;
+        }
+
 		this.showFilterControls = showFilterControls;
 		if (filterComposite != null) {
 			Object filterCompositeLayoutData = filterComposite.getLayoutData();

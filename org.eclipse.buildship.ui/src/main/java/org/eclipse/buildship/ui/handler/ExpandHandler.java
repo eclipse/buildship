@@ -24,7 +24,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import org.eclipse.buildship.ui.view.ViewerPart;
+import org.eclipse.buildship.ui.view.ViewerProvider;
 
 public class ExpandHandler extends AbstractHandler {
 
@@ -32,15 +32,15 @@ public class ExpandHandler extends AbstractHandler {
     public Object execute(ExecutionEvent event) throws ExecutionException {
 
         IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
-        if (activePart instanceof ViewerPart) {
-            ViewerPart viewerPart = (ViewerPart) activePart;
+        if (activePart instanceof ViewerProvider) {
+            ViewerProvider viewerPart = (ViewerProvider) activePart;
             Viewer viewer = viewerPart.getViewer();
             if (viewer instanceof TreeViewer) {
 
                 TreeViewer treeViewer = (TreeViewer) viewer;
 
                 ISelection selection = HandlerUtil.getCurrentSelection(event);
-                if (selection instanceof TreeSelection) {
+                if (!selection.isEmpty() && selection instanceof TreeSelection) {
                     TreeSelection treeSelection = (TreeSelection) selection;
                     List<?> elements = treeSelection.toList();
                     for (Object element : elements) {

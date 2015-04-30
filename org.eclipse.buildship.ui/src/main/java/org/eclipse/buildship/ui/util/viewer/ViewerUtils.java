@@ -17,6 +17,9 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Tree;
 
+import org.eclipse.buildship.ui.view.FilteredTreeProvider;
+import org.eclipse.buildship.ui.viewer.FilteredTree;
+
 /**
  * Contains helper methods for {@link Viewer} objects.
  */
@@ -39,6 +42,16 @@ public final class ViewerUtils {
         } else if (viewer instanceof TableViewer) {
             Table table = ((TableViewer) viewer).getTable();
             table.setHeaderVisible(showHeader);
+        }
+    }
+
+    public static void setShowFilterControls(Object filteredTreeProvider, boolean show) {
+        if (filteredTreeProvider instanceof FilteredTreeProvider) {
+            FilteredTreeProvider filteredTreePart = (FilteredTreeProvider) filteredTreeProvider;
+            FilteredTree filteredTree = filteredTreePart.getFilteredTree();
+            if (filteredTree != null) {
+                filteredTree.setShowFilterControls(show);
+            }
         }
     }
 }

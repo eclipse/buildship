@@ -17,7 +17,7 @@ import org.eclipse.jface.viewers.Viewer;
  * Interface for parts, which contain a {@link Viewer}.
  *
  */
-public interface ViewerPart {
+public interface ViewerProvider {
 
     Viewer getViewer();
 }

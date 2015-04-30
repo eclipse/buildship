@@ -267,6 +267,10 @@
              commandId="org.eclipse.buildship.ui.commands.removeallpages"
              icon="icons/full/elcl16/rem_all_co.png">
        </image>
+       <image
+             commandId="org.eclipse.buildship.ui.commands.showtreefilter"
+             icon="icons/full/etool16/filter_ps.png">
+       </image>
     </extension>
 
     <!-- integration of a Gradle console into the Console View -->
@@ -325,14 +329,34 @@
                 commandId="org.eclipse.buildship.ui.commands.showtreeheader"
                 style="toggle">
           </command>
-          <command
-                commandId="org.eclipse.buildship.ui.commands.showtreefilter"
-                style="toggle">
-          </command>
        </menuContribution>
        <menuContribution
              allPopups="false"
              locationURI="toolbar:org.eclipse.buildship.ui.views.executionview">
+          <command
+                commandId="org.eclipse.buildship.ui.commands.tree.expandall"
+                style="push"
+                tooltip="Expand All">
+          </command>
+          <command
+                commandId="org.eclipse.buildship.ui.commands.tree.collapseall"
+                style="push"
+                tooltip="Collapse All">
+          </command>
+          <separator
+                name="org.eclipse.buildship.ui.separator.expandcollapse"
+                visible="true">
+          </separator>
+          <command
+                commandId="org.eclipse.buildship.ui.commands.switchpage"
+                id="org.eclipse.buildship.ui.commands.switchpage"
+                label="Switch Gradle Execution Page"
+                style="pulldown">
+          </command>
+          <separator
+                name="org.eclipse.buildship.ui.separator.switchexecution"
+                visible="true">
+          </separator>
           <command
                 commandId="org.eclipse.buildship.ui.commands.removepage"
                 label="Remove Build Execution"
@@ -345,20 +369,14 @@
                 style="push"
                 tooltip="Remove All Build Executions">
           </command>
+          <separator
+                name="org.eclipse.buildship.ui.separator.removepages"
+                visible="true">
+          </separator>
           <command
-                commandId="org.eclipse.buildship.ui.commands.switchpage"
-                id="org.eclipse.buildship.ui.commands.switchpage"
-                style="pulldown">
-          </command>
-          <command
-                commandId="org.eclipse.buildship.ui.commands.tree.expandall"
-                style="push"
-                tooltip="Expand All">
-          </command>
-          <command
-                commandId="org.eclipse.buildship.ui.commands.tree.collapseall"
-                style="push"
-                tooltip="Collapse All">
+                commandId="org.eclipse.buildship.ui.commands.showtreefilter"
+                style="toggle"
+                tooltip="Show Filter">
           </command>
        </menuContribution>
        <menuContribution
@@ -378,7 +396,7 @@
              <with
                    variable="activePart">
                 <instanceof
-                      value="org.eclipse.buildship.ui.view.FilteredTreePart">
+                      value="org.eclipse.buildship.ui.view.FilteredTreeProvider">
                 </instanceof>
              </with>
           </and>

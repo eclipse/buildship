@@ -30,7 +30,7 @@ import org.eclipse.swt.widgets.Control;
 
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.view.FilteredTreePart;
+import org.eclipse.buildship.ui.view.FilteredTreeProvider;
 import org.eclipse.buildship.ui.view.executionview.model.ExecutionItem;
 import org.eclipse.buildship.ui.view.executionview.model.internal.ProgressChildrenListProperty;
 import org.eclipse.buildship.ui.view.pages.IPage;
@@ -43,7 +43,7 @@ import org.eclipse.buildship.ui.viewer.labelprovider.ObservableMapCellWithIconLa
  * operation and a duration column.
  *
  */
-public class ExecutionPage implements IPage, FilteredTreePart {
+public class ExecutionPage implements IPage, FilteredTreeProvider {
 
     private FilteredTree filteredTree;
 
@@ -73,7 +73,9 @@ public class ExecutionPage implements IPage, FilteredTreePart {
 
     @Override
     public void setFocus() {
-        getViewer().getControl().setFocus();
+        if (getViewer() != null && getViewer().getControl() != null && !getViewer().getControl().isDisposed()) {
+            getViewer().getControl().setFocus();
+        }
     }
 
     @Override
@@ -83,11 +85,18 @@ public class ExecutionPage implements IPage, FilteredTreePart {
 
     @Override
     public TreeViewer getViewer() {
-        return filteredTree.getViewer();
+        if (getFilteredTree() != null && !getFilteredTree().isDisposed()) {
+            return getFilteredTree().getViewer();
+        }
+        return null;
     }
 
     @Override
     public void dispose() {
+        if (getPageControl() != null && !getPageControl().isDisposed()) {
+            getPageControl().dispose();
+            filteredTree = null;
+        }
     }
 
     protected void createViewerColumns() {

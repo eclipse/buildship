@@ -16,7 +16,7 @@ import com.google.common.eventbus.Subscribe;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 
-import org.eclipse.buildship.ui.view.ViewerPart;
+import org.eclipse.buildship.ui.view.ViewerProvider;
 import org.eclipse.buildship.ui.view.executionview.model.internal.ExecutionItemCreatedEvent;
 
 /**
@@ -25,9 +25,9 @@ import org.eclipse.buildship.ui.view.executionview.model.internal.ExecutionItemC
  */
 public class ProgressItemCreatedListener {
 
-    private ViewerPart viewerPart;
+    private ViewerProvider viewerPart;
 
-    public ProgressItemCreatedListener(ViewerPart treePart) {
+    public ProgressItemCreatedListener(ViewerProvider treePart) {
         this.viewerPart = treePart;
     }
 

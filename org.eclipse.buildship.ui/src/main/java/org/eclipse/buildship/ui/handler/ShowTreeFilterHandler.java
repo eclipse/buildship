@@ -11,14 +11,17 @@
 
 package org.eclipse.buildship.ui.handler;
 
+import java.util.List;
+
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import org.eclipse.buildship.ui.view.FilteredTreePart;
+import org.eclipse.buildship.ui.util.viewer.ViewerUtils;
+import org.eclipse.buildship.ui.view.executionview.AbstractPagePart;
 import org.eclipse.buildship.ui.view.executionview.ExecutionPartPreferences;
-import org.eclipse.buildship.ui.viewer.FilteredTree;
+import org.eclipse.buildship.ui.view.pages.IPage;
 
 public class ShowTreeFilterHandler extends AbstractToogleStateHandler {
 
@@ -36,11 +39,13 @@ public class ShowTreeFilterHandler extends AbstractToogleStateHandler {
         prefs.setFilterVisibile(!getToggleState());
 
         IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
-        if (activePart instanceof FilteredTreePart) {
-            FilteredTreePart filteredTreePart = (FilteredTreePart) activePart;
-            FilteredTree filteredTree = filteredTreePart.getFilteredTree();
-            if (filteredTree != null) {
-                filteredTree.setShowFilterControls(getToggleState());
+        ViewerUtils.setShowFilterControls(activePart, getToggleState());
+
+        if (activePart instanceof AbstractPagePart) {
+            AbstractPagePart pagePart = (AbstractPagePart) activePart;
+            List<IPage> pages = pagePart.getPages();
+            for (IPage page : pages) {
+                ViewerUtils.setShowFilterControls(page, getToggleState());
             }
         }
 

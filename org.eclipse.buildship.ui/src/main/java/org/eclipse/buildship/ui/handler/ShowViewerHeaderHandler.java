@@ -11,14 +11,18 @@
 
 package org.eclipse.buildship.ui.handler;
 
+import java.util.List;
+
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import org.eclipse.buildship.ui.util.viewer.ViewerUtils;
-import org.eclipse.buildship.ui.view.ViewerPart;
+import org.eclipse.buildship.ui.view.ViewerProvider;
+import org.eclipse.buildship.ui.view.executionview.AbstractPagePart;
 import org.eclipse.buildship.ui.view.executionview.ExecutionPartPreferences;
+import org.eclipse.buildship.ui.view.pages.IPage;
 
 public class ShowViewerHeaderHandler extends AbstractToogleStateHandler {
 
@@ -36,9 +40,19 @@ public class ShowViewerHeaderHandler extends AbstractToogleStateHandler {
         prefs.setHeaderVisibile(!getToggleState());
 
         IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
-        if (activePart instanceof ViewerPart) {
-            ViewerPart viewerPart = (ViewerPart) activePart;
+        if (activePart instanceof ViewerProvider) {
+            ViewerProvider viewerPart = (ViewerProvider) activePart;
             ViewerUtils.setHeaderVisible(viewerPart.getViewer(), getToggleState());
+        }
+
+        if (activePart instanceof AbstractPagePart) {
+            AbstractPagePart pagePart = (AbstractPagePart) activePart;
+            List<IPage> pages = pagePart.getPages();
+            for (IPage page : pages) {
+                if (page instanceof ViewerProvider) {
+                    ViewerUtils.setHeaderVisible(((ViewerProvider) page).getViewer(), getToggleState());
+                }
+            }
         }
 
         return Status.OK_STATUS;
