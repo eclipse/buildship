@@ -11,9 +11,6 @@
 
 package eclipsebuild
 
-import org.gradle.api.artifacts.ResolvedDependency;
-
-import org.gradle.api.artifacts.ExternalModuleDependency;
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ProjectDependency
@@ -31,13 +28,13 @@ import org.gradle.api.plugins.JavaPlugin
  *   siteDescriptor = file('category.xml')
  *   extraResources = files('epl-v10.html', 'readme.txt')
  *   p2ExtraProperties = ['p2.mirrorsURL' : 'http://www.eclipse.org/downloads/download.php?file=/path/to/repository&format=xml' ]
- *   signBundles = true
+ *   signing = { ... }
  * }
  * </pre>
  * The {@code siteDescriptor} is the category definition for the P2 update site.
  * The {@code extraResources} enumerates all extra files that should be included in the update site.
  * The {@code p2ExtraProperties} allows to add properties elements to the update site's artifacts.xml file under the _repository/properties_ node.
- * The {@code signBundles} flag indicates whether the site's content should be signed.
+ * The {@code signing} closure defining how the update site's artifacts should be signed.
  * <p>
  * The main tasks contributed by this plugin are responsible to generate an Eclipse Update Site.
  * They are attached to the 'assemble' task. When executed, all project dependency jars are copied
@@ -57,7 +54,7 @@ class UpdateSitePlugin implements Plugin<Project> {
         File siteDescriptor
         FileCollection extraResources
         Map p2ExtraProperties
-        boolean signBundles
+        Closure signing
     }
 
     // name of the root node in the DSL
@@ -104,7 +101,7 @@ class UpdateSitePlugin implements Plugin<Project> {
         project.updateSite.siteDescriptor = project.file('category.xml')
         project.updateSite.extraResources = project.files()
         project.updateSite.p2ExtraProperties = [:]
-        project.updateSite.signBundles = false
+        project.updateSite.signing = null
 
         // validate the content
         validateRequiredFilesExist(project)
@@ -191,7 +188,6 @@ class UpdateSitePlugin implements Plugin<Project> {
             }
         }
 
-      println project.configurations.externalPlugin
         // iterate over all external dependencies and add them to the plugins (this includes the transitive dependencies)
         project.copy {
             from project.configurations.externalPlugin
@@ -227,52 +223,17 @@ class UpdateSitePlugin implements Plugin<Project> {
             description = 'Signs the bundles that make up the update site.'
             inputs.dir new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
             outputs.dir new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME)
-            doLast { signBundles(project) }
-            onlyIf { project.updateSite.signBundles }
+            doLast { project.updateSite.signing(new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME), new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME)) }
+            doLast { copyOverAlreadySignedBundles(project) }
+            onlyIf { project.updateSite.signing != null }
         }
     }
 
-    static void signBundles(Project project) {
-        def unsignedRootDir = new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
-        def unsignedPluginsDir = new File(unsignedRootDir, PLUGINS_DIR_NAME)
-        def unsignedFeaturesDir = new File(unsignedRootDir, FEATURES_DIR_NAME)
-        def signedRootDir = new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME)
-        def signedPluginsDir = new File(signedRootDir, PLUGINS_DIR_NAME)
-        def signedFeaturesDir = new File(signedRootDir, FEATURES_DIR_NAME)
-
-        // delete old content
-        if (signedRootDir.exists()) {
-            project.logger.info("Delete signed bundles directory '${signedRootDir.absolutePath}'")
-            signedRootDir.deleteDir()
+    static void copyOverAlreadySignedBundles(Project project) {
+        project.copy {
+            from project.configurations.signedExternalPlugin
+            into new File(project.buildDir, "$SIGNED_BUNDLES_DIR_NAME/$PLUGINS_DIR_NAME")
         }
-
-        // create the target folders
-        signedRootDir.mkdirs()
-        signedPluginsDir.mkdirs()
-        signedFeaturesDir.mkdirs()
-
-        // sign each plugin and feature into target location
-        File targetDir = signedPluginsDir
-        def signBundle = {
-            project.logger.info("Sign '${it.absolutePath}'")
-            project.ant.signjar(
-                verbose: 'true',
-                destDir: targetDir,
-                alias: 'EclipsePlugins',
-                jar: it,
-                keystore: project.findProject(':').file('gradle/config/signing/DevKeystore.ks'),
-                storepass: 'tooling',
-                keypass: 'tooling',
-                sigalg: 'SHA1withDSA',
-                digestalg: 'SHA1',
-                preservelastmodified: 'true')
-        }
-        project.logger.info("Sign plugins into '${targetDir.absolutePath}'")
-        unsignedPluginsDir.listFiles().each signBundle
-
-        project.logger.info("Sign features into '${targetDir.absolutePath}'")
-        targetDir = signedFeaturesDir
-        unsignedFeaturesDir.listFiles().each signBundle
     }
 
     static void addTaskCompressBundles(Project project) {
@@ -280,25 +241,14 @@ class UpdateSitePlugin implements Plugin<Project> {
             NORMALIZE_BUNDLES_TASK_NAME, SIGN_BUNDLES_TASK_NAME, ":${BuildDefinitionPlugin.TASK_NAME_INSTALL_TARGET_PLATFORM}"]) {
                 group = Constants.gradleTaskGroupName
                 description = 'Compresses the bundles that make up the update using the pack200 tool.'
-                project.afterEvaluate { inputs.dir project.updateSite.signBundles ? new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME) : new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME) }
-                project.afterEvaluate { outputs.dir project.updateSite.signBundles ? new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME) : new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME) }
+                project.afterEvaluate { inputs.dir project.updateSite.signing != null ? new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME) : new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME) }
                 outputs.dir  new File(project.buildDir, COMPRESSED_BUNDLES_DIR_NAME)
-                doFirst { copyAlreadySignedBundles(project) }
                 doLast { compressBundles(project) }
         }
     }
 
-    static void copyAlreadySignedBundles(Project project) {
-        // output for signed bundles which doesn't need to be conditioned with pack200 and signed
-        File uncompressedBundles = project.updateSite.signBundles ? new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME) : new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
-        project.copy {
-            from project.configurations.signedExternalPlugin
-            into new File(uncompressedBundles, PLUGINS_DIR_NAME)
-        }
-    }
-
     static void compressBundles(Project project) {
-        File uncompressedBundles = project.updateSite.signBundles ? new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME) : new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
+        File uncompressedBundles = project.updateSite.signing != null ? new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME) : new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
         File compressedBundles = new File(project.buildDir, COMPRESSED_BUNDLES_DIR_NAME)
 
         // copy over all bundles
