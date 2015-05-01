@@ -11,7 +11,7 @@ dependencies {
     compile withEclipseBundle('org.eclipse.debug.core')
 
     // the slf4j-simple is a bundle fragment, we only have to reference the api
-    compile withEclipseBundle("org.slf4j.api")
-    compile withEclipseBundle("com.google.gson")
-    compile withEclipseBundle("com.gradleware.tooling.model")
+    compile withEclipseBundle('org.slf4j.api')
+    compile withEclipseBundle('com.google.gson')
+    compile withEclipseBundle('com.gradleware.tooling.model')
 }
