@@ -347,7 +347,7 @@ class UpdateSitePlugin implements Plugin<Project> {
         // parse the xml
         def xml = new XmlParser().parse(artifactsXmlFile)
 
-        // transform the xml to append data extra from the build script (mirrors url, link to stat servers)
+        // apply artifacts.xml customization (append mirrors url, link to stat servers, etc.)
         mutateArtifactsXml(xml)
 
         // write the updated artifacts.xml back to its source
