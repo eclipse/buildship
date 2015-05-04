@@ -8,13 +8,15 @@ buildscript {
 
 updateSite {
     extraResources = files('epl-v10.html', 'notice.html', 'p2.index')
-    p2ExtraProperties = collectP2ExtraProperties()
     signing { File unsignedFolder, File signedFolder ->
         if (gradle.taskGraph.hasTask(uploadUpdateSite)) {
             signByEclipseService(signedFolder, unsignedFolder)
         } else {
             signLocally(unsignedFolder, signedFolder)
         }
+    }
+    mutateArtifactsXml { Node artifactsXml ->
+        addExtraPropertiesToArtifactsXml(artifactsXml)
     }
 }
 
@@ -78,20 +80,6 @@ task uploadUpdateSite(dependsOn : createP2Repository) {
 }
 
 // utility methods
-
-def collectP2ExtraProperties() {
-    if (ECLIPSE_ORG_MIRROR_PATH) {
-        ['p2.mirrorsURL': calculateP2MirrorsUrl(project)]
-    } else {
-        [:]
-    }
-}
-
-def calculateP2MirrorsUrl(Project project) {
-    def repositoryPath = "${ECLIPSE_ORG_MIRROR_PATH}/${releaseTypeFolder(project)}/${releaseVersion()}/${project.version}"
-    "http://www.eclipse.org/downloads/download.php?file=${repositoryPath}&format=xml"
-}
-
 def releaseTypeFolder(Project project) {
     def config = eclipsebuild.BuildshipConfig.on(project)
     if(config.isRelease()) {
@@ -173,4 +161,39 @@ private void signLocally(File unsignedFolder, File signedFolder) {
   unsignedPluginsDir.listFiles().each signBundle
   targetDir = signedFeaturesDir
   unsignedFeaturesDir.listFiles().each signBundle
+}
+
+private void addExtraPropertiesToArtifactsXml(Node artifactsXml) {
+    // modify the artifacts.xml file only when it is deployed to the eclipse.org servers
+    if (ECLIPSE_ORG_MIRROR_PATH) {
+        // https://wiki.eclipse.org/Equinox/p2/p2.mirrorsURL
+        // add p2.mirrorsUrl to the properties section
+        def mainPropertiesNode = artifactsXml.depthFirst().find { it.parent()?.name() == 'repository' && it.name() == 'properties' }
+        new Node(mainPropertiesNode, 'property', ['name': 'p2.mirrorsURL', 'value': calculateP2MirrorsUrl(project)] )
+
+        // add download.stats propery to each installable unit
+        // https://wiki.eclipse.org/Equinox_p2_download_stats#Enabling_stats_in_your_repository
+        new Node(mainPropertiesNode, 'property', ['name': 'p2.statsURI', 'value': calculateStatsUri(project)])
+        mainPropertiesNode.@size = mainPropertiesNode.children().size()
+
+        // add <property name="download.stats" value="feature-id"/> node to the features
+        artifactsXml.depthFirst().findAll {
+            it.parent()?.parent()?.name() == 'artifacts' &&
+            it.parent()?.name() == 'artifact' &&
+            it.parent()?.@classifier == 'org.eclipse.update.feature' &&
+            it.name() == 'properties'
+        }.each {
+            new Node(it, 'property', ['name': 'download.stats', 'value': it.parent().@id ] )
+            it.@size = it.children().size()
+        }
+    }
+}
+
+def calculateP2MirrorsUrl(Project project) {
+    def repositoryPath = "${ECLIPSE_ORG_MIRROR_PATH}/${releaseTypeFolder(project)}/${releaseVersion()}/${project.version}"
+    "http://www.eclipse.org/downloads/download.php?file=${repositoryPath}&format=xml"
+}
+
+def calculateStatsUri(Project project) {
+    "http://download.eclipse.org/stats/buildship/${releaseTypeFolder(project)}/${releaseVersion()}"
 }

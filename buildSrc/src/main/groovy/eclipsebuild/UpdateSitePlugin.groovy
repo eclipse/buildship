@@ -33,8 +33,9 @@ import org.gradle.api.plugins.JavaPlugin
  * </pre>
  * The {@code siteDescriptor} is the category definition for the P2 update site.
  * The {@code extraResources} enumerates all extra files that should be included in the update site.
- * The {@code p2ExtraProperties} allows to add properties elements to the update site's artifacts.xml file under the _repository/properties_ node.
  * The {@code signing} closure defining how the update site's artifacts should be signed.
+ * The {@code mutateArtifactsXml} enables the project to transform the artifacts.xml file after
+ * it is generated to provide extra information about the update site.
  * <p>
  * The main tasks contributed by this plugin are responsible to generate an Eclipse Update Site.
  * They are attached to the 'assemble' task. When executed, all project dependency jars are copied
@@ -53,8 +54,8 @@ class UpdateSitePlugin implements Plugin<Project> {
     static class Extension {
         File siteDescriptor
         FileCollection extraResources
-        Map p2ExtraProperties
         Closure signing
+        Closure mutateArtifactsXml
     }
 
     // name of the root node in the DSL
@@ -100,8 +101,8 @@ class UpdateSitePlugin implements Plugin<Project> {
         project.extensions.create(DSL_EXTENSION_NAME, Extension)
         project.updateSite.siteDescriptor = project.file('category.xml')
         project.updateSite.extraResources = project.files()
-        project.updateSite.p2ExtraProperties = [:]
         project.updateSite.signing = null
+        project.updateSite.mutateArtifactsXml = null
 
         // validate the content
         validateRequiredFilesExist(project)
@@ -275,7 +276,6 @@ class UpdateSitePlugin implements Plugin<Project> {
                 description = 'Generates the P2 repository.'
                 inputs.file project.updateSite.siteDescriptor
                 inputs.files project.updateSite.extraResources
-                inputs.properties project.updateSite.p2ExtraProperties
                 inputs.dir new File(project.buildDir, COMPRESSED_BUNDLES_DIR_NAME)
                 outputs.dir new File(project.buildDir, REPOSITORY_DIR_NAME)
                 doLast { createP2Repository(project) }
@@ -297,9 +297,9 @@ class UpdateSitePlugin implements Plugin<Project> {
         publishContentToLocalP2Repository(project, repositoryDir)
 
         // add custom properties to the artifacts.xml file
-        def p2ExtraProperties = project.updateSite.p2ExtraProperties
-        if (p2ExtraProperties) {
-            addExtraPropertiesToRepository(project, repositoryDir, p2ExtraProperties)
+        def mutateArtifactsXml = project.updateSite.mutateArtifactsXml
+        if (mutateArtifactsXml) {
+            updateArtifactsXmlFromArchive(project, repositoryDir, mutateArtifactsXml)
         }
     }
 
@@ -339,7 +339,7 @@ class UpdateSitePlugin implements Plugin<Project> {
         }
     }
 
-    static void addExtraPropertiesToRepository(Project project, File repositoryLocation, Map<String, String> properties) {
+    static void updateArtifactsXmlFromArchive(Project project, File repositoryLocation, Closure mutateArtifactsXml) {
         // get the artifacts.xml file from the artifacts.jar
         def artifactsJarFile = new File(repositoryLocation, "artifacts.jar")
         def artifactsXmlFile = project.zipTree(artifactsJarFile).matching { 'artifacts.xml' }.singleFile
@@ -347,9 +347,8 @@ class UpdateSitePlugin implements Plugin<Project> {
         // parse the xml
         def xml = new XmlParser().parse(artifactsXmlFile)
 
-        // get the repository 'properties' node and append the extra information there
-        def propertiesNode = xml.depthFirst().find { it.parent()?.name() == 'repository' && it.name() == 'properties' }
-        properties.each { key, value -> new Node(propertiesNode, 'property', ['name': key, 'value': value] ) }
+        // transform the xml to append data extra from the build script (mirrors url, link to stat servers)
+        mutateArtifactsXml(xml)
 
         // write the updated artifacts.xml back to its source
         // the artifacts.xml is a temporary file hence it has to be copied back to the archive
