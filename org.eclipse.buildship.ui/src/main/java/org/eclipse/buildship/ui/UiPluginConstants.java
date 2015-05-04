@@ -60,6 +60,11 @@ public final class UiPluginConstants {
      */
     public static final String OPEN_BUILD_SCRIPT_COMMAND_ID = "org.eclipse.buildship.ui.commands.openbuildscript";
 
+    /**
+     * Extension id for the Common Navigator Framework to provide nested projects.
+     */
+    public static final String NAVIGATOR_NESTED_PROJECTS_CONTENT_PROVIDER_ID = "org.eclipse.buildship.ui.navigator.hierarchicalprojectcontent";
+
     private UiPluginConstants() {
     }
 

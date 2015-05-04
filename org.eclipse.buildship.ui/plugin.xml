@@ -193,4 +193,47 @@
           </adapter>
        </factory>
     </extension>
- </plugin>
+    
+    <!-- Common Navigator Framework extensions to display project hierarchy in the Package Explorer -->
+    <extension
+          point="org.eclipse.ui.navigator.navigatorContent">
+          <navigatorContent
+                activeByDefault="true"
+                contentProvider="org.eclipse.buildship.ui.navigator.HierarchicalProjectContentProvider"
+                id="org.eclipse.buildship.ui.navigator.hierarchicalprojectcontent"
+                labelProvider="org.eclipse.ui.model.WorkbenchLabelProvider"
+                name="Gradle Project Hierarchy"
+                priority="higher">
+            <triggerPoints>
+                <or>
+                    <instanceof value="org.eclipse.core.resources.IProject" />
+                </or>
+            </triggerPoints>
+            <possibleChildren>
+                <or>
+                    <instanceof value="org.eclipse.core.resources.IProject" />
+                </or>
+            </possibleChildren>
+          </navigatorContent>
+          <commonFilter
+                activeByDefault="true"
+                class="org.eclipse.buildship.ui.navigator.HideTopLevelProjectIfNested"
+                description="Hide Gradle projects on the top level if they are displayed as nested projects"
+                id="org.eclipse.buildship.ui.navigator.hierarchicalprojectcontent"
+                name="Nested Gradle Projects"
+                visibleInUI="true">
+          </commonFilter>
+    </extension>
+    <extension
+          point="org.eclipse.ui.navigator.viewer">
+        <viewerContentBinding
+                viewerId="org.eclipse.ui.navigator.ProjectExplorer">
+            <includes>
+                <contentExtension
+                      isRoot="false"
+                      pattern="org.eclipse.buildship.ui.navigator.*">
+                </contentExtension>
+            </includes>
+        </viewerContentBinding>
+    </extension>
+</plugin>
