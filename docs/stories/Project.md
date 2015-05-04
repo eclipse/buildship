@@ -74,6 +74,26 @@ It should probably be possible to import only a single Gradle project from a mul
 It seems a very common use case for Eclipse developers to only import part of a multi-project build.
 
 
+## Provide option to convert an Eclipse project to Gradle
+
+### Requested Change
+
+Similar to other components like PDE or Maven, Buildship should allow to convert an existing project via the context menu of
+the project, i.e., Configure -> Convert to Gradle Project.
+
+The most simple would be to add the Gradle nature to the project and to create an empty Gradle build file.
+
+A more invested solution would be to check if the Java nature is available on the project and add the Java plug-in to the
+generated Gradle build file in this case. Also if the source folder follows the 'legacy' structure of Eclipse projects, a source
+mapping should be added to the Gradle build file.
+
+See [Bug 465355](https://bugs.eclipse.org/bugs/show_bug.cgi?id=465355) for details on the implementation.
+
+### Motivation
+
+This development would make a migration to Gradle simpler for new users and follows the Eclipse conventions of conversions.
+
+
 ## Import buildSrc into workspace
 
 ### Requested Change
@@ -95,19 +115,3 @@ files, configure them according to what the user has specified, and then import 
 ### Motivation
 
 Inexperienced Gradle users appreciate a project creation wizard that provides an easy way to get started with a new Gradle project.
-
-## Provide option to convert an Eclipse project to Gradle 
-
-### Requested Change
-
-Similar to other components like PDE or Maven, Buildship should allow to convert an existing project via the context menu of the project, i.e., Configure -> Convert to Gradle Project
-
-The most simple approach IMHO is that the Gradle nature is added to the project and an (empty) Gradle build file is created. 
-
-A more invested solution would be to check if the Java nature is available on the project and add the Java plug-in to the generated Gradle build file in this case. Also if the source folder follows the "legacy" structure of Eclipse project, a source mapping should be added to the Gradle build file.
-
-See [Bug 465355](https://bugs.eclipse.org/bugs/show_bug.cgi?id=465355) for details on the implementation.
-
-### Motivation
-
-This development would make a migration to Gradle simpler for new users and follows the Eclipse conventions of conversions.
