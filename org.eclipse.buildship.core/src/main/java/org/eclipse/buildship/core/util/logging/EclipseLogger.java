@@ -41,6 +41,11 @@ public final class EclipseLogger implements Logger {
     }
 
     @Override
+    public void warn(String message, Throwable t) {
+        this.log.log(new Status(IStatus.WARNING, this.pluginId, message, t));
+    }
+
+    @Override
     public void error(String message) {
         this.log.log(new Status(IStatus.ERROR, this.pluginId, message));
     }

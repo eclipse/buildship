@@ -52,6 +52,13 @@ public interface Logger {
     void warn(String message);
 
     /**
+     * Logs an entry with {@link org.eclipse.core.runtime.IStatus#INFO} severity in Eclipse's log.
+     * @param message the information to log
+     * @param t exception the cause
+     */
+    void warn(String message, Throwable t);
+
+    /**
      * Logs an entry with {@link org.eclipse.core.runtime.IStatus#ERROR} severity in Eclipse's log.
      *
      * @param message the warning to log
