@@ -72,7 +72,11 @@ final class Bundle2Pom {
 
         pom.group = group ?: pom.artifact
         pom.dependencyGroup = dependencyGroup
-        pom.version = manifest.attr.getValue(Constants.BUNDLE_VERSION)
+
+        // cut the qualifier and use only the major.minor.service segments as version number
+        // this is in sync with version constraints declared in the bundle manifest
+        def version = new Version(manifest.attr.getValue(Constants.BUNDLE_VERSION))
+        pom.version = "${version.major}.${version.minor}.${version.release}"
 
         parseDependencyBundles(pom.dependencyBundles, manifest.attr.getValue(Constants.REQUIRE_BUNDLE))
 
