@@ -21,14 +21,8 @@
         name="org.eclipse.sdk.ide"/>
     <requirement
         name="org.eclipse.buildship.feature.group"/>
-    <requirement
-        name="org.codehaus.groovy.eclipse.feature.feature.group"/>
-    <requirement
-        name="org.codehaus.groovy23.feature.feature.group"/>
     <repository
         url="http://download.eclipse.org/buildship/updates/snapshots/${buildship.latest.version}"/>
-    <repository
-        url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.4"/>
     <description>Installs the required plugins to the IDE.</description>
   </setupTask>
   <setupTask
