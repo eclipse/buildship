@@ -72,6 +72,13 @@
           key="instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.codegen.targetPlatform"
           value="1.6"/>
       <setupTask
+          xsi:type="setup:PreferenceTask"
+          id="buildship.preferences.compiler.goovycompilerlevel"
+          key="instance/org.codehaus.groovy.eclipse.compilerResolver/groovy.compiler.level"
+          value="20">
+        <description>Align workspace Groovy compiler level to referenced libs</description>
+      </setupTask>
+      <setupTask
           xsi:type="jdt:JRETask"
           id="buildship.preferences.compiler.jre"
           version="JavaSE-1.6"
