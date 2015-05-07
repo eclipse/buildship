@@ -18,9 +18,13 @@
       id="buildship.p2"
       label="Project Development Tools">
     <requirement
-        name="org.eclipse.sdk.ide"/>
-    <requirement
         name="org.eclipse.buildship.feature.group"/>
+    <requirement
+        name="org.codehaus.groovy.eclipse.feature.feature.group"/>
+    <requirement
+        name="org.codehaus.groovy20.feature.feature.group"/>
+    <repository
+        url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.4"/>
     <repository
         url="http://download.eclipse.org/buildship/updates/snapshots/${buildship.latest.version}"/>
     <description>Installs the required plugins to the IDE.</description>
@@ -39,6 +43,14 @@
           option="-Xmx"
           value="2048m"
           vm="true"/>
+      <setupTask
+          xsi:type="setup:EclipseIniTask"
+          id="buildship.preferences.eclipse.modelredirection"
+          option="-Doomph.redirection.buildship"
+          value="=https://raw.githubusercontent.com/eclipse/buildship/master/buildship.setup->${buildship.git.clone.location|uri}/buildship.setup"
+          vm="true">
+        <description>Redirect setup model to check for changes in the local file instead in the url</description>
+      </setupTask>
     </setupTask>
     <setupTask
         xsi:type="setup:CompoundTask"
@@ -276,7 +288,7 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
+            url="http://download.eclipse.org/buildship/orbit-staging"/>
       </repositoryList>
       <repositoryList
           name="Luna">
@@ -289,7 +301,7 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
+            url="http://download.eclipse.org/buildship/orbit-staging"/>
       </repositoryList>
       <repositoryList
           name="Kepler">
@@ -302,7 +314,7 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
+            url="http://download.eclipse.org/buildship/orbit-staging"/>
       </repositoryList>
       <repositoryList
           name="Juno">
@@ -315,7 +327,7 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
+            url="http://download.eclipse.org/buildship/orbit-staging"/>
       </repositoryList>
       <repositoryList
           name="Indigo">
@@ -328,7 +340,7 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
+            url="http://download.eclipse.org/buildship/orbit-staging"/>
       </repositoryList>
       <repositoryList
           name="Helios">
@@ -341,7 +353,7 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
+            url="http://download.eclipse.org/buildship/orbit-staging"/>
       </repositoryList>
     </targlet>
     <targlet
