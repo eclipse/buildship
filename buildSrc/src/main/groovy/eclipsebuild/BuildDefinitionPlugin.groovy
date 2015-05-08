@@ -139,18 +139,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         Constants.exposePublicConstantsFor(project)
 
         // make the withEclipseBundle(String) method available in the build script
-        project.ext.withEclipseBundle = { String pluginName -> calculatePluginDependencyVersion(project, pluginName) }
-    }
-
-    static def calculatePluginDependencyVersion(Project project, String pluginName) {
-        // if the target platform defines a version in the versionMapping
-        // for the argument it returns eclipse:pluginName:versionNumber
-        // otherwise it returns eclipse:pluginName:+
-        Config config = Config.on(project)
-        def mappedVersion = config.targetPlatform.versionMapping[pluginName]
-        def version = mappedVersion == null ? "+" : mappedVersion
-        project.logger.debug("Plugin $pluginName mapped to version $version")
-        "${Constants.mavenizedEclipsePluginGroupName}:${pluginName}:${version}"
+        project.ext.withEclipseBundle = { String pluginName -> DependencyUtils.calculatePluginDependency(project, pluginName) }
     }
 
     static void validateDslBeforeBuildStarts(Project project, Config config) {
