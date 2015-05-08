@@ -155,7 +155,7 @@ eclipseBuild {
             'org.eclipse.core.variables'  : '3.2.800',
             'org.eclipse.core.filesystem' : '1.5.0',
             'org.eclipse.jdt.core'        : '3.11.0',
-            'org.eclipse.jdt.junit.core'  : '3.7.300',
+            'org.eclipse.jdt.junit.core'  : '3.7.400',
             'org.eclipse.jdt.launching'   : '3.8.0',
             'org.eclipse.debug.core'      : '3.10.0',
             'org.eclipse.help'            : '3.6.0',
@@ -163,7 +163,7 @@ eclipseBuild {
             'org.eclipse.ui.ide'          : '3.11.0',
             'org.eclipse.ui.console'      : '3.6.0',
             'org.eclipse.ui.editors'      : '3.9.0',
-            'org.eclipse.ui.views'        : '3.7.100',
+            'org.eclipse.ui.views'        : '3.8.0',
             'org.eclipse.debug.ui'        : '3.11.0',
             'org.eclipse.jdt.ui'          : '3.11.0',
             "$swtPluginId"                : "3.104.0"
