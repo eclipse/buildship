@@ -113,10 +113,10 @@ class BundlePlugin implements Plugin<Project> {
 
         String dependency
         if (left == unbound && right == null) {
-            // unbound dependency
+            // unbound dependency (no version constraint defined in the manifest file)
             dependency = DependencyUtils.calculatePluginDependency(project, name)
         } else if (left.compareTo(unbound) > 0 && right == null) {
-            // simple minimum version dependency
+            // simple minimum version dependency (simple version constraint defined in the manifest file, e.g. bundle-version="0.3.0")
             dependency = DependencyUtils.calculatePluginDependency(project, name, left.toString())
         } else  {
             // otherwise fall back to use the highest available
