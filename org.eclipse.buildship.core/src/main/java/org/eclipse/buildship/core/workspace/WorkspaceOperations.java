@@ -18,6 +18,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
 
@@ -52,6 +53,17 @@ public interface WorkspaceOperations {
     void deleteAllProjects(IProgressMonitor monitor);
 
     /**
+     * Checks if a target folder contains a valid Eclipse project. If it finds a project descriptor
+     * it parses it and returns the corresponding {@link IProjectDescription} object. If no
+     * .project file is present or the the descriptor file contains invalid data then an absent
+     * value is returned.
+     *
+     * @param location the location to search for existing projects
+     * @return the project description object
+     */
+    Optional<IProjectDescription> findEclipseProject(File location);
+
+    /**
      * Creates a new {@link IProject} in the workspace using the specified name and location. The
      * location must exist and no project with the specified name must currently exist in the
      * workspace. The new project gets the specified natures applied. Those child projects whose
@@ -67,6 +79,18 @@ public interface WorkspaceOperations {
      * @throws org.eclipse.buildship.core.GradlePluginsRuntimeException thrown if the project creation fails
      */
     IProject createProject(String name, File location, List<File> childProjectLocations, List<String> natureIds, IProgressMonitor monitor);
+
+    /**
+     * Loads an existing Eclipse project to the workspace. After the project is opened it is
+     * associated with the specified list of natures.
+     *
+     * @param description the description specifying the project to open
+     * @param extraNatureIds the list of natures to be associated to the project after it is opened
+     * @param monitor the monitor to report the progress on
+     * @return the opened project's reference
+     * @throws org.eclipse.buildship.core.GradlePluginsRuntimeException thrown if the project opening fails
+     */
+    IProject openProject(IProjectDescription description, ImmutableList<String> extraNatureIds, IProgressMonitor monitor);
 
     /**
      * Configures an existing {@link IProject} to be a {@link IJavaProject}.

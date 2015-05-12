@@ -11,9 +11,22 @@
 
 package org.eclipse.buildship.core.projectimport;
 
+import java.io.File;
+import java.util.List;
+
+import org.gradle.tooling.BuildCancelledException;
+import org.gradle.tooling.BuildException;
+import org.gradle.tooling.GradleConnectionException;
+import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.events.build.BuildProgressListener;
+import org.gradle.tooling.events.task.TaskProgressListener;
+import org.gradle.tooling.events.test.TestProgressListener;
+
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
@@ -24,6 +37,17 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.Pair;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jdt.launching.JavaRuntime;
+
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
@@ -34,27 +58,10 @@ import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 import org.eclipse.buildship.core.workspace.ClasspathDefinition;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.jdt.launching.JavaRuntime;
-import org.gradle.tooling.BuildCancelledException;
-import org.gradle.tooling.BuildException;
-import org.gradle.tooling.GradleConnectionException;
-import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.events.build.BuildProgressListener;
-import org.gradle.tooling.events.task.TaskProgressListener;
-import org.gradle.tooling.events.test.TestProgressListener;
-
-import java.io.File;
-import java.util.List;
 
 /**
- * Imports a Gradle project into Eclipse using the project import coordinates given by a {@code ProjectImportConfiguration} instance.
+ * Imports a Gradle project into Eclipse using the project import coordinates given by a
+ * {@code ProjectImportConfiguration} instance.
  */
 public final class ProjectImportJob extends ToolingApiWorkspaceJob {
 
@@ -95,7 +102,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         }
     }
 
-    public void importProject(IProgressMonitor monitor) {
+    public void importProject(IProgressMonitor monitor) throws Exception {
         monitor.beginTask("Import Gradle Project", 100);
 
         OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(new SubProgressMonitor(monitor, 50));
@@ -110,8 +117,9 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         monitor.beginTask("Load Eclipse Project", IProgressMonitor.UNKNOWN);
         try {
             ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-            List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
-            TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), null, listeners, ImmutableList.<BuildProgressListener>of(), ImmutableList.<TaskProgressListener>of(), ImmutableList.<TestProgressListener>of(), getToken());
+            List<ProgressListener> listeners = ImmutableList.<ProgressListener> of(new DelegatingProgressListener(monitor));
+            TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), null, listeners,
+                    ImmutableList.<BuildProgressListener> of(), ImmutableList.<TaskProgressListener> of(), ImmutableList.<TestProgressListener> of(), getToken());
             ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(this.fixedAttributes);
             return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FORCE_RELOAD);
         } finally {
@@ -119,26 +127,34 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         }
     }
 
-    private void importProject(OmniEclipseProject project, OmniEclipseProject rootProject, IProgressMonitor monitor) {
+    private void importProject(OmniEclipseProject project, OmniEclipseProject rootProject, IProgressMonitor monitor) throws Exception {
         monitor.beginTask("Import project " + project.getName(), 3);
         try {
             WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations();
+            File projectDirectory = project.getProjectDirectory();
+            Optional<IProjectDescription> projectDescription = workspaceOperations.findEclipseProject(projectDirectory);
 
-            // create a new project in the Eclipse workspace for the current Gradle project
-            IProject workspaceProject = workspaceOperations.createProject(project.getName(), project.getProjectDirectory(), collectChildProjectLocations(project),
-                    ImmutableList.of(GradleProjectNature.ID), new SubProgressMonitor(monitor, 1));
+            // if exists then import the project, otherwise create it
+            IProject workspaceProject;
+            if (projectDescription.isPresent()) {
+                workspaceProject = workspaceOperations.openProject(projectDescription.get(), ImmutableList.of(GradleProjectNature.ID), new SubProgressMonitor(monitor, 3));
+            } else {
+                workspaceProject = workspaceOperations.createProject(project.getName(), project.getProjectDirectory(), collectChildProjectLocations(project), ImmutableList
+                        .of(GradleProjectNature.ID), new SubProgressMonitor(monitor, 1));
+
+                // if a Java project, configure the Java nature, the classpath, and the source paths
+                if (isJavaProject(project)) {
+                    ClasspathDefinition classpath = collectClasspath(project, rootProject);
+                    workspaceOperations.createJavaProject(workspaceProject, classpath, new SubProgressMonitor(monitor, 1));
+                }
+            }
 
             // persist the Gradle-specific configuration in the Eclipse project's .settings folder
             ProjectConfiguration projectConfiguration = ProjectConfiguration.from(this.fixedAttributes, project);
             CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, workspaceProject);
 
-            // if the current Gradle project is a Java project, configure the Java nature,
-            // the classpath, and the source paths
-            if (isJavaProject(project)) {
-                ClasspathDefinition classpath = collectClasspath(project, rootProject);
-                workspaceOperations.createJavaProject(workspaceProject, classpath, new SubProgressMonitor(monitor, 1));
-                workspaceOperations.refresh(workspaceProject, new SubProgressMonitor(monitor, 1));
-            }
+            // refresh the project content
+            workspaceOperations.refresh(workspaceProject, new SubProgressMonitor(monitor, 1));
         } finally {
             monitor.done();
         }
