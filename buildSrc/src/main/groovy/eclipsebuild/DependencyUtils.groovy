@@ -26,4 +26,9 @@ class DependencyUtils {
         "${Constants.mavenizedEclipsePluginGroupName}:${pluginName}:${version}"
     }
 
+    static String mappedVersion(Project project, String pluginName, String minimumVersion = '') {
+        Config config = Config.on(project)
+        config.targetPlatform.versionMapping[pluginName]
+    }
+
 }

@@ -11,10 +11,16 @@
 
 package eclipsebuild
 
+import org.gradle.internal.environment.GradleBuildEnvironment;
+
+import org.gradle.api.GradleException;
+import org.osgi.framework.VersionRange;
+
 import org.eclipse.osgi.framework.util.Headers
 import org.eclipse.osgi.internal.resolver.StateObjectFactoryImpl
 import org.eclipse.osgi.internal.resolver.UserState
 import org.eclipse.osgi.service.resolver.BundleSpecification
+
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
@@ -98,6 +104,7 @@ class BundlePlugin implements Plugin<Project> {
     static void defineDependency(BundleSpecification requiredBundle, Project project) {
         def name = requiredBundle.getName()
         def versionRange = requiredBundle.versionRange
+        checkMappedVersion(project, name, versionRange)
 
         // handle dependencies to local projects
         Project localProject = project.rootProject.allprojects.find { it.name == name }
@@ -118,13 +125,25 @@ class BundlePlugin implements Plugin<Project> {
         } else if (left.compareTo(unbound) > 0 && right == null) {
             // simple minimum version dependency (simple version constraint defined in the manifest file, e.g. bundle-version="0.3.0")
             dependency = DependencyUtils.calculatePluginDependency(project, name, left.toString())
-        } else  {
+        } else if (left.compareTo(unbound) > 0 && right != null && versionRange.includeMinimum && !versionRange.includeMaximum) {
+            // version range defined with closed left and open right range (e.g. bundle-version="[1.2.1,2.0.0)")
+            dependency = DependencyUtils.calculatePluginDependency(project, name, left.toString())
+        } else {
             // otherwise fall back to use the highest available
-            dependency = DependencyUtils.calculatePluginDependency(project, name, right?.toString())
-            project.logger.warn("Unsupported dependency specification to ${name}: ${versionRange}\n")
+            throw new GradleException("Unsupported dependency version constraint for ${name}: ${versionRange}\n")
         }
         project.dependencies.compile(dependency)
         project.logger.info("Dependency defined in MANIFEST.MF: ${dependency}")
+    }
+
+    private static void checkMappedVersion(Project project, String name, VersionRange versionRange) {
+        def mappedVersion = DependencyUtils.mappedVersion(project, name)
+        if (mappedVersion) {
+            def version = new Version(mappedVersion)
+            if (!versionRange.includes(version)) {
+                throw new GradleException("Mapped version '$mappedVersion' for dependency '$name' doesn't match to constraint '$versionRange' defined in MANIFEST.MF.")
+            }
+        }
     }
 
     static void addTaskCopyLibs(Project project) {
