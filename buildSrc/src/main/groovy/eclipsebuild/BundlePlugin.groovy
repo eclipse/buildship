@@ -11,10 +11,15 @@
 
 package eclipsebuild
 
+import org.eclipse.osgi.framework.util.Headers
+import org.eclipse.osgi.internal.resolver.StateObjectFactoryImpl
+import org.eclipse.osgi.internal.resolver.UserState
+import org.eclipse.osgi.service.resolver.BundleSpecification
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.Copy
+import org.osgi.framework.Version
 
 /**
  * Gradle plug-in for building Eclipse bundles.
@@ -49,6 +54,7 @@ class BundlePlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         configureProject(project)
+        loadDependenciesFromManifest(project)
 
         addTaskCopyLibs(project)
         addTaskUpdateManifest(project)
@@ -79,6 +85,46 @@ class BundlePlugin implements Plugin<Project> {
 
         // parse build.properties and sync it with output jar
         PluginUtils.configurePluginJarInput(project)
+    }
+
+    static void loadDependenciesFromManifest(Project project) {
+        // obtain BundleDescription class from OSGi to have precise dependency definitions
+        def manifest = Headers.parseManifest(new FileInputStream(project.file('META-INF/MANIFEST.MF')))
+        def factory = new StateObjectFactoryImpl()
+        def description = factory.createBundleDescription(new UserState(), manifest, null, 1)
+        description.requiredBundles.each { defineDependency(it, project) }
+    }
+
+    static void defineDependency(BundleSpecification requiredBundle, Project project) {
+        def name = requiredBundle.getName()
+        def versionRange = requiredBundle.versionRange
+
+        // handle dependencies to local projects
+        Project localProject = project.rootProject.allprojects.find { it.name == name }
+        if (localProject && versionRange.includes(new Version(localProject.version))) {
+            project.dependencies.compile(localProject)
+            return
+        }
+
+        // handle dependencies to target platform bundles
+        def left = versionRange.left
+        def right = versionRange.right
+        def unbound = new Version(0, 0, 0)
+
+        String dependency
+        if (left == unbound && right == null) {
+            // unbound dependency
+            dependency = DependencyUtils.calculatePluginDependency(project, name)
+        } else if (left.compareTo(unbound) > 0 && right == null) {
+            // simple minimum version dependency
+            dependency = DependencyUtils.calculatePluginDependency(project, name, left.toString())
+        } else  {
+            // otherwise fall back to use the highest available
+            dependency = DependencyUtils.calculatePluginDependency(project, name, right?.toString())
+            project.logger.warn("Unsupported dependency specification to ${name}: ${versionRange}\n")
+        }
+        project.dependencies.compile(dependency)
+        project.logger.info("Dependency defined in MANIFEST.MF: ${dependency}")
     }
 
     static void addTaskCopyLibs(Project project) {
