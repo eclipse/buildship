@@ -18,7 +18,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
-
 import com.gradleware.tooling.toolingclient.ToolingClient;
 import com.gradleware.tooling.toolingmodel.repository.Environment;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
@@ -31,6 +30,8 @@ import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
 import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigurationManager;
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.console.internal.StdProcessStreamsProvider;
+import org.eclipse.buildship.core.gradle.ToolingClientProvider;
+import org.eclipse.buildship.core.gradle.internal.DefaultToolingClientProvider;
 import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.util.logging.EclipseLogger;
@@ -75,6 +76,7 @@ public final class CorePlugin extends Plugin {
     private ServiceRegistration processStreamsProviderService;
     private ServiceRegistration gradleLaunchConfigurationService;
     private ServiceRegistration workbenchOperationsService;
+    private ServiceRegistration toolingClientProviderService;
 
     // service tracker for each service to allow to register other service implementations of the
     // same type but with higher prioritization, useful for testing
@@ -86,6 +88,7 @@ public final class CorePlugin extends Plugin {
     private ServiceTracker processStreamsProviderServiceTracker;
     private ServiceTracker gradleLaunchConfigurationServiceTracker;
     private ServiceTracker workbenchOperationsServiceTracker;
+    private ServiceTracker toolingClientProviderServiceTracker;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
@@ -116,6 +119,7 @@ public final class CorePlugin extends Plugin {
         this.processStreamsProviderServiceTracker = createServiceTracker(context, ProcessStreamsProvider.class);
         this.gradleLaunchConfigurationServiceTracker = createServiceTracker(context, GradleLaunchConfigurationManager.class);
         this.workbenchOperationsServiceTracker = createServiceTracker(context, WorkbenchOperations.class);
+        this.toolingClientProviderServiceTracker = createServiceTracker(context, ToolingClientProvider.class);
 
         // register all services
         this.loggerService = registerService(context, Logger.class, createLogger(), preferences);
@@ -126,6 +130,7 @@ public final class CorePlugin extends Plugin {
         this.processStreamsProviderService = registerService(context, ProcessStreamsProvider.class, createProcessStreamsProvider(), preferences);
         this.gradleLaunchConfigurationService = registerService(context, GradleLaunchConfigurationManager.class, createGradleLaunchConfigurationManager(), preferences);
         this.workbenchOperationsService = registerService(context, WorkbenchOperations.class, createWorkbenchOperations(), preferences);
+        this.toolingClientProviderService = registerService(context, ToolingClientProvider.class, createToolingClientProvider(), preferences);
     }
 
     private ServiceTracker createServiceTracker(BundleContext context, Class<?> clazz) {
@@ -172,7 +177,12 @@ public final class CorePlugin extends Plugin {
         return new EmptyWorkbenchOperations();
     }
 
+    private ToolingClientProvider createToolingClientProvider() {
+        return new DefaultToolingClientProvider();
+    }
+
     private void unregisterServices() {
+        this.toolingClientProviderService.unregister();
         this.workbenchOperationsService.unregister();
         this.gradleLaunchConfigurationService.unregister();
         this.processStreamsProviderService.unregister();
@@ -182,6 +192,7 @@ public final class CorePlugin extends Plugin {
         this.publishedGradleVersionsService.unregister();
         this.loggerService.unregister();
 
+        this.toolingClientProviderServiceTracker.close();
         this.workbenchOperationsServiceTracker.close();
         this.gradleLaunchConfigurationServiceTracker.close();
         this.processStreamsProviderServiceTracker.close();
@@ -226,6 +237,10 @@ public final class CorePlugin extends Plugin {
 
     public static WorkbenchOperations workbenchOperations() {
         return (WorkbenchOperations) getInstance().workbenchOperationsServiceTracker.getService();
+    }
+
+    public static ToolingClientProvider toolingClientProvider() {
+        return (ToolingClientProvider) getInstance().toolingClientProviderServiceTracker.getService();
     }
 
 }
