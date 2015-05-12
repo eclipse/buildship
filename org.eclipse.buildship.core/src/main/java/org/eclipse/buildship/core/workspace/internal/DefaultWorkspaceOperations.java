@@ -125,9 +125,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             // return the created, open project
             return project;
         } catch (Exception e) {
-            String message = String.format("Cannot create Eclipse project %s.", name);
-            CorePlugin.logger().error(message, e);
-            throw new GradlePluginsRuntimeException(message, e);
+            throw new GradlePluginsRuntimeException(String.format("Cannot create Eclipse project %s.", name), e);
         } finally {
             monitor.done();
         }
@@ -157,7 +155,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             IFolder outputFolder = createOutputFolder(project, new SubProgressMonitor(monitor, 1));
             javaProject.setOutputLocation(outputFolder.getFullPath(), new SubProgressMonitor(monitor, 1));
 
-            // avoid out-of-sync messages when the content of the .gradle folder changes upon running a Gradle build
+            // avoid out-of-sync messages when the content of the .gradle folder changes upon
+            // running a Gradle build
             markDotGradleFolderAsDerived(project, new SubProgressMonitor(monitor, 1));
 
             // save the project configuration
@@ -166,9 +165,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             // return the created Java project
             return javaProject;
         } catch (Exception e) {
-            String message = String.format("Cannot create Eclipse Java project %s.", project.getName());
-            CorePlugin.logger().error(message, e);
-            throw new GradlePluginsRuntimeException(message, e);
+            throw new GradlePluginsRuntimeException(String.format("Cannot create Eclipse Java project %s.", project.getName()), e);
         } finally {
             monitor.done();
         }
@@ -193,9 +190,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             // save the updated description
             project.setDescription(description, new SubProgressMonitor(monitor, 1));
         } catch (CoreException e) {
-            String message = String.format("Cannot add nature %s to Eclipse project %s.", natureId, project.getName());
-            CorePlugin.logger().error(message, e);
-            throw new GradlePluginsRuntimeException(message, e);
+            throw new GradlePluginsRuntimeException(String.format("Cannot add nature %s to Eclipse project %s.", natureId, project.getName()), e);
         } finally {
             monitor.done();
         }
@@ -210,9 +205,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             }
             return outputFolder;
         } catch (Exception e) {
-            String message = String.format("Cannot create output folder for Eclipse project %s.", project.getName());
-            CorePlugin.logger().error(message, e);
-            throw new GradlePluginsRuntimeException(message, e);
+            throw new GradlePluginsRuntimeException(String.format("Cannot create output folder for Eclipse project %s.", project.getName()), e);
         } finally {
             monitor.done();
         }
@@ -258,9 +251,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             List<IClasspathEntry> entriesArray = entries.build();
             javaProject.setRawClasspath(entriesArray.toArray(new IClasspathEntry[entriesArray.size()]), new SubProgressMonitor(monitor, 8));
         } catch (Exception e) {
-            String message = String.format("Cannot configure sources and classpath for Eclipse project %s.", javaProject.getProject().getName());
-            CorePlugin.logger().error(message, e);
-            throw new GradlePluginsRuntimeException(message, e);
+            throw new GradlePluginsRuntimeException(String.format("Cannot configure sources and classpath for Eclipse project %s.", javaProject.getProject().getName()), e);
         } finally {
             monitor.done();
         }
@@ -322,9 +313,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         try {
             project.refreshLocal(IProject.DEPTH_INFINITE, new SubProgressMonitor(monitor, 1));
         } catch (Exception e) {
-            String message = String.format("Cannot refresh Eclipse project %s.", project.getName());
-            CorePlugin.logger().error(message, e);
-            throw new GradlePluginsRuntimeException(message, e);
+            throw new GradlePluginsRuntimeException(String.format("Cannot refresh Eclipse project %s.", project.getName()), e);
         } finally {
             monitor.done();
         }

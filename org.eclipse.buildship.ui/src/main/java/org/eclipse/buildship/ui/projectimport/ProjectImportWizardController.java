@@ -154,7 +154,9 @@ public final class ProjectImportWizardController {
 
             @Override
             public void done(IJobChangeEvent event) {
-                ensureTaskViewIsActive();
+                if (event.getResult().isOK()) {
+                    ensureTaskViewIsActive();
+                }
             }
         });
         importJob.schedule();
