@@ -57,6 +57,7 @@ public final class FontUtils {
 
     /**
      * Returns the height of the target font in pixels.
+     *
      * @param font the target font
      * @return the height of the font
      */

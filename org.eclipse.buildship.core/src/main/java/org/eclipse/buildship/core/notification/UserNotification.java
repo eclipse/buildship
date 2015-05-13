@@ -19,11 +19,11 @@ public interface UserNotification {
     /**
      * Notifies the user about the occurrence of an error.
      *
-     * @param title problem category
-     * @param message concise error description
-     * @param details the detailed description
+     * @param headline the headline of the error
+     * @param message the concise error description
+     * @param details the detailed error description
      * @param throwable the exception to notify the user about
      */
-    void errorOccurred(String title, String message, String details, Throwable throwable);
+    void errorOccurred(String headline, String message, String details, Throwable throwable);
 
 }
