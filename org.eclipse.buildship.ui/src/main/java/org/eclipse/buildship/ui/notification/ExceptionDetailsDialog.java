@@ -32,6 +32,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import org.eclipse.buildship.ui.util.font.FontUtils;
+
 /**
  * Custom {@link Dialog} implementation showing an exception and its stacktrace.
  */
@@ -40,18 +42,20 @@ public final class ExceptionDetailsDialog extends Dialog {
     private final Image image;
     private final String title;
     private final String message;
+    private final String details;
     private final Throwable throwable;
 
     private Button detailsButton;
     private Control stackTraceArea;
     private Point cachedWindowSize;
 
-    public ExceptionDetailsDialog(Shell shell, String title, String message, Throwable throwable) {
+    public ExceptionDetailsDialog(Shell shell, String title, String message, String details, Throwable throwable) {
         super(new SameShellProvider(shell));
 
         this.image = shell.getDisplay().getSystemImage(SWT.ICON_WARNING);
         this.title = Preconditions.checkNotNull(title);
         this.message = Preconditions.checkNotNull(message);
+        this.details = Preconditions.checkNotNull(details);
         this.throwable = Preconditions.checkNotNull(throwable);
 
         setShellStyle(SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
@@ -76,13 +80,28 @@ public final class ExceptionDetailsDialog extends Dialog {
         imageLabel.setImage(this.image);
         imageLabel.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_CENTER | GridData.VERTICAL_ALIGN_BEGINNING));
 
+        // composite to include all text widgets
+        Composite textArea = new Composite(container, SWT.NONE);
+        GridLayout textAreaLayout = new GridLayout(1, false);
+        textAreaLayout.verticalSpacing = FontUtils.getFontHeightInPixels(parent.getFont());
+        textArea.setLayout(textAreaLayout);
+        textArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+
         // message label
-        Label messageLabel = new Label(container, SWT.WRAP);
+        Label messageLabel = new Label(textArea, SWT.WRAP);
         messageLabel.setText(this.message);
-        GridData messageLabelGridData = new GridData(GridData.FILL_HORIZONTAL | GridData.VERTICAL_ALIGN_CENTER);
+        GridData messageLabelGridData = new GridData();
         messageLabelGridData.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH);
+        messageLabelGridData.verticalAlignment = SWT.TOP;
         messageLabel.setLayoutData(messageLabelGridData);
-        messageLabel.setFont(parent.getFont());
+
+        // details label
+        Label detailsLabel = new Label(textArea, SWT.WRAP);
+        detailsLabel.setText(this.details);
+        GridData detailsLabelGridData = new GridData();
+        detailsLabelGridData.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH);
+        detailsLabelGridData.verticalAlignment = SWT.TOP;
+        detailsLabel.setLayoutData(detailsLabelGridData);
 
         return container;
     }
@@ -111,7 +130,7 @@ public final class ExceptionDetailsDialog extends Dialog {
         if (this.stackTraceArea == null) {
             this.stackTraceArea = createStacktraceArea((Composite) getContents());
             this.detailsButton.setText(IDialogConstants.HIDE_DETAILS_LABEL);
-        }else {
+        } else {
             this.stackTraceArea.dispose();
             this.stackTraceArea = null;
             this.detailsButton.setText(IDialogConstants.SHOW_DETAILS_LABEL);

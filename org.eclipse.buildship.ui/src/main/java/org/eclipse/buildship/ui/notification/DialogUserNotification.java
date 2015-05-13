@@ -22,13 +22,13 @@ import org.eclipse.buildship.core.notification.UserNotification;
 public final class DialogUserNotification implements UserNotification {
 
     @Override
-    public void errorOccurred(final String message, final String details, final Throwable throwable) {
+    public void errorOccurred(final String title, final String message, final String details, final Throwable throwable) {
         Display.getDefault().syncExec(new Runnable() {
 
             @Override
             public void run() {
                 Shell shell = Display.getDefault().getActiveShell();
-                ExceptionDetailsDialog dialog = new ExceptionDetailsDialog(shell, message, details, throwable);
+                ExceptionDetailsDialog dialog = new ExceptionDetailsDialog(shell, title,  message, details, throwable);
                 dialog.open();
             }
         });

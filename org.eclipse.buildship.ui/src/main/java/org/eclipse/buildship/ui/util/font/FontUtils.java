@@ -55,4 +55,13 @@ public final class FontUtils {
         return new Font(device, derivedFontData);
     }
 
+    /**
+     * Returns the height of the target font in pixels.
+     * @param font the target font
+     * @return the height of the font
+     */
+    public static int getFontHeightInPixels(Font font) {
+        return font.getFontData()[0].getHeight();
+    }
+
 }

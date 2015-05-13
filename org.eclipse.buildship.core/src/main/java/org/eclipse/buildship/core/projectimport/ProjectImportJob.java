@@ -214,7 +214,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         // put it in the error log (log as a warning instead)
         String message = "Gradle project import failed due to an error in the referenced Gradle build.";
         CorePlugin.logger().warn(message, e);
-        CorePlugin.userNotification().errorOccurred(message, collectErrorMessages(e), e);
+        CorePlugin.userNotification().errorOccurred("Project import failed", message, collectErrorMessages(e), e);
         // the problem is already logged, the job doesn't have to record it again
         return SILENT_ERROR_STATUS;
     }
@@ -224,7 +224,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         // put it in the error log (log as a warning instead)
         String message = "Gradle project import failed due to an error connecting to the Gradle build.";
         CorePlugin.logger().warn(message, e);
-        CorePlugin.userNotification().errorOccurred(message, collectErrorMessages(e), e);
+        CorePlugin.userNotification().errorOccurred("Project import failed", message, collectErrorMessages(e), e);
         // the problem is already logged, the job doesn't have to record it again
         return SILENT_ERROR_STATUS;
     }
@@ -233,7 +233,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         // if the exception was thrown by Buildship it should be shown and logged
         String message = "Gradle project import failed due to an error setting up the Eclipse projects.";
         CorePlugin.logger().error(message, e);
-        CorePlugin.userNotification().errorOccurred(message, collectErrorMessages(e), e);
+        CorePlugin.userNotification().errorOccurred("Project import failed", message, collectErrorMessages(e), e);
         // the problem is already logged, the job doesn't have to record it again
         return SILENT_ERROR_STATUS;
     }
@@ -242,7 +242,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         // if an unexpected exception was thrown it should be shown and logged
         String message = "Gradle project import failed due to an unexpected error.";
         CorePlugin.logger().error(message, t);
-        CorePlugin.userNotification().errorOccurred(message, collectErrorMessages(t), t);
+        CorePlugin.userNotification().errorOccurred("Project import failed", message, collectErrorMessages(t), t);
         // the problem is already logged, the job doesn't have to record it again
         return SILENT_ERROR_STATUS;
     }
