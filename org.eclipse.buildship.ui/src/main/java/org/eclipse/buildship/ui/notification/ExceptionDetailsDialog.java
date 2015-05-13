@@ -85,22 +85,24 @@ public final class ExceptionDetailsDialog extends Dialog {
         GridLayout textAreaLayout = new GridLayout(1, false);
         textAreaLayout.verticalSpacing = FontUtils.getFontHeightInPixels(parent.getFont());
         textArea.setLayout(textAreaLayout);
-        textArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+        GridData textAreaLayoutData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+        textAreaLayoutData.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH);
+        textArea.setLayoutData(textAreaLayoutData);
 
         // message label
         Label messageLabel = new Label(textArea, SWT.WRAP);
         messageLabel.setText(this.message);
         GridData messageLabelGridData = new GridData();
-        messageLabelGridData.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH);
         messageLabelGridData.verticalAlignment = SWT.TOP;
+        messageLabelGridData.grabExcessHorizontalSpace = true;
         messageLabel.setLayoutData(messageLabelGridData);
 
         // details label
         Label detailsLabel = new Label(textArea, SWT.WRAP);
         detailsLabel.setText(this.details);
         GridData detailsLabelGridData = new GridData();
-        detailsLabelGridData.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH);
         detailsLabelGridData.verticalAlignment = SWT.TOP;
+        detailsLabelGridData.grabExcessHorizontalSpace = true;
         detailsLabel.setLayoutData(detailsLabelGridData);
 
         return container;
