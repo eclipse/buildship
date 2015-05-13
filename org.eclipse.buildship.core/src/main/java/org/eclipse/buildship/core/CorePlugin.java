@@ -68,6 +68,7 @@ public final class CorePlugin extends Plugin {
     // search the web for -target jsr14 to find out more about this obscurity
     private ServiceRegistration loggerService;
     private ServiceRegistration publishedGradleVersionsService;
+    private ServiceRegistration toolingClientService;
     private ServiceRegistration modelRepositoryProviderService;
     private ServiceRegistration workspaceOperationsService;
     private ServiceRegistration projectConfigurationManagerService;
@@ -80,6 +81,7 @@ public final class CorePlugin extends Plugin {
     // same type but with higher prioritization, useful for testing
     private ServiceTracker loggerServiceTracker;
     private ServiceTracker publishedGradleVersionsServiceTracker;
+    private ServiceTracker toolingClientServiceTracker;
     private ServiceTracker modelRepositoryProviderServiceTracker;
     private ServiceTracker workspaceOperationsServiceTracker;
     private ServiceTracker projectConfigurationManagerServiceTracker;
@@ -111,6 +113,7 @@ public final class CorePlugin extends Plugin {
         // initialize service trackers before the services are created
         this.loggerServiceTracker = createServiceTracker(context, Logger.class);
         this.publishedGradleVersionsServiceTracker = createServiceTracker(context, PublishedGradleVersions.class);
+        this.toolingClientServiceTracker = createServiceTracker(context, ToolingClient.class);
         this.modelRepositoryProviderServiceTracker = createServiceTracker(context, ModelRepositoryProvider.class);
         this.workspaceOperationsServiceTracker = createServiceTracker(context, WorkspaceOperations.class);
         this.projectConfigurationManagerServiceTracker = createServiceTracker(context, ProjectConfigurationManager.class);
@@ -122,6 +125,7 @@ public final class CorePlugin extends Plugin {
         // register all services
         this.loggerService = registerService(context, Logger.class, createLogger(), preferences);
         this.publishedGradleVersionsService = registerService(context, PublishedGradleVersions.class, createPublishedGradleVersions(), preferences);
+        this.toolingClientService = registerService(context, ToolingClient.class, createToolingClient(), preferences);
         this.modelRepositoryProviderService = registerService(context, ModelRepositoryProvider.class, createModelRepositoryProvider(), preferences);
         this.workspaceOperationsService = registerService(context, WorkspaceOperations.class, createWorkspaceOperations(), preferences);
         this.projectConfigurationManagerService = registerService(context, ProjectConfigurationManager.class, createProjectConfigurationManager(), preferences);
@@ -149,8 +153,12 @@ public final class CorePlugin extends Plugin {
         return PublishedGradleVersions.create(true);
     }
 
+    private ToolingClient createToolingClient() {
+        return ToolingClient.newClient();
+    }
+
     private ModelRepositoryProvider createModelRepositoryProvider() {
-        ToolingClient toolingClient = ToolingClient.newClient();
+        ToolingClient toolingClient = (ToolingClient) this.toolingClientServiceTracker.getService();
         return new DefaultModelRepositoryProvider(toolingClient, Environment.ECLIPSE);
     }
 
@@ -187,6 +195,7 @@ public final class CorePlugin extends Plugin {
         this.projectConfigurationManagerService.unregister();
         this.workspaceOperationsService.unregister();
         this.modelRepositoryProviderService.unregister();
+        this.toolingClientService.unregister();
         this.publishedGradleVersionsService.unregister();
         this.loggerService.unregister();
 
@@ -197,6 +206,7 @@ public final class CorePlugin extends Plugin {
         this.projectConfigurationManagerServiceTracker.close();
         this.workspaceOperationsServiceTracker.close();
         this.modelRepositoryProviderServiceTracker.close();
+        this.toolingClientServiceTracker.close();
         this.publishedGradleVersionsServiceTracker.close();
         this.loggerServiceTracker.close();
     }
@@ -211,6 +221,10 @@ public final class CorePlugin extends Plugin {
 
     public static PublishedGradleVersions publishedGradleVersions() {
         return (PublishedGradleVersions) getInstance().publishedGradleVersionsServiceTracker.getService();
+    }
+
+    public static ToolingClient toolingClient() {
+        return (ToolingClient) getInstance().toolingClientServiceTracker.getService();
     }
 
     public static ModelRepositoryProvider modelRepositoryProvider() {
