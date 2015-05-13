@@ -54,7 +54,7 @@ public final class ExceptionDetailsDialog extends Dialog {
     public ExceptionDetailsDialog(Shell shell, String title, String message, String details, int severity, Throwable throwable) {
         super(new SameShellProvider(shell));
 
-        this.image = getMessageboxIconForSeverity(shell, severity);
+        this.image = getIconForSeverity(severity, shell);
         this.title = Preconditions.checkNotNull(title);
         this.message = Preconditions.checkNotNull(message);
         this.details = Preconditions.checkNotNull(details);
@@ -63,7 +63,7 @@ public final class ExceptionDetailsDialog extends Dialog {
         setShellStyle(SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
     }
 
-    private Image getMessageboxIconForSeverity(Shell shell, int severity) {
+    private Image getIconForSeverity(int severity, Shell shell) {
         int swtImageKey;
         switch (severity) {
             case IStatus.OK:
