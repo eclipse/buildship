@@ -24,7 +24,7 @@ The current DSL to define the target platforms in the `BuildDefinitionPlugin` in
 is not the typical way of doing it in Gradle.
 
 
-## Only declare plugin dependencies in the MANIFEST.MF file
+## ~~Only declare plugin dependencies in the MANIFEST.MF file~~
 
 ### Requested Change
 
