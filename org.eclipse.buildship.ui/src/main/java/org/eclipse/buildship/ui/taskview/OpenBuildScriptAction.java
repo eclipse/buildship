@@ -34,7 +34,7 @@ public final class OpenBuildScriptAction extends CommandBackedAction implements 
 
     @Override
     public boolean isEnabledFor(NodeSelection selection) {
-        return selection.hasAllNodesOfType(ProjectNode.class) && selection.isSingleSelection();
+        return selection.hasAllNodesOfType(ProjectNode.class) ;
     }
 
     @Override

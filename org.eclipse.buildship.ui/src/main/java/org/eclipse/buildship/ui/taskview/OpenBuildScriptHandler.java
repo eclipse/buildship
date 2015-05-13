@@ -11,13 +11,11 @@
 
 package org.eclipse.buildship.ui.taskview;
 
-import java.io.File;
-
 import com.google.common.base.Optional;
-
 import com.gradleware.tooling.toolingmodel.OmniGradleScript;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
-
+import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.generic.NodeSelection;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorRegistry;
@@ -28,8 +26,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
-import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.generic.NodeSelection;
+import java.io.File;
 
 /**
  * Opens the build file for the selected {@link ProjectNode}.
@@ -39,21 +36,19 @@ public final class OpenBuildScriptHandler extends SelectionDependentHandler {
     @Override
     protected boolean isEnabledFor(NodeSelection selection) {
         // todo (etst) avoid duplication between here and code in the action
-        return selection.hasAllNodesOfType(ProjectNode.class) && selection.isSingleSelection();
+        return selection.hasAllNodesOfType(ProjectNode.class);
     }
 
     @Override
     public Object execute(ExecutionEvent event) {
         NodeSelection selectionHistory = getSelectionHistory(event);
-        ProjectNode projectNode = selectionHistory.getFirstNode(ProjectNode.class);
-        Optional<File> buildScript = getBuildScriptFor(projectNode);
-        if (buildScript.isPresent()) {
-            IWorkbenchPage page = HandlerUtil.getActiveWorkbenchWindow(event).getActivePage();
-            openBuildScript(page, buildScript.get());
-        } else {
-            // todo (etst) show dialog that there is no script available for the given project
+        for (ProjectNode projectNode : selectionHistory.getNodes(ProjectNode.class)) {
+            Optional<File> buildScript = getBuildScriptFor(projectNode);
+            if (buildScript.isPresent()) {
+                IWorkbenchPage page = HandlerUtil.getActiveWorkbenchWindow(event).getActivePage();
+                openBuildScript(page, buildScript.get());
+            }
         }
-
         return null;
     }
 
