@@ -36,7 +36,7 @@ public final class OpenBuildScriptHandler extends SelectionDependentHandler {
     @Override
     protected boolean isEnabledFor(NodeSelection selection) {
         // todo (etst) avoid duplication between here and code in the action
-        return selection.hasAllNodesOfType(ProjectNode.class);
+        return !selection.isEmpty() && selection.hasAllNodesOfType(ProjectNode.class);
     }
 
     @Override
