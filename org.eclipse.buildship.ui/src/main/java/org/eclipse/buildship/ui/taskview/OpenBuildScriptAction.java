@@ -29,17 +29,21 @@ public final class OpenBuildScriptAction extends CommandBackedAction implements 
 
     @Override
     public boolean isVisibleFor(NodeSelection selection) {
-        return !selection.isEmpty() && selection.hasAllNodesOfType(ProjectNode.class);
+        return isEnabledFor(selection);
     }
 
     @Override
     public boolean isEnabledFor(NodeSelection selection) {
-        return !selection.isEmpty() && selection.hasAllNodesOfType(ProjectNode.class);
+        return isEnabledForSelection(selection);
     }
 
     @Override
     public void setEnabledFor(NodeSelection selection) {
         setEnabled(isEnabledFor(selection));
+    }
+
+    public static boolean isEnabledForSelection(NodeSelection selection) {
+        return !selection.isEmpty() && selection.hasAllNodesOfType(ProjectNode.class);
     }
 
 }
