@@ -16,6 +16,7 @@ import java.io.StringWriter;
 
 import com.google.common.base.Preconditions;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.window.SameShellProvider;
@@ -32,6 +33,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 
 /**
@@ -49,16 +51,37 @@ public final class ExceptionDetailsDialog extends Dialog {
     private Control stackTraceArea;
     private Point cachedWindowSize;
 
-    public ExceptionDetailsDialog(Shell shell, String title, String message, String details, Throwable throwable) {
+    public ExceptionDetailsDialog(Shell shell, String title, String message, String details, int severity, Throwable throwable) {
         super(new SameShellProvider(shell));
 
-        this.image = shell.getDisplay().getSystemImage(SWT.ICON_WARNING);
+        this.image = getMessageboxIconForSeverity(shell, severity);
         this.title = Preconditions.checkNotNull(title);
         this.message = Preconditions.checkNotNull(message);
         this.details = Preconditions.checkNotNull(details);
         this.throwable = Preconditions.checkNotNull(throwable);
 
         setShellStyle(SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
+    }
+
+    private Image getMessageboxIconForSeverity(Shell shell, int severity) {
+        int swtImageKey;
+        switch (severity) {
+            case IStatus.OK:
+            case IStatus.INFO:
+                swtImageKey = SWT.ICON_INFORMATION;
+                break;
+            case IStatus.WARNING:
+            case IStatus.CANCEL:
+                swtImageKey = SWT.ICON_WARNING;
+                break;
+            case IStatus.ERROR:
+                swtImageKey = SWT.ICON_ERROR;
+                break;
+            default:
+                throw new GradlePluginsRuntimeException("Can't find image for severity: " + severity);
+        }
+
+        return shell.getDisplay().getSystemImage(swtImageKey);
     }
 
     @Override

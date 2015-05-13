@@ -19,8 +19,8 @@ import org.eclipse.buildship.core.notification.UserNotification;
 public final class ConsoleUserNotification implements UserNotification {
 
     @Override
-    public void errorOccurred(String headline, String message, String details, Throwable throwable) {
-        System.err.println("User notification: headline=[" + headline + "], message=[" + message + "], details=[" + details + "], exception=[" + throwable + "]");
+    public void errorOccurred(String headline, String message, String details, int severity, Throwable throwable) {
+        System.err.println("User notification: headline=[" + headline + "], message=[" + message + "], details=[" + details + "], severity=" + severity + "], exception=[" + throwable + "]");
     }
 
 }

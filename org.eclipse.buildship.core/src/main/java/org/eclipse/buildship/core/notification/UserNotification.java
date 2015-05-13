@@ -11,6 +11,8 @@
 
 package org.eclipse.buildship.core.notification;
 
+import org.eclipse.core.runtime.IStatus;
+
 /**
  * Notifies the user about something that requires his/her attention.
  */
@@ -22,8 +24,9 @@ public interface UserNotification {
      * @param headline the headline of the error
      * @param message the concise error description
      * @param details the detailed error description
+     * @param severity the severity of the error; must be one of the valid {@link IStatus#getSeverity()} values
      * @param throwable the exception to notify the user about
      */
-    void errorOccurred(String headline, String message, String details, Throwable throwable);
+    void errorOccurred(String headline, String message, String details, int severity, Throwable throwable);
 
 }
