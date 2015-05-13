@@ -11,19 +11,9 @@
 
 package org.eclipse.buildship.core.projectimport;
 
-import java.io.File;
-import java.util.List;
-
-import org.gradle.tooling.BuildCancelledException;
-import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.events.build.BuildProgressListener;
-import org.gradle.tooling.events.task.TaskProgressListener;
-import org.gradle.tooling.events.test.TestProgressListener;
-
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
@@ -34,17 +24,8 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.Pair;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.jdt.launching.JavaRuntime;
-
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
@@ -53,11 +34,35 @@ import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 import org.eclipse.buildship.core.workspace.ClasspathDefinition;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jdt.launching.JavaRuntime;
+import org.gradle.tooling.BuildCancelledException;
+import org.gradle.tooling.BuildException;
+import org.gradle.tooling.GradleConnectionException;
+import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.events.build.BuildProgressListener;
+import org.gradle.tooling.events.task.TaskProgressListener;
+import org.gradle.tooling.events.test.TestProgressListener;
+
+import java.io.File;
+import java.util.List;
 
 /**
  * Imports a Gradle project into Eclipse using the project import coordinates given by a {@code ProjectImportConfiguration} instance.
  */
 public final class ProjectImportJob extends ToolingApiWorkspaceJob {
+
+    // if the job returns a normal error status then eclipse shows the default error dialog which is
+    // too basic. on the other hand the OK_STATUS is not feasible since clients of the job might
+    // need to determine if the job was finished successfully. to solve both problems we use this
+    // custom, non-ok status
+    private static final IStatus SILENT_ERROR_STATUS = new Status(IStatus.CANCEL, CorePlugin.PLUGIN_ID, "");
 
     private final FixedRequestAttributes fixedAttributes;
 
@@ -76,11 +81,15 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
             importProject(monitor);
             return Status.OK_STATUS;
         } catch (BuildCancelledException e) {
-            // if the job was cancelled by the user, do not show an error dialog
-            CorePlugin.logger().info(e.getMessage());
-            return Status.CANCEL_STATUS;
-        } catch (Exception e) {
-            return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, "Importing the project failed.", e);
+            return handleBuildCancelled(e);
+        } catch (BuildException e) {
+            return handleBuildFailed(e);
+        } catch (GradleConnectionException e) {
+            return handleGradleConnectionFailed(e);
+        } catch (GradlePluginsRuntimeException e) {
+            return handlePluginFailed(e);
+        } catch (Throwable t) {
+            return handleUnknownFailed(t);
         } finally {
             monitor.done();
         }
@@ -192,6 +201,68 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
 
     private IPath collectDefaultJreLocation() {
         return JavaRuntime.getDefaultJREContainerEntry().getPath();
+    }
+
+    private IStatus handleBuildCancelled(BuildCancelledException e) {
+        // if the job was cancelled by the user, just log the event
+        CorePlugin.logger().info("Gradle project import cancelled", e);
+        return Status.CANCEL_STATUS;
+    }
+
+    private IStatus handleBuildFailed(BuildException e) {
+        // if there is an error in the project's build script, notify the user, but don't
+        // put it in the error log (log as a warning instead)
+        String message = "Gradle project import failed due to an error in the referenced Gradle build.";
+        CorePlugin.logger().warn(message, e);
+        CorePlugin.userNotification().errorOccurred(message, collectErrorMessages(e), e);
+        // the problem is already logged, the job doesn't have to record it again
+        return SILENT_ERROR_STATUS;
+    }
+
+    private IStatus handleGradleConnectionFailed(GradleConnectionException e) {
+        // if there is an error connecting to Gradle, notify the user, but don't
+        // put it in the error log (log as a warning instead)
+        String message = "Gradle project import failed due to an error connecting to the Gradle build.";
+        CorePlugin.logger().warn(message, e);
+        CorePlugin.userNotification().errorOccurred(message, collectErrorMessages(e), e);
+        // the problem is already logged, the job doesn't have to record it again
+        return SILENT_ERROR_STATUS;
+    }
+
+    private IStatus handlePluginFailed(GradlePluginsRuntimeException e) {
+        // if the exception was thrown by Buildship it should be shown and logged
+        String message = "Gradle project import failed due to an error setting up the Eclipse projects.";
+        CorePlugin.logger().error(message, e);
+        CorePlugin.userNotification().errorOccurred(message, collectErrorMessages(e), e);
+        // the problem is already logged, the job doesn't have to record it again
+        return SILENT_ERROR_STATUS;
+    }
+
+    private IStatus handleUnknownFailed(Throwable t) {
+        // if an unexpected exception was thrown it should be shown and logged
+        String message = "Gradle project import failed due to an unexpected error.";
+        CorePlugin.logger().error(message, t);
+        CorePlugin.userNotification().errorOccurred(message, collectErrorMessages(t), t);
+        // the problem is already logged, the job doesn't have to record it again
+        return SILENT_ERROR_STATUS;
+    }
+
+    private String collectErrorMessages(Throwable t) {
+        // recursively collect the error messages going up the stacktrace
+        String rootCauses = collectRootCausesRecursively(t.getCause());
+        return t.getMessage() + (rootCauses.isEmpty() ? "" : "\n" + rootCauses);
+    }
+
+    private String collectRootCausesRecursively(Throwable t) {
+        if (t == null) {
+            return "";
+        } else {
+            if (t.getMessage() == null) {
+                return collectRootCausesRecursively(t.getCause());
+            } else {
+                return "\n" + t.getMessage() + collectRootCausesRecursively(t.getCause());
+            }
+        }
     }
 
 }

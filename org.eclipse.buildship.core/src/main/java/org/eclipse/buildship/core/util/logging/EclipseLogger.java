@@ -11,11 +11,10 @@
 
 package org.eclipse.buildship.core.util.logging;
 
+import org.eclipse.buildship.core.Logger;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-
-import org.eclipse.buildship.core.Logger;
 
 /**
  * Logs to the Eclipse logging infrastructure.
@@ -36,8 +35,18 @@ public final class EclipseLogger implements Logger {
     }
 
     @Override
+    public void info(String message, Throwable t) {
+        this.log.log(new Status(IStatus.INFO, this.pluginId, message, t));
+    }
+
+    @Override
     public void warn(String message) {
         this.log.log(new Status(IStatus.WARNING, this.pluginId, message));
+    }
+
+    @Override
+    public void warn(String message, Throwable t) {
+        this.log.log(new Status(IStatus.WARNING, this.pluginId, message, t));
     }
 
     @Override

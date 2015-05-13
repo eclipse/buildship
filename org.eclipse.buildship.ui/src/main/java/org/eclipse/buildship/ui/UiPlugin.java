@@ -11,25 +11,25 @@
 
 package org.eclipse.buildship.ui;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
-
+import org.eclipse.buildship.core.Logger;
+import org.eclipse.buildship.core.console.ProcessStreamsProvider;
+import org.eclipse.buildship.core.notification.UserNotification;
+import org.eclipse.buildship.core.util.logging.EclipseLogger;
+import org.eclipse.buildship.core.workbench.WorkbenchOperations;
+import org.eclipse.buildship.ui.console.ConsoleProcessStreamsProvider;
+import org.eclipse.buildship.ui.launch.ConsoleShowingLaunchListener;
+import org.eclipse.buildship.ui.notification.DialogUserNotification;
+import org.eclipse.buildship.ui.workbench.DefaultWorkbenchOperations;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.jface.resource.ImageRegistry;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
-
-import org.eclipse.buildship.core.Logger;
-import org.eclipse.buildship.core.console.ProcessStreamsProvider;
-import org.eclipse.buildship.core.util.logging.EclipseLogger;
-import org.eclipse.buildship.core.workbench.WorkbenchOperations;
-import org.eclipse.buildship.ui.console.ConsoleProcessStreamsProvider;
-import org.eclipse.buildship.ui.launch.ConsoleShowingLaunchListener;
-import org.eclipse.buildship.ui.workbench.DefaultWorkbenchOperations;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 /**
  * The plug-in runtime class for the Gradle integration plug-in containing the UI-related elements.
@@ -50,6 +50,7 @@ public final class UiPlugin extends AbstractUIPlugin {
     private ServiceRegistration loggerService;
     private ServiceRegistration processStreamsProviderService;
     private ServiceRegistration workbenchOperationsService;
+    private ServiceRegistration dialogUserNotificationService;
     private ConsoleShowingLaunchListener consoleShowingLaunchListener;
 
     @Override
@@ -81,6 +82,7 @@ public final class UiPlugin extends AbstractUIPlugin {
         this.loggerService = registerService(context, Logger.class, createLogger(), preferences);
         this.processStreamsProviderService = registerService(context, ProcessStreamsProvider.class, createConsoleProcessStreamsProvider(), priorityPreferences);
         this.workbenchOperationsService = registerService(context, WorkbenchOperations.class, createWorkbenchOperations(), priorityPreferences);
+        this.dialogUserNotificationService = registerService(context, UserNotification.class, createUserNotification(), priorityPreferences);
     }
 
     private <T> ServiceRegistration registerService(BundleContext context, Class<T> clazz, T service, Dictionary<String, Object> properties) {
@@ -99,7 +101,12 @@ public final class UiPlugin extends AbstractUIPlugin {
         return new DefaultWorkbenchOperations();
     }
 
+    private UserNotification createUserNotification() {
+        return new DialogUserNotification();
+    }
+
     private void unregisterServices() {
+        this.dialogUserNotificationService.unregister();
         this.workbenchOperationsService.unregister();
         this.processStreamsProviderService.unregister();
         this.loggerService.unregister();

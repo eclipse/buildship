@@ -40,7 +40,6 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.workspace.ClasspathDefinition;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
@@ -77,7 +76,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
                     project.delete(true, new SubProgressMonitor(monitor, 100 / allProjects.size()));
                 } catch (Exception e) {
                     String message = String.format("Cannot delete project %s.", project);
-                    CorePlugin.logger().error(message, e);
                     throw new GradlePluginsRuntimeException(message, e);
                 }
             }
@@ -126,7 +124,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             return project;
         } catch (Exception e) {
             String message = String.format("Cannot create Eclipse project %s.", name);
-            CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
         } finally {
             monitor.done();
@@ -167,7 +164,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             return javaProject;
         } catch (Exception e) {
             String message = String.format("Cannot create Eclipse Java project %s.", project.getName());
-            CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
         } finally {
             monitor.done();
@@ -194,7 +190,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             project.setDescription(description, new SubProgressMonitor(monitor, 1));
         } catch (CoreException e) {
             String message = String.format("Cannot add nature %s to Eclipse project %s.", natureId, project.getName());
-            CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
         } finally {
             monitor.done();
@@ -211,7 +206,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             return outputFolder;
         } catch (Exception e) {
             String message = String.format("Cannot create output folder for Eclipse project %s.", project.getName());
-            CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
         } finally {
             monitor.done();
@@ -259,7 +253,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             javaProject.setRawClasspath(entriesArray.toArray(new IClasspathEntry[entriesArray.size()]), new SubProgressMonitor(monitor, 8));
         } catch (Exception e) {
             String message = String.format("Cannot configure sources and classpath for Eclipse project %s.", javaProject.getProject().getName());
-            CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
         } finally {
             monitor.done();
@@ -305,7 +298,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
                 folder.create(true, true, null);
             } catch (CoreException e) {
                 String message = String.format("Cannot create folder %s.", folder);
-                CorePlugin.logger().error(message, e);
                 throw new GradlePluginsRuntimeException(message, e);
             }
         }
@@ -323,7 +315,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             project.refreshLocal(IProject.DEPTH_INFINITE, new SubProgressMonitor(monitor, 1));
         } catch (Exception e) {
             String message = String.format("Cannot refresh Eclipse project %s.", project.getName());
-            CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
         } finally {
             monitor.done();
