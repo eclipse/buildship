@@ -22,6 +22,7 @@ import org.gradle.tooling.events.test.TestProgressListener;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -120,13 +121,21 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         List<TaskProgressListener> noTaskProgressListeners = ImmutableList.of();
         List<TestProgressListener> noTestProgressListeners = ImmutableList.of();
         CancellationToken cancellationToken = GradleConnector.newCancellationTokenSource().token();
-        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), null, noProgressListeners, noBuildProgressListeners, noTaskProgressListeners, noTestProgressListeners, cancellationToken);
+        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), null, noProgressListeners,
+                noBuildProgressListeners, noTaskProgressListeners, noTestProgressListeners, cancellationToken);
         ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(fixedRequestAttributes);
         return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
     }
 
-    private ImmutableList<IClasspathEntry> collectExternalDependencies(OmniEclipseProject project) {
-        return FluentIterable.from(project.getExternalDependencies()).transform(new Function<OmniExternalDependency, IClasspathEntry>() {
+    private ImmutableList<IClasspathEntry> collectExternalDependencies(final OmniEclipseProject project) {
+        return FluentIterable.from(project.getExternalDependencies()).filter(new Predicate<OmniExternalDependency>() {
+
+            @Override
+            public boolean apply(OmniExternalDependency dependency) {
+                String name = dependency.getFile().getName();
+                return name.endsWith(".jar") || name.endsWith(".zip");
+            }
+        }).transform(new Function<OmniExternalDependency, IClasspathEntry>() {
 
             @Override
             public IClasspathEntry apply(OmniExternalDependency dependency) {
