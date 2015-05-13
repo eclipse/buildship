@@ -19,14 +19,13 @@ class DependencyUtils {
         // if the target platform defines a version in the versionMapping
         // for the argument it returns eclipse:pluginName:versionNumber
         // otherwise it returns eclipse:pluginName:+
-        Config config = Config.on(project)
-        def mappedVersion = config.targetPlatform.versionMapping[pluginName]
+        def mappedVersion = mappedVersion(project, pluginName)
         def version = mappedVersion == null ? "${minimumVersion}+" : mappedVersion
         project.logger.debug("Plugin $pluginName mapped to version $version")
         "${Constants.mavenizedEclipsePluginGroupName}:${pluginName}:${version}"
     }
 
-    static String mappedVersion(Project project, String pluginName, String minimumVersion = '') {
+    static String mappedVersion(Project project, String pluginName) {
         Config config = Config.on(project)
         config.targetPlatform.versionMapping[pluginName]
     }

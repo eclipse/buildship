@@ -11,8 +11,6 @@
 
 package eclipsebuild
 
-import org.gradle.internal.environment.GradleBuildEnvironment;
-
 import org.gradle.api.GradleException;
 import org.osgi.framework.VersionRange;
 
@@ -102,12 +100,12 @@ class BundlePlugin implements Plugin<Project> {
     }
 
     static void defineDependency(BundleSpecification requiredBundle, Project project) {
-        def name = requiredBundle.getName()
+        def pluginName = requiredBundle.getName()
         def versionRange = requiredBundle.versionRange
-        checkMappedVersion(project, name, versionRange)
+        checkMappedVersion(versionRange, pluginName, project)
 
         // handle dependencies to local projects
-        Project localProject = project.rootProject.allprojects.find { it.name == name }
+        Project localProject = project.rootProject.allprojects.find { it.name == pluginName }
         if (localProject && versionRange.includes(new Version(localProject.version))) {
             project.dependencies.compile(localProject)
             return
@@ -120,28 +118,28 @@ class BundlePlugin implements Plugin<Project> {
 
         String dependency
         if (left == unbound && right == null) {
-            // unbound dependency (no version constraint defined in the manifest file)
-            dependency = DependencyUtils.calculatePluginDependency(project, name)
+            // no version constraint defined in the manifest file
+            dependency = DependencyUtils.calculatePluginDependency(project, pluginName)
         } else if (left.compareTo(unbound) > 0 && right == null) {
-            // simple minimum version dependency (simple version constraint defined in the manifest file, e.g. bundle-version="0.3.0")
-            dependency = DependencyUtils.calculatePluginDependency(project, name, left.toString())
+            // simple minimum version constraint defined in the manifest file, e.g. bundle-version="0.3.0"
+            dependency = DependencyUtils.calculatePluginDependency(project, pluginName, left.toString())
         } else if (left.compareTo(unbound) > 0 && right != null && versionRange.includeMinimum && !versionRange.includeMaximum) {
-            // version range defined with closed left and open right range (e.g. bundle-version="[1.2.1,2.0.0)")
-            dependency = DependencyUtils.calculatePluginDependency(project, name, left.toString())
+            // version range defined with inclusive left and exclusive right version constraint, e.g. bundle-version="[1.2.1,2.0.0)"
+            dependency = DependencyUtils.calculatePluginDependency(project, pluginName, left.toString())
         } else {
-            // otherwise fall back to use the highest available
-            throw new GradleException("Unsupported dependency version constraint for ${name}: ${versionRange}\n")
+            // otherwise fail the build
+            throw new GradleException("Unsupported dependency version constraint '${versionRange}' for dependency ${pluginName}.")
         }
         project.dependencies.compile(dependency)
         project.logger.info("Dependency defined in MANIFEST.MF: ${dependency}")
     }
 
-    private static void checkMappedVersion(Project project, String name, VersionRange versionRange) {
-        def mappedVersion = DependencyUtils.mappedVersion(project, name)
+    private static void checkMappedVersion(VersionRange versionRange, String pluginName, Project project) {
+        def mappedVersion = DependencyUtils.mappedVersion(project, pluginName)
         if (mappedVersion) {
             def version = new Version(mappedVersion)
             if (!versionRange.includes(version)) {
-                throw new GradleException("Mapped version '$mappedVersion' for dependency '$name' doesn't match to constraint '$versionRange' defined in MANIFEST.MF.")
+                throw new GradleException("Mapped version '$mappedVersion' for dependency '$pluginName' does not match version range constraint '$versionRange' defined in MANIFEST.MF.")
             }
         }
     }
