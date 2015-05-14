@@ -12,6 +12,7 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 
 import com.google.common.base.Function;
@@ -40,6 +41,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.workspace.ClasspathDefinition;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
@@ -85,6 +87,27 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
+    public Optional<IProjectDescription> findEclipseProject(File location) {
+        try {
+            if (location == null || !location.exists()) {
+                return Optional.absent();
+            }
+            File dotProjectFile = new File(location, ".project");
+            if (!dotProjectFile.exists() || !dotProjectFile.isFile()) {
+                return Optional.absent();
+            }
+            FileInputStream dotProjectStream = new FileInputStream(dotProjectFile);
+            IWorkspace workspace = ResourcesPlugin.getWorkspace();
+            IProjectDescription description = workspace.loadProjectDescription(dotProjectStream);
+            description.setLocation(Path.fromOSString(location.getPath()));
+            return Optional.of(description);
+        } catch (Exception e) {
+            CorePlugin.logger().warn("Error happened when searching for valid Eclipse projects in folder " + location + ": " + e.getMessage());
+            return Optional.absent();
+        }
+    }
+
+    @Override
     public IProject createProject(String name, File location, List<File> childProjectLocations, List<String> natureIds, IProgressMonitor monitor) {
         // validate arguments
         Preconditions.checkNotNull(name);
@@ -124,6 +147,33 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             return project;
         } catch (Exception e) {
             String message = String.format("Cannot create Eclipse project %s.", name);
+            throw new GradlePluginsRuntimeException(message, e);
+        } finally {
+            monitor.done();
+        }
+    }
+
+    @Override
+    public IProject openProject(IProjectDescription description, ImmutableList<String> extraNatureIds, IProgressMonitor monitor) {
+
+        monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
+        monitor.beginTask("Open project " + description.getName() , 2);
+        try {
+            // open the project based on the description
+            IWorkspace workspace = ResourcesPlugin.getWorkspace();
+            IProject project = workspace.getRoot().getProject(description.getName());
+            project.create(description, new NullProgressMonitor());
+            project.open(new SubProgressMonitor(monitor, 1));
+
+            // associate the extra natures to the opened project
+            for (String natureId : extraNatureIds) {
+                addNature(project, natureId, new NullProgressMonitor());
+            }
+            monitor.worked(1);
+            return project;
+        } catch (Exception e) {
+            String message = String.format("Cannot open existing Eclipse project from %s.", description.getLocationURI());
+            CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
         } finally {
             monitor.done();
