@@ -18,15 +18,9 @@ import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.BuildException;
-import org.gradle.tooling.events.test.TestProgressEvent;
-import org.gradle.tooling.events.test.TestProgressListener;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -35,6 +29,10 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+
+import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+import com.gradleware.tooling.toolingclient.LaunchableConfig;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -51,8 +49,6 @@ import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.gradle.GradleDistributionFormatter;
 import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.testprogress.GradleTestRunSession;
-import org.eclipse.buildship.core.testprogress.GradleTestRunSessionFactory;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
@@ -133,24 +129,8 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         // print the applied run configuration settings at the beginning of the console output
         writeRunConfigurationDescription(configurationAttributes, processStreams.getConfiguration());
 
-        // attach a test progress listener if the run configuration has the test progress
-        // visualization enabled
-        Optional<GradleTestRunSessionForwardingTestProgressListener> testProgressListener = createTestProgressListenerIfEnabled(configurationAttributes);
-        if (testProgressListener.isPresent()) {
-            request.testProgressListeners(testProgressListener.get());
-        }
-
-        // launch the build (optionally with test execution progress being tracked)
-        if (testProgressListener.isPresent()) {
-            testProgressListener.get().start();
-        }
-        try {
-            request.executeAndWait();
-        } finally {
-            if (testProgressListener.isPresent()) {
-                testProgressListener.get().finish();
-            }
-        }
+        // launch the build
+        request.executeAndWait();
     }
 
     private String createProcessName(List<String> tasks, File workingDir) {
@@ -163,7 +143,8 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         try {
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleTasks, toNonEmpty(runConfiguration.getTasks(), CoreMessages.RunConfiguration_Value_RunDefaultTasks)));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_WorkingDirectory, FileUtils.getAbsolutePath(runConfiguration.getWorkingDir()).get()));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleDistribution, GradleDistributionFormatter.toString(runConfiguration.getGradleDistribution())));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleDistribution, GradleDistributionFormatter.toString(runConfiguration
+                    .getGradleDistribution())));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleUserHome, toNonEmpty(runConfiguration.getGradleUserHome(), CoreMessages.Value_UseGradleDefault)));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JavaHome, toNonEmpty(runConfiguration.getJavaHome(), CoreMessages.Value_UseGradleDefault)));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JvmArguments, toNonEmpty(runConfiguration.getJvmArguments(), CoreMessages.Value_UseGradleDefault)));
@@ -187,16 +168,6 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         return string != null ? string : defaultMessage;
     }
 
-    private Optional<GradleTestRunSessionForwardingTestProgressListener> createTestProgressListenerIfEnabled(GradleRunConfigurationAttributes configurationAttributes) {
-        if (configurationAttributes.isShowExecutionView()) {
-            Optional<IJavaProject> workspaceProject = findJavaProjectInWorkspace(configurationAttributes);
-            GradleTestRunSessionForwardingTestProgressListener testProgressListener = new GradleTestRunSessionForwardingTestProgressListener(this.launch, workspaceProject);
-            return Optional.of(testProgressListener);
-        } else {
-            return Optional.absent();
-        }
-    }
-
     private Optional<IJavaProject> findJavaProjectInWorkspace(GradleRunConfigurationAttributes configuration) {
         final File workingDirectory = configuration.getWorkingDir();
         Optional<IProject> javaProject = FluentIterable.from(CorePlugin.workspaceOperations().getAllProjects()).firstMatch(new Predicate<IProject>() {
@@ -213,38 +184,4 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
 
         return Optional.fromNullable(JavaCore.create(javaProject.orNull()));
     }
-
-    /**
-     * {@code TestProgressListener} that forwards all test progress events to a {@code GradleTestRunSession}.
-     */
-    public static final class GradleTestRunSessionForwardingTestProgressListener implements TestProgressListener {
-
-        private final GradleTestRunSession session;
-        private final AtomicBoolean firstInvocation;
-
-        public GradleTestRunSessionForwardingTestProgressListener(ILaunch launch, Optional<IJavaProject> workspaceProject) {
-            this.session = GradleTestRunSessionFactory.newSession(launch, workspaceProject.orNull());
-            this.firstInvocation = new AtomicBoolean(true);
-        }
-
-        public void start() {
-            this.session.start();
-        }
-
-        public void finish() {
-            this.session.finish();
-        }
-
-        @Override
-        public void statusChanged(TestProgressEvent event) {
-            // activate the Test View the first time we receive a test progress event
-            if (this.firstInvocation.getAndSet(false)) {
-                CorePlugin.workbenchOperations().activateTestRunnerView();
-            }
-
-            this.session.process(event);
-        }
-
-    }
-
 }
