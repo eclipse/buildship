@@ -13,7 +13,6 @@ class CorePluginTest extends Specification {
         CorePlugin.processStreamsProvider() != null
         CorePlugin.projectConfigurationManager() != null
         CorePlugin.publishedGradleVersions() !=null
-        CorePlugin.workbenchOperations() != null
         CorePlugin.workspaceOperations() != null
     }
 
