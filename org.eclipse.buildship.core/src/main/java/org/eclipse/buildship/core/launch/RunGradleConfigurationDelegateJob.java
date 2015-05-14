@@ -11,31 +11,6 @@
 
 package org.eclipse.buildship.core.launch;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingclient.LaunchableConfig;
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.console.ProcessStreams;
-import org.eclipse.buildship.core.gradle.GradleDistributionFormatter;
-import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.util.collections.CollectionsUtils;
-import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
-import org.eclipse.buildship.core.util.progress.ToolingApiJob;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.ILaunchConfiguration;
-import org.gradle.tooling.BuildCancelledException;
-import org.gradle.tooling.BuildException;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -43,6 +18,37 @@ import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
+
+import org.gradle.tooling.BuildCancelledException;
+import org.gradle.tooling.BuildException;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+
+import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+import com.gradleware.tooling.toolingclient.LaunchableConfig;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
+
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.event.BuildLaunchRequestEvent;
+import org.eclipse.buildship.core.event.internal.DefaultBuildLaunchRequestEvent;
+import org.eclipse.buildship.core.gradle.GradleDistributionFormatter;
+import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.util.collections.CollectionsUtils;
+import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
+import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 
 /**
  * Runs the given {@link ILaunch} instance.
@@ -119,8 +125,13 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         // print the applied run configuration settings at the beginning of the console output
         writeRunConfigurationDescription(configurationAttributes, processStreams.getConfiguration());
 
-        // todo (donat) send an event to notify the listener in the ui plugin that a build is about to be executed
-        // todo (donat) as part of the event, send at least the build launch request and the process name
+        // attach a test progress listener if the run configuration has the test progress
+        // visualization enabled
+        if (configurationAttributes.isShowExecutionView()) {
+            // If it should be shown in the UI also send BuildLaunchRequestEvent
+            BuildLaunchRequestEvent buildLaunchEvent = new DefaultBuildLaunchRequestEvent(this, request, processName);
+            CorePlugin.eventBroker().send("", buildLaunchEvent);
+        }
 
         // launch the build
         request.executeAndWait();
