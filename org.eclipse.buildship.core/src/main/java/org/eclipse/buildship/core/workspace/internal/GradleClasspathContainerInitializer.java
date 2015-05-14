@@ -132,6 +132,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
             @Override
             public boolean apply(OmniExternalDependency dependency) {
+                // Eclipse only accepts archives as external dependencies (but not, for example, a DLL)
                 String name = dependency.getFile().getName();
                 return name.endsWith(".jar") || name.endsWith(".zip");
             }
