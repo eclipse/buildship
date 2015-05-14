@@ -7,14 +7,15 @@ class CorePluginTest extends Specification {
     def "Services exposed from core plugin are available"() {
         expect:
         CorePlugin.getInstance() != null
-        CorePlugin.gradleLaunchConfigurationManager() != null
         CorePlugin.logger() != null
+        CorePlugin.publishedGradleVersions() != null
+        CorePlugin.toolingClient() != null
         CorePlugin.modelRepositoryProvider() != null
-        CorePlugin.processStreamsProvider() != null
-        CorePlugin.projectConfigurationManager() != null
-        CorePlugin.publishedGradleVersions() !=null
-        CorePlugin.workbenchOperations() != null
         CorePlugin.workspaceOperations() != null
+        CorePlugin.projectConfigurationManager() != null
+        CorePlugin.processStreamsProvider() != null
+        CorePlugin.gradleLaunchConfigurationManager() != null
+        CorePlugin.userNotification() != null
     }
 
 }
