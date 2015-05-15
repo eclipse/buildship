@@ -51,9 +51,9 @@ class ProjectImportJobTest extends Specification {
 
         where:
         applyJavaPlugin | projectDescriptorExists | descriptorComment
-        false           | false                   | ''         // the comment from the generated descriptor
-        false           | true                    | 'original' // the comment from the original descriptor
-        true            | false                   | ''
+        false           | false                   | 'Project created by Buildship' // the comment from the generated descriptor
+        false           | true                    | 'original'                     // the comment from the original descriptor
+        true            | false                   | 'Project created by Buildship'
         true            | true                    | 'original'
     }
 
