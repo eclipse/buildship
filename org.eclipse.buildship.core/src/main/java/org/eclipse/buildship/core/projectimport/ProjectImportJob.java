@@ -14,6 +14,7 @@ package org.eclipse.buildship.core.projectimport;
 import java.io.File;
 import java.util.List;
 
+import com.google.common.base.*;
 import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.BuildException;
 import org.gradle.tooling.GradleConnectionException;
@@ -22,10 +23,9 @@ import org.gradle.tooling.events.build.BuildProgressListener;
 import org.gradle.tooling.events.task.TaskProgressListener;
 import org.gradle.tooling.events.test.TestProgressListener;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
@@ -56,6 +56,7 @@ import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
+import org.eclipse.buildship.core.util.string.StringUtils;
 import org.eclipse.buildship.core.workspace.ClasspathDefinition;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
@@ -117,9 +118,9 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         monitor.beginTask("Load Eclipse Project", IProgressMonitor.UNKNOWN);
         try {
             ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-            List<ProgressListener> listeners = ImmutableList.<ProgressListener> of(new DelegatingProgressListener(monitor));
+            List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
             TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), null, listeners,
-                    ImmutableList.<BuildProgressListener> of(), ImmutableList.<TaskProgressListener> of(), ImmutableList.<TestProgressListener> of(), getToken());
+                    ImmutableList.<BuildProgressListener>of(), ImmutableList.<TaskProgressListener>of(), ImmutableList.<TestProgressListener>of(), getToken());
             ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(this.fixedAttributes);
             return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FORCE_RELOAD);
         } finally {
@@ -261,26 +262,26 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         // if an unexpected exception was thrown it should be shown and logged
         String message = "Gradle project import failed due to an unexpected error.";
         CorePlugin.logger().error(message, t);
-        CorePlugin.userNotification().errorOccurred("Project import failed", message, collectErrorMessages(t), IStatus.ERROR,  t);
+        CorePlugin.userNotification().errorOccurred("Project import failed", message, collectErrorMessages(t), IStatus.ERROR, t);
         // the problem is already logged, the job doesn't have to record it again
         return SILENT_ERROR_STATUS;
     }
 
     private String collectErrorMessages(Throwable t) {
         // recursively collect the error messages going up the stacktrace
-        String rootCauses = collectRootCausesRecursively(t.getCause());
-        return t.getMessage() + (rootCauses.isEmpty() ? "" : "\n" + rootCauses);
+        // avoid the same message showing twice in a row
+        List<String> messages = Lists.newArrayList();
+        collectCausesRecursively(t.getCause(), messages);
+        String messageStack = Joiner.on('\n').join(StringUtils.removeAdjacentDuplicates(messages));
+        return t.getMessage() + (messageStack.isEmpty() ? "" : "\n\n" + messageStack);
     }
 
-    private String collectRootCausesRecursively(Throwable t) {
-        if (t == null) {
-            return "";
-        } else {
-            if (t.getMessage() == null) {
-                return collectRootCausesRecursively(t.getCause());
-            } else {
-                return "\n" + t.getMessage() + collectRootCausesRecursively(t.getCause());
-            }
+    private void collectCausesRecursively(Throwable t, List<String> messages) {
+        List<String> singleLineMessages = Splitter.on('\n').omitEmptyStrings().splitToList(Strings.nullToEmpty(t.getMessage()));
+        messages.addAll(singleLineMessages);
+        Throwable cause = t.getCause();
+        if (cause != null) {
+            collectCausesRecursively(cause, messages);
         }
     }
 
