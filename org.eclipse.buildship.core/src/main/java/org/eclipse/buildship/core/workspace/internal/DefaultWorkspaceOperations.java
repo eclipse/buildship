@@ -77,7 +77,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             List<IProject> allProjects = getAllProjects();
             for (IProject project : allProjects) {
                 try {
-                    project.delete(true, new SubProgressMonitor(monitor, 100 / allProjects.size()));
+                    project.delete(false, true, new SubProgressMonitor(monitor, 100 / allProjects.size()));
                 } catch (Exception e) {
                     String message = String.format("Cannot delete project %s.", project.getName());
                     throw new GradlePluginsRuntimeException(message, e);
