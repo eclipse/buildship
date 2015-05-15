@@ -2,8 +2,6 @@ package org.eclipse.buildship.core.projectimport
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
-import org.eclipse.core.runtime.IPath;
-
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectBuilder
 import org.eclipse.buildship.core.configuration.GradleProjectNature
@@ -55,9 +53,9 @@ class ProjectImportJobTest extends Specification {
 
         where:
         applyJavaPlugin | projectDescriptorExists | descriptorComment
-        false           | false                   | 'Project created by Buildship' // the comment from the generated descriptor
-        false           | true                    | 'original'                     // the comment from the original descriptor
-        true            | false                   | 'Project created by Buildship'
+        false           | false                   | 'Project simple-project created by Buildship.' // the comment from the generated descriptor
+        false           | true                    | 'original'                                     // the comment from the original descriptor
+        true            | false                   | 'Project simple-project created by Buildship.'
         true            | true                    | 'original'
     }
 
@@ -87,10 +85,9 @@ class ProjectImportJobTest extends Specification {
         when:
         job.schedule()
         job.join()
-        def project = CorePlugin.workspaceOperations().findProjectByName(rootProject.name).get()
-        def filters = project.getFilters()
 
         then:
+        def filters = CorePlugin.workspaceOperations().findProjectByName(rootProject.name).get().getFilters()
         filters.length == 1
         filters[0].fileInfoMatcherDescription.arguments.arguments == ['subproject']
     }
@@ -98,32 +95,31 @@ class ProjectImportJobTest extends Specification {
     def "Importing a project twice won't result in duplicate filters"() {
         setup:
         File rootProject = newMultiProject()
-        ProjectImportJob job = newProjectImportJob(rootProject)
 
         when:
+        ProjectImportJob job = newProjectImportJob(rootProject)
         job.schedule()
         job.join()
-        CorePlugin.workspaceOperations().deleteAllProjects()
+        CorePlugin.workspaceOperations().deleteAllProjects(null)
+
         job = newProjectImportJob(rootProject)
         job.schedule()
         job.join()
 
-        def project = CorePlugin.workspaceOperations().findProjectByName(rootProject.name).get()
-        def filters = project.getFilters()
-
         then:
+        def filters = CorePlugin.workspaceOperations().findProjectByName(rootProject.name).get().getFilters()
         filters.length == 1
+        filters[0].fileInfoMatcherDescription.arguments.arguments == ['subproject']
     }
 
     def newProject(boolean projectDescriptorExists, boolean applyJavaPlugin) {
         def root = tempFolder.newFolder('simple-project')
-        def buildGradleContent = applyJavaPlugin ? 'apply plugin: "java"' : ''
-        def buildGradle = new File(root, 'build.gradle') << buildGradleContent
-        def settingsGradle = new File(root, 'settings.gradle') << ''
-        def sourceFile = new File(root, 'src/main/java')
-        sourceFile.mkdirs()
+        new File(root, 'build.gradle') << (applyJavaPlugin ? 'apply plugin: "java"' : '')
+        new File(root, 'settings.gradle') << ''
+        new File(root, 'src/main/java').mkdirs()
+
         if (projectDescriptorExists) {
-            def dotProject = new File(root, '.project') << '''<?xml version="1.0" encoding="UTF-8"?>
+            new File(root, '.project') << '''<?xml version="1.0" encoding="UTF-8"?>
                 <projectDescription>
                   <name>simple-project</name>
                   <comment>original</comment>
@@ -132,7 +128,7 @@ class ProjectImportJobTest extends Specification {
                   <natures></natures>
                 </projectDescription>'''
             if (applyJavaPlugin) {
-                def dotClasspath = new File(root, '.classpath') << '''<?xml version="1.0" encoding="UTF-8"?>
+                new File(root, '.classpath') << '''<?xml version="1.0" encoding="UTF-8"?>
                     <classpath>
                       <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
                       <classpathentry kind="src" path="src/main/java"/>
@@ -145,11 +141,11 @@ class ProjectImportJobTest extends Specification {
 
     def newMultiProject() {
         def rootProject = tempFolder.newFolder('multi-project')
-        def rootBuildGradle = new File(rootProject, 'build.gradle') << ''
-        def rootSettingsGradle = new File(rootProject, 'settings.gradle') << 'include "subproject"'
+        new File(rootProject, 'build.gradle') << ''
+        new File(rootProject, 'settings.gradle') << 'include "subproject"'
         def subProject = new File(rootProject, "subproject")
         subProject.mkdirs()
-        def subBuildGradle = new File(subProject, 'build.gradle') << ''
+        new File(subProject, 'build.gradle') << ''
         rootProject
     }
 
@@ -159,4 +155,5 @@ class ProjectImportJobTest extends Specification {
         configuration.projectDir = location
         new ProjectImportJob(configuration)
     }
+
 }

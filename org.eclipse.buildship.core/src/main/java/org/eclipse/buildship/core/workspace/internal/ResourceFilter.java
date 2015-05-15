@@ -74,7 +74,7 @@ final class ResourceFilter {
         return filters.build();
     }
 
-    private static void setFilters(IProject project, final List<FileInfoMatcherDescription> filters, IProgressMonitor monitor) {
+    private static void setFilters(IProject project, List<FileInfoMatcherDescription> filters, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Set resource filters for project %s", project), 2);
         try {
             // get all current filters
@@ -95,6 +95,7 @@ final class ResourceFilter {
                     throw new GradlePluginsRuntimeException(message, e);
                 }
             }
+
             // create the specified filters
             if (!filters.isEmpty()) {
                 try {

@@ -110,7 +110,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
             IProjectDescription projectDescription = workspace.newProjectDescription(name);
             projectDescription.setLocation(Path.fromOSString(location.getPath()));
-            projectDescription.setComment("Project created by Buildship");
+            projectDescription.setComment(String.format("Project %s created by Buildship.", name));
             IProject project = workspace.getRoot().getProject(name);
             project.create(projectDescription, new SubProgressMonitor(monitor, 1));
 

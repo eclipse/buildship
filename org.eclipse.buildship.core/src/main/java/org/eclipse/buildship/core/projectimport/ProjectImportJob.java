@@ -99,22 +99,23 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
     private void importProject(OmniEclipseProject project, OmniEclipseProject rootProject, IProgressMonitor monitor) {
         monitor.beginTask("Import project " + project.getName(), 4);
         try {
-            // check if an Eclipse project already exists at the location of the Gradle project to
-            // import
+            // check if an Eclipse project already exists at the location of the Gradle project to import
             WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations();
             File projectDirectory = project.getProjectDirectory();
             Optional<IProjectDescription> projectDescription = workspaceOperations.findProjectInFolder(projectDirectory, new SubProgressMonitor(monitor, 1));
 
+            List<File> childProjectLocations = collectChildProjectLocations(project);
+            ImmutableList<String> gradleNature = ImmutableList.of(GradleProjectNature.ID);
+
             IProject workspaceProject;
             if (projectDescription.isPresent()) {
                 // include the existing Eclipse project in the workspace
-                workspaceProject = workspaceOperations
-                        .includeProject(projectDescription.get(), collectChildProjectLocations(project), ImmutableList.of(GradleProjectNature.ID), new SubProgressMonitor(monitor,
-                                2));
+                workspaceProject = workspaceOperations.includeProject(projectDescription.get(), childProjectLocations, gradleNature,
+                        new SubProgressMonitor(monitor, 2));
             } else {
                 // create a new Eclipse project in the workspace for the current Gradle project
-                workspaceProject = workspaceOperations.createProject(project.getName(), project.getProjectDirectory(), collectChildProjectLocations(project), ImmutableList
-                        .of(GradleProjectNature.ID), new SubProgressMonitor(monitor, 1));
+                workspaceProject = workspaceOperations.createProject(project.getName(), project.getProjectDirectory(), childProjectLocations, gradleNature,
+                        new SubProgressMonitor(monitor, 1));
 
                 // if the current Gradle project is a Java project, configure the Java nature,
                 // the classpath, and the source paths
