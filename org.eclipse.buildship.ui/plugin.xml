@@ -92,8 +92,13 @@
             name="Open Gradle Build Script"
             description="Opens the Gradle build script for the selected Gradle project">
       </command>
+      <command
+            id="org.eclipse.buildship.ui.commands.showTaskTypesWizard"
+            name="testWizard">
+      </command>
     </extension>
     <extension
+          id="org.eclipse.buildship.ui.commands.showTaskTypesWizard"
           point="org.eclipse.ui.handlers">
       <handler
              commandId="org.eclipse.buildship.ui.commands.refreshtaskview"
@@ -114,6 +119,10 @@
       <handler
             commandId="org.eclipse.buildship.ui.commands.openbuildscript"
             class="org.eclipse.buildship.ui.taskview.OpenBuildScriptHandler">
+      </handler>
+      <handler
+            class="ExampleTaskTypeWizardHandler"
+            commandId="org.eclipse.buildship.ui.commands.showTaskTypesWizard">
       </handler>
     </extension>
     <extension
@@ -192,5 +201,19 @@
                 type="org.eclipse.ui.views.properties.IPropertySource">
           </adapter>
        </factory>
+    </extension>
+    <extension
+          point="org.eclipse.ui.menus">
+       <menuContribution
+             allPopups="true"
+             locationURI="menu:org.eclipse.ui.main.menu">
+          <menu
+                label="Test">
+             <command
+                   commandId="org.eclipse.buildship.ui.commands.showTaskTypesWizard"
+                   style="push">
+             </command>
+          </menu>
+       </menuContribution>
     </extension>
  </plugin>
