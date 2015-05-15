@@ -263,7 +263,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
         @Override
         public void onSuccess(Optional<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> result) {
-            UiPlugin.logger().info(result.isPresent() ? "Successfully loaded project preview." : "Loading project preview has been cancelled.");
+            // the job has already taken care of logging the success
             this.latch.countDown();
 
             updateSummary(result.isPresent() ? Optional.of(result.get().getFirst()) : Optional.<OmniBuildEnvironment> absent());
@@ -272,8 +272,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
         @Override
         public void onFailure(Throwable t) {
-            // if the job returns with IStatus.ERROR_STATUS an error dialog is shown by default
-            UiPlugin.logger().error("Cannot load project preview.", t);
+            // the job has already taken care of logging and displaying the error
             this.latch.countDown();
 
             clearTree();

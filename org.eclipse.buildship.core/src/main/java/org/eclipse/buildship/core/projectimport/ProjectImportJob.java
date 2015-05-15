@@ -62,7 +62,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
     private final FixedRequestAttributes fixedAttributes;
 
     public ProjectImportJob(ProjectImportConfiguration configuration) {
-        super("Importing project");
+        super("Importing Gradle project");
 
         this.fixedAttributes = configuration.toFixedAttributes();
 
@@ -72,7 +72,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
 
     @Override
     public void runToolingApiJobInWorkspace(IProgressMonitor monitor) {
-        monitor.beginTask("Import Gradle Project", 100);
+        monitor.beginTask("Import Gradle project", 100);
 
         OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(new SubProgressMonitor(monitor, 50));
         OmniEclipseProject rootProject = eclipseGradleBuild.getRootEclipseProject();
@@ -83,7 +83,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
     }
 
     private OmniEclipseGradleBuild fetchEclipseGradleBuild(IProgressMonitor monitor) {
-        monitor.beginTask("Load Eclipse Project", IProgressMonitor.UNKNOWN);
+        monitor.beginTask("Load Eclipse Gradle project", IProgressMonitor.UNKNOWN);
         try {
             ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
             List<ProgressListener> listeners = ImmutableList.<ProgressListener> of(new DelegatingProgressListener(monitor));
@@ -122,6 +122,8 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
                 if (isJavaProject(project)) {
                     ClasspathDefinition classpath = collectClasspath(project, rootProject);
                     workspaceOperations.createJavaProject(workspaceProject, classpath, new SubProgressMonitor(monitor, 1));
+                } else {
+                    monitor.worked(1);
                 }
             }
 

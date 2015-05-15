@@ -47,11 +47,11 @@ public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
     private final FixedRequestAttributes fixedAttributes;
     private final TransientRequestAttributes transientAttributes;
 
-    private Optional<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> result = Optional.absent();
+    private Optional<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> result;
 
     public ProjectPreviewJob(ProjectImportConfiguration configuration, List<ProgressListener> listeners,
             final FutureCallback<Optional<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>>> resultHandler) {
-        super("Loading project preview");
+        super("Loading Gradle project preview");
 
         this.fixedAttributes = configuration.toFixedAttributes();
         ProcessStreams stream = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
@@ -74,19 +74,11 @@ public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
 
     @Override
     public void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
-        try {
-            this.result = previewProject(monitor);
-        } finally {
-            monitor.done();
-        }
-    }
-
-    public Optional<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> previewProject(IProgressMonitor monitor) {
-        monitor.beginTask("Load project preview", 10);
+        monitor.beginTask("Load Gradle project preview", 10);
 
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(new SubProgressMonitor(monitor, 2));
         OmniGradleBuildStructure gradleBuildStructure = fetchGradleBuildStructure(new SubProgressMonitor(monitor, 8));
-        return Optional.of(new Pair<OmniBuildEnvironment, OmniGradleBuildStructure>(buildEnvironment, gradleBuildStructure));
+        this.result = Optional.of(new Pair<OmniBuildEnvironment, OmniGradleBuildStructure>(buildEnvironment, gradleBuildStructure));
     }
 
     private OmniBuildEnvironment fetchBuildEnvironment(IProgressMonitor monitor) {

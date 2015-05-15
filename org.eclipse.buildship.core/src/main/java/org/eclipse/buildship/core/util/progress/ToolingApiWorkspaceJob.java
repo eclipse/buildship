@@ -40,13 +40,14 @@ import org.eclipse.buildship.core.util.string.StringUtils;
  */
 public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
 
-    // if the job returns a normal error status then eclipse shows the default error dialog which is
-    // too basic. on the other hand the OK_STATUS is not feasible since clients of the job might
-    // need to determine if the job was finished successfully. to solve both problems we use this
-    // custom, non-ok status
+    // If the job returns a normal error status then Eclipse shows the default error dialog which is
+    // too basic for our needs. On the other hand, the OK_STATUS is not feasible since invokers of the
+    // job might need to determine if the job has finished successfully or not. To solve this dilemma,
+    // we define a custom non-error, non-ok status.
     private static final IStatus SILENT_ERROR_STATUS = new Status(IStatus.CANCEL, CorePlugin.PLUGIN_ID, "");
 
     private final CancellationTokenSource tokenSource;
+    private final String workName;
 
     /**
      * Creates a new job with the specified name. The job name is a human-readable value that is
@@ -58,34 +59,18 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
     protected ToolingApiWorkspaceJob(String name) {
         super(name);
         this.tokenSource = GradleConnector.newCancellationTokenSource();
+        this.workName = name;
     }
 
     protected CancellationToken getToken() {
         return this.tokenSource.token();
     }
 
-    /**
-     * Method where the Tooling API-related work should be done.
-     * <p/>
-     * If an exception is thrown in this method it will be automatically reported via the
-     * {@link org.eclipse.buildship.core.notification.UserNotification} service. The notification
-     * will be selective based on the type of the thrown exception.
-     * <p/>
-     * If no exception was thrown in the method the job's return status will be always
-     * {@link Status#OK_STATUS}. If an exception occurs an arbitrary non-ok and non-error status
-     * will be returned. This disables the platform UI to show built-in (and rather basic) exception
-     * dialog.
-     *
-     * @param monitor the monitor to report the progress
-     * @throws Exception when any exception happens in the logic
-     */
-    public abstract void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception;
-
     @Override
     public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
         try {
             runToolingApiJobInWorkspace(monitor);
-            return Status.OK_STATUS;
+            return handleSuccess();
         } catch (BuildCancelledException e) {
             return handleBuildCancelled(e);
         } catch (BuildException e) {
@@ -101,47 +86,67 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
         }
     }
 
+    /**
+     * Template method that executes the actual Tooling API-related work.
+     * <p/>
+     * If an exception is thrown in this method, the exception is reported via the
+     * {@link org.eclipse.buildship.core.notification.UserNotification} service. The
+     * notification content and its severity depend on the type of the thrown exception.
+     * <p/>
+     * If no exception is thrown in the template method, the job's return status is
+     * {@link Status#OK_STATUS}. If an exception occurs, a non-error, non-ok status
+     * is returned. This disables the platform UI to show the built-in (and rather basic)
+     * exception dialog.
+     *
+     * @param monitor the monitor to report the progress
+     * @throws Exception thrown when an error happens during the execution
+     */
+    protected abstract void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception;
+
+    private IStatus handleSuccess() {
+        String message = String.format("%s succeeded.", this.workName);
+        CorePlugin.logger().info(message);
+        return Status.OK_STATUS;
+    }
+
     private IStatus handleBuildCancelled(BuildCancelledException e) {
         // if the job was cancelled by the user, just log the event
-        CorePlugin.logger().info("Gradle project import cancelled", e);
+        String message = String.format("%s cancelled.", this.workName);
+        CorePlugin.logger().info(message, e);
         return Status.CANCEL_STATUS;
     }
 
     private IStatus handleBuildFailed(BuildException e) {
         // if there is an error in the project's build script, notify the user, but don't
         // put it in the error log (log as a warning instead)
-        String message = "Gradle project import failed due to an error in the referenced Gradle build.";
+        String message = String.format("%s failed due to an error in the referenced Gradle build.", this.workName);
         CorePlugin.logger().warn(message, e);
-        CorePlugin.userNotification().errorOccurred("Project import failed", message, collectErrorMessages(e), IStatus.WARNING, e);
-        // the problem is already logged, the job doesn't have to record it again
+        CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(e), IStatus.WARNING, e);
         return SILENT_ERROR_STATUS;
     }
 
     private IStatus handleGradleConnectionFailed(GradleConnectionException e) {
         // if there is an error connecting to Gradle, notify the user, but don't
         // put it in the error log (log as a warning instead)
-        String message = "Gradle project import failed due to an error connecting to the Gradle build.";
+        String message = String.format("%s failed due to an error connecting to the Gradle build.", this.workName);
         CorePlugin.logger().warn(message, e);
-        CorePlugin.userNotification().errorOccurred("Project import failed", message, collectErrorMessages(e), IStatus.WARNING, e);
-        // the problem is already logged, the job doesn't have to record it again
+        CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(e), IStatus.WARNING, e);
         return SILENT_ERROR_STATUS;
     }
 
     private IStatus handlePluginFailed(GradlePluginsRuntimeException e) {
         // if the exception was thrown by Buildship it should be shown and logged
-        String message = "Gradle project import failed due to an error setting up the Eclipse projects.";
+        String message = String.format("%s failed due to an error configuring Eclipse.", this.workName);
         CorePlugin.logger().error(message, e);
-        CorePlugin.userNotification().errorOccurred("Project import failed", message, collectErrorMessages(e), IStatus.ERROR, e);
-        // the problem is already logged, the job doesn't have to record it again
+        CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(e), IStatus.ERROR, e);
         return SILENT_ERROR_STATUS;
     }
 
     private IStatus handleUnknownFailed(Throwable t) {
         // if an unexpected exception was thrown it should be shown and logged
-        String message = "Gradle project import failed due to an unexpected error.";
+        String message = String.format("%s failed due to an unexpected error.", this.workName);
         CorePlugin.logger().error(message, t);
-        CorePlugin.userNotification().errorOccurred("Project import failed", message, collectErrorMessages(t), IStatus.ERROR, t);
-        // the problem is already logged, the job doesn't have to record it again
+        CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(t), IStatus.ERROR, t);
         return SILENT_ERROR_STATUS;
     }
 
