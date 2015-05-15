@@ -53,6 +53,15 @@
             name="Gradle Tasks"
             restorable="true">
       </view>
+      <view
+            allowMultiple="true"
+            category="org.eclipse.buildship.ui.views"
+            class="org.eclipse.buildship.ui.part.execution.ExecutionPart"
+            icon="icons/full/eview16/tasks.png"
+            id="org.eclipse.buildship.ui.views.executionview"
+            name="Gradle Execution"
+            restorable="true">
+      </view>
       <category
             id="org.eclipse.buildship.ui.views"
             name="Gradle">
@@ -92,6 +101,47 @@
             name="Open Gradle Build Script"
             description="Opens the Gradle build script for the selected Gradle project">
       </command>
+      <command
+            id="org.eclipse.buildship.ui.commands.showtreeheader"
+            name="Show Header">
+         <state
+               class="org.eclipse.ui.handlers.RegistryToggleState:true"
+               id="org.eclipse.ui.commands.toggleState">
+         </state>
+      </command>
+      <command
+            id="org.eclipse.buildship.ui.commands.showtreefilter"
+            name="Show Filter">
+         <state
+               class="org.eclipse.ui.handlers.RegistryToggleState:true"
+               id="org.eclipse.ui.commands.toggleState">
+         </state>
+      </command>
+      <command
+            id="org.eclipse.buildship.ui.commands.tree.expandall"
+            name="Expand all">
+      </command>
+      <command
+            id="org.eclipse.buildship.ui.commands.tree.collapseall"
+            name="Collapse all">
+      </command>
+      <command
+            id="org.eclipse.buildship.ui.commands.switchpage"
+            name="Switch Page">
+         <commandParameter
+               id="org.eclipse.buildship.ui.commandParameters.pageid"
+               name="PageId"
+               optional="true">
+         </commandParameter>
+      </command>
+      <command
+            id="org.eclipse.buildship.ui.commands.removepage"
+            name="Remove Page">
+      </command>
+      <command
+            id="org.eclipse.buildship.ui.commands.removeallpages"
+            name="Remove All Pages">
+      </command>
     </extension>
     <extension
           point="org.eclipse.ui.handlers">
@@ -114,6 +164,58 @@
       <handler
             commandId="org.eclipse.buildship.ui.commands.openbuildscript"
             class="org.eclipse.buildship.ui.taskview.OpenBuildScriptHandler">
+      </handler>
+      <handler
+            class="org.eclipse.buildship.ui.handler.ShowViewerHeaderHandler"
+            commandId="org.eclipse.buildship.ui.commands.showtreeheader">
+         <activeWhen>
+            <and>
+               <reference
+                     definitionId="org.eclipse.buildship.ui.isFilteredTreePart">
+               </reference>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.buildship.ui.handler.ShowTreeFilterHandler"
+            commandId="org.eclipse.buildship.ui.commands.showtreefilter">
+         <activeWhen>
+            <and>
+               <reference
+                     definitionId="org.eclipse.buildship.ui.isFilteredTreePart">
+               </reference>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.buildship.ui.handler.ExpandHandler"
+            commandId="org.eclipse.buildship.ui.commands.tree.expandall">
+      </handler>
+      <handler
+            class="org.eclipse.buildship.ui.handler.CollapseHandler"
+            commandId="org.eclipse.buildship.ui.commands.tree.collapseall">
+      </handler>
+      <handler
+            class="org.eclipse.buildship.ui.handler.SwitchPageHandler"
+            commandId="org.eclipse.buildship.ui.commands.switchpage">
+         <enabledWhen>
+            <and>
+               <with
+                     variable="activePart">
+                  <test
+                        property="buildship.ui.pagespart.hasPages">
+                  </test>
+               </with>
+            </and>
+         </enabledWhen>
+      </handler>
+      <handler
+            class="org.eclipse.buildship.ui.handler.RemovePageHandler"
+            commandId="org.eclipse.buildship.ui.commands.removepage">
+      </handler>
+      <handler
+            class="org.eclipse.buildship.ui.handler.RemoveAllPagesHandler"
+            commandId="org.eclipse.buildship.ui.commands.removeallpages">
       </handler>
     </extension>
     <extension
@@ -144,6 +246,30 @@
              commandId="org.eclipse.buildship.ui.commands.runtasks"
              icon="icons/full/elcl16/run.png"
              disabledIcon="icons/full/dlcl16/run.png">
+       </image>
+       <image
+             commandId="org.eclipse.buildship.ui.commands.tree.expandall"
+             icon="icons/full/elcl16/expandall.png">
+       </image>
+       <image
+             commandId="org.eclipse.buildship.ui.commands.tree.collapseall"
+             icon="icons/full/elcl16/collapseall.png">
+       </image>
+       <image
+             commandId="org.eclipse.buildship.ui.commands.switchpage"
+             icon="icons/full/elcl16/toggledetailpane_co.png">
+       </image>
+       <image
+             commandId="org.eclipse.buildship.ui.commands.removepage"
+             icon="icons/full/elcl16/rem_co.png">
+       </image>
+       <image
+             commandId="org.eclipse.buildship.ui.commands.removeallpages"
+             icon="icons/full/elcl16/rem_all_co.png">
+       </image>
+       <image
+             commandId="org.eclipse.buildship.ui.commands.showtreefilter"
+             icon="icons/full/etool16/filter_ps.png">
        </image>
     </extension>
 
@@ -192,5 +318,98 @@
                 type="org.eclipse.ui.views.properties.IPropertySource">
           </adapter>
        </factory>
+    </extension>
+    <extension
+          name="Menus for the execution view"
+          point="org.eclipse.ui.menus">
+       <menuContribution
+             allPopups="false"
+             locationURI="menu:org.eclipse.buildship.ui.views.executionview">
+          <command
+                commandId="org.eclipse.buildship.ui.commands.showtreeheader"
+                style="toggle">
+          </command>
+       </menuContribution>
+       <menuContribution
+             allPopups="false"
+             locationURI="toolbar:org.eclipse.buildship.ui.views.executionview">
+          <command
+                commandId="org.eclipse.buildship.ui.commands.tree.expandall"
+                style="push"
+                tooltip="Expand All">
+          </command>
+          <command
+                commandId="org.eclipse.buildship.ui.commands.tree.collapseall"
+                style="push"
+                tooltip="Collapse All">
+          </command>
+          <separator
+                name="org.eclipse.buildship.ui.separator.expandcollapse"
+                visible="true">
+          </separator>
+          <command
+                commandId="org.eclipse.buildship.ui.commands.switchpage"
+                id="org.eclipse.buildship.ui.commands.switchpage"
+                label="Switch Gradle Execution Page"
+                style="pulldown">
+          </command>
+          <separator
+                name="org.eclipse.buildship.ui.separator.switchexecution"
+                visible="true">
+          </separator>
+          <command
+                commandId="org.eclipse.buildship.ui.commands.removepage"
+                label="Remove Build Execution"
+                style="push"
+                tooltip="Remove Build Execution">
+          </command>
+          <command
+                commandId="org.eclipse.buildship.ui.commands.removeallpages"
+                label="Remove All Build Executions"
+                style="push"
+                tooltip="Remove All Build Executions">
+          </command>
+          <separator
+                name="org.eclipse.buildship.ui.separator.removepages"
+                visible="true">
+          </separator>
+          <command
+                commandId="org.eclipse.buildship.ui.commands.showtreefilter"
+                style="toggle"
+                tooltip="Show Filter">
+          </command>
+       </menuContribution>
+       <menuContribution
+             allPopups="false"
+             locationURI="menu:org.eclipse.buildship.ui.commands.switchpage">
+          <dynamic
+                class="org.eclipse.buildship.ui.handler.DynamicCommandPageSwitch"
+                id="org.eclipse.buildship.ui.commands.switchtopage">
+          </dynamic>
+       </menuContribution>
+    </extension>
+    <extension
+          point="org.eclipse.core.expressions.definitions">
+       <definition
+             id="org.eclipse.buildship.ui.isFilteredTreePart">
+          <and>
+             <with
+                   variable="activePart">
+                <instanceof
+                      value="org.eclipse.buildship.ui.part.FilteredTreeProvider">
+                </instanceof>
+             </with>
+          </and>
+       </definition>
+    </extension>
+    <extension
+          point="org.eclipse.core.expressions.propertyTesters">
+       <propertyTester
+             class="org.eclipse.buildship.ui.propertytester.PagesPartPropertyTester"
+             id="org.eclipse.buildship.ui.propertytester.pagespart"
+             namespace="buildship.ui.pagespart"
+             properties="hasPages"
+             type="java.lang.Object">
+       </propertyTester>
     </extension>
  </plugin>
