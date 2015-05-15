@@ -45,6 +45,9 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
     // the controller that contains the wizard logic
     private final ProjectImportWizardController controller;
 
+    // state bit storing that the wizard is blocked to finish globally
+    private boolean finishGloballyEnabled = false;
+
     /**
      * Creates a new instance and uses the {@link org.eclipse.jface.dialogs.DialogSettings} from {@link org.eclipse.buildship.ui.UiPlugin} and the
      * {@link PublishedGradleVersions} from the {@link CorePlugin}.
@@ -107,6 +110,12 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
         return this.controller.performImportProject();
     }
 
+    @Override
+    public boolean canFinish() {
+        // the wizard can finish if all pages are complete and the finish is globally enabled
+        return super.canFinish() && this.finishGloballyEnabled;
+    }
+
     private static IDialogSettings getOrCreateDialogSection(IDialogSettings dialogSettings) {
         // in Eclipse 3.6 the method DialogSettings#getOrCreateSection does not exist
         IDialogSettings section = dialogSettings.getSection(IMPORT_DIALOG_SETTINGS);
@@ -114,6 +123,10 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
             section = dialogSettings.addNewSection(IMPORT_DIALOG_SETTINGS);
         }
         return section;
+    }
+
+    public void setFinishGloballyEnabled(boolean finishGloballyEnabled) {
+        this.finishGloballyEnabled = finishGloballyEnabled;
     }
 
 }

@@ -40,6 +40,7 @@ public final class ProjectImportMessages extends NLS {
     public static String Label_GradleVersion;
     public static String Label_ProjectStructure;
 
+    public static String InfoMessage_GradleWelcomeWizardPageDefault;
     public static String InfoMessage_GradleProjectWizardPageDefault;
     public static String InfoMessage_GradleOptionsWizardPageDefault;
     public static String InfoMessage_PreviewImportWizardPageDefault;

@@ -35,7 +35,7 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
     private final Font headerFont;
 
     public GradleWelcomeWizardPage(ProjectImportConfiguration configuration) {
-        super("GradleWelcome", ProjectImportMessages.Title_GradleWelcomeWizardPage, "Learn how to make best use of the Gradle project import wizard.", configuration, ImmutableList.<Property<?>> of()); //$NON-NLS-1$
+        super("GradleWelcome", ProjectImportMessages.Title_GradleWelcomeWizardPage, ProjectImportMessages.InfoMessage_GradleWelcomeWizardPageDefault, configuration, ImmutableList.<Property<?>> of()); //$NON-NLS-1$
         this.headerFont = createHeaderFont();
     }
 
@@ -49,9 +49,7 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
 
     @Override
     protected void createWidgets(Composite root) {
-        GridLayout layout = new GridLayout(1, false);
-        layout.marginTop = 20; // space above the controls
-        root.setLayout(layout);
+        root.setLayout(new GridLayout(1, false));
 
         StyledText welcomeText = new StyledText(root, SWT.WRAP | SWT.MULTI | SWT.CENTER);
         GridData welcomeLayoutData = new GridData(SWT.CENTER, SWT.TOP, false, false, 1, 1);
@@ -90,6 +88,13 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
     public void dispose() {
         this.headerFont.dispose();
         super.dispose();
+    }
+
+    @Override
+    public void setVisible(boolean visible) {
+        super.setVisible(visible);
+        // when visible then disable the wizard to finish
+        ((ProjectImportWizard)getWizard()).setFinishGloballyEnabled(!visible);
     }
 
 }
