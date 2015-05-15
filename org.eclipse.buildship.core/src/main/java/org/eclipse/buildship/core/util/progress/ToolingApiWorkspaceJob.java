@@ -37,14 +37,13 @@ import org.eclipse.buildship.core.util.string.StringUtils;
 
 /**
  * Base class for cancellable workspace jobs that invoke the Gradle Tooling API.
+ *
+ * Note that if the job returns a normal error status then Eclipse shows the default error dialog,
+ * which is too basic for our needs. On the other hand, the OK_STATUS is not feasible since invokers
+ * of the job might need to determine if the job has finished successfully or not. To solve this
+ * dilemma, we return an INFO/CANCEL status containing the thrown exception.
  */
 public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
-
-    // If the job returns a normal error status then Eclipse shows the default error dialog which is
-    // too basic for our needs. On the other hand, the OK_STATUS is not feasible since invokers of the
-    // job might need to determine if the job has finished successfully or not. To solve this dilemma,
-    // we define a custom non-error, non-ok status.
-    private static final IStatus SILENT_ERROR_STATUS = new Status(IStatus.CANCEL, CorePlugin.PLUGIN_ID, "");
 
     private final CancellationTokenSource tokenSource;
     private final String workName;
@@ -113,7 +112,7 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
         // if the job was cancelled by the user, just log the event
         String message = String.format("%s cancelled.", this.workName);
         CorePlugin.logger().info(message, e);
-        return Status.CANCEL_STATUS;
+        return createCancelStatus(e);
     }
 
     private IStatus handleBuildFailed(BuildException e) {
@@ -122,7 +121,7 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
         String message = String.format("%s failed due to an error in the referenced Gradle build.", this.workName);
         CorePlugin.logger().warn(message, e);
         CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(e), IStatus.WARNING, e);
-        return SILENT_ERROR_STATUS;
+        return createInfoStatus(e);
     }
 
     private IStatus handleGradleConnectionFailed(GradleConnectionException e) {
@@ -131,7 +130,7 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
         String message = String.format("%s failed due to an error connecting to the Gradle build.", this.workName);
         CorePlugin.logger().warn(message, e);
         CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(e), IStatus.WARNING, e);
-        return SILENT_ERROR_STATUS;
+        return createInfoStatus(e);
     }
 
     private IStatus handlePluginFailed(GradlePluginsRuntimeException e) {
@@ -139,7 +138,7 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
         String message = String.format("%s failed due to an error configuring Eclipse.", this.workName);
         CorePlugin.logger().error(message, e);
         CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(e), IStatus.ERROR, e);
-        return SILENT_ERROR_STATUS;
+        return createInfoStatus(e);
     }
 
     private IStatus handleUnknownFailed(Throwable t) {
@@ -147,7 +146,7 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
         String message = String.format("%s failed due to an unexpected error.", this.workName);
         CorePlugin.logger().error(message, t);
         CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(t), IStatus.ERROR, t);
-        return SILENT_ERROR_STATUS;
+        return createInfoStatus(t);
     }
 
     private String collectErrorMessages(Throwable t) {
@@ -166,6 +165,14 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
         if (cause != null) {
             collectCausesRecursively(cause, messages);
         }
+    }
+
+    private static Status createInfoStatus(Throwable t) {
+        return new Status(IStatus.INFO, CorePlugin.PLUGIN_ID, "", t);
+    }
+
+    private static Status createCancelStatus(BuildCancelledException e) {
+        return new Status(IStatus.CANCEL, CorePlugin.PLUGIN_ID, "", e);
     }
 
     @Override
