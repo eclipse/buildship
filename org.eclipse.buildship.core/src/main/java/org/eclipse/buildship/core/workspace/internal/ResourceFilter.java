@@ -11,25 +11,17 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.io.File;
-import java.util.List;
-
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
-
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.core.resources.FileInfoMatcherDescription;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceFilterDescription;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.*;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import java.io.File;
+import java.util.List;
 
 /**
  * Provides resource filtering on {@link IProject} instances.
@@ -84,7 +76,6 @@ final class ResourceFilter {
                 currentFilters = project.getFilters();
             } catch (CoreException e) {
                 String message = String.format("Cannot retrieve current resource filters for project %s.", project.getName());
-                CorePlugin.logger().error(message, e);
                 throw new GradlePluginsRuntimeException(message, e);
             }
 
@@ -94,7 +85,6 @@ final class ResourceFilter {
                     filter.delete(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1));
                 } catch (CoreException e) {
                     String message = String.format("Cannot delete current resource filter %s.", filter);
-                    CorePlugin.logger().error(message, e);
                     throw new GradlePluginsRuntimeException(message, e);
                 }
             }
@@ -106,7 +96,6 @@ final class ResourceFilter {
                             createCompositeFilter(filters), IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1));
                 } catch (CoreException e) {
                     String message = String.format("Cannot create new resource filters for project %s.", project);
-                    CorePlugin.logger().error(message, e);
                     throw new GradlePluginsRuntimeException(message, e);
                 }
             }
