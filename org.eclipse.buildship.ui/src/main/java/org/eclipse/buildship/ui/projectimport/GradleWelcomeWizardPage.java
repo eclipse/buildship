@@ -64,13 +64,13 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
     }
 
     private void fillWelcomeText(StyledText welcome) {
-        String headerText = "Welcome to the Gradle project import wizard";
-        String welcomeText = headerText + "\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. "
-                + "Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas congue ligula ac quam viverra nec "
-                + "consectetur ante hendrerit. Donec et mollis dolor.\n\nVivamus fermentum semper porta. Nunc"
-                + " diam velit, adipiscing ut tristique vitae, sagittis vel odio. Maecenas convallis ullamcorper"
-                + " ultricies. Curabitur ornare, ligula semper consectetur sagittis, nisi diam iaculis velit, "
-                + "id fringilla sem nunc vel mi. Nam dictum, odio nec pretium volutpat, arcu ante placerat erat, non tristique.";
+        String headerText = "How to experience the best Gradle integration";
+        String welcomeText = headerText + "\n\nPoint the wizard to the root location of the Gradle project to import. " +
+                "Buildship will take care of importing all the belonging projects. All imported projects that already contain " +
+                "an Eclipse .project file will be left alone, aside from being added the Gradle nature.\n\n" +
+                "You will experience the best Gradle integration, if you make use of the Gradle wrapper in your Gradle build and configure it " +
+                "to use the latest released version of Gradle. Using the Gradle wrapper also makes the build most sharable between multiple users.\n\n" +
+                "Unless you have a very specific reason, leave the advanced options at their default values.";
         welcome.setText(welcomeText);
 
         StyleRange headerStyle = new StyleRange();
