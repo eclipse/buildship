@@ -108,7 +108,7 @@ public final class ExceptionDetailsDialog extends Dialog {
         textAreaLayout.verticalSpacing = FontUtils.getFontHeightInPixels(parent.getFont());
         textArea.setLayout(textAreaLayout);
         GridData textAreaLayoutData = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-        textAreaLayoutData.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH);
+        textAreaLayoutData.widthHint = convertHorizontalDLUsToPixels(400);
         textArea.setLayoutData(textAreaLayoutData);
 
         // message label
