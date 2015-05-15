@@ -11,17 +11,24 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.io.File;
+import java.util.List;
+
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+
 import org.eclipse.core.resources.FileInfoMatcherDescription;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceFilterDescription;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.SubProgressMonitor;
 
-import java.io.File;
-import java.util.List;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
  * Provides resource filtering on {@link IProject} instances.
@@ -67,7 +74,7 @@ final class ResourceFilter {
         return filters.build();
     }
 
-    private static void setFilters(IProject project, List<FileInfoMatcherDescription> filters, IProgressMonitor monitor) {
+    private static void setFilters(IProject project, final List<FileInfoMatcherDescription> filters, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Set resource filters for project %s", project), 2);
         try {
             // get all current filters
