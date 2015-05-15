@@ -119,6 +119,7 @@ class ProjectImportJobTest extends Specification {
         def root = tempFolder.newFolder('simple-project')
         def buildGradleContent = applyJavaPlugin ? 'apply plugin: "java"' : ' '
         def buildGradle = new File(root, 'build.gradle') << buildGradleContent
+        def settingsGradle = new File(root, 'settings.gradle') << ''
         def sourceFile = new File(root, 'src/main/java')
         sourceFile.mkdirs()
         if (projectDescriptorExists) {
