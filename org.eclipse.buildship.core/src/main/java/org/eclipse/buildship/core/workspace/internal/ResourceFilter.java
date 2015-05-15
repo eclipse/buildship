@@ -70,11 +70,29 @@ final class ResourceFilter {
     private static void setFilters(IProject project, List<FileInfoMatcherDescription> filters, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Set resource filters for project %s", project), 2);
         try {
+            // get all current filters
+            IResourceFilterDescription[] currentFilters;
+            try {
+                currentFilters = project.getFilters();
+            } catch (CoreException e) {
+                String message = String.format("Cannot retrieve current resource filters for project %s.", project.getName());
+                throw new GradlePluginsRuntimeException(message, e);
+            }
+
+            // delete all current filters
+            for (IResourceFilterDescription filter : currentFilters) {
+                try {
+                    filter.delete(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1));
+                } catch (CoreException e) {
+                    String message = String.format("Cannot delete current resource filter %s.", filter);
+                    throw new GradlePluginsRuntimeException(message, e);
+                }
+            }
             // create the specified filters
             if (!filters.isEmpty()) {
                 try {
-                    project.createFilter(IResourceFilterDescription.EXCLUDE_ALL | IResourceFilterDescription.FOLDERS | IResourceFilterDescription.INHERITABLE,
-                            createCompositeFilter(filters), IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1));
+                    project.createFilter(IResourceFilterDescription.EXCLUDE_ALL | IResourceFilterDescription.FOLDERS | IResourceFilterDescription.INHERITABLE, createCompositeFilter(filters), IResource.BACKGROUND_REFRESH, new SubProgressMonitor(
+                            monitor, 1));
                 } catch (CoreException e) {
                     String message = String.format("Cannot create new resource filters for project %s.", project);
                     throw new GradlePluginsRuntimeException(message, e);
