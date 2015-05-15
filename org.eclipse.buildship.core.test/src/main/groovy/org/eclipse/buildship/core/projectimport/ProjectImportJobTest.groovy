@@ -1,10 +1,14 @@
 package org.eclipse.buildship.core.projectimport
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
+
+import org.eclipse.core.runtime.IPath;
+
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectBuilder
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.gradle.GradleDistributionWrapper
+
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
@@ -75,6 +79,42 @@ class ProjectImportJobTest extends Specification {
         projectDescriptorExists << [false, true]
     }
 
+    def "Imported parent projects have filters to hide the content of the children"() {
+        setup:
+        File rootProject = newMultiProject()
+        ProjectImportJob job = newProjectImportJob(rootProject)
+
+        when:
+        job.schedule()
+        job.join()
+        def project = CorePlugin.workspaceOperations().findProjectByName(rootProject.name).get()
+        def filters = project.getFilters()
+
+        then:
+        filters.length == 1
+        filters[0].fileInfoMatcherDescription.arguments.arguments == ['subproject']
+    }
+
+    def "Importing a project twice won't result in duplicate filters"() {
+        setup:
+        File rootProject = newMultiProject()
+        ProjectImportJob job = newProjectImportJob(rootProject)
+
+        when:
+        job.schedule()
+        job.join()
+        CorePlugin.workspaceOperations().deleteAllProjects()
+        job = newProjectImportJob(rootProject)
+        job.schedule()
+        job.join()
+
+        def project = CorePlugin.workspaceOperations().findProjectByName(rootProject.name).get()
+        def filters = project.getFilters()
+
+        then:
+        filters.length == 1
+    }
+
     def newProject(boolean projectDescriptorExists, boolean applyJavaPlugin) {
         def root = tempFolder.newFolder('simple-project')
         def buildGradle = new File(root, 'build.gradle')
@@ -92,6 +132,19 @@ class ProjectImportJobTest extends Specification {
             }
         }
         root
+    }
+
+    def newMultiProject() {
+        def rootProject = tempFolder.newFolder('multi-project')
+        def rootBuildGradle = new File(rootProject, 'build.gradle')
+        rootBuildGradle << ' '
+        def rootSettingsGradle = new File(rootProject, 'settings.gradle')
+        rootSettingsGradle << 'include "subproject"'
+        def subProject = new File(rootProject, "subproject")
+        subProject.mkdirs()
+        def subBuildGradle = new File(subProject, 'build.gradle')
+        subBuildGradle << ' '
+        rootProject
     }
 
     def newProjectImportJob(File location) {
