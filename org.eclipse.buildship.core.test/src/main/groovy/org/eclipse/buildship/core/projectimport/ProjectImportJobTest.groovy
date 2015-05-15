@@ -117,18 +117,26 @@ class ProjectImportJobTest extends Specification {
 
     def newProject(boolean projectDescriptorExists, boolean applyJavaPlugin) {
         def root = tempFolder.newFolder('simple-project')
-        def buildGradle = new File(root, 'build.gradle')
+        def buildGradleContent = applyJavaPlugin ? 'apply plugin: "java"' : ' '
+        def buildGradle = new File(root, 'build.gradle') << buildGradleContent
         def sourceFile = new File(root, 'src/main/java')
         sourceFile.mkdirs()
-        buildGradle.text = applyJavaPlugin ? "apply plugin: 'java'" : " "
         if (projectDescriptorExists) {
-            def dotProject = new File(root, '.project')
-            dotProject.text = '''<?xml version="1.0" encoding="UTF-8"?><projectDescription><name>simple-project</name><comment>original</comment><projects>
-               </projects><buildSpec></buildSpec><natures></natures></projectDescription>'''
+            def dotProject = new File(root, '.project') << '''<?xml version="1.0" encoding="UTF-8"?>
+                <projectDescription>
+                  <name>simple-project</name>
+                  <comment>original</comment>
+                  <projects></projects>
+                  <buildSpec></buildSpec>
+                  <natures></natures>
+                </projectDescription>'''
             if (applyJavaPlugin) {
-                def dotClasspath = new File(root, '.classpath')
-                dotClasspath.text = '''<?xml version="1.0" encoding="UTF-8"?><classpath><classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-                    <classpathentry kind="src" path="src/main/java"/><classpathentry kind="output" path="bin"/></classpath>'''
+                def dotClasspath = new File(root, '.classpath') << '''<?xml version="1.0" encoding="UTF-8"?>
+                    <classpath>
+                      <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+                      <classpathentry kind="src" path="src/main/java"/>
+                      <classpathentry kind="output" path="bin"/>
+                    </classpath>'''
             }
         }
         root
@@ -136,14 +144,11 @@ class ProjectImportJobTest extends Specification {
 
     def newMultiProject() {
         def rootProject = tempFolder.newFolder('multi-project')
-        def rootBuildGradle = new File(rootProject, 'build.gradle')
-        rootBuildGradle << ' '
-        def rootSettingsGradle = new File(rootProject, 'settings.gradle')
-        rootSettingsGradle << 'include "subproject"'
+        def rootBuildGradle = new File(rootProject, 'build.gradle') << ' '
+        def rootSettingsGradle = new File(rootProject, 'settings.gradle') << 'include "subproject"'
         def subProject = new File(rootProject, "subproject")
         subProject.mkdirs()
-        def subBuildGradle = new File(subProject, 'build.gradle')
-        subBuildGradle << ' '
+        def subBuildGradle = new File(subProject, 'build.gradle') << ' '
         rootProject
     }
 
@@ -153,5 +158,4 @@ class ProjectImportJobTest extends Specification {
         configuration.projectDir = location
         new ProjectImportJob(configuration)
     }
-
 }
