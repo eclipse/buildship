@@ -46,7 +46,7 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
     private final ProjectImportWizardController controller;
 
     // state bit storing that the wizard is blocked to finish globally
-    private boolean finishGloballyEnabled = false;
+    private boolean finishGloballyEnabled;
 
     /**
      * Creates a new instance and uses the {@link org.eclipse.jface.dialogs.DialogSettings} from {@link org.eclipse.buildship.ui.UiPlugin} and the
@@ -78,6 +78,9 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
         this.gradleProjectPage = new GradleProjectWizardPage(configuration);
         this.gradleOptionsPage = new GradleOptionsWizardPage(configuration, publishedGradleVersions);
         this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller);
+
+        // the wizard must not be finishable unless this global flag is enabled
+        this.finishGloballyEnabled = false;
     }
 
     @Override
@@ -116,6 +119,10 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
         return super.canFinish() && this.finishGloballyEnabled;
     }
 
+    public void setFinishGloballyEnabled(boolean finishGloballyEnabled) {
+        this.finishGloballyEnabled = finishGloballyEnabled;
+    }
+
     private static IDialogSettings getOrCreateDialogSection(IDialogSettings dialogSettings) {
         // in Eclipse 3.6 the method DialogSettings#getOrCreateSection does not exist
         IDialogSettings section = dialogSettings.getSection(IMPORT_DIALOG_SETTINGS);
@@ -123,10 +130,6 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
             section = dialogSettings.addNewSection(IMPORT_DIALOG_SETTINGS);
         }
         return section;
-    }
-
-    public void setFinishGloballyEnabled(boolean finishGloballyEnabled) {
-        this.finishGloballyEnabled = finishGloballyEnabled;
     }
 
 }

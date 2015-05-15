@@ -35,7 +35,8 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
     private final Font headerFont;
 
     public GradleWelcomeWizardPage(ProjectImportConfiguration configuration) {
-        super("GradleWelcome", ProjectImportMessages.Title_GradleWelcomeWizardPage, ProjectImportMessages.InfoMessage_GradleWelcomeWizardPageDefault, configuration, ImmutableList.<Property<?>> of()); //$NON-NLS-1$
+        super("GradleWelcome", ProjectImportMessages.Title_GradleWelcomeWizardPage, ProjectImportMessages.InfoMessage_GradleWelcomeWizardPageDefault, //$NON-NLS-1$
+                configuration, ImmutableList.<Property<?>>of());
         this.headerFont = createHeaderFont();
     }
 
@@ -93,8 +94,9 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
     @Override
     public void setVisible(boolean visible) {
         super.setVisible(visible);
-        // when visible then disable the wizard to finish
-        ((ProjectImportWizard)getWizard()).setFinishGloballyEnabled(!visible);
+
+        // if the welcome page is visible, disable the Finish button
+        ((ProjectImportWizard) getWizard()).setFinishGloballyEnabled(!visible);
     }
 
 }
