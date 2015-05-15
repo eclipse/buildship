@@ -49,7 +49,6 @@ public final class ExceptionDetailsDialog extends Dialog {
 
     private Button detailsButton;
     private Control stackTraceArea;
-    private Point cachedWindowSize;
 
     public ExceptionDetailsDialog(Shell shell, String title, String message, String details, int severity, Throwable throwable) {
         super(new SameShellProvider(shell));
@@ -147,10 +146,6 @@ public final class ExceptionDetailsDialog extends Dialog {
     }
 
     private void toggleStacktraceArea() {
-        Point oldWindowSize = getShell().getSize();
-        Point newWindowSize = this.cachedWindowSize;
-        this.cachedWindowSize = oldWindowSize;
-
         // show/hide stacktrace
         if (this.stackTraceArea == null) {
             this.stackTraceArea = createStacktraceArea((Composite) getContents());
@@ -164,9 +159,9 @@ public final class ExceptionDetailsDialog extends Dialog {
         // compute the new window size
         Point oldSize = getContents().getSize();
         Point newSize = getContents().computeSize(SWT.DEFAULT, SWT.DEFAULT);
-        if (newWindowSize == null) {
-            newWindowSize = new Point(oldWindowSize.x, oldWindowSize.y + (newSize.y - oldSize.y));
-        }
+
+        Point oldWindowSize = getShell().getSize();
+        Point newWindowSize = new Point(oldWindowSize.x, oldWindowSize.y + (newSize.y - oldSize.y));
 
         // crop new window size to screen
         Point windowLocation = getShell().getLocation();
