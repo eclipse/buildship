@@ -29,7 +29,7 @@ public class ImportProjectWizardUiTest extends AbstractSwtbotTest {
         bot.button("Next >").click();
 
         // if the wizard was opened the label is available, otherwise a WidgetNotFoundException is thrown
-        bot.label("Project root directory");
+        bot.styledText(ProjectImportMessages.InfoMessage_GradleWelcomeWizardPageContext);
 
         // cancel the wizard
         bot.button("Cancel").click();
