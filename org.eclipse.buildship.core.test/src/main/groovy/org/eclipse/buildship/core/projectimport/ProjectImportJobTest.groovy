@@ -117,7 +117,7 @@ class ProjectImportJobTest extends Specification {
 
     def newProject(boolean projectDescriptorExists, boolean applyJavaPlugin) {
         def root = tempFolder.newFolder('simple-project')
-        def buildGradleContent = applyJavaPlugin ? 'apply plugin: "java"' : ' '
+        def buildGradleContent = applyJavaPlugin ? 'apply plugin: "java"' : ''
         def buildGradle = new File(root, 'build.gradle') << buildGradleContent
         def settingsGradle = new File(root, 'settings.gradle') << ''
         def sourceFile = new File(root, 'src/main/java')
@@ -145,11 +145,11 @@ class ProjectImportJobTest extends Specification {
 
     def newMultiProject() {
         def rootProject = tempFolder.newFolder('multi-project')
-        def rootBuildGradle = new File(rootProject, 'build.gradle') << ' '
+        def rootBuildGradle = new File(rootProject, 'build.gradle') << ''
         def rootSettingsGradle = new File(rootProject, 'settings.gradle') << 'include "subproject"'
         def subProject = new File(rootProject, "subproject")
         subProject.mkdirs()
-        def subBuildGradle = new File(subProject, 'build.gradle') << ' '
+        def subBuildGradle = new File(subProject, 'build.gradle') << ''
         rootProject
     }
 
