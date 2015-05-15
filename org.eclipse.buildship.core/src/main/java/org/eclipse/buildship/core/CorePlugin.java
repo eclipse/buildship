@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
+ *     Simon Scholz (vogella GmbH) - Bug 465723
  */
 
 package org.eclipse.buildship.core;
@@ -31,6 +32,8 @@ import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
 import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigurationManager;
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.console.internal.StdProcessStreamsProvider;
+import org.eclipse.buildship.core.event.ListenerRegistry;
+import org.eclipse.buildship.core.event.internal.DefaultListenerRegistry;
 import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.notification.UserNotification;
@@ -41,20 +44,14 @@ import org.eclipse.buildship.core.workspace.internal.DefaultWorkspaceOperations;
 
 /**
  * The plug-in runtime class for the Gradle integration plugin containing the non-UI elements.
- * <p>
+ * <p/>
  * This class is automatically instantiated by the Eclipse runtime and wired through the
  * <tt>Bundle-Activator</tt> entry in the <tt>META-INF/MANIFEST.MF</tt> file. The registered
  * instance can be obtained during runtime through the {@link CorePlugin#getInstance()} method.
- * <p>
- * Moreover, this is the entry point for accessing associated services:
- * <ul>
- * <li>{@link #modelRepositoryProvider()}: toolingmodel entry point</li>
- * <li>{@link #logger()}: logging facility</li>
- * <li>{@link #workspaceOperations()}: workspace operations to add/modify/delete projects in the
- * workspace</li>
- * <li>{@link #publishedGradleVersions()}: to retrieve all released Gradle versions</li>
- * </ul>
- * <p>
+ * <p/>
+ * Moreover, this is the entry point for accessing associated services. All service references
+ * are accessible via static methods on this class.
+ * <p/>
  * The {@link #start(BundleContext)} and {@link #stop(BundleContext)} methods' responsibility is to
  * assign and free the managed services along the plugin runtime lifecycle.
  */
@@ -75,6 +72,7 @@ public final class CorePlugin extends Plugin {
     private ServiceRegistration projectConfigurationManagerService;
     private ServiceRegistration processStreamsProviderService;
     private ServiceRegistration gradleLaunchConfigurationService;
+    private ServiceRegistration listenerRegistryService;
     private ServiceRegistration userNotificationService;
 
     // service tracker for each service to allow to register other service implementations of the
@@ -87,6 +85,7 @@ public final class CorePlugin extends Plugin {
     private ServiceTracker projectConfigurationManagerServiceTracker;
     private ServiceTracker processStreamsProviderServiceTracker;
     private ServiceTracker gradleLaunchConfigurationServiceTracker;
+    private ServiceTracker listenerRegistryServiceTracker;
     private ServiceTracker userNotificationServiceTracker;
 
     @Override
@@ -118,6 +117,7 @@ public final class CorePlugin extends Plugin {
         this.projectConfigurationManagerServiceTracker = createServiceTracker(context, ProjectConfigurationManager.class);
         this.processStreamsProviderServiceTracker = createServiceTracker(context, ProcessStreamsProvider.class);
         this.gradleLaunchConfigurationServiceTracker = createServiceTracker(context, GradleLaunchConfigurationManager.class);
+        this.listenerRegistryServiceTracker = createServiceTracker(context, ListenerRegistry.class);
         this.userNotificationServiceTracker = createServiceTracker(context, UserNotification.class);
 
         // register all services
@@ -129,6 +129,7 @@ public final class CorePlugin extends Plugin {
         this.projectConfigurationManagerService = registerService(context, ProjectConfigurationManager.class, createProjectConfigurationManager(), preferences);
         this.processStreamsProviderService = registerService(context, ProcessStreamsProvider.class, createProcessStreamsProvider(), preferences);
         this.gradleLaunchConfigurationService = registerService(context, GradleLaunchConfigurationManager.class, createGradleLaunchConfigurationManager(), preferences);
+        this.listenerRegistryService = registerService(context, ListenerRegistry.class, createListenerRegistry(), preferences);
         this.userNotificationService = registerService(context, UserNotification.class, createUserNotification(), preferences);
     }
 
@@ -176,12 +177,17 @@ public final class CorePlugin extends Plugin {
         return new DefaultGradleLaunchConfigurationManager();
     }
 
+    private ListenerRegistry createListenerRegistry() {
+        return new DefaultListenerRegistry();
+    }
+
     private UserNotification createUserNotification() {
         return new ConsoleUserNotification();
     }
 
     private void unregisterServices() {
         this.userNotificationService.unregister();
+        this.listenerRegistryService.unregister();
         this.gradleLaunchConfigurationService.unregister();
         this.processStreamsProviderService.unregister();
         this.projectConfigurationManagerService.unregister();
@@ -192,6 +198,7 @@ public final class CorePlugin extends Plugin {
         this.loggerService.unregister();
 
         this.userNotificationServiceTracker.close();
+        this.listenerRegistryServiceTracker.close();
         this.gradleLaunchConfigurationServiceTracker.close();
         this.processStreamsProviderServiceTracker.close();
         this.projectConfigurationManagerServiceTracker.close();
@@ -236,6 +243,10 @@ public final class CorePlugin extends Plugin {
 
     public static GradleLaunchConfigurationManager gradleLaunchConfigurationManager() {
         return (GradleLaunchConfigurationManager) getInstance().gradleLaunchConfigurationServiceTracker.getService();
+    }
+
+    public static ListenerRegistry listenerRegistry() {
+        return (ListenerRegistry) getInstance().listenerRegistryServiceTracker.getService();
     }
 
     public static UserNotification userNotification() {
