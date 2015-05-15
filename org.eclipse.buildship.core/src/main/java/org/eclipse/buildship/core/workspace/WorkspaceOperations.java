@@ -18,6 +18,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
 
@@ -44,6 +45,16 @@ public interface WorkspaceOperations {
     Optional<IProject> findProjectByName(String name);
 
     /**
+     * Returns the Eclipse project at the given physical location, if it exists. Looks for a <i>.project</i>
+     * file in the given folder.
+     *
+     * @param location the physical location where to look for an existing Eclipse project
+     * @param monitor  the monitor to report progress on
+     * @return the found Eclipse project, otherwise {@link Optional#absent()}
+     */
+    Optional<IProjectDescription> findProjectInFolder(File location, IProgressMonitor monitor);
+
+    /**
      * Removes all of the workspace's projects.
      *
      * @param monitor the monitor to report progress on
@@ -51,7 +62,7 @@ public interface WorkspaceOperations {
      */
     void deleteAllProjects(IProgressMonitor monitor);
 
-    /**
+   /**
      * Creates a new {@link IProject} in the workspace using the specified name and location. The
      * location must exist and no project with the specified name must currently exist in the
      * workspace. The new project gets the specified natures applied. Those child projects whose
@@ -67,6 +78,18 @@ public interface WorkspaceOperations {
      * @throws org.eclipse.buildship.core.GradlePluginsRuntimeException thrown if the project creation fails
      */
     IProject createProject(String name, File location, List<File> childProjectLocations, List<String> natureIds, IProgressMonitor monitor);
+
+    /**
+     * Includes an existing Eclipse project in the workspace. The project is also opened and the
+     * specified natures are added.
+     *
+     * @param description the project to include
+     * @param extraNatureIds the nature ids to add to the project
+     * @param monitor the monitor to report the progress on
+     * @return the included project
+     * @throws org.eclipse.buildship.core.GradlePluginsRuntimeException thrown if the project inclusion fails
+     */
+    IProject includeProject(IProjectDescription description, ImmutableList<String> extraNatureIds, IProgressMonitor monitor);
 
     /**
      * Configures an existing {@link IProject} to be a {@link IJavaProject}.
