@@ -74,7 +74,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     private Tree projectPreviewTree;
 
     public ProjectPreviewWizardPage(ProjectImportWizardController controller) {
-        super("PreviewImport", ProjectImportMessages.Title_PreviewImportWizardPage, ProjectImportMessages.InfoMessage_PreviewImportWizardPageDefault, //$NON-NLS-1$
+        super("ProjectPreview", ProjectImportMessages.Title_PreviewImportWizardPage, ProjectImportMessages.InfoMessage_PreviewImportWizardPageDefault, //$NON-NLS-1$
                 controller.getConfiguration(), ImmutableList.<Property<?>> of());
         this.controller = controller;
         this.keyFont = FontUtils.getCustomDialogFont(SWT.BOLD);

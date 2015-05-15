@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingutils.binding.Property;
 
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
@@ -33,18 +34,17 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
 
     private final Font headerFont;
 
-    public GradleWelcomeWizardPage() {
-        super("Welcome", ProjectImportMessages.Title_GradleWelcomeWizardPage, "", null, ImmutableList.<Property<?>> of()); //$NON-NLS-1$
+    public GradleWelcomeWizardPage(ProjectImportConfiguration configuration) {
+        super("GradleWelcome", ProjectImportMessages.Title_GradleWelcomeWizardPage, "Learn how to make best use of the Gradle project import wizard.", configuration, ImmutableList.<Property<?>> of()); //$NON-NLS-1$
         this.headerFont = createHeaderFont();
     }
 
     private Font createHeaderFont() {
         FontData[] fontData = JFaceResources.getDialogFont().getFontData();
-        for (int i = 0; i < fontData.length; i++) {
-            fontData[i].setHeight(18);
+        for (FontData font : fontData) {
+            font.setHeight(18);
         }
-        Font headerFont = new Font(Display.getDefault(), fontData);
-        return headerFont;
+        return new Font(Display.getDefault(), fontData);
     }
 
     @Override

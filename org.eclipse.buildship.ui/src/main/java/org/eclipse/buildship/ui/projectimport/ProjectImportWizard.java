@@ -71,7 +71,7 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
         // instantiate the pages and pass the configuration object that serves as the data model of
         // the wizard
         ProjectImportConfiguration configuration = this.controller.getConfiguration();
-        this.welcomeWizardPage = new GradleWelcomeWizardPage();
+        this.welcomeWizardPage = new GradleWelcomeWizardPage(configuration);
         this.gradleProjectPage = new GradleProjectWizardPage(configuration);
         this.gradleOptionsPage = new GradleOptionsWizardPage(configuration, publishedGradleVersions);
         this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller);
