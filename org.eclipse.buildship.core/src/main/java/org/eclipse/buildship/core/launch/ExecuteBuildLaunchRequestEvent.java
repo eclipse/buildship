@@ -21,7 +21,9 @@ import org.eclipse.buildship.core.event.Event;
  */
 public interface ExecuteBuildLaunchRequestEvent extends Event {
 
-    BuildLaunchRequest getRequest();
+    BuildLaunchRequest getBuildLaunchRequest();
+
+    GradleRunConfigurationAttributes getRunConfigurationAttributes();
 
     String getProcessName();
 
