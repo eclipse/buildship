@@ -20,6 +20,7 @@ public final class ProjectImportMessages extends NLS {
 
     private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.projectimport.ProjectImportMessages"; //$NON-NLS-1$
 
+    public static String Title_GradleWelcomeWizardPage;
     public static String Title_GradleProjectWizardPage;
     public static String Title_GradleOptionsWizardPage;
     public static String Title_PreviewImportWizardPage;
@@ -43,6 +44,7 @@ public final class ProjectImportMessages extends NLS {
     public static String InfoMessage_GradleOptionsWizardPageDefault;
     public static String InfoMessage_PreviewImportWizardPageDefault;
 
+    public static String InfoMessage_GradleWelcomeWizardPageContext;
     public static String InfoMessage_GradleProjectWizardPageContext;
     public static String InfoMessage_GradleOptionsWizardPageContext;
     public static String InfoMessage_GradlePreviewWizardPageContext;

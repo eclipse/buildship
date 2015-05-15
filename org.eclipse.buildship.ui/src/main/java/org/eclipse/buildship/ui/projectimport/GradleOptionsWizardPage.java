@@ -48,7 +48,7 @@ import org.eclipse.buildship.ui.util.selection.Enabler;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
 
 /**
- * Second page on the {@link ProjectImportWizard} declaring the used Gradle distribution and other advanced options for the imported project.
+ * Page on the {@link ProjectImportWizard} declaring the used Gradle distribution and other advanced options for the imported project.
  */
 public final class GradleOptionsWizardPage extends AbstractWizardPage {
 

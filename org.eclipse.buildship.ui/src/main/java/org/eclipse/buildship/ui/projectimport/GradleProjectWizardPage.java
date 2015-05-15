@@ -30,8 +30,7 @@ import org.eclipse.buildship.ui.util.layout.LayoutUtils;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
 
 /**
- * First page in the {@link ProjectImportWizard} specifying the Gradle root project folder to
- * import.
+ * Page in the {@link ProjectImportWizard} specifying the Gradle root project folder to import.
  */
 public final class GradleProjectWizardPage extends AbstractWizardPage {
 

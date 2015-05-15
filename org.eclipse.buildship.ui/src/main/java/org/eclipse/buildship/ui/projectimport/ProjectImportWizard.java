@@ -37,6 +37,7 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
     private static final String IMPORT_DIALOG_SETTINGS = "org.eclipse.buildship.ui.projectimport"; //$NON-NLS-1$
 
     // the pages to display in the wizard
+    private final GradleWelcomeWizardPage welcomeWizardPage;
     private final GradleProjectWizardPage gradleProjectPage;
     private final GradleOptionsWizardPage gradleOptionsPage;
     private final ProjectPreviewWizardPage projectPreviewPage;
@@ -70,6 +71,7 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
         // instantiate the pages and pass the configuration object that serves as the data model of
         // the wizard
         ProjectImportConfiguration configuration = this.controller.getConfiguration();
+        this.welcomeWizardPage = new GradleWelcomeWizardPage();
         this.gradleProjectPage = new GradleProjectWizardPage(configuration);
         this.gradleOptionsPage = new GradleOptionsWizardPage(configuration, publishedGradleVersions);
         this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller);
@@ -88,6 +90,7 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
     @Override
     public void addPages() {
         // assign wizard pages to this wizard
+        addPage(this.welcomeWizardPage);
         addPage(this.gradleProjectPage);
         addPage(this.gradleOptionsPage);
         addPage(this.projectPreviewPage);

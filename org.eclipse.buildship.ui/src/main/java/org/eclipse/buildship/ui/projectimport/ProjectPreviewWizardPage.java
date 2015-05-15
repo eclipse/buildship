@@ -55,7 +55,7 @@ import org.eclipse.buildship.ui.util.layout.LayoutUtils;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
 
 /**
- * Fourth page in the {@link ProjectImportWizard} showing a preview about the project about to be
+ * Page in the {@link ProjectImportWizard} showing a preview about the project about to be
  * imported.
  */
 public final class ProjectPreviewWizardPage extends AbstractWizardPage {
