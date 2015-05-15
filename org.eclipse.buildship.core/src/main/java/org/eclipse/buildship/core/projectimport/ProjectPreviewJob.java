@@ -13,7 +13,6 @@ package org.eclipse.buildship.core.projectimport;
 
 import java.util.List;
 
-import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.events.build.BuildProgressListener;
 import org.gradle.tooling.events.task.TaskProgressListener;
@@ -32,25 +31,23 @@ import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 import com.gradleware.tooling.toolingmodel.util.Pair;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessStreams;
-import org.eclipse.buildship.core.util.progress.ToolingApiJob;
+import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 
 /**
  * A job that fetches the models required for the project import preview.
  */
-public final class ProjectPreviewJob extends ToolingApiJob {
+public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
 
     private final FixedRequestAttributes fixedAttributes;
     private final TransientRequestAttributes transientAttributes;
 
-    private Optional<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> result;
+    private Optional<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> result = Optional.absent();
 
     public ProjectPreviewJob(ProjectImportConfiguration configuration, List<ProgressListener> listeners,
             final FutureCallback<Optional<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>>> resultHandler) {
@@ -76,18 +73,9 @@ public final class ProjectPreviewJob extends ToolingApiJob {
     }
 
     @Override
-    protected IStatus run(IProgressMonitor monitor) {
+    public void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
         try {
             this.result = previewProject(monitor);
-            return Status.OK_STATUS;
-        } catch (BuildCancelledException e) {
-            // if the job was cancelled by the user, do not show an error dialog
-            CorePlugin.logger().info(e.getMessage());
-            this.result = Optional.absent();
-            return Status.CANCEL_STATUS;
-        } catch (Exception e) {
-            this.result = null;
-            return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, "Loading the project preview failed.", e);
         } finally {
             monitor.done();
         }
