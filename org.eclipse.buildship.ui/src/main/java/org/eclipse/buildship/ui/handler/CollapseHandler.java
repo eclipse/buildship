@@ -8,7 +8,7 @@
  * Contributors:
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - refactoring and integration
-*/
+ */
 
 package org.eclipse.buildship.ui.handler;
 

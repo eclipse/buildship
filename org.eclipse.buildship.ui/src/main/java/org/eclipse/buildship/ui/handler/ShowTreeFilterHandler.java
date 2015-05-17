@@ -33,6 +33,7 @@ public final class ShowTreeFilterHandler extends AbstractHandler implements IEle
 
     private static final String COMMAND_TOGGLE_STATE_ID = "org.eclipse.ui.commands.toggleState";
 
+    @SuppressWarnings("rawtypes")
     @Override
     public void updateElement(UIElement element, Map parameters) {
         IWorkbenchPart activePart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
