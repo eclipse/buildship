@@ -17,12 +17,13 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.part.TreeHeaderAwareState;
 
 /**
  * Represents the (persistable) configuration state of the {@link TaskView}. Backed by the Eclipse
  * Preferences API.
  */
-public final class TaskViewState {
+public final class TaskViewState implements TreeHeaderAwareState {
 
     private static final String PREF_PROJECT_TASKS_VISIBLE = "tasksView.projectTasksVisible";
     private static final String PREF_TASK_SELECTORS_VISIBLE = "tasksView.taskSelectorsVisible";

@@ -167,7 +167,7 @@
             class="org.eclipse.buildship.ui.taskview.OpenBuildScriptHandler">
       </handler>
       <handler
-            class="org.eclipse.buildship.ui.handler.ShowViewerHeaderHandler"
+            class="org.eclipse.buildship.ui.handler.ShowTreeHeaderHandler"
             commandId="org.eclipse.buildship.ui.commands.showtreeheader">
       </handler>
       <handler
