@@ -58,4 +58,8 @@ public final class ExecutionsViewState implements TreeHeaderAwareState {
         this.showTreeHeader = showTreeHeader;
     }
 
+    public void dispose() {
+        save();
+    }
+
 }
