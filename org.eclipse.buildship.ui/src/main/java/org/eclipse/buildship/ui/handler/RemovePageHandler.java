@@ -30,9 +30,9 @@ public final class RemovePageHandler extends AbstractHandler {
     public void setEnabled(Object evaluationContext) {
         boolean enabled = false;
         if (evaluationContext instanceof IEvaluationContext) {
-            Object workbenchPart = ((IEvaluationContext) evaluationContext).getVariable(ISources.ACTIVE_PART_NAME);
-            if (workbenchPart instanceof AbstractPagePart) {
-                enabled = ((AbstractPagePart) workbenchPart).getCurrentPage() != null;
+            Object activePart = ((IEvaluationContext) evaluationContext).getVariable(ISources.ACTIVE_PART_NAME);
+            if (activePart instanceof AbstractPagePart) {
+                enabled = ((AbstractPagePart) activePart).getCurrentPage() != null;
             }
         }
         setBaseEnabled(enabled);

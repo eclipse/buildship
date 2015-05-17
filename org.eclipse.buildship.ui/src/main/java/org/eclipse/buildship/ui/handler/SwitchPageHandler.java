@@ -34,9 +34,9 @@ public final class SwitchPageHandler extends AbstractHandler {
     public void setEnabled(Object evaluationContext) {
         boolean enabled = false;
         if (evaluationContext instanceof IEvaluationContext) {
-            Object workbenchPart = ((IEvaluationContext) evaluationContext).getVariable(ISources.ACTIVE_PART_NAME);
-            if (workbenchPart instanceof AbstractPagePart) {
-                enabled = ((AbstractPagePart) workbenchPart).hasPages();
+            Object activePart = ((IEvaluationContext) evaluationContext).getVariable(ISources.ACTIVE_PART_NAME);
+            if (activePart instanceof AbstractPagePart) {
+                enabled = ((AbstractPagePart) activePart).hasPages();
             }
         }
         setBaseEnabled(enabled);
