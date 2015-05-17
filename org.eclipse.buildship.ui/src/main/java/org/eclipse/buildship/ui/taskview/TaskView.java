@@ -23,6 +23,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
 
@@ -53,11 +55,16 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
     private TreeViewer treeViewer;
 
     @Override
-    public void createPartControl(Composite parent) {
+    public void init(IViewSite site) throws PartInitException {
+        super.init(site);
+
         // load the persisted state before we create any UI components that query for some state
         this.state = new TaskViewState();
         this.state.load();
+    }
 
+    @Override
+    public void createPartControl(Composite parent) {
         // the top-level control changing its content depending on whether the content provider
         // contains task data to display or not
         this.pages = new PageBook(parent, SWT.NONE);
