@@ -24,13 +24,13 @@ import org.eclipse.buildship.ui.UiPlugin;
  */
 public final class TaskViewState {
 
-    private static final String PREF_PROJECT_TASKS_VISIBLE = "taskview.projectTasksVisible";
-    private static final String PREF_TASK_SELECTORS_VISIBLE = "taskview.taskSelectorsVisible";
-    private static final String PREF_PRIVATE_TASKS_VISIBLE = "taskview.privateTasksVisible";
-    private static final String PREF_SORT_BY_TYPE = "taskView.sortByType";
-    private static final String PREF_SORT_BY_VISIBILITY = "taskView.sortByVisibility";
-    private static final String PREF_LINK_TO_SELECTION = "taskview.linkToSelection";
-    private static final String PREF_SHOW_TREE_HEADER = "taskView.showTreeHeader";
+    private static final String PREF_PROJECT_TASKS_VISIBLE = "tasksView.projectTasksVisible";
+    private static final String PREF_TASK_SELECTORS_VISIBLE = "tasksView.taskSelectorsVisible";
+    private static final String PREF_PRIVATE_TASKS_VISIBLE = "tasksView.privateTasksVisible";
+    private static final String PREF_SORT_BY_TYPE = "tasksView.sortByType";
+    private static final String PREF_SORT_BY_VISIBILITY = "tasksView.sortByVisibility";
+    private static final String PREF_LINK_TO_SELECTION = "tasksView.linkToSelection";
+    private static final String PREF_SHOW_TREE_HEADER = "tasksView.showTreeHeader";
 
     private boolean projectTasksVisible;
     private boolean taskSelectorsVisible;
