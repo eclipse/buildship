@@ -49,7 +49,7 @@
             id="org.eclipse.buildship.ui.views.taskview"
             class="org.eclipse.buildship.ui.taskview.TaskView"
             category="org.eclipse.buildship.ui.views"
-            icon="icons/full/eview16/tasks.png"
+            icon="icons/full/eview16/tasks_view.png"
             name="Gradle Tasks"
             restorable="true">
       </view>
