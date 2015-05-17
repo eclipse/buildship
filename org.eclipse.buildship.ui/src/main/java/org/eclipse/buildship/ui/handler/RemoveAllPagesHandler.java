@@ -16,6 +16,8 @@ import org.eclipse.buildship.ui.part.AbstractPagePart;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.expressions.IEvaluationContext;
+import org.eclipse.ui.ISources;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
@@ -23,6 +25,18 @@ import org.eclipse.ui.handlers.HandlerUtil;
  * Removes all pages from an {@link AbstractPagePart}.
  */
 public final class RemoveAllPagesHandler extends AbstractHandler {
+
+    @Override
+    public void setEnabled(Object evaluationContext) {
+        boolean enabled = false;
+        if (evaluationContext instanceof IEvaluationContext) {
+            Object workbenchPart = ((IEvaluationContext) evaluationContext).getVariable(ISources.ACTIVE_PART_NAME);
+            if (workbenchPart instanceof AbstractPagePart) {
+                enabled = ((AbstractPagePart) workbenchPart).hasPages();
+            }
+        }
+        setBaseEnabled(enabled);
+    }
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {

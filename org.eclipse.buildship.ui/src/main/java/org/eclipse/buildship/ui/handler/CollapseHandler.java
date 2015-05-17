@@ -28,6 +28,12 @@ import java.util.List;
 public final class CollapseHandler extends AbstractHandler {
 
     @Override
+    public void setEnabled(Object evaluationContext) {
+        super.setEnabled(evaluationContext);
+        // always enabled
+    }
+
+    @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
         if (activePart instanceof ViewerProvider) {
