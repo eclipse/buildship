@@ -16,7 +16,9 @@ import org.eclipse.buildship.ui.part.ViewerProvider;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.expressions.IEvaluationContext;
 import org.eclipse.jface.viewers.*;
+import org.eclipse.ui.ISources;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
@@ -29,16 +31,24 @@ public final class CollapseHandler extends AbstractHandler {
 
     @Override
     public void setEnabled(Object evaluationContext) {
-        super.setEnabled(evaluationContext);
-        // always enabled
+        boolean enabled = false;
+        if (evaluationContext instanceof IEvaluationContext) {
+            Object activePart = ((IEvaluationContext) evaluationContext).getVariable(ISources.ACTIVE_PART_NAME);
+            if (activePart instanceof ViewerProvider) {
+                ViewerProvider viewerProvider = (ViewerProvider) activePart;
+                Viewer viewer = viewerProvider.getViewer();
+                enabled = viewer instanceof AbstractTreeViewer;
+            }
+        }
+        setBaseEnabled(enabled);
     }
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
         if (activePart instanceof ViewerProvider) {
-            ViewerProvider viewerPart = (ViewerProvider) activePart;
-            Viewer viewer = viewerPart.getViewer();
+            ViewerProvider viewerProvider = (ViewerProvider) activePart;
+            Viewer viewer = viewerProvider.getViewer();
             if (viewer instanceof AbstractTreeViewer) {
                 AbstractTreeViewer treeViewer = (AbstractTreeViewer) viewer;
                 ISelection selection = HandlerUtil.getCurrentSelection(event);
