@@ -14,6 +14,7 @@ package org.eclipse.buildship.ui.projectimport;
 import java.io.File;
 import java.util.List;
 
+import org.eclipse.ui.PlatformUI;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Optional;
@@ -31,7 +32,6 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
 
 import org.eclipse.buildship.core.gradle.GradleConnectionValidators;
@@ -164,7 +164,7 @@ public final class ProjectImportWizardController {
     }
 
     private void ensureTaskViewIsActive() {
-        Display.getDefault().asyncExec(new Runnable() {
+        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
             @Override
             public void run() {

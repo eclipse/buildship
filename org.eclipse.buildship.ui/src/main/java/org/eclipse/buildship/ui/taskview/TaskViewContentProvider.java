@@ -13,6 +13,7 @@ package org.eclipse.buildship.ui.taskview;
 
 import java.util.List;
 
+import org.eclipse.ui.PlatformUI;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
@@ -42,7 +43,6 @@ import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.swt.widgets.Display;
 
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
@@ -199,7 +199,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         public void accept(Optional<OmniEclipseGradleBuild> eclipseGradleBuild) {
             // refresh the content of the task view to display the results
             // (refresh regardless of whether the mode was loaded successfully or not)
-            Display.getDefault().asyncExec(new Runnable() {
+            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
                 @Override
                 public void run() {

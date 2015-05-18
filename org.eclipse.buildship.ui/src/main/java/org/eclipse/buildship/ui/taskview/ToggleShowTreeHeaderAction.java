@@ -16,8 +16,8 @@ import com.google.common.base.Preconditions;
 import org.eclipse.buildship.ui.part.TreeViewerState;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * An action on the {@link TaskView} to toggle whether to show/hide the tree header.
@@ -45,7 +45,7 @@ public final class ToggleShowTreeHeaderAction extends Action {
     }
 
     private void updateHeaderVisibility() {
-        Display.getDefault().asyncExec(new Runnable() {
+        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
             @Override
             public void run() {

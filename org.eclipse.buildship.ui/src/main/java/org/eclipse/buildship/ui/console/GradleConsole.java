@@ -24,7 +24,7 @@ import org.eclipse.debug.internal.ui.DebugUIPlugin;
 import org.eclipse.debug.internal.ui.preferences.IDebugPreferenceConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IOConsole;
 import org.eclipse.ui.console.IOConsoleInputStream;
 import org.eclipse.ui.console.IOConsoleOutputStream;
@@ -57,7 +57,7 @@ public final class GradleConsole extends IOConsole implements ProcessStreams {
         this.inputStream = super.getInputStream();
 
         // set proper colors on output/error streams (needs to happen in the UI thread)
-        Display.getDefault().asyncExec(new Runnable() {
+        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
             @SuppressWarnings("restriction")
             @Override
@@ -72,7 +72,7 @@ public final class GradleConsole extends IOConsole implements ProcessStreams {
                 GradleConsole.this.errorStream.setColor(errorColor);
 
                 // assign a static color to the configuration output stream
-                Color configurationColor = Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY);
+                Color configurationColor = PlatformUI.getWorkbench().getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY);
                 GradleConsole.this.configurationStream.setColor(configurationColor);
             }
         });

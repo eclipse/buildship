@@ -25,7 +25,7 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * First page in the {@link ProjectImportWizard} displaying a welcome message.
@@ -45,7 +45,7 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
         for (FontData font : fontData) {
             font.setHeight(18);
         }
-        return new Font(Display.getDefault(), fontData);
+        return new Font(PlatformUI.getWorkbench().getDisplay(), fontData);
     }
 
     @Override

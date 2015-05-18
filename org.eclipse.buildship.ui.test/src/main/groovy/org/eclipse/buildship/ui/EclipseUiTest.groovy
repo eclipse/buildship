@@ -11,14 +11,14 @@
 
 package org.eclipse.buildship.ui
 
-import org.eclipse.swt.widgets.Display;
-
+import org.eclipse.ui.PlatformUI;
 import spock.lang.Specification;
 
 class EclipseUiTest extends Specification {
 
     def "Ui tests can run as Spock tests"() {
         expect:
-        Display.getDefault() != null
+        PlatformUI.getWorkbench().getDisplay() != null
     }
+
 }

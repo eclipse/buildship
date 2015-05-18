@@ -18,7 +18,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * Tracks the creation/deletion of projects in the workspace and updates the {@link TaskView}
@@ -64,7 +64,7 @@ public final class WorkspaceProjectsChangeListener implements IResourceChangeLis
     }
 
     private void notifyAboutProjectAddition(final IProject project) {
-        Display.getDefault().asyncExec(new Runnable() {
+        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
             @Override
             public void run() {
@@ -74,7 +74,7 @@ public final class WorkspaceProjectsChangeListener implements IResourceChangeLis
     }
 
     private void notifyAboutProjectRemoval(final IProject project) {
-        Display.getDefault().asyncExec(new Runnable() {
+        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
             @Override
             public void run() {

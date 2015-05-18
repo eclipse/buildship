@@ -11,10 +11,10 @@
 
 package org.eclipse.buildship.ui.notification;
 
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import org.eclipse.buildship.core.notification.UserNotification;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * Implementation of the {@link UserNotification} interface that displays all notifications in a dialog.
@@ -23,11 +23,11 @@ public final class DialogUserNotification implements UserNotification {
 
     @Override
     public void errorOccurred(final String headline, final String message, final String details, final int severity, final Throwable throwable) {
-        Display.getDefault().syncExec(new Runnable() {
+        PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 
             @Override
             public void run() {
-                Shell shell = Display.getDefault().getActiveShell();
+                Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
                 ExceptionDetailsDialog dialog = new ExceptionDetailsDialog(shell, headline,  message, details, severity, throwable);
                 dialog.open();
             }

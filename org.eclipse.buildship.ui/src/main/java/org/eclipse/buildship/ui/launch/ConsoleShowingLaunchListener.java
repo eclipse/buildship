@@ -21,8 +21,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchListener;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * {@link ILaunchListener} implementation showing/activating the Console View when a new Gradle build has launched and the {@link
@@ -38,7 +38,7 @@ public final class ConsoleShowingLaunchListener implements ILaunchListener {
         if (attributes.isPresent() && attributes.get().isShowConsoleView()) {
             // if both the build progress view and the console view should be shown, do not activate the console view
             final int mode = attributes.get().isShowExecutionView() ? IWorkbenchPage.VIEW_VISIBLE : IWorkbenchPage.VIEW_ACTIVATE;
-            Display.getDefault().asyncExec(new Runnable() {
+            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
                 @Override
                 public void run() {
