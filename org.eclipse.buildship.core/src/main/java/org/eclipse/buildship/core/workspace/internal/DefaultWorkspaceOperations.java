@@ -78,7 +78,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             for (IProject project : allProjects) {
                 try {
                     // don't delete the project from the file system, only from the workspace
-                    // moreover force the removal even the object is out-of-sync with the file system
+                    // moreover, force the removal even if the object is out-of-sync with the file system
                     project.delete(false, true, new SubProgressMonitor(monitor, 100 / allProjects.size()));
                 } catch (Exception e) {
                     String message = String.format("Cannot delete project %s.", project.getName());
