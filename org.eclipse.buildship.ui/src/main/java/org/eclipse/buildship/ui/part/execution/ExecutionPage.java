@@ -31,9 +31,9 @@ import org.eclipse.buildship.ui.part.FilteredTreeProvider;
 import org.eclipse.buildship.ui.part.IPage;
 import org.eclipse.buildship.ui.part.SelectionProviderProvider;
 import org.eclipse.buildship.ui.part.execution.model.OperationItem;
+import org.eclipse.buildship.ui.part.execution.model.OperationItemPatternFilter;
 import org.eclipse.buildship.ui.part.execution.model.internal.ExecutionChildrenListProperty;
 import org.eclipse.buildship.ui.viewer.FilteredTree;
-import org.eclipse.buildship.ui.viewer.PatternFilter;
 import org.eclipse.buildship.ui.viewer.labelprovider.ObservableMapCellWithIconLabelProvider;
 
 /**
@@ -57,7 +57,7 @@ public final class ExecutionPage implements IPage, FilteredTreeProvider,Selectio
 
     @Override
     public void createPage(Composite parent) {
-        this.filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, new PatternFilter());
+        this.filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, new OperationItemPatternFilter());
         this.filteredTree.setShowFilterControls(false);
         this.filteredTree.getViewer().getTree().setHeaderVisible(this.state.isShowTreeHeader());
 
