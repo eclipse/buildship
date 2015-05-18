@@ -38,6 +38,7 @@ public final class SwitchPageHandler extends AbstractHandler implements IElement
     public static final String SWITCH_PAGE_COMMAND_ID = "org.eclipse.buildship.ui.commands.switchpage"; //$NON-NLS-1$
     public static final String PAGE_INDEX_PARAM = "org.eclipse.buildship.ui.commandParameters.pageindex"; //$NON-NLS-1$
 
+    @SuppressWarnings("rawtypes")
     @Override
     public void updateElement(UIElement element, Map parameters) {
         IWorkbenchPart activePart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
