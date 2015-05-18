@@ -57,7 +57,7 @@ public final class ExecutionPage implements IPage, FilteredTreeProvider,Selectio
 
     @Override
     public void createPage(Composite parent) {
-        this.filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, new PatternFilter());
+        this.filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, new PatternFilter());
         this.filteredTree.setShowFilterControls(false);
         this.filteredTree.getViewer().getTree().setHeaderVisible(this.state.isShowTreeHeader());
 
