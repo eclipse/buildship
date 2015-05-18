@@ -100,11 +100,11 @@ public final class ExecutionPage implements IPage, FilteredTreeProvider,Selectio
 
     protected void createViewerColumns() {
         this.labelColumn = new TreeViewerColumn(getViewer(), SWT.NONE);
-        this.labelColumn.getColumn().setText(ExecutionViewMessages.Tree_Column_Operation_Text);
+        this.labelColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Text);
         this.labelColumn.getColumn().setWidth(450);
 
         this.durationColumn = new TreeViewerColumn(getViewer(), SWT.NONE);
-        this.durationColumn.getColumn().setText(ExecutionViewMessages.Tree_Column_Duration_Text);
+        this.durationColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Duration_Text);
         this.durationColumn.getColumn().setWidth(200);
     }
 
@@ -120,7 +120,7 @@ public final class ExecutionPage implements IPage, FilteredTreeProvider,Selectio
 
         getViewer().setInput(this.root);
 
-        this.buildStarted = new OperationItem(null, ExecutionViewMessages.Tree_Item_Root_Text);
+        this.buildStarted = new OperationItem(null, ExecutionsViewMessages.Tree_Item_Root_Text);
         this.buildStarted.setImage(PluginImages.OPERATION_ROOT.withState(ImageState.ENABLED).getImageDescriptor());
         this.root.addChild(this.buildStarted);
     }

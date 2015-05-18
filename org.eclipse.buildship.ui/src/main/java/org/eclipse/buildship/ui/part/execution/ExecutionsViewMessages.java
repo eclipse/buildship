@@ -14,11 +14,11 @@ package org.eclipse.buildship.ui.part.execution;
 import org.eclipse.osgi.util.NLS;
 
 /**
- * Lists the i18n resource keys for the execution view messages.
+ * Lists the i18n resource keys for the executions view messages.
  */
-public class ExecutionViewMessages extends NLS {
+public class ExecutionsViewMessages extends NLS {
 
-    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.part.execution.ExecutionViewMessages"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.part.execution.ExecutionsViewMessages"; //$NON-NLS-1$
 
     public static String Label_No_Execution;
 
@@ -32,9 +32,10 @@ public class ExecutionViewMessages extends NLS {
 
     static {
         // initialize resource bundle
-        NLS.initializeMessages(BUNDLE_NAME, ExecutionViewMessages.class);
+        NLS.initializeMessages(BUNDLE_NAME, ExecutionsViewMessages.class);
     }
 
-    private ExecutionViewMessages() {
+    private ExecutionsViewMessages() {
     }
+
 }

@@ -30,7 +30,7 @@ public class DefaultExecutionPage implements IPage {
     @Override
     public void createPage(Composite parent) {
         this.label = new Label(parent, SWT.NONE);
-        this.label.setText(ExecutionViewMessages.Label_No_Execution);
+        this.label.setText(ExecutionsViewMessages.Label_No_Execution);
     }
 
     @Override

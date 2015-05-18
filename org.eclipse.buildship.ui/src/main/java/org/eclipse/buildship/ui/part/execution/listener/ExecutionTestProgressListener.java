@@ -27,7 +27,7 @@ import com.google.common.collect.Maps;
 import org.eclipse.core.runtime.Platform;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.ui.part.execution.ExecutionViewMessages;
+import org.eclipse.buildship.ui.part.execution.ExecutionsViewMessages;
 import org.eclipse.buildship.ui.part.execution.model.OperationItem;
 import org.eclipse.buildship.ui.part.execution.model.OperationItemConfigurator;
 import org.eclipse.buildship.ui.part.execution.model.internal.DefaultOperationItemConfigurator;
@@ -56,7 +56,7 @@ public class ExecutionTestProgressListener implements TestProgressListener {
     @Override
     public void statusChanged(TestProgressEvent event) {
         if (!this.testExecutionItemCreated.getAndSet(true)) {
-            OperationItem tests = new OperationItem(null, ExecutionViewMessages.Tree_Item_Tests_Text);
+            OperationItem tests = new OperationItem(null, ExecutionsViewMessages.Tree_Item_Tests_Text);
             this.root.addChild(tests);
 
             // The new root will be the tests

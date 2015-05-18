@@ -21,7 +21,7 @@ import org.gradle.tooling.events.test.TestSuccessResult;
 
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.part.execution.ExecutionViewMessages;
+import org.eclipse.buildship.ui.part.execution.ExecutionsViewMessages;
 import org.eclipse.buildship.ui.part.execution.model.OperationItem;
 import org.eclipse.buildship.ui.part.execution.model.OperationItemConfigurator;
 
@@ -40,14 +40,14 @@ public class DefaultOperationItemConfigurator implements OperationItemConfigurat
 
         if(getPropressEvent() instanceof FinishEvent) {
             OperationResult result = ((FinishEvent) getPropressEvent()).getResult();
-            progressItem.setDuration(NLS.bind(ExecutionViewMessages.Tree_Item_Test_Finished_Text, result.getEndTime() - result.getStartTime()));
+            progressItem.setDuration(NLS.bind(ExecutionsViewMessages.Tree_Item_Test_Finished_Text, result.getEndTime() - result.getStartTime()));
             if(result instanceof TestFailureResult) {
                 progressItem.setImage(PluginImages.OPERATION_FAILURE.withState(ImageState.ENABLED).getImageDescriptor());
             }else if (result instanceof TestSuccessResult) {
                 progressItem.setImage(PluginImages.OPERATION_SUCCESS.withState(ImageState.ENABLED).getImageDescriptor());
             }
         }else {
-            progressItem.setDuration(ExecutionViewMessages.Tree_Item_Test_Started_Text);
+            progressItem.setDuration(ExecutionsViewMessages.Tree_Item_Test_Started_Text);
         }
     }
 
