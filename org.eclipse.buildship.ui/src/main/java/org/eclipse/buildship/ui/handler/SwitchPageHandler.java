@@ -77,10 +77,10 @@ public final class SwitchPageHandler extends AbstractHandler implements IElement
             AbstractPagePart pagePart = (AbstractPagePart) activePart;
             String pageIndexParameter = (String) parameters.get(PAGE_INDEX_PARAM);
             if (pageIndexParameter != null) {
-                // switch to the page set in the given page parameter
-                int index = Ints.tryParse(pageIndexParameter);
-                int indexOf = pagePart.getPages().indexOf(pagePart.getCurrentPage());
-                element.setChecked(indexOf == index);
+                // compare the given parameter with the index of the current page
+                int commandParamIndex = Ints.tryParse(pageIndexParameter);
+                int currentPageIndex = pagePart.getPages().indexOf(pagePart.getCurrentPage());
+                element.setChecked(currentPageIndex == commandParamIndex);
             }
         }
     }
