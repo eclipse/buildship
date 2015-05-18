@@ -28,7 +28,6 @@ public class ExecutionsView extends FilteredTreePagePart {
     public static final String ID = "org.eclipse.buildship.ui.views.executionview";
 
     private ExecutionsViewState state;
-
     private ProgressItemCreatedListener progressItemCreatedListener;
 
     @Override
@@ -38,7 +37,10 @@ public class ExecutionsView extends FilteredTreePagePart {
         // load the persisted state before we create any UI components that query for some state
         this.state = new ExecutionsViewState();
         this.state.load();
-        registerExpandTreeOnNewProgressListener();
+
+        // register a listener that expands the tree as new items are added
+        this.progressItemCreatedListener = new ProgressItemCreatedListener(this);
+        CorePlugin.listenerRegistry().addEventListener(this.progressItemCreatedListener);
     }
 
     public ExecutionsViewState getState() {
@@ -50,17 +52,11 @@ public class ExecutionsView extends FilteredTreePagePart {
         return new DefaultExecutionPage();
     }
 
-
-    protected void registerExpandTreeOnNewProgressListener() {
-        progressItemCreatedListener = new ProgressItemCreatedListener(this);
-        CorePlugin.listenerRegistry().addEventListener(progressItemCreatedListener);
-    }
-
     @Override
     public void dispose() {
-        super.dispose();
+        CorePlugin.listenerRegistry().removeEventListener(this.progressItemCreatedListener);
         this.state.dispose();
-        CorePlugin.listenerRegistry().removeEventListener(progressItemCreatedListener);
+        super.dispose();
     }
 
 }
