@@ -11,8 +11,6 @@
 
 package org.eclipse.buildship.ui.part.execution;
 
-import org.eclipse.buildship.ui.part.SelectionProviderProvider;
-
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.beans.IBeanValueProperty;
 import org.eclipse.core.databinding.observable.set.IObservableSet;
@@ -30,9 +28,10 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.part.FilteredTreeProvider;
+import org.eclipse.buildship.ui.part.IPage;
+import org.eclipse.buildship.ui.part.SelectionProviderProvider;
 import org.eclipse.buildship.ui.part.execution.model.OperationItem;
 import org.eclipse.buildship.ui.part.execution.model.internal.ExecutionChildrenListProperty;
-import org.eclipse.buildship.ui.part.IPage;
 import org.eclipse.buildship.ui.viewer.FilteredTree;
 import org.eclipse.buildship.ui.viewer.PatternFilter;
 import org.eclipse.buildship.ui.viewer.labelprovider.ObservableMapCellWithIconLabelProvider;

@@ -12,11 +12,13 @@
 
 package org.eclipse.buildship.ui.part.execution;
 
-import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.part.TreeViewerState;
+import org.osgi.service.prefs.BackingStoreException;
+
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.osgi.service.prefs.BackingStoreException;
+
+import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.part.TreeViewerState;
 
 /**
  * Represents the (persistable) configuration state of the {@link ExecutionsView}. Backed by the
