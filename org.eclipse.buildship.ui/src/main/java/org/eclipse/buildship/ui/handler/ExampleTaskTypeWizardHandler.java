@@ -20,10 +20,10 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import org.eclipse.buildship.core.model.taskmetadata.GradleTaskMetaData;
 import org.eclipse.buildship.core.model.taskmetadata.GradleTaskMetaDataManager;
-import org.eclipse.buildship.ui.wizard.ExampleTaskTypeWizard;
+import org.eclipse.buildship.ui.wizard.NewTaskWizard;
 
 /**
- * Handler to execute the {@link ExampleTaskTypeWizard}.
+ * Handler to execute the {@link NewTaskWizard}.
  */
 public class ExampleTaskTypeWizardHandler extends AbstractHandler {
 
@@ -34,10 +34,9 @@ public class ExampleTaskTypeWizardHandler extends AbstractHandler {
         GradleTaskMetaData metaData = dataManager.getTaskMetaData();
         Shell shell = HandlerUtil.getActiveWorkbenchWindow(event).getShell();
 
-        ExampleTaskTypeWizard wizard = new ExampleTaskTypeWizard(metaData);
+        NewTaskWizard wizard = new NewTaskWizard(metaData);
         WizardDialog wizardDialog = new WizardDialog(shell, wizard);
         if (wizardDialog.open() == Window.OK) {
-            System.out.println(wizard.getTaskTypeFunction());
         }
 
         return null;

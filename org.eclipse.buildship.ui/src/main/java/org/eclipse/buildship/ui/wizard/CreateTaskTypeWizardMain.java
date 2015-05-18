@@ -37,10 +37,10 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.buildship.core.model.taskmetadata.TaskType;
 
 /**
- * Shows the first page of the {@link ExampleTaskTypeWizard}, where the user
+ * Shows the first page of the {@link NewTaskWizard}, where the user
  * sets the task type and the name for the function.
  */
-public class CreateTaskTypeWizardPageOne extends WizardPage {
+public class CreateTaskTypeWizardMain extends WizardPage {
 
     private IObservableList taskTypes;
     private String taskName = "";
@@ -52,7 +52,7 @@ public class CreateTaskTypeWizardPageOne extends WizardPage {
      * @param taskTypes
      *            {@link List} contains the available {@link TaskType}s
      */
-    protected CreateTaskTypeWizardPageOne(List<TaskType> taskTypes) {
+    protected CreateTaskTypeWizardMain(List<TaskType> taskTypes) {
         super("Task type first page");
 
         this.taskTypes = new WritableList(taskTypes, TaskType.class);
@@ -126,8 +126,8 @@ public class CreateTaskTypeWizardPageOne extends WizardPage {
         if (!getTaskName().isEmpty() && getSelectedTaskType() != null) {
             setPageComplete(true);
             IWizardPage nextPage = getNextPage();
-            if (nextPage instanceof CreateTaskTypeWizardPageTwo) {
-                CreateTaskTypeWizardPageTwo propertiesPage = (CreateTaskTypeWizardPageTwo) nextPage;
+            if (nextPage instanceof CreateTaskTypeWizardProperties) {
+                CreateTaskTypeWizardProperties propertiesPage = (CreateTaskTypeWizardProperties) nextPage;
                 propertiesPage.setTaskType(getSelectedTaskType());
             }
         }

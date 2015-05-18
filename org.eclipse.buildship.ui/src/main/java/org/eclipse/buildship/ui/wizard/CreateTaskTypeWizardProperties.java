@@ -30,15 +30,15 @@ import org.eclipse.buildship.core.model.taskmetadata.TaskProperty;
 import org.eclipse.buildship.core.model.taskmetadata.TaskType;
 
 /**
- * Shows the second page from the {@link ExampleTaskTypeWizard},
+ * Shows the second page from the {@link NewTaskWizard},
  * where the user sets the property values from the selected task type.
  */
-public class CreateTaskTypeWizardPageTwo extends WizardPage {
+public class CreateTaskTypeWizardProperties extends WizardPage {
     private Composite composite;
     private Map<String, String> propertiesMap = new HashMap<String, String>();
 	private ScrolledComposite sComposite;
 
-    protected CreateTaskTypeWizardPageTwo() {
+    protected CreateTaskTypeWizardProperties() {
         super("Task Type seconed Page");
         setTitle("Set properties");
     }
