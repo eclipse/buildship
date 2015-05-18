@@ -29,7 +29,7 @@ public class DefaultExecutionPage implements IPage {
     @Override
     public void createPage(Composite parent) {
         this.label = new Label(parent, SWT.NONE);
-        this.label.setText("Please start a build.");
+        this.label.setText("There are no Gradle build executions to visualize. Run a Gradle build to see its execution in the Gradle Executions View.");
     }
 
     @Override
