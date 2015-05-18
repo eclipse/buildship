@@ -28,7 +28,7 @@ import org.eclipse.osgi.util.NLS;
  */
 public class ViewerMessages extends NLS {
 
-    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.viewer.viewermessages";//$NON-NLS-1$
+    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.viewer.ViewerMessages";//$NON-NLS-1$
 
     public static String FilteredTree_AccessibleListenerClearButton;
     public static String FilteredTree_ClearToolTip;
