@@ -11,7 +11,6 @@
 
 package org.eclipse.buildship.ui.part.execution.listener;
 
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
@@ -26,7 +25,7 @@ import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 /**
  * This listener is invoked every time a Gradle build is started.
  */
-public final class BuildLaunchRequestListener implements EventListener {
+public final class ExecutionShowingBuildLaunchRequestListener implements EventListener {
 
     @Override
     public void onEvent(Event event) {
@@ -42,17 +41,16 @@ public final class BuildLaunchRequestListener implements EventListener {
             return;
         }
 
-        Display display = PlatformUI.getWorkbench().getDisplay();
-        display.syncExec(new Runnable() {
+        PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 
             @Override
             public void run() {
-                // show the executions view // todo (donat) why does this not work?
-                IViewPart showView = WorkbenchUtils.showView(ExecutionsView.ID, null, IWorkbenchPage.VIEW_ACTIVATE);
+                // show the executions view
+                IViewPart view = WorkbenchUtils.showView(ExecutionsView.ID, null, IWorkbenchPage.VIEW_ACTIVATE);
 
                 // prepare a new executions page
-                if (showView instanceof ExecutionsView) {
-                    ExecutionsView executionsView = (ExecutionsView) showView;
+                if (view instanceof ExecutionsView) {
+                    ExecutionsView executionsView = (ExecutionsView) view;
                     ExecutionPage executionPage = new ExecutionPage(executionsView.getState());
                     executionPage.setDisplayName(event.getProcessName());
                     executionsView.addPage(executionPage);
@@ -64,4 +62,5 @@ public final class BuildLaunchRequestListener implements EventListener {
             }
         });
     }
+
 }
