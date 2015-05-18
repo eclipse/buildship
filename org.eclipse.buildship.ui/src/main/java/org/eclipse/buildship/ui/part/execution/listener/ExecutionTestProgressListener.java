@@ -94,7 +94,7 @@ public class ExecutionTestProgressListener implements TestProgressListener {
         if (null == this.executionItemConfigurator) {
             this.executionItemConfigurator = new DefaultOperationItemConfigurator();
         }
-        this.executionItemConfigurator.setPropressEvent(propressEvent);
+        this.executionItemConfigurator.setProgressEvent(propressEvent);
         return this.executionItemConfigurator;
     }
 

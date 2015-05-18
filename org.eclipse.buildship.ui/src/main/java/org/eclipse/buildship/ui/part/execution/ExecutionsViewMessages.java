@@ -27,8 +27,8 @@ public class ExecutionsViewMessages extends NLS {
 
     public static String Tree_Item_Root_Text;
     public static String Tree_Item_Tests_Text;
-    public static String Tree_Item_Test_Finished_Text;
     public static String Tree_Item_Test_Started_Text;
+    public static String Tree_Item_Test_Finished_In_0_Text;
 
     static {
         // initialize resource bundle

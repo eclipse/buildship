@@ -30,17 +30,16 @@ import org.eclipse.buildship.ui.part.execution.model.OperationItemConfigurator;
  */
 public class DefaultOperationItemConfigurator implements OperationItemConfigurator {
 
-
-    private ProgressEvent propressEvent;
+    private ProgressEvent progressEvent;
 
     @Override
     public void configure(OperationItem progressItem) {
-        String displayName = getPropressEvent().getDescriptor().getDisplayName();
+        String displayName = getProgressEvent().getDescriptor().getDisplayName();
         progressItem.setLabel(displayName);
 
-        if(getPropressEvent() instanceof FinishEvent) {
-            OperationResult result = ((FinishEvent) getPropressEvent()).getResult();
-            progressItem.setDuration(NLS.bind(ExecutionsViewMessages.Tree_Item_Test_Finished_Text, result.getEndTime() - result.getStartTime()));
+        if(getProgressEvent() instanceof FinishEvent) {
+            OperationResult result = ((FinishEvent) getProgressEvent()).getResult();
+            progressItem.setDuration(NLS.bind(ExecutionsViewMessages.Tree_Item_Test_Finished_In_0_Text, result.getEndTime() - result.getStartTime()));
             if(result instanceof TestFailureResult) {
                 progressItem.setImage(PluginImages.OPERATION_FAILURE.withState(ImageState.ENABLED).getImageDescriptor());
             }else if (result instanceof TestSuccessResult) {
@@ -51,12 +50,12 @@ public class DefaultOperationItemConfigurator implements OperationItemConfigurat
         }
     }
 
-    public ProgressEvent getPropressEvent() {
-        return this.propressEvent;
+    public ProgressEvent getProgressEvent() {
+        return this.progressEvent;
     }
 
-    public void setPropressEvent(ProgressEvent propressEvent) {
-        this.propressEvent = propressEvent;
+    public void setProgressEvent(ProgressEvent progressEvent) {
+        this.progressEvent = progressEvent;
     }
 
 }
