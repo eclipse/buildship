@@ -39,6 +39,21 @@ public final class SwitchPageHandler extends AbstractHandler implements IElement
     public static final String PAGE_INDEX_PARAM = "org.eclipse.buildship.ui.commandParameters.pageindex"; //$NON-NLS-1$
 
     @Override
+    public void updateElement(UIElement element, Map parameters) {
+        IWorkbenchPart activePart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
+        if (activePart instanceof AbstractPagePart) {
+            AbstractPagePart pagePart = (AbstractPagePart) activePart;
+            String pageIndexParameter = (String) parameters.get(PAGE_INDEX_PARAM);
+            if (pageIndexParameter != null) {
+                // compare the given page index parameter with the index of the current page
+                int commandParamIndex = Ints.tryParse(pageIndexParameter);
+                int currentPageIndex = pagePart.getPages().indexOf(pagePart.getCurrentPage());
+                element.setChecked(currentPageIndex == commandParamIndex);
+            }
+        }
+    }
+
+    @Override
     public void setEnabled(Object evaluationContext) {
         boolean enabled = false;
         if (evaluationContext instanceof IEvaluationContext) {
@@ -70,19 +85,5 @@ public final class SwitchPageHandler extends AbstractHandler implements IElement
         return null;
     }
 
-    @Override
-    public void updateElement(UIElement element, Map parameters) {
-        IWorkbenchPart activePart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
-        if (activePart instanceof AbstractPagePart) {
-            AbstractPagePart pagePart = (AbstractPagePart) activePart;
-            String pageIndexParameter = (String) parameters.get(PAGE_INDEX_PARAM);
-            if (pageIndexParameter != null) {
-                // compare the given parameter with the index of the current page
-                int commandParamIndex = Ints.tryParse(pageIndexParameter);
-                int currentPageIndex = pagePart.getPages().indexOf(pagePart.getCurrentPage());
-                element.setChecked(currentPageIndex == commandParamIndex);
-            }
-        }
-    }
 
 }
