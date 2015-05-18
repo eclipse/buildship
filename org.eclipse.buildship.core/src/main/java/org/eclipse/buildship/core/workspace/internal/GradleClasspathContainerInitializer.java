@@ -16,9 +16,6 @@ import java.util.List;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.events.build.BuildProgressListener;
-import org.gradle.tooling.events.task.TaskProgressListener;
-import org.gradle.tooling.events.test.TestProgressListener;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -117,12 +114,10 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
     private OmniEclipseGradleBuild fetchEclipseGradleBuild(FixedRequestAttributes fixedRequestAttributes) {
         ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
         List<ProgressListener> noProgressListeners = ImmutableList.of();
-        List<BuildProgressListener> noBuildProgressListeners = ImmutableList.of();
-        List<TaskProgressListener> noTaskProgressListeners = ImmutableList.of();
-        List<TestProgressListener> noTestProgressListeners = ImmutableList.of();
+        List<org.gradle.tooling.events.ProgressListener> noTypedProgressListeners = ImmutableList.of();
         CancellationToken cancellationToken = GradleConnector.newCancellationTokenSource().token();
-        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), null, noProgressListeners,
-                noBuildProgressListeners, noTaskProgressListeners, noTestProgressListeners, cancellationToken);
+        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), null,
+                noProgressListeners, noTypedProgressListeners, cancellationToken);
         ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(fixedRequestAttributes);
         return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
     }
@@ -150,7 +145,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
     private void setClasspathContainer(List<IClasspathEntry> classpathEntries, IPath containerPath, IJavaProject project) throws JavaModelException {
         org.eclipse.core.runtime.Path classpathContainerPath = new org.eclipse.core.runtime.Path(ClasspathDefinition.GRADLE_CLASSPATH_CONTAINER_ID);
         IClasspathContainer classpathContainer = new ExternalDependenciesClasspathContainer(classpathContainerPath, classpathEntries);
-        JavaCore.setClasspathContainer(containerPath, new IJavaProject[] { project }, new IClasspathContainer[] { classpathContainer }, null);
+        JavaCore.setClasspathContainer(containerPath, new IJavaProject[]{project}, new IClasspathContainer[]{classpathContainer}, null);
     }
 
     /**

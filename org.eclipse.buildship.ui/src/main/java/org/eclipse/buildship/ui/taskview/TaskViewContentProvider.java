@@ -17,9 +17,6 @@ import org.eclipse.ui.PlatformUI;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.events.build.BuildProgressListener;
-import org.gradle.tooling.events.task.TaskProgressListener;
-import org.gradle.tooling.events.test.TestProgressListener;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -52,7 +49,7 @@ import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 /**
  * Content provider for the {@link TaskView}.
- * <p>
+ * <p/>
  * The 'UI-model' behind the task view provided by this class are nodes; {@link ProjectNode},
  * {@link ProjectTaskNode} and {@link TaskSelectorNode}. With this we can connect the mode and the
  * UI elements.
@@ -67,7 +64,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
     private final WorkspaceOperations workspaceOperations;
 
     public TaskViewContentProvider(TaskView taskView, ModelRepositoryProvider modelRepositoryProvider, ProcessStreamsProvider processStreamsProvider,
-            WorkspaceOperations workspaceOperations) {
+                                   WorkspaceOperations workspaceOperations) {
         this.taskView = Preconditions.checkNotNull(taskView);
         this.modelRepositoryProvider = Preconditions.checkNotNull(modelRepositoryProvider);
         this.processStreamsProvider = Preconditions.checkNotNull(processStreamsProvider);
@@ -119,17 +116,15 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
 
     private OmniEclipseGradleBuild fetchCachedEclipseGradleBuild(FixedRequestAttributes fixedRequestAttributes) {
         List<ProgressListener> noProgressListeners = ImmutableList.of();
-        List<BuildProgressListener> noBuildListeners = ImmutableList.of();
-        List<TaskProgressListener> noTaskListeners = ImmutableList.of();
-        List<TestProgressListener> noTestProgressListeners = ImmutableList.of();
+        List<org.gradle.tooling.events.ProgressListener> noTypedProgressListeners = ImmutableList.of();
         CancellationToken cancellationToken = GradleConnector.newCancellationTokenSource().token();
-        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, null, null, null, noProgressListeners, noBuildListeners, noTaskListeners, noTestProgressListeners, cancellationToken);
+        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, null, null, null, noProgressListeners, noTypedProgressListeners, cancellationToken);
         ModelRepository repository = this.modelRepositoryProvider.getModelRepository(fixedRequestAttributes);
         return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FROM_CACHE_ONLY);
     }
 
     private void collectProjectNodesRecursively(OmniEclipseProject eclipseProject, OmniGradleProject gradleRootProject, ProjectNode parentProjectNode,
-            List<ProjectNode> allProjectNodes) {
+                                                List<ProjectNode> allProjectNodes) {
         // find the Gradle project corresponding to the Eclipse project
         // (there will always be exactly one match)
         Path gradleProjectPath = eclipseProject.getPath();

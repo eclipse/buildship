@@ -19,7 +19,6 @@ import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.ProgressEvent;
 import org.gradle.tooling.events.test.TestOperationDescriptor;
 import org.gradle.tooling.events.test.TestProgressEvent;
-import org.gradle.tooling.events.test.TestProgressListener;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -37,9 +36,8 @@ import org.eclipse.buildship.ui.part.execution.model.internal.DefaultOperationIt
  * This class listens to {@link TestProgressEvent} events, which are send by the Gradle tooling API.
  * It creates appropriate {@link OperationItem} objects, which are shown in the
  * {@link org.eclipse.buildship.ui.part.execution.ExecutionsView}, according to the incoming events.
- *
  */
-public class ExecutionTestProgressListener implements TestProgressListener {
+public class ExecutionTestProgressListener implements org.gradle.tooling.events.ProgressListener {
 
     private Map<OperationDescriptor, OperationItem> executionItemMap = Maps.newLinkedHashMap();
 
@@ -54,7 +52,13 @@ public class ExecutionTestProgressListener implements TestProgressListener {
     }
 
     @Override
-    public void statusChanged(TestProgressEvent event) {
+    public void statusChanged(ProgressEvent progressEvent) {
+        if (!(progressEvent instanceof TestProgressEvent)) {
+            return;
+        }
+
+        TestProgressEvent testProgressEvent = (TestProgressEvent) progressEvent;
+
         if (!this.testExecutionItemCreated.getAndSet(true)) {
             OperationItem tests = new OperationItem(null, ExecutionsViewMessages.Tree_Item_Tests_Text);
             this.root.addChild(tests);
@@ -63,7 +67,7 @@ public class ExecutionTestProgressListener implements TestProgressListener {
             this.root = tests;
         }
 
-        TestOperationDescriptor descriptor = event.getDescriptor();
+        TestOperationDescriptor descriptor = testProgressEvent.getDescriptor();
         OperationItem operationItem = this.executionItemMap.get(descriptor);
         if (null == operationItem) {
             operationItem = new OperationItem(descriptor);
@@ -71,13 +75,13 @@ public class ExecutionTestProgressListener implements TestProgressListener {
             CorePlugin.listenerRegistry().dispatch(new DefaultOperationItemCreatedEvent(this, operationItem));
         }
         // set the last progress event, so that this can be obtained from the viewers selection
-        operationItem.setLastProgressEvent(event);
+        operationItem.setLastProgressEvent(testProgressEvent);
 
         // Configure progressItem according to the given event
         @SuppressWarnings("cast")
-        OperationItemConfigurator operationItemConfigurator = (OperationItemConfigurator) Platform.getAdapterManager().getAdapter(event, OperationItemConfigurator.class);
+        OperationItemConfigurator operationItemConfigurator = (OperationItemConfigurator) Platform.getAdapterManager().getAdapter(testProgressEvent, OperationItemConfigurator.class);
         if (null == operationItemConfigurator) {
-            operationItemConfigurator = getDefaultProgressItemConfigurator(event);
+            operationItemConfigurator = getDefaultProgressItemConfigurator(testProgressEvent);
         }
         operationItemConfigurator.configure(operationItem);
 

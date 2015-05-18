@@ -57,7 +57,7 @@ public final class ExecutionShowingBuildLaunchRequestListener implements EventLi
                     executionsView.setCurrentPage(executionPage);
 
                     // register a progress listener to receive build progress events
-                    event.getBuildLaunchRequest().testProgressListeners(new ExecutionTestProgressListener(executionPage.getBuildStartedItem()));
+                    event.getBuildLaunchRequest().typedProgressListeners(new ExecutionTestProgressListener(executionPage.getBuildStartedItem()));
                 }
             }
         });
