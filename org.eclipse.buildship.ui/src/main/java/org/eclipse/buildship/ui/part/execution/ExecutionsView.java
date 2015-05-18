@@ -25,7 +25,7 @@ import org.eclipse.buildship.ui.part.execution.listener.ProgressItemCreatedListe
  */
 public class ExecutionsView extends FilteredTreePagePart {
 
-    public static final String ID = "org.eclipse.buildship.ui.views.executionview";
+    public static final String ID = "org.eclipse.buildship.ui.views.executionview"; //$NON-NLS-1$
 
     private ExecutionsViewState state;
     private ProgressItemCreatedListener progressItemCreatedListener;

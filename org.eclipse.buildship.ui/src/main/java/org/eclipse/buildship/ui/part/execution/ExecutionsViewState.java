@@ -24,7 +24,7 @@ import org.osgi.service.prefs.BackingStoreException;
  */
 public final class ExecutionsViewState implements TreeViewerState {
 
-    private static final String PREF_SHOW_TREE_HEADER = "executionsView.showTreeHeader";
+    private static final String PREF_SHOW_TREE_HEADER = "executionsView.showTreeHeader"; //$NON-NLS-1$
 
     private boolean showTreeHeader;
 
@@ -44,7 +44,7 @@ public final class ExecutionsViewState implements TreeViewerState {
         try {
             prefs.flush();
         } catch (BackingStoreException e) {
-            UiPlugin.logger().error("Unable to store execution view preferences.", e);
+            UiPlugin.logger().error("Unable to store execution view preferences.", e); //$NON-NLS-1$
         }
     }
 

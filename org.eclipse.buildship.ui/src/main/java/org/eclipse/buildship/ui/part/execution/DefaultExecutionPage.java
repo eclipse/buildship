@@ -12,6 +12,7 @@
 package org.eclipse.buildship.ui.part.execution;
 
 import org.eclipse.buildship.ui.part.IPage;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -29,7 +30,7 @@ public class DefaultExecutionPage implements IPage {
     @Override
     public void createPage(Composite parent) {
         this.label = new Label(parent, SWT.NONE);
-        this.label.setText("There are no Gradle build executions to visualize. Run a Gradle build to see its execution in the Gradle Executions View.");
+        this.label.setText(ExecutionViewMessages.Label_No_Execution);
     }
 
     @Override

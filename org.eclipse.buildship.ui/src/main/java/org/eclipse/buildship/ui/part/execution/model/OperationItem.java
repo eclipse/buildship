@@ -56,12 +56,12 @@ import org.eclipse.jface.resource.ImageDescriptor;
 @SuppressWarnings("unchecked")
 public class OperationItem extends AbstractModelObject implements IAdaptable {
 
-    public static final String FIELD_OPERATION_DESCRIPTOR = "operationDescriptor";
-    public static final String FIELD_LAST_PROGRESSEVENT = "lastProgressEvent";
-    public static final String FIELD_LABEL = "label";
-    public static final String FIELD_IMAGE = "image";
-    public static final String FIELD_DURATION = "duration";
-    public static final String FIELD_CHILDREN = "children";
+    public static final String FIELD_OPERATION_DESCRIPTOR = "operationDescriptor"; //$NON-NLS-1$
+    public static final String FIELD_LAST_PROGRESSEVENT = "lastProgressEvent"; //$NON-NLS-1$
+    public static final String FIELD_LABEL = "label"; //$NON-NLS-1$
+    public static final String FIELD_IMAGE = "image"; //$NON-NLS-1$
+    public static final String FIELD_DURATION = "duration"; //$NON-NLS-1$
+    public static final String FIELD_CHILDREN = "children"; //$NON-NLS-1$
 
     private final OperationDescriptor operationDescriptor;
 
