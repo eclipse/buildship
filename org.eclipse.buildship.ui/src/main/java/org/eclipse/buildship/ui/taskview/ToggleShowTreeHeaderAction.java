@@ -13,7 +13,9 @@ package org.eclipse.buildship.ui.taskview;
 
 import com.google.common.base.Preconditions;
 
+import org.eclipse.buildship.ui.part.TreeViewerState;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Tree;
 
@@ -22,21 +24,23 @@ import org.eclipse.swt.widgets.Tree;
  */
 public final class ToggleShowTreeHeaderAction extends Action {
 
-    private final TaskView taskView;
+    private final TreeViewer treeViewer;
+    private final TreeViewerState treeViewerState;
 
-    public ToggleShowTreeHeaderAction(TaskView taskView) {
+    public ToggleShowTreeHeaderAction(TreeViewer treeViewer, TreeViewerState treeViewerState) {
         super(null, AS_CHECK_BOX);
-        this.taskView = Preconditions.checkNotNull(taskView);
+        this.treeViewer = Preconditions.checkNotNull(treeViewer);
+        this.treeViewerState = Preconditions.checkNotNull(treeViewerState);
 
         setText(TaskViewMessages.Action_ShowTreeHeader_Text);
-        setChecked(taskView.getState().isShowTreeHeader());
+        setChecked(this.treeViewerState.isShowTreeHeader());
 
         updateHeaderVisibility();
     }
 
     @Override
     public void run() {
-        this.taskView.getState().setShowTreeHeader(isChecked());
+        this.treeViewerState.setShowTreeHeader(isChecked());
         updateHeaderVisibility();
     }
 
@@ -45,8 +49,8 @@ public final class ToggleShowTreeHeaderAction extends Action {
 
             @Override
             public void run() {
-                Tree tree = ToggleShowTreeHeaderAction.this.taskView.getTreeViewer().getTree();
-                tree.setHeaderVisible(ToggleShowTreeHeaderAction.this.taskView.getState().isShowTreeHeader());
+                Tree tree = ToggleShowTreeHeaderAction.this.treeViewer.getTree();
+                tree.setHeaderVisible(ToggleShowTreeHeaderAction.this.treeViewerState.isShowTreeHeader());
             }
         });
     }

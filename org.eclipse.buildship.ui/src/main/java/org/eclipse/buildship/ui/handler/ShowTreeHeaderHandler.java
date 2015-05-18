@@ -12,7 +12,7 @@
 
 package org.eclipse.buildship.ui.handler;
 
-import org.eclipse.buildship.ui.part.TreeHeaderAwareState;
+import org.eclipse.buildship.ui.part.TreeViewerState;
 import org.eclipse.buildship.ui.part.ViewerProvider;
 import org.eclipse.buildship.ui.part.execution.ExecutionsViewState;
 import org.eclipse.core.commands.*;
@@ -35,7 +35,7 @@ public final class ShowTreeHeaderHandler extends AbstractHandler implements IEle
 
     private static final String COMMAND_TOGGLE_STATE_ID = "org.eclipse.ui.commands.toggleState";
 
-    private final TreeHeaderAwareState prefs;
+    private final TreeViewerState prefs;
 
     public ShowTreeHeaderHandler() {
         this.prefs = new ExecutionsViewState();

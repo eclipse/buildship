@@ -94,7 +94,7 @@ public final class UiContributionManager {
         manager.appendToGroup(MENU_SORTING_GROUP, new SortTasksByTypeAction(this.taskView));
         manager.appendToGroup(MENU_SORTING_GROUP, new SortTasksByVisibilityAction(this.taskView));
         manager.add(new Separator(MENU_MISC_GROUP));
-        manager.appendToGroup(MENU_MISC_GROUP, new ToggleShowTreeHeaderAction(this.taskView));
+        manager.appendToGroup(MENU_MISC_GROUP, new ToggleShowTreeHeaderAction(this.taskView.getTreeViewer(), this.taskView.getState()));
     }
 
     private void fillContextMenu() {

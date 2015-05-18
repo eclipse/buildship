@@ -13,7 +13,7 @@
 package org.eclipse.buildship.ui.part.execution;
 
 import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.part.TreeHeaderAwareState;
+import org.eclipse.buildship.ui.part.TreeViewerState;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.osgi.service.prefs.BackingStoreException;
@@ -22,7 +22,7 @@ import org.osgi.service.prefs.BackingStoreException;
  * Represents the (persistable) configuration state of the {@link ExecutionsView}. Backed by the
  * Eclipse Preferences API.
  */
-public final class ExecutionsViewState implements TreeHeaderAwareState {
+public final class ExecutionsViewState implements TreeViewerState {
 
     private static final String PREF_SHOW_TREE_HEADER = "executionsView.showTreeHeader";
 
