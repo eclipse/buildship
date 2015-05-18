@@ -24,6 +24,13 @@ public interface ListenerRegistry {
     void addEventListener(EventListener listener);
 
     /**
+     * Deregisters the given event listener.
+     *
+     * @param listener the listener to register
+     */
+    void removeEventListener(EventListener listener);
+
+    /**
      * Dispatches the given event to all registered listeners.
      *
      * @param event the event to dispatch

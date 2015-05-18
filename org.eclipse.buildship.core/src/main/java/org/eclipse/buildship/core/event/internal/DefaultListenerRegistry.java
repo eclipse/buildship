@@ -12,6 +12,7 @@
 package org.eclipse.buildship.core.event.internal;
 
 import com.google.common.collect.ImmutableList;
+
 import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.event.EventListener;
 import org.eclipse.buildship.core.event.ListenerRegistry;
@@ -32,6 +33,13 @@ public final class DefaultListenerRegistry implements ListenerRegistry {
     public void addEventListener(EventListener listener) {
         synchronized (this.LOCK) {
             this.listeners.add(listener);
+        }
+    }
+
+    @Override
+    public void removeEventListener(EventListener listener) {
+        synchronized (this.LOCK) {
+            this.listeners.remove(listener);
         }
     }
 

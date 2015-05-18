@@ -11,13 +11,13 @@
 
 package org.eclipse.buildship.ui.part.execution;
 
+import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.PartInitException;
+
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.ui.part.FilteredTreePagePart;
 import org.eclipse.buildship.ui.part.IPage;
-import org.eclipse.buildship.ui.part.execution.listener.BuildLaunchRequestListener;
 import org.eclipse.buildship.ui.part.execution.listener.ProgressItemCreatedListener;
-import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.PartInitException;
 
 /**
  * This part displays the Gradle executions, like a build. It contains a FilteredTree with an
@@ -29,6 +29,8 @@ public class ExecutionsView extends FilteredTreePagePart {
 
     private ExecutionsViewState state;
 
+    private ProgressItemCreatedListener progressItemCreatedListener;
+
     @Override
     public void init(IViewSite site) throws PartInitException {
         super.init(site);
@@ -36,6 +38,7 @@ public class ExecutionsView extends FilteredTreePagePart {
         // load the persisted state before we create any UI components that query for some state
         this.state = new ExecutionsViewState();
         this.state.load();
+        registerExpandTreeOnNewProgressListener();
     }
 
     public ExecutionsViewState getState() {
@@ -44,25 +47,20 @@ public class ExecutionsView extends FilteredTreePagePart {
 
     @Override
     protected IPage getDefaultPage() {
-        registerBuildLaunchRequestListener();
-        registerExpandTreeOnNewProgressListener();
         return new DefaultExecutionPage();
     }
 
-    protected void registerBuildLaunchRequestListener() {
-        BuildLaunchRequestListener buildLaunchRequestListener = new BuildLaunchRequestListener(this);
-        CorePlugin.listenerRegistry().addEventListener(buildLaunchRequestListener);
-    }
 
     protected void registerExpandTreeOnNewProgressListener() {
-        ProgressItemCreatedListener progressItemCreatedListener = new ProgressItemCreatedListener(this);
+        progressItemCreatedListener = new ProgressItemCreatedListener(this);
         CorePlugin.listenerRegistry().addEventListener(progressItemCreatedListener);
     }
 
     @Override
     public void dispose() {
-        this.state.dispose();
         super.dispose();
+        this.state.dispose();
+        CorePlugin.listenerRegistry().removeEventListener(progressItemCreatedListener);
     }
 
 }

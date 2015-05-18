@@ -11,26 +11,22 @@
 
 package org.eclipse.buildship.ui.part.execution.listener;
 
-import com.google.common.base.Preconditions;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
+
 import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.event.EventListener;
 import org.eclipse.buildship.core.launch.ExecuteBuildLaunchRequestEvent;
 import org.eclipse.buildship.ui.part.execution.ExecutionPage;
 import org.eclipse.buildship.ui.part.execution.ExecutionsView;
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IWorkbenchPage;
 
 /**
  * This listener is invoked every time a Gradle build is started.
  */
 public final class BuildLaunchRequestListener implements EventListener {
-
-    private final ExecutionsView executionsView;
-
-    public BuildLaunchRequestListener(ExecutionsView executionsView) {
-        this.executionsView = Preconditions.checkNotNull(executionsView);
-    }
 
     @Override
     public void onEvent(Event event) {
@@ -46,23 +42,25 @@ public final class BuildLaunchRequestListener implements EventListener {
             return;
         }
 
-        Display display = this.executionsView.getSite().getShell().getDisplay();
+        Display display = PlatformUI.getWorkbench().getDisplay();
         display.syncExec(new Runnable() {
 
             @Override
             public void run() {
                 // show the executions view // todo (donat) why does this not work?
-                WorkbenchUtils.showView(ExecutionsView.ID, null, IWorkbenchPage.VIEW_ACTIVATE);
+                IViewPart showView = WorkbenchUtils.showView(ExecutionsView.ID, null, IWorkbenchPage.VIEW_ACTIVATE);
 
                 // prepare a new executions page
-                ExecutionsView executionsView = BuildLaunchRequestListener.this.executionsView;
-                ExecutionPage executionPage = new ExecutionPage(executionsView.getState());
-                executionPage.setDisplayName(event.getProcessName());
-                executionsView.addPage(executionPage);
-                executionsView.setCurrentPage(executionPage);
+                if (showView instanceof ExecutionsView) {
+                    ExecutionsView executionsView = (ExecutionsView) showView;
+                    ExecutionPage executionPage = new ExecutionPage(executionsView.getState());
+                    executionPage.setDisplayName(event.getProcessName());
+                    executionsView.addPage(executionPage);
+                    executionsView.setCurrentPage(executionPage);
 
-                // register a progress listener to receive build progress events
-                event.getBuildLaunchRequest().testProgressListeners(new ExecutionTestProgressListener(executionPage.getBuildStartedItem()));
+                    // register a progress listener to receive build progress events
+                    event.getBuildLaunchRequest().testProgressListeners(new ExecutionTestProgressListener(executionPage.getBuildStartedItem()));
+                }
             }
         });
     }
