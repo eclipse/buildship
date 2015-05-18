@@ -12,20 +12,21 @@
 
 package org.eclipse.buildship.ui.handler;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.eclipse.buildship.ui.part.AbstractPagePart;
-import org.eclipse.buildship.ui.part.IPage;
+
 import org.eclipse.jface.action.IContributionItem;
-import org.eclipse.swt.SWT;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.CompoundContributionItem;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 
-import java.util.List;
-import java.util.Map;
+import org.eclipse.buildship.ui.part.AbstractPagePart;
+import org.eclipse.buildship.ui.part.IPage;
 
 /**
  * Dynamically creates {@code org.eclipse.buildship.ui.commands.switchpage} commands at
@@ -43,7 +44,7 @@ public final class DynamicCommandPageSwitch extends CompoundContributionItem {
                 IPage page = pages.get(i);
 
                 CommandContributionItemParameter contributionItemParameter = new CommandContributionItemParameter(PlatformUI.getWorkbench(), "",
-                        SwitchPageHandler.SWITCH_PAGE_COMMAND_ID, SWT.PUSH);
+                        SwitchPageHandler.SWITCH_PAGE_COMMAND_ID, CommandContributionItem.STYLE_CHECK);
                 contributionItemParameter.label = page.getDisplayName();
 
                 Map<String, String> commandParameters = Maps.newHashMap();
