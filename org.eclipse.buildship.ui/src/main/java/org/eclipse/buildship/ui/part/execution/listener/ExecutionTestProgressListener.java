@@ -69,10 +69,11 @@ public class ExecutionTestProgressListener implements org.gradle.tooling.events.
 
         TestOperationDescriptor descriptor = testProgressEvent.getDescriptor();
         OperationItem operationItem = this.executionItemMap.get(descriptor);
+        boolean createdNewOperationItem = false;
         if (null == operationItem) {
             operationItem = new OperationItem(descriptor);
             this.executionItemMap.put(descriptor, operationItem);
-            CorePlugin.listenerRegistry().dispatch(new DefaultOperationItemCreatedEvent(this, operationItem));
+            createdNewOperationItem = true;
         }
         // set the last progress event, so that this can be obtained from the viewers selection
         operationItem.setLastProgressEvent(testProgressEvent);
@@ -91,6 +92,10 @@ public class ExecutionTestProgressListener implements org.gradle.tooling.events.
             List<OperationItem> children = Lists.newArrayList(parentExecutionItem.getChildren());
             children.add(operationItem);
             parentExecutionItem.setChildren(children);
+        }
+
+        if (createdNewOperationItem) {
+            CorePlugin.listenerRegistry().dispatch(new DefaultOperationItemCreatedEvent(this, parentExecutionItem));
         }
     }
 

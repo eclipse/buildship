@@ -109,14 +109,6 @@
          </state>
       </command>
       <command
-            id="org.eclipse.buildship.ui.commands.showtreefilter"
-            name="Show Filter">
-         <state
-               id="org.eclipse.ui.commands.toggleState"
-               class="org.eclipse.ui.handlers.RegistryToggleState">
-         </state>
-      </command>
-      <command
             id="org.eclipse.buildship.ui.commands.tree.expandall"
             name="Expand All">
       </command>
@@ -229,10 +221,6 @@
              disabledIcon="icons/full/dlcl16/run.png">
        </image>
        <image
-              commandId="org.eclipse.buildship.ui.commands.showtreefilter"
-              icon="icons/full/elcl16/filter.png">
-       </image>
-       <image
              commandId="org.eclipse.buildship.ui.commands.tree.expandall"
              icon="icons/full/elcl16/expand_all.png">
        </image>
@@ -332,11 +320,6 @@
                 commandId="org.eclipse.buildship.ui.commands.tree.collapseall"
                 style="push"
                 tooltip="Collapse All Nodes">
-          </command>
-          <command
-                commandId="org.eclipse.buildship.ui.commands.showtreefilter"
-                style="toggle"
-                tooltip="Show Filter">
           </command>
           <separator
                 name="org.eclipse.buildship.ui.separator.expandcollapsefilter"

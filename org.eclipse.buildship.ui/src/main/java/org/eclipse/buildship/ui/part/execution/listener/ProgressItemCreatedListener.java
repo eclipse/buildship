@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.ui.part.execution.listener;
 
+import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 
@@ -38,7 +39,7 @@ public class ProgressItemCreatedListener implements EventListener {
         }
     }
 
-    private void progressItemCreated(OperationItemCreatedEvent progressItemCreatedEvent) {
+    private void progressItemCreated(final OperationItemCreatedEvent progressItemCreatedEvent) {
         Viewer viewer = this.viewerPart.getViewer();
         if (viewer != null) {
             viewer.getControl().getDisplay().asyncExec(new Runnable() {
@@ -47,7 +48,7 @@ public class ProgressItemCreatedListener implements EventListener {
                 public void run() {
                     Viewer viewer = ProgressItemCreatedListener.this.viewerPart.getViewer();
                     if (viewer instanceof TreeViewer) {
-                        ((TreeViewer) viewer).expandAll();
+                        ((TreeViewer) viewer).expandToLevel(progressItemCreatedEvent.getElement(), AbstractTreeViewer.ALL_LEVELS);
                     }
                 }
             });
