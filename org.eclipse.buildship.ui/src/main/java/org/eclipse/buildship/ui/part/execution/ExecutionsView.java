@@ -21,7 +21,7 @@ import org.eclipse.buildship.ui.handler.ShowFilterControlsAction;
 import org.eclipse.buildship.ui.part.FilteredTreePagePart;
 import org.eclipse.buildship.ui.part.FilteredTreeProvider;
 import org.eclipse.buildship.ui.part.IPage;
-import org.eclipse.buildship.ui.part.execution.listener.ProgressItemCreatedListener;
+import org.eclipse.buildship.ui.part.execution.listener.OperationItemCreatedListener;
 import org.eclipse.buildship.ui.viewer.FilteredTree;
 
 /**
@@ -33,7 +33,7 @@ public class ExecutionsView extends FilteredTreePagePart {
     public static final String ID = "org.eclipse.buildship.ui.views.executionview"; //$NON-NLS-1$
 
     private ExecutionsViewState state;
-    private ProgressItemCreatedListener progressItemCreatedListener;
+    private OperationItemCreatedListener operationItemCreatedListener;
 
     private ActionContributionItem showFilterControlsContributionItem;
     private boolean isFilterControlsAdded;
@@ -47,8 +47,8 @@ public class ExecutionsView extends FilteredTreePagePart {
         this.state.load();
 
         // register a listener that expands the tree as new items are added
-        this.progressItemCreatedListener = new ProgressItemCreatedListener(this);
-        CorePlugin.listenerRegistry().addEventListener(this.progressItemCreatedListener);
+        this.operationItemCreatedListener = new OperationItemCreatedListener(this);
+        CorePlugin.listenerRegistry().addEventListener(this.operationItemCreatedListener);
 
         this.showFilterControlsContributionItem = new ActionContributionItem(new ShowFilterControlsAction(this));
     }
@@ -86,7 +86,7 @@ public class ExecutionsView extends FilteredTreePagePart {
 
     @Override
     public void dispose() {
-        CorePlugin.listenerRegistry().removeEventListener(this.progressItemCreatedListener);
+        CorePlugin.listenerRegistry().removeEventListener(this.operationItemCreatedListener);
         this.state.dispose();
         super.dispose();
     }

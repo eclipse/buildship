@@ -24,31 +24,31 @@ import org.eclipse.buildship.ui.part.execution.model.OperationItemCreatedEvent;
  * This class listens to {@link OperationItemCreatedEvent} events and expands the TreeViewer, so
  * that every new tree element is directly visible.
  */
-public class ProgressItemCreatedListener implements EventListener {
+public class OperationItemCreatedListener implements EventListener {
 
     private ViewerProvider viewerPart;
 
-    public ProgressItemCreatedListener(ViewerProvider treePart) {
+    public OperationItemCreatedListener(ViewerProvider treePart) {
         this.viewerPart = treePart;
     }
 
     @Override
     public void onEvent(Event event) {
         if (event instanceof OperationItemCreatedEvent) {
-            progressItemCreated((OperationItemCreatedEvent) event);
+            operationItemCreated((OperationItemCreatedEvent) event);
         }
     }
 
-    private void progressItemCreated(final OperationItemCreatedEvent progressItemCreatedEvent) {
+    private void operationItemCreated(final OperationItemCreatedEvent operationItemCreatedEvent) {
         Viewer viewer = this.viewerPart.getViewer();
         if (viewer != null) {
             viewer.getControl().getDisplay().asyncExec(new Runnable() {
 
                 @Override
                 public void run() {
-                    Viewer viewer = ProgressItemCreatedListener.this.viewerPart.getViewer();
+                    Viewer viewer = OperationItemCreatedListener.this.viewerPart.getViewer();
                     if (viewer instanceof TreeViewer) {
-                        ((TreeViewer) viewer).expandToLevel(progressItemCreatedEvent.getElement(), AbstractTreeViewer.ALL_LEVELS);
+                        ((TreeViewer) viewer).expandToLevel(operationItemCreatedEvent.getElement(), AbstractTreeViewer.ALL_LEVELS);
                     }
                 }
             });

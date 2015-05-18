@@ -22,11 +22,11 @@ import org.eclipse.buildship.ui.part.execution.model.OperationItemCreatedEvent;
 public final class DefaultOperationItemCreatedEvent implements OperationItemCreatedEvent {
 
     private final Object source;
-    private final OperationItem progressItem;
+    private final OperationItem operationItem;
 
-    public DefaultOperationItemCreatedEvent(Object source, OperationItem progressItem) {
+    public DefaultOperationItemCreatedEvent(Object source, OperationItem operationItem) {
         this.source = Preconditions.checkNotNull(source);
-        this.progressItem = Preconditions.checkNotNull(progressItem);
+        this.operationItem = Preconditions.checkNotNull(operationItem);
     }
 
     @Override
@@ -36,6 +36,6 @@ public final class DefaultOperationItemCreatedEvent implements OperationItemCrea
 
     @Override
     public OperationItem getElement() {
-        return this.progressItem;
+        return this.operationItem;
     }
 }

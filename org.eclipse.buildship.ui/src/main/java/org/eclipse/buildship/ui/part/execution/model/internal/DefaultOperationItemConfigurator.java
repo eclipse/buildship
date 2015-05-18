@@ -33,20 +33,20 @@ public class DefaultOperationItemConfigurator implements OperationItemConfigurat
     private ProgressEvent progressEvent;
 
     @Override
-    public void configure(OperationItem progressItem) {
+    public void configure(OperationItem operationItem) {
         String displayName = getProgressEvent().getDescriptor().getDisplayName();
-        progressItem.setLabel(displayName);
+        operationItem.setLabel(displayName);
 
         if(getProgressEvent() instanceof FinishEvent) {
             OperationResult result = ((FinishEvent) getProgressEvent()).getResult();
-            progressItem.setDuration(NLS.bind(ExecutionsViewMessages.Tree_Item_Test_Finished_In_0_Text, result.getEndTime() - result.getStartTime()));
+            operationItem.setDuration(NLS.bind(ExecutionsViewMessages.Tree_Item_Test_Finished_In_0_Text, result.getEndTime() - result.getStartTime()));
             if(result instanceof TestFailureResult) {
-                progressItem.setImage(PluginImages.OPERATION_FAILURE.withState(ImageState.ENABLED).getImageDescriptor());
+                operationItem.setImage(PluginImages.OPERATION_FAILURE.withState(ImageState.ENABLED).getImageDescriptor());
             }else if (result instanceof TestSuccessResult) {
-                progressItem.setImage(PluginImages.OPERATION_SUCCESS.withState(ImageState.ENABLED).getImageDescriptor());
+                operationItem.setImage(PluginImages.OPERATION_SUCCESS.withState(ImageState.ENABLED).getImageDescriptor());
             }
         }else {
-            progressItem.setDuration(ExecutionsViewMessages.Tree_Item_Test_Started_Text);
+            operationItem.setDuration(ExecutionsViewMessages.Tree_Item_Test_Started_Text);
         }
     }
 

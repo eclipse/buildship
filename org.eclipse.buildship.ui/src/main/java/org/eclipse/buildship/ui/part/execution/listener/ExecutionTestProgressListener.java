@@ -78,11 +78,11 @@ public class ExecutionTestProgressListener implements org.gradle.tooling.events.
         // set the last progress event, so that this can be obtained from the viewers selection
         operationItem.setLastProgressEvent(testProgressEvent);
 
-        // Configure progressItem according to the given event
+        // Configure OperationItem according to the given event
         @SuppressWarnings("cast")
-        OperationItemConfigurator operationItemConfigurator = (OperationItemConfigurator) Platform.getAdapterManager().getAdapter(testProgressEvent, OperationItemConfigurator.class);
+        OperationItemConfigurator operationItemConfigurator = Platform.getAdapterManager().getAdapter(testProgressEvent, OperationItemConfigurator.class);
         if (null == operationItemConfigurator) {
-            operationItemConfigurator = getDefaultProgressItemConfigurator(testProgressEvent);
+            operationItemConfigurator = getDefaultOperationItemConfigurator(testProgressEvent);
         }
         operationItemConfigurator.configure(operationItem);
 
@@ -99,7 +99,7 @@ public class ExecutionTestProgressListener implements org.gradle.tooling.events.
         }
     }
 
-    protected OperationItemConfigurator getDefaultProgressItemConfigurator(ProgressEvent propressEvent) {
+    protected OperationItemConfigurator getDefaultOperationItemConfigurator(ProgressEvent propressEvent) {
         if (null == this.executionItemConfigurator) {
             this.executionItemConfigurator = new DefaultOperationItemConfigurator();
         }
