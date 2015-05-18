@@ -1,10 +1,12 @@
 package org.eclipse.buildship.core.projectimport
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
+
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectBuilder
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.gradle.GradleDistributionWrapper
+
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
@@ -51,9 +53,9 @@ class ProjectImportJobTest extends Specification {
 
         where:
         applyJavaPlugin | projectDescriptorExists | descriptorComment
-        false           | false                   | ''         // the comment from the generated descriptor
-        false           | true                    | 'original' // the comment from the original descriptor
-        true            | false                   | ''
+        false           | false                   | 'Project simple-project created by Buildship.' // the comment from the generated descriptor
+        false           | true                    | 'original'                                     // the comment from the original descriptor
+        true            | false                   | 'Project simple-project created by Buildship.'
         true            | true                    | 'original'
     }
 
@@ -75,23 +77,76 @@ class ProjectImportJobTest extends Specification {
         projectDescriptorExists << [false, true]
     }
 
+    def "Imported parent projects have filters to hide the content of the children"() {
+        setup:
+        File rootProject = newMultiProject()
+        ProjectImportJob job = newProjectImportJob(rootProject)
+
+        when:
+        job.schedule()
+        job.join()
+
+        then:
+        def filters = CorePlugin.workspaceOperations().findProjectByName(rootProject.name).get().getFilters()
+        filters.length == 1
+        filters[0].fileInfoMatcherDescription.arguments.arguments == ['subproject']
+    }
+
+    def "Importing a project twice won't result in duplicate filters"() {
+        setup:
+        File rootProject = newMultiProject()
+
+        when:
+        ProjectImportJob job = newProjectImportJob(rootProject)
+        job.schedule()
+        job.join()
+        CorePlugin.workspaceOperations().deleteAllProjects(null)
+
+        job = newProjectImportJob(rootProject)
+        job.schedule()
+        job.join()
+
+        then:
+        def filters = CorePlugin.workspaceOperations().findProjectByName(rootProject.name).get().getFilters()
+        filters.length == 1
+        filters[0].fileInfoMatcherDescription.arguments.arguments == ['subproject']
+    }
+
     def newProject(boolean projectDescriptorExists, boolean applyJavaPlugin) {
         def root = tempFolder.newFolder('simple-project')
-        def buildGradle = new File(root, 'build.gradle')
-        def sourceFile = new File(root, 'src/main/java')
-        sourceFile.mkdirs()
-        buildGradle.text = applyJavaPlugin ? "apply plugin: 'java'" : " "
+        new File(root, 'build.gradle') << (applyJavaPlugin ? 'apply plugin: "java"' : '')
+        new File(root, 'settings.gradle') << ''
+        new File(root, 'src/main/java').mkdirs()
+
         if (projectDescriptorExists) {
-            def dotProject = new File(root, '.project')
-            dotProject.text = '''<?xml version="1.0" encoding="UTF-8"?><projectDescription><name>simple-project</name><comment>original</comment><projects>
-               </projects><buildSpec></buildSpec><natures></natures></projectDescription>'''
+            new File(root, '.project') << '''<?xml version="1.0" encoding="UTF-8"?>
+                <projectDescription>
+                  <name>simple-project</name>
+                  <comment>original</comment>
+                  <projects></projects>
+                  <buildSpec></buildSpec>
+                  <natures></natures>
+                </projectDescription>'''
             if (applyJavaPlugin) {
-                def dotClasspath = new File(root, '.classpath')
-                dotClasspath.text = '''<?xml version="1.0" encoding="UTF-8"?><classpath><classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-                    <classpathentry kind="src" path="src/main/java"/><classpathentry kind="output" path="bin"/></classpath>'''
+                new File(root, '.classpath') << '''<?xml version="1.0" encoding="UTF-8"?>
+                    <classpath>
+                      <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+                      <classpathentry kind="src" path="src/main/java"/>
+                      <classpathentry kind="output" path="bin"/>
+                    </classpath>'''
             }
         }
         root
+    }
+
+    def newMultiProject() {
+        def rootProject = tempFolder.newFolder('multi-project')
+        new File(rootProject, 'build.gradle') << ''
+        new File(rootProject, 'settings.gradle') << 'include "subproject"'
+        def subProject = new File(rootProject, "subproject")
+        subProject.mkdirs()
+        new File(subProject, 'build.gradle') << ''
+        rootProject
     }
 
     def newProjectImportJob(File location) {

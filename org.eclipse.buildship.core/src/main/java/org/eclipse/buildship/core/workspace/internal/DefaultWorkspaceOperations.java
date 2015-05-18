@@ -77,7 +77,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             List<IProject> allProjects = getAllProjects();
             for (IProject project : allProjects) {
                 try {
-                    project.delete(true, new SubProgressMonitor(monitor, 100 / allProjects.size()));
+                    project.delete(false, true, new SubProgressMonitor(monitor, 100 / allProjects.size()));
                 } catch (Exception e) {
                     String message = String.format("Cannot delete project %s.", project.getName());
                     throw new GradlePluginsRuntimeException(message, e);
@@ -110,6 +110,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
             IProjectDescription projectDescription = workspace.newProjectDescription(name);
             projectDescription.setLocation(Path.fromOSString(location.getPath()));
+            projectDescription.setComment(String.format("Project %s created by Buildship.", name));
             IProject project = workspace.getRoot().getProject(name);
             project.create(projectDescription, new SubProgressMonitor(monitor, 1));
 
@@ -136,7 +137,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
-    public IProject includeProject(IProjectDescription projectDescription, ImmutableList<String> extraNatureIds, IProgressMonitor monitor) {
+    public IProject includeProject(IProjectDescription projectDescription, List<File> childProjectLocations, ImmutableList<String> extraNatureIds, IProgressMonitor monitor) {
         // validate arguments
         Preconditions.checkNotNull(projectDescription);
         Preconditions.checkNotNull(extraNatureIds);
@@ -148,6 +149,9 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
             IProject project = workspace.getRoot().getProject(projectDescription.getName());
             project.create(projectDescription, new SubProgressMonitor(monitor, 1));
+
+            // attach filters to the project to hide the sub-projects of this project
+            ResourceFilter.attachFilters(project, childProjectLocations, new SubProgressMonitor(monitor, 1));
 
             // open the project
             project.open(new SubProgressMonitor(monitor, 1));

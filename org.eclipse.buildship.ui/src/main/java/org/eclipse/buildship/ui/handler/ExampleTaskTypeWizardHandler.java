@@ -1,3 +1,4 @@
+package org.eclipse.buildship.ui.handler;
 
 /*
  * Copyright (c) 2015 the original author or authors.

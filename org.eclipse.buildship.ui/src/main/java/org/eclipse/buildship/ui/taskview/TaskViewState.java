@@ -17,20 +17,21 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.part.TreeHeaderAwareState;
 
 /**
  * Represents the (persistable) configuration state of the {@link TaskView}. Backed by the Eclipse
  * Preferences API.
  */
-public final class TaskViewState {
+public final class TaskViewState implements TreeHeaderAwareState {
 
-    private final String PREF_PROJECT_TASKS_VISIBLE = "taskview.projectTasksVisible";
-    private final String PREF_TASK_SELECTORS_VISIBLE = "taskview.taskSelectorsVisible";
-    private final String PREF_PRIVATE_TASKS_VISIBLE = "taskview.privateTasksVisible";
-    private final String PREF_SORT_BY_TYPE = "taskView.sortByType";
-    private final String PREF_SORT_BY_VISIBILITY = "taskView.sortByVisibility";
-    private final String PREF_LINK_TO_SELECTION = "taskview.linkToSelection";
-    private final String PREF_SHOW_TREE_HEADER = "taskView.showTreeHeader";
+    private static final String PREF_PROJECT_TASKS_VISIBLE = "tasksView.projectTasksVisible";
+    private static final String PREF_TASK_SELECTORS_VISIBLE = "tasksView.taskSelectorsVisible";
+    private static final String PREF_PRIVATE_TASKS_VISIBLE = "tasksView.privateTasksVisible";
+    private static final String PREF_SORT_BY_TYPE = "tasksView.sortByType";
+    private static final String PREF_SORT_BY_VISIBILITY = "tasksView.sortByVisibility";
+    private static final String PREF_LINK_TO_SELECTION = "tasksView.linkToSelection";
+    private static final String PREF_SHOW_TREE_HEADER = "tasksView.showTreeHeader";
 
     private boolean projectTasksVisible;
     private boolean taskSelectorsVisible;
@@ -44,26 +45,26 @@ public final class TaskViewState {
         // in Eclipse 3.6 the method InstanceScope.INSTANCE does not exist
         @SuppressWarnings("deprecation")
         IEclipsePreferences prefs = new InstanceScope().getNode(UiPlugin.PLUGIN_ID);
-        this.projectTasksVisible = prefs.getBoolean(this.PREF_PROJECT_TASKS_VISIBLE, false);
-        this.taskSelectorsVisible = prefs.getBoolean(this.PREF_TASK_SELECTORS_VISIBLE, true);
-        this.privateTasksVisible = prefs.getBoolean(this.PREF_PRIVATE_TASKS_VISIBLE, false);
-        this.sortByType = prefs.getBoolean(this.PREF_SORT_BY_TYPE, true);
-        this.sortByVisibility = prefs.getBoolean(this.PREF_SORT_BY_VISIBILITY, true);
-        this.linkToSelection = prefs.getBoolean(this.PREF_LINK_TO_SELECTION, false);
-        this.showTreeHeader = prefs.getBoolean(this.PREF_SHOW_TREE_HEADER, false);
+        this.projectTasksVisible = prefs.getBoolean(PREF_PROJECT_TASKS_VISIBLE, false);
+        this.taskSelectorsVisible = prefs.getBoolean(PREF_TASK_SELECTORS_VISIBLE, true);
+        this.privateTasksVisible = prefs.getBoolean(PREF_PRIVATE_TASKS_VISIBLE, false);
+        this.sortByType = prefs.getBoolean(PREF_SORT_BY_TYPE, true);
+        this.sortByVisibility = prefs.getBoolean(PREF_SORT_BY_VISIBILITY, true);
+        this.linkToSelection = prefs.getBoolean(PREF_LINK_TO_SELECTION, false);
+        this.showTreeHeader = prefs.getBoolean(PREF_SHOW_TREE_HEADER, false);
     }
 
     public void save() {
         // in Eclipse 3.6 the method InstanceScope.INSTANCE does not exist
         @SuppressWarnings("deprecation")
         IEclipsePreferences prefs = new InstanceScope().getNode(UiPlugin.PLUGIN_ID);
-        prefs.putBoolean(this.PREF_PROJECT_TASKS_VISIBLE, this.projectTasksVisible);
-        prefs.putBoolean(this.PREF_TASK_SELECTORS_VISIBLE, this.taskSelectorsVisible);
-        prefs.putBoolean(this.PREF_PRIVATE_TASKS_VISIBLE, this.privateTasksVisible);
-        prefs.putBoolean(this.PREF_SORT_BY_TYPE, this.sortByType);
-        prefs.putBoolean(this.PREF_SORT_BY_VISIBILITY, this.sortByVisibility);
-        prefs.putBoolean(this.PREF_LINK_TO_SELECTION, this.linkToSelection);
-        prefs.putBoolean(this.PREF_SHOW_TREE_HEADER, this.showTreeHeader);
+        prefs.putBoolean(PREF_PROJECT_TASKS_VISIBLE, this.projectTasksVisible);
+        prefs.putBoolean(PREF_TASK_SELECTORS_VISIBLE, this.taskSelectorsVisible);
+        prefs.putBoolean(PREF_PRIVATE_TASKS_VISIBLE, this.privateTasksVisible);
+        prefs.putBoolean(PREF_SORT_BY_TYPE, this.sortByType);
+        prefs.putBoolean(PREF_SORT_BY_VISIBILITY, this.sortByVisibility);
+        prefs.putBoolean(PREF_LINK_TO_SELECTION, this.linkToSelection);
+        prefs.putBoolean(PREF_SHOW_TREE_HEADER, this.showTreeHeader);
 
         try {
             prefs.flush();

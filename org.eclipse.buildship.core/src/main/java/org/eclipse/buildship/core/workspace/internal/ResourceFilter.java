@@ -11,17 +11,24 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.io.File;
+import java.util.List;
+
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+
 import org.eclipse.core.resources.FileInfoMatcherDescription;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceFilterDescription;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.SubProgressMonitor;
 
-import java.io.File;
-import java.util.List;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
  * Provides resource filtering on {@link IProject} instances.
@@ -92,8 +99,8 @@ final class ResourceFilter {
             // create the specified filters
             if (!filters.isEmpty()) {
                 try {
-                    project.createFilter(IResourceFilterDescription.EXCLUDE_ALL | IResourceFilterDescription.FOLDERS | IResourceFilterDescription.INHERITABLE,
-                            createCompositeFilter(filters), IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1));
+                    project.createFilter(IResourceFilterDescription.EXCLUDE_ALL | IResourceFilterDescription.FOLDERS | IResourceFilterDescription.INHERITABLE, createCompositeFilter(filters), IResource.BACKGROUND_REFRESH, new SubProgressMonitor(
+                            monitor, 1));
                 } catch (CoreException e) {
                     String message = String.format("Cannot create new resource filters for project %s.", project);
                     throw new GradlePluginsRuntimeException(message, e);

@@ -81,15 +81,17 @@ public interface WorkspaceOperations {
 
     /**
      * Includes an existing Eclipse project in the workspace. The project is also opened and the
-     * specified natures are added.
+     * specified natures are added. Those child projects whose specified locations are nested under
+     * this project's location are hidden through a resource filter.
      *
      * @param description the project to include
+     * @param childProjectLocations the location of the child projects
      * @param extraNatureIds the nature ids to add to the project
      * @param monitor the monitor to report the progress on
      * @return the included project
      * @throws org.eclipse.buildship.core.GradlePluginsRuntimeException thrown if the project inclusion fails
      */
-    IProject includeProject(IProjectDescription description, ImmutableList<String> extraNatureIds, IProgressMonitor monitor);
+    IProject includeProject(IProjectDescription description, List<File> childProjectLocations, ImmutableList<String> extraNatureIds, IProgressMonitor monitor);
 
     /**
      * Configures an existing {@link IProject} to be a {@link IJavaProject}.

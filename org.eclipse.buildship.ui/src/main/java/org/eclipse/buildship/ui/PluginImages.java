@@ -41,11 +41,15 @@ public enum PluginImages implements PluginImage {
     RUN_TASKS(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/run_tasks.png")),
     REFRESH(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/refresh.gif", ImageState.DISABLED, "icons/full/dlcl16/refresh.gif")),
     LINK_TO_SELECTION(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/link_to_selection.gif")),
-    REMOVE_CONSOLE(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/remove_console.png", ImageState.DISABLED, "icons/full/dlcl16/remove_console.png")),
-    REMOVE_ALL_CONSOLES(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/remove_all_consoles.png", ImageState.DISABLED, "icons/full/dlcl16/remove_all_consoles.png")),
+    REMOVE_CONSOLE(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/remove_page.png", ImageState.DISABLED, "icons/full/dlcl16/remove_page.png")),
+    REMOVE_ALL_CONSOLES(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/remove_all_pages.png", ImageState.DISABLED, "icons/full/dlcl16/remove_all_pages.png")),
     CANCEL_TASK_EXECUTION(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/cancel_build_execution.png", ImageState.DISABLED, "icons/full/dlcl16/cancel_build_execution.png")),
-    RUN_CONFIG_GRADLE_DISTRIBUTION(ImmutableMap.of(ImageState.ENABLED, "icons/full/eview16/gradle_distribution.png")),
-    RUN_CONFIG_ARGUMENTS(ImmutableMap.of(ImageState.ENABLED, "icons/full/eview16/arguments.gif"));
+    RUN_CONFIG_TASKS(ImmutableMap.of(ImageState.ENABLED, "icons/full/eview16/run_config_tasks.png")),
+    RUN_CONFIG_GRADLE_DISTRIBUTION(ImmutableMap.of(ImageState.ENABLED, "icons/full/eview16/run_config_gradle_distribution.png")),
+    RUN_CONFIG_ARGUMENTS(ImmutableMap.of(ImageState.ENABLED, "icons/full/eview16/run_config_arguments.gif")),
+    OPERATION_ROOT(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_root.png")),
+    OPERATION_SUCCESS(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_success.png")),
+    OPERATION_FAILURE(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_failure.png"));
     // @formatter:on
 
     private final ImmutableMap<ImageState, String> images;

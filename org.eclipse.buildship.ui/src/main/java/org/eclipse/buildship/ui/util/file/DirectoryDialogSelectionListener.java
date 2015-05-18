@@ -53,10 +53,8 @@ public final class DirectoryDialogSelectionListener extends SelectionAdapter {
         } else if (startLocation != null && startLocation.exists() && startLocation.isDirectory()) {
             directoryDialog.setFilterPath(startLocation.getAbsolutePath());
         } else {
-            // set default location to c: on windows and to / on linux/mac
-            String currentPlatform = SWT.getPlatform();
-            directoryDialog.setFilterPath(currentPlatform.equals("win32") || currentPlatform.equals("wpf") ? "c:\\" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    : "/"); //$NON-NLS-1$
+            String userHomeDir = System.getProperty("user.home");  //$NON-NLS-1$
+            directoryDialog.setFilterPath(userHomeDir);
         }
 
         // show the directory dialog and wait for OK or CANCEL

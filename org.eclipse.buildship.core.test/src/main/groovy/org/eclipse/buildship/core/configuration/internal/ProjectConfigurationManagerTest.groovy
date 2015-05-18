@@ -104,7 +104,7 @@ class ProjectConfigurationManagerTest extends Specification {
         importConfigurationOne.projectDir = new File(rootDir.absolutePath)
         importConfigurationOne.gradleDistribution = GradleDistributionWrapper.from(GradleDistributionWrapper.DistributionType.WRAPPER, null)
 
-        new ProjectImportJob(importConfigurationOne).importProject(new NullProgressMonitor())
+        new ProjectImportJob(importConfigurationOne).runToolingApiJobInWorkspace(new NullProgressMonitor())
 
         when:
         Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
@@ -169,8 +169,8 @@ class ProjectConfigurationManagerTest extends Specification {
         importConfigurationTwo.projectDir = new File(rootDirTwo.absolutePath)
         importConfigurationTwo.gradleDistribution = GradleDistributionWrapper.from(GradleDistributionWrapper.DistributionType.VERSION, '1.12')
 
-        new ProjectImportJob(importConfigurationOne).importProject(new NullProgressMonitor())
-        new ProjectImportJob(importConfigurationTwo).importProject(new NullProgressMonitor())
+        new ProjectImportJob(importConfigurationOne).runToolingApiJobInWorkspace(new NullProgressMonitor())
+        new ProjectImportJob(importConfigurationTwo).runToolingApiJobInWorkspace(new NullProgressMonitor())
 
         when:
         Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()

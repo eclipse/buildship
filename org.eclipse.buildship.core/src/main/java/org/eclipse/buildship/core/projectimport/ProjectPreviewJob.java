@@ -13,7 +13,6 @@ package org.eclipse.buildship.core.projectimport;
 
 import java.util.List;
 
-import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.events.build.BuildProgressListener;
 import org.gradle.tooling.events.task.TaskProgressListener;
@@ -32,20 +31,18 @@ import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 import com.gradleware.tooling.toolingmodel.util.Pair;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessStreams;
-import org.eclipse.buildship.core.util.progress.ToolingApiJob;
+import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 
 /**
  * A job that fetches the models required for the project import preview.
  */
-public final class ProjectPreviewJob extends ToolingApiJob {
+public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
 
     private final FixedRequestAttributes fixedAttributes;
     private final TransientRequestAttributes transientAttributes;
@@ -54,7 +51,7 @@ public final class ProjectPreviewJob extends ToolingApiJob {
 
     public ProjectPreviewJob(ProjectImportConfiguration configuration, List<ProgressListener> listeners,
             final FutureCallback<Optional<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>>> resultHandler) {
-        super("Loading project preview");
+        super("Loading Gradle project preview");
 
         this.fixedAttributes = configuration.toFixedAttributes();
         ProcessStreams stream = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
@@ -76,29 +73,12 @@ public final class ProjectPreviewJob extends ToolingApiJob {
     }
 
     @Override
-    protected IStatus run(IProgressMonitor monitor) {
-        try {
-            this.result = previewProject(monitor);
-            return Status.OK_STATUS;
-        } catch (BuildCancelledException e) {
-            // if the job was cancelled by the user, do not show an error dialog
-            CorePlugin.logger().info(e.getMessage());
-            this.result = Optional.absent();
-            return Status.CANCEL_STATUS;
-        } catch (Exception e) {
-            this.result = null;
-            return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, "Loading the project preview failed.", e);
-        } finally {
-            monitor.done();
-        }
-    }
-
-    public Optional<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> previewProject(IProgressMonitor monitor) {
-        monitor.beginTask("Load project preview", 10);
+    public void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
+        monitor.beginTask("Load Gradle project preview", 10);
 
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(new SubProgressMonitor(monitor, 2));
         OmniGradleBuildStructure gradleBuildStructure = fetchGradleBuildStructure(new SubProgressMonitor(monitor, 8));
-        return Optional.of(new Pair<OmniBuildEnvironment, OmniGradleBuildStructure>(buildEnvironment, gradleBuildStructure));
+        this.result = Optional.of(new Pair<OmniBuildEnvironment, OmniGradleBuildStructure>(buildEnvironment, gradleBuildStructure));
     }
 
     private OmniBuildEnvironment fetchBuildEnvironment(IProgressMonitor monitor) {

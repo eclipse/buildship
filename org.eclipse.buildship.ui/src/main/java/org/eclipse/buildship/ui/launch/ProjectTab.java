@@ -79,7 +79,7 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
 
     @Override
     public Image getImage() {
-        return PluginImages.TASK.withState(ImageState.ENABLED).getImage();
+        return PluginImages.RUN_CONFIG_TASKS.withState(ImageState.ENABLED).getImage();
     }
 
     @Override
