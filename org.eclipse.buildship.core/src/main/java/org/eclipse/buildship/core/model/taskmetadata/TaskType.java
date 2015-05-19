@@ -8,6 +8,7 @@
  * Contributors:
  *     Denis Zygann <d.zygann@web.de> - Bug 465728
  */
+
 package org.eclipse.buildship.core.model.taskmetadata;
 
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ public class TaskType {
      * @param description {@link String} the description of the property.
      */
     public void addTaskProperty(String name, String description){
-    	addTaskProperty(new TaskProperty(name, description));
+        addTaskProperty(new TaskProperty(name, description));
     }
 
     /**
@@ -68,7 +69,8 @@ public class TaskType {
     }
 
     /**
-     * Returns the class name from the task type
+     * Returns the class name from the task type.
+     *
      * @return {@link String}
      */
     public String getClassName(){
@@ -76,7 +78,7 @@ public class TaskType {
     }
 
     /**
-     * Returns the name from the task type
+     * Returns the name from the task type.
      *
      * @return {@link String}
      */
@@ -85,7 +87,7 @@ public class TaskType {
     }
 
     /**
-     * Returns the class name from the task type
+     * Returns the description from the task type.
      *
      * @return {@link String}
      */

@@ -6,8 +6,9 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     Denis Zygann <d.zygann@web.de> - Bug 465728 
+ *     Denis Zygann <d.zygann@web.de> - Bug 465728
  */
+
 package org.eclipse.buildship.core.model.taskmetadata;
 
 /**

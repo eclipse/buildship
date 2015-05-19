@@ -8,6 +8,7 @@
  * Contributors:
  *     Denis Zygann <d.zygann@web.de> - Bug 465728
  */
+
 package org.eclipse.buildship.core.model.taskmetadata;
 
 import java.util.ArrayList;

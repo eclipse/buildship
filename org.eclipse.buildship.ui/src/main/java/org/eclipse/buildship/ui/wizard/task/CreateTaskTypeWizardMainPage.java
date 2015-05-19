@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     Denis Zygann <d.zygann@web.de> - Bug 465728
+ *     Simon Scholz <simon.scholz@vogella.com> - Bug 465728
  */
+
 package org.eclipse.buildship.ui.wizard.task;
 
 import java.util.List;
@@ -172,6 +174,10 @@ public class CreateTaskTypeWizardMainPage extends WizardPage {
         super.dispose();
     }
 
+    /**
+     * This class is used for allowing a TaskType, which is empty.
+     *
+     */
     class NullableTaskType extends TaskType {
 
         public NullableTaskType() {

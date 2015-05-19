@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     Denis Zygann <d.zygann@web.de> - Bug 465728
+ *     Simon Scholz <simon.scholz@vogella.com> - Bug 465728
  */
+
 package org.eclipse.buildship.ui.wizard.task;
 
 import org.eclipse.core.databinding.DataBindingContext;
