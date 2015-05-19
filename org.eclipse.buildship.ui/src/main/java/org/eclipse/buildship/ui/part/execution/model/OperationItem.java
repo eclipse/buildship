@@ -25,13 +25,13 @@ import org.eclipse.jface.resource.ImageDescriptor;
 
 /**
  * <p>
- * ProgressItems are the actual elements, which are shown in the
+ * OperationItems are the actual elements, which are shown in the
  * {@link org.eclipse.buildship.ui.part.execution.ExecutionsView}.
  * </p>
  * <p>
  * These object can be obtained by using the global selection provider. By calling
  * {@link #getAdapter(Class)} on this class you can get the associated {@link OperationDescriptor}
- * and the last {@link ProgressEvent}, which was reflected by this ProgressItem.
+ * and the last {@link ProgressEvent}, which was reflected by this OperationItem.
  * </p>
  * <p>
  *
@@ -56,12 +56,12 @@ import org.eclipse.jface.resource.ImageDescriptor;
 @SuppressWarnings("unchecked")
 public class OperationItem extends AbstractModelObject implements IAdaptable {
 
-    public static final String FIELD_OPERATION_DESCRIPTOR = "operationDescriptor";
-    public static final String FIELD_LAST_PROGRESSEVENT = "lastProgressEvent";
-    public static final String FIELD_LABEL = "label";
-    public static final String FIELD_IMAGE = "image";
-    public static final String FIELD_DURATION = "duration";
-    public static final String FIELD_CHILDREN = "children";
+    public static final String FIELD_OPERATION_DESCRIPTOR = "operationDescriptor"; //$NON-NLS-1$
+    public static final String FIELD_LAST_PROGRESSEVENT = "lastProgressEvent"; //$NON-NLS-1$
+    public static final String FIELD_LABEL = "label"; //$NON-NLS-1$
+    public static final String FIELD_IMAGE = "image"; //$NON-NLS-1$
+    public static final String FIELD_DURATION = "duration"; //$NON-NLS-1$
+    public static final String FIELD_CHILDREN = "children"; //$NON-NLS-1$
 
     private final OperationDescriptor operationDescriptor;
 

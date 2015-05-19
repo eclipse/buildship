@@ -13,12 +13,10 @@ package org.eclipse.buildship.ui.taskview;
 
 import java.util.List;
 
+import org.eclipse.ui.PlatformUI;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.events.build.BuildProgressListener;
-import org.gradle.tooling.events.task.TaskProgressListener;
-import org.gradle.tooling.events.test.TestProgressListener;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -42,7 +40,6 @@ import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.swt.widgets.Display;
 
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
@@ -52,7 +49,7 @@ import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 /**
  * Content provider for the {@link TaskView}.
- * <p>
+ * <p/>
  * The 'UI-model' behind the task view provided by this class are nodes; {@link ProjectNode},
  * {@link ProjectTaskNode} and {@link TaskSelectorNode}. With this we can connect the mode and the
  * UI elements.
@@ -67,7 +64,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
     private final WorkspaceOperations workspaceOperations;
 
     public TaskViewContentProvider(TaskView taskView, ModelRepositoryProvider modelRepositoryProvider, ProcessStreamsProvider processStreamsProvider,
-            WorkspaceOperations workspaceOperations) {
+                                   WorkspaceOperations workspaceOperations) {
         this.taskView = Preconditions.checkNotNull(taskView);
         this.modelRepositoryProvider = Preconditions.checkNotNull(modelRepositoryProvider);
         this.processStreamsProvider = Preconditions.checkNotNull(processStreamsProvider);
@@ -119,17 +116,15 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
 
     private OmniEclipseGradleBuild fetchCachedEclipseGradleBuild(FixedRequestAttributes fixedRequestAttributes) {
         List<ProgressListener> noProgressListeners = ImmutableList.of();
-        List<BuildProgressListener> noBuildListeners = ImmutableList.of();
-        List<TaskProgressListener> noTaskListeners = ImmutableList.of();
-        List<TestProgressListener> noTestProgressListeners = ImmutableList.of();
+        List<org.gradle.tooling.events.ProgressListener> noTypedProgressListeners = ImmutableList.of();
         CancellationToken cancellationToken = GradleConnector.newCancellationTokenSource().token();
-        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, null, null, null, noProgressListeners, noBuildListeners, noTaskListeners, noTestProgressListeners, cancellationToken);
+        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, null, null, null, noProgressListeners, noTypedProgressListeners, cancellationToken);
         ModelRepository repository = this.modelRepositoryProvider.getModelRepository(fixedRequestAttributes);
         return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FROM_CACHE_ONLY);
     }
 
     private void collectProjectNodesRecursively(OmniEclipseProject eclipseProject, OmniGradleProject gradleRootProject, ProjectNode parentProjectNode,
-            List<ProjectNode> allProjectNodes) {
+                                                List<ProjectNode> allProjectNodes) {
         // find the Gradle project corresponding to the Eclipse project
         // (there will always be exactly one match)
         Path gradleProjectPath = eclipseProject.getPath();
@@ -199,7 +194,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         public void accept(Optional<OmniEclipseGradleBuild> eclipseGradleBuild) {
             // refresh the content of the task view to display the results
             // (refresh regardless of whether the mode was loaded successfully or not)
-            Display.getDefault().asyncExec(new Runnable() {
+            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
                 @Override
                 public void run() {

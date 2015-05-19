@@ -12,9 +12,9 @@
 package org.eclipse.buildship.ui.part;
 
 /**
- * Implemented by classes that manage the (persisted) state of the tree header.
+ * Implemented by classes that manage the (persisted) state of an {@code org.eclipse.jface.viewers.AbstractTreeViewer}.
  */
-public interface TreeHeaderAwareState {
+public interface TreeViewerState {
 
     /**
      * Returns the current visibility state of the tree header.

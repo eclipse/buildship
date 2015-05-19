@@ -15,9 +15,6 @@ import java.io.File;
 import java.util.List;
 
 import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.events.build.BuildProgressListener;
-import org.gradle.tooling.events.task.TaskProgressListener;
-import org.gradle.tooling.events.test.TestProgressListener;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -86,9 +83,9 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         monitor.beginTask("Load Eclipse Gradle project", IProgressMonitor.UNKNOWN);
         try {
             ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-            List<ProgressListener> listeners = ImmutableList.<ProgressListener> of(new DelegatingProgressListener(monitor));
+            List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
             TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), null, listeners,
-                    ImmutableList.<BuildProgressListener> of(), ImmutableList.<TaskProgressListener> of(), ImmutableList.<TestProgressListener> of(), getToken());
+                    ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
             ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(this.fixedAttributes);
             return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FORCE_RELOAD);
         } finally {

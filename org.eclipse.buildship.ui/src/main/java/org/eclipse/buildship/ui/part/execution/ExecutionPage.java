@@ -11,7 +11,6 @@
 
 package org.eclipse.buildship.ui.part.execution;
 
-import org.eclipse.buildship.ui.part.SelectionProviderProvider;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.beans.IBeanValueProperty;
 import org.eclipse.core.databinding.observable.set.IObservableSet;
@@ -29,11 +28,12 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.part.FilteredTreeProvider;
-import org.eclipse.buildship.ui.part.execution.model.OperationItem;
-import org.eclipse.buildship.ui.part.execution.model.internal.ExecutionChildrenListProperty;
 import org.eclipse.buildship.ui.part.IPage;
+import org.eclipse.buildship.ui.part.SelectionProviderProvider;
+import org.eclipse.buildship.ui.part.execution.model.OperationItem;
+import org.eclipse.buildship.ui.part.execution.model.OperationItemPatternFilter;
+import org.eclipse.buildship.ui.part.execution.model.internal.ExecutionChildrenListProperty;
 import org.eclipse.buildship.ui.viewer.FilteredTree;
-import org.eclipse.buildship.ui.viewer.PatternFilter;
 import org.eclipse.buildship.ui.viewer.labelprovider.ObservableMapCellWithIconLabelProvider;
 
 /**
@@ -57,7 +57,7 @@ public final class ExecutionPage implements IPage, FilteredTreeProvider,Selectio
 
     @Override
     public void createPage(Composite parent) {
-        this.filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, new PatternFilter());
+        this.filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, new OperationItemPatternFilter());
         this.filteredTree.setShowFilterControls(false);
         this.filteredTree.getViewer().getTree().setHeaderVisible(this.state.isShowTreeHeader());
 
@@ -100,11 +100,11 @@ public final class ExecutionPage implements IPage, FilteredTreeProvider,Selectio
 
     protected void createViewerColumns() {
         this.labelColumn = new TreeViewerColumn(getViewer(), SWT.NONE);
-        this.labelColumn.getColumn().setText("Operation");
-        this.labelColumn.getColumn().setWidth(450);
+        this.labelColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Text);
+        this.labelColumn.getColumn().setWidth(550);
 
         this.durationColumn = new TreeViewerColumn(getViewer(), SWT.NONE);
-        this.durationColumn.getColumn().setText("Duration");
+        this.durationColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Duration_Text);
         this.durationColumn.getColumn().setWidth(200);
     }
 
@@ -120,7 +120,7 @@ public final class ExecutionPage implements IPage, FilteredTreeProvider,Selectio
 
         getViewer().setInput(this.root);
 
-        this.buildStarted = new OperationItem(null, "Gradle Build");
+        this.buildStarted = new OperationItem(null, ExecutionsViewMessages.Tree_Item_Root_Text);
         this.buildStarted.setImage(PluginImages.OPERATION_ROOT.withState(ImageState.ENABLED).getImageDescriptor());
         this.root.addChild(this.buildStarted);
     }

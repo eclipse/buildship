@@ -11,13 +11,18 @@
 
 package org.eclipse.buildship.ui.part.execution;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.ui.part.FilteredTreePagePart;
-import org.eclipse.buildship.ui.part.IPage;
-import org.eclipse.buildship.ui.part.execution.listener.BuildLaunchRequestListener;
-import org.eclipse.buildship.ui.part.execution.listener.ProgressItemCreatedListener;
+import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
+
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.ui.handler.CollapseHandler;
+import org.eclipse.buildship.ui.handler.ShowFilterControlsAction;
+import org.eclipse.buildship.ui.part.FilteredTreePagePart;
+import org.eclipse.buildship.ui.part.FilteredTreeProvider;
+import org.eclipse.buildship.ui.part.IPage;
+import org.eclipse.buildship.ui.part.execution.listener.OperationItemCreatedListener;
+import org.eclipse.buildship.ui.viewer.FilteredTree;
 
 /**
  * This part displays the Gradle executions, like a build. It contains a FilteredTree with an
@@ -25,9 +30,13 @@ import org.eclipse.ui.PartInitException;
  */
 public class ExecutionsView extends FilteredTreePagePart {
 
-    public static final String ID = "org.eclipse.buildship.ui.views.executionview";
+    public static final String ID = "org.eclipse.buildship.ui.views.executionview"; //$NON-NLS-1$
 
     private ExecutionsViewState state;
+    private OperationItemCreatedListener operationItemCreatedListener;
+
+    private ActionContributionItem showFilterControlsContributionItem;
+    private boolean isFilterControlsAdded;
 
     @Override
     public void init(IViewSite site) throws PartInitException {
@@ -36,6 +45,34 @@ public class ExecutionsView extends FilteredTreePagePart {
         // load the persisted state before we create any UI components that query for some state
         this.state = new ExecutionsViewState();
         this.state.load();
+
+        // register a listener that expands the tree as new items are added
+        this.operationItemCreatedListener = new OperationItemCreatedListener(this);
+        CorePlugin.listenerRegistry().addEventListener(this.operationItemCreatedListener);
+
+        this.showFilterControlsContributionItem = new ActionContributionItem(new ShowFilterControlsAction(this));
+    }
+
+    @Override
+    public void setCurrentPage(IPage page) {
+        handleShowFilterControlAction(page);
+
+        super.setCurrentPage(page);
+    }
+
+    private void handleShowFilterControlAction(IPage page) {
+        if (page instanceof FilteredTreeProvider) {
+            if (!isFilterControlsAdded) {
+                getViewSite().getActionBars().getToolBarManager().insertAfter(CollapseHandler.ID, showFilterControlsContributionItem);
+                isFilterControlsAdded = true;
+            }
+            FilteredTree filteredTree = ((FilteredTreeProvider) page).getFilteredTree();
+            showFilterControlsContributionItem.getAction().setChecked(filteredTree.isShowFilterControls());
+        } else {
+            getViewSite().getActionBars().getToolBarManager().remove(showFilterControlsContributionItem);
+            isFilterControlsAdded = false;
+        }
+        getViewSite().getActionBars().updateActionBars();
     }
 
     public ExecutionsViewState getState() {
@@ -44,23 +81,12 @@ public class ExecutionsView extends FilteredTreePagePart {
 
     @Override
     protected IPage getDefaultPage() {
-        registerBuildLaunchRequestListener();
-        registerExpandTreeOnNewProgressListener();
         return new DefaultExecutionPage();
-    }
-
-    protected void registerBuildLaunchRequestListener() {
-        BuildLaunchRequestListener buildLaunchRequestListener = new BuildLaunchRequestListener(this);
-        CorePlugin.listenerRegistry().addEventListener(buildLaunchRequestListener);
-    }
-
-    protected void registerExpandTreeOnNewProgressListener() {
-        ProgressItemCreatedListener progressItemCreatedListener = new ProgressItemCreatedListener(this);
-        CorePlugin.listenerRegistry().addEventListener(progressItemCreatedListener);
     }
 
     @Override
     public void dispose() {
+        CorePlugin.listenerRegistry().removeEventListener(this.operationItemCreatedListener);
         this.state.dispose();
         super.dispose();
     }

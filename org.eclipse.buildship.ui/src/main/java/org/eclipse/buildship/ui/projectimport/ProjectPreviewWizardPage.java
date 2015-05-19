@@ -15,6 +15,7 @@ import java.io.File;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.ui.PlatformUI;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Optional;
@@ -36,7 +37,6 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Tree;
@@ -210,7 +210,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
             // schedule the loading of the project preview asynchronously, otherwise the UI will not
             // update until the job has finished
-            Display.getDefault().asyncExec(new Runnable() {
+            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
                 @Override
                 public void run() {
@@ -279,7 +279,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         }
 
         private void updateSummary(final Optional<OmniBuildEnvironment> buildEnvironment) {
-            Display.getDefault().asyncExec(new Runnable() {
+            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
                 @Override
                 public void run() {
@@ -300,7 +300,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         }
 
         private void populateTree(final Optional<OmniGradleBuildStructure> buildStructure) {
-            Display.getDefault().asyncExec(new Runnable() {
+            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
                 @Override
                 public void run() {
@@ -323,7 +323,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         }
 
         private void clearTree() {
-            Display.getDefault().asyncExec(new Runnable() {
+            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
                 @Override
                 public void run() {

@@ -15,9 +15,6 @@ import java.util.List;
 
 import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.events.build.BuildProgressListener;
-import org.gradle.tooling.events.task.TaskProgressListener;
-import org.gradle.tooling.events.test.TestProgressListener;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -54,7 +51,7 @@ public final class LoadEclipseGradleBuildJob extends ToolingApiJob {
     private final Consumer<Optional<OmniEclipseGradleBuild>> postProcessor;
 
     public LoadEclipseGradleBuildJob(ModelRepositoryProvider modelRepositoryProvider, ProcessStreamsProvider processStreamsProvider, FetchStrategy modelFetchStrategy,
-            ProjectConfiguration configuration, Consumer<Optional<OmniEclipseGradleBuild>> postProcessor) {
+                                     ProjectConfiguration configuration, Consumer<Optional<OmniEclipseGradleBuild>> postProcessor) {
         super(String.format("Loading tasks of project located at %s", configuration.getProjectDir().getAbsolutePath()));
         this.modelRepositoryProvider = Preconditions.checkNotNull(modelRepositoryProvider);
         this.processStreamsProvider = Preconditions.checkNotNull(processStreamsProvider);
@@ -74,10 +71,10 @@ public final class LoadEclipseGradleBuildJob extends ToolingApiJob {
             } catch (BuildCancelledException e) {
                 // if the job was cancelled by the user, do not show an error dialog
                 CorePlugin.logger().info(e.getMessage());
-                this.postProcessor.accept(Optional.<OmniEclipseGradleBuild> absent());
+                this.postProcessor.accept(Optional.<OmniEclipseGradleBuild>absent());
                 return Status.CANCEL_STATUS;
             } catch (Exception e) {
-                this.postProcessor.accept(Optional.<OmniEclipseGradleBuild> absent());
+                this.postProcessor.accept(Optional.<OmniEclipseGradleBuild>absent());
                 return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID,
                         String.format("Loading the tasks of the project located at %s failed.", this.configuration.getProjectDir().getName()), e);
             }
@@ -96,7 +93,8 @@ public final class LoadEclipseGradleBuildJob extends ToolingApiJob {
         try {
             ProcessStreams stream = this.processStreamsProvider.getBackgroundJobProcessStreams();
             List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
-            TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, stream.getOutput(), stream.getError(), null, listeners, ImmutableList.<BuildProgressListener>of(), ImmutableList.<TaskProgressListener>of(), ImmutableList.<TestProgressListener>of(), getToken());
+            TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, stream.getOutput(), stream.getError(), null, listeners,
+                    ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
             ModelRepository repository = this.modelRepositoryProvider.getModelRepository(this.configuration.getRequestAttributes());
             return repository.fetchEclipseGradleBuild(transientAttributes, this.modelFetchStrategy);
         } finally {

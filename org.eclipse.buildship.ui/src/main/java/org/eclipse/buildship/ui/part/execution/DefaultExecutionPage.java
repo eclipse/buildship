@@ -11,11 +11,12 @@
 
 package org.eclipse.buildship.ui.part.execution;
 
-import org.eclipse.buildship.ui.part.IPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+
+import org.eclipse.buildship.ui.part.IPage;
 
 /**
  * Default {@link org.eclipse.buildship.ui.part.IPage}, which will be shown on the
@@ -29,7 +30,7 @@ public class DefaultExecutionPage implements IPage {
     @Override
     public void createPage(Composite parent) {
         this.label = new Label(parent, SWT.NONE);
-        this.label.setText("Please start a build.");
+        this.label.setText(ExecutionsViewMessages.Label_No_Execution);
     }
 
     @Override
@@ -45,13 +46,13 @@ public class DefaultExecutionPage implements IPage {
     public void dispose() {
         if (getPageControl() != null && !getPageControl().isDisposed()) {
             getPageControl().dispose();
-            label = null;
+            this.label = null;
         }
     }
 
     @Override
     public String getDisplayName() {
-        return displayName;
+        return this.displayName;
     }
 
     @Override

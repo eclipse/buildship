@@ -77,6 +77,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             List<IProject> allProjects = getAllProjects();
             for (IProject project : allProjects) {
                 try {
+                    // don't delete the project from the file system, only from the workspace
+                    // moreover, force the removal even if the object is out-of-sync with the file system
                     project.delete(false, true, new SubProgressMonitor(monitor, 100 / allProjects.size()));
                 } catch (Exception e) {
                     String message = String.format("Cannot delete project %s.", project.getName());
@@ -267,7 +269,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     private void setSourcesAndClasspathOnProject(IJavaProject javaProject, ClasspathDefinition classpath, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Configure sources and classpath for Eclipse project %s", javaProject.getProject().getName()), 12);
+        monitor.beginTask(String.format("Configure sources and classpath for Eclipse project %s", javaProject.getProject().getName()), 9);
         try {
             // create a new holder for all classpath entries
             Builder<IClasspathEntry> entries = ImmutableList.builder();
@@ -276,23 +278,19 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             entries.add(JavaCore.newContainerEntry(classpath.getJrePath()));
             monitor.worked(1);
 
+            // add source directories; create the directory if it doesn't exist
+            entries.addAll(collectSourceDirectories(classpath, javaProject));
+            monitor.worked(1);
+
             // add classpath definition of where to store the external dependencies, the classpath
             // will be populated lazily by the org.eclipse.jdt.core.classpathContainerInitializer
             // extension point (see GradleClasspathContainerInitializer)
             entries.add(createClasspathContainerForExternalDependencies());
             monitor.worked(1);
 
-            // add project dependencies
-            entries.addAll(collectProjectDependencies(classpath));
-            monitor.worked(1);
-
-            // add source directories; create the directory if it doesn't exist
-            entries.addAll(collectSourceDirectories(classpath, javaProject));
-            monitor.worked(1);
-
             // assign the whole classpath at once to the project
             List<IClasspathEntry> entriesArray = entries.build();
-            javaProject.setRawClasspath(entriesArray.toArray(new IClasspathEntry[entriesArray.size()]), new SubProgressMonitor(monitor, 8));
+            javaProject.setRawClasspath(entriesArray.toArray(new IClasspathEntry[entriesArray.size()]), new SubProgressMonitor(monitor, 6));
         } catch (Exception e) {
             String message = String.format("Cannot configure sources and classpath for Eclipse project %s.", javaProject.getProject().getName());
             throw new GradlePluginsRuntimeException(message, e);
@@ -305,16 +303,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         // http://www-01.ibm.com/support/knowledgecenter/SSZND2_6.0.0/org.eclipse.jdt.doc.isv/guide/jdt_api_classpath.htm?cp=SSZND2_6.0.0%2F3-1-1-0-0-2
         Path containerPath = new Path(ClasspathDefinition.GRADLE_CLASSPATH_CONTAINER_ID);
         return JavaCore.newContainerEntry(containerPath, true);
-    }
-
-    private List<IClasspathEntry> collectProjectDependencies(ClasspathDefinition classpath) {
-        return FluentIterable.from(classpath.getProjectDependencies()).transform(new Function<IPath, IClasspathEntry>() {
-
-            @Override
-            public IClasspathEntry apply(IPath dependency) {
-                return JavaCore.newProjectEntry(dependency, true);
-            }
-        }).toList();
     }
 
     private List<IClasspathEntry> collectSourceDirectories(ClasspathDefinition classpath, final IJavaProject javaProject) {

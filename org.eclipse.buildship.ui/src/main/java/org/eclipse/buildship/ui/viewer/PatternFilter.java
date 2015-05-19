@@ -29,9 +29,12 @@ import java.util.Map;
 import com.ibm.icu.text.BreakIterator;
 
 import org.eclipse.jface.viewers.AbstractTreeViewer;
+import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.StructuredViewer;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
@@ -265,7 +268,17 @@ public class PatternFilter extends ViewerFilter {
         String labelText = ((ILabelProvider) ((StructuredViewer) viewer).getLabelProvider()).getText(element);
 
         if (labelText == null) {
-            return false;
+            // also check for CellLabelProvider, which are also ILabelProvider, e.g.,
+            // ColumnLabelProvider
+            CellLabelProvider labelProvider = null;
+            if (viewer instanceof TreeViewer) {
+                labelProvider = ((TreeViewer) viewer).getLabelProvider(0);
+            } else if (viewer instanceof TableViewer) {
+                labelProvider = ((TableViewer) viewer).getLabelProvider(0);
+            }
+            if (labelProvider instanceof ILabelProvider) {
+                labelText = ((ILabelProvider) labelProvider).getText(element);
+            }
         }
         return wordMatches(labelText);
     }

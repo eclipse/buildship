@@ -12,19 +12,21 @@
 
 package org.eclipse.buildship.ui.part.execution;
 
-import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.part.TreeHeaderAwareState;
+import org.osgi.service.prefs.BackingStoreException;
+
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.osgi.service.prefs.BackingStoreException;
+
+import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.part.TreeViewerState;
 
 /**
  * Represents the (persistable) configuration state of the {@link ExecutionsView}. Backed by the
  * Eclipse Preferences API.
  */
-public final class ExecutionsViewState implements TreeHeaderAwareState {
+public final class ExecutionsViewState implements TreeViewerState {
 
-    private static final String PREF_SHOW_TREE_HEADER = "executionsView.showTreeHeader";
+    private static final String PREF_SHOW_TREE_HEADER = "executionsView.showTreeHeader"; //$NON-NLS-1$
 
     private boolean showTreeHeader;
 
@@ -44,7 +46,7 @@ public final class ExecutionsViewState implements TreeHeaderAwareState {
         try {
             prefs.flush();
         } catch (BackingStoreException e) {
-            UiPlugin.logger().error("Unable to store execution view preferences.", e);
+            UiPlugin.logger().error("Unable to store execution view preferences.", e); //$NON-NLS-1$
         }
     }
 

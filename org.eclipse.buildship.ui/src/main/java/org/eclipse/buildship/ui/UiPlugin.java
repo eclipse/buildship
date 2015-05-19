@@ -23,6 +23,7 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.Logger;
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.notification.UserNotification;
@@ -30,6 +31,7 @@ import org.eclipse.buildship.core.util.logging.EclipseLogger;
 import org.eclipse.buildship.ui.console.ConsoleProcessStreamsProvider;
 import org.eclipse.buildship.ui.launch.ConsoleShowingLaunchListener;
 import org.eclipse.buildship.ui.notification.DialogUserNotification;
+import org.eclipse.buildship.ui.part.execution.listener.ExecutionShowingBuildLaunchRequestListener;
 
 /**
  * The plug-in runtime class for the Gradle integration plug-in containing the UI-related elements.
@@ -51,6 +53,7 @@ public final class UiPlugin extends AbstractUIPlugin {
     private ServiceRegistration processStreamsProviderService;
     private ServiceRegistration dialogUserNotificationService;
     private ConsoleShowingLaunchListener consoleShowingLaunchListener;
+    private ExecutionShowingBuildLaunchRequestListener executionShowingBuildLaunchRequestListener;
 
     @Override
     public void start(BundleContext context) throws Exception {
@@ -108,9 +111,13 @@ public final class UiPlugin extends AbstractUIPlugin {
     private void registerListeners() {
         this.consoleShowingLaunchListener = new ConsoleShowingLaunchListener();
         DebugPlugin.getDefault().getLaunchManager().addLaunchListener(this.consoleShowingLaunchListener);
+
+        this.executionShowingBuildLaunchRequestListener = new ExecutionShowingBuildLaunchRequestListener();
+        CorePlugin.listenerRegistry().addEventListener(this.executionShowingBuildLaunchRequestListener);
     }
 
     private void unregisterListeners() {
+        CorePlugin.listenerRegistry().removeEventListener(this.executionShowingBuildLaunchRequestListener);
         DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(this.consoleShowingLaunchListener);
     }
 
