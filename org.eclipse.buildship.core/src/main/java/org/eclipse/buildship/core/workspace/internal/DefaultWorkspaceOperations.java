@@ -278,14 +278,14 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             entries.add(JavaCore.newContainerEntry(classpath.getJrePath()));
             monitor.worked(1);
 
+            // add source directories; create the directory if it doesn't exist
+            entries.addAll(collectSourceDirectories(classpath, javaProject));
+            monitor.worked(1);
+
             // add classpath definition of where to store the external dependencies, the classpath
             // will be populated lazily by the org.eclipse.jdt.core.classpathContainerInitializer
             // extension point (see GradleClasspathContainerInitializer)
             entries.add(createClasspathContainerForExternalDependencies());
-            monitor.worked(1);
-
-            // add source directories; create the directory if it doesn't exist
-            entries.addAll(collectSourceDirectories(classpath, javaProject));
             monitor.worked(1);
 
             // assign the whole classpath at once to the project
