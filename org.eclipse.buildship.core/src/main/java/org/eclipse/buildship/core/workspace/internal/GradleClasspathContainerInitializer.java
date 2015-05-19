@@ -19,6 +19,7 @@ import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
@@ -26,6 +27,7 @@ import com.google.common.collect.Iterables;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
+import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
@@ -38,6 +40,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
@@ -59,8 +62,8 @@ import org.eclipse.buildship.core.workspace.ClasspathDefinition;
  * external dependencies of the underlying Gradle project.
  * <p/>
  * When this initializer is invoked, it looks up the {@link OmniEclipseProject} for the given
- * Eclipse workspace project, takes all the found external Jar dependencies, and assigns them to the
- * {@link ClasspathDefinition#GRADLE_CLASSPATH_CONTAINER_ID} classpath container.
+ * Eclipse workspace project, takes all the found local and external Jar dependencies, and assigns
+ * them to the {@link ClasspathDefinition#GRADLE_CLASSPATH_CONTAINER_ID} classpath container.
  * <p/>
  * This initializer is assigned to the projects via the
  * {@code org.eclipse.jdt.core.classpathContainerInitializer} extension point.
@@ -116,18 +119,20 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         List<ProgressListener> noProgressListeners = ImmutableList.of();
         List<org.gradle.tooling.events.ProgressListener> noTypedProgressListeners = ImmutableList.of();
         CancellationToken cancellationToken = GradleConnector.newCancellationTokenSource().token();
-        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), null,
-                noProgressListeners, noTypedProgressListeners, cancellationToken);
+        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), null, noProgressListeners,
+                noTypedProgressListeners, cancellationToken);
         ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(fixedRequestAttributes);
         return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
     }
 
     private ImmutableList<IClasspathEntry> collectExternalDependencies(final OmniEclipseProject project) {
-        return FluentIterable.from(project.getExternalDependencies()).filter(new Predicate<OmniExternalDependency>() {
+        // external dependencies
+        ImmutableList<IClasspathEntry> externalDependencies = FluentIterable.from(project.getExternalDependencies()).filter(new Predicate<OmniExternalDependency>() {
 
             @Override
             public boolean apply(OmniExternalDependency dependency) {
-                // Eclipse only accepts archives as external dependencies (but not, for example, a DLL)
+                // Eclipse only accepts archives as external dependencies (but not, for example, a
+                // DLL)
                 String name = dependency.getFile().getName();
                 return name.endsWith(".jar") || name.endsWith(".zip");
             }
@@ -140,24 +145,50 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
                 return JavaCore.newLibraryEntry(jar, sourceJar, null, true);
             }
         }).toList();
+
+        // project dependencies
+        ImmutableList<IClasspathEntry> projectDependencies = FluentIterable.from(collectProjectDependencies(project, project.getRoot()))
+                .transform(new Function<IPath, IClasspathEntry>() {
+
+                    @Override
+                    public IClasspathEntry apply(IPath dependency) {
+                        return JavaCore.newProjectEntry(dependency, true);
+                    }
+                }).toList();
+
+        // return all dependencies a joined list
+        return ImmutableList.<IClasspathEntry> builder().addAll(externalDependencies).addAll(projectDependencies).build();
     }
 
     private void setClasspathContainer(List<IClasspathEntry> classpathEntries, IPath containerPath, IJavaProject project) throws JavaModelException {
         org.eclipse.core.runtime.Path classpathContainerPath = new org.eclipse.core.runtime.Path(ClasspathDefinition.GRADLE_CLASSPATH_CONTAINER_ID);
-        IClasspathContainer classpathContainer = new ExternalDependenciesClasspathContainer(classpathContainerPath, classpathEntries);
-        JavaCore.setClasspathContainer(containerPath, new IJavaProject[]{project}, new IClasspathContainer[]{classpathContainer}, null);
+        IClasspathContainer classpathContainer = new GradleClasspathContainer("Gradle Dependencies", classpathContainerPath, classpathEntries);
+        JavaCore.setClasspathContainer(containerPath, new IJavaProject[] { project }, new IClasspathContainer[] { classpathContainer }, null);
+    }
+
+    private ImmutableList<IPath> collectProjectDependencies(OmniEclipseProject project, final OmniEclipseProject rootProject) {
+        return FluentIterable.from(project.getProjectDependencies()).transform(new Function<OmniEclipseProjectDependency, IPath>() {
+
+            @Override
+            public IPath apply(OmniEclipseProjectDependency dependency) {
+                OmniEclipseProject dependentProject = rootProject.tryFind(Specs.eclipseProjectMatchesProjectPath(dependency.getTargetProjectPath())).get();
+                return new Path("/" + dependentProject.getName());
+            }
+        }).toList();
     }
 
     /**
      * {@code IClasspathContainer} to describe the external dependencies.
      */
-    private static final class ExternalDependenciesClasspathContainer implements IClasspathContainer {
+    private static final class GradleClasspathContainer implements IClasspathContainer {
 
+        private final String containerName;
         private final org.eclipse.core.runtime.Path path;
         private final IClasspathEntry[] classpathEntries;
 
-        private ExternalDependenciesClasspathContainer(org.eclipse.core.runtime.Path path, List<IClasspathEntry> classpathEntries) {
-            this.path = path;
+        private GradleClasspathContainer(String containerName, org.eclipse.core.runtime.Path path, List<IClasspathEntry> classpathEntries) {
+            this.containerName = containerName;
+            this.path = Preconditions.checkNotNull(path);
             this.classpathEntries = Iterables.toArray(classpathEntries, IClasspathEntry.class);
         }
 
@@ -178,7 +209,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
         @Override
         public String getDescription() {
-            return "External Dependencies";
+            return this.containerName;
         }
 
     }
