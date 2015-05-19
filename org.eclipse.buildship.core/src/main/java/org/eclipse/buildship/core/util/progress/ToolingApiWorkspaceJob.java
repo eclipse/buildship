@@ -153,19 +153,20 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
         // recursively collect the error messages going up the stacktrace
         // avoid the same message showing twice in a row
         List<String> messages = Lists.newArrayList();
-        collectCausesRecursively(t.getCause(), messages);
+        Throwable cause = t.getCause();
+        if (cause != null) {
+            collectCausesRecursively(cause, messages);
+        }
         String messageStack = Joiner.on('\n').join(StringUtils.removeAdjacentDuplicates(messages));
         return t.getMessage() + (messageStack.isEmpty() ? "" : "\n\n" + messageStack);
     }
 
     private void collectCausesRecursively(Throwable t, List<String> messages) {
-        if (t != null) {
-            List<String> singleLineMessages = Splitter.on('\n').omitEmptyStrings().splitToList(Strings.nullToEmpty(t.getMessage()));
-            messages.addAll(singleLineMessages);
-            Throwable cause = t.getCause();
-            if (cause != null) {
-                collectCausesRecursively(cause, messages);
-            }
+        List<String> singleLineMessages = Splitter.on('\n').omitEmptyStrings().splitToList(Strings.nullToEmpty(t.getMessage()));
+        messages.addAll(singleLineMessages);
+        Throwable cause = t.getCause();
+        if (cause != null) {
+            collectCausesRecursively(cause, messages);
         }
     }
 
