@@ -163,10 +163,6 @@
             commandId="org.eclipse.buildship.ui.commands.showtreeheader">
       </handler>
       <handler
-            class="org.eclipse.buildship.ui.handler.ShowTreeFilterHandler"
-            commandId="org.eclipse.buildship.ui.commands.showtreefilter">
-      </handler>
-      <handler
             commandId="org.eclipse.buildship.ui.commands.tree.expandall"
             class="org.eclipse.buildship.ui.handler.ExpandHandler">
       </handler>
