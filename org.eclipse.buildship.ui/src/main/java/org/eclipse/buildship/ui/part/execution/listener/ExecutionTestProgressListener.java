@@ -80,7 +80,7 @@ public class ExecutionTestProgressListener implements org.gradle.tooling.events.
 
         // Configure OperationItem according to the given event
         @SuppressWarnings("cast")
-        OperationItemConfigurator operationItemConfigurator = Platform.getAdapterManager().getAdapter(testProgressEvent, OperationItemConfigurator.class);
+        OperationItemConfigurator operationItemConfigurator = (OperationItemConfigurator) Platform.getAdapterManager().getAdapter(testProgressEvent, OperationItemConfigurator.class);
         if (null == operationItemConfigurator) {
             operationItemConfigurator = getDefaultOperationItemConfigurator(testProgressEvent);
         }
