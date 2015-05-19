@@ -9,14 +9,14 @@ import org.eclipse.buildship.core.test.fixtures.TestEnvironment;
 
 import spock.lang.Specification
 
-
-class ToolingApiWorspaceJobTest extends Specification {
+class ToolingApiWorkspaceJobTest extends Specification {
 
     def setup () {
         // suppress the error messages from the console
         TestEnvironment.registerService(Logger, Mock(Logger))
         TestEnvironment.registerService(UserNotification, Mock(UserNotification))
     }
+
     def cleanup() {
         TestEnvironment.cleanup()
     }
@@ -35,9 +35,8 @@ class ToolingApiWorspaceJobTest extends Specification {
         job.join();
 
         then:
-        job.getResult().getSeverity() == IStatus.INFO
-        job.getResult().getException() instanceof UnsupportedOperationException
+        job.result.severity == IStatus.INFO
+        job.result.exception instanceof UnsupportedOperationException
     }
 
-    // TODO (donat) add more tests
 }
