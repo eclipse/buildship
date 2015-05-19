@@ -315,11 +315,37 @@
                 commandId="org.eclipse.buildship.ui.commands.tree.expandall"
                 style="push"
                 tooltip="Expand All Nodes">
+             <visibleWhen
+                   checkEnabled="false">
+                             <and>
+                     <with
+                           variable="activePart">
+                        <test
+                              args="org.eclipse.buildship.ui.views.executionview"
+                              forcePluginActivation="true"
+                              property="buildship.ui.pagespart.isTreePage">
+                        </test>
+                     </with>
+                </and>
+             </visibleWhen>
           </command>
           <command
                 commandId="org.eclipse.buildship.ui.commands.tree.collapseall"
                 style="push"
                 tooltip="Collapse All Nodes">
+             <visibleWhen
+                   checkEnabled="false">
+                             <and>
+                 <with
+                       variable="activePart">
+                    <test
+                          args="org.eclipse.buildship.ui.views.executionview"
+                          forcePluginActivation="true"
+                          property="buildship.ui.pagespart.isTreePage">
+                    </test>
+             </with>
+          </and>
+             </visibleWhen>
           </command>
           <separator
                 name="org.eclipse.buildship.ui.separator.expandcollapsefilter"
@@ -330,16 +356,55 @@
                 commandId="org.eclipse.buildship.ui.commands.switchpage"
                 style="pulldown"
                 tooltip="Switch Execution">
+             <visibleWhen
+                   checkEnabled="false">
+                <and>
+                   <with
+                         variable="activePart">
+                      <test
+                            args="org.eclipse.buildship.ui.views.executionview"
+                            forcePluginActivation="true"
+                            property="buildship.ui.pagespart.hasPages">
+                      </test>
+                   </with>
+                </and>
+             </visibleWhen>
           </command>
           <command
                 commandId="org.eclipse.buildship.ui.commands.removepage"
                 style="push"
                 tooltip="Remove Execution">
+             <visibleWhen
+                   checkEnabled="false">
+                <and>
+                   <with
+                         variable="activePart">
+                      <test
+                            args="org.eclipse.buildship.ui.views.executionview"
+                            forcePluginActivation="true"
+                            property="buildship.ui.pagespart.hasPages">
+                      </test>
+                   </with>
+                </and>
+             </visibleWhen>
           </command>
           <command
                 commandId="org.eclipse.buildship.ui.commands.removeallpages"
                 style="push"
                 tooltip="Remove All Executions">
+             <visibleWhen
+                   checkEnabled="false">
+                <and>
+                   <with
+                         variable="activePart">
+                      <test
+                            args="org.eclipse.buildship.ui.views.executionview"
+                            forcePluginActivation="true"
+                            property="buildship.ui.pagespart.hasPages">
+                      </test>
+                   </with>
+                </and>
+             </visibleWhen>
           </command>
        </menuContribution>
 
@@ -352,5 +417,15 @@
                 class="org.eclipse.buildship.ui.handler.DynamicCommandPageSwitch">
           </dynamic>
        </menuContribution>
+    </extension>
+    <extension
+          point="org.eclipse.core.expressions.propertyTesters">
+       <propertyTester
+             class="org.eclipse.buildship.ui.propertytester.PagesPartPropertyTester"
+             id="org.eclipse.buildship.ui.propertytester.pagespart"
+             namespace="buildship.ui.pagespart"
+             properties="hasPages,isTreePage"
+             type="java.lang.Object">
+       </propertyTester>
     </extension>
 </plugin>
