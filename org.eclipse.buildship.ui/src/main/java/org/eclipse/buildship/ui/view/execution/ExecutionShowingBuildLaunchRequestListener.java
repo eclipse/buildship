@@ -17,10 +17,7 @@ import org.eclipse.buildship.core.launch.ExecuteBuildLaunchRequestEvent;
 import org.eclipse.buildship.ui.part.execution.ExecutionsView;
 import org.eclipse.buildship.ui.part.execution.ExecutionsViewState;
 import org.eclipse.buildship.ui.part.execution.listener.ExecutionTestProgressListener;
-import org.eclipse.buildship.ui.taskview.TaskViewMessages;
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
@@ -53,12 +50,9 @@ public final class ExecutionShowingBuildLaunchRequestListener implements EventLi
             public void run() {
                 // each time a new build is launched, increment the counter to show its progress in a new Executions View
                 String secondaryId = String.valueOf(ExecutionShowingBuildLaunchRequestListener.this.counter.getAndIncrement());
-                org.eclipse.buildship.ui.view.execution.ExecutionsView view = WorkbenchUtils.showView(ExecutionsView.ID, secondaryId, IWorkbenchPage.VIEW_ACTIVATE);
+                org.eclipse.buildship.ui.view.execution.ExecutionsView view = WorkbenchUtils.showView(ExecutionsView.ID, secondaryId, IWorkbenchPage.VIEW_CREATE);
 
                 ExecutionPage executionPage = new ExecutionPage(new ExecutionsViewState());
-                Label label = new Label(view.getControl(), SWT.NONE);
-                label.setText(TaskViewMessages.Label_No_Gradle_Projects);
-
                 executionPage.createPage(view.getControl());
 
                 // register a progress listener to receive build progress events
