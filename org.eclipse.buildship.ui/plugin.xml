@@ -101,39 +101,6 @@
             name="Open Gradle Build Script"
             description="Opens the Gradle build script for the selected Gradle project">
       </command>
-      <command
-            id="org.eclipse.buildship.ui.commands.showtreeheader"
-            name="Show Header">
-         <state
-               id="org.eclipse.ui.commands.toggleState"
-               class="org.eclipse.ui.handlers.RegistryToggleState">
-         </state>
-      </command>
-      <command
-            id="org.eclipse.buildship.ui.commands.tree.expandall"
-            name="Expand All">
-      </command>
-      <command
-            id="org.eclipse.buildship.ui.commands.tree.collapseall"
-            name="Collapse All">
-      </command>
-      <command
-            id="org.eclipse.buildship.ui.commands.switchpage"
-            name="Switch Page">
-         <commandParameter
-               id="org.eclipse.buildship.ui.commandParameters.pageindex"
-               name="Page Index"
-               optional="true">
-         </commandParameter>
-      </command>
-      <command
-            id="org.eclipse.buildship.ui.commands.removepage"
-            name="Remove Page">
-      </command>
-      <command
-            id="org.eclipse.buildship.ui.commands.removeallpages"
-            name="Remove All Pages">
-      </command>
     </extension>
 
     <!-- integration of Gradle commands -->
@@ -158,30 +125,6 @@
       <handler
             commandId="org.eclipse.buildship.ui.commands.openbuildscript"
             class="org.eclipse.buildship.ui.taskview.OpenBuildScriptHandler">
-      </handler>
-      <handler
-            class="org.eclipse.buildship.ui.handler.ShowTreeHeaderHandler"
-            commandId="org.eclipse.buildship.ui.commands.showtreeheader">
-      </handler>
-      <handler
-            commandId="org.eclipse.buildship.ui.commands.tree.expandall"
-            class="org.eclipse.buildship.ui.handler.ExpandHandler">
-      </handler>
-      <handler
-            commandId="org.eclipse.buildship.ui.commands.tree.collapseall"
-            class="org.eclipse.buildship.ui.handler.CollapseHandler">
-      </handler>
-      <handler
-            commandId="org.eclipse.buildship.ui.commands.switchpage"
-            class="org.eclipse.buildship.ui.handler.SwitchPageHandler">
-      </handler>
-      <handler
-            commandId="org.eclipse.buildship.ui.commands.removepage"
-            class="org.eclipse.buildship.ui.handler.RemovePageHandler">
-      </handler>
-      <handler
-            commandId="org.eclipse.buildship.ui.commands.removeallpages"
-            class="org.eclipse.buildship.ui.handler.RemoveAllPagesHandler">
       </handler>
     </extension>
 
@@ -216,28 +159,6 @@
              commandId="org.eclipse.buildship.ui.commands.runtasks"
              icon="icons/full/elcl16/run.png"
              disabledIcon="icons/full/dlcl16/run.png">
-       </image>
-       <image
-             commandId="org.eclipse.buildship.ui.commands.tree.expandall"
-             icon="icons/full/elcl16/expand_all.png">
-       </image>
-       <image
-             commandId="org.eclipse.buildship.ui.commands.tree.collapseall"
-             icon="icons/full/elcl16/collapse_all.png">
-       </image>
-       <image
-             commandId="org.eclipse.buildship.ui.commands.switchpage"
-             icon="icons/full/elcl16/switch_page.png">
-       </image>
-       <image
-             commandId="org.eclipse.buildship.ui.commands.removepage"
-             icon="icons/full/elcl16/remove_page.png"
-             disabledIcon="icons/full/dlcl16/remove_page.png">
-       </image>
-       <image
-             commandId="org.eclipse.buildship.ui.commands.removeallpages"
-             icon="icons/full/elcl16/remove_all_pages.png"
-             disabledIcon="icons/full/dlcl16/remove_all_pages.png">
        </image>
     </extension>
 
@@ -286,68 +207,5 @@
                 type="org.eclipse.ui.views.properties.IPropertySource">
           </adapter>
        </factory>
-    </extension>
-
-    <!-- menu definition for the Executions View -->
-    <extension
-          name="Menus of the Executions View"
-          point="org.eclipse.ui.menus">
-
-        <!-- menu entries of the Executions View -->
-        <menuContribution
-             allPopups="false"
-             locationURI="menu:org.eclipse.buildship.ui.views.executionview">
-          <command
-                commandId="org.eclipse.buildship.ui.commands.showtreeheader"
-                style="toggle"
-                tooltip="Show tree column headers">
-          </command>
-        </menuContribution>
-
-        <!-- toolbar entries of the Executions View -->
-        <menuContribution
-             allPopups="false"
-             locationURI="toolbar:org.eclipse.buildship.ui.views.executionview">
-          <command
-                commandId="org.eclipse.buildship.ui.commands.tree.expandall"
-                style="push"
-                tooltip="Expand All Nodes">
-          </command>
-          <command
-                commandId="org.eclipse.buildship.ui.commands.tree.collapseall"
-                style="push"
-                tooltip="Collapse All Nodes">
-          </command>
-          <separator
-                name="org.eclipse.buildship.ui.separator.expandcollapsefilter"
-                visible="true">
-          </separator>
-          <command
-                id="org.eclipse.buildship.ui.commands.switchpage"
-                commandId="org.eclipse.buildship.ui.commands.switchpage"
-                style="pulldown"
-                tooltip="Switch Execution">
-          </command>
-          <command
-                commandId="org.eclipse.buildship.ui.commands.removepage"
-                style="push"
-                tooltip="Remove Execution">
-          </command>
-          <command
-                commandId="org.eclipse.buildship.ui.commands.removeallpages"
-                style="push"
-                tooltip="Remove All Executions">
-          </command>
-       </menuContribution>
-
-        <!-- dynamic menu entries of the Switch Execution Dropdown menu-->
-        <menuContribution
-             allPopups="false"
-             locationURI="menu:org.eclipse.buildship.ui.commands.switchpage">
-          <dynamic
-                id="org.eclipse.buildship.ui.commands.switchtopage"
-                class="org.eclipse.buildship.ui.handler.DynamicCommandPageSwitch">
-          </dynamic>
-       </menuContribution>
     </extension>
 </plugin>
