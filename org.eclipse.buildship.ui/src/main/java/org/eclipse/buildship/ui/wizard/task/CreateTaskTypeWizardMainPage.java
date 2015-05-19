@@ -18,6 +18,8 @@ import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.beans.PojoProperties;
+import org.eclipse.core.databinding.observable.ChangeEvent;
+import org.eclipse.core.databinding.observable.IChangeListener;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.observable.list.WritableList;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
@@ -117,12 +119,29 @@ public class CreateTaskTypeWizardMainPage extends WizardPage {
         nonEmptyCheckUpdateStrategy.setAfterGetValidator(new NonEmptyValidator());
 
         Binding taskNameBinding = dbc.bindValue(taskNameTarget, taskNameModel, nonEmptyCheckUpdateStrategy, nonEmptyCheckUpdateStrategy);
-        ControlDecorationSupport.create(taskNameBinding, SWT.LEFT | SWT.TOP);
+        // Add ControlDecorationSupport, when the first change occurs so that warnings are not shown
+        // immediately
+        addControlDecorationSupport(taskNameBinding);
 
         IViewerObservableValue taskTypeTarget = ViewerProperties.singleSelection().observe(comboViewer);
         IObservableValue taskTypeModel = BeanProperties.value(TaskCreationModel.class, TaskCreationModel.FIELD_TASKTYPE, TaskType.class).observe(taskCreationModel);
 
         dbc.bindValue(taskTypeTarget, taskTypeModel);
+    }
+
+    private void addControlDecorationSupport(final Binding taskNameBinding) {
+        taskNameBinding.getTarget().addChangeListener(new IChangeListener() {
+
+            private boolean isControlDecorationSupportAdded;
+
+            @Override
+            public void handleChange(ChangeEvent event) {
+                if (!isControlDecorationSupportAdded) {
+                    isControlDecorationSupportAdded = true;
+                    ControlDecorationSupport.create(taskNameBinding, SWT.LEFT | SWT.TOP);
+                }
+            }
+        });
     }
 
     private void createPageCompleteObservable() {
