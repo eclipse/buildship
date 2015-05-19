@@ -23,9 +23,6 @@ import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
-import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
-import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
@@ -34,17 +31,19 @@ import com.gradleware.tooling.toolingmodel.util.Pair;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.jobs.IJobManager;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.launching.JavaRuntime;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
-import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 import org.eclipse.buildship.core.workspace.ClasspathDefinition;
@@ -70,12 +69,22 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
     @Override
     public void runToolingApiJobInWorkspace(IProgressMonitor monitor) {
         monitor.beginTask("Import Gradle project", 100);
-
-        OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(new SubProgressMonitor(monitor, 50));
-        OmniEclipseProject rootProject = eclipseGradleBuild.getRootEclipseProject();
-        List<OmniEclipseProject> allProjects = rootProject.getAll();
-        for (OmniEclipseProject project : allProjects) {
-            importProject(project, rootProject, new SubProgressMonitor(monitor, 50 / allProjects.size()));
+        // all java operations use the workspace root as a scheduling rule
+        // see org.eclipse.jdt.internal.core.JavaModelOperation#getSchedulingRule()
+        // if this rule ends during the import then other projects jobs see an
+        // inconsistent workspace state. consequently we keep the rule for the whole import
+        IJobManager manager = Job.getJobManager();
+        IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+        manager.beginRule(workspaceRoot, monitor);
+        try {
+            OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(new SubProgressMonitor(monitor, 50));
+            OmniEclipseProject rootProject = eclipseGradleBuild.getRootEclipseProject();
+            List<OmniEclipseProject> allProjects = rootProject.getAll();
+            for (OmniEclipseProject project : allProjects) {
+                importProject(project, rootProject, new SubProgressMonitor(monitor, 50 / allProjects.size()));
+            }
+        } finally {
+            manager.endRule(workspaceRoot);
         }
     }
 
@@ -83,9 +92,9 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         monitor.beginTask("Load Eclipse Gradle project", IProgressMonitor.UNKNOWN);
         try {
             ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-            List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
+            List<ProgressListener> listeners = ImmutableList.<ProgressListener> of(new DelegatingProgressListener(monitor));
             TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), null, listeners,
-                    ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
+                    ImmutableList.<org.gradle.tooling.events.ProgressListener> of(), getToken());
             ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(this.fixedAttributes);
             return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FORCE_RELOAD);
         } finally {
@@ -96,7 +105,8 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
     private void importProject(OmniEclipseProject project, OmniEclipseProject rootProject, IProgressMonitor monitor) {
         monitor.beginTask("Import project " + project.getName(), 4);
         try {
-            // check if an Eclipse project already exists at the location of the Gradle project to import
+            // check if an Eclipse project already exists at the location of the Gradle project to
+            // import
             WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations();
             File projectDirectory = project.getProjectDirectory();
             Optional<IProjectDescription> projectDescription = workspaceOperations.findProjectInFolder(projectDirectory, new SubProgressMonitor(monitor, 1));
@@ -107,12 +117,11 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
             IProject workspaceProject;
             if (projectDescription.isPresent()) {
                 // include the existing Eclipse project in the workspace
-                workspaceProject = workspaceOperations.includeProject(projectDescription.get(), childProjectLocations, gradleNature,
-                        new SubProgressMonitor(monitor, 2));
+                workspaceProject = workspaceOperations.includeProject(projectDescription.get(), childProjectLocations, gradleNature, new SubProgressMonitor(monitor, 2));
             } else {
                 // create a new Eclipse project in the workspace for the current Gradle project
-                workspaceProject = workspaceOperations.createProject(project.getName(), project.getProjectDirectory(), childProjectLocations, gradleNature,
-                        new SubProgressMonitor(monitor, 1));
+                workspaceProject = workspaceOperations.createProject(project.getName(), project.getProjectDirectory(), childProjectLocations, gradleNature, new SubProgressMonitor(
+                        monitor, 1));
 
                 // if the current Gradle project is a Java project, configure the Java nature,
                 // the classpath, and the source paths
@@ -150,44 +159,8 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
     }
 
     private ClasspathDefinition collectClasspath(OmniEclipseProject project, OmniEclipseProject rootProject) {
-        List<Pair<IPath, IPath>> jars = collectJarDependencies(project);
-        List<IPath> projects = collectProjectDependencies(project, rootProject);
-        List<String> sources = collectSourceDirectories(project);
         IPath jre = collectDefaultJreLocation();
-        return new ClasspathDefinition(jars, projects, sources, jre);
-    }
-
-    private ImmutableList<Pair<IPath, IPath>> collectJarDependencies(OmniEclipseProject project) {
-        return FluentIterable.from(project.getExternalDependencies()).transform(new Function<OmniExternalDependency, Pair<IPath, IPath>>() {
-
-            @Override
-            public Pair<IPath, IPath> apply(OmniExternalDependency dependency) {
-                IPath jar = Path.fromOSString(dependency.getFile().getAbsolutePath());
-                IPath sourceJar = dependency.getSource() != null ? Path.fromOSString(dependency.getSource().getAbsolutePath()) : null;
-                return new Pair<IPath, IPath>(jar, sourceJar);
-            }
-        }).toList();
-    }
-
-    private ImmutableList<IPath> collectProjectDependencies(OmniEclipseProject project, final OmniEclipseProject rootProject) {
-        return FluentIterable.from(project.getProjectDependencies()).transform(new Function<OmniEclipseProjectDependency, IPath>() {
-
-            @Override
-            public IPath apply(OmniEclipseProjectDependency dependency) {
-                OmniEclipseProject dependentProject = rootProject.tryFind(Specs.eclipseProjectMatchesProjectPath(dependency.getTargetProjectPath())).get();
-                return new Path("/" + dependentProject.getName());
-            }
-        }).toList();
-    }
-
-    private ImmutableList<String> collectSourceDirectories(OmniEclipseProject project) {
-        return FluentIterable.from(project.getSourceDirectories()).transform(new Function<OmniEclipseSourceDirectory, String>() {
-
-            @Override
-            public String apply(OmniEclipseSourceDirectory directory) {
-                return directory.getPath();
-            }
-        }).toList();
+        return new ClasspathDefinition(ImmutableList.<Pair<IPath, IPath>> of(), ImmutableList.<IPath> of(), ImmutableList.<String> of(), jre);
     }
 
     private IPath collectDefaultJreLocation() {
