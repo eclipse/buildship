@@ -1,3 +1,14 @@
+/*
+ * Copyright (c) 2015 the original author or authors.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
+ */
+
 package org.eclipse.buildship.ui.propertytester;
 
 import org.eclipse.core.expressions.PropertyTester;
@@ -9,6 +20,11 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.buildship.ui.part.AbstractPagePart;
 import org.eclipse.buildship.ui.part.ViewerProvider;
 
+/**
+ * This PropertyTester is used to determine, if an AbstractPagePart contains pages and also to
+ * check, if the provided page contains a tree.
+ *
+ */
 public class PagesPartPropertyTester extends PropertyTester {
 
     private enum Properties {
