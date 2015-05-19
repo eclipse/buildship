@@ -159,11 +159,13 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
     }
 
     private void collectCausesRecursively(Throwable t, List<String> messages) {
-        List<String> singleLineMessages = Splitter.on('\n').omitEmptyStrings().splitToList(Strings.nullToEmpty(t.getMessage()));
-        messages.addAll(singleLineMessages);
-        Throwable cause = t.getCause();
-        if (cause != null) {
-            collectCausesRecursively(cause, messages);
+        if (t != null) {
+            List<String> singleLineMessages = Splitter.on('\n').omitEmptyStrings().splitToList(Strings.nullToEmpty(t.getMessage()));
+            messages.addAll(singleLineMessages);
+            Throwable cause = t.getCause();
+            if (cause != null) {
+                collectCausesRecursively(cause, messages);
+            }
         }
     }
 
