@@ -269,7 +269,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     private void setSourcesAndClasspathOnProject(IJavaProject javaProject, ClasspathDefinition classpath, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Configure sources and classpath for Eclipse project %s", javaProject.getProject().getName()), 11);
+        monitor.beginTask(String.format("Configure sources and classpath for Eclipse project %s", javaProject.getProject().getName()), 9);
         try {
             // create a new holder for all classpath entries
             Builder<IClasspathEntry> entries = ImmutableList.builder();
@@ -290,7 +290,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
             // assign the whole classpath at once to the project
             List<IClasspathEntry> entriesArray = entries.build();
-            javaProject.setRawClasspath(entriesArray.toArray(new IClasspathEntry[entriesArray.size()]), new SubProgressMonitor(monitor, 8));
+            javaProject.setRawClasspath(entriesArray.toArray(new IClasspathEntry[entriesArray.size()]), new SubProgressMonitor(monitor, 6));
         } catch (Exception e) {
             String message = String.format("Cannot configure sources and classpath for Eclipse project %s.", javaProject.getProject().getName());
             throw new GradlePluginsRuntimeException(message, e);
