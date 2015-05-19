@@ -69,19 +69,20 @@ public class ExecutionTestProgressListener implements org.gradle.tooling.events.
 
         TestOperationDescriptor descriptor = testProgressEvent.getDescriptor();
         OperationItem operationItem = this.executionItemMap.get(descriptor);
+        boolean createdNewOperationItem = false;
         if (null == operationItem) {
             operationItem = new OperationItem(descriptor);
             this.executionItemMap.put(descriptor, operationItem);
-            CorePlugin.listenerRegistry().dispatch(new DefaultOperationItemCreatedEvent(this, operationItem));
+            createdNewOperationItem = true;
         }
         // set the last progress event, so that this can be obtained from the viewers selection
         operationItem.setLastProgressEvent(testProgressEvent);
 
-        // Configure progressItem according to the given event
+        // Configure OperationItem according to the given event
         @SuppressWarnings("cast")
-        OperationItemConfigurator operationItemConfigurator = (OperationItemConfigurator) Platform.getAdapterManager().getAdapter(testProgressEvent, OperationItemConfigurator.class);
+        OperationItemConfigurator operationItemConfigurator = Platform.getAdapterManager().getAdapter(testProgressEvent, OperationItemConfigurator.class);
         if (null == operationItemConfigurator) {
-            operationItemConfigurator = getDefaultProgressItemConfigurator(testProgressEvent);
+            operationItemConfigurator = getDefaultOperationItemConfigurator(testProgressEvent);
         }
         operationItemConfigurator.configure(operationItem);
 
@@ -92,9 +93,13 @@ public class ExecutionTestProgressListener implements org.gradle.tooling.events.
             children.add(operationItem);
             parentExecutionItem.setChildren(children);
         }
+
+        if (createdNewOperationItem) {
+            CorePlugin.listenerRegistry().dispatch(new DefaultOperationItemCreatedEvent(this, parentExecutionItem));
+        }
     }
 
-    protected OperationItemConfigurator getDefaultProgressItemConfigurator(ProgressEvent propressEvent) {
+    protected OperationItemConfigurator getDefaultOperationItemConfigurator(ProgressEvent propressEvent) {
         if (null == this.executionItemConfigurator) {
             this.executionItemConfigurator = new DefaultOperationItemConfigurator();
         }

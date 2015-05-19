@@ -25,13 +25,13 @@ import org.eclipse.jface.resource.ImageDescriptor;
 
 /**
  * <p>
- * ProgressItems are the actual elements, which are shown in the
+ * OperationItems are the actual elements, which are shown in the
  * {@link org.eclipse.buildship.ui.part.execution.ExecutionsView}.
  * </p>
  * <p>
  * These object can be obtained by using the global selection provider. By calling
  * {@link #getAdapter(Class)} on this class you can get the associated {@link OperationDescriptor}
- * and the last {@link ProgressEvent}, which was reflected by this ProgressItem.
+ * and the last {@link ProgressEvent}, which was reflected by this OperationItem.
  * </p>
  * <p>
  *

@@ -12,22 +12,29 @@
 
 package org.eclipse.buildship.ui.handler;
 
-import org.eclipse.buildship.ui.part.ViewerProvider;
+import java.util.List;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.expressions.IEvaluationContext;
-import org.eclipse.jface.viewers.*;
+import org.eclipse.jface.viewers.AbstractTreeViewer;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ITreeSelection;
+import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.ISources;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import java.util.List;
+import org.eclipse.buildship.ui.part.ViewerProvider;
 
 /**
  * Collapse the selected tree items or all tree items in a {@link ViewerProvider} part.
  */
 public final class CollapseHandler extends AbstractHandler {
+
+    public static final String ID = "org.eclipse.buildship.ui.commands.tree.collapseall"; //$NON-NLS-1$
 
     @Override
     public void setEnabled(Object evaluationContext) {

@@ -38,5 +38,5 @@ package org.eclipse.buildship.ui.part.execution.model;
  */
 public interface OperationItemConfigurator {
 
-    void configure(OperationItem progressItem);
+    void configure(OperationItem operationItem);
 }
