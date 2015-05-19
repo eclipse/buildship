@@ -55,11 +55,12 @@
       </view>
       <view
             id="org.eclipse.buildship.ui.views.executionview"
-            class="org.eclipse.buildship.ui.part.execution.ExecutionsView"
+            class="org.eclipse.buildship.ui.view.execution.ExecutionsView"
             category="org.eclipse.buildship.ui.views"
             icon="icons/full/eview16/executions_view.png"
             name="Gradle Executions"
-            restorable="true">
+            restorable="true"
+            allowMultiple="true">
       </view>
       <category
             id="org.eclipse.buildship.ui.views"
