@@ -14,6 +14,7 @@ package org.eclipse.buildship.ui.part.execution.model;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import org.eclipse.buildship.ui.view.ObservableItem;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
