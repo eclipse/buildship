@@ -32,6 +32,7 @@ import org.eclipse.buildship.ui.console.ConsoleProcessStreamsProvider;
 import org.eclipse.buildship.ui.launch.ConsoleShowingLaunchListener;
 import org.eclipse.buildship.ui.notification.DialogUserNotification;
 import org.eclipse.buildship.ui.part.execution.listener.ExecutionShowingBuildLaunchRequestListener;
+import org.eclipse.buildship.ui.templates.GradleTemplateService;
 
 /**
  * The plug-in runtime class for the Gradle integration plug-in containing the UI-related elements.
@@ -52,6 +53,7 @@ public final class UiPlugin extends AbstractUIPlugin {
     private ServiceRegistration loggerService;
     private ServiceRegistration processStreamsProviderService;
     private ServiceRegistration dialogUserNotificationService;
+    private ServiceRegistration templatesService;
     private ConsoleShowingLaunchListener consoleShowingLaunchListener;
     private ExecutionShowingBuildLaunchRequestListener executionShowingBuildLaunchRequestListener;
 
@@ -84,6 +86,7 @@ public final class UiPlugin extends AbstractUIPlugin {
         this.loggerService = registerService(context, Logger.class, createLogger(), preferences);
         this.processStreamsProviderService = registerService(context, ProcessStreamsProvider.class, createConsoleProcessStreamsProvider(), priorityPreferences);
         this.dialogUserNotificationService = registerService(context, UserNotification.class, createUserNotification(), priorityPreferences);
+        this.templatesService = registerService(context, GradleTemplateService.class, createGradleTemplateService(), preferences);
     }
 
     private <T> ServiceRegistration registerService(BundleContext context, Class<T> clazz, T service, Dictionary<String, Object> properties) {
@@ -100,6 +103,10 @@ public final class UiPlugin extends AbstractUIPlugin {
 
     private UserNotification createUserNotification() {
         return new DialogUserNotification();
+    }
+
+    private GradleTemplateService createGradleTemplateService() {
+        return new GradleTemplateService();
     }
 
     private void unregisterServices() {
@@ -127,6 +134,10 @@ public final class UiPlugin extends AbstractUIPlugin {
 
     public static Logger logger() {
         return getService(getInstance().loggerService.getReference());
+    }
+
+    public static GradleTemplateService templateService() {
+        return getService(getInstance().templatesService.getReference());
     }
 
     private static <T> T getService(ServiceReference reference) {

@@ -11,19 +11,21 @@
 
 package org.eclipse.buildship.ui.wizard.task;
 
-import java.util.Map;
+import java.util.Iterator;
 import java.util.Map.Entry;
 
 import org.eclipse.core.databinding.observable.map.IObservableMap;
 import org.eclipse.core.databinding.observable.map.WritableMap;
+import org.eclipse.jface.text.templates.Template;
 
 import org.eclipse.buildship.core.model.taskmetadata.TaskProperty;
 import org.eclipse.buildship.core.model.taskmetadata.TaskType;
+import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.part.execution.model.AbstractModelObject;
 import org.eclipse.buildship.ui.wizard.task.CreateTaskTypeWizardMainPage.NullableTaskType;
 
 /**
- * This model contains all information, which is configured by the NewTaskWizard.
+ * This model contains all information, which is configured by the NewGradleTaskWizard.
  *
  */
 public class TaskCreationModel extends AbstractModelObject {
@@ -31,6 +33,11 @@ public class TaskCreationModel extends AbstractModelObject {
     public static final String FIELD_TASKNAME = "taskName"; //$NON-NLS-1$
     public static final String FIELD_TASKTYPE = "taskType"; //$NON-NLS-1$
     public static final String FIELD_TASKPROPERTYVALUES = "taskPropertyValues"; //$NON-NLS-1$
+
+    public static final String TASK_TEMPLATE_ID = "org.eclipse.buildship.ui.templates.task"; //$NON-NLS-1$
+    public static final String TEMPLATE_TASKNAME = "${" + FIELD_TASKNAME + "}"; //$NON-NLS-1$
+    public static final String TEMPLATE_TASKTYPE = "${" + FIELD_TASKTYPE + "}"; //$NON-NLS-1$
+    public static final String TEMPLATE_TASKPROPERTYVALUES = "${" + FIELD_TASKPROPERTYVALUES + "}"; //$NON-NLS-1$
 
     private String taskName;
 
@@ -67,33 +74,34 @@ public class TaskCreationModel extends AbstractModelObject {
 
     public String getTaskTypeFunction() {
 
+        Template template = UiPlugin.templateService().getTemplateStore().findTemplateById(TASK_TEMPLATE_ID);
+
+        String pattern = template.getPattern();
+
+        String templateResult = pattern.replace(TEMPLATE_TASKNAME, getTaskName());
+        templateResult = templateResult.replace(TEMPLATE_TASKTYPE, taskType.getClassName());
+
         StringBuilder sb = new StringBuilder();
-        sb.append("task");
-        sb.append(" ");
-        sb.append(taskName);
-        if (getTaskType() != null) {
-            sb.append("(");
-            sb.append("type:");
-            sb.append(" ");
-            sb.append(taskType.getClassName());
-            sb.append(") {");
-        }
-        sb.append(System.lineSeparator());
-        for (Object properties : taskPropertyValues.entrySet()) {
-            if (properties instanceof Map.Entry<?, ?>) {
-                Map.Entry<?, ?> entry = (Entry<?, ?>) properties;
-                String value = (String) entry.getValue();
-                if (value != null && !value.isEmpty()) {
-                    sb.append(((TaskProperty) entry.getKey()).getName());
-                    sb.append(" \'");
-                    sb.append(value);
-                    sb.append("\'");
+        for (Iterator<?> iterator = taskPropertyValues.entrySet().iterator(); iterator.hasNext();) {
+            Entry<?, ?> entry = (Entry<?, ?>) iterator.next();
+            String value = (String) entry.getValue();
+            if (value != null && !value.isEmpty()) {
+                sb.append("\t");
+                sb.append(((TaskProperty) entry.getKey()).getName());
+                sb.append(" \'");
+                sb.append(value);
+                sb.append("\'");
+                if (iterator.hasNext()) {
                     sb.append(System.lineSeparator());
                 }
             }
         }
-        sb.append("}");
 
-        return sb.toString();
+        templateResult = templateResult.replace(TEMPLATE_TASKPROPERTYVALUES, sb.toString());
+
+        // remove the cursor variable from the template
+        templateResult = templateResult.replace("${cursor}", ""); //$NON-NLS-1$
+
+        return templateResult;
     }
 }

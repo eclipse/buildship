@@ -34,7 +34,7 @@
             point="org.eclipse.ui.editors">
       <editor
             id="org.eclipse.buildship.ui.gradlebuildscripteditor"
-            class="org.eclipse.ui.editors.text.TextEditor"
+            class="org.eclipse.buildship.ui.editor.GradleEditor"
             icon="icons/full/obj16/gradle_logo.png"
             name="Gradle Build Script Editor"
             default="false"
@@ -132,6 +132,10 @@
       <command
             id="org.eclipse.buildship.ui.commands.removeallpages"
             name="Remove All Pages">
+      </command>
+      <command
+            id="org.eclipse.buildship.ui.createGradleTask"
+            name="Create Gradle Task">
       </command>
     </extension>
 
@@ -237,6 +241,10 @@
              commandId="org.eclipse.buildship.ui.commands.removeallpages"
              icon="icons/full/elcl16/remove_all_pages.png"
              disabledIcon="icons/full/dlcl16/remove_all_pages.png">
+       </image>
+       <image
+             commandId="org.eclipse.buildship.ui.createGradleTask"
+             icon="icons/full/eview16/executions_view.png">
        </image>
     </extension>
 
@@ -348,5 +356,30 @@
                 class="org.eclipse.buildship.ui.handler.DynamicCommandPageSwitch">
           </dynamic>
        </menuContribution>
+    </extension>
+    <extension
+          point="org.eclipse.ui.editors.templates">
+       <contextType
+             class="org.eclipse.buildship.ui.templates.GradleTemplateContextType"
+             id="gradle"
+             name="Gradle"
+             registryId="org.eclipse.buildship.ui.gradlebuildscripteditor">
+       </contextType>
+       <contextTypeRegistry
+             id="org.eclipse.buildship.ui.gradlebuildscripteditor">
+       </contextTypeRegistry>
+       <template
+             autoinsert="true"
+             contextTypeId="gradle"
+             description="Create a Gradle Task"
+             icon="icons/full/eview16/tasks_view.png"
+             id="org.eclipse.buildship.ui.templates.task"
+             name="Gradle Task">
+          <pattern>
+             task ${taskName} (type: ${taskType}){
+${taskPropertyValues}
+}
+          </pattern>
+       </template>
     </extension>
 </plugin>
