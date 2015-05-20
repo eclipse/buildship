@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.ui.part.execution;
 
+import org.eclipse.buildship.ui.view.execution.ExecutionsViewMessages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;

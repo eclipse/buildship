@@ -31,7 +31,7 @@ import org.eclipse.buildship.core.util.logging.EclipseLogger;
 import org.eclipse.buildship.ui.console.ConsoleProcessStreamsProvider;
 import org.eclipse.buildship.ui.launch.ConsoleShowingLaunchListener;
 import org.eclipse.buildship.ui.notification.DialogUserNotification;
-import org.eclipse.buildship.ui.part.execution.listener.ExecutionShowingBuildLaunchRequestListener;
+import org.eclipse.buildship.ui.view.execution.ExecutionShowingBuildLaunchRequestListener;
 
 /**
  * The plug-in runtime class for the Gradle integration plug-in containing the UI-related elements.

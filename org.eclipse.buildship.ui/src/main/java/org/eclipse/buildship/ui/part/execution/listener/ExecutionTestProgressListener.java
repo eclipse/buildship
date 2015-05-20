@@ -26,7 +26,7 @@ import com.google.common.collect.Maps;
 import org.eclipse.core.runtime.Platform;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.ui.part.execution.ExecutionsViewMessages;
+import org.eclipse.buildship.ui.view.execution.ExecutionsViewMessages;
 import org.eclipse.buildship.ui.part.execution.model.OperationItem;
 import org.eclipse.buildship.ui.part.execution.model.OperationItemConfigurator;
 import org.eclipse.buildship.ui.part.execution.model.internal.DefaultOperationItemConfigurator;
@@ -60,7 +60,7 @@ public class ExecutionTestProgressListener implements org.gradle.tooling.events.
         TestProgressEvent testProgressEvent = (TestProgressEvent) progressEvent;
 
         if (!this.testExecutionItemCreated.getAndSet(true)) {
-            OperationItem tests = new OperationItem(null, ExecutionsViewMessages.Tree_Item_Tests_Text);
+            OperationItem tests = new OperationItem(null, "Tests");
             this.root.addChild(tests);
 
             // The new root will be the tests
@@ -103,7 +103,6 @@ public class ExecutionTestProgressListener implements org.gradle.tooling.events.
         if (null == this.executionItemConfigurator) {
             this.executionItemConfigurator = new DefaultOperationItemConfigurator();
         }
-        this.executionItemConfigurator.setProgressEvent(propressEvent);
         return this.executionItemConfigurator;
     }
 

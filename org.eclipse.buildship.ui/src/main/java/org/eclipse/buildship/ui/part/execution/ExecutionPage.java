@@ -11,6 +11,8 @@
 
 package org.eclipse.buildship.ui.part.execution;
 
+import org.eclipse.buildship.ui.view.execution.ExecutionsViewMessages;
+import org.eclipse.buildship.ui.view.execution.ExecutionsViewState;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.beans.IBeanValueProperty;
 import org.eclipse.core.databinding.observable.set.IObservableSet;
@@ -100,11 +102,11 @@ public final class ExecutionPage implements IPage, FilteredTreeProvider,Selectio
 
     protected void createViewerColumns() {
         this.labelColumn = new TreeViewerColumn(getViewer(), SWT.NONE);
-        this.labelColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Text);
+        this.labelColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Name_Text);
         this.labelColumn.getColumn().setWidth(550);
 
         this.durationColumn = new TreeViewerColumn(getViewer(), SWT.NONE);
-        this.durationColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Duration_Text);
+        this.durationColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Duration_Text);
         this.durationColumn.getColumn().setWidth(200);
     }
 
@@ -115,12 +117,12 @@ public final class ExecutionPage implements IPage, FilteredTreeProvider,Selectio
         getViewer().setContentProvider(contentProvider);
 
         IObservableSet knownElements = contentProvider.getKnownElements();
-        attachLabelProvider(OperationItem.FIELD_LABEL, OperationItem.FIELD_IMAGE, knownElements, this.labelColumn);
+        attachLabelProvider(OperationItem.FIELD_NAME, OperationItem.FIELD_IMAGE, knownElements, this.labelColumn);
         attachLabelProvider(OperationItem.FIELD_DURATION, null, knownElements, this.durationColumn);
 
         getViewer().setInput(this.root);
 
-        this.buildStarted = new OperationItem(null, ExecutionsViewMessages.Tree_Item_Root_Text);
+        this.buildStarted = new OperationItem(null, "Gradle Build");
         this.buildStarted.setImage(PluginImages.OPERATION_ROOT.withState(ImageState.ENABLED).getImageDescriptor());
         this.root.addChild(this.buildStarted);
     }
