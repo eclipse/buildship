@@ -24,17 +24,10 @@ import java.util.List;
 
 /**
  * <p>
- * OperationItems are the actual elements, which are shown in the
+ * {@code OperationItem} instances are the nodes added to the trees of the
  * {@link org.eclipse.buildship.ui.view.execution.ExecutionsView}.
  * </p>
- * <p>
- * These object can be obtained by using the global selection provider. By calling
- * {@link #getAdapter(Class)} on this class you can get the associated {@link OperationDescriptor}.
- * </p>
- * <p/>
- * <p/>
  * <pre>
- * <code>
  * ISelection selection = HandlerUtil.getCurrentSelection(event);
  * if (selection instanceof IStructuredSelection) {
  *     IStructuredSelection structuredSelection = (IStructuredSelection) selection;
@@ -45,7 +38,6 @@ import java.util.List;
  *         // ... do something with the OperationDescriptor
  *     }
  * }
- * </code>
  * </pre>
  */
 @SuppressWarnings("unchecked")
