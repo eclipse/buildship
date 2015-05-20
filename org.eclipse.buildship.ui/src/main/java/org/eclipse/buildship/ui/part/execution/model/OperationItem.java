@@ -82,8 +82,8 @@ public class OperationItem extends AbstractModelObject implements IAdaptable {
     public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
         if (getOperationDescriptor() != null && OperationDescriptor.class.equals(adapter)) {
             return getOperationDescriptor();
-        } else if (getLastProgressEvent() != null && ProgressEvent.class.equals(adapter)) {
-            return getLastProgressEvent();
+        } else if (this.lastProgressEvent != null && ProgressEvent.class.equals(adapter)) {
+            return this.lastProgressEvent;
         }
 
         return Platform.getAdapterManager().getAdapter(this, adapter);

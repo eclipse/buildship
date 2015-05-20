@@ -20,25 +20,30 @@ import java.beans.PropertyChangeSupport;
  */
 public abstract class AbstractModelObject {
 
-    private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+    private final PropertyChangeSupport propertyChangeSupport;
+
+    protected AbstractModelObject() {
+        this.propertyChangeSupport = new PropertyChangeSupport(this);
+    }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
-        propertyChangeSupport.addPropertyChangeListener(listener);
+        this.propertyChangeSupport.addPropertyChangeListener(listener);
     }
 
     public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
-        propertyChangeSupport.addPropertyChangeListener(propertyName, listener);
+        this.propertyChangeSupport.addPropertyChangeListener(propertyName, listener);
     }
 
     public void removePropertyChangeListener(PropertyChangeListener listener) {
-        propertyChangeSupport.removePropertyChangeListener(listener);
+        this.propertyChangeSupport.removePropertyChangeListener(listener);
     }
 
     public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
-        propertyChangeSupport.removePropertyChangeListener(propertyName, listener);
+        this.propertyChangeSupport.removePropertyChangeListener(propertyName, listener);
     }
 
     protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
-        propertyChangeSupport.firePropertyChange(propertyName, oldValue, newValue);
+        this.propertyChangeSupport.firePropertyChange(propertyName, oldValue, newValue);
     }
+
 }

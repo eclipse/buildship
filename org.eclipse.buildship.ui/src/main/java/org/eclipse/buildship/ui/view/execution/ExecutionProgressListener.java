@@ -60,7 +60,6 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
         @SuppressWarnings({"cast", "RedundantCast"})
         OperationItemConfigurator operationItemConfigurator = (OperationItemConfigurator) Platform.getAdapterManager().getAdapter(progressEvent, OperationItemConfigurator.class);
         if (operationItemConfigurator == null) {
-            this.executionItemConfigurator.setProgressEvent(progressEvent);
             operationItemConfigurator = this.executionItemConfigurator;
         }
         operationItemConfigurator.configure(operationItem);

@@ -11,51 +11,41 @@
 
 package org.eclipse.buildship.ui.part.execution.model.internal;
 
+import org.eclipse.buildship.ui.PluginImage.ImageState;
+import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.buildship.ui.part.execution.model.OperationItem;
+import org.eclipse.buildship.ui.part.execution.model.OperationItemConfigurator;
+import org.eclipse.buildship.ui.view.execution.ExecutionsViewMessages;
 import org.eclipse.osgi.util.NLS;
-
 import org.gradle.tooling.events.FinishEvent;
 import org.gradle.tooling.events.OperationResult;
 import org.gradle.tooling.events.ProgressEvent;
 import org.gradle.tooling.events.test.TestFailureResult;
 import org.gradle.tooling.events.test.TestSuccessResult;
 
-import org.eclipse.buildship.ui.PluginImage.ImageState;
-import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.view.execution.ExecutionsViewMessages;
-import org.eclipse.buildship.ui.part.execution.model.OperationItem;
-import org.eclipse.buildship.ui.part.execution.model.OperationItemConfigurator;
-
 /**
  * Default implementation of the {@link OperationItemConfigurator}.
  */
 public class DefaultOperationItemConfigurator implements OperationItemConfigurator {
-
-    private ProgressEvent progressEvent;
 
     @Override
     public void configure(OperationItem operationItem) {
         String displayName = operationItem.getOperationDescriptor().getDisplayName();
         operationItem.setLabel(displayName);
 
-        if(getProgressEvent() instanceof FinishEvent) {
-            OperationResult result = ((FinishEvent) getProgressEvent()).getResult();
+        ProgressEvent lastProgressEvent = operationItem.getLastProgressEvent();
+        if (lastProgressEvent instanceof FinishEvent) {
+            OperationResult result = ((FinishEvent) lastProgressEvent).getResult();
             operationItem.setDuration(NLS.bind(ExecutionsViewMessages.Tree_Item_Operation_Finished_In_0_Text, result.getEndTime() - result.getStartTime()));
-            if(result instanceof TestFailureResult) {
+            if (result instanceof TestFailureResult) {
                 operationItem.setImage(PluginImages.OPERATION_FAILURE.withState(ImageState.ENABLED).getImageDescriptor());
-            }else if (result instanceof TestSuccessResult) {
+            } else if (result instanceof TestSuccessResult) {
                 operationItem.setImage(PluginImages.OPERATION_SUCCESS.withState(ImageState.ENABLED).getImageDescriptor());
             }
-        }else {
+        } else {
             operationItem.setDuration(ExecutionsViewMessages.Tree_Item_Operation_Started_Text);
         }
     }
 
-    public ProgressEvent getProgressEvent() {
-        return this.progressEvent;
-    }
-
-    public void setProgressEvent(ProgressEvent progressEvent) {
-        this.progressEvent = progressEvent;
-    }
 
 }
