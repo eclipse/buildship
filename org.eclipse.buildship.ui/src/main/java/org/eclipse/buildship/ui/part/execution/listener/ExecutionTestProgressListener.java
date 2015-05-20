@@ -103,7 +103,6 @@ public class ExecutionTestProgressListener implements org.gradle.tooling.events.
         if (null == this.executionItemConfigurator) {
             this.executionItemConfigurator = new DefaultOperationItemConfigurator();
         }
-        this.executionItemConfigurator.setProgressEvent(propressEvent);
         return this.executionItemConfigurator;
     }
 
