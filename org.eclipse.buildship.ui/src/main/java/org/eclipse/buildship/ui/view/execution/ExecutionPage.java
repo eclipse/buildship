@@ -13,7 +13,6 @@ package org.eclipse.buildship.ui.view.execution;
 
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 import org.eclipse.buildship.ui.part.execution.ExecutionsViewMessages;
-import org.eclipse.buildship.ui.part.execution.ExecutionsViewState;
 import org.eclipse.buildship.ui.part.execution.model.OperationItem;
 import org.eclipse.buildship.ui.part.execution.model.OperationItemPatternFilter;
 import org.eclipse.buildship.ui.part.execution.model.internal.ExecutionChildrenListProperty;

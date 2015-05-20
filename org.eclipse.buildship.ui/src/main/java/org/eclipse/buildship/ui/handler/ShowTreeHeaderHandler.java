@@ -14,7 +14,7 @@ package org.eclipse.buildship.ui.handler;
 
 import org.eclipse.buildship.ui.part.TreeViewerState;
 import org.eclipse.buildship.ui.part.ViewerProvider;
-import org.eclipse.buildship.ui.part.execution.ExecutionsViewState;
+import org.eclipse.buildship.ui.view.execution.ExecutionsViewState;
 import org.eclipse.core.commands.*;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewer;

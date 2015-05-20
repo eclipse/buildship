@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.ui.part.execution;
 
+import org.eclipse.buildship.ui.view.execution.ExecutionsViewState;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.beans.IBeanValueProperty;
 import org.eclipse.core.databinding.observable.set.IObservableSet;
