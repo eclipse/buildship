@@ -29,20 +29,17 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
 /**
- * This part displays the Gradle executions, like a build. It contains a FilteredTree with an
- * operation and a duration column.
+ * Displays the tree of a single build execution.
  */
 public final class ExecutionPage {
 
-    private final ExecutionsViewState state;
     private final FilteredTree filteredTree;
 
     public ExecutionPage(Composite parent, ExecutionsViewState state, BuildLaunchRequest buildLaunchRequest) {
-        this.state = state;
-
+        // configure tree
         this.filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, new OperationItemPatternFilter());
         this.filteredTree.setShowFilterControls(false);
-        this.filteredTree.getViewer().getTree().setHeaderVisible(this.state.isShowTreeHeader());
+        this.filteredTree.getViewer().getTree().setHeaderVisible(state.isShowTreeHeader());
 
         TreeViewerColumn nameColumn = new TreeViewerColumn(this.filteredTree.getViewer(), SWT.NONE);
         nameColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Name_Text);
@@ -52,6 +49,7 @@ public final class ExecutionPage {
         durationColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Duration_Text);
         durationColumn.getColumn().setWidth(200);
 
+        // configure data binding
         IListProperty childrenProperty = new ExecutionChildrenListProperty();
         ObservableListTreeContentProvider contentProvider = new ObservableListTreeContentProvider(childrenProperty.listFactory(), null);
         this.filteredTree.getViewer().setContentProvider(contentProvider);
@@ -60,9 +58,11 @@ public final class ExecutionPage {
         attachLabelProvider(OperationItem.FIELD_NAME, OperationItem.FIELD_IMAGE, knownElements, nameColumn);
         attachLabelProvider(OperationItem.FIELD_DURATION, null, knownElements, durationColumn);
 
+        // set tree root node
         OperationItem root = new OperationItem(null);
         this.filteredTree.getViewer().setInput(root);
 
+        // listen to progress events
         buildLaunchRequest.typedProgressListeners(new ExecutionProgressListener(root));
     }
 

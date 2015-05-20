@@ -21,7 +21,10 @@ import org.eclipse.ui.PlatformUI;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * This listener is invoked every time a Gradle build is started.
+ * {@link EventListener} implementation showing/activating the Executions View when a new Gradle build is executed and the
+ * {@link org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes#isShowExecutionView()} setting is enabled.
+ * <p/>
+ * The listener implementation is necessary since opening a view is a UI-related task and the execution is performed in the core component.
  */
 public final class ExecutionShowingBuildLaunchRequestListener implements EventListener {
 

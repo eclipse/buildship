@@ -26,9 +26,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This class listens to {@link org.gradle.tooling.events.test.TestProgressEvent} events, which are send by the Gradle tooling API.
- * It creates appropriate {@link org.eclipse.buildship.ui.part.execution.model.OperationItem} objects, which are shown in the
- * {@link org.eclipse.buildship.ui.part.execution.ExecutionsView}, according to the incoming events.
+ * Listens to {@link org.gradle.tooling.events.ProgressEvent} instances that are sent by the Tooling API while a build is executed. Each
+ * incoming event is added to the execution tree as an {@link org.eclipse.buildship.ui.part.execution.model.OperationItem} instance.
  */
 public final class ExecutionProgressListener implements org.gradle.tooling.events.ProgressListener {
 
@@ -55,7 +54,7 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
         operationItem.setLastProgressEvent(progressEvent);
 
         // Configure OperationItem according to the given event
-        @SuppressWarnings("cast")
+        @SuppressWarnings({"cast", "RedundantCast"})
         OperationItemConfigurator operationItemConfigurator = (OperationItemConfigurator) Platform.getAdapterManager().getAdapter(progressEvent, OperationItemConfigurator.class);
         if (operationItemConfigurator == null) {
             this.executionItemConfigurator.setProgressEvent(progressEvent);
