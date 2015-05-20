@@ -12,7 +12,6 @@
 package org.eclipse.buildship.ui.view.execution;
 
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-import org.eclipse.buildship.ui.part.execution.model.ExecutionChildrenListProperty;
 import org.eclipse.buildship.ui.viewer.FilteredTree;
 import org.eclipse.buildship.ui.viewer.labelprovider.ObservableMapCellWithIconLabelProvider;
 import org.eclipse.core.databinding.beans.BeanProperties;
@@ -48,7 +47,7 @@ public final class ExecutionPage {
         durationColumn.getColumn().setWidth(200);
 
         // configure data binding
-        IListProperty childrenProperty = new ExecutionChildrenListProperty();
+        IListProperty childrenProperty = new OperationItemChildrenListProperty();
         ObservableListTreeContentProvider contentProvider = new ObservableListTreeContentProvider(childrenProperty.listFactory(), null);
         this.filteredTree.getViewer().setContentProvider(contentProvider);
 
