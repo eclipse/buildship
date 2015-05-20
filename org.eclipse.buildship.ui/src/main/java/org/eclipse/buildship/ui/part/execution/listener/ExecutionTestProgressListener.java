@@ -60,7 +60,7 @@ public class ExecutionTestProgressListener implements org.gradle.tooling.events.
         TestProgressEvent testProgressEvent = (TestProgressEvent) progressEvent;
 
         if (!this.testExecutionItemCreated.getAndSet(true)) {
-            OperationItem tests = new OperationItem(null, ExecutionsViewMessages.Tree_Item_Tests_Text);
+            OperationItem tests = new OperationItem(null, "Tests");
             this.root.addChild(tests);
 
             // The new root will be the tests
