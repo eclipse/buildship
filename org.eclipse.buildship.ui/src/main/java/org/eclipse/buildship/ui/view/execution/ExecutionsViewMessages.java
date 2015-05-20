@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.part.execution;
+package org.eclipse.buildship.ui.view.execution;
 
 import org.eclipse.osgi.util.NLS;
 
@@ -18,7 +18,7 @@ import org.eclipse.osgi.util.NLS;
  */
 public class ExecutionsViewMessages extends NLS {
 
-    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.part.execution.ExecutionsViewMessages"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.view.execution.ExecutionsViewMessages"; //$NON-NLS-1$
 
     public static String Label_No_Execution;
 

@@ -1,7 +1,6 @@
 package org.eclipse.buildship.ui.view.execution;
 
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-import org.eclipse.buildship.ui.part.execution.ExecutionsViewMessages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
