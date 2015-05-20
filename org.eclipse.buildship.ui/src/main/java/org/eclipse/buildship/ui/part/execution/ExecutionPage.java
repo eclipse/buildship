@@ -115,7 +115,7 @@ public final class ExecutionPage implements IPage, FilteredTreeProvider,Selectio
         getViewer().setContentProvider(contentProvider);
 
         IObservableSet knownElements = contentProvider.getKnownElements();
-        attachLabelProvider(OperationItem.FIELD_LABEL, OperationItem.FIELD_IMAGE, knownElements, this.labelColumn);
+        attachLabelProvider(OperationItem.FIELD_NAME, OperationItem.FIELD_IMAGE, knownElements, this.labelColumn);
         attachLabelProvider(OperationItem.FIELD_DURATION, null, knownElements, this.durationColumn);
 
         getViewer().setInput(this.root);

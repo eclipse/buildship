@@ -37,10 +37,7 @@ import org.eclipse.swt.widgets.Composite;
 public final class ExecutionPage {
 
     private final ExecutionsViewState state;
-    private FilteredTree filteredTree;
-    private TreeViewerColumn labelColumn;
-    private TreeViewerColumn durationColumn;
-    private OperationItem root = new OperationItem(null);
+    private final FilteredTree filteredTree;
 
     public ExecutionPage(Composite parent, ExecutionsViewState state, BuildLaunchRequest buildLaunchRequest) {
         this.state = state;
@@ -49,32 +46,26 @@ public final class ExecutionPage {
         this.filteredTree.setShowFilterControls(false);
         this.filteredTree.getViewer().getTree().setHeaderVisible(this.state.isShowTreeHeader());
 
-        createViewerColumns();
-        bindUI();
-        attachListeners(buildLaunchRequest);
-    }
+        TreeViewerColumn nameColumn = new TreeViewerColumn(this.filteredTree.getViewer(), SWT.NONE);
+        nameColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Text);
+        nameColumn.getColumn().setWidth(550);
 
-    protected void createViewerColumns() {
-        this.labelColumn = new TreeViewerColumn(this.filteredTree.getViewer(), SWT.NONE);
-        this.labelColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Text);
-        this.labelColumn.getColumn().setWidth(550);
+        TreeViewerColumn durationColumn = new TreeViewerColumn(this.filteredTree.getViewer(), SWT.NONE);
+        durationColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Duration_Text);
+        durationColumn.getColumn().setWidth(200);
 
-        this.durationColumn = new TreeViewerColumn(this.filteredTree.getViewer(), SWT.NONE);
-        this.durationColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Duration_Text);
-        this.durationColumn.getColumn().setWidth(200);
-    }
-
-    private void bindUI() {
         IListProperty childrenProperty = new ExecutionChildrenListProperty();
-
         ObservableListTreeContentProvider contentProvider = new ObservableListTreeContentProvider(childrenProperty.listFactory(), null);
         this.filteredTree.getViewer().setContentProvider(contentProvider);
 
         IObservableSet knownElements = contentProvider.getKnownElements();
-        attachLabelProvider(OperationItem.FIELD_LABEL, OperationItem.FIELD_IMAGE, knownElements, this.labelColumn);
-        attachLabelProvider(OperationItem.FIELD_DURATION, null, knownElements, this.durationColumn);
+        attachLabelProvider(OperationItem.FIELD_NAME, OperationItem.FIELD_IMAGE, knownElements, nameColumn);
+        attachLabelProvider(OperationItem.FIELD_DURATION, null, knownElements, durationColumn);
 
-        this.filteredTree.getViewer().setInput(this.root);
+        OperationItem root = new OperationItem(null);
+        this.filteredTree.getViewer().setInput(root);
+
+        buildLaunchRequest.typedProgressListeners(new ExecutionProgressListener(root));
     }
 
     private void attachLabelProvider(String textProperty, String imageProperty, IObservableSet knownElements, ViewerColumn viewerColumn) {
@@ -85,10 +76,6 @@ public final class ExecutionPage {
         } else {
             viewerColumn.setLabelProvider(new ObservableMapCellLabelProvider(txtProperty.observeDetail(knownElements)));
         }
-    }
-
-    private void attachListeners(BuildLaunchRequest buildLaunchRequest) {
-        buildLaunchRequest.typedProgressListeners(new ExecutionProgressListener(this.root));
     }
 
     public FilteredTree getFilteredTree() {

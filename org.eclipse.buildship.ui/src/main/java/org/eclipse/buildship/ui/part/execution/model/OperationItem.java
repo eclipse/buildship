@@ -57,7 +57,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 public class OperationItem extends AbstractModelObject implements IAdaptable {
 
     public static final String FIELD_LAST_PROGRESSEVENT = "lastProgressEvent"; //$NON-NLS-1$
-    public static final String FIELD_LABEL = "label"; //$NON-NLS-1$
+    public static final String FIELD_NAME = "label"; //$NON-NLS-1$
     public static final String FIELD_IMAGE = "image"; //$NON-NLS-1$
     public static final String FIELD_DURATION = "duration"; //$NON-NLS-1$
     public static final String FIELD_CHILDREN = "children"; //$NON-NLS-1$
@@ -117,7 +117,7 @@ public class OperationItem extends AbstractModelObject implements IAdaptable {
     }
 
     public void setLabel(String label) {
-        firePropertyChange(FIELD_LABEL, this.label, this.label = label);
+        firePropertyChange(FIELD_NAME, this.label, this.label = label);
     }
 
     @SuppressWarnings("UnusedDeclaration")
