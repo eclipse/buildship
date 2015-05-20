@@ -18,11 +18,9 @@ import org.eclipse.core.databinding.property.list.IListProperty;
 /**
  * This class is used for the data binding of the {@code OperationItem} nodes in a tree. It specifies
  * that the {@link org.eclipse.buildship.ui.view.execution.OperationItem#FIELD_CHILDREN} are the children
- * </p>
- * <p>
+ * <p/>
  * In case there are other types of nodes in a tree with different properties for their children, they can
  * be listed here.
- * </p>
  */
 public final class OperationItemChildrenListProperty extends DelegatingListProperty {
 
