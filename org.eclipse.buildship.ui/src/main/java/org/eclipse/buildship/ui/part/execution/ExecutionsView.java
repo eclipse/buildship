@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.ui.part.execution;
 
+import org.eclipse.buildship.ui.view.execution.ExecutionsViewState;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
