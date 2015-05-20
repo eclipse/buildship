@@ -77,7 +77,7 @@ public class CreateTaskTypeWizardPropertiesPage extends WizardPage {
             StyledText taskTypeLabel = new StyledText(composite, SWT.READ_ONLY);
             taskTypeLabel.setBackgroundMode(SWT.INHERIT_FORCE);
             taskTypeLabel.setBackground(composite.getBackground());
-            taskTypeLabel.setText("These are the properties of the " + taskType.getName() + " Task Type:");
+            taskTypeLabel.setText("These are the properties of the " + taskType.getName() + " Task Type");
             taskTypeLabel.setStyleRange(new StyleRange(32, taskType.getName().length(), null, null, SWT.BOLD));
             taskTypeLabel.setToolTipText(taskType.getDescription());
             GridDataFactory.swtDefaults().span(2, 1).applyTo(taskTypeLabel);

@@ -22,7 +22,6 @@ import org.eclipse.buildship.core.model.taskmetadata.TaskProperty;
 import org.eclipse.buildship.core.model.taskmetadata.TaskType;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.part.execution.model.AbstractModelObject;
-import org.eclipse.buildship.ui.wizard.task.CreateTaskTypeWizardMainPage.NullableTaskType;
 
 /**
  * This model contains all information, which is configured by the NewGradleTaskWizard.
@@ -41,7 +40,7 @@ public class TaskCreationModel extends AbstractModelObject {
 
     private String taskName;
 
-    private TaskType taskType;
+    private TaskType taskType = TaskType.DEFAULT_TASK_TYPE;
 
     private IObservableMap taskPropertyValues = new WritableMap(TaskProperty.class, String.class);
 
@@ -54,7 +53,7 @@ public class TaskCreationModel extends AbstractModelObject {
     }
 
     public TaskType getTaskType() {
-        if (taskType instanceof NullableTaskType) {
+        if (TaskType.DEFAULT_TASK_TYPE.equals(taskType)) {
             return null;
         }
         return taskType;
@@ -88,7 +87,7 @@ public class TaskCreationModel extends AbstractModelObject {
             if (value != null && !value.isEmpty()) {
                 sb.append("\t");
                 sb.append(((TaskProperty) entry.getKey()).getName());
-                sb.append(" \'");
+                sb.append(" = \'");
                 sb.append(value);
                 sb.append("\'");
                 if (iterator.hasNext()) {
@@ -98,9 +97,6 @@ public class TaskCreationModel extends AbstractModelObject {
         }
 
         templateResult = templateResult.replace(TEMPLATE_TASKPROPERTYVALUES, sb.toString());
-
-        // remove the cursor variable from the template
-        templateResult = templateResult.replace("${cursor}", ""); //$NON-NLS-1$
 
         return templateResult;
     }

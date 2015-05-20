@@ -43,7 +43,7 @@ public class GradleTaskMetaDataManager {
      */
     private TaskType getCopyTaskType() {
         TaskType copy = new TaskType("Copy");
-        copy.addTaskProperty(new TaskProperty("caseSensitive", "Specifies whether case-sensitive pattern matching should be used."));
+        copy.addTaskProperty(new TaskProperty("caseSensitive", "Specifies whether case-sensitive pattern matching should be used.", TaskPropertyTypes.Boolean));
         copy.addTaskProperty(new TaskProperty("destinationDir", "The directory to copy files into."));
         copy.addTaskProperty(new TaskProperty("dirMode", "The Unix permissions to use for the target directories. null means that existing permissions are preserved. It is dependent on the copy action implementation whether these permissions will actually be applied."));
         return copy;

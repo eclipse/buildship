@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Denis Zygann <d.zygann@web.de> - Bug 465728
+ *     Simon Scholz <simon.scholz@vogella.com> - Bug 465728
  */
 
 package org.eclipse.buildship.core.model.taskmetadata;
@@ -15,16 +16,33 @@ package org.eclipse.buildship.core.model.taskmetadata;
  * Create a task property of a {@link TaskType}.
  */
 public class TaskProperty {
-    private String name, description;
+
+    private String name;
+    private String description;
+    private TaskPropertyType taskPropertyType;
 
     /**
-     * Creates a new instance of a {@link TaskProperty}.
+     * Creates a new instance of a {@link TaskProperty} with {@link TaskPropertyTypes#String} as
+     * task property type.
+     *
      * @param name {@link String} the name of this property.
      * @param description {@link String} the description of this property.
      */
-    public TaskProperty(String name, String description){
+    public TaskProperty(String name, String description) {
+        this(name, description, TaskPropertyTypes.String);
+    }
+
+    /**
+     * Creates a new instance of a {@link TaskProperty}.
+     *
+     * @param name {@link String} the name of this property.
+     * @param description {@link String} the description of this property.
+     * @param taskPropertyType {@link TaskPropertyType} of this property
+     */
+    public TaskProperty(String name, String description, TaskPropertyType taskPropertyType) {
         this.name = name;
         this.description = description;
+        this.taskPropertyType = taskPropertyType;
     }
 
     /**
@@ -36,10 +54,20 @@ public class TaskProperty {
     }
 
     /**
-     * Returns the description from the task property.
+     * Returns the description of the task property.
+     *
      * @return {@link String}
      */
     public String getDescription(){
         return description;
+    }
+
+    /**
+     * Returns the {@link TaskPropertyType} of the task property.
+     *
+     * @return {@link TaskPropertyType}
+     */
+    public TaskPropertyType getTaskPropertyType() {
+        return taskPropertyType;
     }
 }

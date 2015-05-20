@@ -28,6 +28,7 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.IValueChangeListener;
 import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jface.databinding.dialog.DialogPageSupport;
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
 import org.eclipse.jface.databinding.swt.ISWTObservableValue;
 import org.eclipse.jface.databinding.swt.WidgetProperties;
@@ -47,7 +48,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.buildship.core.model.taskmetadata.TaskType;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.databinding.validators.NonEmptyValidator;
+import org.eclipse.buildship.ui.databinding.validators.TaskNameValidator;
 
 /**
  * Shows the first page of the {@link NewGradleTaskWizard}, where the user sets the task type and the name
@@ -77,7 +78,7 @@ public class CreateTaskTypeWizardMainPage extends WizardPage {
 
         this.taskTypes = new WritableList(taskTypes, TaskType.class);
         // also allow to create task without task type
-        this.taskTypes.add(new NullableTaskType());
+        this.taskTypes.add(TaskType.DEFAULT_TASK_TYPE);
 
         setTitle("Set name and task type");
         setImageDescriptor(PluginImages.IMPORT_WIZARD.withState(ImageState.ENABLED).getImageDescriptor());
@@ -91,14 +92,14 @@ public class CreateTaskTypeWizardMainPage extends WizardPage {
         GridLayoutFactory.fillDefaults().numColumns(2).applyTo(composite);
 
         Label taskNameLabel = new Label(composite, SWT.None);
-        taskNameLabel.setText("Taskname:");
+        taskNameLabel.setText("Task Name");
 
         taskNameText = new Text(composite, SWT.BORDER);
         taskNameText.setMessage("Set the name of your task");
         GridDataFactory.fillDefaults().grab(true, false).applyTo(taskNameText);
 
         Label taskTypesLabel = new Label(composite, SWT.None);
-        taskTypesLabel.setText("Task types:");
+        taskTypesLabel.setText("Task Type");
 
         comboViewer = new ComboViewer(composite, SWT.READ_ONLY);
 
@@ -118,7 +119,7 @@ public class CreateTaskTypeWizardMainPage extends WizardPage {
         IObservableValue taskNameModel = BeanProperties.value(TaskCreationModel.class, TaskCreationModel.FIELD_TASKNAME, String.class).observe(taskCreationModel);
 
         UpdateValueStrategy nonEmptyCheckUpdateStrategy = new UpdateValueStrategy();
-        nonEmptyCheckUpdateStrategy.setAfterGetValidator(new NonEmptyValidator());
+        nonEmptyCheckUpdateStrategy.setAfterGetValidator(new TaskNameValidator());
 
         Binding taskNameBinding = dbc.bindValue(taskNameTarget, taskNameModel, nonEmptyCheckUpdateStrategy, nonEmptyCheckUpdateStrategy);
         // Add ControlDecorationSupport, when the first change occurs so that warnings are not shown
@@ -140,7 +141,10 @@ public class CreateTaskTypeWizardMainPage extends WizardPage {
             public void handleChange(ChangeEvent event) {
                 if (!isControlDecorationSupportAdded) {
                     isControlDecorationSupportAdded = true;
+                    // show validation status at the widget itself
                     ControlDecorationSupport.create(taskNameBinding, SWT.LEFT | SWT.TOP);
+                    // show validation status as Wizard message
+                    DialogPageSupport.create(CreateTaskTypeWizardMainPage.this, dbc);
                 }
             }
         });
@@ -163,7 +167,7 @@ public class CreateTaskTypeWizardMainPage extends WizardPage {
     @Override
     public boolean canFlipToNextPage() {
         return super.canFlipToNextPage() && !comboViewer.getSelection().isEmpty()
-                && !(((IStructuredSelection) comboViewer.getSelection()).getFirstElement() instanceof NullableTaskType);
+                && !(TaskType.DEFAULT_TASK_TYPE.equals(((IStructuredSelection) comboViewer.getSelection()).getFirstElement()));
     }
 
     @Override
@@ -174,15 +178,4 @@ public class CreateTaskTypeWizardMainPage extends WizardPage {
         super.dispose();
     }
 
-    /**
-     * This class is used for allowing a TaskType, which is empty.
-     *
-     */
-    class NullableTaskType extends TaskType {
-
-        public NullableTaskType() {
-            super("");
-        }
-
-    }
 }
