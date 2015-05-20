@@ -14,7 +14,6 @@ package org.eclipse.buildship.ui.view.execution;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.ui.PluginImage;
 import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.part.execution.model.OperationItem;
 import org.eclipse.osgi.util.NLS;
 import org.gradle.tooling.events.*;
 

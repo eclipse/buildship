@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.ui.part.execution.model;
 
+import org.eclipse.buildship.ui.view.execution.OperationItem;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.property.list.DelegatingListProperty;
 import org.eclipse.core.databinding.property.list.IListProperty;
@@ -18,7 +19,7 @@ import org.eclipse.core.databinding.property.list.IListProperty;
 /**
  * <p>
  * This DelegatingListProperty is used for the databinding of the ExecutionItem model and the
- * TreeViewer. It specifies that the {@link OperationItem#FIELD_CHILDREN} are the children, which
+ * TreeViewer. It specifies that the {@link org.eclipse.buildship.ui.view.execution.OperationItem#FIELD_CHILDREN} are the children, which
  * should be shown as children of the ExecutionItem in the TreeViewer.
  * </p>
  * <p>

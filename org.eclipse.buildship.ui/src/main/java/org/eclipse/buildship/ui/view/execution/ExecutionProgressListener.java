@@ -13,7 +13,6 @@ package org.eclipse.buildship.ui.view.execution;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import org.eclipse.buildship.ui.part.execution.model.OperationItem;
 import org.eclipse.ui.PlatformUI;
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.ProgressEvent;
@@ -22,7 +21,7 @@ import java.util.Map;
 
 /**
  * Listens to {@link org.gradle.tooling.events.ProgressEvent} instances that are sent by the Tooling API while a build is executed. Each
- * incoming event is added to the execution tree as an {@link org.eclipse.buildship.ui.part.execution.model.OperationItem} instance.
+ * incoming event is added to the execution tree as an {@link OperationItem} instance.
  */
 public final class ExecutionProgressListener implements org.gradle.tooling.events.ProgressListener {
 
