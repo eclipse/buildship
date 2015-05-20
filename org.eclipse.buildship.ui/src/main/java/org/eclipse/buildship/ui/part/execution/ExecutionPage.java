@@ -123,7 +123,7 @@ public final class ExecutionPage implements IPage, FilteredTreeProvider,Selectio
         getViewer().setInput(this.root);
 
         this.buildStarted = new OperationItem(null, "Gradle Build");
-        this.buildStarted.setImage(PluginImages.OPERATION_ROOT.withState(ImageState.ENABLED).getImageDescriptor());
+        this.buildStarted.setImage(PluginImages.REFRESH.withState(ImageState.ENABLED).getImageDescriptor());
         this.root.addChild(this.buildStarted);
     }
 

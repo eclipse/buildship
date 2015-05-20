@@ -15,9 +15,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.eclipse.buildship.ui.part.execution.model.OperationItem;
-import org.eclipse.buildship.ui.part.execution.model.OperationItemConfigurator;
-import org.eclipse.buildship.ui.part.execution.model.internal.DefaultOperationItemConfigurator;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.PlatformUI;
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.ProgressEvent;
@@ -33,17 +30,18 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
 
     private final ExecutionPage executionPage;
     private final Map<OperationDescriptor, OperationItem> executionItemMap;
-    private final DefaultOperationItemConfigurator executionItemConfigurator;
+    private final DefaultOperationItemConfigurator operationItemConfigurator;
 
     public ExecutionProgressListener(ExecutionPage executionPage, OperationItem root) {
         this.executionPage = Preconditions.checkNotNull(executionPage);
         this.executionItemMap = Maps.newLinkedHashMap();
         this.executionItemMap.put(null, Preconditions.checkNotNull(root));
-        this.executionItemConfigurator = new DefaultOperationItemConfigurator();
+        this.operationItemConfigurator = new DefaultOperationItemConfigurator();
     }
 
     @Override
     public void statusChanged(ProgressEvent progressEvent) {
+        // create or get the OperationItem for the descriptor of the given progress event
         OperationDescriptor descriptor = progressEvent.getDescriptor();
         OperationItem operationItem = this.executionItemMap.get(descriptor);
         boolean createdNewOperationItem = false;
@@ -52,19 +50,11 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
             this.executionItemMap.put(descriptor, operationItem);
             createdNewOperationItem = true;
         }
-        // set the last progress event, so that this can be obtained from the viewers selection
-        // todo (etst) fix this
-        operationItem.setLastProgressEvent(progressEvent);
 
-        // Configure OperationItem according to the given event
-        @SuppressWarnings({"cast", "RedundantCast"})
-        OperationItemConfigurator operationItemConfigurator = (OperationItemConfigurator) Platform.getAdapterManager().getAdapter(progressEvent, OperationItemConfigurator.class);
-        if (operationItemConfigurator == null) {
-            operationItemConfigurator = this.executionItemConfigurator;
-        }
-        operationItemConfigurator.configure(operationItem);
+        // configure the operation item based on the event details
+        this.operationItemConfigurator.configure(operationItem, progressEvent);
 
-        // attach to parent, if necessary
+        // attach to parent, if this is a new operation (in case of StartEvent)
         OperationItem parentExecutionItem = this.executionItemMap.get(descriptor.getParent());
         if (!parentExecutionItem.getChildren().contains(operationItem)) {
             List<OperationItem> children = Lists.newArrayList(parentExecutionItem.getChildren());
@@ -72,6 +62,7 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
             parentExecutionItem.setChildren(children);
         }
 
+        // ensure the newly added node is made visible
         if (createdNewOperationItem) {
             makeNodeVisible(operationItem);
         }
