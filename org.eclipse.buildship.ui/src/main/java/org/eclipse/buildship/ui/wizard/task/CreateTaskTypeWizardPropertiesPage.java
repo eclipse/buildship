@@ -15,8 +15,7 @@ package org.eclipse.buildship.ui.wizard.task;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.Observables;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.jface.databinding.swt.ISWTObservableValue;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.wizard.WizardPage;
@@ -27,12 +26,13 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 
 import org.eclipse.buildship.core.model.taskmetadata.TaskProperty;
 import org.eclipse.buildship.core.model.taskmetadata.TaskType;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.buildship.ui.wizard.task.renderer.PropertyRenderer;
+import org.eclipse.buildship.ui.wizard.task.renderer.StringPropertyRenderer;
 
 /**
  * Shows the second page from the {@link NewGradleTaskWizard}, where the user sets the property values
@@ -87,19 +87,23 @@ public class CreateTaskTypeWizardPropertiesPage extends WizardPage {
                 label.setText(taskProperty.getName());
                 label.setToolTipText(taskProperty.getDescription());
 
-                Text propertyValue = new Text(composite, SWT.BORDER);
-                propertyValue.setMessage("Set the value of this property");
-                GridDataFactory.fillDefaults().grab(true, false).applyTo(propertyValue);
+                PropertyRenderer propertyRenderer = Platform.getAdapterManager().getAdapter(taskProperty.getTaskPropertyType(), PropertyRenderer.class);
+                if (null == propertyRenderer) {
+                    // use StringPropertyRenderer as default
+                    propertyRenderer = new StringPropertyRenderer();
+                }
+                propertyRenderer.createControl(composite);
+
                 // ensure that the first Text control gains the focus
                 if (!firstTextHasFocus) {
-                    propertyValue.setFocus();
+                    propertyRenderer.getControl().setFocus();
                     firstTextHasFocus = true;
                 }
 
                 IObservableValue taskPropertyModel = Observables.observeMapEntry(taskCreationModel.getTaskPropertyValues(), taskProperty, TaskProperty.class);
-                ISWTObservableValue propertyTextTarget = WidgetProperties.text(SWT.Modify).observe(propertyValue);
 
-                dbc.bindValue(propertyTextTarget, taskPropertyModel);
+                dbc.bindValue(propertyRenderer.getObservable(), taskPropertyModel, propertyRenderer.getTargetUpdateValueStrategy(),
+                        propertyRenderer.getModelUpdateValueStrategy());
             }
             sComposite.setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
             composite.layout();

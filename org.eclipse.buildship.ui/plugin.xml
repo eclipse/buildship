@@ -278,6 +278,7 @@
 
     <!-- properties view for tasks and projects -->
     <extension
+          name="IPropertySource adapter"
           point="org.eclipse.core.runtime.adapters">
        <factory
              adaptableType="org.eclipse.buildship.ui.taskview.TaskNode"
@@ -291,6 +292,17 @@
              class="org.eclipse.buildship.ui.taskview.adapter.ProjectNodeAdapterFactory">
           <adapter
                 type="org.eclipse.ui.views.properties.IPropertySource">
+          </adapter>
+       </factory>
+    </extension>
+    <extension
+          name="PropertyRenderer adapter"
+          point="org.eclipse.core.runtime.adapters">
+       <factory
+             adaptableType="org.eclipse.buildship.core.model.taskmetadata.TaskPropertyType"
+             class="org.eclipse.buildship.ui.wizard.task.renderer.PropertyRendererAdapterFactory">
+          <adapter
+                type="org.eclipse.buildship.ui.wizard.task.renderer.PropertyRenderer">
           </adapter>
        </factory>
     </extension>
