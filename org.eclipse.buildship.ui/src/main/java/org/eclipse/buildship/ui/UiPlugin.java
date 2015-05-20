@@ -20,6 +20,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
 import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
@@ -60,6 +61,7 @@ public final class UiPlugin extends AbstractUIPlugin {
     @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
+        TrayDialog.setDialogHelpAvailable(false);
         registerServices(context);
         registerListeners();
         plugin = this;
