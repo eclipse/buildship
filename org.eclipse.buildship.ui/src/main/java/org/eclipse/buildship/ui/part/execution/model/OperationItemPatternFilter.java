@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.ui.part.execution.model;
 
+import org.eclipse.buildship.ui.view.execution.OperationItem;
 import org.eclipse.jface.viewers.Viewer;
 
 import org.eclipse.buildship.ui.viewer.PatternFilter;

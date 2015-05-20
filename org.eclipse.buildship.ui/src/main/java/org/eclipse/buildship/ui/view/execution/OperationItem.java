@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.part.execution.model;
+package org.eclipse.buildship.ui.view.execution;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
