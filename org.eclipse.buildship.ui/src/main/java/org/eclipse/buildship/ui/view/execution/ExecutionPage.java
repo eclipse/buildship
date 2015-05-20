@@ -63,7 +63,7 @@ public final class ExecutionPage {
         this.filteredTree.getViewer().setInput(root);
 
         // listen to progress events
-        buildLaunchRequest.typedProgressListeners(new ExecutionProgressListener(root));
+        buildLaunchRequest.typedProgressListeners(new ExecutionProgressListener(this, root));
     }
 
     private void attachLabelProvider(String textProperty, String imageProperty, IObservableSet knownElements, ViewerColumn viewerColumn) {
