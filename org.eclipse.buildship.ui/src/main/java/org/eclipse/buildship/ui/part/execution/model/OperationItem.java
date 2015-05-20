@@ -39,6 +39,8 @@ import java.util.List;
  *     }
  * }
  * </pre>
+ * Note that all of the current APIs are required since they are called reflectively
+ * by the Eclipse Data Binding framework.
  */
 @SuppressWarnings("unchecked")
 public final class OperationItem extends ObservableItem implements IAdaptable {
@@ -70,14 +72,31 @@ public final class OperationItem extends ObservableItem implements IAdaptable {
         this.children = Lists.newArrayList();
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    @Override
-    public Object getAdapter(Class adapter) {
-        if (OperationDescriptor.class.equals(adapter)) {
-            return this.operationDescriptor;
-        } else {
-            return Platform.getAdapterManager().getAdapter(this, adapter);
-        }
+    @SuppressWarnings("UnusedDeclaration")
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        firePropertyChange(FIELD_NAME, this.name, this.name = name);
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public String getDuration() {
+        return this.duration;
+    }
+
+    public void setDuration(String duration) {
+        firePropertyChange(FIELD_DURATION, this.duration, this.duration = duration);
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public ImageDescriptor getImage() {
+        return this.image;
+    }
+
+    public void setImage(ImageDescriptor image) {
+        firePropertyChange(FIELD_IMAGE, this.image, this.image = image);
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -106,33 +125,14 @@ public final class OperationItem extends ObservableItem implements IAdaptable {
         firePropertyChange(FIELD_CHILDREN, this.children, this.children = children);
     }
 
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        firePropertyChange(FIELD_NAME, this.name, this.name = name);
-    }
-
-    @SuppressWarnings("UnusedDeclaration")
-    public String getDuration() {
-        return this.duration;
-    }
-
-    public void setDuration(String duration) {
-        firePropertyChange(FIELD_DURATION, this.duration, this.duration = duration);
-    }
-
-    public ImageDescriptor getImage() {
-        return this.image;
-    }
-
-    public void setImage(ImageDescriptor image) {
-        firePropertyChange(FIELD_IMAGE, this.image, this.image = image);
-    }
-
-    public OperationDescriptor getOperationDescriptor() {
-        return this.operationDescriptor;
+    @SuppressWarnings("rawtypes")
+    @Override
+    public Object getAdapter(Class adapter) {
+        if (OperationDescriptor.class.equals(adapter)) {
+            return this.operationDescriptor;
+        } else {
+            return Platform.getAdapterManager().getAdapter(this, adapter);
+        }
     }
 
 }
