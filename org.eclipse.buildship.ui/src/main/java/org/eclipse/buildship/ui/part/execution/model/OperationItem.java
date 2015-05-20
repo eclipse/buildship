@@ -11,30 +11,27 @@
 
 package org.eclipse.buildship.ui.part.execution.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.gradle.tooling.events.OperationDescriptor;
-import org.gradle.tooling.events.ProgressEvent;
-
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.gradle.tooling.events.OperationDescriptor;
+
+import java.util.List;
 
 /**
  * <p>
  * OperationItems are the actual elements, which are shown in the
- * {@link org.eclipse.buildship.ui.part.execution.ExecutionsView}.
+ * {@link org.eclipse.buildship.ui.view.execution.ExecutionsView}.
  * </p>
  * <p>
  * These object can be obtained by using the global selection provider. By calling
- * {@link #getAdapter(Class)} on this class you can get the associated {@link OperationDescriptor}
- * and the last {@link ProgressEvent}, which was reflected by this OperationItem.
+ * {@link #getAdapter(Class)} on this class you can get the associated {@link OperationDescriptor}.
  * </p>
- * <p>
- *
+ * <p/>
+ * <p/>
  * <pre>
  * <code>
  * ISelection selection = HandlerUtil.getCurrentSelection(event);
@@ -49,75 +46,79 @@ import org.eclipse.jface.resource.ImageDescriptor;
  * }
  * </code>
  * </pre>
- *
- * </p>
- *
  */
 @SuppressWarnings("unchecked")
-public class OperationItem extends AbstractModelObject implements IAdaptable {
+public final class OperationItem extends ObservableItem implements IAdaptable {
 
-    public static final String FIELD_LAST_PROGRESSEVENT = "lastProgressEvent"; //$NON-NLS-1$
-    public static final String FIELD_NAME = "label"; //$NON-NLS-1$
-    public static final String FIELD_IMAGE = "image"; //$NON-NLS-1$
+    public static final String FIELD_NAME = "name";         //$NON-NLS-1$
     public static final String FIELD_DURATION = "duration"; //$NON-NLS-1$
+    public static final String FIELD_IMAGE = "image";       //$NON-NLS-1$
     public static final String FIELD_CHILDREN = "children"; //$NON-NLS-1$
 
     private final OperationDescriptor operationDescriptor;
-    private ProgressEvent lastProgressEvent;
-    private String label;
-    private ImageDescriptor image;
+    private String name;
     private String duration;
-    private List<OperationItem> children = new ArrayList<OperationItem>();
+    private ImageDescriptor image;
+    private List<OperationItem> children;
+
+    public OperationItem() {
+        this.operationDescriptor = null;
+        this.name = null;
+        this.duration = null;
+        this.image = null;
+        this.children = Lists.newArrayList();
+    }
 
     public OperationItem(OperationDescriptor operationDescriptor) {
-        this(operationDescriptor, operationDescriptor == null ? null : operationDescriptor.getDisplayName());
+        this.operationDescriptor = Preconditions.checkNotNull(operationDescriptor);
+        this.name = operationDescriptor.getDisplayName();
+        this.duration = null;
+        this.image = null;
+        this.children = Lists.newArrayList();
     }
 
-    public OperationItem(OperationDescriptor operationDescriptor, String label) {
-        this.operationDescriptor = operationDescriptor;
-        this.label = label;
-    }
-
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
-        if (getOperationDescriptor() != null && OperationDescriptor.class.equals(adapter)) {
-            return getOperationDescriptor();
-        } else if (this.lastProgressEvent != null && ProgressEvent.class.equals(adapter)) {
-            return this.lastProgressEvent;
+    public Object getAdapter(Class adapter) {
+        if (OperationDescriptor.class.equals(adapter)) {
+            return this.operationDescriptor;
+        } else {
+            return Platform.getAdapterManager().getAdapter(this, adapter);
         }
+    }
 
-        return Platform.getAdapterManager().getAdapter(this, adapter);
+    @SuppressWarnings("UnusedDeclaration")
+    public List<OperationItem> getChildren() {
+        return ImmutableList.copyOf(this.children);
     }
 
     public void addChild(OperationItem operationItem) {
-        // must be done like this, so that the databinding works properly
-        List<OperationItem> children = Lists.newArrayList(getChildren());
-        children.add(operationItem);
-        setChildren(children);
+        if (!this.children.contains(operationItem)) {
+            List<OperationItem> children = Lists.newArrayList(this.children);
+            children.add(operationItem);
+            setChildren(children);
+        }
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public void removeChild(OperationItem operationItem) {
-        // must be done like this, so that the databinding works properly
-        List<OperationItem> children = Lists.newArrayList(getChildren());
-        children.remove(operationItem);
-        setChildren(children);
+        if (this.children.contains(operationItem)) {
+            List<OperationItem> children = Lists.newArrayList(this.children);
+            children.remove(operationItem);
+            setChildren(children);
+        }
     }
 
-    public List<OperationItem> getChildren() {
-        return this.children;
-    }
-
-    public void setChildren(List<OperationItem> children) {
+    private void setChildren(List<OperationItem> children) {
         firePropertyChange(FIELD_CHILDREN, this.children, this.children = children);
     }
 
-    public String getLabel() {
-        return this.label;
+    public String getName() {
+        return this.name;
     }
 
-    public void setLabel(String label) {
-        firePropertyChange(FIELD_NAME, this.label, this.label = label);
+    public void setName(String name) {
+        firePropertyChange(FIELD_NAME, this.name, this.name = name);
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -139,14 +140,6 @@ public class OperationItem extends AbstractModelObject implements IAdaptable {
 
     public OperationDescriptor getOperationDescriptor() {
         return this.operationDescriptor;
-    }
-
-    public ProgressEvent getLastProgressEvent() {
-        return this.lastProgressEvent;
-    }
-
-    public void setLastProgressEvent(ProgressEvent lastProgressEvent) {
-        firePropertyChange(FIELD_LAST_PROGRESSEVENT, this.lastProgressEvent, this.lastProgressEvent = lastProgressEvent);
     }
 
 }

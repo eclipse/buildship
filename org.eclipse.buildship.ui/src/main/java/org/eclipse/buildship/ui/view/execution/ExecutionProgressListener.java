@@ -12,14 +12,12 @@
 package org.eclipse.buildship.ui.view.execution;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.eclipse.buildship.ui.part.execution.model.OperationItem;
 import org.eclipse.ui.PlatformUI;
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.ProgressEvent;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -56,11 +54,7 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
 
         // attach to parent, if this is a new operation (in case of StartEvent)
         OperationItem parentExecutionItem = this.executionItemMap.get(descriptor.getParent());
-        if (!parentExecutionItem.getChildren().contains(operationItem)) {
-            List<OperationItem> children = Lists.newArrayList(parentExecutionItem.getChildren());
-            children.add(operationItem);
-            parentExecutionItem.setChildren(children);
-        }
+        parentExecutionItem.addChild(operationItem);
 
         // ensure the newly added node is made visible
         if (createdNewOperationItem) {

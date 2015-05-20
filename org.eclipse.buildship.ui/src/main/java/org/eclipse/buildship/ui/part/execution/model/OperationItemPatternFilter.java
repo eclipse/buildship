@@ -24,8 +24,8 @@ public final class OperationItemPatternFilter extends PatternFilter {
     @Override
     protected boolean isLeafMatch(Viewer viewer, Object element) {
         if (element instanceof OperationItem) {
-            String label = ((OperationItem) element).getLabel();
-            return wordMatches(label);
+            String name = ((OperationItem) element).getName();
+            return wordMatches(name);
         }
 
         return super.isLeafMatch(viewer, element);

@@ -15,14 +15,17 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 /**
- * Just a standard abstract class, which supports the {@link PropertyChangeSupport}, so that
- * subclasses can be easily used as Beans.
+ * Convenience base class for items with properties that need to be observable.
+ *
+ * Note that all of the current APIs are required since they are called reflectively
+ * by the Eclipse Data Binding framework.
  */
-public abstract class AbstractModelObject {
+@SuppressWarnings("UnusedDeclaration")
+public abstract class ObservableItem {
 
     private final PropertyChangeSupport propertyChangeSupport;
 
-    protected AbstractModelObject() {
+    protected ObservableItem() {
         this.propertyChangeSupport = new PropertyChangeSupport(this);
     }
 

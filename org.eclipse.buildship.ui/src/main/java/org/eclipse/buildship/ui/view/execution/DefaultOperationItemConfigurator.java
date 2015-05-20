@@ -25,7 +25,7 @@ public final class DefaultOperationItemConfigurator {
 
     public void configure(OperationItem operationItem, ProgressEvent event) {
         String displayName = operationItem.getOperationDescriptor().getDisplayName();
-        operationItem.setLabel(displayName);
+        operationItem.setName(displayName);
 
         if (event instanceof StartEvent) {
             operationItem.setDuration(ExecutionsViewMessages.Tree_Item_Operation_Started_Text);
