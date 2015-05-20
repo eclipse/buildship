@@ -27,13 +27,13 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
 
     private final ExecutionPage executionPage;
     private final Map<OperationDescriptor, OperationItem> executionItemMap;
-    private final DefaultOperationItemConfigurator operationItemConfigurator;
+    private final OperationItemConfigurator operationItemConfigurator;
 
     public ExecutionProgressListener(ExecutionPage executionPage, OperationItem root) {
         this.executionPage = Preconditions.checkNotNull(executionPage);
         this.executionItemMap = Maps.newLinkedHashMap();
         this.executionItemMap.put(null, Preconditions.checkNotNull(root));
-        this.operationItemConfigurator = new DefaultOperationItemConfigurator();
+        this.operationItemConfigurator = new OperationItemConfigurator();
     }
 
     @Override
