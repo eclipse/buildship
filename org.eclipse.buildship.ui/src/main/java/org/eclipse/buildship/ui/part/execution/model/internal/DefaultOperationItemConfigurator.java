@@ -39,14 +39,14 @@ public class DefaultOperationItemConfigurator implements OperationItemConfigurat
 
         if(getProgressEvent() instanceof FinishEvent) {
             OperationResult result = ((FinishEvent) getProgressEvent()).getResult();
-            operationItem.setDuration(NLS.bind(ExecutionsViewMessages.Tree_Item_Test_Finished_In_0_Text, result.getEndTime() - result.getStartTime()));
+            operationItem.setDuration(NLS.bind(ExecutionsViewMessages.Tree_Item_Operation_Finished_In_0_Text, result.getEndTime() - result.getStartTime()));
             if(result instanceof TestFailureResult) {
                 operationItem.setImage(PluginImages.OPERATION_FAILURE.withState(ImageState.ENABLED).getImageDescriptor());
             }else if (result instanceof TestSuccessResult) {
                 operationItem.setImage(PluginImages.OPERATION_SUCCESS.withState(ImageState.ENABLED).getImageDescriptor());
             }
         }else {
-            operationItem.setDuration(ExecutionsViewMessages.Tree_Item_Test_Started_Text);
+            operationItem.setDuration(ExecutionsViewMessages.Tree_Item_Operation_Started_Text);
         }
     }
 
