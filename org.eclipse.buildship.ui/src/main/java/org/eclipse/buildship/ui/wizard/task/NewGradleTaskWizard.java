@@ -22,7 +22,7 @@ import org.eclipse.buildship.core.model.taskmetadata.GradleTaskMetaData;
 /**
  * This wizard is used to create new Gradle Tasks.
  */
-public class NewTaskWizard extends Wizard {
+public class NewGradleTaskWizard extends Wizard {
 
     private GradleTaskMetaData metaData;
     private CreateTaskTypeWizardMainPage pageMain;
@@ -36,7 +36,7 @@ public class NewTaskWizard extends Wizard {
      *
      * @param metaData
      */
-    public NewTaskWizard(GradleTaskMetaData metaData) {
+    public NewGradleTaskWizard(GradleTaskMetaData metaData) {
         super();
         this.metaData = metaData;
         this.taskCreationModel = new TaskCreationModel();

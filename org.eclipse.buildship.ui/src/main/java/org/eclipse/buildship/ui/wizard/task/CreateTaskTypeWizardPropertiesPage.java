@@ -35,7 +35,7 @@ import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
 
 /**
- * Shows the second page from the {@link NewTaskWizard}, where the user sets the property values
+ * Shows the second page from the {@link NewGradleTaskWizard}, where the user sets the property values
  * from the selected task type.
  */
 public class CreateTaskTypeWizardPropertiesPage extends WizardPage {
@@ -81,14 +81,20 @@ public class CreateTaskTypeWizardPropertiesPage extends WizardPage {
             taskTypeLabel.setStyleRange(new StyleRange(32, taskType.getName().length(), null, null, SWT.BOLD));
             taskTypeLabel.setToolTipText(taskType.getDescription());
             GridDataFactory.swtDefaults().span(2, 1).applyTo(taskTypeLabel);
+            boolean firstTextHasFocus = false;
             for (TaskProperty taskProperty : taskType.getTaskProperties()) {
                 Label label = new Label(composite, SWT.NONE);
                 label.setText(taskProperty.getName());
                 label.setToolTipText(taskProperty.getDescription());
 
-                final Text propertyValue = new Text(composite, SWT.BORDER);
+                Text propertyValue = new Text(composite, SWT.BORDER);
                 propertyValue.setMessage("Set the value of this property");
                 GridDataFactory.fillDefaults().grab(true, false).applyTo(propertyValue);
+                // ensure that the first Text control gains the focus
+                if (!firstTextHasFocus) {
+                    propertyValue.setFocus();
+                    firstTextHasFocus = true;
+                }
 
                 IObservableValue taskPropertyModel = Observables.observeMapEntry(taskCreationModel.getTaskPropertyValues(), taskProperty, TaskProperty.class);
                 ISWTObservableValue propertyTextTarget = WidgetProperties.text(SWT.Modify).observe(propertyValue);

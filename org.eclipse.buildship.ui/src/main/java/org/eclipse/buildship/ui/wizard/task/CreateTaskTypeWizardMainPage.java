@@ -50,7 +50,7 @@ import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.databinding.validators.NonEmptyValidator;
 
 /**
- * Shows the first page of the {@link NewTaskWizard}, where the user sets the task type and the name
+ * Shows the first page of the {@link NewGradleTaskWizard}, where the user sets the task type and the name
  * for the function.
  */
 public class CreateTaskTypeWizardMainPage extends WizardPage {
