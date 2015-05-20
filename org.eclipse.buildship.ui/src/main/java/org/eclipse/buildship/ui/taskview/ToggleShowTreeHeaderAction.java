@@ -13,7 +13,7 @@ package org.eclipse.buildship.ui.taskview;
 
 import com.google.common.base.Preconditions;
 
-import org.eclipse.buildship.ui.part.TreeViewerState;
+import org.eclipse.buildship.ui.view.TreeViewerState;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Tree;
