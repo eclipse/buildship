@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Denis Zygann <d.zygann@web.de> - Bug 465728
+ *     Simon Scholz <simon.scholz@vogella.com> - Bug 465728
  */
 
 package org.eclipse.buildship.core.model.taskmetadata;
@@ -15,9 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Stores the task type fields.
+ * Defines a Gradle task type.
  */
 public class TaskType {
+
+    public static final TaskType DEFAULT_TASK_TYPE = new TaskType("(default)");
 
     private List<TaskProperty> taskProperties = new ArrayList<TaskProperty>();;
 
