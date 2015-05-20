@@ -14,7 +14,6 @@ package org.eclipse.buildship.ui.view.execution;
 import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.event.EventListener;
 import org.eclipse.buildship.core.launch.ExecuteBuildLaunchRequestEvent;
-import org.eclipse.buildship.ui.part.execution.ExecutionsView;
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
