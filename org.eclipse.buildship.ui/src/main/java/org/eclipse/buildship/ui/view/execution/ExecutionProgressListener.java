@@ -13,12 +13,11 @@ package org.eclipse.buildship.ui.view.execution;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.ui.part.execution.model.OperationItem;
 import org.eclipse.buildship.ui.part.execution.model.OperationItemConfigurator;
 import org.eclipse.buildship.ui.part.execution.model.internal.DefaultOperationItemConfigurator;
-import org.eclipse.buildship.ui.part.execution.model.internal.DefaultOperationItemCreatedEvent;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.ui.PlatformUI;
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.ProgressEvent;
 
@@ -31,13 +30,16 @@ import java.util.Map;
  */
 public final class ExecutionProgressListener implements org.gradle.tooling.events.ProgressListener {
 
+    private final ExecutionPage executionPage;
     private final OperationItem root;
     private final DefaultOperationItemConfigurator executionItemConfigurator;
-    private final Map<OperationDescriptor, OperationItem> executionItemMap = Maps.newLinkedHashMap();
+    private final Map<OperationDescriptor, OperationItem> executionItemMap;
 
-    public ExecutionProgressListener(OperationItem root) {
+    public ExecutionProgressListener(ExecutionPage executionPage, OperationItem root) {
+        this.executionPage = executionPage;
         this.root = root;
         this.executionItemConfigurator = new DefaultOperationItemConfigurator();
+        this.executionItemMap = Maps.newLinkedHashMap();
     }
 
     @Override
@@ -71,17 +73,26 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
         }
 
         if (createdNewOperationItem) {
-            CorePlugin.listenerRegistry().dispatch(new DefaultOperationItemCreatedEvent(this, parentExecutionItem));
+            makeNodeVisible(operationItem);
         }
     }
 
-    protected OperationItem getParent(OperationDescriptor descriptor) {
+    private OperationItem getParent(OperationDescriptor descriptor) {
         OperationDescriptor parent = descriptor.getParent();
         OperationItem parentExecutionItem = this.executionItemMap.get(parent);
         if (parentExecutionItem == null) {
             parentExecutionItem = this.root;
         }
         return parentExecutionItem;
+    }
+
+    private void makeNodeVisible(final OperationItem operationItem) {
+        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+            @Override
+            public void run() {
+                ExecutionProgressListener.this.executionPage.getFilteredTree().getViewer().expandToLevel(operationItem, 0);
+            }
+        });
     }
 
 }
