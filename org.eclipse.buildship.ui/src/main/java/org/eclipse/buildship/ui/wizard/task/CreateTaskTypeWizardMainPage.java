@@ -159,7 +159,10 @@ public class CreateTaskTypeWizardMainPage extends WizardPage {
             public void handleChange(ChangeEvent event) {
                 if (!isControlDecorationSupportAdded) {
                     isControlDecorationSupportAdded = true;
+                    // show validation status at the widget itself
                     ControlDecorationSupport.create(taskNameBinding, SWT.LEFT | SWT.TOP);
+                    // show validation status as Wizard message
+                    DialogPageSupport.create(CreateTaskTypeWizardMainPage.this, dbc);
                 }
             }
         });
