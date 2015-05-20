@@ -34,7 +34,7 @@ public class DefaultOperationItemConfigurator implements OperationItemConfigurat
 
     @Override
     public void configure(OperationItem operationItem) {
-        String displayName = getProgressEvent().getDescriptor().getDisplayName();
+        String displayName = operationItem.getOperationDescriptor().getDisplayName();
         operationItem.setLabel(displayName);
 
         if(getProgressEvent() instanceof FinishEvent) {

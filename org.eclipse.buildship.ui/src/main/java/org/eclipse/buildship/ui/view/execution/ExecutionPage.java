@@ -11,8 +11,7 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import org.eclipse.buildship.ui.PluginImage.ImageState;
-import org.eclipse.buildship.ui.PluginImages;
+import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 import org.eclipse.buildship.ui.part.execution.ExecutionsViewMessages;
 import org.eclipse.buildship.ui.part.execution.ExecutionsViewState;
 import org.eclipse.buildship.ui.part.execution.model.OperationItem;
@@ -26,12 +25,10 @@ import org.eclipse.core.databinding.observable.set.IObservableSet;
 import org.eclipse.core.databinding.property.list.IListProperty;
 import org.eclipse.jface.databinding.viewers.ObservableListTreeContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapCellLabelProvider;
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.ViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 
 /**
  * This part displays the Gradle executions, like a build. It contains a FilteredTree with an
@@ -44,51 +41,25 @@ public final class ExecutionPage {
     private TreeViewerColumn labelColumn;
     private TreeViewerColumn durationColumn;
     private OperationItem root = new OperationItem(null);
-    private OperationItem buildStarted;
 
-    public ExecutionPage(ExecutionsViewState state) {
+    public ExecutionPage(Composite parent, ExecutionsViewState state, BuildLaunchRequest buildLaunchRequest) {
         this.state = state;
-    }
 
-    public void createPage(Composite parent) {
         this.filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, new OperationItemPatternFilter());
         this.filteredTree.setShowFilterControls(false);
         this.filteredTree.getViewer().getTree().setHeaderVisible(this.state.isShowTreeHeader());
 
         createViewerColumns();
         bindUI();
-    }
-
-    public void setFocus() {
-        if (getViewer() != null && getViewer().getControl() != null && !getViewer().getControl().isDisposed()) {
-            getViewer().getControl().setFocus();
-        }
-    }
-
-    public FilteredTree getFilteredTree() {
-        return this.filteredTree;
-    }
-
-    public TreeViewer getViewer() {
-        if (getFilteredTree() != null && !getFilteredTree().isDisposed()) {
-            return getFilteredTree().getViewer();
-        }
-        return null;
-    }
-
-    public void dispose() {
-        if (getPageControl() != null && !getPageControl().isDisposed()) {
-            getPageControl().dispose();
-            this.filteredTree = null;
-        }
+        attachListeners(buildLaunchRequest);
     }
 
     protected void createViewerColumns() {
-        this.labelColumn = new TreeViewerColumn(getViewer(), SWT.NONE);
+        this.labelColumn = new TreeViewerColumn(this.filteredTree.getViewer(), SWT.NONE);
         this.labelColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Text);
         this.labelColumn.getColumn().setWidth(550);
 
-        this.durationColumn = new TreeViewerColumn(getViewer(), SWT.NONE);
+        this.durationColumn = new TreeViewerColumn(this.filteredTree.getViewer(), SWT.NONE);
         this.durationColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Duration_Text);
         this.durationColumn.getColumn().setWidth(200);
     }
@@ -97,17 +68,13 @@ public final class ExecutionPage {
         IListProperty childrenProperty = new ExecutionChildrenListProperty();
 
         ObservableListTreeContentProvider contentProvider = new ObservableListTreeContentProvider(childrenProperty.listFactory(), null);
-        getViewer().setContentProvider(contentProvider);
+        this.filteredTree.getViewer().setContentProvider(contentProvider);
 
         IObservableSet knownElements = contentProvider.getKnownElements();
         attachLabelProvider(OperationItem.FIELD_LABEL, OperationItem.FIELD_IMAGE, knownElements, this.labelColumn);
         attachLabelProvider(OperationItem.FIELD_DURATION, null, knownElements, this.durationColumn);
 
-        getViewer().setInput(this.root);
-
-        this.buildStarted = new OperationItem(null, ExecutionsViewMessages.Tree_Item_Root_Text);
-        this.buildStarted.setImage(PluginImages.OPERATION_ROOT.withState(ImageState.ENABLED).getImageDescriptor());
-        this.root.addChild(this.buildStarted);
+        this.filteredTree.getViewer().setInput(this.root);
     }
 
     private void attachLabelProvider(String textProperty, String imageProperty, IObservableSet knownElements, ViewerColumn viewerColumn) {
@@ -120,12 +87,12 @@ public final class ExecutionPage {
         }
     }
 
-    public Control getPageControl() {
-        return getFilteredTree();
+    private void attachListeners(BuildLaunchRequest buildLaunchRequest) {
+        buildLaunchRequest.typedProgressListeners(new ExecutionProgressListener(this.root));
     }
 
-    public OperationItem getBuildStartedItem() {
-        return this.buildStarted;
+    public FilteredTree getFilteredTree() {
+        return this.filteredTree;
     }
 
 }

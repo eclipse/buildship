@@ -56,7 +56,6 @@ import org.eclipse.jface.resource.ImageDescriptor;
 @SuppressWarnings("unchecked")
 public class OperationItem extends AbstractModelObject implements IAdaptable {
 
-    public static final String FIELD_OPERATION_DESCRIPTOR = "operationDescriptor"; //$NON-NLS-1$
     public static final String FIELD_LAST_PROGRESSEVENT = "lastProgressEvent"; //$NON-NLS-1$
     public static final String FIELD_LABEL = "label"; //$NON-NLS-1$
     public static final String FIELD_IMAGE = "image"; //$NON-NLS-1$
@@ -64,15 +63,10 @@ public class OperationItem extends AbstractModelObject implements IAdaptable {
     public static final String FIELD_CHILDREN = "children"; //$NON-NLS-1$
 
     private final OperationDescriptor operationDescriptor;
-
     private ProgressEvent lastProgressEvent;
-
     private String label;
-
     private ImageDescriptor image;
-
     private String duration;
-
     private List<OperationItem> children = new ArrayList<OperationItem>();
 
     public OperationItem(OperationDescriptor operationDescriptor) {
@@ -102,6 +96,7 @@ public class OperationItem extends AbstractModelObject implements IAdaptable {
         setChildren(children);
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public void removeChild(OperationItem operationItem) {
         // must be done like this, so that the databinding works properly
         List<OperationItem> children = Lists.newArrayList(getChildren());
@@ -125,6 +120,7 @@ public class OperationItem extends AbstractModelObject implements IAdaptable {
         firePropertyChange(FIELD_LABEL, this.label, this.label = label);
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public String getDuration() {
         return this.duration;
     }
