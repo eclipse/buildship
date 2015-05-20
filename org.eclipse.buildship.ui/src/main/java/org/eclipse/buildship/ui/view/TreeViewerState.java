@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.part;
+package org.eclipse.buildship.ui.view;
 
 /**
  * Implemented by classes that manage the (persisted) state of an {@code org.eclipse.jface.viewers.AbstractTreeViewer}.

@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.part.TreeViewerState;
+import org.eclipse.buildship.ui.view.TreeViewerState;
 
 /**
  * Represents the (persistable) configuration state of the {@link TaskView}. Backed by the Eclipse

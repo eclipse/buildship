@@ -13,7 +13,7 @@
 package org.eclipse.buildship.ui.view.execution;
 
 import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.part.TreeViewerState;
+import org.eclipse.buildship.ui.view.TreeViewerState;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.osgi.service.prefs.BackingStoreException;
