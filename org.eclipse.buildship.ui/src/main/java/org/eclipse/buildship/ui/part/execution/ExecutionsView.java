@@ -14,6 +14,7 @@ package org.eclipse.buildship.ui.part.execution;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.services.IEvaluationService;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.ui.handler.CollapseHandler;
@@ -55,9 +56,15 @@ public class ExecutionsView extends FilteredTreePagePart {
 
     @Override
     public void setCurrentPage(IPage page) {
+        super.setCurrentPage(page);
+
         handleShowFilterControlAction(page);
 
-        super.setCurrentPage(page);
+        IEvaluationService service = getSite().getService(IEvaluationService.class);
+        service.requestEvaluation("buildship.ui.pagespart.isTreePage");
+        service.requestEvaluation("buildship.ui.pagespart.hasPages");
+
+        getViewSite().getActionBars().updateActionBars();
     }
 
     private void handleShowFilterControlAction(IPage page) {
