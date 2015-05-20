@@ -25,8 +25,8 @@ public class ExecutionsViewMessages extends NLS {
     public static String Tree_Column_Operation_Name_Text;
     public static String Tree_Column_Operation_Duration_Text;
 
-    public static String Tree_Item_Test_Started_Text;
-    public static String Tree_Item_Test_Finished_In_0_Text;
+    public static String Tree_Item_Operation_Started_Text;
+    public static String Tree_Item_Operation_Finished_In_0_Text;
 
     static {
         // initialize resource bundle
