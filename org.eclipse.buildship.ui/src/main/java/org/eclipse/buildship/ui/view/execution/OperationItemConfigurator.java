@@ -20,7 +20,7 @@ import org.gradle.tooling.events.*;
 /**
  * Configures an {@code OperationItem} instance from an event belonging associated with that item.
  */
-public final class DefaultOperationItemConfigurator {
+public final class OperationItemConfigurator {
 
     public void configure(OperationItem operationItem, ProgressEvent event) {
         if (event instanceof StartEvent) {
