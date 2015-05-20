@@ -46,11 +46,11 @@ public final class ExecutionPage {
         this.filteredTree.getViewer().getTree().setHeaderVisible(this.state.isShowTreeHeader());
 
         TreeViewerColumn nameColumn = new TreeViewerColumn(this.filteredTree.getViewer(), SWT.NONE);
-        nameColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Text);
+        nameColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Name_Text);
         nameColumn.getColumn().setWidth(550);
 
         TreeViewerColumn durationColumn = new TreeViewerColumn(this.filteredTree.getViewer(), SWT.NONE);
-        durationColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Duration_Text);
+        durationColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Duration_Text);
         durationColumn.getColumn().setWidth(200);
 
         IListProperty childrenProperty = new ExecutionChildrenListProperty();

@@ -101,11 +101,11 @@ public final class ExecutionPage implements IPage, FilteredTreeProvider,Selectio
 
     protected void createViewerColumns() {
         this.labelColumn = new TreeViewerColumn(getViewer(), SWT.NONE);
-        this.labelColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Text);
+        this.labelColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Name_Text);
         this.labelColumn.getColumn().setWidth(550);
 
         this.durationColumn = new TreeViewerColumn(getViewer(), SWT.NONE);
-        this.durationColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Duration_Text);
+        this.durationColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Duration_Text);
         this.durationColumn.getColumn().setWidth(200);
     }
 
