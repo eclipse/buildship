@@ -59,7 +59,7 @@ public final class ExecutionPage {
         attachLabelProvider(OperationItem.FIELD_DURATION, null, knownElements, durationColumn);
 
         // set tree root node
-        OperationItem root = new OperationItem(null);
+        OperationItem root = new OperationItem();
         this.filteredTree.getViewer().setInput(root);
 
         // listen to progress events
