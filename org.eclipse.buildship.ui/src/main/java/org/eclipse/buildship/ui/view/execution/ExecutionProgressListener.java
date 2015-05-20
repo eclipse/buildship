@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.eclipse.buildship.ui.part.execution.model.OperationItem;
@@ -31,15 +32,14 @@ import java.util.Map;
 public final class ExecutionProgressListener implements org.gradle.tooling.events.ProgressListener {
 
     private final ExecutionPage executionPage;
-    private final OperationItem root;
-    private final DefaultOperationItemConfigurator executionItemConfigurator;
     private final Map<OperationDescriptor, OperationItem> executionItemMap;
+    private final DefaultOperationItemConfigurator executionItemConfigurator;
 
     public ExecutionProgressListener(ExecutionPage executionPage, OperationItem root) {
-        this.executionPage = executionPage;
-        this.root = root;
-        this.executionItemConfigurator = new DefaultOperationItemConfigurator();
+        this.executionPage = Preconditions.checkNotNull(executionPage);
         this.executionItemMap = Maps.newLinkedHashMap();
+        this.executionItemMap.put(null, Preconditions.checkNotNull(root));
+        this.executionItemConfigurator = new DefaultOperationItemConfigurator();
     }
 
     @Override
@@ -53,6 +53,7 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
             createdNewOperationItem = true;
         }
         // set the last progress event, so that this can be obtained from the viewers selection
+        // todo (etst) fix this
         operationItem.setLastProgressEvent(progressEvent);
 
         // Configure OperationItem according to the given event
@@ -65,7 +66,7 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
         operationItemConfigurator.configure(operationItem);
 
         // attach to parent, if necessary
-        OperationItem parentExecutionItem = getParent(descriptor);
+        OperationItem parentExecutionItem = this.executionItemMap.get(descriptor.getParent());
         if (!parentExecutionItem.getChildren().contains(operationItem)) {
             List<OperationItem> children = Lists.newArrayList(parentExecutionItem.getChildren());
             children.add(operationItem);
@@ -75,15 +76,6 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
         if (createdNewOperationItem) {
             makeNodeVisible(operationItem);
         }
-    }
-
-    private OperationItem getParent(OperationDescriptor descriptor) {
-        OperationDescriptor parent = descriptor.getParent();
-        OperationItem parentExecutionItem = this.executionItemMap.get(parent);
-        if (parentExecutionItem == null) {
-            parentExecutionItem = this.root;
-        }
-        return parentExecutionItem;
     }
 
     private void makeNodeVisible(final OperationItem operationItem) {
