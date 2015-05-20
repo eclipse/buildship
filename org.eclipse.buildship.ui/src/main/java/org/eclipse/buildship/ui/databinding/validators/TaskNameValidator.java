@@ -22,14 +22,21 @@ import org.eclipse.jface.viewers.ISelection;
  * empty and returns a warning status in case of an empty state.
  *
  */
-public class NonEmptyValidator implements IValidator {
+public class TaskNameValidator implements IValidator {
+
+    public static final String NON_ALLOWED_TASK_NAME_CHARS = ":";
 
     @Override
     public IStatus validate(Object value) {
-        if (value instanceof String && ((String) value).isEmpty()) {
-            return ValidationStatus.warning("This value must not be empty");
+        if (value instanceof String) {
+            String stringValue = (String) value;
+            if (stringValue.isEmpty()) {
+                return ValidationStatus.error("The Task Name must not be empty");
+            } else if (stringValue.contains(NON_ALLOWED_TASK_NAME_CHARS)) {
+                return ValidationStatus.error("The Task Name must not contain one of these characters:" + System.lineSeparator() + NON_ALLOWED_TASK_NAME_CHARS);
+            }
         } else if (value instanceof ISelection && ((ISelection) value).isEmpty()) {
-            return ValidationStatus.warning("The selection must not be empty");
+            return ValidationStatus.error("The selection must not be empty");
         }
         return Status.OK_STATUS;
     }
