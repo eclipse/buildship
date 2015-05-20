@@ -14,7 +14,7 @@ package org.eclipse.buildship.ui.view.execution;
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 import org.eclipse.buildship.ui.part.execution.model.OperationItem;
 import org.eclipse.buildship.ui.part.execution.model.OperationItemPatternFilter;
-import org.eclipse.buildship.ui.part.execution.model.internal.ExecutionChildrenListProperty;
+import org.eclipse.buildship.ui.part.execution.model.ExecutionChildrenListProperty;
 import org.eclipse.buildship.ui.viewer.FilteredTree;
 import org.eclipse.buildship.ui.viewer.labelprovider.ObservableMapCellWithIconLabelProvider;
 import org.eclipse.core.databinding.beans.BeanProperties;
