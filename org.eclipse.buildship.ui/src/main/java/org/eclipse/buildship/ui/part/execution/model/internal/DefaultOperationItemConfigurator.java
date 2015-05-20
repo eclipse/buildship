@@ -21,7 +21,7 @@ import org.gradle.tooling.events.test.TestSuccessResult;
 
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.part.execution.ExecutionsViewMessages;
+import org.eclipse.buildship.ui.view.execution.ExecutionsViewMessages;
 import org.eclipse.buildship.ui.part.execution.model.OperationItem;
 import org.eclipse.buildship.ui.part.execution.model.OperationItemConfigurator;
 
