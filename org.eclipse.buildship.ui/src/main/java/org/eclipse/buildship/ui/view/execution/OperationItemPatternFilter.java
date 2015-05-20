@@ -9,13 +9,10 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.part.execution.model;
-
-import org.eclipse.buildship.ui.view.execution.OperationItem;
-import org.eclipse.jface.viewers.Viewer;
+package org.eclipse.buildship.ui.view.execution;
 
 import org.eclipse.buildship.ui.viewer.PatternFilter;
-
+import org.eclipse.jface.viewers.Viewer;
 
 /**
  * Filters out {@code OperationItem} instances whose label does not match the given text.
