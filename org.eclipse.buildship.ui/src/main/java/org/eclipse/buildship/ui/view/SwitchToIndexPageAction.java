@@ -14,24 +14,23 @@ package org.eclipse.buildship.ui.view;
 import org.eclipse.jface.action.Action;
 
 /**
- * This action is able to switch between the pages of an {@link MultiPageView} by a given index.
- *
- * @see SwitchToNextPageAction
+ * An action to switch to a page of a {@link MultiPageView} by the index of the page.
  */
 public final class SwitchToIndexPageAction extends Action {
 
-    private final MultiPageView pagePart;
     private final int index;
+    private final MultiPageView multiPageView;
 
-    public SwitchToIndexPageAction(MultiPageView pagePart, String name, int index) {
-        super(name);
-        this.pagePart = pagePart;
+    public SwitchToIndexPageAction(String text, int index, MultiPageView multiPageView) {
+        super(text);
+
         this.index = index;
+        this.multiPageView = multiPageView;
     }
 
     @Override
     public void run() {
-        this.pagePart.switchToPageAtIndex(this.index);
+        this.multiPageView.switchToPageAtIndex(this.index);
     }
 
 }

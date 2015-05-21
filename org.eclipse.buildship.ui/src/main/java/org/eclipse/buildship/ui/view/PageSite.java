@@ -15,28 +15,27 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IViewSite;
 
 /**
- * This site can be used to modify the {@link IActionBars}.
- *
+ * Page site to modify the page specific {@link IActionBars}.
  */
 public interface PageSite {
 
     /**
-     * Returns the site for the container view.
+     * Returns the site of the container view.
      *
      * @return the container view's site
      */
     IViewSite getViewSite();
 
     /**
-     * Returns the action bars for this page site. Pages have exclusive use of their site's action
-     * bars.
+     * Returns the action bars of the page site. Pages have exclusive use of their site's action bars.
      *
      * @return the action bars
      */
-    public IActionBars getActionBars();
+    IActionBars getActionBars();
 
     /**
-     * Disposes this page site.
+     * Disposes the page site.
      */
-    public void dispose();
+    void dispose();
+
 }

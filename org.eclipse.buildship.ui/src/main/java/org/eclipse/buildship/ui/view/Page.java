@@ -16,11 +16,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 /**
- * Interface for pages, which are shown inside an
- * {@link org.eclipse.buildship.ui.view.MultiPageView.AbstractPagePart}.
+ * Interface for pages which are shown inside a {@link MultiPageView}.
  * <p/>
  * Implementations can either implement this interface directly or inherit from the {@link BasePage}
  * class containing sensible defaults.
+ *
+ * @see org.eclipse.buildship.ui.view.BasePage
+ * @see org.eclipse.buildship.ui.view.MultiPageView
  */
 public interface Page extends IAdaptable {
 
@@ -32,44 +34,47 @@ public interface Page extends IAdaptable {
     String getDisplayName();
 
     /**
-     * Creates the UI widgets for the page.
+     * Creates the UI widgets of the page under the given parent control.
      *
-     * @param parent control to add the widgets
+     * @param parent the parent control to add the widgets to
      */
     void createPage(Composite parent);
 
     /**
-     * Returns the root control of the page widgets.
+     * Returns the root control of the page's UI widgets.
      * <p/>
-     * If the control is not yet created this method then returns {@code null}.
+     * If the page has not yet been created this method returns {@code null}.
      *
-     * @return the root control or {@code null} if not initialized
+     * @return the root control or {@code null} if the page has not been created yet
      */
     Control getPageControl();
 
     /**
-     * When the page gains focus this method should propagate this request and set the focus on the
-     * main control defined inside. Does nothing when the UI widgets hasn't been created.
-     */
-    void setFocus();
-
-    /**
-     * Associate the site with the current page and initialize it.
+     * Associates the given site with the page and initializes it.
      *
-     * @param pageSite the target site
+     * @param pageSite the site
      */
     void init(PageSite pageSite);
 
     /**
-     * Returns the {@link PageSite} instance associated with this page. Returns {@code null} if the
-     * {@link #init(PageSite)} method ha not been called.
+     * Returns the {@link PageSite} instance associated with this page.
+     * <p/>
+     * If the page has not yet been initialized this method returns {@code null}.
      *
-     * @return the associated site
+     * @return the associated site or {@code null} if the page has not been initialized yet
      */
     PageSite getSite();
 
     /**
-     * Disposes the resources when the Page is removed from the view.
+     * Sets the focus on the main control of the page.
+     * <p/>
+     * If the page has not yet been created this method does nothing.
+     */
+    void setFocus();
+
+    /**
+     * Disposes the resources of the page.
      */
     void dispose();
+
 }

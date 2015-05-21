@@ -15,15 +15,26 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 /**
- * Convenience class partially implementing the {@link Page} interface.
+ * Base class partially for {@link Page} implementations.
  *
- * @param <T> the type of the root control the basePage should return in the
- *            {@link #getPageControl()} method
+ * @param <T> the type of the root control of the page
  */
 public abstract class BasePage<T extends Control> implements Page {
 
     private PageSite pageSite;
     private T rootControl;
+
+    @Override
+    public void createPage(Composite parent) {
+        this.rootControl = createPageWithResult(parent);
+    }
+
+    protected abstract T createPageWithResult(Composite parent);
+
+    @Override
+    public T getPageControl() {
+        return this.rootControl;
+    }
 
     @Override
     public void init(PageSite pageSite) {
@@ -35,37 +46,18 @@ public abstract class BasePage<T extends Control> implements Page {
         return this.pageSite;
     }
 
-    /**
-     * Creates the UI widgets and return the root control.
-     * <p/>
-     * The result will be used by the {@link #getPageControl()} and the {@link #setFocus()}.
-     *
-     * @param parent the control to attach UI widgets to
-     * @return the root control
-     */
-    public abstract T createPageWithResult(Composite parent);
-
-    @Override
-    public void createPage(Composite parent) {
-        this.rootControl = createPageWithResult(parent);
-    }
-
-    @Override
-    public T getPageControl() {
-        return this.rootControl;
-    }
-
     @Override
     public void setFocus() {
-        this.rootControl.setFocus();
+        if (this.rootControl != null) {
+            this.rootControl.setFocus();
+        }
     }
 
     @Override
     public void dispose() {
+        if (this.rootControl != null) {
+            this.rootControl.dispose();
+        }
     }
 
-    @Override
-    public <U> U getAdapter(Class<U> adapter) {
-        return null;
-    }
 }

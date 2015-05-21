@@ -11,18 +11,18 @@
 
 package org.eclipse.buildship.ui.view;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 /**
- * A {@link MultiPageView} page displaying a message.
+ * A {@link MultiPageView} page displaying a simple message.
  */
 public final class MessagePage extends BasePage<Composite> {
 
     private final String message;
-    private Label messageLabel;
 
     /**
      * Creates a new page. The message is the empty string.
@@ -33,17 +33,24 @@ public final class MessagePage extends BasePage<Composite> {
 
     @Override
     public String getDisplayName() {
-        return this.message;
+        return "DEFAULT";  // never shown in the UI
     }
 
     @Override
     public Composite createPageWithResult(Composite parent) {
-        // Message in default page of Outline should have margins
+        // message in default page of outline should have margins
         Composite root = new Composite(parent, SWT.NULL);
         root.setLayout(new FillLayout());
 
-        this.messageLabel = new Label(root, SWT.LEFT | SWT.TOP | SWT.WRAP);
-        this.messageLabel.setText(this.message);
+        Label messageLabel = new Label(root, SWT.LEFT | SWT.TOP | SWT.WRAP);
+        messageLabel.setText(this.message);
+
         return root;
     }
+
+    @Override
+    public <T> T getAdapter(Class<T> adapter) {
+        return Platform.getAdapterManager().getAdapter(this, adapter);
+    }
+
 }
