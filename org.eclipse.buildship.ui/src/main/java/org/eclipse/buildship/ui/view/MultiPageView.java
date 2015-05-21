@@ -219,7 +219,7 @@ public abstract class MultiPageView extends ViewPart {
 
     private void removeSelectionListenerThatUpdatesSelectionProvider(Page page) {
         @SuppressWarnings({"cast", "RedundantCast"})
-        ISelectionProvider selectionProvider = page.getAdapter(ISelectionProvider.class);
+        ISelectionProvider selectionProvider = (ISelectionProvider) page.getAdapter(ISelectionProvider.class);
         if (selectionProvider != null) {
             selectionProvider.removeSelectionChangedListener(this.selectionChangedListener);
         }
