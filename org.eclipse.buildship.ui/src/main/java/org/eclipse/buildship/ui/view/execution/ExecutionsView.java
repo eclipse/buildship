@@ -40,14 +40,14 @@ public final class ExecutionsView extends MultiPageView {
     }
 
     @Override
-    protected Page getDefaultPage() {
+    protected Page createDefaultPage() {
         return new MessagePage(ExecutionsViewMessages.Label_No_Execution);
     }
 
     public void addExecutionPage(String processName, BuildLaunchRequest buildLaunchRequest) {
         ExecutionPage executionPage = new ExecutionPage(processName, buildLaunchRequest, this.state);
         addPage(executionPage);
-        setCurrentPage(executionPage);
+        switchToPage(executionPage);
     }
 
     @Override
