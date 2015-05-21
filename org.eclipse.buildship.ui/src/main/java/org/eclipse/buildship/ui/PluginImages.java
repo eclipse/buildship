@@ -44,6 +44,8 @@ public enum PluginImages implements PluginImage {
     REMOVE_CONSOLE(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/remove_page.png", ImageState.DISABLED, "icons/full/dlcl16/remove_page.png")),
     REMOVE_ALL_CONSOLES(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/remove_all_pages.png", ImageState.DISABLED, "icons/full/dlcl16/remove_all_pages.png")),
     CANCEL_BUILD_EXECUTION(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/cancel_build_execution.png", ImageState.DISABLED, "icons/full/dlcl16/cancel_build_execution.png")),
+    EXPAND_ALL(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/expand.png")),
+    COLLAPSE_ALL(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/collapse.png")),
     RUN_CONFIG_TASKS(ImmutableMap.of(ImageState.ENABLED, "icons/full/eview16/run_config_tasks.png")),
     RUN_CONFIG_GRADLE_DISTRIBUTION(ImmutableMap.of(ImageState.ENABLED, "icons/full/eview16/run_config_gradle_distribution.png")),
     RUN_CONFIG_ARGUMENTS(ImmutableMap.of(ImageState.ENABLED, "icons/full/eview16/run_config_arguments.gif")),
