@@ -109,14 +109,14 @@ public final class ExecutionPage extends BasePage<FilteredTree> {
         actionBars.getToolBarManager().update(true);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     @Override
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         if (FilteredTree.class.equals(adapter)) {
-            return getPageControl();
+            return (T) getPageControl();
         } else if (adapter.isAssignableFrom(TreeViewer.class)) {
             // isAssignableFrom also applies for the ISelectionProvider interface
-            return getPageControl().getViewer();
+            return (T) getPageControl().getViewer();
         }
         return Platform.getAdapterManager().getAdapter(this, adapter);
     }

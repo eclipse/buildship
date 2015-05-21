@@ -35,7 +35,10 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.SubActionBars;
 import org.eclipse.ui.part.ViewPart;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Abstract view part that manages multiple {@link Page} elements shown within this view part. If
@@ -273,6 +276,9 @@ public abstract class MultiPageView extends ViewPart {
         super.dispose();
     }
 
+    /**
+     * Implementation of {@code PageSite}.
+     */
     private static final class DefaultPageSite implements PageSite {
 
         private final IViewSite viewSite;
@@ -300,6 +306,9 @@ public abstract class MultiPageView extends ViewPart {
 
     }
 
+    /**
+     * Implementation of {@code ISelectionProvider}.
+     */
     private static final class PageSelectionProvider implements ISelectionProvider {
 
         private final List<ISelectionChangedListener> selectionChangedListeners;
@@ -341,6 +350,9 @@ public abstract class MultiPageView extends ViewPart {
 
     }
 
+    /**
+     * Implementation of {@code ISelectionChangedListener}.
+     */
     private static final class ForwardingSelectionChangedListener implements ISelectionChangedListener {
 
         private final ISelectionProvider selectionProvider;
@@ -356,6 +368,9 @@ public abstract class MultiPageView extends ViewPart {
 
     }
 
+    /**
+     * Implementation of {@code IPropertyChangeListener}.
+     */
     private static final class ActionBarsPropertyChangeListener implements IPropertyChangeListener {
 
         private final MultiPageView multiPageView;
