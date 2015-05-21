@@ -150,24 +150,6 @@ public class CreateTaskTypeWizardMainPage extends WizardPage {
         });
     }
 
-    private void addControlDecorationSupport(final Binding taskNameBinding) {
-        taskNameBinding.getTarget().addChangeListener(new IChangeListener() {
-
-            private boolean isControlDecorationSupportAdded;
-
-            @Override
-            public void handleChange(ChangeEvent event) {
-                if (!isControlDecorationSupportAdded) {
-                    isControlDecorationSupportAdded = true;
-                    // show validation status at the widget itself
-                    ControlDecorationSupport.create(taskNameBinding, SWT.LEFT | SWT.TOP);
-                    // show validation status as Wizard message
-                    DialogPageSupport.create(CreateTaskTypeWizardMainPage.this, dbc);
-                }
-            }
-        });
-    }
-
     private void createPageCompleteObservable() {
         AggregateValidationStatus aggregateValidationStatus = new AggregateValidationStatus(dbc, AggregateValidationStatus.MAX_SEVERITY);
         aggregateValidationStatus.addValueChangeListener(new IValueChangeListener() {

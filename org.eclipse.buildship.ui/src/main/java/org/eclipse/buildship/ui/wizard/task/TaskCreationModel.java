@@ -21,13 +21,13 @@ import org.eclipse.jface.text.templates.Template;
 import org.eclipse.buildship.core.model.taskmetadata.TaskProperty;
 import org.eclipse.buildship.core.model.taskmetadata.TaskType;
 import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.part.execution.model.AbstractModelObject;
+import org.eclipse.buildship.ui.view.ObservableItem;
 
 /**
  * This model contains all information, which is configured by the NewGradleTaskWizard.
  *
  */
-public class TaskCreationModel extends AbstractModelObject {
+public class TaskCreationModel extends ObservableItem {
 
     public static final String FIELD_TASKNAME = "taskName"; //$NON-NLS-1$
     public static final String FIELD_TASKTYPE = "taskType"; //$NON-NLS-1$
@@ -73,13 +73,28 @@ public class TaskCreationModel extends AbstractModelObject {
 
     public String getTaskTypeFunction() {
 
+        // If the default task type is used simply return a default task
+        if (TaskType.DEFAULT_TASK_TYPE.equals(getTaskType())) {
+            return "task " + getTaskName() + " {" + System.lineSeparator() + "}";
+        }
+
+        // If it is not the TaskType.DEFAULT_TASK_TYPE we read the template for more complex tasks
         Template template = UiPlugin.templateService().getTemplateStore().findTemplateById(TASK_TEMPLATE_ID);
 
         String pattern = template.getPattern();
 
+        // replace the variables in the template by actual values
         String templateResult = pattern.replace(TEMPLATE_TASKNAME, getTaskName());
-        templateResult = templateResult.replace(TEMPLATE_TASKTYPE, taskType.getClassName());
 
+        templateResult = templateResult.replace(TEMPLATE_TASKTYPE, getTaskType().getClassName());
+
+        String propertiesString = getPropertiesString();
+        templateResult = templateResult.replace(TEMPLATE_TASKPROPERTYVALUES, propertiesString);
+
+        return templateResult;
+    }
+
+    private String getPropertiesString() {
         StringBuilder sb = new StringBuilder();
         for (Iterator<?> iterator = taskPropertyValues.entrySet().iterator(); iterator.hasNext();) {
             Entry<?, ?> entry = (Entry<?, ?>) iterator.next();
@@ -96,8 +111,6 @@ public class TaskCreationModel extends AbstractModelObject {
             }
         }
 
-        templateResult = templateResult.replace(TEMPLATE_TASKPROPERTYVALUES, sb.toString());
-
-        return templateResult;
+        return sb.toString();
     }
 }
