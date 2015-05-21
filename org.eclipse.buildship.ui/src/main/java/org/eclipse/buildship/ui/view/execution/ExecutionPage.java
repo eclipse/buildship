@@ -12,8 +12,7 @@
 package org.eclipse.buildship.ui.view.execution;
 
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-import org.eclipse.buildship.ui.viewer.FilteredTree;
-import org.eclipse.buildship.ui.viewer.labelprovider.ObservableMapCellWithIconLabelProvider;
+
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.beans.IBeanValueProperty;
 import org.eclipse.core.databinding.observable.set.IObservableSet;
@@ -24,19 +23,49 @@ import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.ViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+
+import org.eclipse.buildship.ui.view.BasePage;
+import org.eclipse.buildship.ui.viewer.FilteredTree;
+import org.eclipse.buildship.ui.viewer.labelprovider.ObservableMapCellWithIconLabelProvider;
 
 /**
  * Displays the tree of a single build execution.
  */
-public final class ExecutionPage {
+public final class ExecutionPage extends BasePage {
 
-    private final FilteredTree filteredTree;
+    private final ExecutionsViewState state;
+    private final BuildLaunchRequest buildLaunchRequest;
 
-    public ExecutionPage(Composite parent, ExecutionsViewState state, BuildLaunchRequest buildLaunchRequest) {
+    private FilteredTree filteredTree;
+    private ExecutionsView executionsView;
+
+    public ExecutionPage(ExecutionsView executionsView, Composite parent, ExecutionsViewState state, BuildLaunchRequest buildLaunchRequest) {
+        this.executionsView = executionsView;
+        this.state = state;
+        this.buildLaunchRequest = buildLaunchRequest;
+    }
+
+    private void attachLabelProvider(String textProperty, String imageProperty, IObservableSet knownElements, ViewerColumn viewerColumn) {
+        IBeanValueProperty txtProperty = BeanProperties.value(textProperty);
+        if (imageProperty != null) {
+            IBeanValueProperty imgProperty = BeanProperties.value(imageProperty);
+            viewerColumn.setLabelProvider(new ObservableMapCellWithIconLabelProvider(txtProperty.observeDetail(knownElements), imgProperty.observeDetail(knownElements)));
+        } else {
+            viewerColumn.setLabelProvider(new ObservableMapCellLabelProvider(txtProperty.observeDetail(knownElements)));
+        }
+    }
+
+    public FilteredTree getFilteredTree() {
+        return this.filteredTree;
+    }
+
+    @Override
+    public Control createPageContents(Composite parent) {
         // configure tree
         this.filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, new OperationItemPatternFilter());
         this.filteredTree.setShowFilterControls(false);
-        this.filteredTree.getViewer().getTree().setHeaderVisible(state.isShowTreeHeader());
+        this.filteredTree.getViewer().getTree().setHeaderVisible(this.state.isShowTreeHeader());
 
         TreeViewerColumn nameColumn = new TreeViewerColumn(this.filteredTree.getViewer(), SWT.NONE);
         nameColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Name_Text);
@@ -60,21 +89,13 @@ public final class ExecutionPage {
         this.filteredTree.getViewer().setInput(root);
 
         // listen to progress events
-        buildLaunchRequest.typedProgressListeners(new ExecutionProgressListener(this, root));
-    }
+        this.buildLaunchRequest.typedProgressListeners(new ExecutionProgressListener(this, root));
 
-    private void attachLabelProvider(String textProperty, String imageProperty, IObservableSet knownElements, ViewerColumn viewerColumn) {
-        IBeanValueProperty txtProperty = BeanProperties.value(textProperty);
-        if (imageProperty != null) {
-            IBeanValueProperty imgProperty = BeanProperties.value(imageProperty);
-            viewerColumn.setLabelProvider(new ObservableMapCellWithIconLabelProvider(txtProperty.observeDetail(knownElements), imgProperty.observeDetail(knownElements)));
-        } else {
-            viewerColumn.setLabelProvider(new ObservableMapCellLabelProvider(txtProperty.observeDetail(knownElements)));
-        }
-    }
-
-    public FilteredTree getFilteredTree() {
         return this.filteredTree;
+    }
+
+    public ExecutionsView getExecutionsView() {
+        return this.executionsView;
     }
 
 }

@@ -11,13 +11,15 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import org.eclipse.ui.PlatformUI;
+import java.util.Map;
+
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.ProgressEvent;
 
-import java.util.Map;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+
+import org.eclipse.ui.PlatformUI;
 
 /**
  * Listens to {@link org.gradle.tooling.events.ProgressEvent} instances that are sent by the Tooling API while a build is executed. Each
