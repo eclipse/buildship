@@ -165,7 +165,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
     private void setClasspathContainer(List<IClasspathEntry> classpathEntries, IPath containerPath, IJavaProject project) throws JavaModelException {
         org.eclipse.core.runtime.Path classpathContainerPath = new org.eclipse.core.runtime.Path(ClasspathDefinition.GRADLE_CLASSPATH_CONTAINER_ID);
-        IClasspathContainer classpathContainer = new GradleClasspathContainer("Gradle Dependencies", classpathContainerPath, classpathEntries);
+        IClasspathContainer classpathContainer = new GradleClasspathContainer("Project and External Dependencies", classpathContainerPath, classpathEntries);
         JavaCore.setClasspathContainer(containerPath, new IJavaProject[]{project}, new IClasspathContainer[]{classpathContainer}, null);
     }
 
