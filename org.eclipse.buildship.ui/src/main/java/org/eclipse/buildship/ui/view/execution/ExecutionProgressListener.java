@@ -31,12 +31,12 @@ import org.eclipse.buildship.ui.view.Page;
  */
 public final class ExecutionProgressListener implements org.gradle.tooling.events.ProgressListener {
 
-    private final Page page;
+    private final Page executionPage;
     private final Map<OperationDescriptor, OperationItem> executionItemMap;
     private final OperationItemConfigurator operationItemConfigurator;
 
     public ExecutionProgressListener(Page executionPage, OperationItem root) {
-        this.page = Preconditions.checkNotNull(executionPage);
+        this.executionPage = Preconditions.checkNotNull(executionPage);
         this.executionItemMap = Maps.newLinkedHashMap();
         this.executionItemMap.put(null, Preconditions.checkNotNull(root));
         this.operationItemConfigurator = new OperationItemConfigurator();
@@ -72,10 +72,8 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
             @Override
             public void run() {
                 @SuppressWarnings("cast")
-                TreeViewer treeViewer = (TreeViewer) ExecutionProgressListener.this.page.getAdapter(TreeViewer.class);
-                if (treeViewer != null) {
-                    treeViewer.expandToLevel(operationItem, AbstractTreeViewer.ALL_LEVELS);
-                }
+                TreeViewer treeViewer = (TreeViewer) ExecutionProgressListener.this.executionPage.getAdapter(TreeViewer.class);
+                treeViewer.expandToLevel(operationItem, AbstractTreeViewer.ALL_LEVELS);
             }
         });
     }

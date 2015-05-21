@@ -34,14 +34,14 @@ public final class ConsoleShowingLaunchListener implements ILaunchListener {
 
     @Override
     public void launchAdded(ILaunch launch) {
-        Optional<GradleRunConfigurationAttributes> attributes = convertToGradleRunConfigurationAttributes(launch);
+        final Optional<GradleRunConfigurationAttributes> attributes = convertToGradleRunConfigurationAttributes(launch);
         if (attributes.isPresent() && attributes.get().isShowConsoleView()) {
-            // if both the build progress view and the console view should be shown, do not activate the console view
-            final int mode = attributes.get().isShowExecutionView() ? IWorkbenchPage.VIEW_VISIBLE : IWorkbenchPage.VIEW_ACTIVATE;
             PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
                 @Override
                 public void run() {
+                    // if both the executions view and the console view should be shown, do not activate the console view
+                    int mode = attributes.get().isShowExecutionView() ? IWorkbenchPage.VIEW_VISIBLE : IWorkbenchPage.VIEW_ACTIVATE;
                     WorkbenchUtils.showView(UiPluginConstants.CONSOLE_VIEW_ID, null, mode);
                 }
             });

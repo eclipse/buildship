@@ -59,8 +59,7 @@
             category="org.eclipse.buildship.ui.views"
             icon="icons/full/eview16/executions_view.png"
             name="Gradle Executions"
-            restorable="true"
-            allowMultiple="false">
+            restorable="true">
       </view>
       <category
             id="org.eclipse.buildship.ui.views"

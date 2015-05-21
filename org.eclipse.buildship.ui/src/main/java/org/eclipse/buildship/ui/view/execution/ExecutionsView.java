@@ -40,21 +40,20 @@ public final class ExecutionsView extends MultiPageView {
     }
 
     @Override
-    public void dispose() {
-        this.state.dispose();
-        super.dispose();
-    }
-
-    @Override
     protected Page getDefaultPage() {
-        MessagePage messagePage = new MessagePage(ExecutionsViewMessages.Label_No_Execution);
-        return messagePage;
+        return new MessagePage(ExecutionsViewMessages.Label_No_Execution);
     }
 
     public void addExecutionPage(BuildLaunchRequest buildLaunchRequest, String processName) {
         ExecutionPage executionPage = new ExecutionPage(this.state, buildLaunchRequest, processName);
         addPage(executionPage);
         setCurrentPage(executionPage);
+    }
+
+    @Override
+    public void dispose() {
+        this.state.dispose();
+        super.dispose();
     }
 
 }
