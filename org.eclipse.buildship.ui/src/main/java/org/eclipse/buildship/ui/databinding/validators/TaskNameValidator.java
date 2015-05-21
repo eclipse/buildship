@@ -19,7 +19,7 @@ import org.eclipse.jface.viewers.ISelection;
 
 /**
  * This {@link IValidator} is used to check whether a {@link String} or an {@link ISelection} is
- * empty and returns a warning status in case of an empty state.
+ * empty and returns a warning status in case of an empty state or non allowed chars.
  *
  */
 public class TaskNameValidator implements IValidator {
