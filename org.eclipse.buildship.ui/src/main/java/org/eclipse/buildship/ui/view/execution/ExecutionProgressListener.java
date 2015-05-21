@@ -11,13 +11,19 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import org.eclipse.ui.PlatformUI;
+import java.util.Map;
+
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.ProgressEvent;
 
-import java.util.Map;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+
+import org.eclipse.jface.viewers.AbstractTreeViewer;
+import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.ui.PlatformUI;
+
+import org.eclipse.buildship.ui.view.Page;
 
 /**
  * Listens to {@link org.gradle.tooling.events.ProgressEvent} instances that are sent by the Tooling API while a build is executed. Each
@@ -25,12 +31,12 @@ import java.util.Map;
  */
 public final class ExecutionProgressListener implements org.gradle.tooling.events.ProgressListener {
 
-    private final ExecutionPage executionPage;
+    private final Page page;
     private final Map<OperationDescriptor, OperationItem> executionItemMap;
     private final OperationItemConfigurator operationItemConfigurator;
 
-    public ExecutionProgressListener(ExecutionPage executionPage, OperationItem root) {
-        this.executionPage = Preconditions.checkNotNull(executionPage);
+    public ExecutionProgressListener(Page executionPage, OperationItem root) {
+        this.page = Preconditions.checkNotNull(executionPage);
         this.executionItemMap = Maps.newLinkedHashMap();
         this.executionItemMap.put(null, Preconditions.checkNotNull(root));
         this.operationItemConfigurator = new OperationItemConfigurator();
@@ -65,7 +71,11 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
         PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
             @Override
             public void run() {
-                ExecutionProgressListener.this.executionPage.getFilteredTree().getViewer().expandToLevel(operationItem, 0);
+                @SuppressWarnings("cast")
+                TreeViewer treeViewer = (TreeViewer) ExecutionProgressListener.this.page.getAdapter(TreeViewer.class);
+                if (treeViewer != null) {
+                    treeViewer.expandToLevel(operationItem, AbstractTreeViewer.ALL_LEVELS);
+                }
             }
         });
     }
