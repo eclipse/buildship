@@ -11,14 +11,13 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
+
 import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.event.EventListener;
 import org.eclipse.buildship.core.launch.ExecuteBuildLaunchRequestEvent;
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * {@link EventListener} implementation showing/activating the Executions View when a new Gradle build is executed and the
@@ -28,8 +27,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class ExecutionShowingBuildLaunchRequestListener implements EventListener {
 
-    private final AtomicInteger counter = new AtomicInteger(1);
-
     @Override
     public void onEvent(Event event) {
         if (event instanceof ExecuteBuildLaunchRequestEvent) {
@@ -38,20 +35,20 @@ public final class ExecutionShowingBuildLaunchRequestListener implements EventLi
     }
 
     private void handleBuildLaunchRequest(final ExecuteBuildLaunchRequestEvent event) {
-        // call synchronously to make sure we do not miss any progress events
-        PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+        if (event.getRunConfigurationAttributes().isShowExecutionView()) {
+            // call synchronously to make sure we do not miss any progress events
+            PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 
-            @Override
-            public void run() {
-                // each time a new build is launched, increment the secondary id to show its execution in a new Executions View
-                String secondaryId = String.valueOf(ExecutionShowingBuildLaunchRequestListener.this.counter.getAndIncrement());
-                org.eclipse.buildship.ui.view.execution.ExecutionsView view = WorkbenchUtils.showView(ExecutionsView.ID, secondaryId, IWorkbenchPage.VIEW_CREATE);
-                WorkbenchUtils.showView(ExecutionsView.ID, secondaryId, event.getRunConfigurationAttributes().isShowExecutionView() ? IWorkbenchPage.VIEW_ACTIVATE : IWorkbenchPage.VIEW_VISIBLE);
+                @Override
+                public void run() {
+                    // activate the executions view
+                    ExecutionsView view = WorkbenchUtils.showView(ExecutionsView.ID, null, IWorkbenchPage.VIEW_ACTIVATE);
 
-                // show the launched build in the newly added Executions View
-                view.addPage(event.getBuildLaunchRequest(), event.getProcessName());
-            }
-        });
+                    // show the launched build in a new page of the Executions View
+                    view.addExecutionPage(event.getProcessName(), event.getBuildLaunchRequest());
+                }
+            });
+        }
     }
 
 }

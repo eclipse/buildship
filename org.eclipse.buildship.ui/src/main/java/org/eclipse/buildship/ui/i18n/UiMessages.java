@@ -20,6 +20,7 @@ public final class UiMessages extends NLS {
 
     private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.i18n.UiMessages"; //$NON-NLS-1$
 
+    public static String Action_SwitchPage_Tooltip;
     public static String Action_ExpandNode_Tooltip;
     public static String Action_CollapseNode_Tooltip;
 
