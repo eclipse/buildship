@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingutils.binding.Property;
 
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
@@ -25,6 +26,7 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
 /**
@@ -36,7 +38,7 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
 
     public GradleWelcomeWizardPage(ProjectImportConfiguration configuration) {
         super("GradleWelcome", ProjectImportMessages.Title_GradleWelcomeWizardPage, ProjectImportMessages.InfoMessage_GradleWelcomeWizardPageDefault, //$NON-NLS-1$
-                configuration, ImmutableList.<Property<?>>of());
+                configuration, ImmutableList.<Property<?>> of());
         this.headerFont = createHeaderFont();
     }
 
@@ -62,22 +64,42 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
         fillWelcomeText(welcomeText);
     }
 
-    private void fillWelcomeText(StyledText welcome) {
-        String headerText = "How to experience the best Gradle integration";
-        String welcomeText = headerText + "\n\nPoint the wizard to the root location of the Gradle project to import. " +
-                "Buildship will take care of importing all the belonging projects. All imported projects that already contain " +
-                "an Eclipse .project file will be left alone, aside from being added the Gradle nature.\n\n" +
-                "You will experience the best Gradle integration, if you make use of the Gradle wrapper in your Gradle build and configure it " +
-                "to use the latest released version of Gradle. Using the Gradle wrapper also makes the build most sharable between multiple users.\n\n" +
-                "Unless you have a very specific reason, leave the advanced options at their default values.";
-        welcome.setText(welcomeText);
+    private void fillWelcomeText(StyledText welcomeText) {
+        String title = "How to experience the best Gradle integration";
+        String paragraph1 = "Project import: Point the wizard to the root location of the Gradle project to import. Buildship will take care of importing all the "
+                + "belonging projects. All imported projects that already contain an Eclipse .project file will be left alone, aside from being added the Gradle nature.";
+        String paragraph2 = "Gradle distribution: You will experience the best Gradle integration, if you make use of the Gradle wrapper in your Gradle build and configure it "
+                + "to use the latest released version of Gradle. Using the Gradle wrapper also makes the build most sharable between multiple users.";
+        String paragraph3 = "Advanced options: Unless you have a very specific reason, leave the advanced options at their default values.";
 
-        StyleRange headerStyle = new StyleRange();
-        headerStyle.start = 0;
-        headerStyle.length = headerText.length();
-        headerStyle.font = this.headerFont;
-        headerStyle.fontStyle = SWT.BOLD;
-        welcome.setStyleRange(headerStyle);
+        String welcome = title + "\n\n\n" + paragraph1 + "\n\n" + paragraph2 + "\n\n" + paragraph3;
+        welcomeText.setText(welcome);
+
+        // justify paragraph text
+        welcomeText.setLineJustify(1, welcomeText.getLineCount() - 1, true);
+
+        // format title text
+        StyleRange titleStyle = new StyleRange();
+        titleStyle.start = 0;
+        titleStyle.length = title.length();
+        titleStyle.font = this.headerFont;
+        titleStyle.fontStyle = SWT.BOLD;
+        welcomeText.setStyleRange(titleStyle);
+
+        // format paragraph names
+        StyleRange paragraphStyle = new StyleRange();
+        paragraphStyle.start = welcome.indexOf(paragraph1);
+        paragraphStyle.length = 15;
+        paragraphStyle.fontStyle = SWT.BOLD;
+        welcomeText.setStyleRange(paragraphStyle);
+
+        paragraphStyle.start = welcome.indexOf(paragraph2);
+        paragraphStyle.length = 20;
+        welcomeText.setStyleRange(paragraphStyle);
+
+        paragraphStyle.start = welcome.indexOf(paragraph3);
+        paragraphStyle.length = 17;
+        welcomeText.setStyleRange(paragraphStyle);
     }
 
     @Override
