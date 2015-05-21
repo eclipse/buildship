@@ -19,7 +19,8 @@ import org.eclipse.buildship.ui.generic.SelectionSpecificAction;
 import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
-import org.eclipse.jface.viewers.ITreeSelection;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Event;
 
@@ -39,13 +40,13 @@ public final class CollapseTreeNodesAction extends Action implements SelectionSp
 
     @Override
     public void runWithEvent(Event event) {
-        ITreeSelection selection = this.treeViewer.getStructuredSelection();
-        if (selection.isEmpty()) {
-            this.treeViewer.collapseAll();
-        } else {
-            for (Object element : selection.toList()) {
+        ISelection selection = this.treeViewer.getSelection();
+        if (selection instanceof IStructuredSelection && !selection.isEmpty()) {
+            for (Object element : ((IStructuredSelection) selection).toList()) {
                 this.treeViewer.collapseToLevel(element, TreeViewer.ALL_LEVELS);
             }
+        } else {
+            this.treeViewer.collapseAll();
         }
     }
 
