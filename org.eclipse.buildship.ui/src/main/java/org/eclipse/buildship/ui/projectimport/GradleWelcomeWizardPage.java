@@ -65,16 +65,18 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
 
     private void fillWelcomeText(StyledText welcomeText) {
         String title = "How to experience the best Gradle integration";
-        String paragraph1 = "Project import: Point the wizard to the root location of the Gradle project to import. Buildship will take care of importing all the "
+        String paragraph1Title = "Project import";
+        String paragraph2Title = "Gradle distribution";
+        String paragraph3Title = "Advanced options";
+        String paragraph1 = paragraph1Title + "\nPoint the wizard to the root location of the Gradle project to import. Buildship will take care of importing all the "
                 + "belonging projects. All imported projects that already contain an Eclipse .project file will be left alone, aside from being added the Gradle nature.";
-        String paragraph2 = "Gradle distribution: You will experience the best Gradle integration, if you make use of the Gradle wrapper in your Gradle build and configure it "
+        String paragraph2 = paragraph2Title + "\nYou will experience the best Gradle integration, if you make use of the Gradle wrapper in your Gradle build and configure it "
                 + "to use the latest released version of Gradle. Using the Gradle wrapper also makes the build most sharable between multiple users.";
-        String paragraph3 = "Advanced options: Unless you have a very specific reason, leave the advanced options at their default values.";
-
-        String welcome = title + "\n\n\n" + paragraph1 + "\n\n" + paragraph2 + "\n\n" + paragraph3;
-        welcomeText.setText(welcome);
+        String paragraph3 = paragraph3Title + "\nUnless you have a very specific reason, leave the advanced options at their default values.";
+        String welcome = title + "\n\n" + paragraph1 + "\n\n" + paragraph2 + "\n\n" + paragraph3;
 
         // justify paragraph text
+        welcomeText.setText(welcome);
         welcomeText.setLineJustify(1, welcomeText.getLineCount() - 1, true);
 
         // format title text
@@ -88,16 +90,16 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
         // format paragraph names
         StyleRange paragraphStyle = new StyleRange();
         paragraphStyle.start = welcome.indexOf(paragraph1);
-        paragraphStyle.length = 15;
+        paragraphStyle.length = paragraph1Title.length();
         paragraphStyle.fontStyle = SWT.BOLD;
         welcomeText.setStyleRange(paragraphStyle);
 
         paragraphStyle.start = welcome.indexOf(paragraph2);
-        paragraphStyle.length = 20;
+        paragraphStyle.length = paragraph2Title.length();
         welcomeText.setStyleRange(paragraphStyle);
 
         paragraphStyle.start = welcome.indexOf(paragraph3);
-        paragraphStyle.length = 17;
+        paragraphStyle.length = paragraph3Title.length();
         welcomeText.setStyleRange(paragraphStyle);
     }
 
