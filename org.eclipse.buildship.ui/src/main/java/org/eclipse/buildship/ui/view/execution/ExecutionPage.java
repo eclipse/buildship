@@ -13,6 +13,8 @@ package org.eclipse.buildship.ui.view.execution;
 
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 
+import org.eclipse.buildship.ui.generic.CollapseTreeNodesAction;
+import org.eclipse.buildship.ui.generic.ExpandTreeNodesAction;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.beans.IBeanValueProperty;
 import org.eclipse.core.databinding.observable.set.IObservableSet;
@@ -37,14 +39,14 @@ import org.eclipse.buildship.ui.viewer.labelprovider.ObservableMapCellWithIconLa
  */
 public final class ExecutionPage extends BasePage<FilteredTree> {
 
-    private ExecutionsViewState state;
-    private BuildLaunchRequest buildLaunchRequest;
     private String displayName;
+    private BuildLaunchRequest buildLaunchRequest;
+    private ExecutionsViewState state;
 
-    public ExecutionPage(ExecutionsViewState state, BuildLaunchRequest buildLaunchRequest, String displayName) {
-        this.state = state;
-        this.buildLaunchRequest = buildLaunchRequest;
+    public ExecutionPage(String displayName, BuildLaunchRequest buildLaunchRequest, ExecutionsViewState state) {
         this.displayName = displayName;
+        this.buildLaunchRequest = buildLaunchRequest;
+        this.state = state;
     }
 
     @Override
@@ -82,6 +84,8 @@ public final class ExecutionPage extends BasePage<FilteredTree> {
 
         // listen to progress events
         this.buildLaunchRequest.typedProgressListeners(new ExecutionProgressListener(this, root));
+
+        // return the tree as the outermost page control
         return filteredTree;
     }
 
@@ -95,6 +99,16 @@ public final class ExecutionPage extends BasePage<FilteredTree> {
         }
     }
 
+    @Override
+    public void init(PageSite pageSite) {
+        super.init(pageSite);
+
+        IActionBars actionBars = getSite().getActionBars();
+        actionBars.getToolBarManager().add(new ExpandTreeNodesAction(getPageControl().getViewer()));
+        actionBars.getToolBarManager().add(new CollapseTreeNodesAction(getPageControl().getViewer()));
+        actionBars.getToolBarManager().update(true);
+    }
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public Object getAdapter(Class adapter) {
@@ -105,15 +119,6 @@ public final class ExecutionPage extends BasePage<FilteredTree> {
             return getPageControl().getViewer();
         }
         return Platform.getAdapterManager().getAdapter(this, adapter);
-    }
-
-    @Override
-    public void init(PageSite pageSite) {
-        super.init(pageSite);
-        IActionBars actionBars = getSite().getActionBars();
-
-        // TODO add your custom page specific actions here
-        actionBars.getToolBarManager().update(true);
     }
 
 }
