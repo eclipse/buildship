@@ -65,14 +65,17 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
 
     private void fillWelcomeText(StyledText welcomeText) {
         String title = "How to experience the best Gradle integration";
-        String paragraph1Title = "Project import";
-        String paragraph2Title = "Gradle distribution";
+
+        String paragraph1Title = "Smart project import";
+        String paragraph2Title = "Gradle Wrapper";
         String paragraph3Title = "Advanced options";
+
         String paragraph1 = paragraph1Title + "\nPoint the wizard to the root location of the Gradle project to import. Buildship will take care of importing all the "
                 + "belonging projects. All imported projects that already contain an Eclipse .project file will be left alone, aside from being added the Gradle nature.";
-        String paragraph2 = paragraph2Title + "\nYou will experience the best Gradle integration, if you make use of the Gradle wrapper in your Gradle build and configure it "
+        String paragraph2 = paragraph2Title + "\nYou will experience the best Gradle integration if you make use of the Gradle wrapper in your Gradle build and configure it "
                 + "to use the latest released version of Gradle. Using the Gradle wrapper also makes the build most sharable between multiple users.";
-        String paragraph3 = paragraph3Title + "\nUnless you have a very specific reason, leave the advanced options at their default values.";
+        String paragraph3 = paragraph3Title + "\nUnless you have a very specific reason, leave the advanced options at their default values. The advanced options can be useful "
+                + "to quickly try different settings and see their impact on the import.";
         String welcome = title + "\n\n" + paragraph1 + "\n\n" + paragraph2 + "\n\n" + paragraph3;
 
         // justify paragraph text
