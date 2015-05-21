@@ -208,8 +208,8 @@ public abstract class MultiPageView extends ViewPart {
     }
 
     private void addSelectionListenerThatUpdatesSelectionProvider(Page page) {
-        @SuppressWarnings("cast")
-        ISelectionProvider selectionProvider = page.getAdapter(ISelectionProvider.class);
+        @SuppressWarnings({"cast", "RedundantCast"})
+        ISelectionProvider selectionProvider = (ISelectionProvider) page.getAdapter(ISelectionProvider.class);
         if (selectionProvider != null) {
             selectionProvider.addSelectionChangedListener(this.selectionChangedListener);
             this.pageSelectionProvider.setSelection(selectionProvider.getSelection());
@@ -218,7 +218,7 @@ public abstract class MultiPageView extends ViewPart {
     }
 
     private void removeSelectionListenerThatUpdatesSelectionProvider(Page page) {
-        @SuppressWarnings("cast")
+        @SuppressWarnings({"cast", "RedundantCast"})
         ISelectionProvider selectionProvider = page.getAdapter(ISelectionProvider.class);
         if (selectionProvider != null) {
             selectionProvider.removeSelectionChangedListener(this.selectionChangedListener);
