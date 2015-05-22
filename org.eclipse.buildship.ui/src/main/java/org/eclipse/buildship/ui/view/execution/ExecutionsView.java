@@ -20,7 +20,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.buildship.ui.view.MessagePage;
 import org.eclipse.buildship.ui.view.MultiPageView;
 import org.eclipse.buildship.ui.view.Page;
-import org.eclipse.buildship.ui.view.TreeViewerState;
 
 /**
  * A view displaying the Gradle executions.
@@ -40,8 +39,9 @@ public final class ExecutionsView extends MultiPageView {
         this.state = new ExecutionsViewState();
         this.state.load();
 
+        // add actions to the global menu of the executions view
         IMenuManager menuManager = site.getActionBars().getMenuManager();
-        menuManager.add(new ToggleShowTreeHeaderAction(this));
+        menuManager.add(new ToggleShowTreeHeaderAction(this, this.state));
     }
 
     @Override
@@ -53,10 +53,6 @@ public final class ExecutionsView extends MultiPageView {
         ExecutionPage executionPage = new ExecutionPage(processName, buildLaunchRequest, this.state);
         addPage(executionPage);
         switchToPage(executionPage);
-    }
-
-    public TreeViewerState getTreeViewerState() {
-        return this.state;
     }
 
     @Override

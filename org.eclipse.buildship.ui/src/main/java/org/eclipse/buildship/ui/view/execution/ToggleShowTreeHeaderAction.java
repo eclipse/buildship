@@ -11,12 +11,12 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import java.util.Iterator;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 
+import org.eclipse.buildship.ui.view.MultiPageView;
 import org.eclipse.jface.action.Action;
+import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.ui.view.TreeViewerState;
@@ -27,25 +27,23 @@ import org.eclipse.buildship.ui.view.TreeViewerState;
  */
 public final class ToggleShowTreeHeaderAction extends Action {
 
-    private final ExecutionsView view;
+    private final MultiPageView multiPageView;
+    private final TreeViewerState treeViewerState;
 
-    public ToggleShowTreeHeaderAction(ExecutionsView view) {
+    public ToggleShowTreeHeaderAction(MultiPageView multiPageView, TreeViewerState treeViewerState) {
         super(null, AS_CHECK_BOX);
-        this.view = Preconditions.checkNotNull(view);
+        this.multiPageView = Preconditions.checkNotNull(multiPageView);
+        this.treeViewerState = Preconditions.checkNotNull(treeViewerState);
 
         setText(ExecutionsViewMessages.Action_ShowTreeHeader_Text);
-        setChecked(getState().isShowTreeHeader());
+        setChecked(this.treeViewerState.isShowTreeHeader());
 
         updateHeaderVisibility();
     }
 
-    private TreeViewerState getState() {
-        return this.view.getTreeViewerState();
-    }
-
     @Override
     public void run() {
-        getState().setShowTreeHeader(isChecked());
+        this.treeViewerState.setShowTreeHeader(isChecked());
         updateHeaderVisibility();
     }
 
@@ -54,10 +52,10 @@ public final class ToggleShowTreeHeaderAction extends Action {
 
             @Override
             public void run() {
-                boolean showTreeHeader = getState().isShowTreeHeader();
-                Iterator<ExecutionPage> pages = FluentIterable.from(ToggleShowTreeHeaderAction.this.view.getPages()).filter(ExecutionPage.class).iterator();
-                while (pages.hasNext()) {
-                    pages.next().getPageControl().getViewer().getTree().setHeaderVisible(showTreeHeader);
+                boolean showTreeHeader = ToggleShowTreeHeaderAction.this.treeViewerState.isShowTreeHeader();
+                for (ExecutionPage executionPage : FluentIterable.from(ToggleShowTreeHeaderAction.this.multiPageView.getPages()).filter(ExecutionPage.class)) {
+                    Tree tree = executionPage.getPageControl().getViewer().getTree();
+                    tree.setHeaderVisible(showTreeHeader);
                 }
             }
         });
