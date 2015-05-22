@@ -13,7 +13,11 @@
 package org.eclipse.buildship.core.launch.internal;
 
 import com.google.common.base.Preconditions;
+
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
+
+import org.eclipse.core.runtime.jobs.Job;
+
 import org.eclipse.buildship.core.launch.ExecuteBuildLaunchRequestEvent;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 
@@ -22,14 +26,21 @@ import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
  */
 public final class DefaultExecuteBuildLaunchRequestEvent implements ExecuteBuildLaunchRequestEvent {
 
+    private final Job buildJob;
     private final BuildLaunchRequest buildLaunchRequest;
     private final GradleRunConfigurationAttributes runConfigurationAttributes;
     private final String processName;
 
-    public DefaultExecuteBuildLaunchRequestEvent(BuildLaunchRequest buildLaunchRequest, GradleRunConfigurationAttributes runConfigurationAttributes, String processName) {
+    public DefaultExecuteBuildLaunchRequestEvent(Job buildJob, BuildLaunchRequest buildLaunchRequest, GradleRunConfigurationAttributes runConfigurationAttributes, String processName) {
+        this.buildJob = buildJob;
         this.buildLaunchRequest = Preconditions.checkNotNull(buildLaunchRequest);
         this.runConfigurationAttributes = Preconditions.checkNotNull(runConfigurationAttributes);
         this.processName = Preconditions.checkNotNull(processName);
+    }
+
+    @Override
+    public Job getBuildJob() {
+        return this.buildJob;
     }
 
     @Override
