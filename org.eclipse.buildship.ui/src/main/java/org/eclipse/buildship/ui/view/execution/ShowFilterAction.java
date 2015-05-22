@@ -11,33 +11,35 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import org.eclipse.jface.action.Action;
-
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.viewer.FilteredTree;
+import org.eclipse.jface.action.Action;
 
 /**
- * Action for the {@link ExecutionPage} showing/hiding the filter control for the execution tree.
+ * Toggles the filter widget in the {@link ExecutionPage}.
  */
-public class ShowFilterAction extends Action {
+public final class ShowFilterAction extends Action {
 
-    private ExecutionPage page;
+    private final ExecutionPage page;
 
     public ShowFilterAction(ExecutionPage page) {
-        super(ExecutionsViewMessages.Action_ShowFilter_Text, AS_CHECK_BOX);
+        super(null, AS_CHECK_BOX);
         this.page = page;
+
+        setText(ExecutionsViewMessages.Action_ShowFilter_Text);
         setImageDescriptor(PluginImages.FILTER_EXECUTION.withState(ImageState.ENABLED).getImageDescriptor());
+        setChecked(false);
     }
 
     @Override
     public void run() {
+        // toggle filter
         FilteredTree filteredTree = this.page.getPageControl();
-        boolean showFilterControls = !filteredTree.isShowFilterControls();
-        filteredTree.setShowFilterControls(showFilterControls);
+        filteredTree.setShowFilterControls(!filteredTree.isShowFilterControls());
 
-        // if the filter was not visible then set the focus on it,
-        // if it was not visible clear the filter text to display all nodes
+        // if the filter has become visible set the focus on it
+        // if the filter has disappeared clear the filter text to display all nodes
         if (filteredTree.isShowFilterControls()) {
             filteredTree.getFilterControl().setFocus();
         } else {

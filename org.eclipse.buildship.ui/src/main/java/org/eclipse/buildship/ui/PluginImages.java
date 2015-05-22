@@ -52,10 +52,10 @@ public enum PluginImages implements PluginImage {
     SWITCH_PAGE(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/switch_page.png")),
     REMOVE_PAGE(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/remove_page.png", ImageState.DISABLED, "icons/full/dlcl16/remove_page.png")),
     REMOVE_ALL_PAGES(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/remove_all_pages.png", ImageState.DISABLED, "icons/full/dlcl16/remove_all_pages.png")),
+    FILTER_EXECUTION(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/filter.png")),
     OPERATION_SUCCESS(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_success.png")),
     OPERATION_SKIPPED(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_skipped.png")),
-    OPERATION_FAILURE(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_failure.png")),
-    FILTER_EXECUTION(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/filter.png"));
+    OPERATION_FAILURE(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_failure.png"));
     // @formatter:on
 
     private final ImmutableMap<ImageState, String> images;
