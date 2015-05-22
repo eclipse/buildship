@@ -13,14 +13,12 @@ package org.eclipse.buildship.ui.view.execution;
 
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 
-import org.eclipse.buildship.ui.generic.CollapseTreeNodesAction;
-import org.eclipse.buildship.ui.generic.ExpandTreeNodesAction;
-
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.beans.IBeanValueProperty;
 import org.eclipse.core.databinding.observable.set.IObservableSet;
 import org.eclipse.core.databinding.property.list.IListProperty;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.databinding.viewers.ObservableListTreeContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapCellLabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -30,8 +28,14 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
 
+import org.eclipse.buildship.ui.generic.CollapseTreeNodesAction;
+import org.eclipse.buildship.ui.generic.ExpandTreeNodesAction;
 import org.eclipse.buildship.ui.view.BasePage;
+import org.eclipse.buildship.ui.view.MultiPageView;
+import org.eclipse.buildship.ui.view.MultiPageViewConstants;
 import org.eclipse.buildship.ui.view.PageSite;
+import org.eclipse.buildship.ui.view.RemoveAllPagesAction;
+import org.eclipse.buildship.ui.view.RemovePageAction;
 import org.eclipse.buildship.ui.viewer.FilteredTree;
 import org.eclipse.buildship.ui.viewer.labelprovider.ObservableMapCellWithIconLabelProvider;
 
@@ -106,9 +110,13 @@ public final class ExecutionPage extends BasePage<FilteredTree> {
         super.init(pageSite);
 
         IActionBars actionBars = getSite().getActionBars();
-        actionBars.getToolBarManager().add(new ExpandTreeNodesAction(getPageControl().getViewer()));
-        actionBars.getToolBarManager().add(new CollapseTreeNodesAction(getPageControl().getViewer()));
-        actionBars.getToolBarManager().update(true);
+        IToolBarManager toolbarManager = actionBars.getToolBarManager();
+        MultiPageView view = (MultiPageView) getSite().getViewSite().getPart();
+        toolbarManager.appendToGroup(MultiPageViewConstants.PAGE_GROUP, new ExpandTreeNodesAction(getPageControl().getViewer()));
+        toolbarManager.appendToGroup(MultiPageViewConstants.PAGE_GROUP, new CollapseTreeNodesAction(getPageControl().getViewer()));
+        toolbarManager.appendToGroup(MultiPageViewConstants.PAGE_GROUP, new RemovePageAction(this, ExecutionsViewMessages.Action_RemoveExecutionPage_Text));
+        toolbarManager.appendToGroup(MultiPageViewConstants.PAGE_GROUP, new RemoveAllPagesAction(view, ExecutionsViewMessages.Action_RemoveAllExecutionPages_Text));
+        toolbarManager.update(true);
     }
 
     @Override

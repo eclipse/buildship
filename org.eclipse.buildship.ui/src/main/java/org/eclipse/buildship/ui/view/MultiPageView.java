@@ -11,14 +11,20 @@
 
 package org.eclipse.buildship.ui.view;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.util.SafeRunnable;
@@ -35,10 +41,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.SubActionBars;
 import org.eclipse.ui.part.ViewPart;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
  * Abstract view part that manages multiple {@link Page} elements shown within this view part. If
@@ -82,8 +85,11 @@ public abstract class MultiPageView extends ViewPart {
         // install a custom selection provider
         site.setSelectionProvider(this.pageSelectionProvider);
 
-        // add the global actions to the view's toolbar
+        // add the global actions to the view's toolbar,
+        // incl. separators to position page specific actions more accurately
         IToolBarManager toolBarManager = site.getActionBars().getToolBarManager();
+        toolBarManager.add(new Separator(MultiPageViewConstants.PAGE_GROUP));
+        toolBarManager.add(new Separator(MultiPageViewConstants.PART_GROUP));
         toolBarManager.add(this.switchPagesAction);
     }
 
