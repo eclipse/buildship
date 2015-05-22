@@ -85,7 +85,8 @@ public abstract class MultiPageView extends ViewPart {
         // install a custom selection provider
         site.setSelectionProvider(this.pageSelectionProvider);
 
-       // add the global actions to the view's toolbar
+        // add the global actions to the view's toolbar,
+        // incl. separators to position page specific actions more accurately
         IToolBarManager toolBarManager = site.getActionBars().getToolBarManager();
         toolBarManager.add(new Separator(MultiPageViewConstants.PAGE_GROUP));
         toolBarManager.add(new Separator(MultiPageViewConstants.PART_GROUP));

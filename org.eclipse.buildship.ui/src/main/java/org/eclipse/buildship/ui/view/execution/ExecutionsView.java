@@ -41,7 +41,7 @@ public final class ExecutionsView extends MultiPageView {
 
     @Override
     protected Page createDefaultPage() {
-        return new MessagePage(this, ExecutionsViewMessages.Label_No_Execution);
+        return new MessagePage(ExecutionsViewMessages.Label_No_Execution);
     }
 
     public void addExecutionPage(String processName, BuildLaunchRequest buildLaunchRequest) {

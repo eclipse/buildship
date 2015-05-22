@@ -30,16 +30,18 @@ import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
 
 /**
- * Action removing the target {@link Page} from the container {@link MultiPageView}.
+ * Removes the target {@link Page} from the {@link MultiPageView} to which this page belongs.
  */
 public final class RemovePageAction extends Action {
 
     private final Page page;
 
-    public RemovePageAction(Page page, String label) {
+    public RemovePageAction(Page page, String text) {
         this.page = Preconditions.checkNotNull(page);
-        setText(label);
+
+        setText(text);
         setImageDescriptor(PluginImages.REMOVE_PAGE.withState(ImageState.ENABLED).getImageDescriptor());
+        setDisabledImageDescriptor(PluginImages.REMOVE_PAGE.withState(ImageState.DISABLED).getImageDescriptor());
     }
 
     @Override

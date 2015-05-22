@@ -114,8 +114,8 @@ public final class ExecutionPage extends BasePage<FilteredTree> {
         MultiPageView view = (MultiPageView) getSite().getViewSite().getPart();
         toolbarManager.appendToGroup(MultiPageViewConstants.PAGE_GROUP, new ExpandTreeNodesAction(getPageControl().getViewer()));
         toolbarManager.appendToGroup(MultiPageViewConstants.PAGE_GROUP, new CollapseTreeNodesAction(getPageControl().getViewer()));
-        toolbarManager.appendToGroup(MultiPageViewConstants.PAGE_GROUP, new RemovePageAction(this, ExecutionsViewMessages.Action_RemovePage_Text));
-        toolbarManager.appendToGroup(MultiPageViewConstants.PAGE_GROUP, new RemoveAllPagesAction(view, ExecutionsViewMessages.Action_RemoveAllPages_Text));
+        toolbarManager.appendToGroup(MultiPageViewConstants.PAGE_GROUP, new RemovePageAction(this, ExecutionsViewMessages.Action_RemoveExecutionPage_Text));
+        toolbarManager.appendToGroup(MultiPageViewConstants.PAGE_GROUP, new RemoveAllPagesAction(view, ExecutionsViewMessages.Action_RemoveAllExecutionPages_Text));
         toolbarManager.update(true);
     }
 

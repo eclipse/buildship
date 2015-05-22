@@ -12,18 +12,18 @@
 package org.eclipse.buildship.ui.view;
 
 /**
- * Constants used for the MultiPageView.
- *
+ * Constants used for the {@code MultiPageView}.
  */
 public interface MultiPageViewConstants {
 
     /**
-     * The group for actions of the pages in the toolbar of the MultiPageView.
+     * The name of the group of page-specific actions in the toolbar of the {@code MultiPageView}.
      */
-    public static final String PAGE_GROUP = "pageGroup"; //$NON-NLS-1$
+    String PAGE_GROUP = "pageGroup"; //$NON-NLS-1$
 
     /**
-     * The group for actions, which are part specific in the toolbar of the MultiPageView.
+     * The name of the group of global actions in the toolbar of the {@code MultiPageView}.
      */
-    public static final String PART_GROUP = "partGroup"; //$NON-NLS-1$
+    String PART_GROUP = "partGroup"; //$NON-NLS-1$
+
 }
