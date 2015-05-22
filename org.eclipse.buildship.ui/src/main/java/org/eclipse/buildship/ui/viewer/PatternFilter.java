@@ -172,16 +172,14 @@ public class PatternFilter extends ViewerFilter {
             return;
         }
         clearCaches();
-        if (patternString == null) {
-            this.matcher = null;
-        } else if (patternString.equals("")) { //$NON-NLS-1$
-            this.matcher = new StringMatcher("*", true, false); //$NON-NLS-1$
+        if (patternString == null || patternString.equals("")) { //$NON-NLS-1$
+            matcher = null;
         } else {
             String pattern = patternString + "*"; //$NON-NLS-1$
-            if (this.includeLeadingWildcard) {
+            if (includeLeadingWildcard) {
                 pattern = "*" + pattern; //$NON-NLS-1$
             }
-            this.matcher = new StringMatcher(pattern, true, false);
+            matcher = new StringMatcher(pattern, true, false);
         }
     }
 
