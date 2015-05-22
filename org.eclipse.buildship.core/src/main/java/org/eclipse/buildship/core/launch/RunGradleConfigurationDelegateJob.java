@@ -125,7 +125,7 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         writeRunConfigurationDescription(configurationAttributes, processStreams.getConfiguration());
 
         // notify the listeners before executing the build launch request
-        ExecuteBuildLaunchRequestEvent event = new DefaultExecuteBuildLaunchRequestEvent(request, configurationAttributes, processName);
+        ExecuteBuildLaunchRequestEvent event = new DefaultExecuteBuildLaunchRequestEvent(this, request, configurationAttributes, processName);
         CorePlugin.listenerRegistry().dispatch(event);
 
         // launch the build

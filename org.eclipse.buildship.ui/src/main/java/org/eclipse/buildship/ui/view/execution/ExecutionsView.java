@@ -13,6 +13,7 @@ package org.eclipse.buildship.ui.view.execution;
 
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
@@ -49,8 +50,8 @@ public final class ExecutionsView extends MultiPageView {
         return new MessagePage(ExecutionsViewMessages.Label_No_Execution);
     }
 
-    public void addExecutionPage(String processName, BuildLaunchRequest buildLaunchRequest) {
-        ExecutionPage executionPage = new ExecutionPage(processName, buildLaunchRequest, this.state);
+    public void addExecutionPage(Job buildJob, String processName, BuildLaunchRequest buildLaunchRequest) {
+        ExecutionPage executionPage = new ExecutionPage(buildJob, processName, buildLaunchRequest, this.state);
         addPage(executionPage);
         switchToPage(executionPage);
     }

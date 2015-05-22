@@ -22,7 +22,6 @@ public final class ConsoleMessages extends NLS {
 
     public static String Background_Console_Title;
 
-    public static String Action_CancelBuildExecution_Tooltip;
     public static String Action_RemoveTerminatedConsole_Tooltip;
     public static String Action_RemoveAllTerminatedConsoles_Tooltip;
 

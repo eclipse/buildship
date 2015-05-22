@@ -18,6 +18,7 @@ import org.eclipse.core.databinding.beans.IBeanValueProperty;
 import org.eclipse.core.databinding.observable.set.IObservableSet;
 import org.eclipse.core.databinding.property.list.IListProperty;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.databinding.viewers.ObservableListTreeContentProvider;
@@ -45,14 +46,20 @@ import org.eclipse.buildship.ui.viewer.labelprovider.ObservableMapCellWithIconLa
 @SuppressWarnings("unchecked")
 public final class ExecutionPage extends BasePage<FilteredTree> {
 
+    private Job buildJob;
     private String displayName;
     private BuildLaunchRequest buildLaunchRequest;
     private ExecutionsViewState state;
 
-    public ExecutionPage(String displayName, BuildLaunchRequest buildLaunchRequest, ExecutionsViewState state) {
+    public ExecutionPage(Job buildJob, String displayName, BuildLaunchRequest buildLaunchRequest, ExecutionsViewState state) {
+        this.buildJob = buildJob;
         this.displayName = displayName;
         this.buildLaunchRequest = buildLaunchRequest;
         this.state = state;
+    }
+
+    public Job getBuildJob() {
+        return this.buildJob;
     }
 
     @Override
@@ -116,6 +123,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> {
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new CollapseTreeNodesAction(getPageControl().getViewer()));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new ShowFilterAction(this));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new Separator());
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new CancelBuildExecutionAction(this));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemovePageAction(this, ExecutionsViewMessages.Action_RemoveExecutionPage_Text));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemoveAllPagesAction(view, ExecutionsViewMessages.Action_RemoveAllExecutionPages_Text));
         toolbarManager.update(true);
