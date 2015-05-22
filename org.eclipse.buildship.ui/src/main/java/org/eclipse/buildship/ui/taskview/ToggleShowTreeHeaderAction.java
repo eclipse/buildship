@@ -13,11 +13,13 @@ package org.eclipse.buildship.ui.taskview;
 
 import com.google.common.base.Preconditions;
 
-import org.eclipse.buildship.ui.view.TreeViewerState;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.PlatformUI;
+
+import org.eclipse.buildship.ui.i18n.UiMessages;
+import org.eclipse.buildship.ui.view.TreeViewerState;
 
 /**
  * An action on the {@link TaskView} to toggle whether to show/hide the tree header.
@@ -32,7 +34,7 @@ public final class ToggleShowTreeHeaderAction extends Action {
         this.treeViewer = Preconditions.checkNotNull(treeViewer);
         this.treeViewerState = Preconditions.checkNotNull(treeViewerState);
 
-        setText(TaskViewMessages.Action_ShowTreeHeader_Text);
+        setText(UiMessages.Action_ShowTreeHeader_Text);
         setChecked(this.treeViewerState.isShowTreeHeader());
 
         updateHeaderVisibility();

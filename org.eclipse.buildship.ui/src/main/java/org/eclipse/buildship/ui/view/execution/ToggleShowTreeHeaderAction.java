@@ -14,11 +14,12 @@ package org.eclipse.buildship.ui.view.execution;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 
-import org.eclipse.buildship.ui.view.MultiPageView;
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.buildship.ui.i18n.UiMessages;
+import org.eclipse.buildship.ui.view.MultiPageView;
 import org.eclipse.buildship.ui.view.TreeViewerState;
 
 /**
@@ -35,7 +36,7 @@ public final class ToggleShowTreeHeaderAction extends Action {
         this.multiPageView = Preconditions.checkNotNull(multiPageView);
         this.treeViewerState = Preconditions.checkNotNull(treeViewerState);
 
-        setText(ExecutionsViewMessages.Action_ShowTreeHeader_Text);
+        setText(UiMessages.Action_ShowTreeHeader_Text);
         setChecked(this.treeViewerState.isShowTreeHeader());
 
         updateHeaderVisibility();
