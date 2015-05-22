@@ -32,7 +32,6 @@ import org.eclipse.buildship.ui.generic.CollapseTreeNodesAction;
 import org.eclipse.buildship.ui.generic.ExpandTreeNodesAction;
 import org.eclipse.buildship.ui.view.BasePage;
 import org.eclipse.buildship.ui.view.MultiPageView;
-import org.eclipse.buildship.ui.view.MultiPageViewConstants;
 import org.eclipse.buildship.ui.view.PageSite;
 import org.eclipse.buildship.ui.view.RemoveAllPagesAction;
 import org.eclipse.buildship.ui.view.RemovePageAction;
@@ -112,10 +111,10 @@ public final class ExecutionPage extends BasePage<FilteredTree> {
         IActionBars actionBars = getSite().getActionBars();
         IToolBarManager toolbarManager = actionBars.getToolBarManager();
         MultiPageView view = (MultiPageView) getSite().getViewSite().getPart();
-        toolbarManager.appendToGroup(MultiPageViewConstants.PAGE_GROUP, new ExpandTreeNodesAction(getPageControl().getViewer()));
-        toolbarManager.appendToGroup(MultiPageViewConstants.PAGE_GROUP, new CollapseTreeNodesAction(getPageControl().getViewer()));
-        toolbarManager.appendToGroup(MultiPageViewConstants.PAGE_GROUP, new RemovePageAction(this, ExecutionsViewMessages.Action_RemoveExecutionPage_Text));
-        toolbarManager.appendToGroup(MultiPageViewConstants.PAGE_GROUP, new RemoveAllPagesAction(view, ExecutionsViewMessages.Action_RemoveAllExecutionPages_Text));
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new ExpandTreeNodesAction(getPageControl().getViewer()));
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new CollapseTreeNodesAction(getPageControl().getViewer()));
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemovePageAction(this, ExecutionsViewMessages.Action_RemoveExecutionPage_Text));
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemoveAllPagesAction(view, ExecutionsViewMessages.Action_RemoveAllExecutionPages_Text));
         toolbarManager.update(true);
     }
 

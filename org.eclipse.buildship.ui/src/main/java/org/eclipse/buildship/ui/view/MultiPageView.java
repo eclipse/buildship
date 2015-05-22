@@ -53,6 +53,16 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
  */
 public abstract class MultiPageView extends ViewPart {
 
+    /**
+     * The name of the group of page-specific actions in the toolbar of the {@code MultiPageView}.
+     */
+    public static final String PAGE_GROUP = "pageGroup"; //$NON-NLS-1$
+
+    /**
+     * The name of the group of global actions in the toolbar of the {@code MultiPageView}.
+     */
+    public static final String PART_GROUP = "partGroup"; //$NON-NLS-1$
+
     private final List<Page> pages; // contains all pages except the default page
     private Page currentPage;
     private Page defaultPage;
@@ -88,8 +98,8 @@ public abstract class MultiPageView extends ViewPart {
         // add the global actions to the view's toolbar,
         // incl. separators to position page specific actions more accurately
         IToolBarManager toolBarManager = site.getActionBars().getToolBarManager();
-        toolBarManager.add(new Separator(MultiPageViewConstants.PAGE_GROUP));
-        toolBarManager.add(new Separator(MultiPageViewConstants.PART_GROUP));
+        toolBarManager.add(new Separator(PAGE_GROUP));
+        toolBarManager.add(new Separator(PART_GROUP));
         toolBarManager.add(this.switchPagesAction);
     }
 
