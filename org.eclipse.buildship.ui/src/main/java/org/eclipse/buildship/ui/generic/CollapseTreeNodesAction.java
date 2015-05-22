@@ -12,15 +12,17 @@
 package org.eclipse.buildship.ui.generic;
 
 import com.google.common.base.Preconditions;
-import org.eclipse.buildship.ui.PluginImage.ImageState;
-import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.i18n.UiMessages;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Event;
+
+import org.eclipse.buildship.ui.PluginImage.ImageState;
+import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.buildship.ui.i18n.UiMessages;
 
 /**
  * Collapses all the nodes under the selected node or the entire tree if no node is selected.
@@ -32,6 +34,7 @@ public final class CollapseTreeNodesAction extends Action implements SelectionSp
     public CollapseTreeNodesAction(AbstractTreeViewer treeViewer) {
         this.treeViewer = Preconditions.checkNotNull(treeViewer);
 
+        setText(UiMessages.Action_CollapseNode_Text);
         setToolTipText(UiMessages.Action_CollapseNode_Tooltip);
         setImageDescriptor(PluginImages.COLLAPSE_NODE.withState(ImageState.ENABLED).getImageDescriptor());
     }
