@@ -13,6 +13,7 @@ package org.eclipse.buildship.ui.view.execution;
 
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 
@@ -37,6 +38,10 @@ public final class ExecutionsView extends MultiPageView {
         // load the persisted state before we create any UI components that query for some state
         this.state = new ExecutionsViewState();
         this.state.load();
+
+        // add actions to the global menu of the executions view
+        IMenuManager menuManager = site.getActionBars().getMenuManager();
+        menuManager.add(new ToggleShowTreeHeaderAction(this, this.state));
     }
 
     @Override
