@@ -28,6 +28,9 @@ public class ExecutionsViewMessages extends NLS {
     public static String Tree_Item_Operation_Started_Text;
     public static String Tree_Item_Operation_Finished_In_0_Text;
 
+    public static String Action_RemovePage_Text;
+    public static String Action_RemoveAllPages_Text;
+
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, ExecutionsViewMessages.class);

@@ -28,7 +28,7 @@ public final class MessagePage extends BasePage<Composite> {
     /**
      * Creates a new page. The message is the empty string.
      */
-    public MessagePage(String message) {
+    public MessagePage(MultiPageView view, String message) {
         this.message = message;
     }
 
