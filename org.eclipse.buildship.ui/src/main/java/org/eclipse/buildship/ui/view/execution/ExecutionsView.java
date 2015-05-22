@@ -49,8 +49,8 @@ public final class ExecutionsView extends MultiPageView {
         return new MessagePage(ExecutionsViewMessages.Label_No_Execution);
     }
 
-    public void addExecutionPage(String processName, BuildLaunchRequest buildLaunchRequest) {
-        ExecutionPage executionPage = new ExecutionPage(processName, buildLaunchRequest, this.state);
+    public void addExecutionPage(String displayName, BuildLaunchRequest buildLaunchRequest) {
+        ExecutionPage executionPage = new ExecutionPage(displayName, buildLaunchRequest, this.state);
         addPage(executionPage);
         switchToPage(executionPage);
     }

@@ -11,19 +11,28 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
+import java.text.DateFormat;
+import java.util.Date;
+
+import com.google.common.base.Joiner;
+
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.event.EventListener;
 import org.eclipse.buildship.core.launch.ExecuteBuildLaunchRequestEvent;
+import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 
 /**
- * {@link EventListener} implementation showing/activating the Executions View when a new Gradle build is executed and the
- * {@link org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes#isShowExecutionView()} setting is enabled.
+ * {@link EventListener} implementation showing/activating the Executions View when a new Gradle
+ * build is executed and the
+ * {@link org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes#isShowExecutionView()}
+ * setting is enabled.
  * <p/>
- * The listener implementation is necessary since opening a view is a UI-related task and the execution is performed in the core component.
+ * The listener implementation is necessary since opening a view is a UI-related task and the
+ * execution is performed in the core component.
  */
 public final class ExecutionShowingBuildLaunchRequestListener implements EventListener {
 
@@ -44,11 +53,16 @@ public final class ExecutionShowingBuildLaunchRequestListener implements EventLi
                     // activate the executions view
                     ExecutionsView view = WorkbenchUtils.showView(ExecutionsView.ID, null, IWorkbenchPage.VIEW_ACTIVATE);
 
+                    // calculate the display name for the page
+                    GradleRunConfigurationAttributes attributes = event.getRunConfigurationAttributes();
+                    String directory = event.getRunConfigurationAttributes().getWorkingDirExpression();
+                    String displayName = Joiner.on(' ').join(attributes.getTasks()) + " in " + directory  + " started at "
+                            + DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(new Date()) + "";
+
                     // show the launched build in a new page of the Executions View
-                    view.addExecutionPage(event.getProcessName(), event.getBuildLaunchRequest());
+                    view.addExecutionPage(displayName, event.getBuildLaunchRequest());
                 }
             });
         }
     }
-
 }
