@@ -13,12 +13,14 @@ package org.eclipse.buildship.ui.view.execution;
 
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 
 import org.eclipse.buildship.ui.view.MessagePage;
 import org.eclipse.buildship.ui.view.MultiPageView;
 import org.eclipse.buildship.ui.view.Page;
+import org.eclipse.buildship.ui.view.TreeViewerState;
 
 /**
  * A view displaying the Gradle executions.
@@ -37,6 +39,9 @@ public final class ExecutionsView extends MultiPageView {
         // load the persisted state before we create any UI components that query for some state
         this.state = new ExecutionsViewState();
         this.state.load();
+
+        IMenuManager menuManager = site.getActionBars().getMenuManager();
+        menuManager.add(new ToggleShowTreeHeaderAction(this));
     }
 
     @Override
@@ -48,6 +53,10 @@ public final class ExecutionsView extends MultiPageView {
         ExecutionPage executionPage = new ExecutionPage(processName, buildLaunchRequest, this.state);
         addPage(executionPage);
         switchToPage(executionPage);
+    }
+
+    public TreeViewerState getTreeViewerState() {
+        return this.state;
     }
 
     @Override
