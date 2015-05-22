@@ -401,7 +401,7 @@ public class FilteredTree extends Composite {
                         TreeItem[] is = treeViewer.getTree().getItems();
                         for (TreeItem item : is) {
                             if (item.getExpanded()) {
-                                treeViewer.setExpandedState(item.getData(), false);
+                                treeViewer.setExpandedState(item.getData(), true);
                             }
                         }
                     }
