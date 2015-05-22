@@ -30,6 +30,7 @@ public class ExecutionsViewMessages extends NLS {
 
     public static String Action_RemoveExecutionPage_Text;
     public static String Action_RemoveAllExecutionPages_Text;
+    public static String Action_ShowFilter_Text;
     public static String Action_ShowTreeHeader_Text;
 
     static {
