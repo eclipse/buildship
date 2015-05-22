@@ -20,6 +20,7 @@ import org.eclipse.swt.widgets.Label;
 /**
  * A {@link MultiPageView} page displaying a simple message.
  */
+@SuppressWarnings("unchecked")
 public final class MessagePage extends BasePage<Composite> {
 
     private final String message;
@@ -49,7 +50,8 @@ public final class MessagePage extends BasePage<Composite> {
     }
 
     @Override
-    public <T> T getAdapter(Class<T> adapter) {
+    @SuppressWarnings("rawtypes")
+    public Object getAdapter(Class adapter) {
         return Platform.getAdapterManager().getAdapter(this, adapter);
     }
 

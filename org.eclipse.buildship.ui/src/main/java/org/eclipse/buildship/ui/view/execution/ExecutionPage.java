@@ -15,6 +15,7 @@ import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 
 import org.eclipse.buildship.ui.generic.CollapseTreeNodesAction;
 import org.eclipse.buildship.ui.generic.ExpandTreeNodesAction;
+
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.beans.IBeanValueProperty;
 import org.eclipse.core.databinding.observable.set.IObservableSet;
@@ -37,6 +38,7 @@ import org.eclipse.buildship.ui.viewer.labelprovider.ObservableMapCellWithIconLa
 /**
  * Displays the tree of a single build execution.
  */
+@SuppressWarnings("unchecked")
 public final class ExecutionPage extends BasePage<FilteredTree> {
 
     private String displayName;
@@ -109,14 +111,14 @@ public final class ExecutionPage extends BasePage<FilteredTree> {
         actionBars.getToolBarManager().update(true);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T> T getAdapter(Class<T> adapter) {
+    @SuppressWarnings("rawtypes")
+    public Object getAdapter(Class adapter) {
         if (FilteredTree.class.equals(adapter)) {
-            return (T) getPageControl();
+            return getPageControl();
         } else if (adapter.isAssignableFrom(TreeViewer.class)) {
             // isAssignableFrom also applies for the ISelectionProvider interface
-            return (T) getPageControl().getViewer();
+            return getPageControl().getViewer();
         }
         return Platform.getAdapterManager().getAdapter(this, adapter);
     }
