@@ -31,6 +31,7 @@ public final class CancelBuildExecutionAction extends Action {
 
     public CancelBuildExecutionAction(ExecutionPage page) {
         this.page = Preconditions.checkNotNull(page);
+
         setToolTipText(UiMessages.Action_CancelExecution_Tooltip);
         setImageDescriptor(PluginImages.CANCEL_BUILD_EXECUTION.withState(ImageState.ENABLED).getImageDescriptor());
         setDisabledImageDescriptor(PluginImages.CANCEL_BUILD_EXECUTION.withState(ImageState.DISABLED).getImageDescriptor());
@@ -53,9 +54,6 @@ public final class CancelBuildExecutionAction extends Action {
     @Override
     public void run() {
         this.page.getBuildJob().cancel();
-    }
-
-    public void dispose() {
     }
 
 }
