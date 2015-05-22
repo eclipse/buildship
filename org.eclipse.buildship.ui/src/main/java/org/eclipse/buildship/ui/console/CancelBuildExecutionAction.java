@@ -33,7 +33,7 @@ public final class CancelBuildExecutionAction extends Action {
     public CancelBuildExecutionAction(GradleConsole gradleConsole) {
         this.gradleConsole = Preconditions.checkNotNull(gradleConsole);
 
-        setToolTipText(UiMessages.Action_CancelBuildExecution_Tooltip);
+        setToolTipText(UiMessages.Action_CancelExecution_Tooltip);
         setImageDescriptor(PluginImages.CANCEL_BUILD_EXECUTION.withState(ImageState.ENABLED).getImageDescriptor());
         setDisabledImageDescriptor(PluginImages.CANCEL_BUILD_EXECUTION.withState(ImageState.DISABLED).getImageDescriptor());
 
