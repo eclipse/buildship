@@ -19,6 +19,7 @@ import org.eclipse.core.databinding.observable.set.IObservableSet;
 import org.eclipse.core.databinding.property.list.IListProperty;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.databinding.viewers.ObservableListTreeContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapCellLabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -113,6 +114,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> {
         MultiPageView view = (MultiPageView) getSite().getViewSite().getPart();
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new ExpandTreeNodesAction(getPageControl().getViewer()));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new CollapseTreeNodesAction(getPageControl().getViewer()));
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new Separator());
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemovePageAction(this, ExecutionsViewMessages.Action_RemoveExecutionPage_Text));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemoveAllPagesAction(view, ExecutionsViewMessages.Action_RemoveAllExecutionPages_Text));
         toolbarManager.update(true);
