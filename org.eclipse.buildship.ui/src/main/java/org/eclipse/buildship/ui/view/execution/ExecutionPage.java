@@ -38,7 +38,6 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.buildship.ui.generic.CollapseTreeNodesAction;
 import org.eclipse.buildship.ui.generic.ExpandTreeNodesAction;
 import org.eclipse.buildship.ui.generic.GotoTestElementAction;
-import org.eclipse.buildship.ui.generic.SwitchToConsoleViewAction;
 import org.eclipse.buildship.ui.view.BasePage;
 import org.eclipse.buildship.ui.view.MultiPageView;
 import org.eclipse.buildship.ui.view.PageSite;

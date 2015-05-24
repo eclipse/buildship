@@ -9,13 +9,12 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.generic;
+package org.eclipse.buildship.ui.view.execution;
 
 import com.google.common.base.Preconditions;
 import org.eclipse.buildship.ui.PluginImage;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.view.Page;
-import org.eclipse.buildship.ui.view.execution.ExecutionsViewMessages;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
