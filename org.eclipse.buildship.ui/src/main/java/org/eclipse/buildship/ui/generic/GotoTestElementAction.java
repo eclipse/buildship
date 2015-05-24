@@ -11,10 +11,17 @@
 
 package org.eclipse.buildship.ui.generic;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import org.eclipse.buildship.ui.i18n.UiMessages;
+import org.eclipse.buildship.ui.view.execution.OperationItem;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.widgets.Display;
+import org.gradle.tooling.events.OperationDescriptor;
+import org.gradle.tooling.events.test.JvmTestOperationDescriptor;
 
 /**
  * This actions runs the {@link OpenTestCompilationUnitJob}, which navigates to the source of a test
@@ -33,23 +40,39 @@ public final class GotoTestElementAction extends Action implements SelectionSpec
 
     @Override
     public void run() {
-        OpenTestCompilationUnitJob openTestCompilationUnitJob = new OpenTestCompilationUnitJob(this.selectionProvider.getSelection(), this.display);
+        ISelection selection = this.selectionProvider.getSelection();
+        OpenTestCompilationUnitJob openTestCompilationUnitJob = new OpenTestCompilationUnitJob(selection, this.display);
         openTestCompilationUnitJob.schedule();
     }
 
     @Override
     public boolean isVisibleFor(NodeSelection selection) {
-        return true;
+        return isEnabledFor(selection);
     }
 
     @Override
     public boolean isEnabledFor(NodeSelection selection) {
-        return true;
+        if (selection.isEmpty()) {
+            return false;
+        }
+
+        if (!selection.hasAllNodesOfType(OperationItem.class)) {
+            return false;
+        }
+
+        ImmutableList<OperationItem> operationItems = selection.getNodes(OperationItem.class);
+        return FluentIterable.from(operationItems).allMatch(new Predicate<OperationItem>() {
+            @Override
+            public boolean apply(OperationItem operationItem) {
+                OperationDescriptor adapter = (OperationDescriptor) operationItem.getAdapter(OperationDescriptor.class);
+                return adapter instanceof JvmTestOperationDescriptor && ((JvmTestOperationDescriptor) adapter).getClassName() != null;
+            }
+        });
     }
 
     @Override
     public void setEnabledFor(NodeSelection selection) {
-        setEnabled(true);
+        setEnabled(isEnabledFor(selection));
     }
 
 }
