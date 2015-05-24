@@ -20,23 +20,33 @@ import org.eclipse.core.databinding.property.list.IListProperty;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.databinding.viewers.ObservableListTreeContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapCellLabelProvider;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 
+import org.eclipse.buildship.ui.PluginImage.ImageState;
+import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.generic.CollapseTreeNodesAction;
 import org.eclipse.buildship.ui.generic.ExpandTreeNodesAction;
+import org.eclipse.buildship.ui.generic.GotoTestElementAction;
+import org.eclipse.buildship.ui.generic.ShowConsolePageAction;
 import org.eclipse.buildship.ui.view.BasePage;
 import org.eclipse.buildship.ui.view.MultiPageView;
 import org.eclipse.buildship.ui.view.PageSite;
 import org.eclipse.buildship.ui.view.RemoveAllPagesAction;
 import org.eclipse.buildship.ui.view.RemovePageAction;
+import org.eclipse.buildship.ui.view.execution.listener.ExecutionPageContextMenuListener;
 import org.eclipse.buildship.ui.viewer.FilteredTree;
 import org.eclipse.buildship.ui.viewer.labelprovider.ObservableMapCellWithIconLabelProvider;
 
@@ -126,7 +136,39 @@ public final class ExecutionPage extends BasePage<FilteredTree> {
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new CancelBuildExecutionAction(this));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemovePageAction(this, ExecutionsViewMessages.Action_RemoveExecutionPage_Text));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemoveAllPagesAction(view, ExecutionsViewMessages.Action_RemoveAllExecutionPages_Text));
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new ShowConsolePageAction("Show in console", "Shows the console of this build in the console view",
+                PluginImages.CONSOLE_ICON.withState(ImageState.ENABLED).getImageDescriptor(), getDisplayName()));
         toolbarManager.update(true);
+
+        // add a context menu to the Tree
+        registerContextMenu(pageSite);
+
+        registerDoubleClickAction();
+
+    }
+
+    private void registerDoubleClickAction() {
+        // navigate to source file on double click or when pressing enter
+        getPageControl().getViewer().addDoubleClickListener(new IDoubleClickListener() {
+
+            @Override
+            public void doubleClick(DoubleClickEvent event) {
+                Viewer viewer = event.getViewer();
+                GotoTestElementAction gotoTestElementAction = new GotoTestElementAction(viewer, viewer.getControl().getDisplay());
+                gotoTestElementAction.run();
+            }
+        });
+    }
+
+    private void registerContextMenu(PageSite pageSite) {
+        final MenuManager menuManager = new MenuManager();
+        menuManager.setRemoveAllWhenShown(true);
+        menuManager.addMenuListener(new ExecutionPageContextMenuListener(getPageControl().getViewer()));
+
+        Menu contextMenu = menuManager.createContextMenu(getPageControl().getViewer().getControl());
+        getPageControl().getViewer().getTree().setMenu(contextMenu);
+
+        pageSite.getViewSite().registerContextMenu(menuManager, getPageControl().getViewer());
     }
 
     @Override

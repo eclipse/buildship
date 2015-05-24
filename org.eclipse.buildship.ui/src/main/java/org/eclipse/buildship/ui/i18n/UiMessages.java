@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
+ *     Simon Scholz - Bug 465723
  */
 
 package org.eclipse.buildship.ui.i18n;
@@ -21,11 +22,15 @@ public final class UiMessages extends NLS {
     private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.i18n.UiMessages"; //$NON-NLS-1$
 
     public static String Action_SwitchPage_Tooltip;
+    public static String Action_ExpandNode_Text;
     public static String Action_ExpandNode_Tooltip;
+    public static String Action_CollapseNode_Text;
     public static String Action_CollapseNode_Tooltip;
     public static String Action_CancelExecution_Tooltip;
 
     public static String Action_ShowTreeHeader_Text;
+
+    public static String GotoTestElementAction_Text;
 
     static {
         // initialize resource bundle
