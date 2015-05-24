@@ -20,7 +20,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.swt.widgets.Control;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Menu;
 
 import org.eclipse.buildship.ui.UiPluginConstants;
@@ -71,20 +71,20 @@ public final class UiContributionManager {
      * Wires all UI contributions into the task view.
      */
     public void wire() {
-        fillToolbar();
-        fillMenu();
-        fillContextMenu();
-        addListeners();
+        populateToolBar();
+        populateMenu();
+        registerContextMenu();
+        registerListeners();
     }
 
-    private void fillToolbar() {
+    private void populateToolBar() {
         IToolBarManager manager = this.taskView.getViewSite().getActionBars().getToolBarManager();
         manager.add(new GroupMarker(TOOLBAR_MISC_GROUP));
         manager.appendToGroup(TOOLBAR_MISC_GROUP, new RefreshViewAction(UiPluginConstants.REFRESH_TASKVIEW_COMMAND_ID));
         manager.appendToGroup(TOOLBAR_MISC_GROUP, new ToggleLinkToSelectionAction(this.taskView));
     }
 
-    private void fillMenu() {
+    private void populateMenu() {
         IMenuManager manager = this.taskView.getViewSite().getActionBars().getMenuManager();
         manager.add(new Separator(MENU_FILTERING_GROUP));
         manager.appendToGroup(MENU_FILTERING_GROUP, new FilterTaskSelectorsAction(this.taskView));
@@ -97,16 +97,17 @@ public final class UiContributionManager {
         manager.appendToGroup(MENU_MISC_GROUP, new ToggleShowTreeHeaderAction(this.taskView.getTreeViewer(), this.taskView.getState()));
     }
 
-    private void fillContextMenu() {
-        MenuManager contextMenuManager = new MenuManager();
-        contextMenuManager.setRemoveAllWhenShown(true);
-        contextMenuManager.addMenuListener(new ActionShowingContextMenuListener(this.taskView, this.managedActions));
-        Control treeViewerControl = this.taskView.getTreeViewer().getControl();
-        Menu contextMenu = contextMenuManager.createContextMenu(treeViewerControl);
-        this.taskView.getTreeViewer().getControl().setMenu(contextMenu);
+    private void registerContextMenu() {
+        TreeViewer treeViewer = this.taskView.getTreeViewer();
+        MenuManager menuManager = new MenuManager();
+        menuManager.setRemoveAllWhenShown(true);
+        menuManager.addMenuListener(new ActionShowingContextMenuListener(this.taskView, this.managedActions));
+        Menu contextMenu = menuManager.createContextMenu(treeViewer.getTree());
+        treeViewer.getTree().setMenu(contextMenu);
+        this.taskView.getViewSite().registerContextMenu(menuManager, treeViewer);
     }
 
-    private void addListeners() {
+    private void registerListeners() {
         this.taskView.getTreeViewer().addSelectionChangedListener(this.managedActionsSelectionChangedListener);
         this.taskView.getTreeViewer().addSelectionChangedListener(this.treeViewerSelectionChangeListener);
         this.taskView.getTreeViewer().addDoubleClickListener(this.treeViewerDoubleClickListener);
