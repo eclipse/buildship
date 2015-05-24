@@ -15,6 +15,7 @@ import com.google.common.base.Preconditions;
 import org.eclipse.buildship.ui.PluginImage;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.view.Page;
+import org.eclipse.buildship.ui.view.execution.ExecutionsViewMessages;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
@@ -30,8 +31,7 @@ public final class SwitchToConsoleViewAction extends Action {
     public SwitchToConsoleViewAction(Page page) {
         this.page = Preconditions.checkNotNull(page);
 
-        setText("Show in console");
-        setToolTipText("Shows the console of this build in the console view");
+        setToolTipText(ExecutionsViewMessages.Action_SwitchToConsole_Tooltip);
         setImageDescriptor(PluginImages.SWITCH_TO_CONSOLE.withState(PluginImage.ImageState.ENABLED).getImageDescriptor());
     }
 
