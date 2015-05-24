@@ -12,39 +12,38 @@
 package org.eclipse.buildship.ui.generic;
 
 import com.google.common.base.Preconditions;
-
+import org.eclipse.buildship.ui.PluginImage;
+import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.buildship.ui.view.Page;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 
 /**
- * This action can be used to show a certain {@link IConsole} in the console view, which is found by
- * the given targetConsolePageName.
- *
+ * Navigates from the target {@link Page} to the corresponding {@link org.eclipse.ui.console.IConsole} page in the Console View.
  */
-public class ShowConsolePageAction extends Action {
+public final class SwitchToConsoleViewAction extends Action {
 
-    private String targetConsolePageName;
+    private final Page page;
 
-    public ShowConsolePageAction(String actionName, String actionTooltip, ImageDescriptor ImageDescriptor, String targetConsolePageName) {
-        this.targetConsolePageName = Preconditions.checkNotNull(targetConsolePageName);
+    public SwitchToConsoleViewAction(Page page) {
+        this.page = Preconditions.checkNotNull(page);
 
-        setText(actionName);
-        setToolTipText(actionTooltip);
-        setImageDescriptor(ImageDescriptor);
+        setText("Show in console");
+        setToolTipText("Shows the console of this build in the console view");
+        setImageDescriptor(PluginImages.SWITCH_TO_CONSOLE.withState(PluginImage.ImageState.ENABLED).getImageDescriptor());
     }
 
     @Override
     public void run() {
         IConsoleManager consoleManager = ConsolePlugin.getDefault().getConsoleManager();
-        IConsole[] consoles = consoleManager.getConsoles();
-        for (IConsole console : consoles) {
-            if (targetConsolePageName.equals(console.getName())) {
+        for (IConsole console : consoleManager.getConsoles()) {
+            if (this.page.getDisplayName().equals(console.getName())) {
                 consoleManager.showConsoleView(console);
                 return;
             }
         }
     }
+
 }

@@ -34,13 +34,13 @@ public final class ExpandTreeNodesAction extends Action implements SelectionSpec
     public ExpandTreeNodesAction(AbstractTreeViewer treeViewer) {
         this.treeViewer = Preconditions.checkNotNull(treeViewer);
 
-        setText(UiMessages.Action_ExpandNode_Text);
-        setToolTipText(UiMessages.Action_ExpandNode_Tooltip);
+        setText(UiMessages.Action_ExpandNodes_Text);
+        setToolTipText(UiMessages.Action_ExpandNodes_Tooltip);
         setImageDescriptor(PluginImages.EXPAND_NODE.withState(ImageState.ENABLED).getImageDescriptor());
     }
 
     @Override
-    public void runWithEvent(Event event) {
+    public void run() {
         ISelection selection = this.treeViewer.getSelection();
         if (selection instanceof IStructuredSelection && !selection.isEmpty()) {
             for (Object element : ((IStructuredSelection) selection).toList()) {

@@ -21,16 +21,16 @@ public final class UiMessages extends NLS {
 
     private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.i18n.UiMessages"; //$NON-NLS-1$
 
+    public static String Action_ExpandNodes_Text;
+    public static String Action_CollapseNodes_Text;
+
     public static String Action_SwitchPage_Tooltip;
-    public static String Action_ExpandNode_Text;
-    public static String Action_ExpandNode_Tooltip;
-    public static String Action_CollapseNode_Text;
-    public static String Action_CollapseNode_Tooltip;
+    public static String Action_ExpandNodes_Tooltip;
+    public static String Action_CollapseNodes_Tooltip;
     public static String Action_CancelExecution_Tooltip;
 
     public static String Action_ShowTreeHeader_Text;
-
-    public static String GotoTestElementAction_Text;
+    public static String Action_OpenTestSourceFile_Text;
 
     static {
         // initialize resource bundle

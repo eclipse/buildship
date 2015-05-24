@@ -36,10 +36,10 @@ public final class RemovePageAction extends Action {
 
     private final Page page;
 
-    public RemovePageAction(Page page, String text) {
+    public RemovePageAction(Page page, String tooltip) {
         this.page = Preconditions.checkNotNull(page);
 
-        setText(text);
+        setToolTipText(tooltip);
         setImageDescriptor(PluginImages.REMOVE_PAGE.withState(ImageState.ENABLED).getImageDescriptor());
         setDisabledImageDescriptor(PluginImages.REMOVE_PAGE.withState(ImageState.DISABLED).getImageDescriptor());
     }

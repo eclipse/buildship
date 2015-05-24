@@ -36,10 +36,10 @@ public final class RemoveAllPagesAction extends Action {
 
     private final MultiPageView view;
 
-    public RemoveAllPagesAction(MultiPageView view, String text) {
+    public RemoveAllPagesAction(MultiPageView view, String tooltip) {
         this.view = Preconditions.checkNotNull(view);
 
-        setText(text);
+        setToolTipText(tooltip);
         setImageDescriptor(PluginImages.REMOVE_ALL_PAGES.withState(ImageState.ENABLED).getImageDescriptor());
         setDisabledImageDescriptor(PluginImages.REMOVE_ALL_PAGES.withState(ImageState.DISABLED).getImageDescriptor());
     }

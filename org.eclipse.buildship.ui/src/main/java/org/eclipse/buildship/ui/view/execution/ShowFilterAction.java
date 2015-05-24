@@ -27,7 +27,7 @@ public final class ShowFilterAction extends Action {
         super(null, AS_CHECK_BOX);
         this.page = page;
 
-        setText(ExecutionsViewMessages.Action_ShowFilter_Text);
+        setToolTipText(ExecutionsViewMessages.Action_ShowFilter_Tooltip);
         setImageDescriptor(PluginImages.FILTER_EXECUTION.withState(ImageState.ENABLED).getImageDescriptor());
         setChecked(false);
     }

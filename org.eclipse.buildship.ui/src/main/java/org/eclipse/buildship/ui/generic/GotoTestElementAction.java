@@ -28,7 +28,7 @@ public class GotoTestElementAction extends Action {
     private Display display;
 
     public GotoTestElementAction(ISelectionProvider selectionProvider, Display display) {
-        super(UiMessages.GotoTestElementAction_Text);
+        super(UiMessages.Action_OpenTestSourceFile_Text);
         this.selectionProvider = selectionProvider;
         this.display = display;
     }

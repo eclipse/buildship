@@ -35,12 +35,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 
-import org.eclipse.buildship.ui.PluginImage.ImageState;
-import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.generic.CollapseTreeNodesAction;
 import org.eclipse.buildship.ui.generic.ExpandTreeNodesAction;
 import org.eclipse.buildship.ui.generic.GotoTestElementAction;
-import org.eclipse.buildship.ui.generic.ShowConsolePageAction;
+import org.eclipse.buildship.ui.generic.SwitchToConsoleViewAction;
 import org.eclipse.buildship.ui.view.BasePage;
 import org.eclipse.buildship.ui.view.MultiPageView;
 import org.eclipse.buildship.ui.view.PageSite;
@@ -134,10 +132,10 @@ public final class ExecutionPage extends BasePage<FilteredTree> {
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new ShowFilterAction(this));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new Separator());
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new CancelBuildExecutionAction(this));
-        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemovePageAction(this, ExecutionsViewMessages.Action_RemoveExecutionPage_Text));
-        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemoveAllPagesAction(view, ExecutionsViewMessages.Action_RemoveAllExecutionPages_Text));
-        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new ShowConsolePageAction("Show in console", "Shows the console of this build in the console view",
-                PluginImages.CONSOLE_ICON.withState(ImageState.ENABLED).getImageDescriptor(), getDisplayName()));
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemovePageAction(this, ExecutionsViewMessages.Action_RemoveExecutionPage_Tooltip));
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemoveAllPagesAction(view, ExecutionsViewMessages.Action_RemoveAllExecutionPages_Tooltip));
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new Separator());
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new SwitchToConsoleViewAction(this));
         toolbarManager.update(true);
 
         // add a context menu to the Tree
