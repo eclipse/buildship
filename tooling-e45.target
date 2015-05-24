@@ -12,11 +12,11 @@
 <repository location="http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.buildship.orbit.stagining.feature.group" version="1.0.8"/>
+<unit id="org.eclipse.buildship.orbit.stagining.feature.group" version="1.0.9"/>
 <repository location="http://download.eclipse.org/buildship/orbit-staging/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.buildship.orbit.stagining.feature.group" version="1.0.8"/>
+<unit id="org.eclipse.buildship.orbit.stagining.feature.group" version="1.0.9"/>
 <repository location="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
