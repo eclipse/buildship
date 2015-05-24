@@ -11,12 +11,10 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
+import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-import org.eclipse.buildship.ui.generic.CollapseTreeNodesAction;
-import org.eclipse.buildship.ui.generic.ExpandTreeNodesAction;
-import org.eclipse.buildship.ui.generic.GotoTestElementAction;
+import org.eclipse.buildship.ui.generic.*;
 import org.eclipse.buildship.ui.view.*;
-import org.eclipse.buildship.ui.view.execution.listener.ExecutionPageContextMenuListener;
 import org.eclipse.buildship.ui.viewer.FilteredTree;
 import org.eclipse.buildship.ui.viewer.labelprovider.ObservableMapCellWithIconLabelProvider;
 import org.eclipse.core.databinding.beans.BeanProperties;
@@ -36,16 +34,20 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 
+import java.util.List;
+
 /**
  * Displays the tree of a single build execution.
  */
 @SuppressWarnings("unchecked")
-public final class ExecutionPage extends BasePage<FilteredTree> {
+public final class ExecutionPage extends BasePage<FilteredTree> implements NodeSelectionProvider {
 
     private final Job buildJob;
     private final String displayName;
     private final BuildLaunchRequest buildLaunchRequest;
     private final ExecutionsViewState state;
+
+    private SelectionHistoryManager selectionHistoryManager;
 
     public ExecutionPage(Job buildJob, String displayName, BuildLaunchRequest buildLaunchRequest, ExecutionsViewState state) {
         this.buildJob = buildJob;
@@ -86,6 +88,9 @@ public final class ExecutionPage extends BasePage<FilteredTree> {
         IObservableSet knownElements = contentProvider.getKnownElements();
         attachLabelProvider(OperationItem.FIELD_NAME, OperationItem.FIELD_IMAGE, knownElements, nameColumn);
         attachLabelProvider(OperationItem.FIELD_DURATION, null, knownElements, durationColumn);
+
+        // manage the selection history
+        this.selectionHistoryManager = new SelectionHistoryManager(filteredTree.getViewer());
 
         // set tree root node
         OperationItem root = new OperationItem();
@@ -137,10 +142,17 @@ public final class ExecutionPage extends BasePage<FilteredTree> {
         TreeViewer treeViewer = getPageControl().getViewer();
         MenuManager menuManager = new MenuManager();
         menuManager.setRemoveAllWhenShown(true);
-        menuManager.addMenuListener(new ExecutionPageContextMenuListener(treeViewer));
+        menuManager.addMenuListener(new ActionShowingContextMenuListener(this, createManagedActions(treeViewer)));
         Menu contextMenu = menuManager.createContextMenu(treeViewer.getTree());
         treeViewer.getTree().setMenu(contextMenu);
         pageSite.getViewSite().registerContextMenu(menuManager, treeViewer);
+    }
+
+    private List<SelectionSpecificAction> createManagedActions(TreeViewer treeViewer) {
+        ExpandTreeNodesAction expandNodesAction = new ExpandTreeNodesAction(treeViewer);
+        CollapseTreeNodesAction collapseNodesAction = new CollapseTreeNodesAction(treeViewer);
+        GotoTestElementAction openTestSourceFileAction = new GotoTestElementAction(treeViewer, treeViewer.getControl().getDisplay());
+        return ImmutableList.<SelectionSpecificAction>of(expandNodesAction, collapseNodesAction, openTestSourceFileAction);
     }
 
     private void registerListeners() {
@@ -165,6 +177,17 @@ public final class ExecutionPage extends BasePage<FilteredTree> {
             return getPageControl().getViewer();
         }
         return Platform.getAdapterManager().getAdapter(this, adapter);
+    }
+
+    @Override
+    public NodeSelection getSelection() {
+        return this.selectionHistoryManager.getSelectionHistory();
+    }
+
+    @Override
+    public void dispose() {
+        this.selectionHistoryManager.dispose();
+        super.dispose();
     }
 
 }

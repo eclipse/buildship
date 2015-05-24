@@ -11,18 +11,16 @@
 
 package org.eclipse.buildship.ui.generic;
 
+import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.widgets.Display;
 
-import org.eclipse.buildship.ui.i18n.UiMessages;
-
 /**
  * This actions runs the {@link OpenTestCompilationUnitJob}, which navigates to the source of a test
  * according to the ISelection.
- *
  */
-public class GotoTestElementAction extends Action {
+public final class GotoTestElementAction extends Action implements SelectionSpecificAction {
 
     private ISelectionProvider selectionProvider;
     private Display display;
@@ -35,8 +33,23 @@ public class GotoTestElementAction extends Action {
 
     @Override
     public void run() {
-        OpenTestCompilationUnitJob openTestCompilationUnitJob = new OpenTestCompilationUnitJob(selectionProvider.getSelection(), display);
+        OpenTestCompilationUnitJob openTestCompilationUnitJob = new OpenTestCompilationUnitJob(this.selectionProvider.getSelection(), this.display);
         openTestCompilationUnitJob.schedule();
+    }
+
+    @Override
+    public boolean isVisibleFor(NodeSelection selection) {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabledFor(NodeSelection selection) {
+        return true;
+    }
+
+    @Override
+    public void setEnabledFor(NodeSelection selection) {
+        setEnabled(true);
     }
 
 }
