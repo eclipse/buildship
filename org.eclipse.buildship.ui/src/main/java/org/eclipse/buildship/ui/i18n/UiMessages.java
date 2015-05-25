@@ -30,7 +30,6 @@ public final class UiMessages extends NLS {
     public static String Action_CancelExecution_Tooltip;
 
     public static String Action_ShowTreeHeader_Text;
-    public static String Action_OpenTestSourceFile_Text;
 
     static {
         // initialize resource bundle

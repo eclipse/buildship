@@ -33,6 +33,8 @@ public final class ExecutionsViewMessages extends NLS {
     public static String Action_SwitchToConsole_Tooltip;
     public static String Action_ShowFilter_Tooltip;
 
+    public static String Action_OpenTestSourceFile_Text;
+
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, ExecutionsViewMessages.class);

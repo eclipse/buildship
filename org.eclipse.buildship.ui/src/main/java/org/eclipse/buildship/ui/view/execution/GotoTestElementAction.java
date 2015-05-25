@@ -16,7 +16,6 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import org.eclipse.buildship.ui.generic.NodeSelection;
 import org.eclipse.buildship.ui.generic.SelectionSpecificAction;
-import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -34,7 +33,7 @@ public final class GotoTestElementAction extends Action implements SelectionSpec
     private Display display;
 
     public GotoTestElementAction(ISelectionProvider selectionProvider, Display display) {
-        super(UiMessages.Action_OpenTestSourceFile_Text);
+        super(ExecutionsViewMessages.Action_OpenTestSourceFile_Text);
         this.selectionProvider = selectionProvider;
         this.display = display;
     }
