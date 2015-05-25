@@ -9,34 +9,35 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.generic;
+package org.eclipse.buildship.ui.view;
 
 import com.google.common.base.Preconditions;
 
+import org.eclipse.buildship.ui.generic.NodeSelection;
+import org.eclipse.buildship.ui.generic.SelectionSpecificAction;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.swt.widgets.Event;
 
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.i18n.UiMessages;
 
 /**
- * Collapses all the nodes under the selected node or the entire tree if no node is selected.
+ * Expands all the nodes under the selected node or the entire tree if no node is selected.
  */
-public final class CollapseTreeNodesAction extends Action implements SelectionSpecificAction {
+public final class ExpandTreeNodesAction extends Action implements SelectionSpecificAction {
 
     private final AbstractTreeViewer treeViewer;
 
-    public CollapseTreeNodesAction(AbstractTreeViewer treeViewer) {
+    public ExpandTreeNodesAction(AbstractTreeViewer treeViewer) {
         this.treeViewer = Preconditions.checkNotNull(treeViewer);
 
-        setText(UiMessages.Action_CollapseNodes_Text);
-        setToolTipText(UiMessages.Action_CollapseNodes_Tooltip);
-        setImageDescriptor(PluginImages.COLLAPSE_NODE.withState(ImageState.ENABLED).getImageDescriptor());
+        setText(UiMessages.Action_ExpandNodes_Text);
+        setToolTipText(UiMessages.Action_ExpandNodes_Tooltip);
+        setImageDescriptor(PluginImages.EXPAND_NODE.withState(ImageState.ENABLED).getImageDescriptor());
     }
 
     @Override
@@ -44,10 +45,10 @@ public final class CollapseTreeNodesAction extends Action implements SelectionSp
         ISelection selection = this.treeViewer.getSelection();
         if (selection instanceof IStructuredSelection && !selection.isEmpty()) {
             for (Object element : ((IStructuredSelection) selection).toList()) {
-                this.treeViewer.collapseToLevel(element, TreeViewer.ALL_LEVELS);
+                this.treeViewer.expandToLevel(element, TreeViewer.ALL_LEVELS);
             }
         } else {
-            this.treeViewer.collapseAll();
+            this.treeViewer.expandAll();
         }
     }
 
