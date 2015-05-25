@@ -11,21 +11,13 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import org.gradle.tooling.events.FailureResult;
-import org.gradle.tooling.events.FinishEvent;
-import org.gradle.tooling.events.OperationDescriptor;
-import org.gradle.tooling.events.OperationResult;
-import org.gradle.tooling.events.ProgressEvent;
-import org.gradle.tooling.events.SkippedResult;
-import org.gradle.tooling.events.StartEvent;
-import org.gradle.tooling.events.SuccessResult;
-import org.gradle.tooling.events.test.TestOperationDescriptor;
-
-import org.eclipse.osgi.util.NLS;
-
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.ui.PluginImage;
 import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.osgi.util.NLS;
+import org.gradle.tooling.events.*;
+import org.gradle.tooling.events.task.TaskOperationDescriptor;
+import org.gradle.tooling.events.test.TestOperationDescriptor;
 
 /**
  * Configures an {@code OperationItem} instance from an event belonging associated with that item.
@@ -33,10 +25,8 @@ import org.eclipse.buildship.ui.PluginImages;
 public final class OperationItemConfigurator {
 
     public void configure(OperationItem operationItem, ProgressEvent event) {
-
-        handleOperationItemName(operationItem, event);
-
         if (event instanceof StartEvent) {
+            displayOperationSpecificName(operationItem, event);
             operationItem.setDuration(ExecutionsViewMessages.Tree_Item_Operation_Started_Text);
         } else if (event instanceof FinishEvent) {
             OperationResult result = ((FinishEvent) event).getResult();
@@ -53,10 +43,12 @@ public final class OperationItemConfigurator {
         }
     }
 
-    private void handleOperationItemName(OperationItem operationItem, ProgressEvent event) {
+    private void displayOperationSpecificName(OperationItem operationItem, ProgressEvent event) {
         OperationDescriptor descriptor = event.getDescriptor();
         if (descriptor instanceof TestOperationDescriptor) {
             operationItem.setName(descriptor.getName());
+        } else if (descriptor instanceof TaskOperationDescriptor) {
+            operationItem.setName(((TaskOperationDescriptor) descriptor).getTaskPath());
         }
     }
 
