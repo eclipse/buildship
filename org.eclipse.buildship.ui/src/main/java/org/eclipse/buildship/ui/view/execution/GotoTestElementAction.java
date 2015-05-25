@@ -9,13 +9,14 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.generic;
+package org.eclipse.buildship.ui.view.execution;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import org.eclipse.buildship.ui.generic.NodeSelection;
+import org.eclipse.buildship.ui.generic.SelectionSpecificAction;
 import org.eclipse.buildship.ui.i18n.UiMessages;
-import org.eclipse.buildship.ui.view.execution.OperationItem;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
