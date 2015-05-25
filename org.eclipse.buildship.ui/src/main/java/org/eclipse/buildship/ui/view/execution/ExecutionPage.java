@@ -151,7 +151,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     private List<SelectionSpecificAction> createManagedActions(TreeViewer treeViewer) {
         ExpandTreeNodesAction expandNodesAction = new ExpandTreeNodesAction(treeViewer);
         CollapseTreeNodesAction collapseNodesAction = new CollapseTreeNodesAction(treeViewer);
-        GotoTestElementAction openTestSourceFileAction = new GotoTestElementAction(treeViewer, treeViewer.getControl().getDisplay());
+        OpenTestSourceFileAction openTestSourceFileAction = new OpenTestSourceFileAction(treeViewer, treeViewer.getControl().getDisplay());
         return ImmutableList.<SelectionSpecificAction>of(expandNodesAction, collapseNodesAction, openTestSourceFileAction);
     }
 
@@ -161,8 +161,8 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
 
             @Override
             public void doubleClick(DoubleClickEvent event) {
-                GotoTestElementAction gotoTestElementAction = new GotoTestElementAction(event.getViewer(), event.getViewer().getControl().getDisplay());
-                gotoTestElementAction.run();
+                OpenTestSourceFileAction openTestSourceFileAction = new OpenTestSourceFileAction(event.getViewer(), event.getViewer().getControl().getDisplay());
+                openTestSourceFileAction.run();
             }
         });
     }
