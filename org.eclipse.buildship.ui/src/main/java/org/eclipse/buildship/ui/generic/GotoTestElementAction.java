@@ -47,7 +47,22 @@ public final class GotoTestElementAction extends Action implements SelectionSpec
 
     @Override
     public boolean isVisibleFor(NodeSelection selection) {
-        return isEnabledFor(selection);
+        if (selection.isEmpty()) {
+            return false;
+        }
+
+        if (!selection.hasAllNodesOfType(OperationItem.class)) {
+            return false;
+        }
+
+        ImmutableList<OperationItem> operationItems = selection.getNodes(OperationItem.class);
+        return FluentIterable.from(operationItems).allMatch(new Predicate<OperationItem>() {
+            @Override
+            public boolean apply(OperationItem operationItem) {
+                OperationDescriptor adapter = (OperationDescriptor) operationItem.getAdapter(OperationDescriptor.class);
+                return adapter instanceof JvmTestOperationDescriptor;
+            }
+        });
     }
 
     @Override
