@@ -23,30 +23,42 @@
 package org.eclipse.buildship.ui.view;
 
 import com.google.common.base.Preconditions;
-
-import org.eclipse.jface.action.Action;
-
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.jface.action.Action;
 
 /**
  * Removes all {@link Page} elements from the target {@link MultiPageView}.
  */
 public class RemoveAllPagesAction extends Action {
 
-    private final MultiPageView view;
+    private final Page page;
 
-    public RemoveAllPagesAction(MultiPageView view, String tooltip) {
-        this.view = Preconditions.checkNotNull(view);
+    public RemoveAllPagesAction(Page page, String tooltip) {
+        this.page = Preconditions.checkNotNull(page);
 
         setToolTipText(tooltip);
         setImageDescriptor(PluginImages.REMOVE_ALL_PAGES.withState(ImageState.ENABLED).getImageDescriptor());
         setDisabledImageDescriptor(PluginImages.REMOVE_ALL_PAGES.withState(ImageState.DISABLED).getImageDescriptor());
+        enableIfCloseable();
+    }
+
+    protected Page getPage() {
+        return this.page;
+    }
+
+    protected void enableIfCloseable() {
+        setEnabled(this.page.isCloseable());
     }
 
     @Override
     public void run() {
-        this.view.removeAllPages();
+        MultiPageView view = (MultiPageView) this.page.getSite().getViewSite().getPart();
+        for (Page page : view.getPages()) {
+            if (page.isCloseable()) {
+                view.removePage(page);
+            }
+        }
     }
 
 }

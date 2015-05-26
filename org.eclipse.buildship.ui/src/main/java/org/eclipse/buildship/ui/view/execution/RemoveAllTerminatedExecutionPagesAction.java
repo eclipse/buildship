@@ -22,7 +22,6 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import com.google.common.base.Preconditions;
 import org.eclipse.buildship.ui.view.MultiPageView;
 import org.eclipse.buildship.ui.view.RemoveAllPagesAction;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -34,17 +33,14 @@ import org.eclipse.core.runtime.jobs.JobChangeAdapter;
  */
 public final class RemoveAllTerminatedExecutionPagesAction extends RemoveAllPagesAction {
 
-    private final ExecutionPage page;
-
-    public RemoveAllTerminatedExecutionPagesAction(ExecutionPage page, MultiPageView view) {
-        super(view, ExecutionsViewMessages.Action_RemoveAllExecutionPages_Tooltip);
-        this.page = Preconditions.checkNotNull(page);
+    public RemoveAllTerminatedExecutionPagesAction(ExecutionPage page) {
+        super(page, ExecutionsViewMessages.Action_RemoveAllExecutionPages_Tooltip);
 
         registerJobChangeListener();
     }
 
     private void registerJobChangeListener() {
-        Job job = this.page.getBuildJob();
+        Job job = ((ExecutionPage) getPage()).getBuildJob();
         job.addJobChangeListener(new JobChangeAdapter() {
 
             @Override
@@ -52,11 +48,6 @@ public final class RemoveAllTerminatedExecutionPagesAction extends RemoveAllPage
                 enableIfCloseable();
             }
         });
-        enableIfCloseable();
-    }
-
-    private void enableIfCloseable() {
-        setEnabled(this.page.isCloseable());
     }
 
 }

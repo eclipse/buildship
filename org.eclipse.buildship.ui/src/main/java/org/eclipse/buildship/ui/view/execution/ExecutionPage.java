@@ -147,7 +147,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new Separator());
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new CancelBuildExecutionAction(this));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemoveTerminatedExecutionPageAction(this));
-        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemoveAllTerminatedExecutionPagesAction(this, view));
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemoveAllTerminatedExecutionPagesAction(this));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new Separator());
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new SwitchToConsoleViewAction(this));
         toolbarManager.update(true);
