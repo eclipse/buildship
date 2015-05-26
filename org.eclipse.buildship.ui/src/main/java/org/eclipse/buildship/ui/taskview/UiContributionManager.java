@@ -40,8 +40,9 @@ public final class UiContributionManager {
     private static final String MENU_MISC_GROUP = "menuMiscGroup";
 
     private final TaskView taskView;
-    private final ImmutableList<SelectionSpecificAction> managedActions;
-    private final ActionEnablingSelectionChangedListener managedActionsSelectionChangedListener;
+    private final ImmutableList<SelectionSpecificAction> toolBarActions;
+    private final ImmutableList<SelectionSpecificAction> contextMenuActions;
+    private final ActionEnablingSelectionChangedListener toolBarActionsSelectionChangedListener;
     private final TreeViewerSelectionChangeListener treeViewerSelectionChangeListener;
     private final TreeViewerDoubleClickListener treeViewerDoubleClickListener;
     private final ContextActivatingViewPartListener contextActivatingViewPartListener;
@@ -51,15 +52,21 @@ public final class UiContributionManager {
     public UiContributionManager(TaskView taskView) {
         this.taskView = Preconditions.checkNotNull(taskView);
 
-        // add selection-sensitive actions
+        // create actions
         RunTasksAction runTasksAction = new RunTasksAction(UiPluginConstants.RUN_TASKS_COMMAND_ID);
         RunDefaultTasksAction runDefaultTasksAction = new RunDefaultTasksAction(UiPluginConstants.RUN_DEFAULT_TASKS_COMMAND_ID);
         CreateRunConfigurationAction createRunConfigurationAction = new CreateRunConfigurationAction(UiPluginConstants.OPEN_RUN_CONFIGURATION_COMMAND_ID);
         OpenRunConfigurationAction openRunConfigurationAction = new OpenRunConfigurationAction(UiPluginConstants.OPEN_RUN_CONFIGURATION_COMMAND_ID);
         OpenBuildScriptAction openBuildScriptAction = new OpenBuildScriptAction(UiPluginConstants.OPEN_BUILD_SCRIPT_COMMAND_ID);
-        this.managedActions = ImmutableList.<SelectionSpecificAction> of(runTasksAction, runDefaultTasksAction, createRunConfigurationAction, openRunConfigurationAction, openBuildScriptAction);
 
-        this.managedActionsSelectionChangedListener = new ActionEnablingSelectionChangedListener(taskView, this.managedActions);
+        // add selection-sensitive tool bar actions
+        this.toolBarActions = ImmutableList.of();
+
+        // add selection-sensitive context menu actions
+        this.contextMenuActions = ImmutableList.<SelectionSpecificAction> of(runTasksAction, runDefaultTasksAction, createRunConfigurationAction, openRunConfigurationAction, openBuildScriptAction);
+
+        // create listeners
+        this.toolBarActionsSelectionChangedListener = new ActionEnablingSelectionChangedListener(taskView, this.toolBarActions);
         this.treeViewerSelectionChangeListener = new TreeViewerSelectionChangeListener(taskView);
         this.treeViewerDoubleClickListener = new TreeViewerDoubleClickListener(UiPluginConstants.RUN_TASKS_COMMAND_ID, taskView.getTreeViewer());
         this.contextActivatingViewPartListener = new ContextActivatingViewPartListener(UiPluginConstants.TASKVIEW_CONTEXT_ID, taskView);
@@ -101,14 +108,14 @@ public final class UiContributionManager {
         TreeViewer treeViewer = this.taskView.getTreeViewer();
         MenuManager menuManager = new MenuManager();
         menuManager.setRemoveAllWhenShown(true);
-        menuManager.addMenuListener(new ActionShowingContextMenuListener(this.taskView, this.managedActions));
+        menuManager.addMenuListener(new ActionShowingContextMenuListener(this.taskView, this.contextMenuActions));
         Menu contextMenu = menuManager.createContextMenu(treeViewer.getTree());
         treeViewer.getTree().setMenu(contextMenu);
         this.taskView.getViewSite().registerContextMenu(menuManager, treeViewer);
     }
 
     private void registerListeners() {
-        this.taskView.getTreeViewer().addSelectionChangedListener(this.managedActionsSelectionChangedListener);
+        this.taskView.getTreeViewer().addSelectionChangedListener(this.toolBarActionsSelectionChangedListener);
         this.taskView.getTreeViewer().addSelectionChangedListener(this.treeViewerSelectionChangeListener);
         this.taskView.getTreeViewer().addDoubleClickListener(this.treeViewerDoubleClickListener);
         this.taskView.getSite().getPage().addPartListener(this.contextActivatingViewPartListener);
@@ -117,7 +124,7 @@ public final class UiContributionManager {
     }
 
     public void dispose() {
-        this.taskView.getTreeViewer().removeSelectionChangedListener(this.managedActionsSelectionChangedListener);
+        this.taskView.getTreeViewer().removeSelectionChangedListener(this.toolBarActionsSelectionChangedListener);
         this.taskView.getTreeViewer().removeSelectionChangedListener(this.treeViewerSelectionChangeListener);
         this.taskView.getTreeViewer().removeDoubleClickListener(this.treeViewerDoubleClickListener);
         this.taskView.getSite().getPage().removePartListener(this.contextActivatingViewPartListener);
