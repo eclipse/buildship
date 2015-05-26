@@ -140,16 +140,15 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     private void populateToolBar() {
         IActionBars actionBars = getSite().getActionBars();
         IToolBarManager toolbarManager = actionBars.getToolBarManager();
-        MultiPageView view = (MultiPageView) getSite().getViewSite().getPart();
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new ExpandTreeNodesAction(getPageControl().getViewer()));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new CollapseTreeNodesAction(getPageControl().getViewer()));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new ShowFilterAction(this));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new Separator());
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new SwitchToConsoleViewAction(this));
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new Separator());
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new CancelBuildExecutionAction(this));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemoveTerminatedExecutionPageAction(this));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemoveAllTerminatedExecutionPagesAction(this));
-        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new Separator());
-        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new SwitchToConsoleViewAction(this));
         toolbarManager.update(true);
     }
 
