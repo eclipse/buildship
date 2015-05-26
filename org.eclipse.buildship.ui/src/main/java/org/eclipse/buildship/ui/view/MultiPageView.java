@@ -117,7 +117,7 @@ public abstract class MultiPageView extends ViewPart {
 
         // initially show the default page since there are no other pages
         switchToPage(this.defaultPage);
-        updateVisibilityOfGlobalAction();
+        updateVisibilityOfGlobalActions();
     }
 
     protected abstract Page createDefaultPage();
@@ -132,7 +132,7 @@ public abstract class MultiPageView extends ViewPart {
         page.createPage(this.stackComposite);
         initPage(page);
         this.pages.add(page);
-        updateVisibilityOfGlobalAction();
+        updateVisibilityOfGlobalActions();
     }
 
     private void initPage(Page page) {
@@ -152,7 +152,7 @@ public abstract class MultiPageView extends ViewPart {
         page.getSite().dispose();
         page.dispose();
         this.pages.remove(index);
-        updateVisibilityOfGlobalAction();
+        updateVisibilityOfGlobalActions();
 
         // show another page
         if (hasPages()) {
@@ -171,7 +171,7 @@ public abstract class MultiPageView extends ViewPart {
             page.dispose();
             iterator.remove();
         }
-        updateVisibilityOfGlobalAction();
+        updateVisibilityOfGlobalActions();
 
         // show the default page
         switchToPage(this.defaultPage);
@@ -253,7 +253,7 @@ public abstract class MultiPageView extends ViewPart {
         return !this.pages.isEmpty();
     }
 
-    private void updateVisibilityOfGlobalAction() {
+    private void updateVisibilityOfGlobalActions() {
         this.switchPagesAction.setVisible(hasPages());
     }
 
