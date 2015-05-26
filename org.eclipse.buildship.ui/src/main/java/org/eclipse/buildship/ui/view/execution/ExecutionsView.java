@@ -44,7 +44,7 @@ public final class ExecutionsView extends MultiPageView {
         this.state.load();
 
         // create the global actions
-        this.switchPagesAction = new ActionContributionItem(new SwitchToNextPageAction(this));
+        this.switchPagesAction = new ActionContributionItem(new SwitchToNextPageAction(this, ExecutionsViewMessages.Action_SwitchExecutionPage_Tooltip));
         this.switchPagesAction.setVisible(false);
 
         // add actions to the global toolbar of the executions view

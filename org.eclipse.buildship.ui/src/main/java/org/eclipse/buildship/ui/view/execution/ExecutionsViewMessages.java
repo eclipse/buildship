@@ -28,6 +28,7 @@ public final class ExecutionsViewMessages extends NLS {
     public static String Tree_Item_Operation_Started_Text;
     public static String Tree_Item_Operation_Finished_In_0_Sec_Text;
 
+    public static String Action_SwitchExecutionPage_Tooltip;
     public static String Action_RemoveExecutionPage_Tooltip;
     public static String Action_RemoveAllExecutionPages_Tooltip;
     public static String Action_SwitchToConsole_Tooltip;
