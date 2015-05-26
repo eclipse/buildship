@@ -30,11 +30,11 @@ import org.eclipse.buildship.ui.PluginImages;
  * Removes all finished {@link ILaunch} instances associated with a {@link GradleConsole} instance.
  * The action is only enabled if at least one console can be removed.
  */
-public final class RemoveAllTerminatedConsolesAction extends Action implements ILaunchesListener2 {
+public final class RemoveAllTerminatedGradleConsolesAction extends Action implements ILaunchesListener2 {
 
     private final GradleConsole gradleConsole;
 
-    public RemoveAllTerminatedConsolesAction(GradleConsole gradleConsole) {
+    public RemoveAllTerminatedGradleConsolesAction(GradleConsole gradleConsole) {
         this.gradleConsole = Preconditions.checkNotNull(gradleConsole);
 
         setToolTipText(ConsoleMessages.Action_RemoveAllTerminatedConsoles_Tooltip);
