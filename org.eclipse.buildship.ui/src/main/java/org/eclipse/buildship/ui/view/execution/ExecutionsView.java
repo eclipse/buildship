@@ -12,15 +12,17 @@
 package org.eclipse.buildship.ui.view.execution;
 
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.PartInitException;
-
 import org.eclipse.buildship.ui.view.MessagePage;
 import org.eclipse.buildship.ui.view.MultiPageView;
 import org.eclipse.buildship.ui.view.Page;
+import org.eclipse.buildship.ui.view.SwitchToNextPageAction;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.action.ActionContributionItem;
+import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.PartInitException;
 
 /**
  * A view displaying the Gradle executions.
@@ -31,6 +33,7 @@ public final class ExecutionsView extends MultiPageView {
     public static final String ID = "org.eclipse.buildship.ui.views.executionview"; //$NON-NLS-1$
 
     private ExecutionsViewState state;
+    private IContributionItem switchPagesAction;
 
     @Override
     public void init(IViewSite site) throws PartInitException {
@@ -40,9 +43,23 @@ public final class ExecutionsView extends MultiPageView {
         this.state = new ExecutionsViewState();
         this.state.load();
 
+        // create the global actions
+        this.switchPagesAction = new ActionContributionItem(new SwitchToNextPageAction(this));
+        this.switchPagesAction.setVisible(false);
+
+        // add actions to the global toolbar of the executions view
+        IToolBarManager toolBarManager = site.getActionBars().getToolBarManager();
+        toolBarManager.appendToGroup(PART_GROUP, this.switchPagesAction);
+
         // add actions to the global menu of the executions view
         IMenuManager menuManager = site.getActionBars().getMenuManager();
         menuManager.add(new ToggleShowTreeHeaderAction(this, this.state));
+    }
+
+    @Override
+    protected void updateVisibilityOfGlobalActions() {
+        super.updateVisibilityOfGlobalActions();
+        this.switchPagesAction.setVisible(hasPages());
     }
 
     @Override

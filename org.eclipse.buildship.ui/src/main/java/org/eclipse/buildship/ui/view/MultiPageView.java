@@ -20,9 +20,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -71,7 +69,6 @@ public abstract class MultiPageView extends ViewPart {
     private final ISelectionChangedListener selectionChangedListener;
     private final IPropertyChangeListener actionBarPropertyChangeListener;
 
-    private IContributionItem switchPagesAction;
     private Composite stackComposite;
     private StackLayout stackLayout;
 
@@ -83,9 +80,6 @@ public abstract class MultiPageView extends ViewPart {
         this.pageSelectionProvider = new PageSelectionProvider();
         this.selectionChangedListener = new ForwardingSelectionChangedListener(this.pageSelectionProvider);
         this.actionBarPropertyChangeListener = new ActionBarsPropertyChangeListener(this);
-
-        this.switchPagesAction = new ActionContributionItem(new SwitchToNextPageAction(this));
-        this.switchPagesAction.setVisible(false);
     }
 
     @Override
@@ -100,7 +94,6 @@ public abstract class MultiPageView extends ViewPart {
         IToolBarManager toolBarManager = site.getActionBars().getToolBarManager();
         toolBarManager.add(new Separator(PAGE_GROUP));
         toolBarManager.add(new Separator(PART_GROUP));
-        toolBarManager.add(this.switchPagesAction);
     }
 
     @Override
@@ -164,6 +157,7 @@ public abstract class MultiPageView extends ViewPart {
         }
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public void removeAllPages() {
         for (Iterator<Page> iterator = this.pages.iterator(); iterator.hasNext(); ) {
             Page page = iterator.next();
@@ -253,9 +247,7 @@ public abstract class MultiPageView extends ViewPart {
         return !this.pages.isEmpty();
     }
 
-    private void updateVisibilityOfGlobalActions() {
-        this.switchPagesAction.setVisible(hasPages());
-    }
+    protected void updateVisibilityOfGlobalActions(){}
 
     private void refreshGlobalActionHandlers() {
         // clear old action handlers
