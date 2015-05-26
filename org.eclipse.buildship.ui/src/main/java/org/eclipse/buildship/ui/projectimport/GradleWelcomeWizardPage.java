@@ -15,18 +15,22 @@ import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingutils.binding.Property;
 
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
+
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 
 /**
  * First page in the {@link ProjectImportWizard} displaying a welcome message.
@@ -50,6 +54,14 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
     }
 
     @Override
+    public void setWizard(IWizard wizard) {
+        super.setWizard(wizard);
+        // disable the Finish; will get re-enabled when the the next page is shown (see
+        // #setVisible() method)
+        ((ProjectImportWizard) wizard).setFinishGloballyEnabled(false);
+    }
+
+    @Override
     protected void createWidgets(Composite root) {
         root.setLayout(new GridLayout(1, false));
 
@@ -61,6 +73,21 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
         welcomeText.setEnabled(false);
         welcomeText.setEditable(false);
         fillWelcomeText(welcomeText);
+
+        final Button welcomePageEnabledButton = new Button(root, SWT.CHECK);
+        welcomePageEnabledButton.setText("Show welcome page next time the wizard appears");
+        GridData welcomePageEnabledButtonLayoutData = new GridData(SWT.CENTER, SWT.BOTTOM, false, false, 1, 1);
+        welcomePageEnabledButtonLayoutData.widthHint = welcomeLayoutData.widthHint;
+        welcomePageEnabledButtonLayoutData.verticalIndent = 15;
+        welcomePageEnabledButton.setLayoutData(welcomePageEnabledButtonLayoutData);
+        welcomePageEnabledButton.setSelection(((ProjectImportWizard)getWizard()).isWelcomePageEnabled());
+        welcomePageEnabledButton.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                ((ProjectImportWizard)getWizard()).setWelcomePageEnabled(welcomePageEnabledButton.getSelection());
+            }
+        });
     }
 
     private void fillWelcomeText(StyledText welcomeText) {
