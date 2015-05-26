@@ -15,18 +15,21 @@ import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingutils.binding.Property;
 
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
+
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 
 /**
  * First page in the {@link ProjectImportWizard} displaying a welcome message.
@@ -54,13 +57,28 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
         root.setLayout(new GridLayout(1, false));
 
         StyledText welcomeText = new StyledText(root, SWT.WRAP | SWT.MULTI | SWT.CENTER);
-        GridData welcomeLayoutData = new GridData(SWT.CENTER, SWT.TOP, false, false, 1, 1);
-        welcomeLayoutData.widthHint = 500;
-        welcomeText.setLayoutData(welcomeLayoutData);
+        GridData welcomeTextLayoutData = new GridData(SWT.CENTER, SWT.TOP, false, false, 1, 1);
+        welcomeTextLayoutData.widthHint = 500;
+        welcomeText.setLayoutData(welcomeTextLayoutData);
         welcomeText.setBackground(welcomeText.getParent().getBackground());
         welcomeText.setEnabled(false);
         welcomeText.setEditable(false);
         fillWelcomeText(welcomeText);
+
+        final Button showWelcomePageCheckbox = new Button(root, SWT.CHECK);
+        showWelcomePageCheckbox.setText("Show welcome page next time the wizard appears");
+        GridData showWelcomePageCheckboxLayoutData = new GridData(SWT.CENTER, SWT.BOTTOM, false, false, 1, 1);
+        showWelcomePageCheckboxLayoutData.widthHint = welcomeTextLayoutData.widthHint;
+        showWelcomePageCheckboxLayoutData.verticalIndent = 15;
+        showWelcomePageCheckbox.setLayoutData(showWelcomePageCheckboxLayoutData);
+        showWelcomePageCheckbox.setSelection(((ProjectImportWizard)getWizard()).isShowWelcomePage());
+        showWelcomePageCheckbox.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                ((ProjectImportWizard) getWizard()).setWelcomePageEnabled(showWelcomePageCheckbox.getSelection());
+            }
+        });
     }
 
     private void fillWelcomeText(StyledText welcomeText) {

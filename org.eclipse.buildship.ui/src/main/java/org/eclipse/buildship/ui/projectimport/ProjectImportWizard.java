@@ -11,8 +11,12 @@
 
 package org.eclipse.buildship.ui.projectimport;
 
+import org.osgi.service.prefs.BackingStoreException;
+
 import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
 
+import org.eclipse.core.runtime.preferences.ConfigurationScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
@@ -20,6 +24,7 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.ui.UiPlugin;
 
@@ -35,6 +40,11 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
      * @see org.eclipse.jface.dialogs.DialogSettings#getOrCreateSection(IDialogSettings, String)
      */
     private static final String IMPORT_DIALOG_SETTINGS = "org.eclipse.buildship.ui.projectimport"; //$NON-NLS-1$
+
+    /**
+     * Preference key that flags whether the welcome page should be shown as part of the import wizard.
+     */
+    private static final String PREF_SHOW_WELCOME_PAGE = "org.eclipse.buildship.ui.projectimport.showWelcomePage"; //$NON-NLS-1$
 
     // the pages to display in the wizard
     private final GradleWelcomeWizardPage welcomeWizardPage;
@@ -80,7 +90,7 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
         this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller);
 
         // the wizard must not be finishable unless this global flag is enabled
-        this.finishGloballyEnabled = false;
+        this.finishGloballyEnabled = true;
     }
 
     @Override
@@ -96,7 +106,9 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
     @Override
     public void addPages() {
         // assign wizard pages to this wizard
-        addPage(this.welcomeWizardPage);
+        if (isShowWelcomePage()) {
+            addPage(this.welcomeWizardPage);
+        }
         addPage(this.gradleProjectPage);
         addPage(this.gradleOptionsPage);
         addPage(this.projectPreviewPage);
@@ -106,6 +118,26 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
 
         // enable help on all wizard pages
         setHelpAvailable(true);
+    }
+
+    public boolean isShowWelcomePage() {
+        // store the in the configuration scope to have the same settings for all workspaces
+        @SuppressWarnings("deprecation")
+        ConfigurationScope configurationScope = new ConfigurationScope();
+        IEclipsePreferences node = configurationScope.getNode(UiPlugin.PLUGIN_ID);
+        return node.getBoolean(PREF_SHOW_WELCOME_PAGE, true);
+    }
+
+    public void setWelcomePageEnabled(boolean value) {
+        @SuppressWarnings("deprecation")
+        ConfigurationScope configurationScope = new ConfigurationScope();
+        IEclipsePreferences node = configurationScope.getNode(UiPlugin.PLUGIN_ID);
+        node.putBoolean(PREF_SHOW_WELCOME_PAGE, value);
+        try {
+            node.flush();
+        } catch (BackingStoreException e) {
+            throw new GradlePluginsRuntimeException(e);
+        }
     }
 
     @Override
