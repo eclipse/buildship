@@ -34,10 +34,14 @@ public final class SwitchToNextPageAction extends Action implements IMenuCreator
     private MenuManager menuManager;
 
     public SwitchToNextPageAction(MultiPageView multiPageView) {
+        this(multiPageView, UiMessages.Action_SwitchPage_Tooltip);
+    }
+
+    public SwitchToNextPageAction(MultiPageView multiPageView, String toolTip) {
         super(null, AS_DROP_DOWN_MENU);
         this.multiPageView = multiPageView;
 
-        setToolTipText(UiMessages.Action_SwitchPage_Tooltip);
+        setToolTipText(toolTip);
         setImageDescriptor(PluginImages.SWITCH_PAGE.withState(ImageState.ENABLED).getImageDescriptor());
         setMenuCreator(this);
     }
