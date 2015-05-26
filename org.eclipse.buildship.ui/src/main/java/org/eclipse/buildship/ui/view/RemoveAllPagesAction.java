@@ -32,7 +32,7 @@ import org.eclipse.buildship.ui.PluginImages;
 /**
  * Removes all {@link Page} elements from the target {@link MultiPageView}.
  */
-public final class RemoveAllPagesAction extends Action {
+public class RemoveAllPagesAction extends Action {
 
     private final MultiPageView view;
 
@@ -48,4 +48,5 @@ public final class RemoveAllPagesAction extends Action {
     public void run() {
         this.view.removeAllPages();
     }
+
 }

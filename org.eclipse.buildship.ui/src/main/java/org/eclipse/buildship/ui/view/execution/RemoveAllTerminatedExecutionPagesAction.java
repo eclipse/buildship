@@ -23,29 +23,22 @@
 package org.eclipse.buildship.ui.view.execution;
 
 import com.google.common.base.Preconditions;
-import org.eclipse.buildship.ui.PluginImage.ImageState;
-import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.view.MultiPageView;
+import org.eclipse.buildship.ui.view.RemoveAllPagesAction;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.jface.action.Action;
 
 /**
  * Removes all {@link org.eclipse.buildship.ui.view.Page} elements from the target {@link org.eclipse.buildship.ui.view.MultiPageView}.
  */
-public final class RemoveAllTerminatedExecutionPagesAction extends Action {
+public final class RemoveAllTerminatedExecutionPagesAction extends RemoveAllPagesAction {
 
     private final ExecutionPage page;
-    private final MultiPageView view;
 
     public RemoveAllTerminatedExecutionPagesAction(ExecutionPage page, MultiPageView view) {
+        super(view, ExecutionsViewMessages.Action_RemoveAllExecutionPages_Tooltip);
         this.page = Preconditions.checkNotNull(page);
-        this.view = Preconditions.checkNotNull(view);
-
-        setToolTipText(ExecutionsViewMessages.Action_RemoveAllExecutionPages_Tooltip);
-        setImageDescriptor(PluginImages.REMOVE_ALL_PAGES.withState(ImageState.ENABLED).getImageDescriptor());
-        setDisabledImageDescriptor(PluginImages.REMOVE_ALL_PAGES.withState(ImageState.DISABLED).getImageDescriptor());
 
         registerJobChangeListener();
     }
@@ -60,11 +53,6 @@ public final class RemoveAllTerminatedExecutionPagesAction extends Action {
             }
         });
         setEnabled(job.getState() == Job.NONE);
-    }
-
-    @Override
-    public void run() {
-        this.view.removeAllPages();
     }
 
 }

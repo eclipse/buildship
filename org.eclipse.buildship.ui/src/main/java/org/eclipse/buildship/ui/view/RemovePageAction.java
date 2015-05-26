@@ -32,7 +32,7 @@ import org.eclipse.buildship.ui.PluginImages;
 /**
  * Removes the target {@link Page} from the {@link MultiPageView} to which this page belongs.
  */
-public final class RemovePageAction extends Action {
+public class RemovePageAction extends Action {
 
     private final Page page;
 
@@ -42,6 +42,10 @@ public final class RemovePageAction extends Action {
         setToolTipText(tooltip);
         setImageDescriptor(PluginImages.REMOVE_PAGE.withState(ImageState.ENABLED).getImageDescriptor());
         setDisabledImageDescriptor(PluginImages.REMOVE_PAGE.withState(ImageState.DISABLED).getImageDescriptor());
+    }
+
+    protected Page getPage() {
+        return this.page;
     }
 
     @Override

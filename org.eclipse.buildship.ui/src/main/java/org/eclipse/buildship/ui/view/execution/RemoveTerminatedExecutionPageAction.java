@@ -22,35 +22,25 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import com.google.common.base.Preconditions;
-import org.eclipse.buildship.ui.PluginImage.ImageState;
-import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.view.MultiPageView;
+import org.eclipse.buildship.ui.view.RemovePageAction;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.jface.action.Action;
 
 /**
  * Removes the target {@link org.eclipse.buildship.ui.view.execution.ExecutionPage} from the
  * {@link org.eclipse.buildship.ui.view.MultiPageView} to which this page belongs.
  */
-public final class RemoveTerminatedExecutionPageAction extends Action {
-
-    private final ExecutionPage page;
+public final class RemoveTerminatedExecutionPageAction extends RemovePageAction {
 
     public RemoveTerminatedExecutionPageAction(ExecutionPage page) {
-        this.page = Preconditions.checkNotNull(page);
-
-        setToolTipText(ExecutionsViewMessages.Action_RemoveExecutionPage_Tooltip);
-        setImageDescriptor(PluginImages.REMOVE_PAGE.withState(ImageState.ENABLED).getImageDescriptor());
-        setDisabledImageDescriptor(PluginImages.REMOVE_PAGE.withState(ImageState.DISABLED).getImageDescriptor());
+        super(page, ExecutionsViewMessages.Action_RemoveExecutionPage_Tooltip);
 
         registerJobChangeListener();
     }
 
     private void registerJobChangeListener() {
-        Job job = this.page.getBuildJob();
+        Job job = ((ExecutionPage) getPage()).getBuildJob();
         job.addJobChangeListener(new JobChangeAdapter() {
 
             @Override
@@ -59,12 +49,6 @@ public final class RemoveTerminatedExecutionPageAction extends Action {
             }
         });
         setEnabled(job.getState() == Job.NONE);
-    }
-
-    @Override
-    public void run() {
-        MultiPageView view = (MultiPageView) this.page.getSite().getViewSite().getPart();
-        view.removePage(this.page);
     }
 
 }
