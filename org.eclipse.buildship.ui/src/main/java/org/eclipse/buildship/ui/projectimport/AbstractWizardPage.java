@@ -13,11 +13,11 @@ package org.eclipse.buildship.ui.projectimport;
 
 import java.util.List;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
-
 import com.gradleware.tooling.toolingutils.binding.Property;
 import com.gradleware.tooling.toolingutils.binding.ValidationListener;
+
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -153,6 +153,11 @@ public abstract class AbstractWizardPage extends WizardPage {
         if (contextInformation != null) {
             createWidgetsForContextInformation(container, contextInformation);
         }
+
+        // also compute the size of the container, otherwise the ScrolledComposite's content is not
+        // rendered properly
+        Point containerSize = container.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+        container.setSize(containerSize);
 
         // set the root's content and return it
         externalRoot.setContent(container);
