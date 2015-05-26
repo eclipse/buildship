@@ -22,7 +22,6 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import org.eclipse.buildship.ui.view.MultiPageView;
 import org.eclipse.buildship.ui.view.RemoveAllPagesAction;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
