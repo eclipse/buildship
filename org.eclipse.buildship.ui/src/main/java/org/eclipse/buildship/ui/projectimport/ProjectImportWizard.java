@@ -42,9 +42,9 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
     private static final String IMPORT_DIALOG_SETTINGS = "org.eclipse.buildship.ui.projectimport"; //$NON-NLS-1$
 
     /**
-     * Preference key for boolean preference whether the welcome page should be part of the wizard
+     * Preference key that flags whether the welcome page should be shown as part of the import wizard.
      */
-    private static final String SHOW_WELCOME_PAGE_PREFERENCE_KEY = "org.eclipse.builship.ui.projectimport.showwelcomepage"; //$NON-NLS-1$
+    private static final String PREF_SHOW_WELCOME_PAGE = "org.eclipse.buildship.ui.projectimport.showWelcomePage"; //$NON-NLS-1$
 
     // the pages to display in the wizard
     private final GradleWelcomeWizardPage welcomeWizardPage;
@@ -106,7 +106,7 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
     @Override
     public void addPages() {
         // assign wizard pages to this wizard
-        if (isWelcomePageEnabled()) {
+        if (isShowWelcomePage()) {
             addPage(this.welcomeWizardPage);
         }
         addPage(this.gradleProjectPage);
@@ -120,19 +120,19 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
         setHelpAvailable(true);
     }
 
-    public boolean isWelcomePageEnabled() {
-        // store the enablement in the configuration scope to have the same settings for all workspaces
+    public boolean isShowWelcomePage() {
+        // store the in the configuration scope to have the same settings for all workspaces
         @SuppressWarnings("deprecation")
         ConfigurationScope configurationScope = new ConfigurationScope();
-        IEclipsePreferences node = configurationScope.getNode(CorePlugin.PLUGIN_ID);
-        return node.getBoolean(SHOW_WELCOME_PAGE_PREFERENCE_KEY, true);
+        IEclipsePreferences node = configurationScope.getNode(UiPlugin.PLUGIN_ID);
+        return node.getBoolean(PREF_SHOW_WELCOME_PAGE, true);
     }
 
     public void setWelcomePageEnabled(boolean value) {
         @SuppressWarnings("deprecation")
         ConfigurationScope configurationScope = new ConfigurationScope();
-        IEclipsePreferences node = configurationScope.getNode(CorePlugin.PLUGIN_ID);
-        node.putBoolean(SHOW_WELCOME_PAGE_PREFERENCE_KEY, value);
+        IEclipsePreferences node = configurationScope.getNode(UiPlugin.PLUGIN_ID);
+        node.putBoolean(PREF_SHOW_WELCOME_PAGE, value);
         try {
             node.flush();
         } catch (BackingStoreException e) {
