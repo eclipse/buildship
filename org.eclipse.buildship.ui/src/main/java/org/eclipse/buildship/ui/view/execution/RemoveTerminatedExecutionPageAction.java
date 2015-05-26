@@ -45,10 +45,14 @@ public final class RemoveTerminatedExecutionPageAction extends RemovePageAction 
 
             @Override
             public void done(IJobChangeEvent event) {
-                RemoveTerminatedExecutionPageAction.this.setEnabled(true);
+                enableIfCloseable();
             }
         });
-        setEnabled(job.getState() == Job.NONE);
+        enableIfCloseable();
+    }
+
+    private void enableIfCloseable() {
+        setEnabled(getPage().isCloseable());
     }
 
 }

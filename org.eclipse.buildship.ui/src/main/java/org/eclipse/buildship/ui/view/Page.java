@@ -66,6 +66,13 @@ public interface Page extends IAdaptable {
     PageSite getSite();
 
     /**
+     * Returns whether the page is in a state that it can be closed.
+     *
+     * @return {@code true} if the page can be closed
+     */
+    boolean isCloseable();
+
+    /**
      * Sets the focus on the main control of the page.
      * <p/>
      * If the page has not yet been created this method does nothing.

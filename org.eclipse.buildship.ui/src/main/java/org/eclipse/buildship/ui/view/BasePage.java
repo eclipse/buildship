@@ -47,6 +47,11 @@ public abstract class BasePage<T extends Control> implements Page {
     }
 
     @Override
+    public boolean isCloseable() {
+        return true;
+    }
+
+    @Override
     public void setFocus() {
         if (this.rootControl != null) {
             this.rootControl.setFocus();

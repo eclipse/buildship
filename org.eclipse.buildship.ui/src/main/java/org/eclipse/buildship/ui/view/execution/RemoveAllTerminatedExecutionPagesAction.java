@@ -49,10 +49,14 @@ public final class RemoveAllTerminatedExecutionPagesAction extends RemoveAllPage
 
             @Override
             public void done(IJobChangeEvent event) {
-                RemoveAllTerminatedExecutionPagesAction.this.setEnabled(true);
+                enableIfCloseable();
             }
         });
-        setEnabled(job.getState() == Job.NONE);
+        enableIfCloseable();
+    }
+
+    private void enableIfCloseable() {
+        setEnabled(this.page.isCloseable());
     }
 
 }

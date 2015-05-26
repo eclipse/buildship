@@ -195,6 +195,11 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     }
 
     @Override
+    public boolean isCloseable() {
+        return this.buildJob.getState() == Job.NONE;
+    }
+
+    @Override
     public NodeSelection getSelection() {
         return this.selectionHistoryManager.getSelectionHistory();
     }
