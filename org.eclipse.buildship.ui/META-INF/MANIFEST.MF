@@ -22,6 +22,7 @@ Require-Bundle: org.eclipse.buildship.core,
  org.eclipse.jdt.ui,
  org.eclipse.jface.databinding,
  com.ibm.icu,
+ org.eclipse.jface.text,
  com.gradleware.tooling.model;bundle-version="[0.3.0,0.4.0)"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
