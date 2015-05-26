@@ -43,7 +43,7 @@ public final class OperationItemConfigurator {
             OperationResult result = ((FinishEvent) event).getResult();
             DecimalFormat durationFormat = new DecimalFormat("#0.000"); //$NON-NLS-1$
             String duration = durationFormat.format((result.getEndTime() - result.getStartTime()) / 1000.0);
-            operationItem.setDuration(NLS.bind(ExecutionsViewMessages.Tree_Item_Operation_Finished_In_Sec_Text, duration));
+            operationItem.setDuration(NLS.bind(ExecutionsViewMessages.Tree_Item_Operation_Finished_In_0_Sec_Text, duration));
             if (result instanceof FailureResult) {
                 operationItem.setImage(PluginImages.OPERATION_FAILURE.withState(PluginImage.ImageState.ENABLED).getImageDescriptor());
             } else if (result instanceof SkippedResult) {
