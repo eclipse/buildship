@@ -145,7 +145,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
             public IClasspathEntry apply(OmniExternalDependency dependency) {
                 IPath jar = org.eclipse.core.runtime.Path.fromOSString(dependency.getFile().getAbsolutePath());
                 IPath sourceJar = dependency.getSource() != null ? org.eclipse.core.runtime.Path.fromOSString(dependency.getSource().getAbsolutePath()) : null;
-                return JavaCore.newLibraryEntry(jar, sourceJar, null, true);
+                return JavaCore.newLibraryEntry(jar, sourceJar, null, dependency.isExported());
             }
         }).toList();
 
