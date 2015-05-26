@@ -48,11 +48,6 @@ public final class RemoveTerminatedExecutionPageAction extends RemovePageAction 
                 enableIfCloseable();
             }
         });
-        enableIfCloseable();
-    }
-
-    private void enableIfCloseable() {
-        setEnabled(getPage().isCloseable());
     }
 
 }

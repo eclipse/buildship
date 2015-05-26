@@ -42,16 +42,23 @@ public class RemovePageAction extends Action {
         setToolTipText(tooltip);
         setImageDescriptor(PluginImages.REMOVE_PAGE.withState(ImageState.ENABLED).getImageDescriptor());
         setDisabledImageDescriptor(PluginImages.REMOVE_PAGE.withState(ImageState.DISABLED).getImageDescriptor());
+        enableIfCloseable();
     }
 
     protected Page getPage() {
         return this.page;
     }
 
+    protected void enableIfCloseable() {
+        setEnabled(this.page.isCloseable());
+    }
+
     @Override
     public void run() {
         MultiPageView view = (MultiPageView) this.page.getSite().getViewSite().getPart();
-        view.removePage(this.page);
+        if (this.page.isCloseable()) {
+            view.removePage(this.page);
+        }
     }
 
 }
