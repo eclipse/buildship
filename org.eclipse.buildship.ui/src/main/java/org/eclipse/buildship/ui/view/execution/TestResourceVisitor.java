@@ -30,8 +30,8 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.eclipse.ui.texteditor.ITextEditor;
 
 import org.eclipse.buildship.ui.UiPlugin;
 
@@ -84,8 +84,8 @@ public class TestResourceVisitor implements IResourceVisitor {
                     }
 
                     private void selectClassOrMethodInEditor(IEditorPart openEditor) throws BadLocationException {
-                        if (openEditor instanceof AbstractTextEditor) {
-                            AbstractTextEditor textEditor = (AbstractTextEditor) openEditor;
+                        if (openEditor instanceof ITextEditor) {
+                            ITextEditor textEditor = (ITextEditor) openEditor;
                             IDocumentProvider documentProvider = textEditor.getDocumentProvider();
                             IDocument document = documentProvider.getDocument(textEditor.getEditorInput());
 
