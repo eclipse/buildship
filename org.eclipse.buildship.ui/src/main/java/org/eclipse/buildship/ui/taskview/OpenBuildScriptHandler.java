@@ -14,14 +14,9 @@ package org.eclipse.buildship.ui.taskview;
 import com.google.common.base.Optional;
 import com.gradleware.tooling.toolingmodel.OmniGradleScript;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
-import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.generic.NodeSelection;
+import org.eclipse.buildship.ui.util.editor.EditorUtils;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.ui.IEditorDescriptor;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.handlers.HandlerUtil;
-import org.eclipse.ui.ide.IDE;
 
 import java.io.File;
 
@@ -41,8 +36,7 @@ public final class OpenBuildScriptHandler extends SelectionDependentHandler {
         for (ProjectNode projectNode : selectionHistory.getNodes(ProjectNode.class)) {
             Optional<File> buildScript = getBuildScriptFor(projectNode);
             if (buildScript.isPresent()) {
-                IWorkbenchPage page = HandlerUtil.getActiveWorkbenchWindow(event).getActivePage();
-                openBuildScript(page, buildScript.get());
+                EditorUtils.openInInternalEditor(buildScript.get(), true);
             }
         }
         return null;
@@ -51,31 +45,6 @@ public final class OpenBuildScriptHandler extends SelectionDependentHandler {
     private Optional<File> getBuildScriptFor(ProjectNode projectNode) {
         Maybe<OmniGradleScript> buildScript = projectNode.getGradleProject().getBuildScript();
         return buildScript.isPresent() ? Optional.fromNullable(buildScript.get().getSourceFile()) : Optional.<File>absent();
-    }
-
-    private void openBuildScript(IWorkbenchPage page, File buildScript) {
-        String editorId;
-        IEditorDescriptor desc = getEditorDescriptor(buildScript);
-        if (desc == null || !desc.isInternal()) {
-            editorId = "org.eclipse.ui.DefaultTextEditor"; //$NON-NLS-1$
-        } else {
-            editorId = desc.getId();
-        }
-
-        try {
-            IDE.openEditor(page, buildScript.toURI(), editorId, true);
-        } catch (PartInitException e) {
-            UiPlugin.logger().error(String.format("Cannot open Gradle build file %s.", buildScript.getAbsolutePath()), e); //$NON-NLS-1$        }
-        }
-    }
-
-    private IEditorDescriptor getEditorDescriptor(File buildScript) {
-        try {
-            return IDE.getEditorDescriptor(buildScript.getName());
-        } catch (PartInitException e) {
-            // thrown if no editor can be found
-            return null;
-        }
     }
 
 }
