@@ -58,19 +58,19 @@ public class TestResourceVisitor implements IResourceVisitor {
 
     @Override
     public boolean visit(final IResource resource) throws CoreException {
-        if (resource.getType() == IResource.FILE && fileExtensions.contains(resource.getFileExtension())) {
+        if (resource.getType() == IResource.FILE && this.fileExtensions.contains(resource.getFileExtension())) {
             // map dots of qualified className to resource separators
-            String classNameToPath = className.replaceAll(Pattern.quote("."), "/");
+            String classNameToPath = this.className.replaceAll(Pattern.quote("."), "/");
             String projectRelativePath = resource.getProjectRelativePath().toString();
             // ignore resources in the bin folder and find out whether the path of the resource fits
-            // to the given classname
+            // to the given class name
             if (!projectRelativePath.startsWith(BIN_FOLDER_NAME) && projectRelativePath.contains(classNameToPath)) {
-                display.asyncExec(new Runnable() {
+                this.display.asyncExec(new Runnable() {
 
                     @Override
                     public void run() {
                         IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-                        IFile file = (IFile) resource.getAdapter(IFile.class);
+                        IFile file = resource.getAdapter(IFile.class);
                         if (file != null) {
                             try {
                                 IEditorPart openEditor = IDE.openEditor(activePage, file);
@@ -90,7 +90,7 @@ public class TestResourceVisitor implements IResourceVisitor {
                             IDocument document = documentProvider.getDocument(textEditor.getEditorInput());
 
                             FindReplaceDocumentAdapter findReplaceDocumentAdapter = new FindReplaceDocumentAdapter(document);
-                            String methodOrClass = methodName != null ? methodName : Files.getNameWithoutExtension(resource.getName());
+                            String methodOrClass = TestResourceVisitor.this.methodName != null ? TestResourceVisitor.this.methodName : Files.getNameWithoutExtension(resource.getName());
                             IRegion find = findReplaceDocumentAdapter.find(0, methodOrClass, true, true, false, false);
                             if (find != null) {
                                 textEditor.selectAndReveal(find.getOffset(), find.getLength());
@@ -103,4 +103,5 @@ public class TestResourceVisitor implements IResourceVisitor {
         }
         return true;
     }
+
 }
