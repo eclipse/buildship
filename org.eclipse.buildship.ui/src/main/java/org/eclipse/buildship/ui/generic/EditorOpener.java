@@ -48,7 +48,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
  * to open editors within the IDE and also allows to reuse the editor instance.
  *
  */
-public class EditorOpener {
+public final class EditorOpener {
 
 	private IEditorReference fReusedEditor;
 
@@ -60,7 +60,7 @@ public class EditorOpener {
 	}
 
     public IEditorPart openAndSelect(IWorkbenchPage wbPage, IFile file, int offset, int length, boolean reuseEditor, boolean activate) throws PartInitException {
-		String editorId= null;
+		String editorId;
 		IEditorDescriptor desc= IDE.getEditorDescriptor(file);
 		if (desc == null || !desc.isInternal()) {
 			editorId= "org.eclipse.ui.DefaultTextEditor"; //$NON-NLS-1$
@@ -107,7 +107,7 @@ public class EditorOpener {
 			}
 			return editor;
 		}
-		IEditorReference reusedEditorRef= fReusedEditor;
+		IEditorReference reusedEditorRef= this.fReusedEditor;
 		if (reusedEditorRef !=  null) {
 			boolean isOpen= reusedEditorRef.getEditor(false) != null;
 			boolean canBeReused= isOpen && !reusedEditorRef.isDirty() && !reusedEditorRef.isPinned();
@@ -115,7 +115,7 @@ public class EditorOpener {
 				boolean showsSameInputType= reusedEditorRef.getId().equals(editorId);
 				if (!showsSameInputType) {
 					page.closeEditors(new IEditorReference[] { reusedEditorRef }, false);
-					fReusedEditor= null;
+                    this.fReusedEditor = null;
 				} else {
 					editor= reusedEditorRef.getEditor(true);
 					if (editor instanceof IReusableEditor) {
@@ -131,10 +131,9 @@ public class EditorOpener {
 		}
 		editor= page.openEditor(input, editorId, activate);
 		if (editor instanceof IReusableEditor) {
-			IEditorReference reference= (IEditorReference) page.getReference(editor);
-			fReusedEditor= reference;
+            this.fReusedEditor = (IEditorReference) page.getReference(editor);
 		} else {
-			fReusedEditor= null;
+            this.fReusedEditor = null;
 		}
 		return editor;
 	}
@@ -145,8 +144,8 @@ public class EditorOpener {
             Bundle bundle = FrameworkUtil.getBundle(getClass());
             marker = file.createMarker(bundle.getSymbolicName() + "navigationmarker"); //$NON-NLS-1$
             Map<String, Integer> attributes = new HashMap<String, Integer>(4);
-			attributes.put(IMarker.CHAR_START, new Integer(offset));
-			attributes.put(IMarker.CHAR_END, new Integer(offset + length));
+			attributes.put(IMarker.CHAR_START, offset);
+			attributes.put(IMarker.CHAR_END, offset + length);
 			marker.setAttributes(attributes);
 			IDE.gotoMarker(editor, marker);
 		} catch (CoreException e) {
