@@ -71,7 +71,7 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
         PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
             @Override
             public void run() {
-                @SuppressWarnings("cast")
+                @SuppressWarnings({"cast", "RedundantCast"})
                 TreeViewer treeViewer = (TreeViewer) ExecutionProgressListener.this.executionPage.getAdapter(TreeViewer.class);
                 treeViewer.expandToLevel(operationItem, AbstractTreeViewer.ALL_LEVELS);
             }
