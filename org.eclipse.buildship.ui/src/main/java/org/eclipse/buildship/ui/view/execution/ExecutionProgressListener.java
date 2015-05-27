@@ -46,11 +46,9 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
         // create or get the OperationItem for the descriptor of the given progress event
         OperationDescriptor descriptor = progressEvent.getDescriptor();
         OperationItem operationItem = this.executionItemMap.get(descriptor);
-        boolean createdNewOperationItem = false;
         if (null == operationItem) {
             operationItem = new OperationItem((StartEvent) progressEvent);
             this.executionItemMap.put(descriptor, operationItem);
-            createdNewOperationItem = true;
         } else {
             operationItem.setFinishEvent((FinishEvent) progressEvent);
         }
@@ -62,8 +60,8 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
         OperationItem parentExecutionItem = this.executionItemMap.get(descriptor.getParent());
         parentExecutionItem.addChild(operationItem);
 
-        // ensure the newly added node is made visible
-        if (createdNewOperationItem) {
+        // ensure that if it is a newly added node it is made visible
+        if (operationItem.getFinishEvent() == null) {
             makeNodeVisible(operationItem);
         }
     }

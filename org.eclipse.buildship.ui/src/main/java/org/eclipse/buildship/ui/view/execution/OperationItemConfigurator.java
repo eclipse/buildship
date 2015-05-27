@@ -21,14 +21,14 @@ import org.gradle.tooling.events.test.TestOperationDescriptor;
 import java.text.DecimalFormat;
 
 /**
- * Configures an {@code OperationItem} instance from an event belonging associated with that item.
+ * Configures an {@code OperationItem} instance.
  */
 public final class OperationItemConfigurator {
 
     public void configure(OperationItem operationItem) {
         FinishEvent finishEvent = operationItem.getFinishEvent();
         if (finishEvent == null) {
-            displayOperationSpecificName(operationItem, operationItem.getStartEvent());
+            operationItem.setName(getOperationSpecificName(operationItem.getStartEvent()));
             operationItem.setDuration(ExecutionsViewMessages.Tree_Item_Operation_Started_Text);
         } else {
             OperationResult result = finishEvent.getResult();
@@ -45,12 +45,14 @@ public final class OperationItemConfigurator {
         }
     }
 
-    private void displayOperationSpecificName(OperationItem operationItem, ProgressEvent event) {
+    private String getOperationSpecificName(ProgressEvent event) {
         OperationDescriptor descriptor = event.getDescriptor();
-        if (descriptor instanceof TestOperationDescriptor) {
-            operationItem.setName(descriptor.getName());
-        } else if (descriptor instanceof TaskOperationDescriptor) {
-            operationItem.setName(((TaskOperationDescriptor) descriptor).getTaskPath());
+        if (descriptor instanceof TaskOperationDescriptor) {
+            return ((TaskOperationDescriptor) descriptor).getTaskPath();
+        } else if (descriptor instanceof TestOperationDescriptor) {
+            return descriptor.getName();
+        } else {
+            return descriptor.getDisplayName();
         }
     }
 
