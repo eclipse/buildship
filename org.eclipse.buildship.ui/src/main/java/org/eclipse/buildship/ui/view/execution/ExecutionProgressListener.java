@@ -49,7 +49,7 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
         OperationItem operationItem = this.executionItemMap.get(descriptor);
         boolean createdNewOperationItem = false;
         if (null == operationItem) {
-            operationItem = new OperationItem(descriptor);
+            operationItem = new OperationItem(progressEvent);
             this.executionItemMap.put(descriptor, operationItem);
             createdNewOperationItem = true;
         }

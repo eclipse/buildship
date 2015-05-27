@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.gradle.tooling.events.OperationDescriptor;
+import org.gradle.tooling.events.ProgressEvent;
 
 import java.util.List;
 
@@ -50,23 +51,23 @@ public final class OperationItem extends ObservableItem implements IAdaptable {
     public static final String FIELD_IMAGE = "image";       //$NON-NLS-1$
     public static final String FIELD_CHILDREN = "children"; //$NON-NLS-1$
 
-    private final OperationDescriptor operationDescriptor;
+    private final ProgressEvent startEvent;
     private String name;
     private String duration;
     private ImageDescriptor image;
     private List<OperationItem> children;
 
     public OperationItem() {
-        this.operationDescriptor = null;
+        this.startEvent = null;
         this.name = null;
         this.duration = null;
         this.image = null;
         this.children = Lists.newArrayList();
     }
 
-    public OperationItem(OperationDescriptor operationDescriptor) {
-        this.operationDescriptor = Preconditions.checkNotNull(operationDescriptor);
-        this.name = operationDescriptor.getDisplayName();
+    public OperationItem(ProgressEvent startEvent) {
+        this.startEvent = Preconditions.checkNotNull(startEvent);
+        this.name = startEvent.getDescriptor().getDisplayName();
         this.duration = null;
         this.image = null;
         this.children = Lists.newArrayList();
@@ -129,7 +130,7 @@ public final class OperationItem extends ObservableItem implements IAdaptable {
     @Override
     public Object getAdapter(Class adapter) {
         if (OperationDescriptor.class.equals(adapter)) {
-            return this.operationDescriptor;
+            return this.startEvent.getDescriptor();
         } else {
             return Platform.getAdapterManager().getAdapter(this, adapter);
         }
