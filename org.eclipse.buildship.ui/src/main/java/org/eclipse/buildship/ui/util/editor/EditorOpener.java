@@ -53,7 +53,7 @@ public final class EditorOpener {
         }
     }
 
-    public IEditorPart openAndSelect(IWorkbenchPage page, IFile file, int offset, int length, boolean reuseEditor, boolean activate) throws PartInitException {
+    public IEditorPart openAndSelect(IWorkbenchPage page, IFile file, boolean reuseEditor, boolean activate) throws PartInitException {
         String editorId;
         IEditorDescriptor desc = IDE.getEditorDescriptor(file);
         if (desc == null || !desc.isInternal()) {
@@ -68,7 +68,11 @@ public final class EditorOpener {
         } else {
             editor = showWithoutReuse(page, file, editorId, activate);
         }
+        return editor;
+    }
 
+    public IEditorPart openAndSelect(IWorkbenchPage page, IFile file, int offset, int length, boolean reuseEditor, boolean activate) throws PartInitException {
+        IEditorPart editor = openAndSelect(page, file, reuseEditor, activate);
         if (editor instanceof ITextEditor) {
             ITextEditor textEditor = (ITextEditor) editor;
             textEditor.selectAndReveal(offset, length);
