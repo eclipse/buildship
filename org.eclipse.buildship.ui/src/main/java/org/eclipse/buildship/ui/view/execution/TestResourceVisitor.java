@@ -11,11 +11,8 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import java.util.Collection;
-import java.util.regex.Pattern;
-
 import com.google.common.io.Files;
-
+import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
@@ -25,15 +22,14 @@ import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.*;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import org.eclipse.buildship.ui.UiPlugin;
+import java.util.Collection;
+import java.util.regex.Pattern;
 
 /**
  * This {@link IResourceVisitor} looks up IResources in the workspace, which fit to the given
@@ -74,7 +70,10 @@ public class TestResourceVisitor implements IResourceVisitor {
                         IFile file = (IFile) resource.getAdapter(IFile.class);
                         if (file != null) {
                             try {
-                                IEditorPart openEditor = IDE.openEditor(activePage, file);
+                                IEditorRegistry editorReg = PlatformUI.getWorkbench().getEditorRegistry();
+                                IEditorDescriptor editor = editorReg.findEditor(IDEWorkbenchPlugin.DEFAULT_TEXT_EDITOR_ID);
+
+                                IEditorPart openEditor = IDE.openEditor(activePage, file, editor.getId(),true);
                                 selectClassOrMethodInEditor(openEditor);
                             } catch (PartInitException e) {
                                 UiPlugin.logger().error(e.getMessage(), e);
