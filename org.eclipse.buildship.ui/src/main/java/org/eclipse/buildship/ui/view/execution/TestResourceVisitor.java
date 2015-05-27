@@ -77,11 +77,7 @@ public class TestResourceVisitor implements IResourceVisitor {
                                 if (targetRegion != null) {
                                     TestResourceVisitor.this.editorOpener.openAndSelect(activePage, file, targetRegion.getOffset(), targetRegion.getLength(), true, true);
                                 }
-                            } catch (PartInitException e) {
-                                UiPlugin.logger().error(e.getMessage(), e);
-                            } catch (BadLocationException e) {
-                                UiPlugin.logger().error(e.getMessage(), e);
-                            } catch (CoreException e) {
+                            } catch (Exception e) {
                                 UiPlugin.logger().error(e.getMessage(), e);
                             }
                         }
