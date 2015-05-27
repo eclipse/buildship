@@ -18,8 +18,9 @@ import org.eclipse.buildship.ui.view.ObservableItem;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.gradle.tooling.events.FinishEvent;
 import org.gradle.tooling.events.OperationDescriptor;
-import org.gradle.tooling.events.ProgressEvent;
+import org.gradle.tooling.events.StartEvent;
 
 import java.util.List;
 
@@ -51,7 +52,8 @@ public final class OperationItem extends ObservableItem implements IAdaptable {
     public static final String FIELD_IMAGE = "image";       //$NON-NLS-1$
     public static final String FIELD_CHILDREN = "children"; //$NON-NLS-1$
 
-    private final ProgressEvent startEvent;
+    private final StartEvent startEvent;
+    private FinishEvent finishEvent;
     private String name;
     private String duration;
     private ImageDescriptor image;
@@ -59,18 +61,32 @@ public final class OperationItem extends ObservableItem implements IAdaptable {
 
     public OperationItem() {
         this.startEvent = null;
+        this.finishEvent = null;
         this.name = null;
         this.duration = null;
         this.image = null;
         this.children = Lists.newArrayList();
     }
 
-    public OperationItem(ProgressEvent startEvent) {
+    public OperationItem(StartEvent startEvent) {
         this.startEvent = Preconditions.checkNotNull(startEvent);
+        this.finishEvent = null;
         this.name = startEvent.getDescriptor().getDisplayName();
         this.duration = null;
         this.image = null;
         this.children = Lists.newArrayList();
+    }
+
+    public StartEvent getStartEvent() {
+        return this.startEvent;
+    }
+
+    public FinishEvent getFinishEvent() {
+        return this.finishEvent;
+    }
+
+    public void setFinishEvent(FinishEvent finishEvent) {
+        this.finishEvent = finishEvent;
     }
 
     @SuppressWarnings("UnusedDeclaration")

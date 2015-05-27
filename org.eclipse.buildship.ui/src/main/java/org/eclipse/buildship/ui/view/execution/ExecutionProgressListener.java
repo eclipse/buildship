@@ -11,19 +11,18 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import java.util.Map;
-
-import org.gradle.tooling.events.OperationDescriptor;
-import org.gradle.tooling.events.ProgressEvent;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-
+import org.eclipse.buildship.ui.view.Page;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.PlatformUI;
+import org.gradle.tooling.events.FinishEvent;
+import org.gradle.tooling.events.OperationDescriptor;
+import org.gradle.tooling.events.ProgressEvent;
+import org.gradle.tooling.events.StartEvent;
 
-import org.eclipse.buildship.ui.view.Page;
+import java.util.Map;
 
 /**
  * Listens to {@link org.gradle.tooling.events.ProgressEvent} instances that are sent by the Tooling API while a build is executed. Each
@@ -49,13 +48,15 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
         OperationItem operationItem = this.executionItemMap.get(descriptor);
         boolean createdNewOperationItem = false;
         if (null == operationItem) {
-            operationItem = new OperationItem(progressEvent);
+            operationItem = new OperationItem((StartEvent) progressEvent);
             this.executionItemMap.put(descriptor, operationItem);
             createdNewOperationItem = true;
+        } else {
+            operationItem.setFinishEvent((FinishEvent) progressEvent);
         }
 
         // configure the operation item based on the event details
-        this.operationItemConfigurator.configure(operationItem, progressEvent);
+        this.operationItemConfigurator.configure(operationItem);
 
         // attach to parent, if this is a new operation (in case of StartEvent)
         OperationItem parentExecutionItem = this.executionItemMap.get(descriptor.getParent());

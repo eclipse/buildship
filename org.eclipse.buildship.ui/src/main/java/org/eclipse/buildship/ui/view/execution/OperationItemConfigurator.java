@@ -11,36 +11,27 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import java.text.DecimalFormat;
-
-import org.gradle.tooling.events.FailureResult;
-import org.gradle.tooling.events.FinishEvent;
-import org.gradle.tooling.events.OperationDescriptor;
-import org.gradle.tooling.events.OperationResult;
-import org.gradle.tooling.events.ProgressEvent;
-import org.gradle.tooling.events.SkippedResult;
-import org.gradle.tooling.events.StartEvent;
-import org.gradle.tooling.events.SuccessResult;
+import org.eclipse.buildship.ui.PluginImage;
+import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.osgi.util.NLS;
+import org.gradle.tooling.events.*;
 import org.gradle.tooling.events.task.TaskOperationDescriptor;
 import org.gradle.tooling.events.test.TestOperationDescriptor;
 
-import org.eclipse.osgi.util.NLS;
-
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.ui.PluginImage;
-import org.eclipse.buildship.ui.PluginImages;
+import java.text.DecimalFormat;
 
 /**
  * Configures an {@code OperationItem} instance from an event belonging associated with that item.
  */
 public final class OperationItemConfigurator {
 
-    public void configure(OperationItem operationItem, ProgressEvent event) {
-        if (event instanceof StartEvent) {
-            displayOperationSpecificName(operationItem, event);
+    public void configure(OperationItem operationItem) {
+        FinishEvent finishEvent = operationItem.getFinishEvent();
+        if (finishEvent == null) {
+            displayOperationSpecificName(operationItem, operationItem.getStartEvent());
             operationItem.setDuration(ExecutionsViewMessages.Tree_Item_Operation_Started_Text);
-        } else if (event instanceof FinishEvent) {
-            OperationResult result = ((FinishEvent) event).getResult();
+        } else {
+            OperationResult result = finishEvent.getResult();
             DecimalFormat durationFormat = new DecimalFormat("#0.000"); //$NON-NLS-1$
             String duration = durationFormat.format((result.getEndTime() - result.getStartTime()) / 1000.0);
             operationItem.setDuration(NLS.bind(ExecutionsViewMessages.Tree_Item_Operation_Finished_In_0_Sec_Text, duration));
@@ -51,8 +42,6 @@ public final class OperationItemConfigurator {
             } else if (result instanceof SuccessResult) {
                 operationItem.setImage(PluginImages.OPERATION_SUCCESS.withState(PluginImage.ImageState.ENABLED).getImageDescriptor());
             }
-        } else {
-            throw new GradlePluginsRuntimeException("Unsupported event type: " + event.getClass());
         }
     }
 
