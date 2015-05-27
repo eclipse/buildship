@@ -70,7 +70,8 @@ public class TestResourceVisitor implements IResourceVisitor {
                     @Override
                     public void run() {
                         IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-                        IFile file = resource.getAdapter(IFile.class);
+                        @SuppressWarnings({"cast", "RedundantCast"})
+                        IFile file = (IFile) resource.getAdapter(IFile.class);
                         if (file != null) {
                             try {
                                 IEditorPart openEditor = IDE.openEditor(activePage, file);
