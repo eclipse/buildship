@@ -25,18 +25,13 @@ import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IEditorDescriptor;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
-import org.eclipse.ui.texteditor.IDocumentProvider;
-import org.eclipse.ui.texteditor.ITextEditor;
+import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 
 import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.generic.EditorOpener;
 
 /**
  * This {@link IResourceVisitor} looks up IResources in the workspace, which fit to the given
@@ -50,11 +45,14 @@ public class TestResourceVisitor implements IResourceVisitor {
     private String className;
     private String methodName;
     private Collection<String> fileExtensions;
+    private EditorOpener editorOpener;
 
     public TestResourceVisitor(String qualifiedClassName, String methodName, Collection<String> fileExtensions) {
         this.className = qualifiedClassName;
         this.methodName = methodName;
         this.fileExtensions = fileExtensions;
+
+        this.editorOpener = new EditorOpener();
     }
 
     @Override
@@ -72,36 +70,44 @@ public class TestResourceVisitor implements IResourceVisitor {
                     @Override
                     public void run() {
                         IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-                        @SuppressWarnings({"cast", "RedundantCast"})
-                        IFile file = resource.getAdapter(IFile.class);
+                        @SuppressWarnings({ "cast", "RedundantCast" })
+                        IFile file = (IFile) resource.getAdapter(IFile.class);
                         if (file != null) {
                             try {
-                                IEditorRegistry editorReg = PlatformUI.getWorkbench().getEditorRegistry();
-                                IEditorDescriptor editor = editorReg.findEditor(IDEWorkbenchPlugin.DEFAULT_TEXT_EDITOR_ID);
-
-                                IEditorPart openEditor = IDE.openEditor(activePage, file, editor.getId(),true);
-                                selectClassOrMethodInEditor(openEditor);
+                                IRegion targetRegion = getClassOrMethodRegion(file);
+                                if (targetRegion != null) {
+                                    editorOpener.openAndSelect(activePage, file, targetRegion.getOffset(), targetRegion.getLength(), true, true);
+                                }
                             } catch (PartInitException e) {
                                 UiPlugin.logger().error(e.getMessage(), e);
                             } catch (BadLocationException e) {
+                                UiPlugin.logger().error(e.getMessage(), e);
+                            } catch (CoreException e) {
                                 UiPlugin.logger().error(e.getMessage(), e);
                             }
                         }
                     }
 
-                    private void selectClassOrMethodInEditor(IEditorPart openEditor) throws BadLocationException {
-                        if (openEditor instanceof ITextEditor) {
-                            ITextEditor textEditor = (ITextEditor) openEditor;
-                            IDocumentProvider documentProvider = textEditor.getDocumentProvider();
-                            IDocument document = documentProvider.getDocument(textEditor.getEditorInput());
+                    private IRegion getClassOrMethodRegion(IFile file) throws BadLocationException, CoreException {
+                        TextFileDocumentProvider textFileDocumentProvider = new TextFileDocumentProvider();
+                        textFileDocumentProvider.connect(file);
+                        IDocument document = textFileDocumentProvider.getDocument(file);
+                        FindReplaceDocumentAdapter findReplaceDocumentAdapter = new FindReplaceDocumentAdapter(document);
 
-                            FindReplaceDocumentAdapter findReplaceDocumentAdapter = new FindReplaceDocumentAdapter(document);
-                            String methodOrClass = TestResourceVisitor.this.methodName != null ? TestResourceVisitor.this.methodName : Files.getNameWithoutExtension(resource.getName());
-                            IRegion find = findReplaceDocumentAdapter.find(0, methodOrClass, true, true, false, false);
-                            if (find != null) {
-                                textEditor.selectAndReveal(find.getOffset(), find.getLength());
+                        IRegion targetRegion = null;
+                        if (TestResourceVisitor.this.methodName != null) {
+                            targetRegion = findReplaceDocumentAdapter.find(0, TestResourceVisitor.this.methodName, true, true, false, false);
+                            // sometimes the method name is generated and therefore cannot be found,
+                            // so we open the class here
+                            if (null == targetRegion) {
+                                targetRegion = findReplaceDocumentAdapter.find(0, Files.getNameWithoutExtension(resource.getName()), true, true, false, false);
                             }
+                        } else {
+                            // if there is no methodName, we simply open the class
+                            targetRegion = findReplaceDocumentAdapter.find(0, Files.getNameWithoutExtension(resource.getName()), true, true, false, false);
                         }
+
+                        return targetRegion;
                     }
                 });
                 return false;
