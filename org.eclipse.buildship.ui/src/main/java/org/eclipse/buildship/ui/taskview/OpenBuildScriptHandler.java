@@ -18,13 +18,10 @@ import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.generic.NodeSelection;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.ui.IEditorDescriptor;
-import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
 import java.io.File;
 
@@ -57,14 +54,27 @@ public final class OpenBuildScriptHandler extends SelectionDependentHandler {
     }
 
     private void openBuildScript(IWorkbenchPage page, File buildScript) {
-        IEditorRegistry editorReg = PlatformUI.getWorkbench().getEditorRegistry();
-        IEditorDescriptor editor = editorReg.findEditor(IDEWorkbenchPlugin.DEFAULT_TEXT_EDITOR_ID);
+        String editorId;
+        IEditorDescriptor desc = getEditorDescriptor(buildScript);
+        if (desc == null || !desc.isInternal()) {
+            editorId = "org.eclipse.ui.DefaultTextEditor"; //$NON-NLS-1$
+        } else {
+            editorId = desc.getId();
+        }
 
         try {
-            IDE.openEditor(page, buildScript.toURI(), editor.getId(), true);
+            IDE.openEditor(page, buildScript.toURI(), editorId, true);
         } catch (PartInitException e) {
-            // todo (etst) better error handling
-            UiPlugin.logger().error("Can't open build file", e); //$NON-NLS-1$
+            UiPlugin.logger().error(String.format("Cannot open Gradle build file %s.", buildScript.getAbsolutePath()), e); //$NON-NLS-1$        }
+        }
+    }
+
+    private IEditorDescriptor getEditorDescriptor(File buildScript) {
+        try {
+            return IDE.getEditorDescriptor(buildScript.getName());
+        } catch (PartInitException e) {
+            // thrown if no editor can be found
+            return null;
         }
     }
 
