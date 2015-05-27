@@ -13,9 +13,9 @@ package org.eclipse.buildship.ui.view.execution;
 
 import java.util.List;
 
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-
 import com.google.common.collect.ImmutableList;
+
+import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.beans.IBeanValueProperty;
@@ -166,7 +166,8 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         ExpandTreeNodesAction expandNodesAction = new ExpandTreeNodesAction(treeViewer);
         CollapseTreeNodesAction collapseNodesAction = new CollapseTreeNodesAction(treeViewer);
         OpenTestSourceFileAction openTestSourceFileAction = new OpenTestSourceFileAction(this);
-        return ImmutableList.<SelectionSpecificAction>of(expandNodesAction, collapseNodesAction, openTestSourceFileAction);
+        ShowFailureAction showTestFailureAction = new ShowFailureAction(this);
+        return ImmutableList.<SelectionSpecificAction>of(expandNodesAction, collapseNodesAction, openTestSourceFileAction, showTestFailureAction);
     }
 
     private void registerListeners() {
