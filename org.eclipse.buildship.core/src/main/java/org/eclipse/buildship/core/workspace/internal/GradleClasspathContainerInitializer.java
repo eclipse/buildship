@@ -121,14 +121,15 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
     private ImmutableList<IClasspathEntry> collectExternalDependencies(final OmniEclipseProject project) {
         // project dependencies
-        List<IClasspathEntry> projectDependencies = FluentIterable.from(collectProjectDependencies(project.getProjectDependencies(), project.getRoot()))
-                .transform(new Function<IPath, IClasspathEntry>() {
+        List<IClasspathEntry> projectDependencies = FluentIterable.from(project.getProjectDependencies()).transform(new Function<OmniEclipseProjectDependency, IClasspathEntry>() {
 
-                    @Override
-                    public IClasspathEntry apply(IPath dependency) {
-                        return JavaCore.newProjectEntry(dependency, true);
-                    }
-                }).toList();
+            @Override
+            public IClasspathEntry apply(OmniEclipseProjectDependency dependency) {
+                OmniEclipseProject dependentProject = project.getRoot().tryFind(Specs.eclipseProjectMatchesProjectPath(dependency.getTargetProjectPath())).get();
+                IPath path = new Path("/" + dependentProject.getName());
+                return JavaCore.newProjectEntry(path, dependency.isExported());
+            }
+        }).toList();
 
         // external dependencies
         List<IClasspathEntry> externalDependencies = FluentIterable.from(project.getExternalDependencies()).filter(new Predicate<OmniExternalDependency>() {
@@ -150,17 +151,6 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         }).toList();
 
         return ImmutableList.<IClasspathEntry>builder().addAll(projectDependencies).addAll(externalDependencies).build();
-    }
-
-    private ImmutableList<IPath> collectProjectDependencies(List<OmniEclipseProjectDependency> projectDependencies, final OmniEclipseProject rootProject) {
-        return FluentIterable.from(projectDependencies).transform(new Function<OmniEclipseProjectDependency, IPath>() {
-
-            @Override
-            public IPath apply(OmniEclipseProjectDependency dependency) {
-                OmniEclipseProject dependentProject = rootProject.tryFind(Specs.eclipseProjectMatchesProjectPath(dependency.getTargetProjectPath())).get();
-                return new Path("/" + dependentProject.getName());
-            }
-        }).toList();
     }
 
     private void setClasspathContainer(List<IClasspathEntry> classpathEntries, IPath containerPath, IJavaProject project) throws JavaModelException {
