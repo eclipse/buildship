@@ -42,16 +42,15 @@ public class TestResourceVisitor implements IResourceVisitor {
 
     private static final String BIN_FOLDER_NAME = "bin"; //$NON-NLS-1$
 
-    private String className;
     private String methodName;
+    private String className;
     private Collection<String> fileExtensions;
     private EditorOpener editorOpener;
 
-    public TestResourceVisitor(String qualifiedClassName, String methodName, Collection<String> fileExtensions) {
-        this.className = qualifiedClassName;
+    public TestResourceVisitor(String methodName, String qualifiedClassName, Collection<String> fileExtensions) {
         this.methodName = methodName;
+        this.className = qualifiedClassName;
         this.fileExtensions = fileExtensions;
-
         this.editorOpener = new EditorOpener();
     }
 
