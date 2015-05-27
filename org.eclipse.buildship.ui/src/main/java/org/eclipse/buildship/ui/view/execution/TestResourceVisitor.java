@@ -11,8 +11,11 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
+import java.util.Collection;
+import java.util.regex.Pattern;
+
 import com.google.common.io.Files;
-import org.eclipse.buildship.ui.UiPlugin;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
@@ -22,14 +25,18 @@ import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.*;
+import org.eclipse.ui.IEditorDescriptor;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorRegistry;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import java.util.Collection;
-import java.util.regex.Pattern;
+import org.eclipse.buildship.ui.UiPlugin;
 
 /**
  * This {@link IResourceVisitor} looks up IResources in the workspace, which fit to the given
@@ -40,13 +47,11 @@ public class TestResourceVisitor implements IResourceVisitor {
 
     private static final String BIN_FOLDER_NAME = "bin"; //$NON-NLS-1$
 
-    private Display display;
     private String className;
     private String methodName;
     private Collection<String> fileExtensions;
 
-    public TestResourceVisitor(Display display, String qualifiedClassName, String methodName, Collection<String> fileExtensions) {
-        this.display = display;
+    public TestResourceVisitor(String qualifiedClassName, String methodName, Collection<String> fileExtensions) {
         this.className = qualifiedClassName;
         this.methodName = methodName;
         this.fileExtensions = fileExtensions;
@@ -61,13 +66,14 @@ public class TestResourceVisitor implements IResourceVisitor {
             // ignore resources in the bin folder and find out whether the path of the resource fits
             // to the given class name
             if (!projectRelativePath.startsWith(BIN_FOLDER_NAME) && projectRelativePath.contains(classNameToPath)) {
-                this.display.asyncExec(new Runnable() {
+                Display display = PlatformUI.getWorkbench().getDisplay();
+                display.asyncExec(new Runnable() {
 
                     @Override
                     public void run() {
                         IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
                         @SuppressWarnings({"cast", "RedundantCast"})
-                        IFile file = (IFile) resource.getAdapter(IFile.class);
+                        IFile file = resource.getAdapter(IFile.class);
                         if (file != null) {
                             try {
                                 IEditorRegistry editorReg = PlatformUI.getWorkbench().getEditorRegistry();
