@@ -1,14 +1,3 @@
-/*
- * Copyright (c) 2015 the original author or authors.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
- */
-
 /*******************************************************************************
  * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
@@ -18,8 +7,10 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Simon Scholz (vogella GmbH) - exposing the class
  *******************************************************************************/
-package org.eclipse.buildship.ui.generic;
+
+package org.eclipse.buildship.ui.util.editor;
 
 import java.util.HashMap;
 import java.util.Map;

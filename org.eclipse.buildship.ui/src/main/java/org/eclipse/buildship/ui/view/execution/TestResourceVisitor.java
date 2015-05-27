@@ -31,7 +31,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 
 import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.generic.EditorOpener;
+import org.eclipse.buildship.ui.util.editor.EditorOpener;
 
 /**
  * This {@link IResourceVisitor} looks up IResources in the workspace, which fit to the given
@@ -76,7 +76,7 @@ public class TestResourceVisitor implements IResourceVisitor {
                             try {
                                 IRegion targetRegion = getClassOrMethodRegion(file);
                                 if (targetRegion != null) {
-                                    editorOpener.openAndSelect(activePage, file, targetRegion.getOffset(), targetRegion.getLength(), true, true);
+                                    TestResourceVisitor.this.editorOpener.openAndSelect(activePage, file, targetRegion.getOffset(), targetRegion.getLength(), true, true);
                                 }
                             } catch (PartInitException e) {
                                 UiPlugin.logger().error(e.getMessage(), e);
@@ -94,7 +94,7 @@ public class TestResourceVisitor implements IResourceVisitor {
                         IDocument document = textFileDocumentProvider.getDocument(file);
                         FindReplaceDocumentAdapter findReplaceDocumentAdapter = new FindReplaceDocumentAdapter(document);
 
-                        IRegion targetRegion = null;
+                        IRegion targetRegion;
                         if (TestResourceVisitor.this.methodName != null) {
                             targetRegion = findReplaceDocumentAdapter.find(0, TestResourceVisitor.this.methodName, true, true, false, false);
                             // sometimes the method name is generated and therefore cannot be found,
