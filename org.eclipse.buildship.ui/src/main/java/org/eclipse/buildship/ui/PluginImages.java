@@ -33,6 +33,7 @@ public enum PluginImages implements PluginImage {
 
     // @formatter:off
     TASK(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/task.png")),
+    GRADLE_NEW_WIZ_ICON(ImmutableMap.of(ImageState.ENABLED, "icons/full/wizban/new_wiz.png")),
     OVERLAY_PROJECT_TASK(ImmutableMap.of(ImageState.ENABLED, "icons/full/ovr16/task_project.png")),
     OVERLAY_TASK_SELECTOR(ImmutableMap.of(ImageState.ENABLED, "icons/full/ovr16/task_selector.png")),
     OVERLAY_PRIVATE_TASK(ImmutableMap.of(ImageState.ENABLED, "icons/full/ovr16/task_private.png")),

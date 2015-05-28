@@ -54,4 +54,24 @@ public final class FileUtils {
         }
     }
 
+    /**
+     * Deletes a folder recusively.
+     *
+     * @param file file to be deleted, if <code>null</code> it will be ignored
+     * @return <code>true</code> if deletion succeeded
+     */
+    public static boolean deleteDirectory(File file) {
+        if (file != null && file.isDirectory()) {
+            File[] children = file.listFiles();
+            for (File element : children) {
+                boolean success = deleteDirectory(element);
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+
+        return file.delete();
+    }
+
 }

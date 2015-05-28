@@ -8,6 +8,32 @@
             file="help/help-contexts.xml">
       </contexts>
     </extension>
+    <extension
+          point="org.eclipse.ui.newWizards">
+       <category
+             id="org.eclipse.buildship.ui.newwizards"
+             name="Gradle">
+       </category>
+       <wizard
+             canFinishEarly="false"
+             category="org.eclipse.buildship.ui.newwizards"
+             class="org.eclipse.buildship.ui.newproject.NewGradleProjectWizard"
+             hasPages="true"
+             icon="icons/full/etool16/new_wiz.png"
+             id="org.eclipse.buildship.ui.wizard1"
+             name="Gradle Project"
+             project="true">
+          <description>
+             Create a new Gradle project in the local file system.
+          </description>
+          <selection
+                class="org.eclipse.core.resources.IResource">
+          </selection>
+          <keywordReference
+                id="org.eclipse.buildship.ui.keyword.buildship">
+          </keywordReference>
+       </wizard>
+    </extension>
 
     <!-- integration of a Gradle project import wizard -->
     <extension
@@ -22,11 +48,21 @@
             Import a Gradle project in the local file system.
          </description>
          <selection class="org.eclipse.core.resources.IResource"/>
+         <keywordReference
+               id="org.eclipse.buildship.ui.keyword.buildship">
+         </keywordReference>
       </wizard>
       <category
             id="org.eclipse.buildship.ui.wizards"
             name="Gradle">
       </category>
+    </extension>
+    <extension
+          point="org.eclipse.ui.keywords">
+       <keyword
+             id="org.eclipse.buildship.ui.keyword.buildship"
+             label="Buildship">
+       </keyword>
     </extension>
 
     <!-- integration of Gradle icons into explorer -->

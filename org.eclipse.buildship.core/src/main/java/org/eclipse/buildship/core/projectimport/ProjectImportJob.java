@@ -14,13 +14,6 @@ package org.eclipse.buildship.core.projectimport;
 import java.io.File;
 import java.util.List;
 
-import org.gradle.tooling.ProgressListener;
-
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
@@ -31,6 +24,12 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.Pair;
+import org.gradle.tooling.ProgressListener;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -45,6 +44,7 @@ import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.gradle.Specs;
+import org.eclipse.buildship.core.projectimport.internal.DefaultProjectCreatedEvent;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 import org.eclipse.buildship.core.workspace.ClasspathDefinition;
@@ -109,10 +109,20 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
                 // include the existing Eclipse project in the workspace
                 workspaceProject = workspaceOperations.includeProject(projectDescription.get(), childProjectLocations, gradleNature,
                         new SubProgressMonitor(monitor, 2));
+
+                // persist the Gradle-specific configuration in the Eclipse project's .settings
+                // folder
+                ProjectConfiguration projectConfiguration = ProjectConfiguration.from(this.fixedAttributes, project);
+                CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, workspaceProject);
             } else {
                 // create a new Eclipse project in the workspace for the current Gradle project
                 workspaceProject = workspaceOperations.createProject(project.getName(), project.getProjectDirectory(), childProjectLocations, gradleNature,
                         new SubProgressMonitor(monitor, 1));
+
+                // persist the Gradle-specific configuration in the Eclipse project's .settings
+                // folder
+                ProjectConfiguration projectConfiguration = ProjectConfiguration.from(this.fixedAttributes, project);
+                CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, workspaceProject);
 
                 // if the current Gradle project is a Java project, configure the Java nature,
                 // the classpath, and the source paths
@@ -124,9 +134,8 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
                 }
             }
 
-            // persist the Gradle-specific configuration in the Eclipse project's .settings folder
-            ProjectConfiguration projectConfiguration = ProjectConfiguration.from(this.fixedAttributes, project);
-            CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, workspaceProject);
+            // inform listeners that a new IProject has been created
+            CorePlugin.listenerRegistry().dispatch(new DefaultProjectCreatedEvent(workspaceProject));
 
             // refresh the project content
             workspaceOperations.refresh(workspaceProject, new SubProgressMonitor(monitor, 1));

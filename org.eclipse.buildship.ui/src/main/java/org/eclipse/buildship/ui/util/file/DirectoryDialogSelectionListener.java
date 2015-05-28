@@ -15,29 +15,32 @@ import java.io.File;
 
 import com.google.common.base.Strings;
 
+import org.eclipse.jface.databinding.swt.ISWTObservableValue;
+import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Widget;
 
 import org.eclipse.buildship.ui.projectimport.ProjectImportMessages;
 
 /**
- * A {@link org.eclipse.swt.events.SelectionListener} implementation which opens a {@link DirectoryDialog} and puts the
- * path of the selected {@code File} into a target text field.
+ * A {@link org.eclipse.swt.events.SelectionListener} implementation which opens a
+ * {@link DirectoryDialog} and puts the path of the selected {@code File} into a target widget. All
+ * suitable widgets for {@link WidgetProperties#text()} are valid.
  */
 public final class DirectoryDialogSelectionListener extends SelectionAdapter {
 
     private final Shell shell;
-    private final Text target;
     private final String title;
+    private ISWTObservableValue target;
 
-    public DirectoryDialogSelectionListener(Shell shell, Text target, String entity) {
+    public DirectoryDialogSelectionListener(Shell shell, Widget target, String entity) {
         this.shell = shell;
-        this.target = target;
+        this.target = WidgetProperties.text().observe(target);
         this.title = NLS.bind(ProjectImportMessages.Title_Select_0, entity);
     }
 
@@ -47,7 +50,8 @@ public final class DirectoryDialogSelectionListener extends SelectionAdapter {
         directoryDialog.setText(this.title);
 
         // derive initially selected directory from the text field value
-        File startLocation = Strings.isNullOrEmpty(this.target.getText()) ? null : new File(this.target.getText().trim()).getAbsoluteFile();
+        String text = String.valueOf(target.getValue());
+        File startLocation = Strings.isNullOrEmpty(text) ? null : new File(text.trim()).getAbsoluteFile();
         if (startLocation != null && startLocation.exists() && startLocation.isFile()) {
             directoryDialog.setFilterPath(startLocation.getParentFile().getAbsolutePath());
         } else if (startLocation != null && startLocation.exists() && startLocation.isDirectory()) {
@@ -61,7 +65,7 @@ public final class DirectoryDialogSelectionListener extends SelectionAdapter {
         // in case of OK put the path of the selected directory on the text field
         String selectedDirectory = directoryDialog.open();
         if (selectedDirectory != null) {
-            this.target.setText(selectedDirectory);
+            target.setValue(selectedDirectory);
         }
     }
 

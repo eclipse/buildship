@@ -28,6 +28,7 @@ import org.eclipse.buildship.core.util.collections.CollectionsUtils;
  */
 public final class ProjectImportConfiguration {
 
+    private final Property<List<String>> gradleTask;
     private final Property<File> projectDir;
     private final Property<GradleDistributionWrapper> gradleDistribution;
     private final Property<File> gradleUserHome;
@@ -36,18 +37,29 @@ public final class ProjectImportConfiguration {
     private final Property<String> arguments;
 
     public ProjectImportConfiguration() {
-        this(Validators.<File> noOp(), Validators.<GradleDistributionWrapper> noOp(), Validators.<File> noOp(), Validators.<File> noOp(), Validators.<String> noOp(), Validators
-                .<String> noOp());
+        this(Validators.<List<String>> noOp(), Validators.<File> noOp(), Validators.<GradleDistributionWrapper> noOp(), Validators.<File> noOp(), Validators.<File> noOp(),
+                Validators
+                .<String> noOp(), Validators.<String> noOp());
     }
 
-    public ProjectImportConfiguration(Validator<File> projectDirValidator, Validator<GradleDistributionWrapper> gradleDistributionValidator,
+    public ProjectImportConfiguration(Validator<List<String>> gradleTaskValidator, Validator<File> projectDirValidator,
+            Validator<GradleDistributionWrapper> gradleDistributionValidator,
             Validator<File> gradleUserHomeValidator, Validator<File> javaHomeValidator, Validator<String> jvmArgumentsValidator, Validator<String> argumentsValidator) {
+        this.gradleTask = Property.create(gradleTaskValidator);
         this.projectDir = Property.create(projectDirValidator);
         this.gradleDistribution = Property.create(gradleDistributionValidator);
         this.gradleUserHome = Property.create(gradleUserHomeValidator);
         this.javaHome = Property.create(javaHomeValidator);
         this.jvmArguments = Property.create(jvmArgumentsValidator);
         this.arguments = Property.create(argumentsValidator);
+    }
+
+    public Property<List<String>> getGradleTask() {
+        return this.gradleTask;
+    }
+
+    public void setGradleTask(List<String> gradleTask) {
+        this.gradleTask.setValue(gradleTask);
     }
 
     public Property<File> getProjectDir() {
