@@ -156,13 +156,13 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         TreeViewer treeViewer = getPageControl().getViewer();
         MenuManager menuManager = new MenuManager();
         menuManager.setRemoveAllWhenShown(true);
-        menuManager.addMenuListener(new ActionShowingContextMenuListener(this, createManagedActions(treeViewer)));
+        menuManager.addMenuListener(new ActionShowingContextMenuListener(this, createContextMenuActions(treeViewer)));
         Menu contextMenu = menuManager.createContextMenu(treeViewer.getTree());
         treeViewer.getTree().setMenu(contextMenu);
         pageSite.getViewSite().registerContextMenu(menuManager, treeViewer);
     }
 
-    private List<SelectionSpecificAction> createManagedActions(TreeViewer treeViewer) {
+    private List<SelectionSpecificAction> createContextMenuActions(TreeViewer treeViewer) {
         ExpandTreeNodesAction expandNodesAction = new ExpandTreeNodesAction(treeViewer);
         CollapseTreeNodesAction collapseNodesAction = new CollapseTreeNodesAction(treeViewer);
         OpenTestSourceFileAction openTestSourceFileAction = new OpenTestSourceFileAction(this);
