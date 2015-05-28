@@ -22,7 +22,6 @@ import org.eclipse.buildship.ui.generic.SelectionSpecificAction;
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
-import org.gradle.tooling.Failure;
 import org.gradle.tooling.events.FailureResult;
 import org.gradle.tooling.events.FinishEvent;
 
@@ -43,11 +42,11 @@ public final class ShowFailureAction extends Action implements SelectionSpecific
     @Override
     public void run() {
         Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
-        List<? extends Failure> failures = collectFailures(this.selectionProvider.getSelection());
-        new FailureDialog(shell, ExecutionsViewMessages.Dialog_Failure_Title, failures).open();
+        List<FinishEvent> failureEvents = collectEventsWithFailure(this.selectionProvider.getSelection());
+        new FailureDialog(shell, ExecutionsViewMessages.Dialog_Failure_Title, failureEvents).open();
     }
 
-    private List<? extends Failure> collectFailures(NodeSelection selection) {
+    private List<FinishEvent> collectEventsWithFailure(NodeSelection selection) {
         if (selection.isEmpty()) {
             return ImmutableList.of();
         }
@@ -56,13 +55,12 @@ public final class ShowFailureAction extends Action implements SelectionSpecific
             return ImmutableList.of();
         }
 
-        List<Failure> result = Lists.newArrayList();
+        List<FinishEvent> result = Lists.newArrayList();
         ImmutableList<OperationItem> operationItems = selection.getNodes(OperationItem.class);
         for (OperationItem operationItem : operationItems) {
             FinishEvent finishEvent = operationItem.getFinishEvent();
             if (finishEvent != null && finishEvent.getResult() instanceof FailureResult) {
-                List<? extends Failure> failures = ((FailureResult) finishEvent.getResult()).getFailures();
-                result.addAll(failures);
+                result.add(finishEvent);
             }
         }
         return result;
@@ -78,6 +76,7 @@ public final class ShowFailureAction extends Action implements SelectionSpecific
             return false;
         }
 
+        // at least one selected node must have a failure
         ImmutableList<OperationItem> operationItems = selection.getNodes(OperationItem.class);
         return FluentIterable.from(operationItems).anyMatch(new Predicate<OperationItem>() {
             @Override
@@ -98,6 +97,7 @@ public final class ShowFailureAction extends Action implements SelectionSpecific
             return false;
         }
 
+        // all selected nodes must have a failure
         ImmutableList<OperationItem> operationItems = selection.getNodes(OperationItem.class);
         return FluentIterable.from(operationItems).allMatch(new Predicate<OperationItem>() {
             @Override
