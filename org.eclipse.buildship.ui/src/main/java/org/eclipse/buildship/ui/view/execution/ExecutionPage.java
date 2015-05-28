@@ -166,8 +166,8 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         ExpandTreeNodesAction expandNodesAction = new ExpandTreeNodesAction(treeViewer);
         CollapseTreeNodesAction collapseNodesAction = new CollapseTreeNodesAction(treeViewer);
         OpenTestSourceFileAction openTestSourceFileAction = new OpenTestSourceFileAction(this);
-        ShowFailureAction showTestFailureAction = new ShowFailureAction(this);
-        return ImmutableList.<SelectionSpecificAction>of(expandNodesAction, collapseNodesAction, openTestSourceFileAction, showTestFailureAction);
+        ShowFailureAction showFailureAction = new ShowFailureAction(this);
+        return ImmutableList.<SelectionSpecificAction>of(expandNodesAction, collapseNodesAction, openTestSourceFileAction, showFailureAction);
     }
 
     private void registerListeners() {
