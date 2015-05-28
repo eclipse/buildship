@@ -14,6 +14,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -27,6 +28,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
+
 import org.gradle.tooling.Failure;
 import org.gradle.tooling.events.FailureResult;
 import org.gradle.tooling.events.FinishEvent;
@@ -46,6 +48,7 @@ public final class FailureDialog extends Dialog {
     private Button backButton;
     private Button nextButton;
     private Button copyButton;
+    private Text operationNameText;
     private Clipboard clipboard;
 
     private int selectionIndex;
@@ -96,10 +99,34 @@ public final class FailureDialog extends Dialog {
         this.copyButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
         this.copyButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_TOOL_COPY));
 
+        Label operationNameLabel = new Label(container, SWT.NONE);
+        operationNameLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+        operationNameLabel.setText("Operation");
+
+        Composite operationDetailsContainer = new Composite(container, SWT.NONE);
+        operationDetailsContainer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 4, 1));
+        GridLayout operationDetailsContainerLayout = new GridLayout(2, false);
+        operationDetailsContainerLayout.marginWidth = 0;
+        operationDetailsContainerLayout.marginHeight = 0;
+        operationDetailsContainer.setLayout(operationDetailsContainerLayout);
+
+        this.operationNameText = new Text(operationDetailsContainer, SWT.BORDER);
+        this.operationNameText.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+        this.operationNameText.setText("OperationName");
+        this.operationNameText.setEditable(false);
+
+        Button operationMoreButton = new Button(operationDetailsContainer, SWT.PUSH);
+        operationMoreButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+        operationMoreButton.setText("More...");
+
+        Label detailsLabel = new Label(container, SWT.NONE);
+        detailsLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
+        detailsLabel.setText("Details");
+
         this.detailsText = new Text(container, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-        GridData stacktraceTextGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 5, 1);
-        stacktraceTextGridData.heightHint = 200;
-        this.detailsText.setLayoutData(stacktraceTextGridData);
+        GridData detailsTextGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 4, 1);
+        detailsTextGridData.heightHint = 200;
+        this.detailsText.setLayoutData(detailsTextGridData);
         this.detailsText.setEditable(false);
 
         this.clipboard = new Clipboard(parent.getDisplay());
@@ -151,7 +178,9 @@ public final class FailureDialog extends Dialog {
         List<? extends Failure> failures = failureEvent.isPresent() ? ((FailureResult) failureEvent.get().getResult()).getFailures() : ImmutableList.<Failure>of();
         Optional<Failure> failure = failures.isEmpty() ? Optional.<Failure>absent() : Optional.<Failure>of(failures.get(0));
 
-        // update the message and the stacktrace texts
+        // update the operation name, the message and the stacktrace texts
+        this.operationNameText.setText(failureEvent.isPresent() ? failureEvent.get().getDisplayName() : "");
+
         this.messageText.setText(failure.isPresent() ? Strings.nullToEmpty(failure.get().getMessage()) : "");
         this.messageText.setEnabled(failureEvent.isPresent());
 
