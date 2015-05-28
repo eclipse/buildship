@@ -8,6 +8,7 @@
  * Contributors:
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
+
 package org.eclipse.buildship.ui.view.execution;
 
 import com.google.common.base.Optional;
