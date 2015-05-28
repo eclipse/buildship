@@ -42,6 +42,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 
+import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.ui.generic.ActionShowingContextMenuListener;
 import org.eclipse.buildship.ui.generic.NodeSelection;
 import org.eclipse.buildship.ui.generic.NodeSelectionProvider;
@@ -66,14 +67,16 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     private final String displayName;
     private final BuildLaunchRequest buildLaunchRequest;
     private final ExecutionsViewState state;
+    private final GradleRunConfigurationAttributes attributes;
 
     private SelectionHistoryManager selectionHistoryManager;
 
-    public ExecutionPage(Job buildJob, String displayName, BuildLaunchRequest buildLaunchRequest, ExecutionsViewState state) {
+    public ExecutionPage(Job buildJob, String displayName, BuildLaunchRequest buildLaunchRequest, ExecutionsViewState state, GradleRunConfigurationAttributes attributes) {
         this.buildJob = buildJob;
         this.displayName = displayName;
         this.buildLaunchRequest = buildLaunchRequest;
         this.state = state;
+        this.attributes = attributes;
     }
 
     public Job getBuildJob() {
@@ -160,6 +163,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new SwitchToConsoleViewAction(this));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new Separator());
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new CancelBuildExecutionAction(this));
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RerunBuildExecutionAction(this));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemoveTerminatedExecutionPageAction(this));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemoveAllTerminatedExecutionPagesAction(this));
         toolbarManager.update(true);
@@ -221,6 +225,10 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     public void dispose() {
         this.selectionHistoryManager.dispose();
         super.dispose();
+    }
+
+    public GradleRunConfigurationAttributes getAttributes() {
+        return this.attributes;
     }
 
 }
