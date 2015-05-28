@@ -56,7 +56,8 @@ public enum PluginImages implements PluginImage {
     FILTER_EXECUTION(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/filter.png")),
     OPERATION_SUCCESS(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_success.png")),
     OPERATION_SKIPPED(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_skipped.png")),
-    OPERATION_FAILURE(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_failure.png"));
+    OPERATION_FAILURE(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_failure.png")),
+    RUN_BUILD(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/run.png", ImageState.DISABLED, "icons/full/dlcl16/run.png")),;
     // @formatter:on
 
     private final ImmutableMap<ImageState, String> images;
