@@ -16,10 +16,6 @@ import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.osgi.util.NLS;
 import org.gradle.tooling.events.*;
-import org.gradle.tooling.events.task.TaskFinishEvent;
-import org.gradle.tooling.events.task.TaskOperationDescriptor;
-import org.gradle.tooling.events.task.TaskSuccessResult;
-import org.gradle.tooling.events.test.TestOperationDescriptor;
 
 import java.text.DecimalFormat;
 
@@ -35,26 +31,7 @@ public final class OperationItemConfigurator {
     }
 
     private String calculateName(OperationItem operationItem) {
-        OperationDescriptor descriptor = operationItem.getStartEvent().getDescriptor();
-        if (descriptor instanceof TaskOperationDescriptor) {
-            String taskPath = ((TaskOperationDescriptor) descriptor).getTaskPath();
-            return taskIsUpToDate(operationItem) ? String.format("%s UP-TO-DATE", taskPath) : taskPath;
-        } else if (descriptor instanceof TestOperationDescriptor) {
-            return descriptor.getName();
-        } else {
-            return descriptor.getDisplayName();
-        }
-    }
-
-    private boolean taskIsUpToDate(OperationItem operationItem) {
-        if (operationItem.getFinishEvent() instanceof TaskFinishEvent) {
-            TaskFinishEvent taskFinishEvent = (TaskFinishEvent) operationItem.getFinishEvent();
-            if (taskFinishEvent.getResult() instanceof TaskSuccessResult) {
-                TaskSuccessResult taskSuccessResult = (TaskSuccessResult) taskFinishEvent.getResult();
-                return taskSuccessResult.isUpToDate();
-            }
-        }
-        return false;
+        return OperationDescriptorRenderer.renderCompact(operationItem);
     }
 
     private String calculateDuration(OperationItem operationItem) {

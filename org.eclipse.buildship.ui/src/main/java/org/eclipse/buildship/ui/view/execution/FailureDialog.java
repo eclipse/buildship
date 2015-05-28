@@ -165,7 +165,7 @@ public final class FailureDialog extends Dialog {
         List<? extends Failure> failures = failureEvent.isPresent() ? ((FailureResult) failureEvent.get().getResult()).getFailures() : ImmutableList.<Failure>of();
         Optional<Failure> failure = failures.isEmpty() ? Optional.<Failure>absent() : Optional.<Failure>of(failures.get(0));
 
-        this.operationNameText.setText(failureEvent.isPresent() ? failureEvent.get().getDisplayName() : "");
+        this.operationNameText.setText(failureEvent.isPresent() ? OperationDescriptorRenderer.renderVerbose(failureEvent.get()) : "");
 
         this.messageText.setText(failure.isPresent() ? Strings.nullToEmpty(failure.get().getMessage()) : "");
         this.messageText.setEnabled(failureEvent.isPresent());
