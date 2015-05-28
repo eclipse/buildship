@@ -13,7 +13,6 @@ package org.eclipse.buildship.ui.view.execution;
 import java.util.List;
 
 import org.gradle.tooling.Failure;
-import org.gradle.tooling.events.FailureResult;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
@@ -56,10 +55,10 @@ public final class FailureDialog extends Dialog {
 
     private int selectedFailure = 0;
 
-    public FailureDialog(Shell parent, String title, FailureResult failure) {
+    public FailureDialog(Shell parent, String title, List<? extends Failure> failures) {
         super(parent);
         this.title = Preconditions.checkNotNull(title);
-        this.failures = ImmutableList.copyOf(failure.getFailures());
+        this.failures = ImmutableList.copyOf(failures);
         setShellStyle(SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
     }
 
@@ -205,7 +204,7 @@ public final class FailureDialog extends Dialog {
         if (this.selectedFailure < 0 || this.selectedFailure >= this.failures.size()) {
             return Optional.absent();
         } else {
-            return Optional.<Failure> of(this.failures.get(this.selectedFailure));
+            return Optional.of(this.failures.get(this.selectedFailure));
         }
     }
 

@@ -11,23 +11,25 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import org.gradle.tooling.events.FailureResult;
-import org.gradle.tooling.events.FinishEvent;
-import org.gradle.tooling.events.OperationResult;
-
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-
-import org.eclipse.jface.action.Action;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
-
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.eclipse.buildship.ui.generic.NodeSelection;
 import org.eclipse.buildship.ui.generic.NodeSelectionProvider;
 import org.eclipse.buildship.ui.generic.SelectionSpecificAction;
+import org.eclipse.jface.action.Action;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
+import org.gradle.tooling.Failure;
+import org.gradle.tooling.events.FailureResult;
+import org.gradle.tooling.events.FinishEvent;
+
+import java.util.List;
 
 /**
- * Action opening a dialog which displays the {@link FailureResult} in a dialog.
+ * Opens a dialog which displays the {@link FailureResult} in a dialog.
  */
 public final class ShowFailureAction extends Action implements SelectionSpecificAction {
 
@@ -40,34 +42,72 @@ public final class ShowFailureAction extends Action implements SelectionSpecific
 
     @Override
     public void run() {
-        FailureResult failureResult = findFailureInFirstSelectedNode(this.selectionProvider.getSelection()).get();
         Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
-        new FailureDialog(shell, ExecutionsViewMessages.Dialog_Failure_Title, failureResult).open();
+        List<? extends Failure> failures = collectFailures(this.selectionProvider.getSelection());
+        new FailureDialog(shell, ExecutionsViewMessages.Dialog_Failure_Title, failures).open();
+    }
+
+    private List<? extends Failure> collectFailures(NodeSelection selection) {
+        if (selection.isEmpty()) {
+            return ImmutableList.of();
+        }
+
+        if (!selection.hasAllNodesOfType(OperationItem.class)) {
+            return ImmutableList.of();
+        }
+
+        List<Failure> result = Lists.newArrayList();
+        ImmutableList<OperationItem> operationItems = selection.getNodes(OperationItem.class);
+        for (OperationItem operationItem : operationItems) {
+            FinishEvent finishEvent = operationItem.getFinishEvent();
+            if (finishEvent != null && finishEvent.getResult() instanceof FailureResult) {
+                List<? extends Failure> failures = ((FailureResult) finishEvent.getResult()).getFailures();
+                result.addAll(failures);
+            }
+        }
+        return result;
     }
 
     @Override
     public boolean isVisibleFor(NodeSelection selection) {
-        return findFailureInFirstSelectedNode(selection).isPresent();
+        if (selection.isEmpty()) {
+            return false;
+        }
+
+        if (!selection.hasAllNodesOfType(OperationItem.class)) {
+            return false;
+        }
+
+        ImmutableList<OperationItem> operationItems = selection.getNodes(OperationItem.class);
+        return FluentIterable.from(operationItems).anyMatch(new Predicate<OperationItem>() {
+            @Override
+            public boolean apply(OperationItem operationItem) {
+                FinishEvent finishEvent = operationItem.getFinishEvent();
+                return finishEvent != null && finishEvent.getResult() instanceof FailureResult;
+            }
+        });
     }
 
     @Override
     public boolean isEnabledFor(NodeSelection selection) {
-        return findFailureInFirstSelectedNode(selection).isPresent();
-    }
-
-    private static Optional<FailureResult> findFailureInFirstSelectedNode(NodeSelection selection) {
-        OperationItem operationitem = selection.getFirstNode(OperationItem.class);
-        FinishEvent finishEvent = operationitem.getFinishEvent();
-        if (finishEvent != null) {
-            OperationResult operationResult = finishEvent.getResult();
-            if (operationResult != null && operationResult instanceof FailureResult) {
-                FailureResult failureResult = (FailureResult) operationResult;
-                return Optional.of(failureResult);
-            }
+        if (selection.isEmpty()) {
+            return false;
         }
 
-        return Optional.absent();
+        if (!selection.hasAllNodesOfType(OperationItem.class)) {
+            return false;
+        }
+
+        ImmutableList<OperationItem> operationItems = selection.getNodes(OperationItem.class);
+        return FluentIterable.from(operationItems).allMatch(new Predicate<OperationItem>() {
+            @Override
+            public boolean apply(OperationItem operationItem) {
+                FinishEvent finishEvent = operationItem.getFinishEvent();
+                return finishEvent != null && finishEvent.getResult() instanceof FailureResult;
+            }
+        });
     }
+
 
     @Override
     public void setEnabledFor(NodeSelection selection) {
