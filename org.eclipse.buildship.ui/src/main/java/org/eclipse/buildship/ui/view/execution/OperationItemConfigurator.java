@@ -15,7 +15,9 @@ import org.eclipse.buildship.ui.PluginImage;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.osgi.util.NLS;
 import org.gradle.tooling.events.*;
+import org.gradle.tooling.events.task.TaskFinishEvent;
 import org.gradle.tooling.events.task.TaskOperationDescriptor;
+import org.gradle.tooling.events.task.TaskSuccessResult;
 import org.gradle.tooling.events.test.TestOperationDescriptor;
 
 import java.text.DecimalFormat;
@@ -26,15 +28,20 @@ import java.text.DecimalFormat;
 public final class OperationItemConfigurator {
 
     public void configure(OperationItem operationItem) {
+        operationItem.setName(getOperationSpecificName(operationItem));
+
         FinishEvent finishEvent = operationItem.getFinishEvent();
         if (finishEvent == null) {
-            operationItem.setName(getOperationSpecificName(operationItem.getStartEvent()));
+            // set duration as running
             operationItem.setDuration(ExecutionsViewMessages.Tree_Item_Operation_Started_Text);
         } else {
+            // calculate duration
             OperationResult result = finishEvent.getResult();
             DecimalFormat durationFormat = new DecimalFormat("#0.000"); //$NON-NLS-1$
             String duration = durationFormat.format((result.getEndTime() - result.getStartTime()) / 1000.0);
             operationItem.setDuration(NLS.bind(ExecutionsViewMessages.Tree_Item_Operation_Finished_In_0_Sec_Text, duration));
+
+            // set result image
             if (result instanceof FailureResult) {
                 operationItem.setImage(PluginImages.OPERATION_FAILURE.withState(PluginImage.ImageState.ENABLED).getImageDescriptor());
             } else if (result instanceof SkippedResult) {
@@ -45,9 +52,18 @@ public final class OperationItemConfigurator {
         }
     }
 
-    private String getOperationSpecificName(ProgressEvent event) {
-        OperationDescriptor descriptor = event.getDescriptor();
+    private String getOperationSpecificName(OperationItem operationItem) {
+        OperationDescriptor descriptor = operationItem.getStartEvent().getDescriptor();
         if (descriptor instanceof TaskOperationDescriptor) {
+            if (operationItem.getFinishEvent() instanceof TaskFinishEvent) {
+                TaskFinishEvent taskFinishEvent = (TaskFinishEvent) operationItem.getFinishEvent();
+                if (taskFinishEvent.getResult() instanceof TaskSuccessResult) {
+                    TaskSuccessResult taskSuccessResult = (TaskSuccessResult) taskFinishEvent.getResult();
+                    if (taskSuccessResult.isUpToDate()) {
+                        return ((TaskOperationDescriptor) descriptor).getTaskPath() + " " + "UP-TO-DATE";
+                    }
+                }
+            }
             return ((TaskOperationDescriptor) descriptor).getTaskPath();
         } else if (descriptor instanceof TestOperationDescriptor) {
             return descriptor.getName();
