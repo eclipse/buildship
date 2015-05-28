@@ -107,7 +107,7 @@ public final class FailureDialog extends Dialog {
         this.messageText.setEditable(false);
 
         Label detailsLabel = new Label(container, SWT.NONE);
-        detailsLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
+        detailsLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
         detailsLabel.setText(ExecutionsViewMessages.Dialog_Failure_Details_Label);
 
         this.detailsText = new Text(container, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
