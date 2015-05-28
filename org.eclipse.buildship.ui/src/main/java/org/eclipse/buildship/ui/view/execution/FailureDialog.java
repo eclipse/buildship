@@ -165,7 +165,6 @@ public final class FailureDialog extends Dialog {
         List<? extends Failure> failures = failureEvent.isPresent() ? ((FailureResult) failureEvent.get().getResult()).getFailures() : ImmutableList.<Failure>of();
         Optional<Failure> failure = failures.isEmpty() ? Optional.<Failure>absent() : Optional.<Failure>of(failures.get(0));
 
-        // update the operation name, the message and the stacktrace texts
         this.operationNameText.setText(failureEvent.isPresent() ? failureEvent.get().getDisplayName() : "");
 
         this.messageText.setText(failure.isPresent() ? Strings.nullToEmpty(failure.get().getMessage()) : "");
@@ -177,6 +176,9 @@ public final class FailureDialog extends Dialog {
         this.backButton.setEnabled(this.selectionIndex > 0);
         this.nextButton.setEnabled(this.selectionIndex < this.failureEvents.size() - 1);
         this.copyButton.setEnabled(failure.isPresent() && failure.get().getDescription() != null);
+
+        // force redraw since different failures can have different number of lines in the message
+        this.operationNameText.getParent().layout(true);
     }
 
     private String collectDetails(Failure failure) {
