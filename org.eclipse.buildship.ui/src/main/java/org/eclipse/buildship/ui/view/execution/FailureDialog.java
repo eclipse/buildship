@@ -96,7 +96,7 @@ public final class FailureDialog extends Dialog {
         this.nextButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 
         this.copyButton = new Button(container, SWT.FLAT | SWT.CENTER);
-        this.copyButton.setToolTipText(ExecutionsViewMessages.Dialog_Failure_Copy_Stacktrace_Tooltip);
+        this.copyButton.setToolTipText(ExecutionsViewMessages.Dialog_Failure_Copy_Details_Tooltip);
         this.copyButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
         this.copyButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_TOOL_COPY));
 
@@ -176,7 +176,7 @@ public final class FailureDialog extends Dialog {
         if (failure.isPresent()) {
             return MoreObjects.firstNonNull(failure.get().getMessage(), ""); //$NON-NLS-1$
         } else {
-            return ExecutionsViewMessages.Dialog_Failure_No_Stacktrace_Message_Label;
+            return ExecutionsViewMessages.Dialog_Failure_No_Message_Available_Text;
         }
     }
 

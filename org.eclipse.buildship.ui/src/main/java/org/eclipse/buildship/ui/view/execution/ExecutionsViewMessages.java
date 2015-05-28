@@ -28,21 +28,22 @@ public final class ExecutionsViewMessages extends NLS {
     public static String Tree_Item_Operation_Started_Text;
     public static String Tree_Item_Operation_Finished_In_0_Sec_Text;
 
+    public static String Action_ShowFailure_Text;
+    public static String Action_OpenTestSourceFile_Text;
+
     public static String Action_SwitchExecutionPage_Tooltip;
     public static String Action_RemoveExecutionPage_Tooltip;
     public static String Action_RemoveAllExecutionPages_Tooltip;
     public static String Action_SwitchToConsole_Tooltip;
     public static String Action_ShowFilter_Tooltip;
-    public static String Action_ShowFailure_Text;
-    public static String Action_OpenTestSourceFile_Text;
 
     public static String Dialog_Failure_Title;
-    public static String Dialog_Failure_Back_Tooltip;
-    public static String Dialog_Failure_Copy_Stacktrace_Tooltip;
     public static String Dialog_Failure_Next_Tooltip;
+    public static String Dialog_Failure_Back_Tooltip;
+    public static String Dialog_Failure_Copy_Details_Tooltip;
     public static String Dialog_Failure_Message_Label;
-    public static String Dialog_Failure_No_Stacktrace_Message_Label;
     public static String Dialog_Failure_Root_Cause_Label;
+    public static String Dialog_Failure_No_Message_Available_Text;
 
 
     static {
