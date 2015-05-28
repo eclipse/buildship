@@ -17,14 +17,19 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.resource.ResourceManager;
-import org.eclipse.jface.viewers.ViewerCell;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
+import org.eclipse.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.TextStyle;
+
+import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 
 /**
  * This ObservableMapCellLabelProvider implementation also supports an image for a
- * {@link ViewerCell}.
+ * {@link org.eclipse.jface.viewers.ViewerCell}.
  */
-public class ObservableMapCellWithIconLabelProvider extends ObservableMapCellLabelProvider {
+public class ObservableMapCellWithIconLabelProvider extends ObservableMapCellLabelProvider implements IStyledLabelProvider {
 
     private final ResourceManager resourceManager;
 
@@ -34,20 +39,41 @@ public class ObservableMapCellWithIconLabelProvider extends ObservableMapCellLab
     }
 
     @Override
-    public void update(ViewerCell cell) {
-        super.update(cell);
-        Object element = cell.getElement();
-        Object value = this.attributeMaps[1].get(element);
-        if (value instanceof ImageDescriptor) {
-            Image image = this.resourceManager.createImage((ImageDescriptor) value);
-            cell.setImage(image);
-        }
-    }
-
-    @Override
     public void dispose() {
         super.dispose();
         this.resourceManager.dispose();
+    }
+
+    @Override
+    public StyledString getStyledText(Object element) {
+        Object value = this.attributeMaps[0].get(element);
+        String cellContent = value == null ? "" : value.toString(); //$NON-NLS-1$
+        StyledString result = new StyledString(cellContent);
+
+        // if the task contains the text UP-TO-DATE, then display it with a different color
+        String upToDate = "UP-TO-DATE";
+        int upToDateIndex = cellContent.indexOf(upToDate);
+        if (upToDateIndex >= 0) {
+            Styler styler = new Styler() {
+
+                @Override
+                public void applyStyles(TextStyle textStyle) {
+                    textStyle.foreground = WorkbenchUtils.getDecorationsColorFromCurrentTheme();
+                }
+            };
+            result.setStyle(upToDateIndex, upToDate.length(), styler);
+        }
+        return result;
+    }
+
+    @Override
+    public Image getImage(Object element) {
+        Object value = this.attributeMaps[1].get(element);
+        if (value instanceof ImageDescriptor) {
+            Image image = this.resourceManager.createImage((ImageDescriptor) value);
+            return image;
+        }
+        return null;
     }
 
 }

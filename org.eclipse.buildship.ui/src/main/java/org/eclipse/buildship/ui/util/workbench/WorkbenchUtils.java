@@ -11,10 +11,14 @@
 
 package org.eclipse.buildship.ui.util.workbench;
 
+import com.google.common.base.Preconditions;
+
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.themes.ITheme;
 
 /**
  * Contains helper methods related to the Eclipse workbench.
@@ -24,7 +28,7 @@ public final class WorkbenchUtils {
     private WorkbenchUtils() {
     }
 
-    /**
+/**
      * Shows the view with the given id and secondary id in the given mode.
      *
      * @param viewId the id of the view
@@ -45,6 +49,16 @@ public final class WorkbenchUtils {
         } catch (PartInitException e) {
             throw new RuntimeException(String.format("Cannot show view with id %s and secondary id %s.", viewId, secondaryId));
         }
+    }
+
+    /**
+     * Retrieves the {@code DECORATIONS_COLOR} from the current workbench theme.
+     *
+     * @return the theme color to decorate text
+     */
+    public static Color getDecorationsColorFromCurrentTheme() {
+        ITheme theme = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme();
+        return Preconditions.checkNotNull(theme.getColorRegistry().get("DECORATIONS_COLOR"));
     }
 
 }

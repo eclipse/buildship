@@ -14,7 +14,6 @@ package org.eclipse.buildship.ui.taskview;
 import java.util.List;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.resources.IProject;
@@ -23,13 +22,12 @@ import org.eclipse.jface.viewers.ITableColorProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
-import org.eclipse.ui.themes.ITheme;
 
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImageWithState;
 import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 
 /**
  * Label provider for the {@link TaskView}. Provides the labels, the icons for the table tree, and
@@ -44,8 +42,7 @@ public final class TaskViewLabelProvider implements ITableLabelProvider, ITableC
     private final WorkbenchLabelProvider workbenchLabelProvider;
 
     public TaskViewLabelProvider() {
-        ITheme theme = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme();
-        this.descriptionColor = Preconditions.checkNotNull(theme.getColorRegistry().get("DECORATIONS_COLOR"));
+        this.descriptionColor = WorkbenchUtils.getDecorationsColorFromCurrentTheme();
         this.workbenchLabelProvider = new WorkbenchLabelProvider();
     }
 
