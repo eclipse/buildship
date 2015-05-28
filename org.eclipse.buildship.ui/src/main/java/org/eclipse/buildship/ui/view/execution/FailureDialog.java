@@ -78,9 +78,9 @@ public final class FailureDialog extends Dialog {
         operationNameLabel.setText("Operation"); // todo (etst) i18n
 
         this.operationNameText = new Label(container, SWT.BORDER);
-        GridData messageTextGridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-        messageTextGridData.heightHint = convertVerticalDLUsToPixels(10);
-        this.operationNameText.setLayoutData(messageTextGridData);
+        GridData operationNameLayoutData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+        operationNameLayoutData.heightHint = convertVerticalDLUsToPixels(10);
+        this.operationNameText.setLayoutData(operationNameLayoutData);
 
         this.backButton = new Button(container, SWT.FLAT | SWT.CENTER);
         this.backButton.setToolTipText(ExecutionsViewMessages.Dialog_Failure_Back_Tooltip);
@@ -102,7 +102,8 @@ public final class FailureDialog extends Dialog {
         messageLabel.setText(ExecutionsViewMessages.Dialog_Failure_Message_Label);
 
         this.messageText = new Text(container, SWT.BORDER);
-        this.messageText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 4, 1));
+        GridData messageTextLayoutData = new GridData(SWT.FILL, SWT.CENTER, true, false, 4, 1);
+        this.messageText.setLayoutData(messageTextLayoutData);
         this.messageText.setEditable(false);
 
         Label detailsLabel = new Label(container, SWT.NONE);
