@@ -16,7 +16,9 @@ import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.osgi.util.NLS;
 import org.gradle.tooling.events.*;
+import org.gradle.tooling.events.task.TaskFinishEvent;
 import org.gradle.tooling.events.task.TaskOperationDescriptor;
+import org.gradle.tooling.events.task.TaskSuccessResult;
 import org.gradle.tooling.events.test.TestOperationDescriptor;
 
 import java.text.DecimalFormat;
