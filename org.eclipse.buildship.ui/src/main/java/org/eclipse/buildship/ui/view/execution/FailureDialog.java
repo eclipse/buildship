@@ -75,7 +75,7 @@ public final class FailureDialog extends Dialog {
 
         Label operationNameLabel = new Label(container, SWT.NONE);
         operationNameLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
-        operationNameLabel.setText("Operation"); // todo (etst) i18n
+        operationNameLabel.setText(ExecutionsViewMessages.Dialog_Failure_Operation_Label);
 
         this.operationNameText = new Label(container, SWT.BORDER);
         GridData operationNameLayoutData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
@@ -108,7 +108,7 @@ public final class FailureDialog extends Dialog {
 
         Label detailsLabel = new Label(container, SWT.NONE);
         detailsLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
-        detailsLabel.setText("Details"); // todo (etst) i18n
+        detailsLabel.setText(ExecutionsViewMessages.Dialog_Failure_Details_Label);
 
         this.detailsText = new Text(container, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
         GridData detailsTextGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 4, 1);

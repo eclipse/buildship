@@ -38,10 +38,12 @@ public final class ExecutionsViewMessages extends NLS {
     public static String Action_ShowFilter_Tooltip;
 
     public static String Dialog_Failure_Title;
-    public static String Dialog_Failure_Next_Tooltip;
     public static String Dialog_Failure_Back_Tooltip;
+    public static String Dialog_Failure_Next_Tooltip;
     public static String Dialog_Failure_Copy_Details_Tooltip;
+    public static String Dialog_Failure_Operation_Label;
     public static String Dialog_Failure_Message_Label;
+    public static String Dialog_Failure_Details_Label;
     public static String Dialog_Failure_Root_Cause_Label;
     public static String Dialog_Failure_No_Message_Available_Text;
 
