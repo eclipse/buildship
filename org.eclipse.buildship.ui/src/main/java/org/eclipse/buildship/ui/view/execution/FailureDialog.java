@@ -212,6 +212,10 @@ public final class FailureDialog extends Dialog {
         return super.close();
     }
 
+    /**
+     * Represents a failure item shown in the failure dialog. One finish event can have multiple failures and so for each failure of each event we show a
+     * failure item in the failure dialog.
+     */
     private static final class FailureItem {
 
         private final FinishEvent event;
