@@ -15,7 +15,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -29,7 +28,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
-
 import org.gradle.tooling.Failure;
 import org.gradle.tooling.events.FailureResult;
 import org.gradle.tooling.events.FinishEvent;
@@ -44,12 +42,12 @@ public final class FailureDialog extends Dialog {
     private final String title;
     private final ImmutableList<FinishEvent> failureEvents;
 
+    private Label operationNameText;
     private Text messageText;
     private Text detailsText;
     private Button backButton;
     private Button nextButton;
     private Button copyButton;
-    private Text operationNameText;
     private Clipboard clipboard;
 
     private int selectionIndex;
@@ -75,15 +73,14 @@ public final class FailureDialog extends Dialog {
         container.setLayoutData(containerGridData);
         container.setLayout(new GridLayout(5, false));
 
-        Label messageLabel = new Label(container, SWT.NONE);
-        messageLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
-        messageLabel.setText(ExecutionsViewMessages.Dialog_Failure_Message_Label);
+        Label operationNameLabel = new Label(container, SWT.NONE);
+        operationNameLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+        operationNameLabel.setText("Operation"); // todo (etst) i18n
 
-        this.messageText = new Text(container, SWT.BORDER | SWT.SINGLE | SWT.WRAP);
+        this.operationNameText = new Label(container, SWT.BORDER);
         GridData messageTextGridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
         messageTextGridData.heightHint = convertVerticalDLUsToPixels(10);
-        this.messageText.setLayoutData(messageTextGridData);
-        this.messageText.setEditable(false);
+        this.operationNameText.setLayoutData(messageTextGridData);
 
         this.backButton = new Button(container, SWT.FLAT | SWT.CENTER);
         this.backButton.setToolTipText(ExecutionsViewMessages.Dialog_Failure_Back_Tooltip);
@@ -100,29 +97,17 @@ public final class FailureDialog extends Dialog {
         this.copyButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
         this.copyButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_TOOL_COPY));
 
-        Label operationNameLabel = new Label(container, SWT.NONE);
-        operationNameLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
-        operationNameLabel.setText("Operation");
+        Label messageLabel = new Label(container, SWT.NONE);
+        messageLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+        messageLabel.setText(ExecutionsViewMessages.Dialog_Failure_Message_Label);
 
-        Composite operationDetailsContainer = new Composite(container, SWT.NONE);
-        operationDetailsContainer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 4, 1));
-        GridLayout operationDetailsContainerLayout = new GridLayout(2, false);
-        operationDetailsContainerLayout.marginWidth = 0;
-        operationDetailsContainerLayout.marginHeight = 0;
-        operationDetailsContainer.setLayout(operationDetailsContainerLayout);
-
-        this.operationNameText = new Text(operationDetailsContainer, SWT.BORDER);
-        this.operationNameText.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
-        this.operationNameText.setText("OperationName");
-        this.operationNameText.setEditable(false);
-
-        Button operationMoreButton = new Button(operationDetailsContainer, SWT.PUSH);
-        operationMoreButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-        operationMoreButton.setText("More...");
+        this.messageText = new Text(container, SWT.BORDER);
+        this.messageText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 4, 1));
+        this.messageText.setEditable(false);
 
         Label detailsLabel = new Label(container, SWT.NONE);
         detailsLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
-        detailsLabel.setText("Details");
+        detailsLabel.setText("Details"); // todo (etst) i18n
 
         this.detailsText = new Text(container, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
         GridData detailsTextGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 4, 1);
