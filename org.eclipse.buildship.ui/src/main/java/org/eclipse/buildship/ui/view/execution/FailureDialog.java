@@ -190,7 +190,7 @@ public final class FailureDialog extends Dialog {
         result.append(Strings.nullToEmpty(failure.getDescription()));
         List<? extends Failure> causes = failure.getCauses();
         if (!causes.isEmpty()) {
-            result.append(ExecutionsViewMessages.Dialog_Failure_Root_Cause_Label);
+            result.append('\n').append(ExecutionsViewMessages.Dialog_Failure_Root_Cause_Label).append(' ');
             for (Failure cause : causes) {
                 result.append(collectDetailsRecursively(cause));
             }

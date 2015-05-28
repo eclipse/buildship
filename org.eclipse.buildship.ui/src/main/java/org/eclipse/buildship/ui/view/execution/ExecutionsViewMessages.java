@@ -45,7 +45,6 @@ public final class ExecutionsViewMessages extends NLS {
     public static String Dialog_Failure_Message_Label;
     public static String Dialog_Failure_Details_Label;
     public static String Dialog_Failure_Root_Cause_Label;
-    public static String Dialog_Failure_No_Message_Available_Text;
 
 
     static {
