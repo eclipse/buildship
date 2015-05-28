@@ -13,6 +13,7 @@ package org.eclipse.buildship.ui.view.execution;
 
 import org.eclipse.buildship.ui.PluginImage;
 import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.osgi.util.NLS;
 import org.gradle.tooling.events.*;
 import org.gradle.tooling.events.task.TaskOperationDescriptor;
@@ -28,19 +29,7 @@ public final class OperationItemConfigurator {
     public void configure(OperationItem operationItem) {
         operationItem.setName(calculateName(operationItem));
         operationItem.setDuration(calculateDuration(operationItem));
-
-        FinishEvent finishEvent = operationItem.getFinishEvent();
-        if (finishEvent != null) {
-            // set result image
-            OperationResult result = finishEvent.getResult();
-            if (result instanceof FailureResult) {
-                operationItem.setImage(PluginImages.OPERATION_FAILURE.withState(PluginImage.ImageState.ENABLED).getImageDescriptor());
-            } else if (result instanceof SkippedResult) {
-                operationItem.setImage(PluginImages.OPERATION_SKIPPED.withState(PluginImage.ImageState.ENABLED).getImageDescriptor());
-            } else if (result instanceof SuccessResult) {
-                operationItem.setImage(PluginImages.OPERATION_SUCCESS.withState(PluginImage.ImageState.ENABLED).getImageDescriptor());
-            }
-        }
+        operationItem.setImage(calculateImage(operationItem));
     }
 
     private String calculateName(OperationItem operationItem) {
@@ -74,6 +63,23 @@ public final class OperationItemConfigurator {
             return NLS.bind(ExecutionsViewMessages.Tree_Item_Operation_Finished_In_0_Sec_Text, duration);
         } else {
             return ExecutionsViewMessages.Tree_Item_Operation_Started_Text;
+        }
+    }
+
+    private ImageDescriptor calculateImage(OperationItem operationItem) {
+        if (operationItem.getFinishEvent() != null) {
+            OperationResult result = operationItem.getFinishEvent().getResult();
+            if (result instanceof FailureResult) {
+                return PluginImages.OPERATION_FAILURE.withState(PluginImage.ImageState.ENABLED).getImageDescriptor();
+            } else if (result instanceof SkippedResult) {
+                return PluginImages.OPERATION_SKIPPED.withState(PluginImage.ImageState.ENABLED).getImageDescriptor();
+            } else if (result instanceof SuccessResult) {
+                return PluginImages.OPERATION_SUCCESS.withState(PluginImage.ImageState.ENABLED).getImageDescriptor();
+            } else {
+                return null;
+            }
+        } else {
+            return null;
         }
     }
 
