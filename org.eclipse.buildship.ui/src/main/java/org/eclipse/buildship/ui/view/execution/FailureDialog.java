@@ -11,11 +11,12 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -29,7 +30,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
-
 import org.gradle.tooling.Failure;
 import org.gradle.tooling.events.FailureResult;
 import org.gradle.tooling.events.FinishEvent;
@@ -42,14 +42,14 @@ import java.util.List;
 public final class FailureDialog extends Dialog {
 
     private final String title;
-    private final ImmutableList<FinishEvent> failureEvents;
+    private final ImmutableList<FailureItem> failureItems;
 
+    private Label operationNameText;
     private Text messageText;
     private Text detailsText;
     private Button backButton;
     private Button nextButton;
     private Button copyButton;
-    private Text operationNameText;
     private Clipboard clipboard;
 
     private int selectionIndex;
@@ -57,7 +57,7 @@ public final class FailureDialog extends Dialog {
     public FailureDialog(Shell parent, String title, List<FinishEvent> failureEvents) {
         super(parent);
         this.title = Preconditions.checkNotNull(title);
-        this.failureEvents = ImmutableList.copyOf(failureEvents);
+        this.failureItems = FailureItem.from(failureEvents);
         setShellStyle(SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
     }
 
@@ -75,15 +75,13 @@ public final class FailureDialog extends Dialog {
         container.setLayoutData(containerGridData);
         container.setLayout(new GridLayout(5, false));
 
-        Label messageLabel = new Label(container, SWT.NONE);
-        messageLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
-        messageLabel.setText(ExecutionsViewMessages.Dialog_Failure_Message_Label);
+        Label operationNameLabel = new Label(container, SWT.NONE);
+        operationNameLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+        operationNameLabel.setText(ExecutionsViewMessages.Dialog_Failure_Operation_Label);
 
-        this.messageText = new Text(container, SWT.BORDER | SWT.SINGLE | SWT.WRAP);
-        GridData messageTextGridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-        messageTextGridData.heightHint = convertVerticalDLUsToPixels(10);
-        this.messageText.setLayoutData(messageTextGridData);
-        this.messageText.setEditable(false);
+        this.operationNameText = new Label(container, SWT.NONE);
+        GridData operationNameLayoutData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+        this.operationNameText.setLayoutData(operationNameLayoutData);
 
         this.backButton = new Button(container, SWT.FLAT | SWT.CENTER);
         this.backButton.setToolTipText(ExecutionsViewMessages.Dialog_Failure_Back_Tooltip);
@@ -100,29 +98,18 @@ public final class FailureDialog extends Dialog {
         this.copyButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
         this.copyButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_TOOL_COPY));
 
-        Label operationNameLabel = new Label(container, SWT.NONE);
-        operationNameLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
-        operationNameLabel.setText("Operation");
+        Label messageLabel = new Label(container, SWT.NONE);
+        messageLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+        messageLabel.setText(ExecutionsViewMessages.Dialog_Failure_Message_Label);
 
-        Composite operationDetailsContainer = new Composite(container, SWT.NONE);
-        operationDetailsContainer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 4, 1));
-        GridLayout operationDetailsContainerLayout = new GridLayout(2, false);
-        operationDetailsContainerLayout.marginWidth = 0;
-        operationDetailsContainerLayout.marginHeight = 0;
-        operationDetailsContainer.setLayout(operationDetailsContainerLayout);
-
-        this.operationNameText = new Text(operationDetailsContainer, SWT.BORDER);
-        this.operationNameText.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
-        this.operationNameText.setText("OperationName");
-        this.operationNameText.setEditable(false);
-
-        Button operationMoreButton = new Button(operationDetailsContainer, SWT.PUSH);
-        operationMoreButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-        operationMoreButton.setText("More...");
+        this.messageText = new Text(container, SWT.BORDER);
+        GridData messageTextLayoutData = new GridData(SWT.FILL, SWT.CENTER, true, false, 4, 1);
+        this.messageText.setLayoutData(messageTextLayoutData);
+        this.messageText.setEditable(false);
 
         Label detailsLabel = new Label(container, SWT.NONE);
-        detailsLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
-        detailsLabel.setText("Details");
+        detailsLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+        detailsLabel.setText(ExecutionsViewMessages.Dialog_Failure_Details_Label);
 
         this.detailsText = new Text(container, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
         GridData detailsTextGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 4, 1);
@@ -140,7 +127,7 @@ public final class FailureDialog extends Dialog {
     }
 
     private void initSelectionIndex() {
-        this.selectionIndex = this.failureEvents.isEmpty() ? -1 : 0;
+        this.selectionIndex = this.failureItems.isEmpty() ? -1 : 0;
     }
 
     private void initEventListeners() {
@@ -175,22 +162,23 @@ public final class FailureDialog extends Dialog {
 
     @SuppressWarnings("RedundantTypeArguments")
     private void update() {
-        Optional<FinishEvent> failureEvent = this.selectionIndex == -1 ? Optional.<FinishEvent>absent() : Optional.of(this.failureEvents.get(this.selectionIndex));
-        List<? extends Failure> failures = failureEvent.isPresent() ? ((FailureResult) failureEvent.get().getResult()).getFailures() : ImmutableList.<Failure>of();
-        Optional<Failure> failure = failures.isEmpty() ? Optional.<Failure>absent() : Optional.<Failure>of(failures.get(0));
+        Optional<FailureItem> failureItem = this.selectionIndex == -1 ? Optional.<FailureItem>absent() : Optional.of(this.failureItems.get(this.selectionIndex));
+        Optional<Failure> failure = failureItem.isPresent() ? failureItem.get().failure : Optional.<Failure>absent();
 
-        // update the operation name, the message and the stacktrace texts
-        this.operationNameText.setText(failureEvent.isPresent() ? failureEvent.get().getDisplayName() : "");
+        this.operationNameText.setText(failureItem.isPresent() ? OperationDescriptorRenderer.renderVerbose(failureItem.get().event) : "");
 
         this.messageText.setText(failure.isPresent() ? Strings.nullToEmpty(failure.get().getMessage()) : "");
-        this.messageText.setEnabled(failureEvent.isPresent());
+        this.messageText.setEnabled(failureItem.isPresent());
 
         this.detailsText.setText(failure.isPresent() ? collectDetails(failure.get()) : "");
-        this.detailsText.setEnabled(failureEvent.isPresent());
+        this.detailsText.setEnabled(failureItem.isPresent());
 
         this.backButton.setEnabled(this.selectionIndex > 0);
-        this.nextButton.setEnabled(this.selectionIndex < this.failureEvents.size() - 1);
-        this.copyButton.setEnabled(failure.isPresent() && failure.get().getDescription() != null);
+        this.nextButton.setEnabled(this.selectionIndex < this.failureItems.size() - 1);
+        this.copyButton.setEnabled(failureItem.isPresent() && failure.isPresent() && failure.get().getDescription() != null);
+
+        // force redraw since different failures can have different number of lines in the message
+        this.operationNameText.getParent().layout(true);
     }
 
     private String collectDetails(Failure failure) {
@@ -202,7 +190,7 @@ public final class FailureDialog extends Dialog {
         result.append(Strings.nullToEmpty(failure.getDescription()));
         List<? extends Failure> causes = failure.getCauses();
         if (!causes.isEmpty()) {
-            result.append(ExecutionsViewMessages.Dialog_Failure_Root_Cause_Label);
+            result.append('\n').append(ExecutionsViewMessages.Dialog_Failure_Root_Cause_Label).append(' ');
             for (Failure cause : causes) {
                 result.append(collectDetailsRecursively(cause));
             }
@@ -222,6 +210,41 @@ public final class FailureDialog extends Dialog {
             this.clipboard = null;
         }
         return super.close();
+    }
+
+    /**
+     * Represents a failure item shown in the failure dialog. One finish event can have multiple failures and so for each failure of each event we show a
+     * failure item in the failure dialog.
+     */
+    private static final class FailureItem {
+
+        private final FinishEvent event;
+        private final Optional<Failure> failure;
+
+        private FailureItem(FinishEvent event, Optional<Failure> failure) {
+            this.event = event;
+            this.failure = failure;
+        }
+
+        private static ImmutableList<FailureItem> from(final FinishEvent event) {
+            List<? extends Failure> failures = ((FailureResult) event.getResult()).getFailures();
+            ImmutableList<FailureItem> failureItems = FluentIterable.from(failures).transform(new Function<Failure, FailureItem>() {
+                @Override
+                public FailureItem apply(Failure failure) {
+                    return new FailureItem(event, Optional.of(failure));
+                }
+            }).toList();
+            return failureItems.isEmpty() ? ImmutableList.of(new FailureItem(event, Optional.<Failure>absent())) : failureItems;
+        }
+
+        private static ImmutableList<FailureItem> from(List<FinishEvent> events) {
+            ImmutableList.Builder<FailureItem> failureItems = ImmutableList.builder();
+            for (FinishEvent event : events) {
+                failureItems.addAll(from(event));
+            }
+            return failureItems.build();
+        }
+
     }
 
 }
