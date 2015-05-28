@@ -15,9 +15,7 @@ import org.eclipse.buildship.ui.PluginImage;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.osgi.util.NLS;
 import org.gradle.tooling.events.*;
-import org.gradle.tooling.events.task.TaskFinishEvent;
 import org.gradle.tooling.events.task.TaskOperationDescriptor;
-import org.gradle.tooling.events.task.TaskSuccessResult;
 import org.gradle.tooling.events.test.TestOperationDescriptor;
 
 import java.text.DecimalFormat;
@@ -28,20 +26,13 @@ import java.text.DecimalFormat;
 public final class OperationItemConfigurator {
 
     public void configure(OperationItem operationItem) {
-        operationItem.setName(getOperationSpecificName(operationItem));
+        operationItem.setName(calculateName(operationItem));
+        operationItem.setDuration(calculateDuration(operationItem));
 
         FinishEvent finishEvent = operationItem.getFinishEvent();
-        if (finishEvent == null) {
-            // set duration as running
-            operationItem.setDuration(ExecutionsViewMessages.Tree_Item_Operation_Started_Text);
-        } else {
-            // calculate duration
-            OperationResult result = finishEvent.getResult();
-            DecimalFormat durationFormat = new DecimalFormat("#0.000"); //$NON-NLS-1$
-            String duration = durationFormat.format((result.getEndTime() - result.getStartTime()) / 1000.0);
-            operationItem.setDuration(NLS.bind(ExecutionsViewMessages.Tree_Item_Operation_Finished_In_0_Sec_Text, duration));
-
+        if (finishEvent != null) {
             // set result image
+            OperationResult result = finishEvent.getResult();
             if (result instanceof FailureResult) {
                 operationItem.setImage(PluginImages.OPERATION_FAILURE.withState(PluginImage.ImageState.ENABLED).getImageDescriptor());
             } else if (result instanceof SkippedResult) {
@@ -52,23 +43,37 @@ public final class OperationItemConfigurator {
         }
     }
 
-    private String getOperationSpecificName(OperationItem operationItem) {
+    private String calculateName(OperationItem operationItem) {
         OperationDescriptor descriptor = operationItem.getStartEvent().getDescriptor();
         if (descriptor instanceof TaskOperationDescriptor) {
-            if (operationItem.getFinishEvent() instanceof TaskFinishEvent) {
-                TaskFinishEvent taskFinishEvent = (TaskFinishEvent) operationItem.getFinishEvent();
-                if (taskFinishEvent.getResult() instanceof TaskSuccessResult) {
-                    TaskSuccessResult taskSuccessResult = (TaskSuccessResult) taskFinishEvent.getResult();
-                    if (taskSuccessResult.isUpToDate()) {
-                        return ((TaskOperationDescriptor) descriptor).getTaskPath() + " " + "UP-TO-DATE";
-                    }
-                }
-            }
-            return ((TaskOperationDescriptor) descriptor).getTaskPath();
+            String taskPath = ((TaskOperationDescriptor) descriptor).getTaskPath();
+            return taskIsUpToDate(operationItem) ? String.format("%s UP-TO-DATE", taskPath) : taskPath;
         } else if (descriptor instanceof TestOperationDescriptor) {
             return descriptor.getName();
         } else {
             return descriptor.getDisplayName();
+        }
+    }
+
+    private boolean taskIsUpToDate(OperationItem operationItem) {
+        if (operationItem.getFinishEvent() instanceof TaskFinishEvent) {
+            TaskFinishEvent taskFinishEvent = (TaskFinishEvent) operationItem.getFinishEvent();
+            if (taskFinishEvent.getResult() instanceof TaskSuccessResult) {
+                TaskSuccessResult taskSuccessResult = (TaskSuccessResult) taskFinishEvent.getResult();
+                return taskSuccessResult.isUpToDate();
+            }
+        }
+        return false;
+    }
+
+    private String calculateDuration(OperationItem operationItem) {
+        if (operationItem.getFinishEvent() != null) {
+            OperationResult result = operationItem.getFinishEvent().getResult();
+            DecimalFormat durationFormat = new DecimalFormat("#0.000"); //$NON-NLS-1$
+            String duration = durationFormat.format((result.getEndTime() - result.getStartTime()) / 1000.0);
+            return NLS.bind(ExecutionsViewMessages.Tree_Item_Operation_Finished_In_0_Sec_Text, duration);
+        } else {
+            return ExecutionsViewMessages.Tree_Item_Operation_Started_Text;
         }
     }
 
