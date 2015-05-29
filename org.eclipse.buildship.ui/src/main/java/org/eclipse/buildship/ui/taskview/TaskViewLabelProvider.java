@@ -16,6 +16,7 @@ import java.util.List;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
+import org.eclipse.buildship.ui.util.color.ColorUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableColorProvider;
@@ -27,7 +28,6 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImageWithState;
 import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 
 /**
  * Label provider for the {@link TaskView}. Provides the labels, the icons for the table tree, and
@@ -42,7 +42,7 @@ public final class TaskViewLabelProvider implements ITableLabelProvider, ITableC
     private final WorkbenchLabelProvider workbenchLabelProvider;
 
     public TaskViewLabelProvider() {
-        this.descriptionColor = WorkbenchUtils.getDecorationsColorFromCurrentTheme();
+        this.descriptionColor = ColorUtils.getDecorationsColorFromCurrentTheme();
         this.workbenchLabelProvider = new WorkbenchLabelProvider();
     }
 

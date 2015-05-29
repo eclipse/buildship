@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.ui.viewer;
 
+import org.eclipse.buildship.ui.util.color.ColorUtils;
 import org.eclipse.core.databinding.observable.map.IObservableMap;
 import org.eclipse.jface.databinding.viewers.ObservableMapCellLabelProvider;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -22,8 +23,6 @@ import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.TextStyle;
-
-import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 
 /**
  * This ObservableMapCellLabelProvider implementation also supports an image for a
@@ -39,15 +38,9 @@ public class ObservableMapCellWithIconLabelProvider extends ObservableMapCellLab
     }
 
     @Override
-    public void dispose() {
-        super.dispose();
-        this.resourceManager.dispose();
-    }
-
-    @Override
     public StyledString getStyledText(Object element) {
-        Object value = this.attributeMaps[0].get(element);
-        String cellContent = value == null ? "" : value.toString(); //$NON-NLS-1$
+        Object label = this.attributeMaps[0].get(element);
+        String cellContent = label == null ? "" : label.toString(); //$NON-NLS-1$
         StyledString result = new StyledString(cellContent);
 
         // if the task contains the text UP-TO-DATE, then display it with a different color
@@ -58,7 +51,7 @@ public class ObservableMapCellWithIconLabelProvider extends ObservableMapCellLab
 
                 @Override
                 public void applyStyles(TextStyle textStyle) {
-                    textStyle.foreground = WorkbenchUtils.getDecorationsColorFromCurrentTheme();
+                    textStyle.foreground = ColorUtils.getDecorationsColorFromCurrentTheme();
                 }
             };
             result.setStyle(upToDateIndex, upToDate.length(), styler);
@@ -68,12 +61,18 @@ public class ObservableMapCellWithIconLabelProvider extends ObservableMapCellLab
 
     @Override
     public Image getImage(Object element) {
-        Object value = this.attributeMaps[1].get(element);
-        if (value instanceof ImageDescriptor) {
-            Image image = this.resourceManager.createImage((ImageDescriptor) value);
-            return image;
+        Object imageDescriptor = this.attributeMaps[1].get(element);
+        if (imageDescriptor instanceof ImageDescriptor) {
+            return this.resourceManager.createImage((ImageDescriptor) imageDescriptor);
+        } else {
+            return null;
         }
-        return null;
+    }
+
+    @Override
+    public void dispose() {
+        this.resourceManager.dispose();
+        super.dispose();
     }
 
 }
