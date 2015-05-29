@@ -24,7 +24,7 @@ public final class WorkbenchUtils {
     private WorkbenchUtils() {
     }
 
-    /**
+/**
      * Shows the view with the given id and secondary id in the given mode.
      *
      * @param viewId the id of the view
