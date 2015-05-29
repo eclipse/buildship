@@ -28,6 +28,7 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.databinding.viewers.ObservableListTreeContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapCellLabelProvider;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -125,9 +126,11 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         IBeanValueProperty txtProperty = BeanProperties.value(textProperty);
         if (imageProperty != null) {
             IBeanValueProperty imgProperty = BeanProperties.value(imageProperty);
-            viewerColumn.setLabelProvider(new ObservableMapCellWithIconLabelProvider(txtProperty.observeDetail(knownElements), imgProperty.observeDetail(knownElements)));
+            ObservableMapCellWithIconLabelProvider labelProvider = new ObservableMapCellWithIconLabelProvider(txtProperty.observeDetail(knownElements), imgProperty.observeDetail(knownElements));
+            viewerColumn.setLabelProvider(new DelegatingStyledCellLabelProvider(labelProvider));
         } else {
-            viewerColumn.setLabelProvider(new ObservableMapCellLabelProvider(txtProperty.observeDetail(knownElements)));
+            ObservableMapCellLabelProvider labelProvider = new ObservableMapCellLabelProvider(txtProperty.observeDetail(knownElements));
+            viewerColumn.setLabelProvider(labelProvider);
         }
     }
 
