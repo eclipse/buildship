@@ -52,12 +52,12 @@ import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.projectimport.ProjectImportMessages;
 import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.selection.Enabler;
 import org.eclipse.buildship.ui.util.widget.ButtonUtils;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
+import org.eclipse.buildship.ui.wizard.project.ProjectImportMessages;
 
 /**
  * Specifies the Gradle distribution to apply when executing tasks via the run configurations.

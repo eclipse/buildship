@@ -25,7 +25,7 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Widget;
 
-import org.eclipse.buildship.ui.projectimport.ProjectImportMessages;
+import org.eclipse.buildship.ui.wizard.project.ProjectImportMessages;
 
 /**
  * A {@link org.eclipse.swt.events.SelectionListener} implementation which opens a

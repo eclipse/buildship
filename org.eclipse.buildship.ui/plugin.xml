@@ -17,7 +17,7 @@
        <wizard
              canFinishEarly="false"
              category="org.eclipse.buildship.ui.newwizards"
-             class="org.eclipse.buildship.ui.newproject.NewGradleProjectWizard"
+             class="org.eclipse.buildship.ui.wizard.project.NewGradleProjectWizard"
              hasPages="true"
              icon="icons/full/etool16/new_wiz.png"
              id="org.eclipse.buildship.ui.wizard1"
@@ -40,7 +40,7 @@
          point="org.eclipse.ui.importWizards">
       <wizard
             id="org.eclipse.buildship.ui.wizards.projectimport"
-            class="org.eclipse.buildship.ui.projectimport.ProjectImportWizard"
+            class="org.eclipse.buildship.ui.wizard.project.ProjectImportWizard"
             category="org.eclipse.buildship.ui.wizards"
             icon="icons/full/etool16/import_wiz.png"
             name="Gradle Project">

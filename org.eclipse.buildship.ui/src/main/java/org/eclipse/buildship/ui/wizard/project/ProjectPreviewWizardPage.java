@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.projectimport;
+package org.eclipse.buildship.ui.wizard.project;
 
 import java.io.File;
 import java.util.concurrent.CountDownLatch;

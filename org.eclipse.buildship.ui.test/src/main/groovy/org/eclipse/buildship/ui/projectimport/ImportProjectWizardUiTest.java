@@ -12,7 +12,10 @@
 package org.eclipse.buildship.ui.projectimport;
 
 import org.eclipse.buildship.ui.AbstractSwtbotTest;
+import org.eclipse.buildship.ui.wizard.project.ProjectImportMessages;
+
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
+
 import org.junit.Test;
 
 public class ImportProjectWizardUiTest extends AbstractSwtbotTest {

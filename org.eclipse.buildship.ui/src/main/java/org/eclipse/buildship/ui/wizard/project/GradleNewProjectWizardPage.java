@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.newproject;
+package org.eclipse.buildship.ui.wizard.project;
 
 import java.util.Queue;
 
@@ -58,8 +58,6 @@ import org.eclipse.buildship.ui.databinding.ProjectLocationDirObservable;
 import org.eclipse.buildship.ui.databinding.ValidationInitialMessageProvider;
 import org.eclipse.buildship.ui.databinding.converter.BooleanInvert;
 import org.eclipse.buildship.ui.databinding.validator.ProjectNameValidator;
-import org.eclipse.buildship.ui.projectimport.AbstractWizardPage;
-import org.eclipse.buildship.ui.projectimport.ProjectImportMessages;
 import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
 

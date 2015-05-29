@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.newproject;
+package org.eclipse.buildship.ui.wizard.project;
 
 import java.io.File;
 
@@ -29,8 +29,6 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.projectimport.ProjectImportWizardController;
-import org.eclipse.buildship.ui.projectimport.ProjectPreviewWizardPage;
 
 /**
  * {@link INewWizard} for creating a new Gradle project.
