@@ -62,21 +62,25 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     private final Job buildJob;
     private final String displayName;
     private final BuildLaunchRequest buildLaunchRequest;
+    private final GradleRunConfigurationAttributes configurationAttributes;
     private final ExecutionsViewState state;
-    private final GradleRunConfigurationAttributes attributes;
 
     private SelectionHistoryManager selectionHistoryManager;
 
-    public ExecutionPage(Job buildJob, String displayName, BuildLaunchRequest buildLaunchRequest, ExecutionsViewState state, GradleRunConfigurationAttributes attributes) {
+    public ExecutionPage(Job buildJob, String displayName, BuildLaunchRequest buildLaunchRequest, GradleRunConfigurationAttributes configurationAttributes, ExecutionsViewState state) {
         this.buildJob = buildJob;
         this.displayName = displayName;
         this.buildLaunchRequest = buildLaunchRequest;
+        this.configurationAttributes = configurationAttributes;
         this.state = state;
-        this.attributes = attributes;
     }
 
     public Job getBuildJob() {
         return this.buildJob;
+    }
+
+    public GradleRunConfigurationAttributes getConfigurationAttributes() {
+        return this.configurationAttributes;
     }
 
     @Override
@@ -215,10 +219,6 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     public void dispose() {
         this.selectionHistoryManager.dispose();
         super.dispose();
-    }
-
-    public GradleRunConfigurationAttributes getAttributes() {
-        return this.attributes;
     }
 
 }
