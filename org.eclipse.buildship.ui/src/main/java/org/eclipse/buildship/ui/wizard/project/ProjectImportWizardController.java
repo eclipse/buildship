@@ -72,10 +72,10 @@ public final class ProjectImportWizardController {
     public ProjectImportWizardController(IWizard projectImportWizard) {
         // assemble configuration object that serves as the data model of the wizard
         Validator<List<String>> gradleTaskValidator = GradleConnectionValidators.nullValidator();
-        Validator<File> projectDirValidator = GradleConnectionValidators.requiredDirectoryValidator(ProjectImportMessages.Label_ProjectRootDirectory);
+        Validator<File> projectDirValidator = GradleConnectionValidators.requiredDirectoryValidator(ProjectWizardMessages.Label_ProjectRootDirectory);
         Validator<GradleDistributionWrapper> gradleDistributionValidator = GradleConnectionValidators.gradleDistributionValidator();
-        Validator<File> gradleUserHomeValidator = GradleConnectionValidators.optionalDirectoryValidator(ProjectImportMessages.Label_GradleUserHome);
-        Validator<File> javaHomeValidator = GradleConnectionValidators.optionalDirectoryValidator(ProjectImportMessages.Label_JavaHome);
+        Validator<File> gradleUserHomeValidator = GradleConnectionValidators.optionalDirectoryValidator(ProjectWizardMessages.Label_GradleUserHome);
+        Validator<File> javaHomeValidator = GradleConnectionValidators.optionalDirectoryValidator(ProjectWizardMessages.Label_JavaHome);
         Validator<String> jvmArgumentsValidator = GradleConnectionValidators.nullValidator();
         Validator<String> argumentsValidator = GradleConnectionValidators.nullValidator();
 

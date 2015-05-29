@@ -78,12 +78,12 @@ public class NewGradleProjectWizard extends Wizard implements INewWizard {
         // the wizard
         ProjectImportConfiguration configuration = this.controller.getConfiguration();
         // call "gradle init --type java-library" for a new Java project with Gradle
-        configuration.setGradleTask(ImmutableList.of("init", "--type", "java-library"));
+        configuration.setGradleTask(ImmutableList.of("init", "--type", "java-library")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
         this.gradleProjectPage = new GradleNewProjectWizardPage(configuration);
         this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller);
-        this.projectPreviewPage.setTitle("New Project Preview");
-        this.projectPreviewPage.setMessage("Review the new project configuration before creating the Gradle project.");
+        this.projectPreviewPage.setTitle(ProjectWizardMessages.NewGradleProjectWizard_Title);
+        this.projectPreviewPage.setMessage(ProjectWizardMessages.NewGradleProjectWizard_Message);
 
         // the wizard must not be finishable unless this global flag is enabled
         this.finishGloballyEnabled = true;
@@ -96,7 +96,7 @@ public class NewGradleProjectWizard extends Wizard implements INewWizard {
 
     @Override
     public String getWindowTitle() {
-        return "New Gradle Project";
+        return ProjectWizardMessages.NewGradleProjectWizard_Window_Title;
     }
 
     @Override

@@ -22,6 +22,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.viewers.ISelection;
 
+import org.eclipse.buildship.ui.wizard.project.ProjectWizardMessages;
+
 /**
  * This {@link IValidator} is used to check whether a {@link String} or an {@link ISelection} is
  * empty.
@@ -34,14 +36,11 @@ public class ProjectNameValidator implements IValidator {
         if (value instanceof String) {
             String stringValue = (String) value;
             if (stringValue.isEmpty()) {
-                return ValidationStatus.error("The Project Name must not be empty.");
+                return ValidationStatus.error(ProjectWizardMessages.ProjectNameValidator_Error_Project_Name_Empty);
             }
             if (checkAlreadyExists(stringValue)) {
-                return ValidationStatus.error("The Project Name already exists in the current workspace.");
+                return ValidationStatus.error(ProjectWizardMessages.ProjectNameValidator_Error_Project_Name_Exists);
             }
-
-        } else if (value instanceof ISelection && ((ISelection) value).isEmpty()) {
-            return ValidationStatus.error("The selection must not be empty.");
         }
         return Status.OK_STATUS;
     }

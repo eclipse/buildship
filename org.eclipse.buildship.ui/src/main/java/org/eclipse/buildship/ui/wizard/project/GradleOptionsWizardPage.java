@@ -70,7 +70,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
     private Text programArgumentsText;
 
     public GradleOptionsWizardPage(ProjectImportConfiguration configuration, PublishedGradleVersions publishedGradleVersions) {
-        super("GradleOptions", ProjectImportMessages.Title_GradleOptionsWizardPage, ProjectImportMessages.InfoMessage_GradleOptionsWizardPageDefault, //$NON-NLS-1$
+        super("GradleOptions", ProjectWizardMessages.Title_GradleOptionsWizardPage, ProjectWizardMessages.InfoMessage_GradleOptionsWizardPageDefault, //$NON-NLS-1$
                 configuration, ImmutableList.of(configuration.getGradleDistribution(), configuration.getJavaHome(), configuration.getGradleUserHome(), configuration.getJvmArguments(), configuration.getArguments()));
         this.publishedGradleVersions = publishedGradleVersions;
     }
@@ -78,8 +78,8 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
     @Override
     protected void createWidgets(Composite root) {
         root.setLayout(new GridLayout(1, false));
-        createGradleDistributionContent(createGroup(root, ProjectImportMessages.Label_GradleDistribution));
-        createAdvancedOptionsContent(createGroup(root, ProjectImportMessages.Label_AdvancedOptions));
+        createGradleDistributionContent(createGroup(root, ProjectWizardMessages.Label_GradleDistribution));
+        createAdvancedOptionsContent(createGroup(root, ProjectWizardMessages.Label_AdvancedOptions));
         bindGradleDistributionToConfiguration();
         bindAdvancedOptionsToConfiguration();
     }
@@ -104,7 +104,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
         // second line: local installation directory
         this.useLocalInstallationDirOption = uiBuilderFactory.newRadio(root).alignLeft().text(CoreMessages.GradleDistribution_Label_LocalInstallationDirectory).control();
         this.localInstallationDirText = uiBuilderFactory.newText(root).alignFillHorizontal().disabled().control();
-        Button localInstallationDirBrowseButton = uiBuilderFactory.newButton(root).alignLeft().disabled().text(ProjectImportMessages.Button_Label_Browse).control();
+        Button localInstallationDirBrowseButton = uiBuilderFactory.newButton(root).alignLeft().disabled().text(ProjectWizardMessages.Button_Label_Browse).control();
         localInstallationDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.localInstallationDirText, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
 
         // third line: remote distribution installation
@@ -196,27 +196,27 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
         UiBuilder.UiBuilderFactory uiBuilderFactory = getUiBuilderFactory();
 
         // Gradle user home
-        uiBuilderFactory.newLabel(root).alignLeft().text(ProjectImportMessages.Label_GradleUserHome);
+        uiBuilderFactory.newLabel(root).alignLeft().text(ProjectWizardMessages.Label_GradleUserHome);
 
         File gradleUserHome = getConfiguration().getGradleUserHome().getValue();
         String gradleUserHomeString = FileUtils.getAbsolutePath(gradleUserHome).orNull();
         this.gradleUserHomeText = uiBuilderFactory.newText(root).alignFillHorizontal().text(gradleUserHomeString).control();
 
-        Button gradleUserHomeButton = uiBuilderFactory.newButton(root).alignLeft().text(ProjectImportMessages.Button_Label_Browse).control();
-        gradleUserHomeButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.gradleUserHomeText, ProjectImportMessages.Label_GradleUserHome));
+        Button gradleUserHomeButton = uiBuilderFactory.newButton(root).alignLeft().text(ProjectWizardMessages.Button_Label_Browse).control();
+        gradleUserHomeButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.gradleUserHomeText, ProjectWizardMessages.Label_GradleUserHome));
 
         // Java home
-        uiBuilderFactory.newLabel(root).text(ProjectImportMessages.Label_JavaHome).alignLeft().control();
+        uiBuilderFactory.newLabel(root).text(ProjectWizardMessages.Label_JavaHome).alignLeft().control();
 
         File javaHome = getConfiguration().getJavaHome().getValue();
         String javaHomeString = FileUtils.getAbsolutePath(javaHome).orNull();
         this.javaHomeText = uiBuilderFactory.newText(root).alignFillHorizontal().text(javaHomeString).control();
 
-        Button javaHomeButton = uiBuilderFactory.newButton(root).alignLeft().text(ProjectImportMessages.Button_Label_Browse).control();
-        javaHomeButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.javaHomeText, ProjectImportMessages.Label_JavaHome));
+        Button javaHomeButton = uiBuilderFactory.newButton(root).alignLeft().text(ProjectWizardMessages.Button_Label_Browse).control();
+        javaHomeButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.javaHomeText, ProjectWizardMessages.Label_JavaHome));
 
         // JVM arguments
-        uiBuilderFactory.newLabel(root).alignLeft().text(ProjectImportMessages.Label_JvmArguments);
+        uiBuilderFactory.newLabel(root).alignLeft().text(ProjectWizardMessages.Label_JvmArguments);
 
         String jvmArguments = getConfiguration().getJvmArguments().getValue();
         String jvmArgumentsString = Strings.nullToEmpty(jvmArguments);
@@ -225,7 +225,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
         uiBuilderFactory.span(root);
 
         // program arguments
-        uiBuilderFactory.newLabel(root).alignLeft().text(ProjectImportMessages.Label_ProgramArguments);
+        uiBuilderFactory.newLabel(root).alignLeft().text(ProjectWizardMessages.Label_ProgramArguments);
 
         String arguments = getConfiguration().getArguments().getValue();
         String argumentsString = Strings.nullToEmpty(arguments);
@@ -357,7 +357,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
 
     @Override
     protected String getPageContextInformation() {
-        return ProjectImportMessages.InfoMessage_GradleOptionsWizardPageContext;
+        return ProjectWizardMessages.InfoMessage_GradleOptionsWizardPageContext;
     }
 
 }

@@ -39,12 +39,12 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
      *
      * @see org.eclipse.jface.dialogs.DialogSettings#getOrCreateSection(IDialogSettings, String)
      */
-    private static final String IMPORT_DIALOG_SETTINGS = "org.eclipse.buildship.ui.projectimport"; //$NON-NLS-1$
+    private static final String IMPORT_DIALOG_SETTINGS = "org.eclipse.buildship.ui.wizard"; //$NON-NLS-1$
 
     /**
      * Preference key that flags whether the welcome page should be shown as part of the import wizard.
      */
-    private static final String PREF_SHOW_WELCOME_PAGE = "org.eclipse.buildship.ui.projectimport.showWelcomePage"; //$NON-NLS-1$
+    private static final String PREF_SHOW_WELCOME_PAGE = "org.eclipse.buildship.ui.wizard.showWelcomePage"; //$NON-NLS-1$
 
     // the pages to display in the wizard
     private final GradleWelcomeWizardPage welcomeWizardPage;
@@ -100,7 +100,7 @@ public final class ProjectImportWizard extends Wizard implements INewWizard {
 
     @Override
     public String getWindowTitle() {
-        return ProjectImportMessages.Title_GradleProjectWizardPage;
+        return ProjectWizardMessages.Title_GradleProjectWizardPage;
     }
 
     @Override

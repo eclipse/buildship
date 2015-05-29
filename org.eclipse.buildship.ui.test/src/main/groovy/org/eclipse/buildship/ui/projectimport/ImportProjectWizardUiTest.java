@@ -12,7 +12,7 @@
 package org.eclipse.buildship.ui.projectimport;
 
 import org.eclipse.buildship.ui.AbstractSwtbotTest;
-import org.eclipse.buildship.ui.wizard.project.ProjectImportMessages;
+import org.eclipse.buildship.ui.wizard.project.ProjectWizardMessages;
 
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 
@@ -32,7 +32,7 @@ public class ImportProjectWizardUiTest extends AbstractSwtbotTest {
         bot.button("Next >").click();
 
         // if the wizard was opened the label is available, otherwise a WidgetNotFoundException is thrown
-        bot.styledText(ProjectImportMessages.InfoMessage_GradleWelcomeWizardPageContext);
+        bot.styledText(ProjectWizardMessages.InfoMessage_GradleWelcomeWizardPageContext);
 
         // cancel the wizard
         bot.button("Cancel").click();

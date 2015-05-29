@@ -39,7 +39,7 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
     private final Font headerFont;
 
     public GradleWelcomeWizardPage(ProjectImportConfiguration configuration) {
-        super("GradleWelcome", ProjectImportMessages.Title_GradleWelcomeWizardPage, ProjectImportMessages.InfoMessage_GradleWelcomeWizardPageDefault, //$NON-NLS-1$
+        super("GradleWelcome", ProjectWizardMessages.Title_GradleWelcomeWizardPage, ProjectWizardMessages.InfoMessage_GradleWelcomeWizardPageDefault, //$NON-NLS-1$
                 configuration, ImmutableList.<Property<?>> of());
         this.headerFont = createHeaderFont();
     }
@@ -126,7 +126,7 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
 
     @Override
     protected String getPageContextInformation() {
-        return ProjectImportMessages.InfoMessage_GradleWelcomeWizardPageContext;
+        return ProjectWizardMessages.InfoMessage_GradleWelcomeWizardPageContext;
     }
 
     @Override

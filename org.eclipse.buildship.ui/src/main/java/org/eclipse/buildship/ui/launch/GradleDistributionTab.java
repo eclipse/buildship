@@ -57,7 +57,7 @@ import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.selection.Enabler;
 import org.eclipse.buildship.ui.util.widget.ButtonUtils;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
-import org.eclipse.buildship.ui.wizard.project.ProjectImportMessages;
+import org.eclipse.buildship.ui.wizard.project.ProjectWizardMessages;
 
 /**
  * Specifies the Gradle distribution to apply when executing tasks via the run configurations.
@@ -153,7 +153,7 @@ public final class GradleDistributionTab extends AbstractLaunchConfigurationTab 
         // second line: local installation directory
         this.useLocalInstallationDirOption = this.builderFactory.newRadio(container).alignLeft().text(CoreMessages.GradleDistribution_Label_LocalInstallationDirectory).control();
         this.localInstallationDirText = this.builderFactory.newText(container).alignFillHorizontal().disabled().control();
-        Button localInstallationDirBrowseButton = this.builderFactory.newButton(container).alignLeft().disabled().text(ProjectImportMessages.Button_Label_Browse).control();
+        Button localInstallationDirBrowseButton = this.builderFactory.newButton(container).alignLeft().disabled().text(ProjectWizardMessages.Button_Label_Browse).control();
         localInstallationDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(container.getShell(), this.localInstallationDirText,
                 CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
 

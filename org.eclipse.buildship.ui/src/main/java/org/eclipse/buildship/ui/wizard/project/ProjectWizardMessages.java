@@ -16,9 +16,9 @@ import org.eclipse.osgi.util.NLS;
 /**
  * Lists the i18n resource keys for the project import messages.
  */
-public final class ProjectImportMessages extends NLS {
+public final class ProjectWizardMessages extends NLS {
 
-    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.projectimport.ProjectImportMessages"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.wizard.ProjectImportMessages"; //$NON-NLS-1$
 
     public static String Title_GradleWelcomeWizardPage;
     public static String Title_GradleProjectWizardPage;
@@ -28,6 +28,22 @@ public final class ProjectImportMessages extends NLS {
     public static String Title_Select_0;
 
     public static String Button_Label_Browse;
+
+    public static String GradleNewProjectWizardPage_Default_Location_Button;
+
+    public static String GradleNewProjectWizardPage_Default_Location_Label;
+
+    public static String GradleNewProjectWizardPage_Message;
+
+    public static String GradleNewProjectWizardPage_Page_Context_Information;
+
+    public static String GradleNewProjectWizardPage_Project_Location_Label;
+
+    public static String GradleNewProjectWizardPage_Project_Name_Label;
+
+    public static String GradleNewProjectWizardPage_Title;
+
+    public static String GradleNewProjectWizardPage_Workingset_Group;
 
     public static String Label_ProjectRootDirectory;
     public static String Label_GradleUserHome;
@@ -50,12 +66,22 @@ public final class ProjectImportMessages extends NLS {
     public static String InfoMessage_GradleOptionsWizardPageContext;
     public static String InfoMessage_GradlePreviewWizardPageContext;
 
+    public static String NewGradleProjectWizard_Message;
+
+    public static String NewGradleProjectWizard_Title;
+
+    public static String NewGradleProjectWizard_Window_Title;
+
+    public static String ProjectNameValidator_Error_Project_Name_Empty;
+
+    public static String ProjectNameValidator_Error_Project_Name_Exists;
+
     static {
         // initialize resource bundle
-        NLS.initializeMessages(BUNDLE_NAME, ProjectImportMessages.class);
+        NLS.initializeMessages(BUNDLE_NAME, ProjectWizardMessages.class);
     }
 
-    private ProjectImportMessages() {
+    private ProjectWizardMessages() {
     }
 
 }

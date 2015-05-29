@@ -37,7 +37,7 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
     private Text projectDirText;
 
     public GradleProjectWizardPage(ProjectImportConfiguration configuration) {
-        super("GradleProject", ProjectImportMessages.Title_GradleProjectWizardPage, ProjectImportMessages.InfoMessage_GradleProjectWizardPageDefault, //$NON-NLS-1$
+        super("GradleProject", ProjectWizardMessages.Title_GradleProjectWizardPage, ProjectWizardMessages.InfoMessage_GradleProjectWizardPageDefault, //$NON-NLS-1$
                 configuration, ImmutableList.<Property<?>> of(configuration.getProjectDir()));
     }
 
@@ -52,7 +52,7 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
         UiBuilder.UiBuilderFactory uiBuilderFactory = getUiBuilderFactory();
 
         // project directory label
-        uiBuilderFactory.newLabel(root).alignLeft().text(ProjectImportMessages.Label_ProjectRootDirectory).control();
+        uiBuilderFactory.newLabel(root).alignLeft().text(ProjectWizardMessages.Label_ProjectRootDirectory).control();
 
         // project directory text field
         File projectDir = getConfiguration().getProjectDir().getValue();
@@ -60,8 +60,8 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
         this.projectDirText = uiBuilderFactory.newText(root).alignFillHorizontal().text(projectDirValue).control();
 
         // browse button for file chooser
-        Button projectDirBrowseButton = uiBuilderFactory.newButton(root).alignLeft().text(ProjectImportMessages.Button_Label_Browse).control();
-        projectDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.projectDirText, ProjectImportMessages.Label_ProjectRootDirectory));
+        Button projectDirBrowseButton = uiBuilderFactory.newButton(root).alignLeft().text(ProjectWizardMessages.Button_Label_Browse).control();
+        projectDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.projectDirText, ProjectWizardMessages.Label_ProjectRootDirectory));
     }
 
     private void bindToConfiguration() {
@@ -76,7 +76,7 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
 
     @Override
     protected String getPageContextInformation() {
-        return ProjectImportMessages.InfoMessage_GradleProjectWizardPageContext;
+        return ProjectWizardMessages.InfoMessage_GradleProjectWizardPageContext;
     }
 
 }

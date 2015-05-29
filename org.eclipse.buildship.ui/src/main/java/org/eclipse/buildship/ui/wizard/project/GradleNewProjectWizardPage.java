@@ -82,7 +82,7 @@ public class GradleNewProjectWizardPage extends AbstractWizardPage {
     private AggregateValidationStatus validationStatus;
 
     public GradleNewProjectWizardPage(ProjectImportConfiguration configuration) {
-        super("NewGradleProject", "Create a Gradle Project", "Enter a project name.", //$NON-NLS-1$
+        super("NewGradleProject", ProjectWizardMessages.GradleNewProjectWizardPage_Title, ProjectWizardMessages.GradleNewProjectWizardPage_Message, //$NON-NLS-1$
                 configuration, ImmutableList.<Property<?>> of(configuration.getProjectDir()));
         setPageComplete(false);
     }
@@ -100,25 +100,25 @@ public class GradleNewProjectWizardPage extends AbstractWizardPage {
 
         UiBuilder.UiBuilderFactory uiBuilderFactory = getUiBuilderFactory();
 
-        uiBuilderFactory.newLabel(root).alignLeft().text("Project Name");
+        uiBuilderFactory.newLabel(root).alignLeft().text(ProjectWizardMessages.GradleNewProjectWizardPage_Project_Name_Label);
 
         // Text to specify a project name
         this.projectNameText = new Text(root, SWT.BORDER);
         GridDataFactory.fillDefaults().grab(true, false).span(2, SWT.DEFAULT).applyTo(this.projectNameText);
 
         Group locationGroup = new Group(root, SWT.NONE);
-        locationGroup.setText("Project location");
+        locationGroup.setText(ProjectWizardMessages.GradleNewProjectWizardPage_Project_Location_Label);
         GridLayoutFactory.swtDefaults().numColumns(3).applyTo(locationGroup);
         GridDataFactory.fillDefaults().grab(true, false).span(3, SWT.DEFAULT).applyTo(locationGroup);
 
         // check button for the usage of the default workspace location
         this.defaultWorkspacelocationButton = new Button(locationGroup, SWT.CHECK);
         GridDataFactory.fillDefaults().span(3, SWT.DEFAULT).applyTo(this.defaultWorkspacelocationButton);
-        this.defaultWorkspacelocationButton.setText("Use default location");
+        this.defaultWorkspacelocationButton.setText(ProjectWizardMessages.GradleNewProjectWizardPage_Default_Location_Button);
         this.defaultWorkspacelocationButton.setSelection(true);
 
         // project directory label
-        this.locationLabel = uiBuilderFactory.newLabel(locationGroup).alignLeft().text("Location").control();
+        this.locationLabel = uiBuilderFactory.newLabel(locationGroup).alignLeft().text(ProjectWizardMessages.GradleNewProjectWizardPage_Default_Location_Label).control();
 
         // combo for typing an alternative project path, which also provides recently used paths
         this.projectDirCombo = new Combo(locationGroup, SWT.BORDER);
@@ -126,16 +126,16 @@ public class GradleNewProjectWizardPage extends AbstractWizardPage {
         addProjectLocationSettingBehavior();
 
         // browse button for file chooser
-        this.projectDirBrowseButton = uiBuilderFactory.newButton(locationGroup).alignLeft().text(ProjectImportMessages.Button_Label_Browse).control();
+        this.projectDirBrowseButton = uiBuilderFactory.newButton(locationGroup).alignLeft().text(ProjectWizardMessages.Button_Label_Browse).control();
         this.projectDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.projectDirCombo,
-                ProjectImportMessages.Label_ProjectRootDirectory));
+                ProjectWizardMessages.Label_ProjectRootDirectory));
 
         // create workingset configuration group
         this.workingSetConfigurationBlock = new WorkingSetConfigurationBlock(new String[] { WorkingSetIds.RESOURCE, WorkingSetIds.JAVA }, UiPlugin.getInstance()
                 .getDialogSettings());
 
         Group workingSetGroup = new Group(root, SWT.NONE);
-        workingSetGroup.setText("Working sets");
+        workingSetGroup.setText(ProjectWizardMessages.GradleNewProjectWizardPage_Workingset_Group);
         GridLayoutFactory.swtDefaults().applyTo(workingSetGroup);
         GridDataFactory.fillDefaults().grab(true, false).span(3, SWT.DEFAULT).applyTo(workingSetGroup);
 
@@ -169,7 +169,7 @@ public class GradleNewProjectWizardPage extends AbstractWizardPage {
         ISWTObservableValue projectNameTarget = WidgetProperties.text(SWT.Modify).observe(this.projectNameText);
         UpdateValueStrategy updateProjectNameStrategy = new UpdateValueStrategy();
         updateProjectNameStrategy.setAfterGetValidator(new ProjectNameValidator());
-        WritableValue projectNameValue = new WritableValue("", String.class);
+        WritableValue projectNameValue = new WritableValue("", String.class); //$NON-NLS-1$
         Binding projectNameBinding = this.dbc.bindValue(projectNameTarget, projectNameValue, updateProjectNameStrategy, null);
         addControlDecorationSupport(projectNameBinding);
 
@@ -205,7 +205,7 @@ public class GradleNewProjectWizardPage extends AbstractWizardPage {
                     ControlDecorationSupport.create(binding, SWT.LEFT | SWT.TOP);
                     // show validation status as Wizard message
                     DialogPageSupport dialogPageSupport = DialogPageSupport.create(GradleNewProjectWizardPage.this, GradleNewProjectWizardPage.this.dbc);
-                    dialogPageSupport.setValidationMessageProvider(new ValidationInitialMessageProvider("Enter a project name."));
+                    dialogPageSupport.setValidationMessageProvider(new ValidationInitialMessageProvider(ProjectWizardMessages.GradleNewProjectWizardPage_Message));
                 }
             }
         });
@@ -237,7 +237,7 @@ public class GradleNewProjectWizardPage extends AbstractWizardPage {
 
     @Override
     protected String getPageContextInformation() {
-        return "Click the Finish button to finish the wizard and create a default Gradle project. Click the Next button to select optional options.";
+        return ProjectWizardMessages.GradleNewProjectWizardPage_Page_Context_Information;
     }
 
     @Override

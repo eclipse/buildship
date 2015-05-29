@@ -25,7 +25,7 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Widget;
 
-import org.eclipse.buildship.ui.wizard.project.ProjectImportMessages;
+import org.eclipse.buildship.ui.wizard.project.ProjectWizardMessages;
 
 /**
  * A {@link org.eclipse.swt.events.SelectionListener} implementation which opens a
@@ -41,7 +41,7 @@ public final class DirectoryDialogSelectionListener extends SelectionAdapter {
     public DirectoryDialogSelectionListener(Shell shell, Widget target, String entity) {
         this.shell = shell;
         this.target = WidgetProperties.text().observe(target);
-        this.title = NLS.bind(ProjectImportMessages.Title_Select_0, entity);
+        this.title = NLS.bind(ProjectWizardMessages.Title_Select_0, entity);
     }
 
     @Override
