@@ -58,7 +58,7 @@ public final class OperationItemConfigurator {
                 return null;
             }
         } else {
-            return null;
+            return PluginImages.OPERATION_INPROGRESS.withState(PluginImage.ImageState.ENABLED).getImageDescriptor();
         }
     }
 
