@@ -42,6 +42,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 
+import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.ui.generic.ActionShowingContextMenuListener;
 import org.eclipse.buildship.ui.generic.NodeSelection;
 import org.eclipse.buildship.ui.generic.NodeSelectionProvider;
@@ -65,19 +66,25 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     private final Job buildJob;
     private final String displayName;
     private final BuildLaunchRequest buildLaunchRequest;
+    private final GradleRunConfigurationAttributes configurationAttributes;
     private final ExecutionsViewState state;
 
     private SelectionHistoryManager selectionHistoryManager;
 
-    public ExecutionPage(Job buildJob, String displayName, BuildLaunchRequest buildLaunchRequest, ExecutionsViewState state) {
+    public ExecutionPage(Job buildJob, String displayName, BuildLaunchRequest buildLaunchRequest, GradleRunConfigurationAttributes configurationAttributes, ExecutionsViewState state) {
         this.buildJob = buildJob;
         this.displayName = displayName;
         this.buildLaunchRequest = buildLaunchRequest;
+        this.configurationAttributes = configurationAttributes;
         this.state = state;
     }
 
     public Job getBuildJob() {
         return this.buildJob;
+    }
+
+    public GradleRunConfigurationAttributes getConfigurationAttributes() {
+        return this.configurationAttributes;
     }
 
     @Override
@@ -160,6 +167,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new SwitchToConsoleViewAction(this));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new Separator());
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new CancelBuildExecutionAction(this));
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RerunBuildExecutionAction(this));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemoveTerminatedExecutionPageAction(this));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemoveAllTerminatedExecutionPagesAction(this));
         toolbarManager.update(true);

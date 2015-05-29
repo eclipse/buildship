@@ -12,29 +12,31 @@
 package org.eclipse.buildship.ui.view.execution;
 
 import com.google.common.base.Preconditions;
-
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.jface.action.Action;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.i18n.UiMessages;
 
 /**
- * Cancel the build execution displayed by the target {@link ExecutionPage}.
+ * Reruns the build represented by the target {@link ExecutionPage}.
  */
-public final class CancelBuildExecutionAction extends Action {
+public final class RerunBuildExecutionAction extends Action {
 
     private final ExecutionPage page;
 
-    public CancelBuildExecutionAction(ExecutionPage page) {
-        this.page = Preconditions.checkNotNull(page);
+    public RerunBuildExecutionAction(ExecutionPage executionPage) {
+        this.page = Preconditions.checkNotNull(executionPage);
 
-        setToolTipText(UiMessages.Action_CancelExecution_Tooltip);
-        setImageDescriptor(PluginImages.CANCEL_BUILD_EXECUTION.withState(ImageState.ENABLED).getImageDescriptor());
-        setDisabledImageDescriptor(PluginImages.CANCEL_BUILD_EXECUTION.withState(ImageState.DISABLED).getImageDescriptor());
+        setToolTipText(ExecutionsViewMessages.Action_RerunBuild_Tooltip);
+        setImageDescriptor(PluginImages.RERUN_BUILD.withState(ImageState.ENABLED).getImageDescriptor());
+        setDisabledImageDescriptor(PluginImages.RERUN_BUILD.withState(ImageState.DISABLED).getImageDescriptor());
 
         registerJobChangeListener();
     }
@@ -45,15 +47,16 @@ public final class CancelBuildExecutionAction extends Action {
 
             @Override
             public void done(IJobChangeEvent event) {
-                CancelBuildExecutionAction.this.setEnabled(event.getJob().getState() != Job.NONE);
+                RerunBuildExecutionAction.this.setEnabled(event.getJob().getState() != Job.NONE);
             }
         });
-        setEnabled(job.getState() != Job.NONE);
+        setEnabled(job.getState() == Job.NONE);
     }
 
     @Override
     public void run() {
-        this.page.getBuildJob().cancel();
+        ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateRunConfiguration(this.page.getConfigurationAttributes());
+        DebugUITools.launch(launchConfiguration, ILaunchManager.RUN_MODE);
     }
 
 }
