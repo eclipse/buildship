@@ -12,8 +12,10 @@
 package org.eclipse.buildship.ui.view.execution;
 
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 
@@ -28,6 +30,7 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.databinding.viewers.ObservableListTreeContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapCellLabelProvider;
+import org.eclipse.jface.resource.ColorDescriptor;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -44,6 +47,7 @@ import org.eclipse.buildship.ui.generic.NodeSelection;
 import org.eclipse.buildship.ui.generic.NodeSelectionProvider;
 import org.eclipse.buildship.ui.generic.SelectionHistoryManager;
 import org.eclipse.buildship.ui.generic.SelectionSpecificAction;
+import org.eclipse.buildship.ui.util.color.ColorUtils;
 import org.eclipse.buildship.ui.view.BasePage;
 import org.eclipse.buildship.ui.view.CollapseTreeNodesAction;
 import org.eclipse.buildship.ui.view.ExpandTreeNodesAction;
@@ -123,12 +127,18 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         IBeanValueProperty txtProperty = BeanProperties.value(textProperty);
         if (imageProperty != null) {
             IBeanValueProperty imgProperty = BeanProperties.value(imageProperty);
-            ObservableMapCellWithIconLabelProvider labelProvider = new ObservableMapCellWithIconLabelProvider(txtProperty.observeDetail(knownElements), imgProperty.observeDetail(knownElements));
+            Map<String, ColorDescriptor> decoratedSubstringColors = getDecoratedSubstringColors();
+            ObservableMapCellWithIconLabelProvider labelProvider = new ObservableMapCellWithIconLabelProvider(decoratedSubstringColors, txtProperty.observeDetail(knownElements),
+                    imgProperty.observeDetail(knownElements));
             viewerColumn.setLabelProvider(new DelegatingStyledCellLabelProvider(labelProvider));
         } else {
             ObservableMapCellLabelProvider labelProvider = new ObservableMapCellLabelProvider(txtProperty.observeDetail(knownElements));
             viewerColumn.setLabelProvider(labelProvider);
         }
+    }
+
+    private Map<String, ColorDescriptor> getDecoratedSubstringColors() {
+        return ImmutableMap.of("UP-TO-DATE", ColorUtils.getDecorationsColorDescriptorFromCurrentTheme());
     }
 
     @Override
