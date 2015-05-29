@@ -43,11 +43,6 @@ public class ObservableMapCellWithIconLabelProvider extends ObservableMapCellLab
         super(attributeMaps);
         this.resourceManager = new LocalResourceManager(JFaceResources.getResources());
         this.decoratedSubstringColors = ImmutableMap.copyOf(decoratedSubstringColors);
-
-        // store the Color instances in the resource manager
-        for (String decoratedSubstring : this.decoratedSubstringColors.keySet()) {
-            this.resourceManager.create(this.decoratedSubstringColors.get(decoratedSubstring));
-        }
     }
 
     @Override
@@ -73,6 +68,9 @@ public class ObservableMapCellWithIconLabelProvider extends ObservableMapCellLab
                 public void applyStyles(TextStyle textStyle) {
                     ColorDescriptor substringColorDescriptor = ObservableMapCellWithIconLabelProvider.this.decoratedSubstringColors.get(substringToColor);
                     Color substringColor = (Color) ObservableMapCellWithIconLabelProvider.this.resourceManager.find(substringColorDescriptor);
+                    if (substringColor == null) {
+                        substringColor = ObservableMapCellWithIconLabelProvider.this.resourceManager.createColor(substringColorDescriptor);
+                    }
                     textStyle.foreground = substringColor;
                 }
             };
