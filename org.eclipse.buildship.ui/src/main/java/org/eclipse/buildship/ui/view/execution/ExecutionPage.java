@@ -134,9 +134,8 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         IBeanValueProperty txtProperty = BeanProperties.value(textProperty);
         if (imageProperty != null) {
             IBeanValueProperty imgProperty = BeanProperties.value(imageProperty);
-            Map<String, ColorDescriptor> decoratedSubstringColors = getDecoratedSubstringColors();
-            ObservableMapCellWithIconLabelProvider labelProvider = new ObservableMapCellWithIconLabelProvider(decoratedSubstringColors, txtProperty.observeDetail(knownElements),
-                    imgProperty.observeDetail(knownElements));
+            ObservableMapCellWithIconLabelProvider labelProvider = new ObservableMapCellWithIconLabelProvider(getCustomTextColoringMapping(),
+                    txtProperty.observeDetail(knownElements), imgProperty.observeDetail(knownElements));
             viewerColumn.setLabelProvider(new DelegatingStyledCellLabelProvider(labelProvider));
         } else {
             ObservableMapCellLabelProvider labelProvider = new ObservableMapCellLabelProvider(txtProperty.observeDetail(knownElements));
@@ -144,7 +143,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         }
     }
 
-    private Map<String, ColorDescriptor> getDecoratedSubstringColors() {
+    private Map<String, ColorDescriptor> getCustomTextColoringMapping() {
         return ImmutableMap.of("UP-TO-DATE", ColorUtils.getDecorationsColorDescriptorFromCurrentTheme());
     }
 

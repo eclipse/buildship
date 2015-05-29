@@ -23,27 +23,29 @@ import org.eclipse.ui.themes.ITheme;
  */
 public final class ColorUtils {
 
+    private static final String DECORATIONS_COLOR = "DECORATIONS_COLOR";
+
     private ColorUtils() {
     }
 
     /**
-     * Retrieves the {@code DECORATIONS_COLOR} from the current workbench theme.
+     * Returns the color for {@code DECORATIONS_COLOR} from the current workbench theme.
      *
      * @return the theme color to decorate text
      */
     public static Color getDecorationsColorFromCurrentTheme() {
         ITheme theme = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme();
-        return Preconditions.checkNotNull(theme.getColorRegistry().get("DECORATIONS_COLOR"));
+        return Preconditions.checkNotNull(theme.getColorRegistry().get(DECORATIONS_COLOR));
     }
 
     /**
-     * Retrieves the {@code DECORATIONS_COLOR} from the current workbench theme.
+     * Returns the color descriptor for {@code DECORATIONS_COLOR} from the current workbench theme.
      *
      * @return the theme color descriptor to decorate text
      */
     public static ColorDescriptor getDecorationsColorDescriptorFromCurrentTheme() {
         ITheme theme = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme();
-        return Preconditions.checkNotNull(theme.getColorRegistry().getColorDescriptor("DECORATIONS_COLOR"));
+        return Preconditions.checkNotNull(theme.getColorRegistry().getColorDescriptor(DECORATIONS_COLOR));
     }
 
 }
