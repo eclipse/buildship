@@ -18,7 +18,6 @@ import org.eclipse.jface.resource.*;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.StyledString.Styler;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.TextStyle;
 
@@ -61,11 +60,7 @@ public class ObservableMapCellWithIconLabelProvider extends ObservableMapCellLab
                 @Override
                 public void applyStyles(TextStyle textStyle) {
                     ColorDescriptor substringColorDescriptor = ObservableMapCellWithIconLabelProvider.this.customTextColoringMapping.get(text);
-                    Color substringColor = (Color) ObservableMapCellWithIconLabelProvider.this.resourceManager.find(substringColorDescriptor);
-                    if (substringColor == null) {
-                        substringColor = ObservableMapCellWithIconLabelProvider.this.resourceManager.createColor(substringColorDescriptor);
-                    }
-                    textStyle.foreground = substringColor;
+                    textStyle.foreground = ObservableMapCellWithIconLabelProvider.this.resourceManager.createColor(substringColorDescriptor);
                 }
             };
             styledLabel.setStyle(index, text.length(), styler);
