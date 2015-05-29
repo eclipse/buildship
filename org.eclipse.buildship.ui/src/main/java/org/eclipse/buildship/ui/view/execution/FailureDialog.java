@@ -11,12 +11,20 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
+import java.net.URI;
+import java.util.List;
+
+import org.gradle.tooling.Failure;
+import org.gradle.tooling.events.FailureResult;
+import org.gradle.tooling.events.FinishEvent;
+
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -27,19 +35,25 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
-import org.gradle.tooling.Failure;
-import org.gradle.tooling.events.FailureResult;
-import org.gradle.tooling.events.FinishEvent;
+import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 
-import java.util.List;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
  * Dialog presenting a list of {@link Failure} instances.
  */
 public final class FailureDialog extends Dialog {
+
+    private static final String FAILURE_DETAILS_URL_PREFIX = "org.gradle.api.GradleException: There were failing tests. See the report at: "; //$NON-NLS-1$
 
     private final String title;
     private final ImmutableList<FailureItem> failureItems;
@@ -50,6 +64,8 @@ public final class FailureDialog extends Dialog {
     private Button backButton;
     private Button nextButton;
     private Button copyButton;
+    private Label urlLabel;
+    private Link urlLink;
     private Clipboard clipboard;
 
     private int selectionIndex;
@@ -117,6 +133,13 @@ public final class FailureDialog extends Dialog {
         this.detailsText.setLayoutData(detailsTextGridData);
         this.detailsText.setEditable(false);
 
+        this.urlLabel = new Label(container, SWT.NONE);
+        this.urlLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+        this.urlLabel.setText(ExecutionsViewMessages.Dialog_Failure_Link_Label);
+
+        this.urlLink = new Link(container, SWT.NONE);
+        this.urlLink.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 4, 1));
+
         this.clipboard = new Clipboard(parent.getDisplay());
 
         initSelectionIndex();
@@ -153,32 +176,74 @@ public final class FailureDialog extends Dialog {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                Object[] data = {FailureDialog.this.detailsText.getText()};
-                Transfer[] dataTypes = {TextTransfer.getInstance()};
+                Object[] data = { FailureDialog.this.detailsText.getText() };
+                Transfer[] dataTypes = { TextTransfer.getInstance() };
                 FailureDialog.this.clipboard.setContents(data, dataTypes);
+            }
+        });
+
+        this.urlLink.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                try {
+                    String url = (String) FailureDialog.this.urlLink.getData();
+                    if (url != null) {
+                        // if there is a browser with the same url than reuse that, otherwise open a
+                        // new one
+                        PlatformUI.getWorkbench().getBrowserSupport().createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, url, null, url).openURL(URI.create(url).toURL());
+                    }
+                } catch (Exception e) {
+                    throw new GradlePluginsRuntimeException(e);
+                }
             }
         });
     }
 
     @SuppressWarnings("RedundantTypeArguments")
     private void update() {
-        Optional<FailureItem> failureItem = this.selectionIndex == -1 ? Optional.<FailureItem>absent() : Optional.of(this.failureItems.get(this.selectionIndex));
-        Optional<Failure> failure = failureItem.isPresent() ? failureItem.get().failure : Optional.<Failure>absent();
+        Optional<FailureItem> failureItem = this.selectionIndex == -1 ? Optional.<FailureItem> absent() : Optional.of(this.failureItems.get(this.selectionIndex));
+        Optional<Failure> failure = failureItem.isPresent() ? failureItem.get().failure : Optional.<Failure> absent();
 
-        this.operationNameText.setText(failureItem.isPresent() ? OperationDescriptorRenderer.renderVerbose(failureItem.get().event) : "");
+        this.operationNameText.setText(failureItem.isPresent() ? OperationDescriptorRenderer.renderVerbose(failureItem.get().event) : ""); //$NON-NLS-1$
 
-        this.messageText.setText(failure.isPresent() ? Strings.nullToEmpty(failure.get().getMessage()) : "");
+        this.messageText.setText(failure.isPresent() ? Strings.nullToEmpty(failure.get().getMessage()) : ""); //$NON-NLS-1$
         this.messageText.setEnabled(failureItem.isPresent());
 
-        this.detailsText.setText(failure.isPresent() ? collectDetails(failure.get()) : "");
+        this.detailsText.setText(failure.isPresent() ? collectDetails(failure.get()) : ""); //$NON-NLS-1$
         this.detailsText.setEnabled(failureItem.isPresent());
 
         this.backButton.setEnabled(this.selectionIndex > 0);
         this.nextButton.setEnabled(this.selectionIndex < this.failureItems.size() - 1);
         this.copyButton.setEnabled(failureItem.isPresent() && failure.isPresent() && failure.get().getDescription() != null);
 
+        Optional<String> urlString = findUrlInFailureDetails(failure);
+        if (urlString.isPresent()) {
+            this.urlLabel.setVisible(true);
+            this.urlLink.setVisible(true);
+            this.urlLink.setText("<a>" + urlString.get() + "</a>"); //$NON-NLS-1$ //$NON-NLS-2$
+            this.urlLink.setData(urlString.get());
+        } else {
+            this.urlLabel.setVisible(false);
+            this.urlLink.setVisible(false);
+            this.urlLink.setData(null);
+        }
+
         // force redraw since different failures can have different number of lines in the message
         this.operationNameText.getParent().layout(true);
+    }
+
+    private Optional<String> findUrlInFailureDetails(Optional<Failure> failure) {
+        if (failure.isPresent()) {
+            String description = failure.get().getDescription();
+            int beginIndex = description.indexOf(FAILURE_DETAILS_URL_PREFIX);
+            if (beginIndex >= 0) {
+                int endIndex = description.indexOf('\n', beginIndex);
+                String url = description.substring(beginIndex + FAILURE_DETAILS_URL_PREFIX.length(), endIndex);
+                return Optional.of(url);
+            }
+        }
+        return Optional.absent();
     }
 
     private String collectDetails(Failure failure) {
@@ -213,8 +278,8 @@ public final class FailureDialog extends Dialog {
     }
 
     /**
-     * Represents a failure item shown in the failure dialog. One finish event can have multiple failures and so for each failure of each event we show a
-     * failure item in the failure dialog.
+     * Represents a failure item shown in the failure dialog. One finish event can have multiple
+     * failures and so for each failure of each event we show a failure item in the failure dialog.
      */
     private static final class FailureItem {
 
@@ -229,12 +294,13 @@ public final class FailureDialog extends Dialog {
         private static ImmutableList<FailureItem> from(final FinishEvent event) {
             List<? extends Failure> failures = ((FailureResult) event.getResult()).getFailures();
             ImmutableList<FailureItem> failureItems = FluentIterable.from(failures).transform(new Function<Failure, FailureItem>() {
+
                 @Override
                 public FailureItem apply(Failure failure) {
                     return new FailureItem(event, Optional.of(failure));
                 }
             }).toList();
-            return failureItems.isEmpty() ? ImmutableList.of(new FailureItem(event, Optional.<Failure>absent())) : failureItems;
+            return failureItems.isEmpty() ? ImmutableList.of(new FailureItem(event, Optional.<Failure> absent())) : failureItems;
         }
 
         private static ImmutableList<FailureItem> from(List<FinishEvent> events) {
