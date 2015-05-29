@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
+import com.google.common.base.Preconditions;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -24,17 +25,18 @@ import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
 
 /**
- * Action for an {@link ExecutionPage} to re-run finished builds.
+ * Reruns the build represented by the target {@link ExecutionPage}.
  */
 public final class RerunBuildExecutionAction extends Action {
 
-    private ExecutionPage page;
+    private final ExecutionPage page;
 
     public RerunBuildExecutionAction(ExecutionPage executionPage) {
-        this.page = executionPage;
-        setToolTipText(ExecutionsViewMessages.Action_RerunExecution_Tooltip);
-        setImageDescriptor(PluginImages.RUN_BUILD.withState(ImageState.ENABLED).getImageDescriptor());
-        setDisabledImageDescriptor(PluginImages.RUN_BUILD.withState(ImageState.DISABLED).getImageDescriptor());
+        this.page = Preconditions.checkNotNull(executionPage);
+
+        setToolTipText(ExecutionsViewMessages.Action_RerunBuild_Tooltip);
+        setImageDescriptor(PluginImages.RERUN_BUILD.withState(ImageState.ENABLED).getImageDescriptor());
+        setDisabledImageDescriptor(PluginImages.RERUN_BUILD.withState(ImageState.DISABLED).getImageDescriptor());
 
         registerJobChangeListener();
     }
@@ -45,7 +47,7 @@ public final class RerunBuildExecutionAction extends Action {
 
             @Override
             public void done(IJobChangeEvent event) {
-                RerunBuildExecutionAction.this.setEnabled(true);
+                RerunBuildExecutionAction.this.setEnabled(event.getJob().getState() != Job.NONE);
             }
         });
         setEnabled(job.getState() == Job.NONE);
@@ -53,7 +55,8 @@ public final class RerunBuildExecutionAction extends Action {
 
     @Override
     public void run() {
-        ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateRunConfiguration(this.page.getAttributes());
+        ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateRunConfiguration(this.page.getConfigurationAttributes());
         DebugUITools.launch(launchConfiguration, ILaunchManager.RUN_MODE);
     }
+
 }

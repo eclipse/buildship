@@ -45,7 +45,7 @@ public final class CancelBuildExecutionAction extends Action {
 
             @Override
             public void done(IJobChangeEvent event) {
-                CancelBuildExecutionAction.this.setEnabled(false);
+                CancelBuildExecutionAction.this.setEnabled(event.getJob().getState() != Job.NONE);
             }
         });
         setEnabled(job.getState() != Job.NONE);

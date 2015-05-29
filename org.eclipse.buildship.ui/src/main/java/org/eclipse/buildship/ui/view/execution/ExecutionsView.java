@@ -70,8 +70,8 @@ public final class ExecutionsView extends MultiPageView {
         return new MessagePage(ExecutionsViewMessages.Label_No_Execution);
     }
 
-    public void addExecutionPage(Job buildJob, String processName, BuildLaunchRequest buildLaunchRequest, GradleRunConfigurationAttributes attributes) {
-        ExecutionPage executionPage = new ExecutionPage(buildJob, processName, buildLaunchRequest, this.state, attributes);
+    public void addExecutionPage(Job buildJob, String processName, BuildLaunchRequest buildLaunchRequest, GradleRunConfigurationAttributes configurationAttributes) {
+        ExecutionPage executionPage = new ExecutionPage(buildJob, processName, buildLaunchRequest, configurationAttributes, this.state);
         addPage(executionPage);
         switchToPage(executionPage);
     }
