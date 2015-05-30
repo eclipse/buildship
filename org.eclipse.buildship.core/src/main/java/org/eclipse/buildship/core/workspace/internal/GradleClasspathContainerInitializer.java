@@ -95,11 +95,11 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
             // update source folders
             List<IClasspathEntry> sourceFolders = collectSourceFolders(eclipseProject.get(), project);
-            updateSourceFoldersInClasspath(project, sourceFolders, new SubProgressMonitor(monitor, 25));
+            updateSourceFoldersInClasspath(sourceFolders, project, new SubProgressMonitor(monitor, 25));
 
             // update project/external dependencies
             ImmutableList<IClasspathEntry> dependencies = collectDependencies(eclipseProject.get());
-            setClasspathContainer(dependencies, containerPath, project, new SubProgressMonitor(monitor, 25));
+            setClasspathContainer(dependencies, project, containerPath, new SubProgressMonitor(monitor, 25));
 
             // save the updated project
             project.save(new SubProgressMonitor(monitor, 25), true);
@@ -123,6 +123,66 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
                 noTypedProgressListeners, cancellationToken);
         ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(fixedRequestAttributes);
         return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
+    }
+
+    private List<IClasspathEntry> collectSourceFolders(OmniEclipseProject gradleProject, final IJavaProject workspaceProject) {
+        return FluentIterable.from(collectSourceDirectories(gradleProject)).transform(new Function<String, IClasspathEntry>() {
+
+            @Override
+            public IClasspathEntry apply(String directory) {
+                IFolder sourceDirectory = workspaceProject.getProject().getFolder(Path.fromOSString(directory));
+                ensureFolderHierarchyExists(sourceDirectory);
+                IPackageFragmentRoot root = workspaceProject.getPackageFragmentRoot(sourceDirectory);
+                return JavaCore.newSourceEntry(root.getPath());
+            }
+        }).toList();
+    }
+
+    private ImmutableList<String> collectSourceDirectories(OmniEclipseProject project) {
+        return FluentIterable.from(project.getSourceDirectories()).transform(new Function<OmniEclipseSourceDirectory, String>() {
+
+            @Override
+            public String apply(OmniEclipseSourceDirectory directory) {
+                return directory.getPath();
+            }
+        }).toList();
+    }
+
+    private void ensureFolderHierarchyExists(IFolder folder) {
+        if (!folder.exists()) {
+            if (folder.getParent() instanceof IFolder) {
+                ensureFolderHierarchyExists((IFolder) folder.getParent());
+            }
+
+            try {
+                folder.create(true, true, null);
+            } catch (CoreException e) {
+                String message = String.format("Cannot create folder %s.", folder);
+                throw new GradlePluginsRuntimeException(message, e);
+            }
+        }
+    }
+
+    private void updateSourceFoldersInClasspath(List<IClasspathEntry> sourceFolders, IJavaProject project, IProgressMonitor monitor) throws JavaModelException {
+        ImmutableList<IClasspathEntry> rawClasspath = ImmutableList.copyOf(project.getRawClasspath());
+        final List<IClasspathEntry> existingSources = FluentIterable.from(rawClasspath).filter(new Predicate<IClasspathEntry>() {
+
+            @Override
+            public boolean apply(IClasspathEntry entry) {
+                return entry.getEntryKind() == IClasspathEntry.CPE_SOURCE;
+            }
+        }).toList();
+
+        final List<IClasspathEntry> newSources = FluentIterable.from(sourceFolders).filter(new Predicate<IClasspathEntry>() {
+
+            @Override
+            public boolean apply(IClasspathEntry entry) {
+                return !existingSources.contains(entry);
+            }
+        }).toList();
+
+        IClasspathEntry[] entries = ImmutableList.builder().addAll(rawClasspath).addAll(newSources).build().toArray(new IClasspathEntry[0]);
+        project.setRawClasspath(entries, new NullProgressMonitor());
     }
 
     private ImmutableList<IClasspathEntry> collectDependencies(final OmniEclipseProject gradleProject) {
@@ -160,70 +220,10 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         return ImmutableList.<IClasspathEntry>builder().addAll(projectDependencies).addAll(externalDependencies).build();
     }
 
-    private List<IClasspathEntry> collectSourceFolders(OmniEclipseProject gradleProject, final IJavaProject workspaceProject) {
-        return FluentIterable.from(collectSourceDirectories(gradleProject)).transform(new Function<String, IClasspathEntry>() {
-
-            @Override
-            public IClasspathEntry apply(String directory) {
-                IFolder sourceDirectory = workspaceProject.getProject().getFolder(Path.fromOSString(directory));
-                ensureFolderHierarchyExists(sourceDirectory);
-                IPackageFragmentRoot root = workspaceProject.getPackageFragmentRoot(sourceDirectory);
-                return JavaCore.newSourceEntry(root.getPath());
-            }
-        }).toList();
-    }
-
-    private void ensureFolderHierarchyExists(IFolder folder) {
-        if (!folder.exists()) {
-            if (folder.getParent() instanceof IFolder) {
-                ensureFolderHierarchyExists((IFolder) folder.getParent());
-            }
-
-            try {
-                folder.create(true, true, null);
-            } catch (CoreException e) {
-                String message = String.format("Cannot create folder %s.", folder);
-                throw new GradlePluginsRuntimeException(message, e);
-            }
-        }
-    }
-
-    private void setClasspathContainer(List<IClasspathEntry> classpathEntries, IPath containerPath, IJavaProject project, IProgressMonitor monitor) throws JavaModelException {
+    private void setClasspathContainer(List<IClasspathEntry> classpathEntries, IJavaProject project, IPath containerPath, IProgressMonitor monitor) throws JavaModelException {
         org.eclipse.core.runtime.Path classpathContainerPath = new org.eclipse.core.runtime.Path(ClasspathDefinition.GRADLE_CLASSPATH_CONTAINER_ID);
         IClasspathContainer classpathContainer = new GradleClasspathContainer("Project and External Dependencies", classpathContainerPath, classpathEntries);
         JavaCore.setClasspathContainer(containerPath, new IJavaProject[]{project}, new IClasspathContainer[]{classpathContainer}, null);
-    }
-
-    private void updateSourceFoldersInClasspath(IJavaProject project, List<IClasspathEntry> sourceFolders, IProgressMonitor monitor) throws JavaModelException {
-        ImmutableList<IClasspathEntry> rawClasspath = ImmutableList.copyOf(project.getRawClasspath());
-        final List<IClasspathEntry> existingSources = FluentIterable.from(rawClasspath).filter(new Predicate<IClasspathEntry>() {
-
-            @Override
-            public boolean apply(IClasspathEntry entry) {
-                return entry.getEntryKind() == IClasspathEntry.CPE_SOURCE;
-            }
-        }).toList();
-
-        final List<IClasspathEntry> newSources = FluentIterable.from(sourceFolders).filter(new Predicate<IClasspathEntry>() {
-
-            @Override
-            public boolean apply(IClasspathEntry entry) {
-                return !existingSources.contains(entry);
-            }
-        }).toList();
-
-        IClasspathEntry[] entries = ImmutableList.builder().addAll(rawClasspath).addAll(newSources).build().toArray(new IClasspathEntry[0]);
-        project.setRawClasspath(entries, new NullProgressMonitor());
-    }
-
-    private ImmutableList<String> collectSourceDirectories(OmniEclipseProject project) {
-        return FluentIterable.from(project.getSourceDirectories()).transform(new Function<OmniEclipseSourceDirectory, String>() {
-
-            @Override
-            public String apply(OmniEclipseSourceDirectory directory) {
-                return directory.getPath();
-            }
-        }).toList();
     }
 
     /**
