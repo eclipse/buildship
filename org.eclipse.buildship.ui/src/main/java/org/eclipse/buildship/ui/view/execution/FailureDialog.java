@@ -214,7 +214,7 @@ public final class FailureDialog extends Dialog {
         Optional<String> testReportUrl = findTestReportUrl(failure);
         this.urlLabel.setVisible(testReportUrl.isPresent());
         this.urlLink.setVisible(testReportUrl.isPresent());
-        this.urlLink.setText(testReportUrl.isPresent() ? "<a>Test Report</a>" : "");
+        this.urlLink.setText(testReportUrl.isPresent() ? "<a>Test Summary</a>" : "");
         this.urlLink.setData(testReportUrl.isPresent() ? testReportUrl.get() : null);
 
         // force redraw since different failures can have different number of lines in the message
