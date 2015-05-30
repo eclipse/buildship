@@ -14,6 +14,7 @@ package org.eclipse.buildship.ui.view.execution;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -38,6 +39,8 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.ViewerColumn;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
@@ -53,6 +56,7 @@ import org.eclipse.buildship.ui.view.BasePage;
 import org.eclipse.buildship.ui.view.CollapseTreeNodesAction;
 import org.eclipse.buildship.ui.view.ExpandTreeNodesAction;
 import org.eclipse.buildship.ui.view.MultiPageView;
+import org.eclipse.buildship.ui.view.Page;
 import org.eclipse.buildship.ui.view.PageSite;
 import org.eclipse.buildship.ui.viewer.FilteredTree;
 import org.eclipse.buildship.ui.viewer.ObservableMapCellWithIconLabelProvider;
@@ -70,6 +74,9 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     private final ExecutionsViewState state;
 
     private SelectionHistoryManager selectionHistoryManager;
+
+    private TreeViewerColumn nameColumn;
+    private TreeViewerColumn durationColumn;
 
     public ExecutionPage(Job buildJob, String displayName, BuildLaunchRequest buildLaunchRequest, GradleRunConfigurationAttributes configurationAttributes, ExecutionsViewState state) {
         this.buildJob = buildJob;
@@ -99,13 +106,13 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         filteredTree.setShowFilterControls(false);
         filteredTree.getViewer().getTree().setHeaderVisible(this.state.isShowTreeHeader());
 
-        TreeViewerColumn nameColumn = new TreeViewerColumn(filteredTree.getViewer(), SWT.NONE);
-        nameColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Name_Text);
-        nameColumn.getColumn().setWidth(550);
+        this.nameColumn = new TreeViewerColumn(filteredTree.getViewer(), SWT.NONE);
+        this.nameColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Name_Text);
+        this.nameColumn.getColumn().setWidth(this.state.getHeaderNameColumnWidth());
 
-        TreeViewerColumn durationColumn = new TreeViewerColumn(filteredTree.getViewer(), SWT.RIGHT);
-        durationColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Duration_Text);
-        durationColumn.getColumn().setWidth(200);
+        this.durationColumn = new TreeViewerColumn(filteredTree.getViewer(), SWT.RIGHT);
+        this.durationColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Duration_Text);
+        this.durationColumn.getColumn().setWidth(this.state.getHeaderDurationColumnWidth());
 
         // configure data binding
         IListProperty childrenProperty = new OperationItemChildrenListProperty();
@@ -113,8 +120,39 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         filteredTree.getViewer().setContentProvider(contentProvider);
 
         IObservableSet knownElements = contentProvider.getKnownElements();
-        attachLabelProvider(OperationItem.FIELD_NAME, OperationItem.FIELD_IMAGE, knownElements, nameColumn);
-        attachLabelProvider(OperationItem.FIELD_DURATION, null, knownElements, durationColumn);
+        attachLabelProvider(OperationItem.FIELD_NAME, OperationItem.FIELD_IMAGE, knownElements, this.nameColumn);
+        attachLabelProvider(OperationItem.FIELD_DURATION, null, knownElements, this.durationColumn);
+
+        // keep header size synchronized between pages
+        this.nameColumn.getColumn().addControlListener(new ControlAdapter() {
+
+            @Override
+            public void controlResized(ControlEvent e) {
+                int newWidth = ExecutionPage.this.nameColumn.getColumn().getWidth();
+                ExecutionPage.this.state.setHeaderNameColumnWidth(newWidth);
+                ExecutionsView view = (ExecutionsView) getSite().getViewSite().getPart();
+                for (ExecutionPage page : FluentIterable.from(view.getPages()).filter(ExecutionPage.class)) {
+                    if (page != ExecutionPage.this) {
+                        page.nameColumn.getColumn().setWidth(newWidth);
+                    }
+                }
+            }
+        });
+
+        this.durationColumn.getColumn().addControlListener(new ControlAdapter() {
+
+            @Override
+            public void controlResized(ControlEvent e) {
+                int newWidth = ExecutionPage.this.durationColumn.getColumn().getWidth();
+                ExecutionPage.this.state.setHeaderDurationColumnWidth(newWidth);
+                ExecutionsView view = (ExecutionsView) getSite().getViewSite().getPart();
+                for (ExecutionPage page : FluentIterable.from(view.getPages()).filter(ExecutionPage.class)) {
+                    if (page != ExecutionPage.this) {
+                        page.durationColumn.getColumn().setWidth(newWidth);
+                    }
+                }
+            }
+        });
 
         // manage the selection history
         this.selectionHistoryManager = new SelectionHistoryManager(filteredTree.getViewer());
@@ -187,7 +225,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         CollapseTreeNodesAction collapseNodesAction = new CollapseTreeNodesAction(treeViewer);
         OpenTestSourceFileAction openTestSourceFileAction = new OpenTestSourceFileAction(this);
         ShowFailureAction showFailureAction = new ShowFailureAction(this);
-        return ImmutableList.<SelectionSpecificAction>of(expandNodesAction, collapseNodesAction, openTestSourceFileAction, showFailureAction);
+        return ImmutableList.<SelectionSpecificAction> of(expandNodesAction, collapseNodesAction, openTestSourceFileAction, showFailureAction);
     }
 
     private void registerListeners() {
