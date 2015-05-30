@@ -158,7 +158,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         }).toList();
 
         IClasspathEntry[] entries = ImmutableList.builder().addAll(rawClasspath).addAll(newSources).build().toArray(new IClasspathEntry[0]);
-        project.setRawClasspath(entries, new NullProgressMonitor());
+        project.setRawClasspath(entries, monitor);
     }
 
     private ImmutableList<IClasspathEntry> collectDependencies(final OmniEclipseProject gradleProject) {
@@ -199,7 +199,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
     private void setClasspathContainer(List<IClasspathEntry> classpathEntries, IJavaProject project, IPath containerPath, IProgressMonitor monitor) throws JavaModelException {
         org.eclipse.core.runtime.Path classpathContainerPath = new org.eclipse.core.runtime.Path(ClasspathDefinition.GRADLE_CLASSPATH_CONTAINER_ID);
         IClasspathContainer classpathContainer = new GradleClasspathContainer("Project and External Dependencies", classpathContainerPath, classpathEntries);
-        JavaCore.setClasspathContainer(containerPath, new IJavaProject[]{project}, new IClasspathContainer[]{classpathContainer}, null);
+        JavaCore.setClasspathContainer(containerPath, new IJavaProject[]{project}, new IClasspathContainer[]{classpathContainer}, monitor);
     }
 
     /**
