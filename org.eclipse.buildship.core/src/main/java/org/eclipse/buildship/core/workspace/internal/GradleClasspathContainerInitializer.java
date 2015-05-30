@@ -140,6 +140,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
     }
 
     private void updateSourceFoldersInClasspath(List<IClasspathEntry> sourceFolders, IJavaProject project, IProgressMonitor monitor) throws JavaModelException {
+        // collect all existing source folders
         ImmutableList<IClasspathEntry> rawClasspath = ImmutableList.copyOf(project.getRawClasspath());
         final List<IClasspathEntry> existingSources = FluentIterable.from(rawClasspath).filter(new Predicate<IClasspathEntry>() {
 
@@ -149,7 +150,8 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
             }
         }).toList();
 
-        final List<IClasspathEntry> newSources = FluentIterable.from(sourceFolders).filter(new Predicate<IClasspathEntry>() {
+        // collect all new source folders
+        List<IClasspathEntry> newSources = FluentIterable.from(sourceFolders).filter(new Predicate<IClasspathEntry>() {
 
             @Override
             public boolean apply(IClasspathEntry entry) {
@@ -157,7 +159,9 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
             }
         }).toList();
 
-        IClasspathEntry[] entries = ImmutableList.builder().addAll(rawClasspath).addAll(newSources).build().toArray(new IClasspathEntry[0]);
+        // update the raw classpath
+        ImmutableList<IClasspathEntry> existingAndNewSources = ImmutableList.<IClasspathEntry>builder().addAll(rawClasspath).addAll(newSources).build();
+        IClasspathEntry[] entries = existingAndNewSources.toArray(new IClasspathEntry[existingAndNewSources.size()]);
         project.setRawClasspath(entries, monitor);
     }
 
