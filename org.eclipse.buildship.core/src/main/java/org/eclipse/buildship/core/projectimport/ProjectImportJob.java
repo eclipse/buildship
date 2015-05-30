@@ -69,10 +69,11 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
     @Override
     public void runToolingApiJobInWorkspace(IProgressMonitor monitor) {
         monitor.beginTask("Import Gradle project", 100);
-        // all java operations use the workspace root as a scheduling rule
+
+        // all Java operations use the workspace root as a scheduling rule
         // see org.eclipse.jdt.internal.core.JavaModelOperation#getSchedulingRule()
         // if this rule ends during the import then other projects jobs see an
-        // inconsistent workspace state. consequently we keep the rule for the whole import
+        // inconsistent workspace state, consequently we keep the rule for the whole import
         IJobManager manager = Job.getJobManager();
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         manager.beginRule(workspaceRoot, monitor);
@@ -81,11 +82,13 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
             OmniEclipseProject rootProject = eclipseGradleBuild.getRootEclipseProject();
             List<OmniEclipseProject> allProjects = rootProject.getAll();
             for (OmniEclipseProject project : allProjects) {
-                importProject(project, rootProject, new SubProgressMonitor(monitor, 50 / allProjects.size()));
+                importProject(project, new SubProgressMonitor(monitor, 50 / allProjects.size()));
             }
         } finally {
             manager.endRule(workspaceRoot);
         }
+
+        // monitor is closed by caller in super class
     }
 
     private OmniEclipseGradleBuild fetchEclipseGradleBuild(IProgressMonitor monitor) {
@@ -102,11 +105,10 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         }
     }
 
-    private void importProject(OmniEclipseProject project, OmniEclipseProject rootProject, IProgressMonitor monitor) {
+    private void importProject(OmniEclipseProject project, IProgressMonitor monitor) {
         monitor.beginTask("Import project " + project.getName(), 4);
         try {
-            // check if an Eclipse project already exists at the location of the Gradle project to
-            // import
+            // check if an Eclipse project already exists at the location of the Gradle project to import
             WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations();
             File projectDirectory = project.getProjectDirectory();
             Optional<IProjectDescription> projectDescription = workspaceOperations.findProjectInFolder(projectDirectory, new SubProgressMonitor(monitor, 1));
@@ -126,7 +128,8 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
                 // if the current Gradle project is a Java project, configure the Java nature,
                 // the classpath, and the source paths
                 if (isJavaProject(project)) {
-                    ClasspathDefinition classpath = collectClasspath(project, rootProject);
+                    IPath jre = JavaRuntime.getDefaultJREContainerEntry().getPath();
+                    ClasspathDefinition classpath = new ClasspathDefinition(ImmutableList.<Pair<IPath, IPath>>of(), ImmutableList.<IPath>of(), ImmutableList.<String>of(), jre);
                     workspaceOperations.createJavaProject(workspaceProject, classpath, new SubProgressMonitor(monitor, 1));
                 } else {
                     monitor.worked(1);
@@ -156,15 +159,6 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
                 return project.getProjectDirectory();
             }
         }).toList();
-    }
-
-    private ClasspathDefinition collectClasspath(OmniEclipseProject project, OmniEclipseProject rootProject) {
-        IPath jre = collectDefaultJreLocation();
-        return new ClasspathDefinition(ImmutableList.<Pair<IPath, IPath>> of(), ImmutableList.<IPath> of(), ImmutableList.<String> of(), jre);
-    }
-
-    private IPath collectDefaultJreLocation() {
-        return JavaRuntime.getDefaultJREContainerEntry().getPath();
     }
 
 }
