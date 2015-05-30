@@ -18,6 +18,8 @@ import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -96,13 +98,29 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
         this.treeViewer.setLabelProvider(new TaskViewLabelProvider());
 
         // add columns to the tree
-        TreeColumn taskNameColumn = new TreeColumn(this.treeViewer.getTree(), SWT.LEFT);
+        final TreeColumn taskNameColumn = new TreeColumn(this.treeViewer.getTree(), SWT.LEFT);
         taskNameColumn.setText(TaskViewMessages.Tree_Column_Name_Text);
-        taskNameColumn.setWidth(200);
+        taskNameColumn.setWidth(this.state.getHeaderNameColumnWidth());
 
-        TreeColumn taskDescriptionColumn = new TreeColumn(this.treeViewer.getTree(), SWT.LEFT);
+        final TreeColumn taskDescriptionColumn = new TreeColumn(this.treeViewer.getTree(), SWT.LEFT);
         taskDescriptionColumn.setText(TaskViewMessages.Tree_Column_Description_Text);
-        taskDescriptionColumn.setWidth(400);
+        taskDescriptionColumn.setWidth(this.state.getHeaderDescriptionColumnWidth());
+
+        // when changed save the header width into the state
+        taskNameColumn.addControlListener(new ControlAdapter() {
+
+            @Override
+            public void controlResized(ControlEvent e) {
+                TaskView.this.state.setHeaderNameColumnWidth(taskNameColumn.getWidth());
+            }
+        });
+
+        taskDescriptionColumn.addControlListener(new ControlAdapter() {
+            @Override
+            public void controlResized(ControlEvent e) {
+                TaskView.this.state.setHeaderDescriptionColumnWidth(taskDescriptionColumn.getWidth());
+            }
+        });
 
         // configure and manage a label with quick search functionality
         Label quickSearchLabel = new Label(this.nonEmptyInputPage, SWT.NONE);

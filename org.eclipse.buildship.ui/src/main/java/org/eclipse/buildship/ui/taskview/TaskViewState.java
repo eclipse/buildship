@@ -32,6 +32,8 @@ public final class TaskViewState implements TreeViewerState {
     private static final String PREF_SORT_BY_VISIBILITY = "tasksView.sortByVisibility";
     private static final String PREF_LINK_TO_SELECTION = "tasksView.linkToSelection";
     private static final String PREF_SHOW_TREE_HEADER = "tasksView.showTreeHeader";
+    private static final String PREF_HEADER_NAME_COLUMN_WIDTH = "tasksView.headerNameColumnWidth";
+    private static final String PREF_HEADER_DESCRIPTION_COLUMN_WIDTH = "tasksView.headerDescriptionColumnWidth";
 
     private boolean projectTasksVisible;
     private boolean taskSelectorsVisible;
@@ -40,6 +42,8 @@ public final class TaskViewState implements TreeViewerState {
     private boolean sortByVisibility;
     private boolean linkToSelection;
     private boolean showTreeHeader;
+    private int headerNameColumnWidth;
+    private int headerDescriptionColumnWidth;
 
     public void load() {
         // in Eclipse 3.6 the method InstanceScope.INSTANCE does not exist
@@ -52,6 +56,8 @@ public final class TaskViewState implements TreeViewerState {
         this.sortByVisibility = prefs.getBoolean(PREF_SORT_BY_VISIBILITY, true);
         this.linkToSelection = prefs.getBoolean(PREF_LINK_TO_SELECTION, false);
         this.showTreeHeader = prefs.getBoolean(PREF_SHOW_TREE_HEADER, false);
+        this.headerNameColumnWidth = prefs.getInt(PREF_HEADER_NAME_COLUMN_WIDTH, 200);
+        this.headerDescriptionColumnWidth = prefs.getInt(PREF_HEADER_DESCRIPTION_COLUMN_WIDTH, 400);
     }
 
     public void save() {
@@ -65,6 +71,8 @@ public final class TaskViewState implements TreeViewerState {
         prefs.putBoolean(PREF_SORT_BY_VISIBILITY, this.sortByVisibility);
         prefs.putBoolean(PREF_LINK_TO_SELECTION, this.linkToSelection);
         prefs.putBoolean(PREF_SHOW_TREE_HEADER, this.showTreeHeader);
+        prefs.putInt(PREF_HEADER_NAME_COLUMN_WIDTH, this.headerNameColumnWidth);
+        prefs.putInt(PREF_HEADER_DESCRIPTION_COLUMN_WIDTH, this.headerDescriptionColumnWidth);
 
         try {
             prefs.flush();
@@ -121,12 +129,30 @@ public final class TaskViewState implements TreeViewerState {
         this.linkToSelection = linkToSelection;
     }
 
+    @Override
     public boolean isShowTreeHeader() {
         return this.showTreeHeader;
     }
 
+    @Override
     public void setShowTreeHeader(boolean showTreeHeader) {
         this.showTreeHeader = showTreeHeader;
+    }
+
+    public int getHeaderNameColumnWidth() {
+        return this.headerNameColumnWidth;
+    }
+
+    public void setHeaderNameColumnWidth(int headerNameColumnWidth) {
+        this.headerNameColumnWidth = headerNameColumnWidth;
+    }
+
+    public int getHeaderDescriptionColumnWidth() {
+        return this.headerDescriptionColumnWidth;
+    }
+
+    public void setHeaderDescriptionColumnWidth(int headerDescriptionColumnWidth) {
+        this.headerDescriptionColumnWidth = headerDescriptionColumnWidth;
     }
 
     public void dispose() {
