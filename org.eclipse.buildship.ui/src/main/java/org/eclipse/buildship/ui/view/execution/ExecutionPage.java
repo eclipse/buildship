@@ -56,7 +56,6 @@ import org.eclipse.buildship.ui.view.BasePage;
 import org.eclipse.buildship.ui.view.CollapseTreeNodesAction;
 import org.eclipse.buildship.ui.view.ExpandTreeNodesAction;
 import org.eclipse.buildship.ui.view.MultiPageView;
-import org.eclipse.buildship.ui.view.Page;
 import org.eclipse.buildship.ui.view.PageSite;
 import org.eclipse.buildship.ui.viewer.FilteredTree;
 import org.eclipse.buildship.ui.viewer.ObservableMapCellWithIconLabelProvider;
