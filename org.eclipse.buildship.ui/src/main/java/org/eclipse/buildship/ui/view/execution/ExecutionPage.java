@@ -78,8 +78,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     private TreeViewerColumn nameColumn;
     private TreeViewerColumn durationColumn;
 
-    public ExecutionPage(Job buildJob, String displayName, BuildLaunchRequest buildLaunchRequest, GradleRunConfigurationAttributes configurationAttributes,
-            ExecutionsViewState state) {
+    public ExecutionPage(Job buildJob, String displayName, BuildLaunchRequest buildLaunchRequest, GradleRunConfigurationAttributes configurationAttributes, ExecutionsViewState state) {
         this.buildJob = buildJob;
         this.displayName = displayName;
         this.buildLaunchRequest = buildLaunchRequest;

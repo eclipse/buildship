@@ -39,8 +39,8 @@ public final class ExecutionsViewState implements TreeViewerState {
         @SuppressWarnings("deprecation")
         IEclipsePreferences prefs = new InstanceScope().getNode(UiPlugin.PLUGIN_ID);
         this.showTreeHeader = prefs.getBoolean(PREF_SHOW_TREE_HEADER, false);
-        this.headerNameColumnWidth = prefs.getInt(PREF_HEADER_NAME_COLUMN_WIDTH, 550);
-        this.headerDurationColumnWidth = prefs.getInt(PREF_HEADER_DURATION_COLUMN_WIDTH, 200);
+        this.headerNameColumnWidth = prefs.getInt(PREF_HEADER_NAME_COLUMN_WIDTH, 600);
+        this.headerDurationColumnWidth = prefs.getInt(PREF_HEADER_DURATION_COLUMN_WIDTH, 100);
     }
 
     public void save() {
