@@ -28,6 +28,7 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.gradle.Specs;
+import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 import org.eclipse.buildship.core.workspace.ClasspathDefinition;
 import org.eclipse.core.resources.IFolder;
@@ -131,26 +132,11 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
             @Override
             public IClasspathEntry apply(OmniEclipseSourceDirectory directory) {
                 IFolder sourceDirectory = workspaceProject.getProject().getFolder(Path.fromOSString(directory.getPath()));
-                ensureFolderHierarchyExists(sourceDirectory);
+                FileUtils.ensureFolderHierarchyExists(sourceDirectory);
                 IPackageFragmentRoot root = workspaceProject.getPackageFragmentRoot(sourceDirectory);
                 return JavaCore.newSourceEntry(root.getPath());
             }
         }).toList();
-    }
-
-    private void ensureFolderHierarchyExists(IFolder folder) {
-        if (!folder.exists()) {
-            if (folder.getParent() instanceof IFolder) {
-                ensureFolderHierarchyExists((IFolder) folder.getParent());
-            }
-
-            try {
-                folder.create(true, true, null);
-            } catch (CoreException e) {
-                String message = String.format("Cannot create folder %s.", folder);
-                throw new GradlePluginsRuntimeException(message, e);
-            }
-        }
     }
 
     private void updateSourceFoldersInClasspath(List<IClasspathEntry> sourceFolders, IJavaProject project, IProgressMonitor monitor) throws JavaModelException {
