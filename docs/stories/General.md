@@ -96,6 +96,18 @@ In order to constantly improve Buildship, we need to understand what functionali
 using and how they are using it.
 
 
+## Fill content of integrated help
+
+### Requested Change
+
+Provide content for the integrated help points, like in the New Wizard and the Import Wizard. Make help content
+available on http://help.eclipse.org, too.
+
+### Motivation
+
+Eclipse users are used to the integrated, context sensitive help system.
+
+
 ## Professionally designed icons
 
 ### Requested Change

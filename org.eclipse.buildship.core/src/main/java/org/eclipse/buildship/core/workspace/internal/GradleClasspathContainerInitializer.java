@@ -11,13 +11,6 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.util.List;
-
-import org.eclipse.core.runtime.*;
-import org.gradle.tooling.CancellationToken;
-import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.ProgressListener;
-
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -25,39 +18,42 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-
-import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
-import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
+import com.gradleware.tooling.toolingmodel.*;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jdt.core.ClasspathContainerInitializer;
-import org.eclipse.jdt.core.IClasspathContainer;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.gradle.Specs;
+import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 import org.eclipse.buildship.core.workspace.ClasspathDefinition;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.jobs.IJobManager;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jdt.core.*;
+import org.gradle.tooling.CancellationToken;
+import org.gradle.tooling.GradleConnector;
+import org.gradle.tooling.ProgressListener;
+
+import java.util.List;
 
 /**
  * Initializes the classpath of each Eclipse workspace project that has a Gradle nature with the
- * external dependencies of the underlying Gradle project.
+ * source/project/external dependencies of the underlying Gradle project.
  * <p/>
  * When this initializer is invoked, it looks up the {@link OmniEclipseProject} for the given
- * Eclipse workspace project, takes all the found project dependencies and external dependencies, and
- * assigns them to the {@link ClasspathDefinition#GRADLE_CLASSPATH_CONTAINER_ID} classpath container.
+ * Eclipse workspace project, takes all the found sources, project dependencies and external dependencies,
+ * and assigns them to the {@link ClasspathDefinition#GRADLE_CLASSPATH_CONTAINER_ID} classpath
+ * container.
  * <p/>
  * This initializer is assigned to the projects via the
  * {@code org.eclipse.jdt.core.classpathContainerInitializer} extension point.
@@ -72,31 +68,42 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
      * {@link ClasspathDefinition#GRADLE_CLASSPATH_CONTAINER_ID}.
      */
     @Override
-    public void initialize(final IPath containerPath, final IJavaProject project) throws CoreException {
-        new Job("Initialize Gradle classpath for project '" + project.getElementName() + "'") {
+    public void initialize(final IPath containerPath, final IJavaProject javaProject) throws CoreException {
+        new ToolingApiWorkspaceJob("Initialize Gradle classpath for project '" + javaProject.getElementName() + "'") {
 
-            // todo (etst) review job creation
             @Override
-            protected IStatus run(IProgressMonitor monitor) {
+            protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
+                monitor.beginTask("Initializing classpath", 100);
+
+                // use the same rule as the ProjectImportJob to do the initialization
+                IJobManager manager = Job.getJobManager();
+                IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+                manager.beginRule(workspaceRoot, monitor);
                 try {
-                    internalInitialize(containerPath, project);
-                    return Status.OK_STATUS;
-                } catch (Exception e) {
-                    // TODO (donat) add a marker describing the problem
-                    String message = String.format("Failed to initialize Gradle classpath for project %s.", project.getProject());
-                    CorePlugin.logger().error(message, e);
-                    return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, message, e);
+                    internalInitialize(containerPath, javaProject, monitor);
+                } finally {
+                    manager.endRule(workspaceRoot);
                 }
             }
         }.schedule();
     }
 
-    private void internalInitialize(IPath containerPath, IJavaProject project) throws JavaModelException {
+    private void internalInitialize(IPath containerPath, IJavaProject project, IProgressMonitor monitor) throws JavaModelException {
         Optional<OmniEclipseProject> eclipseProject = findEclipseProject(project.getProject());
         if (eclipseProject.isPresent()) {
-            ImmutableList<IClasspathEntry> externalDependencies = collectExternalDependencies(eclipseProject.get());
-            setClasspathContainer(externalDependencies, containerPath, project);
-            project.save(new NullProgressMonitor(), true);
+            // refresh the project
+            CorePlugin.workspaceOperations().refresh(project.getProject(), new SubProgressMonitor(monitor, 25));
+
+            // update source folders
+            List<IClasspathEntry> sourceFolders = collectSourceFolders(eclipseProject.get(), project);
+            updateSourceFoldersInClasspath(sourceFolders, project, new SubProgressMonitor(monitor, 25));
+
+            // update project/external dependencies
+            ImmutableList<IClasspathEntry> dependencies = collectDependencies(eclipseProject.get());
+            setClasspathContainer(dependencies, project, containerPath, new SubProgressMonitor(monitor, 25));
+
+            // save the updated project
+            project.save(new SubProgressMonitor(monitor, 25), true);
         } else {
             throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", project.getProject()));
         }
@@ -119,20 +126,59 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
     }
 
-    private ImmutableList<IClasspathEntry> collectExternalDependencies(final OmniEclipseProject project) {
+    private List<IClasspathEntry> collectSourceFolders(OmniEclipseProject gradleProject, final IJavaProject workspaceProject) {
+        return FluentIterable.from(gradleProject.getSourceDirectories()).transform(new Function<OmniEclipseSourceDirectory, IClasspathEntry>() {
+
+            @Override
+            public IClasspathEntry apply(OmniEclipseSourceDirectory directory) {
+                IFolder sourceDirectory = workspaceProject.getProject().getFolder(Path.fromOSString(directory.getPath()));
+                FileUtils.ensureFolderHierarchyExists(sourceDirectory);
+                IPackageFragmentRoot root = workspaceProject.getPackageFragmentRoot(sourceDirectory);
+                return JavaCore.newSourceEntry(root.getPath());
+            }
+        }).toList();
+    }
+
+    private void updateSourceFoldersInClasspath(List<IClasspathEntry> sourceFolders, IJavaProject project, IProgressMonitor monitor) throws JavaModelException {
+        // collect all existing source folders
+        ImmutableList<IClasspathEntry> rawClasspath = ImmutableList.copyOf(project.getRawClasspath());
+        final List<IClasspathEntry> existingSources = FluentIterable.from(rawClasspath).filter(new Predicate<IClasspathEntry>() {
+
+            @Override
+            public boolean apply(IClasspathEntry entry) {
+                return entry.getEntryKind() == IClasspathEntry.CPE_SOURCE;
+            }
+        }).toList();
+
+        // collect all new source folders
+        List<IClasspathEntry> newSources = FluentIterable.from(sourceFolders).filter(new Predicate<IClasspathEntry>() {
+
+            @Override
+            public boolean apply(IClasspathEntry entry) {
+                return !existingSources.contains(entry);
+            }
+        }).toList();
+
+        // update the raw classpath
+        ImmutableList<IClasspathEntry> existingAndNewSources = ImmutableList.<IClasspathEntry>builder().addAll(rawClasspath).addAll(newSources).build();
+        IClasspathEntry[] entries = existingAndNewSources.toArray(new IClasspathEntry[existingAndNewSources.size()]);
+        project.setRawClasspath(entries, monitor);
+    }
+
+    private ImmutableList<IClasspathEntry> collectDependencies(final OmniEclipseProject gradleProject) {
         // project dependencies
-        List<IClasspathEntry> projectDependencies = FluentIterable.from(project.getProjectDependencies()).transform(new Function<OmniEclipseProjectDependency, IClasspathEntry>() {
+        List<IClasspathEntry> projectDependencies = FluentIterable.from(gradleProject.getProjectDependencies()).transform(new Function<OmniEclipseProjectDependency, IClasspathEntry>() {
 
             @Override
             public IClasspathEntry apply(OmniEclipseProjectDependency dependency) {
-                OmniEclipseProject dependentProject = project.getRoot().tryFind(Specs.eclipseProjectMatchesProjectPath(dependency.getTargetProjectPath())).get();
+                OmniEclipseProject dependentProject = gradleProject.getRoot().tryFind(Specs.eclipseProjectMatchesProjectPath(dependency.getTargetProjectPath())).get();
                 IPath path = new Path("/" + dependentProject.getName());
                 return JavaCore.newProjectEntry(path, dependency.isExported());
             }
         }).toList();
 
         // external dependencies
-        List<IClasspathEntry> externalDependencies = FluentIterable.from(project.getExternalDependencies()).filter(new Predicate<OmniExternalDependency>() {
+        List<IClasspathEntry> externalDependencies = FluentIterable.from(gradleProject.getExternalDependencies()).filter(new Predicate<OmniExternalDependency>() {
 
             @Override
             public boolean apply(OmniExternalDependency dependency) {
@@ -150,13 +196,14 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
             }
         }).toList();
 
+        // return all dependencies as a joined list
         return ImmutableList.<IClasspathEntry>builder().addAll(projectDependencies).addAll(externalDependencies).build();
     }
 
-    private void setClasspathContainer(List<IClasspathEntry> classpathEntries, IPath containerPath, IJavaProject project) throws JavaModelException {
+    private void setClasspathContainer(List<IClasspathEntry> classpathEntries, IJavaProject project, IPath containerPath, IProgressMonitor monitor) throws JavaModelException {
         org.eclipse.core.runtime.Path classpathContainerPath = new org.eclipse.core.runtime.Path(ClasspathDefinition.GRADLE_CLASSPATH_CONTAINER_ID);
         IClasspathContainer classpathContainer = new GradleClasspathContainer("Project and External Dependencies", classpathContainerPath, classpathEntries);
-        JavaCore.setClasspathContainer(containerPath, new IJavaProject[]{project}, new IClasspathContainer[]{classpathContainer}, null);
+        JavaCore.setClasspathContainer(containerPath, new IJavaProject[]{project}, new IClasspathContainer[]{classpathContainer}, monitor);
     }
 
     /**
