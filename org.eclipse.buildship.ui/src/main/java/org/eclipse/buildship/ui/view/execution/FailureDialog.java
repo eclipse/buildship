@@ -11,20 +11,14 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import java.net.URI;
-import java.util.List;
-
-import org.gradle.tooling.Failure;
-import org.gradle.tooling.events.FailureResult;
-import org.gradle.tooling.events.FinishEvent;
-
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -35,18 +29,17 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Link;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
+import org.gradle.tooling.Failure;
+import org.gradle.tooling.events.FailureResult;
+import org.gradle.tooling.events.FinishEvent;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import java.net.URI;
+import java.util.List;
 
 /**
  * Dialog presenting a list of {@link Failure} instances.
@@ -61,11 +54,11 @@ public final class FailureDialog extends Dialog {
     private Label operationNameText;
     private Text messageText;
     private Text detailsText;
+    private Label urlLabel;
+    private Link urlLink;
     private Button backButton;
     private Button nextButton;
     private Button copyButton;
-    private Label urlLabel;
-    private Link urlLink;
     private Clipboard clipboard;
 
     private int selectionIndex;
@@ -176,8 +169,8 @@ public final class FailureDialog extends Dialog {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                Object[] data = { FailureDialog.this.detailsText.getText() };
-                Transfer[] dataTypes = { TextTransfer.getInstance() };
+                Object[] data = {FailureDialog.this.detailsText.getText()};
+                Transfer[] dataTypes = {TextTransfer.getInstance()};
                 FailureDialog.this.clipboard.setContents(data, dataTypes);
             }
         });
@@ -186,15 +179,16 @@ public final class FailureDialog extends Dialog {
 
             @Override
             public void widgetSelected(SelectionEvent event) {
+                String url = (String) FailureDialog.this.urlLink.getData();
                 try {
-                    String url = (String) FailureDialog.this.urlLink.getData();
-                    if (url != null) {
-                        // if there is a browser with the same url than reuse that, otherwise open a
-                        // new one
-                        PlatformUI.getWorkbench().getBrowserSupport().createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, url, null, url).openURL(URI.create(url).toURL());
-                    }
+                    // if there is a browser with the same url then reuse it, otherwise open a new one
+                    IWorkbenchBrowserSupport browserSupport = PlatformUI.getWorkbench().getBrowserSupport();
+                    IWebBrowser browser = browserSupport.createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, url, null, url);
+                    browser.openURL(URI.create(url).toURL());
                 } catch (Exception e) {
-                    throw new GradlePluginsRuntimeException(e);
+                    String message = String.format("Cannot open browser editor for %s.", url);
+                    CorePlugin.logger().error(message, e);
+                    throw new GradlePluginsRuntimeException(message, e);
                 }
             }
         });
@@ -202,8 +196,8 @@ public final class FailureDialog extends Dialog {
 
     @SuppressWarnings("RedundantTypeArguments")
     private void update() {
-        Optional<FailureItem> failureItem = this.selectionIndex == -1 ? Optional.<FailureItem> absent() : Optional.of(this.failureItems.get(this.selectionIndex));
-        Optional<Failure> failure = failureItem.isPresent() ? failureItem.get().failure : Optional.<Failure> absent();
+        Optional<FailureItem> failureItem = this.selectionIndex == -1 ? Optional.<FailureItem>absent() : Optional.of(this.failureItems.get(this.selectionIndex));
+        Optional<Failure> failure = failureItem.isPresent() ? failureItem.get().failure : Optional.<Failure>absent();
 
         this.operationNameText.setText(failureItem.isPresent() ? OperationDescriptorRenderer.renderVerbose(failureItem.get().event) : ""); //$NON-NLS-1$
 
@@ -217,23 +211,17 @@ public final class FailureDialog extends Dialog {
         this.nextButton.setEnabled(this.selectionIndex < this.failureItems.size() - 1);
         this.copyButton.setEnabled(failureItem.isPresent() && failure.isPresent() && failure.get().getDescription() != null);
 
-        Optional<String> urlString = findUrlInFailureDetails(failure);
-        if (urlString.isPresent()) {
-            this.urlLabel.setVisible(true);
-            this.urlLink.setVisible(true);
-            this.urlLink.setText("<a>" + urlString.get() + "</a>"); //$NON-NLS-1$ //$NON-NLS-2$
-            this.urlLink.setData(urlString.get());
-        } else {
-            this.urlLabel.setVisible(false);
-            this.urlLink.setVisible(false);
-            this.urlLink.setData(null);
-        }
+        Optional<String> testReportUrl = findTestReportUrl(failure);
+        this.urlLabel.setVisible(testReportUrl.isPresent());
+        this.urlLink.setVisible(testReportUrl.isPresent());
+        this.urlLink.setText(testReportUrl.isPresent() ? "<a>Test Report</a>" : "");
+        this.urlLink.setData(testReportUrl.isPresent() ? testReportUrl.get() : null);
 
         // force redraw since different failures can have different number of lines in the message
         this.operationNameText.getParent().layout(true);
     }
 
-    private Optional<String> findUrlInFailureDetails(Optional<Failure> failure) {
+    private Optional<String> findTestReportUrl(Optional<Failure> failure) {
         if (failure.isPresent()) {
             String description = failure.get().getDescription();
             int beginIndex = description.indexOf(FAILURE_DETAILS_URL_PREFIX);
@@ -300,7 +288,7 @@ public final class FailureDialog extends Dialog {
                     return new FailureItem(event, Optional.of(failure));
                 }
             }).toList();
-            return failureItems.isEmpty() ? ImmutableList.of(new FailureItem(event, Optional.<Failure> absent())) : failureItems;
+            return failureItems.isEmpty() ? ImmutableList.of(new FailureItem(event, Optional.<Failure>absent())) : failureItems;
         }
 
         private static ImmutableList<FailureItem> from(List<FinishEvent> events) {
