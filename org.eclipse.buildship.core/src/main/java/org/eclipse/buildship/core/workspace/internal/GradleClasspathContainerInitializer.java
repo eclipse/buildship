@@ -126,24 +126,14 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
     }
 
     private List<IClasspathEntry> collectSourceFolders(OmniEclipseProject gradleProject, final IJavaProject workspaceProject) {
-        return FluentIterable.from(collectSourceDirectories(gradleProject)).transform(new Function<String, IClasspathEntry>() {
+        return FluentIterable.from(gradleProject.getSourceDirectories()).transform(new Function<OmniEclipseSourceDirectory, IClasspathEntry>() {
 
             @Override
-            public IClasspathEntry apply(String directory) {
-                IFolder sourceDirectory = workspaceProject.getProject().getFolder(Path.fromOSString(directory));
+            public IClasspathEntry apply(OmniEclipseSourceDirectory directory) {
+                IFolder sourceDirectory = workspaceProject.getProject().getFolder(Path.fromOSString(directory.getPath()));
                 ensureFolderHierarchyExists(sourceDirectory);
                 IPackageFragmentRoot root = workspaceProject.getPackageFragmentRoot(sourceDirectory);
                 return JavaCore.newSourceEntry(root.getPath());
-            }
-        }).toList();
-    }
-
-    private ImmutableList<String> collectSourceDirectories(OmniEclipseProject project) {
-        return FluentIterable.from(project.getSourceDirectories()).transform(new Function<OmniEclipseSourceDirectory, String>() {
-
-            @Override
-            public String apply(OmniEclipseSourceDirectory directory) {
-                return directory.getPath();
             }
         }).toList();
     }
