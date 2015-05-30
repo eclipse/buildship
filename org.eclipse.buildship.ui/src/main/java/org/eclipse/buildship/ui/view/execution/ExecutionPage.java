@@ -131,9 +131,10 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
                 int newWidth = ExecutionPage.this.nameColumn.getColumn().getWidth();
                 ExecutionPage.this.state.setHeaderNameColumnWidth(newWidth);
                 ExecutionsView view = (ExecutionsView) getSite().getViewSite().getPart();
-                for (Page page : FluentIterable.from(view.getPages()).filter(ExecutionPage.class)) {
-                    ExecutionPage otherPage = (ExecutionPage) page;
-                    otherPage.nameColumn.getColumn().setWidth(newWidth);
+                for (ExecutionPage page : FluentIterable.from(view.getPages()).filter(ExecutionPage.class)) {
+                    if (page != ExecutionPage.this) {
+                        page.nameColumn.getColumn().setWidth(newWidth);
+                    }
                 }
             }
         });
@@ -145,9 +146,9 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
                 int newWidth = ExecutionPage.this.durationColumn.getColumn().getWidth();
                 ExecutionPage.this.state.setHeaderDurationColumnWidth(newWidth);
                 ExecutionsView view = (ExecutionsView) getSite().getViewSite().getPart();
-                for (ExecutionPage otherPage : FluentIterable.from(view.getPages()).filter(ExecutionPage.class)) {
-                    if (otherPage != ExecutionPage.this) {
-                        otherPage.durationColumn.getColumn().setWidth(newWidth);
+                for (ExecutionPage page : FluentIterable.from(view.getPages()).filter(ExecutionPage.class)) {
+                    if (page != ExecutionPage.this) {
+                        page.durationColumn.getColumn().setWidth(newWidth);
                     }
                 }
             }
