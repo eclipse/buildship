@@ -189,6 +189,8 @@ public final class FailureDialog extends Dialog {
                     String message = String.format("Cannot open browser editor for %s.", url);
                     CorePlugin.logger().error(message, e);
                     throw new GradlePluginsRuntimeException(message, e);
+                } finally {
+                    FailureDialog.this.close();
                 }
             }
         });
