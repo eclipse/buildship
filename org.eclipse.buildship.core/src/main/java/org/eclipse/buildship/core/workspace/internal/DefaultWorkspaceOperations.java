@@ -207,7 +207,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             IJavaProject javaProject = JavaCore.create(project);
             monitor.worked(5);
 
-            // set up classpath container and jre on project
+            // set up initial classpath container on project
             setClasspathOnProject(javaProject, classpath, new SubProgressMonitor(monitor, 5));
 
             // set up output location
@@ -294,7 +294,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             entries.add(JavaCore.newContainerEntry(classpath.getJrePath()));
             monitor.worked(1);
 
-            // add classpath definition of where to store the external dependencies, the classpath
+            // add classpath definition of where to store the source/project/external dependencies, the classpath
             // will be populated lazily by the org.eclipse.jdt.core.classpathContainerInitializer
             // extension point (see GradleClasspathContainerInitializer)
             entries.add(createGradleClasspathContainer());
