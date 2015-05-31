@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.projectimport;
+package org.eclipse.buildship.ui.wizard.project;
 
 import java.io.File;
 import java.util.concurrent.CountDownLatch;
@@ -74,8 +74,11 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     private Tree projectPreviewTree;
 
     public ProjectPreviewWizardPage(ProjectImportWizardController controller) {
-        super("ProjectPreview", ProjectImportMessages.Title_PreviewImportWizardPage, ProjectImportMessages.InfoMessage_PreviewImportWizardPageDefault, //$NON-NLS-1$
-                controller.getConfiguration(), ImmutableList.<Property<?>> of());
+        this(controller, ProjectWizardMessages.Title_PreviewImportWizardPage, ProjectWizardMessages.InfoMessage_PreviewImportWizardPageDefault);
+    }
+
+    public ProjectPreviewWizardPage(ProjectImportWizardController controller, String title, String defaultMessage) {
+        super("ProjectPreview", title, defaultMessage, controller.getConfiguration(), ImmutableList.<Property<?>>of()); //$NON-NLS-1$
         this.controller = controller;
         this.keyFont = FontUtils.getCustomDialogFont(SWT.BOLD);
         this.valueFont = FontUtils.getCustomDialogFont(SWT.NONE);
@@ -103,31 +106,31 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     private void createSummaryLabels(Composite container) {
         UiBuilder.UiBuilderFactory uiBuilderFactory = getUiBuilderFactory();
 
-        uiBuilderFactory.newLabel(container).text(ProjectImportMessages.Label_ProjectRootDirectory + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
+        uiBuilderFactory.newLabel(container).text(ProjectWizardMessages.Label_ProjectRootDirectory + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
         this.projectDirLabel = uiBuilderFactory.newLabel(container).alignFillHorizontal().disabled().font(this.valueFont).control();
 
         createSpacingRow(container, 2);
 
-        uiBuilderFactory.newLabel(container).text(ProjectImportMessages.Label_GradleUserHome + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
+        uiBuilderFactory.newLabel(container).text(ProjectWizardMessages.Label_GradleUserHome + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
         this.gradleUserHomeLabel = uiBuilderFactory.newLabel(container).alignFillHorizontal().disabled().font(this.valueFont).control();
 
-        uiBuilderFactory.newLabel(container).text(ProjectImportMessages.Label_GradleDistribution + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
+        uiBuilderFactory.newLabel(container).text(ProjectWizardMessages.Label_GradleDistribution + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
         this.gradleDistributionLabel = uiBuilderFactory.newLabel(container).alignFillHorizontal().disabled().font(this.valueFont).control();
 
-        uiBuilderFactory.newLabel(container).text(ProjectImportMessages.Label_GradleVersion + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
+        uiBuilderFactory.newLabel(container).text(ProjectWizardMessages.Label_GradleVersion + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
         this.gradleVersionLabel = uiBuilderFactory.newLabel(container).alignFillHorizontal().disabled().font(this.valueFont).control();
 
         createSpacingRow(container, 2);
 
-        uiBuilderFactory.newLabel(container).text(ProjectImportMessages.Label_JavaHome + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
+        uiBuilderFactory.newLabel(container).text(ProjectWizardMessages.Label_JavaHome + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
         this.javaHomeLabel = uiBuilderFactory.newLabel(container).alignFillHorizontal().disabled().font(this.valueFont).control();
 
-        uiBuilderFactory.newLabel(container).text(ProjectImportMessages.Label_JvmArguments + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
+        uiBuilderFactory.newLabel(container).text(ProjectWizardMessages.Label_JvmArguments + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
         this.jvmArgumentsLabel = uiBuilderFactory.newLabel(container).alignFillHorizontal().disabled().font(this.valueFont).control();
 
         createSpacingRow(container, 2);
 
-        uiBuilderFactory.newLabel(container).text(ProjectImportMessages.Label_ProgramArguments + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
+        uiBuilderFactory.newLabel(container).text(ProjectWizardMessages.Label_ProgramArguments + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
         this.argumentsLabel = uiBuilderFactory.newLabel(container).alignFillHorizontal().disabled().font(this.valueFont).control();
     }
 
@@ -138,7 +141,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         createSpacingRow(container, 2);
 
         // create an empty row and then a label
-        uiBuilderFactory.newLabel(container).text(ProjectImportMessages.Label_ProjectStructure + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
+        uiBuilderFactory.newLabel(container).text(ProjectWizardMessages.Label_ProjectStructure + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
 
         // add the preview tree
         this.projectPreviewTree = uiBuilderFactory.newTree(container).alignFillBoth(2).control();
@@ -350,7 +353,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
     @Override
     protected String getPageContextInformation() {
-        return ProjectImportMessages.InfoMessage_GradlePreviewWizardPageContext;
+        return ProjectWizardMessages.InfoMessage_GradlePreviewWizardPageContext;
     }
 
 }

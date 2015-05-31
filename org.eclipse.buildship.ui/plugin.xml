@@ -9,24 +9,58 @@
       </contexts>
     </extension>
 
+    <!-- integration of a Gradle project creation wizard -->
+    <extension
+         point="org.eclipse.ui.newWizards">
+      <wizard
+            id="org.eclipse.buildship.ui.wizard.project.creation"
+            class="org.eclipse.buildship.ui.wizard.project.ProjectCreationWizard"
+            category="org.eclipse.buildship.ui.creationwizards"
+            icon="icons/full/etool16/creation_wiz.png"
+            name="Gradle Project"
+            canFinishEarly="false"
+            hasPages="true"
+            project="true">
+         <description>
+            Create a new Gradle project in the local file system.
+         </description>
+         <selection class="org.eclipse.core.resources.IResource"/>
+         <keywordReference id="org.eclipse.buildship.ui.keyword.buildship"/>
+      </wizard>
+      <category
+            id="org.eclipse.buildship.ui.creationwizards"
+            name="Gradle">
+      </category>
+    </extension>
+
     <!-- integration of a Gradle project import wizard -->
     <extension
          point="org.eclipse.ui.importWizards">
       <wizard
-            id="org.eclipse.buildship.ui.wizards.projectimport"
-            class="org.eclipse.buildship.ui.projectimport.ProjectImportWizard"
-            category="org.eclipse.buildship.ui.wizards"
+            id="org.eclipse.buildship.ui.wizards.project.import"
+            class="org.eclipse.buildship.ui.wizard.project.ProjectImportWizard"
+            category="org.eclipse.buildship.ui.importwizards"
             icon="icons/full/etool16/import_wiz.png"
             name="Gradle Project">
          <description>
             Import a Gradle project in the local file system.
          </description>
          <selection class="org.eclipse.core.resources.IResource"/>
+         <keywordReference id="org.eclipse.buildship.ui.keyword.buildship"/>
       </wizard>
       <category
-            id="org.eclipse.buildship.ui.wizards"
+            id="org.eclipse.buildship.ui.importwizards"
             name="Gradle">
       </category>
+    </extension>
+
+    <!-- definition of keywords available in search fields of Gradle project wizards -->
+    <extension
+          point="org.eclipse.ui.keywords">
+       <keyword
+             id="org.eclipse.buildship.ui.keyword.buildship"
+             label="Buildship">
+       </keyword>
     </extension>
 
     <!-- integration of Gradle icons into explorer -->

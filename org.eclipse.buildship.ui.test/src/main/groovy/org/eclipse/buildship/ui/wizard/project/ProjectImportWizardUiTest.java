@@ -9,13 +9,14 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.projectimport;
+package org.eclipse.buildship.ui.wizard.project;
 
 import org.eclipse.buildship.ui.AbstractSwtbotTest;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
+
 import org.junit.Test;
 
-public class ImportProjectWizardUiTest extends AbstractSwtbotTest {
+public class ProjectImportWizardUiTest extends AbstractSwtbotTest {
 
     // todo (etst) review
 
@@ -29,7 +30,7 @@ public class ImportProjectWizardUiTest extends AbstractSwtbotTest {
         bot.button("Next >").click();
 
         // if the wizard was opened the label is available, otherwise a WidgetNotFoundException is thrown
-        bot.styledText(ProjectImportMessages.InfoMessage_GradleWelcomeWizardPageContext);
+        bot.styledText(ProjectWizardMessages.InfoMessage_GradleWelcomeWizardPageContext);
 
         // cancel the wizard
         bot.button("Cancel").click();
