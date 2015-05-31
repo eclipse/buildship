@@ -26,6 +26,7 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Widget;
 
+import org.eclipse.buildship.core.util.string.StringUtils;
 import org.eclipse.buildship.ui.wizard.project.ProjectWizardMessages;
 
 /**
@@ -51,8 +52,7 @@ public final class DirectoryDialogSelectionListener extends SelectionAdapter {
         directoryDialog.setText(this.title);
 
         // derive initially selected directory from the text field value
-        Object value = this.target.getValue();
-        String text = value == null ? null : value.toString();
+        String text = StringUtils.valueOf(this.target.getValue());
         File startLocation = Strings.isNullOrEmpty(text) ? null : new File(text.trim()).getAbsoluteFile();
         if (startLocation != null && startLocation.exists() && startLocation.isFile()) {
             directoryDialog.setFilterPath(startLocation.getParentFile().getAbsolutePath());

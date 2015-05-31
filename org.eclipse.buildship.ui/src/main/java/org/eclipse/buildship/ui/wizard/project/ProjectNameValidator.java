@@ -21,6 +21,8 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
+import org.eclipse.buildship.core.util.string.StringUtils;
+
 /**
  * Validator that checks that a project name is specified and not already used in the workspace.
  */
@@ -33,7 +35,7 @@ public final class ProjectNameValidator implements IValidator {
 
     @Override
     public IStatus validate(Object value) {
-        String projectName = value == null ? null : value.toString();
+        String projectName = StringUtils.valueOf(value);
         if (Strings.isNullOrEmpty(projectName)) {
             return ValidationStatus.error(ProjectWizardMessages.ErrorMessage_ProjectName_MustBeSpecified);
         } else if (projectNameAlreadyExistsInWorkspace(projectName)) {
