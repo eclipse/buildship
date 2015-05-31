@@ -11,13 +11,13 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
+import java.io.File;
+import java.util.List;
+
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import org.eclipse.buildship.core.launch.RunGradleTasksJob;
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.ui.UiPlugin;
+
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -32,8 +32,10 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkingSet;
 
-import java.io.File;
-import java.util.List;
+import org.eclipse.buildship.core.launch.RunGradleTasksJob;
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.ui.UiPlugin;
 
 /**
  * Page in the {@link ProjectCreationWizard} specifying the name of the Gradle project folder to create.
@@ -180,7 +182,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard {
     private static final class ProjectCreatingPageChangedListener implements IPageChangedListener {
 
         private final ProjectCreationWizard projectCreationWizard;
-        private AbstractWizardPage previousPage;
+        private IWizardPage previousPage;
 
         private ProjectCreatingPageChangedListener(ProjectCreationWizard projectCreationWizard) {
             this.projectCreationWizard = projectCreationWizard;
@@ -198,7 +200,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard {
                     FileUtils.deleteRecursively(projectDir);
                 }
             }
-            this.previousPage = (AbstractWizardPage) event.getSelectedPage();
+            this.previousPage = (IWizardPage) event.getSelectedPage();
         }
 
     }
