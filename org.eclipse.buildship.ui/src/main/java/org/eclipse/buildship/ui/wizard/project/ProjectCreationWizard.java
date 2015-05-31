@@ -89,7 +89,8 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard {
         this.newGradleProjectPage = new NewGradleProjectWizardPage(configuration);
         this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller,
                 ProjectCreationMessages.Title_NewGradleProjectPreviewWizardPage,
-                ProjectCreationMessages.InfoMessage_NewGradleProjectPreviewWizardPageDefault);
+                ProjectCreationMessages.InfoMessage_NewGradleProjectPreviewWizardPageDefault,
+                ProjectCreationMessages.InfoMessage_NewGradleProjectPreviewWizardPageContext);
     }
 
     @Override

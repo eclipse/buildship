@@ -32,6 +32,7 @@ public final class ProjectCreationMessages extends NLS {
     public static String InfoMessage_NewGradleProjectPreviewWizardPageDefault;
 
     public static String InfoMessage_NewGradleProjectWizardPageContext;
+    public static String InfoMessage_NewGradleProjectPreviewWizardPageContext;
 
     public static String Label_ProjectName;
     public static String Label_ProjectLocation;

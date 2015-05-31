@@ -63,6 +63,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     private final ProjectImportWizardController controller;
     private final Font keyFont;
     private final Font valueFont;
+    private final String pageContextInformation;
 
     private Label projectDirLabel;
     private Label gradleUserHomeLabel;
@@ -74,14 +75,15 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     private Tree projectPreviewTree;
 
     public ProjectPreviewWizardPage(ProjectImportWizardController controller) {
-        this(controller, ProjectWizardMessages.Title_PreviewImportWizardPage, ProjectWizardMessages.InfoMessage_PreviewImportWizardPageDefault);
+        this(controller, ProjectWizardMessages.Title_PreviewImportWizardPage, ProjectWizardMessages.InfoMessage_PreviewImportWizardPageDefault, ProjectWizardMessages.InfoMessage_GradlePreviewWizardPageContext);
     }
 
-    public ProjectPreviewWizardPage(ProjectImportWizardController controller, String title, String defaultMessage) {
+    public ProjectPreviewWizardPage(ProjectImportWizardController controller, String title, String defaultMessage, String pageContextInformation) {
         super("ProjectPreview", title, defaultMessage, controller.getConfiguration(), ImmutableList.<Property<?>>of()); //$NON-NLS-1$
         this.controller = controller;
         this.keyFont = FontUtils.getCustomDialogFont(SWT.BOLD);
         this.valueFont = FontUtils.getCustomDialogFont(SWT.NONE);
+        this.pageContextInformation = pageContextInformation;
     }
 
     @Override
@@ -345,15 +347,15 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     }
 
     @Override
+    protected String getPageContextInformation() {
+        return this.pageContextInformation;
+    }
+
+    @Override
     public void dispose() {
         this.keyFont.dispose();
         this.valueFont.dispose();
         super.dispose();
-    }
-
-    @Override
-    protected String getPageContextInformation() {
-        return ProjectWizardMessages.InfoMessage_GradlePreviewWizardPageContext;
     }
 
 }
