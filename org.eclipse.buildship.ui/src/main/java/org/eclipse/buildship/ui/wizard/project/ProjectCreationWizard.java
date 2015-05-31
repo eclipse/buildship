@@ -11,6 +11,8 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import org.eclipse.buildship.core.launch.RunGradleTasksJob;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
@@ -28,6 +30,7 @@ import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkingSet;
 
 import java.io.File;
 import java.util.List;
@@ -123,9 +126,18 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard {
 
     @Override
     public boolean performFinish() {
-        this.controller.setWorkingSets(this.newGradleProjectPage.getSelectedWorkingSets());
+        this.controller.getConfiguration().setWorkingSets(toWorkingSetNames(this.newGradleProjectPage.getSelectedWorkingSets()));
         performInitNewProject(true, GRADLE_INIT_TASK_CMD_LINE);
         return true;
+    }
+
+    private List<String> toWorkingSetNames(List<IWorkingSet> workingSets) {
+        return FluentIterable.from(workingSets).transform(new Function<IWorkingSet, String>() {
+            @Override
+            public String apply(IWorkingSet workingSet) {
+                return workingSet.getName();
+            }
+        }).toList();
     }
 
     @Override

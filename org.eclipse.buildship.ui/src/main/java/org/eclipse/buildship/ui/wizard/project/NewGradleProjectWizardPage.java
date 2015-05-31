@@ -219,8 +219,8 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         return (value instanceof IStatus && ((IStatus) value).isOK());
     }
 
-    public IWorkingSet[] getSelectedWorkingSets() {
-        return this.workingSetConfigurationBlock.getSelectedWorkingSets();
+    public ImmutableList<IWorkingSet> getSelectedWorkingSets() {
+        return ImmutableList.copyOf(this.workingSetConfigurationBlock.getSelectedWorkingSets());
     }
 
     @Override
