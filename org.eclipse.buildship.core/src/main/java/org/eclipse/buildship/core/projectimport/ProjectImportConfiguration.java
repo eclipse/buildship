@@ -34,20 +34,24 @@ public final class ProjectImportConfiguration {
     private final Property<File> javaHome;
     private final Property<String> jvmArguments;
     private final Property<String> arguments;
+    private final Property<List<String>> workingSets;
 
     public ProjectImportConfiguration() {
-        this(Validators.<File> noOp(), Validators.<GradleDistributionWrapper> noOp(), Validators.<File> noOp(), Validators.<File> noOp(), Validators.<String> noOp(), Validators
-                .<String> noOp());
+        this(Validators.<File>noOp(), Validators.<GradleDistributionWrapper>noOp(), Validators.<File>noOp(), Validators.<File>noOp(),
+                Validators.<String>noOp(), Validators.<String>noOp(), Validators.<List<String>>noOp());
     }
 
     public ProjectImportConfiguration(Validator<File> projectDirValidator, Validator<GradleDistributionWrapper> gradleDistributionValidator,
-            Validator<File> gradleUserHomeValidator, Validator<File> javaHomeValidator, Validator<String> jvmArgumentsValidator, Validator<String> argumentsValidator) {
+                                      Validator<File> gradleUserHomeValidator, Validator<File> javaHomeValidator,
+                                      Validator<String> jvmArgumentsValidator, Validator<String> argumentsValidator,
+                                      Validator<List<String>> workingSetsValidators) {
         this.projectDir = Property.create(projectDirValidator);
         this.gradleDistribution = Property.create(gradleDistributionValidator);
         this.gradleUserHome = Property.create(gradleUserHomeValidator);
         this.javaHome = Property.create(javaHomeValidator);
         this.jvmArguments = Property.create(jvmArgumentsValidator);
         this.arguments = Property.create(argumentsValidator);
+        this.workingSets = Property.create(workingSetsValidators);
     }
 
     public Property<File> getProjectDir() {
@@ -96,6 +100,14 @@ public final class ProjectImportConfiguration {
 
     public void setArguments(String arguments) {
         this.arguments.setValue(arguments);
+    }
+
+    public Property<List<String>> getWorkingSets() {
+        return this.workingSets;
+    }
+
+    public void setWorkingSets(List<String> workingSets) {
+        this.workingSets.setValue(workingSets);
     }
 
     public FixedRequestAttributes toFixedAttributes() {

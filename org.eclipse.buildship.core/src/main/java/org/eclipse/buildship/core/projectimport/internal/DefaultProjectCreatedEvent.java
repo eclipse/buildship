@@ -12,8 +12,11 @@
 package org.eclipse.buildship.core.projectimport.internal;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import org.eclipse.buildship.core.projectimport.ProjectCreatedEvent;
 import org.eclipse.core.resources.IProject;
+
+import java.util.List;
 
 /**
  * Default implementation of {@link org.eclipse.buildship.core.projectimport.ProjectCreatedEvent}.
@@ -21,14 +24,21 @@ import org.eclipse.core.resources.IProject;
 public final class DefaultProjectCreatedEvent implements ProjectCreatedEvent {
 
     private final IProject project;
+    private final ImmutableList<String> workingSets;
 
-    public DefaultProjectCreatedEvent(IProject project) {
+    public DefaultProjectCreatedEvent(IProject project, List<String> workingSets) {
         this.project = Preconditions.checkNotNull(project);
+        this.workingSets = ImmutableList.copyOf(workingSets);
     }
 
     @Override
     public IProject getProject() {
         return this.project;
+    }
+
+    @Override
+    public ImmutableList<String> getWorkingSets() {
+        return this.workingSets;
     }
 
 }

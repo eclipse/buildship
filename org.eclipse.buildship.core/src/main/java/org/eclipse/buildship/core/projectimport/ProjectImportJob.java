@@ -56,11 +56,13 @@ import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 public final class ProjectImportJob extends ToolingApiWorkspaceJob {
 
     private final FixedRequestAttributes fixedAttributes;
+    private final ImmutableList<String> workingSets;
 
     public ProjectImportJob(ProjectImportConfiguration configuration) {
         super("Importing Gradle project");
 
         this.fixedAttributes = configuration.toFixedAttributes();
+        this.workingSets = ImmutableList.copyOf(configuration.getWorkingSets().getValue());
 
         // explicitly show a dialog with the progress while the import is in process
         setUser(true);
@@ -125,8 +127,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
                 workspaceProject = workspaceOperations.createProject(project.getName(), project.getProjectDirectory(), childProjectLocations, gradleNature, new SubProgressMonitor(
                         monitor, 1));
 
-                // if the current Gradle project is a Java project, configure the Java nature,
-                // the classpath, and the source paths
+                // if the current Gradle project is a Java project, configure the Java nature, the classpath, and the source paths
                 if (isJavaProject(project)) {
                     IPath jre = JavaRuntime.getDefaultJREContainerEntry().getPath();
                     ClasspathDefinition classpath = new ClasspathDefinition(ImmutableList.<Pair<IPath, IPath>>of(), ImmutableList.<IPath>of(), ImmutableList.<String>of(), jre);
@@ -144,7 +145,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
             workspaceOperations.refresh(workspaceProject, new SubProgressMonitor(monitor, 1));
 
             // notify the listeners that a new IProject has been created
-            ProjectCreatedEvent event = new DefaultProjectCreatedEvent(workspaceProject);
+            ProjectCreatedEvent event = new DefaultProjectCreatedEvent(workspaceProject, this.workingSets);
             CorePlugin.listenerRegistry().dispatch(event);
         } finally {
             monitor.done();

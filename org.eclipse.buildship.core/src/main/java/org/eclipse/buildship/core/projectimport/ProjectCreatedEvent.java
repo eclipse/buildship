@@ -11,9 +11,9 @@
 
 package org.eclipse.buildship.core.projectimport;
 
-import org.eclipse.core.resources.IProject;
-
+import com.google.common.collect.ImmutableList;
 import org.eclipse.buildship.core.event.Event;
+import org.eclipse.core.resources.IProject;
 
 /**
  * Event informing that a new {@link IProject} has been created during a Gradle project import.
@@ -26,5 +26,12 @@ public interface ProjectCreatedEvent extends Event {
      * @return the created project
      */
     IProject getProject();
+
+    /**
+     * The names of the working sets to which the created project need to be added.
+     *
+     * @return the names of the working sets to which to add the created project
+     */
+    ImmutableList<String> getWorkingSets();
 
 }
