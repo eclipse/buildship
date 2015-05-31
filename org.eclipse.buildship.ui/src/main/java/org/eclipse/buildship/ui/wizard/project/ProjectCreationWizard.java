@@ -90,9 +90,9 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard {
         ProjectImportConfiguration configuration = this.controller.getConfiguration();
         this.newGradleProjectPage = new NewGradleProjectWizardPage(configuration);
         this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller,
-                ProjectCreationMessages.Title_NewGradleProjectPreviewWizardPage,
-                ProjectCreationMessages.InfoMessage_NewGradleProjectPreviewWizardPageDefault,
-                ProjectCreationMessages.InfoMessage_NewGradleProjectPreviewWizardPageContext);
+                ProjectWizardMessages.Title_NewGradleProjectPreviewWizardPage,
+                ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageDefault,
+                ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageContext);
     }
 
     @Override
@@ -111,7 +111,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard {
 
     @Override
     public String getWindowTitle() {
-        return ProjectCreationMessages.Title_NewGradleProjectWizardPage;
+        return ProjectWizardMessages.Title_NewGradleProjectWizardPage;
     }
 
     @Override

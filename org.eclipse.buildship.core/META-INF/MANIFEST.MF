@@ -32,5 +32,6 @@ Export-Package: org.eclipse.buildship.core,
  org.eclipse.buildship.core.util.file,
  org.eclipse.buildship.core.util.logging,
  org.eclipse.buildship.core.util.progress,
+ org.eclipse.buildship.core.util.string,
  org.eclipse.buildship.core.util.variable,
  org.eclipse.buildship.core.workspace

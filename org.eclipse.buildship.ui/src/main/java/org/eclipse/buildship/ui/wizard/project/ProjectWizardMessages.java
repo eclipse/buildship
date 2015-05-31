@@ -25,6 +25,9 @@ public final class ProjectWizardMessages extends NLS {
     public static String Title_GradleOptionsWizardPage;
     public static String Title_PreviewImportWizardPage;
 
+    public static String Title_NewGradleProjectWizardPage;
+    public static String Title_NewGradleProjectPreviewWizardPage;
+
     public static String Title_Select_0;
 
     public static String Button_Label_Browse;
@@ -40,15 +43,27 @@ public final class ProjectWizardMessages extends NLS {
     public static String Label_GradleVersion;
     public static String Label_ProjectStructure;
 
+    public static String Label_ProjectName;
+    public static String Label_ProjectLocation;
+    public static String Label_CustomLocation;
+    public static String Label_WorkingSets;
+    public static String Button_UseDefaultLocation;
+
     public static String InfoMessage_GradleWelcomeWizardPageDefault;
     public static String InfoMessage_GradleProjectWizardPageDefault;
     public static String InfoMessage_GradleOptionsWizardPageDefault;
     public static String InfoMessage_PreviewImportWizardPageDefault;
 
+    public static String InfoMessage_NewGradleProjectWizardPageDefault;
+    public static String InfoMessage_NewGradleProjectPreviewWizardPageDefault;
+
     public static String InfoMessage_GradleWelcomeWizardPageContext;
     public static String InfoMessage_GradleProjectWizardPageContext;
     public static String InfoMessage_GradleOptionsWizardPageContext;
     public static String InfoMessage_GradlePreviewWizardPageContext;
+
+    public static String InfoMessage_NewGradleProjectWizardPageContext;
+    public static String InfoMessage_NewGradleProjectPreviewWizardPageContext;
 
     public static String ErrorMessage_ProjectName_MustBeSpecified;
     public static String ErrorMessage_ProjectName_AlreadyExists;

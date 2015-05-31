@@ -72,7 +72,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
     private AggregateValidationStatus validationStatus;
 
     public NewGradleProjectWizardPage(ProjectImportConfiguration configuration) {
-        super("NewGradleProject", ProjectCreationMessages.Title_NewGradleProjectWizardPage, ProjectCreationMessages.InfoMessage_NewGradleProjectWizardPageDefault, //$NON-NLS-1$
+        super("NewGradleProject", ProjectWizardMessages.Title_NewGradleProjectWizardPage, ProjectWizardMessages.InfoMessage_NewGradleProjectWizardPageDefault, //$NON-NLS-1$
                 configuration, ImmutableList.<Property<?>> of(configuration.getProjectDir()));
         setPageComplete(false);
     }
@@ -88,25 +88,25 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
     private void createContent(Composite root) {
         UiBuilder.UiBuilderFactory uiBuilderFactory = getUiBuilderFactory();
 
-        uiBuilderFactory.newLabel(root).alignLeft().text(ProjectCreationMessages.Label_ProjectName);
+        uiBuilderFactory.newLabel(root).alignLeft().text(ProjectWizardMessages.Label_ProjectName);
 
         // Text to specify a project name
         this.projectNameText = new Text(root, SWT.BORDER);
         GridDataFactory.fillDefaults().grab(true, false).span(2, SWT.DEFAULT).applyTo(this.projectNameText);
 
         Group locationGroup = new Group(root, SWT.NONE);
-        locationGroup.setText(ProjectCreationMessages.Label_ProjectLocation);
+        locationGroup.setText(ProjectWizardMessages.Label_ProjectLocation);
         GridLayoutFactory.swtDefaults().numColumns(3).applyTo(locationGroup);
         GridDataFactory.fillDefaults().grab(true, false).span(3, SWT.DEFAULT).applyTo(locationGroup);
 
         // check button for the usage of the default workspace location
         this.defaultWorkspaceLocationButton = new Button(locationGroup, SWT.CHECK);
         GridDataFactory.fillDefaults().span(3, SWT.DEFAULT).applyTo(this.defaultWorkspaceLocationButton);
-        this.defaultWorkspaceLocationButton.setText(ProjectCreationMessages.Button_UseDefaultLocation);
+        this.defaultWorkspaceLocationButton.setText(ProjectWizardMessages.Button_UseDefaultLocation);
         this.defaultWorkspaceLocationButton.setSelection(true);
 
         // project directory label
-        this.locationLabel = uiBuilderFactory.newLabel(locationGroup).alignLeft().text(ProjectCreationMessages.Label_CustomLocation).control();
+        this.locationLabel = uiBuilderFactory.newLabel(locationGroup).alignLeft().text(ProjectWizardMessages.Label_CustomLocation).control();
 
         // combo for typing an alternative project path, which also provides recently used paths
         this.projectDirCombo = new Combo(locationGroup, SWT.BORDER);
@@ -123,7 +123,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
                 .getDialogSettings());
 
         Group workingSetGroup = new Group(root, SWT.NONE);
-        workingSetGroup.setText(ProjectCreationMessages.Label_WorkingSets);
+        workingSetGroup.setText(ProjectWizardMessages.Label_WorkingSets);
         GridLayoutFactory.swtDefaults().applyTo(workingSetGroup);
         GridDataFactory.fillDefaults().grab(true, false).span(3, SWT.DEFAULT).applyTo(workingSetGroup);
 
@@ -193,7 +193,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
                     ControlDecorationSupport.create(binding, SWT.LEFT | SWT.TOP);
                     // show validation status as Wizard message
                     DialogPageSupport dialogPageSupport = DialogPageSupport.create(NewGradleProjectWizardPage.this, NewGradleProjectWizardPage.this.dbc);
-                    dialogPageSupport.setValidationMessageProvider(new MessageRestoringValidationMessageProvider(ProjectCreationMessages.InfoMessage_NewGradleProjectWizardPageDefault));
+                    dialogPageSupport.setValidationMessageProvider(new MessageRestoringValidationMessageProvider(ProjectWizardMessages.InfoMessage_NewGradleProjectWizardPageDefault));
                 }
             }
         });
@@ -225,7 +225,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
 
     @Override
     protected String getPageContextInformation() {
-        return ProjectCreationMessages.InfoMessage_NewGradleProjectWizardPageContext;
+        return ProjectWizardMessages.InfoMessage_NewGradleProjectWizardPageContext;
     }
 
     @Override
