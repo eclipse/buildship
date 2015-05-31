@@ -31,14 +31,6 @@ public final class UiMessages extends NLS {
 
     public static String Action_ShowTreeHeader_Text;
 
-    public static String OpenTestSourceFileJob_Error_Open_Element;
-
-    public static String OpenTestSourceFileJob_Open_Test_In;
-
-    public static String OpenTestSourceFileJob_Canceled;
-
-    public static String OpenTestSourceFileJob_Job_Name;
-
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, UiMessages.class);
