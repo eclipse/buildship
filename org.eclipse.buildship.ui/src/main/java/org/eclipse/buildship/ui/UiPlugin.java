@@ -32,6 +32,7 @@ import org.eclipse.buildship.ui.console.ConsoleProcessStreamsProvider;
 import org.eclipse.buildship.ui.launch.ConsoleShowingLaunchListener;
 import org.eclipse.buildship.ui.notification.DialogUserNotification;
 import org.eclipse.buildship.ui.view.execution.ExecutionShowingBuildLaunchRequestListener;
+import org.eclipse.buildship.ui.wizard.project.WorkingSetsAddingProjectCreatedListener;
 
 /**
  * The plug-in runtime class for the Gradle integration plug-in containing the UI-related elements.
@@ -54,6 +55,7 @@ public final class UiPlugin extends AbstractUIPlugin {
     private ServiceRegistration dialogUserNotificationService;
     private ConsoleShowingLaunchListener consoleShowingLaunchListener;
     private ExecutionShowingBuildLaunchRequestListener executionShowingBuildLaunchRequestListener;
+    private WorkingSetsAddingProjectCreatedListener workingSetsAddingProjectCreatedListener;
 
     @Override
     public void start(BundleContext context) throws Exception {
@@ -114,9 +116,13 @@ public final class UiPlugin extends AbstractUIPlugin {
 
         this.executionShowingBuildLaunchRequestListener = new ExecutionShowingBuildLaunchRequestListener();
         CorePlugin.listenerRegistry().addEventListener(this.executionShowingBuildLaunchRequestListener);
+
+        this.workingSetsAddingProjectCreatedListener = new WorkingSetsAddingProjectCreatedListener();
+        CorePlugin.listenerRegistry().addEventListener(this.workingSetsAddingProjectCreatedListener);
     }
 
     private void unregisterListeners() {
+        CorePlugin.listenerRegistry().removeEventListener(this.workingSetsAddingProjectCreatedListener);
         CorePlugin.listenerRegistry().removeEventListener(this.executionShowingBuildLaunchRequestListener);
         DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(this.consoleShowingLaunchListener);
     }

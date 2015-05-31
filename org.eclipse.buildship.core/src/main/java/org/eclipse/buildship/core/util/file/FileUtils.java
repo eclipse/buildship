@@ -77,4 +77,24 @@ public final class FileUtils {
         }
     }
 
+    /**
+     * Deletes the given file or directory. In case of a directory, all its content is deleted recursively.
+     *
+     * @param file the file or directory to be deleted
+     * @return <code>true</code> iff deletion fully succeeded
+     */
+    @SuppressWarnings("ConstantConditions")
+    public static boolean deleteRecursively(File file) {
+        if (file.isDirectory()) {
+            boolean success = true;
+            File[] children = file.listFiles();
+            for (File child : children) {
+                success &= deleteRecursively(child);
+            }
+            return success && file.delete();
+        } else {
+            return file.delete();
+        }
+    }
+
 }

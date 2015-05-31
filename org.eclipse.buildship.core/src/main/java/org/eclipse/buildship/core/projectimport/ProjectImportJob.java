@@ -14,13 +14,6 @@ package org.eclipse.buildship.core.projectimport;
 import java.io.File;
 import java.util.List;
 
-import org.gradle.tooling.ProgressListener;
-
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
@@ -28,6 +21,12 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.Pair;
+import org.gradle.tooling.ProgressListener;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -44,6 +43,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.projectimport.internal.DefaultProjectCreatedEvent;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 import org.eclipse.buildship.core.workspace.ClasspathDefinition;
@@ -56,11 +56,13 @@ import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 public final class ProjectImportJob extends ToolingApiWorkspaceJob {
 
     private final FixedRequestAttributes fixedAttributes;
+    private final ImmutableList<String> workingSets;
 
     public ProjectImportJob(ProjectImportConfiguration configuration) {
         super("Importing Gradle project");
 
         this.fixedAttributes = configuration.toFixedAttributes();
+        this.workingSets = ImmutableList.copyOf(configuration.getWorkingSets().getValue());
 
         // explicitly show a dialog with the progress while the import is in process
         setUser(true);
@@ -125,8 +127,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
                 workspaceProject = workspaceOperations.createProject(project.getName(), project.getProjectDirectory(), childProjectLocations, gradleNature, new SubProgressMonitor(
                         monitor, 1));
 
-                // if the current Gradle project is a Java project, configure the Java nature,
-                // the classpath, and the source paths
+                // if the current Gradle project is a Java project, configure the Java nature, the classpath, and the source paths
                 if (isJavaProject(project)) {
                     IPath jre = JavaRuntime.getDefaultJREContainerEntry().getPath();
                     ClasspathDefinition classpath = new ClasspathDefinition(ImmutableList.<Pair<IPath, IPath>>of(), ImmutableList.<IPath>of(), ImmutableList.<String>of(), jre);
@@ -142,6 +143,10 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
 
             // refresh the project content
             workspaceOperations.refresh(workspaceProject, new SubProgressMonitor(monitor, 1));
+
+            // notify the listeners that a new IProject has been created
+            ProjectCreatedEvent event = new DefaultProjectCreatedEvent(workspaceProject, this.workingSets);
+            CorePlugin.listenerRegistry().dispatch(event);
         } finally {
             monitor.done();
         }

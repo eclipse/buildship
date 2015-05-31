@@ -9,16 +9,16 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.projectimport;
+package org.eclipse.buildship.ui.wizard.project;
 
 import org.eclipse.osgi.util.NLS;
 
 /**
  * Lists the i18n resource keys for the project import messages.
  */
-public final class ProjectImportMessages extends NLS {
+public final class ProjectWizardMessages extends NLS {
 
-    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.projectimport.ProjectImportMessages"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.wizard.project.ProjectWizardMessages"; //$NON-NLS-1$
 
     public static String Title_GradleWelcomeWizardPage;
     public static String Title_GradleProjectWizardPage;
@@ -50,12 +50,15 @@ public final class ProjectImportMessages extends NLS {
     public static String InfoMessage_GradleOptionsWizardPageContext;
     public static String InfoMessage_GradlePreviewWizardPageContext;
 
+    public static String ErrorMessage_ProjectName_MustBeSpecified;
+    public static String ErrorMessage_ProjectName_AlreadyExists;
+
     static {
         // initialize resource bundle
-        NLS.initializeMessages(BUNDLE_NAME, ProjectImportMessages.class);
+        NLS.initializeMessages(BUNDLE_NAME, ProjectWizardMessages.class);
     }
 
-    private ProjectImportMessages() {
+    private ProjectWizardMessages() {
     }
 
 }
