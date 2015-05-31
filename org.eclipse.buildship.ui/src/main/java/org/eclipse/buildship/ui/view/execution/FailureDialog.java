@@ -185,12 +185,11 @@ public final class FailureDialog extends Dialog {
                     IWorkbenchBrowserSupport browserSupport = PlatformUI.getWorkbench().getBrowserSupport();
                     IWebBrowser browser = browserSupport.createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, url, null, url);
                     browser.openURL(URI.create(url).toURL());
+                    close();
                 } catch (Exception e) {
                     String message = String.format("Cannot open browser editor for %s.", url);
                     CorePlugin.logger().error(message, e);
                     throw new GradlePluginsRuntimeException(message, e);
-                } finally {
-                    FailureDialog.this.close();
                 }
             }
         });
