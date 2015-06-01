@@ -5,7 +5,7 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
 
-class GradleConnectionValidatorTest extends Specification {
+class ValidatorsTest extends Specification {
 
     @Rule
     TemporaryFolder tempFolder
@@ -17,7 +17,7 @@ class GradleConnectionValidatorTest extends Specification {
         def existingFolder = existingFile.parentFile
         def nonExistingFile = new File('/nonexistingFolder/nonexistingFile')
         def nonExistingFolder = nonExistingFile.parentFile
-        def validator = GradleConnectionValidators.requiredDirectoryValidator('somePrefix')
+        def validator = Validators.requiredDirectoryValidator('somePrefix')
 
         expect:
         validator.validate(nullFolder).present
@@ -34,7 +34,7 @@ class GradleConnectionValidatorTest extends Specification {
         def existingFolder = existingFile.parentFile
         def nonExistingFile = new File('/nonexistingFolder/nonexistingFile')
         def nonExistingFolder = nonExistingFile.parentFile
-        def validator = GradleConnectionValidators.optionalDirectoryValidator('somePrefix')
+        def validator = Validators.optionalDirectoryValidator('somePrefix')
 
         expect:
         !validator.validate(nullFolder).present
@@ -46,7 +46,7 @@ class GradleConnectionValidatorTest extends Specification {
 
     def "Null validator reports error without touching the target object"() {
         setup:
-        def validator = GradleConnectionValidators.nullValidator()
+        def validator = Validators.nullValidator()
         def target = Mock(Object)
 
         when:

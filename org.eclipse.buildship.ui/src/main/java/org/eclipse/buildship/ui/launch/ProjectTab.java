@@ -46,9 +46,9 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.util.binding.GradleConnectionValidators;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
@@ -69,7 +69,7 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
     private Button showConsoleViewCheckbox;
 
     public ProjectTab() {
-        this.workingDirValidator = GradleConnectionValidators.requiredDirectoryValidator(CoreMessages.RunConfiguration_Label_WorkingDirectory);
+        this.workingDirValidator = Validators.requiredDirectoryValidator(CoreMessages.RunConfiguration_Label_WorkingDirectory);
     }
 
     @Override

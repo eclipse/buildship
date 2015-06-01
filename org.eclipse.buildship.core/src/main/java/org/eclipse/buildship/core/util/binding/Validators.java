@@ -22,11 +22,11 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 
 /**
- * Factory class for {@link Validator} instances that validate Gradle connections attributes.
+ * Factory class for common {@link Validator} instances.
  */
-public final class GradleConnectionValidators {
+public final class Validators {
 
-    private GradleConnectionValidators() {
+    private Validators() {
     }
 
     public static Validator<File> requiredDirectoryValidator(final String prefix) {
