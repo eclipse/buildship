@@ -13,10 +13,10 @@ package org.eclipse.buildship.ui.wizard.project;
 
 import java.util.Queue;
 
+import com.gradleware.tooling.toolingutils.binding.Property;
+
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableList;
-
-import com.gradleware.tooling.toolingutils.binding.Property;
 
 import org.eclipse.core.databinding.AggregateValidationStatus;
 import org.eclipse.core.databinding.Binding;
@@ -87,7 +87,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
 
     @Override
     protected void createWidgets(Composite root) {
-        GridLayoutFactory.swtDefaults().spacing(5, 15).numColumns(3).applyTo(root);
+        GridLayoutFactory.swtDefaults().numColumns(3).applyTo(root);
         createContent(root);
         bindUI();
         createPageCompleteObservable();

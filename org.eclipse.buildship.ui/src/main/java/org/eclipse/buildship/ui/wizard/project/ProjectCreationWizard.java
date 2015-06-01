@@ -35,12 +35,14 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.buildship.core.launch.RunGradleTasksJob;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.generic.HelpContextIdProvider;
 
 /**
  * Page in the {@link ProjectCreationWizard} specifying the name of the Gradle project folder to create.
  */
-public final class ProjectCreationWizard extends Wizard implements INewWizard {
+public final class ProjectCreationWizard extends Wizard implements INewWizard, HelpContextIdProvider {
 
     /**
      * The section name declaration for {@link org.eclipse.jface.dialogs.DialogSettings} where the
@@ -230,6 +232,11 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard {
             }
         }
         return true;
+    }
+
+    @Override
+    public String getHelpContextId() {
+        return HelpContext.PROJECT_CREATION;
     }
 
 }
