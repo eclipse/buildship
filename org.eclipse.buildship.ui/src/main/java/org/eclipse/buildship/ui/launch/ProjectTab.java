@@ -46,7 +46,7 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.gradle.GradleConnectionValidators;
+import org.eclipse.buildship.core.util.binding.GradleConnectionValidators;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;

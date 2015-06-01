@@ -1,7 +1,7 @@
-package org.eclipse.buildship.core.gradle
+package org.eclipse.buildship.core.util.binding
 
+import org.eclipse.buildship.core.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.gradle.GradleDistributionWrapper.DistributionType
-
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
@@ -17,7 +17,7 @@ class GradleConnectionValidatorTest extends Specification {
         def nullFolder = null
         def existingFile = tempFolder.newFile('existing-file')
         def existingFolder = existingFile.parentFile
-        def nonExistingFile = new File('/nonexistinFolder/nonexistingFile')
+        def nonExistingFile = new File('/nonexistingFolder/nonexistingFile')
         def nonExistingFolder = nonExistingFile.parentFile
         def validator = GradleConnectionValidators.requiredDirectoryValidator('somePrefix')
 
@@ -34,7 +34,7 @@ class GradleConnectionValidatorTest extends Specification {
         def nullFolder = null
         def existingFile = tempFolder.newFile('existing-file')
         def existingFolder = existingFile.parentFile
-        def nonExistingFile = new File('/nonexistinFolder/nonexistingFile')
+        def nonExistingFile = new File('/nonexistingFolder/nonexistingFile')
         def nonExistingFolder = nonExistingFile.parentFile
         def validator = GradleConnectionValidators.optionalDirectoryValidator('somePrefix')
 

@@ -37,7 +37,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 
-import org.eclipse.buildship.core.gradle.GradleConnectionValidators;
+import org.eclipse.buildship.core.util.binding.GradleConnectionValidators;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.util.file.FileUtils;

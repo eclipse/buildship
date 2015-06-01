@@ -35,7 +35,7 @@ import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.buildship.core.gradle.GradleConnectionValidators;
+import org.eclipse.buildship.core.util.binding.GradleConnectionValidators;
 import org.eclipse.buildship.core.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.gradle.GradleDistributionWrapper.DistributionType;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;

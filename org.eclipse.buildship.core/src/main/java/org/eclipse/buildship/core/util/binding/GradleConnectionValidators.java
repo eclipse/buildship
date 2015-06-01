@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.gradle;
+package org.eclipse.buildship.core.util.binding;
 
 import java.io.File;
 import java.net.URI;
@@ -20,6 +20,7 @@ import com.google.common.base.Strings;
 
 import com.gradleware.tooling.toolingutils.binding.Validator;
 
+import org.eclipse.buildship.core.gradle.GradleDistributionWrapper;
 import org.eclipse.osgi.util.NLS;
 
 import org.eclipse.buildship.core.i18n.CoreMessages;
