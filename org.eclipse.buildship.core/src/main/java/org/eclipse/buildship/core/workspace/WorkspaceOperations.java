@@ -68,33 +68,32 @@ public interface WorkspaceOperations {
    /**
      * Creates a new {@link IProject} in the workspace using the specified name and location. The
      * location must exist and no project with the specified name must currently exist in the
-     * workspace. The new project gets the specified natures applied. Those child projects whose
-     * specified locations are nested under this project's location are hidden through a resource
-     * filter.
+     * workspace. The new project gets the specified natures applied. The specified subfolders nested
+     * under the project's location are hidden through a resource filter.
      *
      * @param name the unique name of the project to create
      * @param location the location of the project to import
-     * @param childProjectLocations the location of the child projects
+     * @param filteredSubfolders the folders to filter from the project
      * @param natureIds the nature ids to associate with the project
      * @param monitor the monitor to report progress on
      * @return the created project
      * @throws org.eclipse.buildship.core.GradlePluginsRuntimeException thrown if the project creation fails
      */
-    IProject createProject(String name, File location, List<File> childProjectLocations, List<String> natureIds, IProgressMonitor monitor);
+    IProject createProject(String name, File location, List<File> filteredSubfolders, List<String> natureIds, IProgressMonitor monitor);
 
     /**
      * Includes an existing Eclipse project in the workspace. The project is also opened and the
-     * specified natures are added. Those child projects whose specified locations are nested under
-     * this project's location are hidden through a resource filter.
+     * specified natures are added. The specified subfolders nested under the project's location
+     * are hidden through a resource filter.
      *
      * @param description the project to include
-     * @param childProjectLocations the location of the child projects
+     * @param filteredSubfolders the folders to filter from the project
      * @param extraNatureIds the nature ids to add to the project
      * @param monitor the monitor to report the progress on
      * @return the included project
      * @throws org.eclipse.buildship.core.GradlePluginsRuntimeException thrown if the project inclusion fails
      */
-    IProject includeProject(IProjectDescription description, List<File> childProjectLocations, ImmutableList<String> extraNatureIds, IProgressMonitor monitor);
+    IProject includeProject(IProjectDescription description, List<File> filteredSubfolders, ImmutableList<String> extraNatureIds, IProgressMonitor monitor);
 
     /**
      * Configures an existing {@link IProject} to be a {@link IJavaProject}.

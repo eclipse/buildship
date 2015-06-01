@@ -108,7 +108,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
 
     @Override
-    public IProject createProject(String name, File location, List<File> childProjectLocations, List<String> natureIds, IProgressMonitor monitor) {
+    public IProject createProject(String name, File location, List<File> filteredSubfolders, List<String> natureIds, IProgressMonitor monitor) {
         // validate arguments
         Preconditions.checkNotNull(name);
         Preconditions.checkNotNull(location);
@@ -133,7 +133,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             project.create(projectDescription, new SubProgressMonitor(monitor, 1));
 
             // attach filters to the project to hide the sub-projects of this project
-            ResourceFilter.attachFilters(project, childProjectLocations, new SubProgressMonitor(monitor, 1));
+            ResourceFilter.attachFilters(project, filteredSubfolders, new SubProgressMonitor(monitor, 1));
 
             // open the project
             project.open(new SubProgressMonitor(monitor, 1));
@@ -155,7 +155,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
-    public IProject includeProject(IProjectDescription projectDescription, List<File> childProjectLocations, ImmutableList<String> extraNatureIds, IProgressMonitor monitor) {
+    public IProject includeProject(IProjectDescription projectDescription, List<File> filteredSubfolders, ImmutableList<String> extraNatureIds, IProgressMonitor monitor) {
         // validate arguments
         Preconditions.checkNotNull(projectDescription);
         Preconditions.checkNotNull(extraNatureIds);
@@ -169,7 +169,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             project.create(projectDescription, new SubProgressMonitor(monitor, 1));
 
             // attach filters to the project to hide the sub-projects of this project
-            ResourceFilter.attachFilters(project, childProjectLocations, new SubProgressMonitor(monitor, 1));
+            ResourceFilter.attachFilters(project, filteredSubfolders, new SubProgressMonitor(monitor, 1));
 
             // open the project
             project.open(new SubProgressMonitor(monitor, 1));

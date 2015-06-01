@@ -77,7 +77,7 @@ class ProjectImportJobTest extends Specification {
         projectDescriptorExists << [false, true]
     }
 
-    def "Imported parent projects have filters to hide the content of the children"() {
+    def "Imported parent projects have filters to hide the content of the children and the build folders"() {
         setup:
         File rootProject = newMultiProject()
         ProjectImportJob job = newProjectImportJob(rootProject)
@@ -89,7 +89,7 @@ class ProjectImportJobTest extends Specification {
         then:
         def filters = CorePlugin.workspaceOperations().findProjectByName(rootProject.name).get().getFilters()
         filters.length == 1
-        filters[0].fileInfoMatcherDescription.arguments.arguments == ['subproject']
+        filters[0].fileInfoMatcherDescription.arguments.arguments == ['subproject', '.gradle', 'build']
     }
 
     def "Importing a project twice won't result in duplicate filters"() {
@@ -109,7 +109,7 @@ class ProjectImportJobTest extends Specification {
         then:
         def filters = CorePlugin.workspaceOperations().findProjectByName(rootProject.name).get().getFilters()
         filters.length == 1
-        filters[0].fileInfoMatcherDescription.arguments.arguments == ['subproject']
+        filters[0].fileInfoMatcherDescription.arguments.arguments == ['subproject', '.gradle', 'build']
     }
 
     def newProject(boolean projectDescriptorExists, boolean applyJavaPlugin) {
