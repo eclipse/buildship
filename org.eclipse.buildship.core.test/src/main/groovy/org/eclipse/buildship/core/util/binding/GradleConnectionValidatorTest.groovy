@@ -1,7 +1,7 @@
 package org.eclipse.buildship.core.util.binding
 
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper.DistributionType
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification

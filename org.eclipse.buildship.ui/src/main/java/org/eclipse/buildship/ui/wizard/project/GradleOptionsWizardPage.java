@@ -37,8 +37,8 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper;
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper.DistributionType;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.file.FileUtils;

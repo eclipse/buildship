@@ -20,7 +20,7 @@ import com.gradleware.tooling.toolingutils.binding.Property;
 import com.gradleware.tooling.toolingutils.binding.Validator;
 import com.gradleware.tooling.toolingutils.binding.Validators;
 
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 
 /**

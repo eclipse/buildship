@@ -22,8 +22,8 @@ import org.eclipse.debug.core.ILaunchManager;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper;
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper.DistributionType;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType;
 import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager;
 
 import spock.lang.Specification;

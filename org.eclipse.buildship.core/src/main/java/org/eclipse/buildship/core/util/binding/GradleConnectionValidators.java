@@ -20,7 +20,7 @@ import com.google.common.base.Strings;
 
 import com.gradleware.tooling.toolingutils.binding.Validator;
 
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.osgi.util.NLS;
 
 import org.eclipse.buildship.core.i18n.CoreMessages;

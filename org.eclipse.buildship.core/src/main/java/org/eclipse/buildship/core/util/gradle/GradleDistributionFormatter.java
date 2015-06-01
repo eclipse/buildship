@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.gradle;
+package org.eclipse.buildship.core.util.gradle;
 
 import com.google.common.base.Preconditions;
 

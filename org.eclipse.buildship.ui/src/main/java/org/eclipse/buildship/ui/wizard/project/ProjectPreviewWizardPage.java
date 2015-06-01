@@ -43,8 +43,8 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.gradle.GradleDistributionFormatter;
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;

@@ -27,7 +27,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.gradle.GradleDistributionSerializer;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 

@@ -16,7 +16,7 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
 import org.eclipse.buildship.core.projectimport.ProjectImportJob
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import com.gradleware.tooling.junit.TestFile
 import com.gradleware.tooling.toolingclient.GradleDistribution

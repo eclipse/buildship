@@ -32,7 +32,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.gradle.GradleDistributionSerializer;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
 
