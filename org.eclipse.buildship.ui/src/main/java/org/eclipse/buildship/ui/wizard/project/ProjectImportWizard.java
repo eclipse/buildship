@@ -27,7 +27,6 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.generic.HelpContextIdProvider;
 
 /**
  * Eclipse wizard for importing Gradle projects into the workspace.
@@ -156,6 +155,11 @@ public final class ProjectImportWizard extends Wizard implements IImportWizard, 
         this.finishGloballyEnabled = finishGloballyEnabled;
     }
 
+    @Override
+    public String getHelpContextId() {
+        return HelpContext.PROJECT_IMPORT;
+    }
+
     private static IDialogSettings getOrCreateDialogSection(IDialogSettings dialogSettings) {
         // in Eclipse 3.6 the method DialogSettings#getOrCreateSection does not exist
         IDialogSettings section = dialogSettings.getSection(PROJECT_IMPORT_DIALOG_SETTINGS);
@@ -163,11 +167,6 @@ public final class ProjectImportWizard extends Wizard implements IImportWizard, 
             section = dialogSettings.addNewSection(PROJECT_IMPORT_DIALOG_SETTINGS);
         }
         return section;
-    }
-
-    @Override
-    public String getHelpContextId() {
-        return HelpContext.PROJECT_IMPORT;
     }
 
 }

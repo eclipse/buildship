@@ -34,7 +34,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.ui.generic.HelpContextIdProvider;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
 
@@ -217,7 +216,8 @@ public abstract class AbstractWizardPage extends WizardPage {
         // context
         if (visible) {
             if (getWizard() instanceof HelpContextIdProvider) {
-                PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), ((HelpContextIdProvider) getWizard()).getHelpContextId());
+                String helpContextId = ((HelpContextIdProvider) getWizard()).getHelpContextId();
+                PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), helpContextId);
             }
         }
     }
