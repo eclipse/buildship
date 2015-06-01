@@ -103,6 +103,7 @@ class ProjectConfigurationManagerTest extends Specification {
         def importConfigurationOne = new ProjectImportConfiguration()
         importConfigurationOne.projectDir = new File(rootDir.absolutePath)
         importConfigurationOne.gradleDistribution = GradleDistributionWrapper.from(GradleDistributionWrapper.DistributionType.WRAPPER, null)
+        importConfigurationOne.workingSets = []
 
         new ProjectImportJob(importConfigurationOne).runToolingApiJobInWorkspace(new NullProgressMonitor())
 
@@ -164,10 +165,12 @@ class ProjectConfigurationManagerTest extends Specification {
         def importConfigurationOne = new ProjectImportConfiguration()
         importConfigurationOne.projectDir = new File(rootDirOne.absolutePath)
         importConfigurationOne.gradleDistribution = GradleDistributionWrapper.from(GradleDistributionWrapper.DistributionType.WRAPPER, null)
+        importConfigurationOne.workingSets = []
 
         def importConfigurationTwo = new ProjectImportConfiguration()
         importConfigurationTwo.projectDir = new File(rootDirTwo.absolutePath)
         importConfigurationTwo.gradleDistribution = GradleDistributionWrapper.from(GradleDistributionWrapper.DistributionType.VERSION, '1.12')
+        importConfigurationTwo.workingSets = []
 
         new ProjectImportJob(importConfigurationOne).runToolingApiJobInWorkspace(new NullProgressMonitor())
         new ProjectImportJob(importConfigurationTwo).runToolingApiJobInWorkspace(new NullProgressMonitor())
