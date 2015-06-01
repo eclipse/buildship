@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.ui.HelpContext;
+import org.eclipse.buildship.ui.generic.HelpContextIdProvider;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
 
@@ -216,7 +216,9 @@ public abstract class AbstractWizardPage extends WizardPage {
         // the user could navigate back to the initial Eclipse import page which sets another help
         // context
         if (visible) {
-            PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), HelpContext.PROJECT_IMPORT);
+            if (getWizard() instanceof HelpContextIdProvider) {
+                PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), ((HelpContextIdProvider) getWizard()).getHelpContextId());
+            }
         }
     }
 
