@@ -11,13 +11,15 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import java.io.File;
-
+import com.google.common.base.Optional;
+import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.IValidator;
 import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+
+import java.io.File;
 
 /**
  * Validator that checks that the project custom location, if enabled, exists.
@@ -33,12 +35,13 @@ public final class ProjectCustomLocationValidator implements IValidator {
     @Override
     public IStatus validate(Object value) {
         if (!(Boolean) this.isDefaultLocationEnabled.getValue()) {
-            if (value instanceof File) {
-                File file = (File) value;
-                // just check the path to the new project
-                if (file.getParent() != null && !file.getParentFile().exists()) {
-                    return ValidationStatus.error("The custom project location does not exist.");
-                }
+            File file = (File) value;
+            if (file != null) {
+                file = file.getParentFile();
+            }
+            Optional<String> validation = Validators.requiredDirectoryValidator("Custom project location").validate(file);
+            if (validation.isPresent()) {
+                return ValidationStatus.error(validation.get());
             }
         }
         return Status.OK_STATUS;
