@@ -88,7 +88,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
             OmniEclipseProject rootProject = eclipseGradleBuild.getRootEclipseProject();
             List<OmniEclipseProject> allProjects = rootProject.getAll();
             for (OmniEclipseProject project : allProjects) {
-                importProject(eclipseGradleBuild, project, new SubProgressMonitor(monitor, 50 / allProjects.size()));
+                importProject(project, eclipseGradleBuild, new SubProgressMonitor(monitor, 50 / allProjects.size()));
             }
         } finally {
             manager.endRule(workspaceRoot);
@@ -111,30 +111,31 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         }
     }
 
-    private void importProject(OmniEclipseGradleBuild eclipseGradleBuild, OmniEclipseProject project, IProgressMonitor monitor) {
+    private void importProject(OmniEclipseProject project, OmniEclipseGradleBuild eclipseGradleBuild, IProgressMonitor monitor) {
         monitor.beginTask("Import project " + project.getName(), 4);
         try {
-            // check if an Eclipse project already exists at the location of the Gradle project to
-            // import
+            // check if an Eclipse project already exists at the location of the Gradle project to import
             WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations();
             File projectDirectory = project.getProjectDirectory();
             Optional<IProjectDescription> projectDescription = workspaceOperations.findProjectInFolder(projectDirectory, new SubProgressMonitor(monitor, 1));
 
-            List<File> filteredSubfolders = ImmutableList.<File> builder().addAll(collectChildProjectLocations(project)).add(new File(project.getProjectDirectory(), ".gradle"))
-                    .add(findBuildDirectory(eclipseGradleBuild, project)).build();
+            // collect all the sub folders to hide under the project
+            List<File> filteredSubFolders = ImmutableList.<File> builder().
+                    addAll(collectChildProjectLocations(project)).
+                    add(getBuildDirectory(eclipseGradleBuild, project)).
+                    add(getDotGradleDirectory(project)).
+                    build();
             ImmutableList<String> gradleNature = ImmutableList.of(GradleProjectNature.ID);
 
             IProject workspaceProject;
             if (projectDescription.isPresent()) {
                 // include the existing Eclipse project in the workspace
-                workspaceProject = workspaceOperations.includeProject(projectDescription.get(), filteredSubfolders, gradleNature, new SubProgressMonitor(monitor, 2));
+                workspaceProject = workspaceOperations.includeProject(projectDescription.get(), filteredSubFolders, gradleNature, new SubProgressMonitor(monitor, 2));
             } else {
                 // create a new Eclipse project in the workspace for the current Gradle project
-                workspaceProject = workspaceOperations.createProject(project.getName(), project.getProjectDirectory(), filteredSubfolders, gradleNature, new SubProgressMonitor(
-                        monitor, 1));
+                workspaceProject = workspaceOperations.createProject(project.getName(), project.getProjectDirectory(), filteredSubFolders, gradleNature, new SubProgressMonitor(monitor, 1));
 
-                // if the current Gradle project is a Java project, configure the Java nature, the
-                // classpath, and the source paths
+                // if the current Gradle project is a Java project, configure the Java nature, the classpath, and the source paths
                 if (isJavaProject(project)) {
                     IPath jre = JavaRuntime.getDefaultJREContainerEntry().getPath();
                     ClasspathDefinition classpath = new ClasspathDefinition(ImmutableList.<Pair<IPath, IPath>> of(), ImmutableList.<IPath> of(), ImmutableList.<String> of(), jre);
@@ -159,7 +160,17 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         }
     }
 
-    private static File findBuildDirectory(OmniEclipseGradleBuild eclipseGradleBuild, OmniEclipseProject project) {
+    private List<File> collectChildProjectLocations(OmniEclipseProject project) {
+        return FluentIterable.from(project.getChildren()).transform(new Function<OmniEclipseProject, File>() {
+
+            @Override
+            public File apply(OmniEclipseProject project) {
+                return project.getProjectDirectory();
+            }
+        }).toList();
+    }
+
+    private File getBuildDirectory(OmniEclipseGradleBuild eclipseGradleBuild, OmniEclipseProject project) {
         Optional<OmniGradleProject> gradleProject = eclipseGradleBuild.getRootProject().tryFind(Specs.gradleProjectMatchesProjectPath(project.getPath()));
         Maybe<File> buildScript = gradleProject.get().getBuildDirectory();
         if (buildScript.isPresent() && buildScript.get() != null) {
@@ -169,18 +180,12 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         }
     }
 
-    private boolean isJavaProject(OmniEclipseProject modelProject) {
-        return !modelProject.getSourceDirectories().isEmpty();
+    private File getDotGradleDirectory(OmniEclipseProject project) {
+        return new File(project.getProjectDirectory(), ".gradle");
     }
 
-    private List<File> collectChildProjectLocations(OmniEclipseProject project) {
-        return FluentIterable.from(project.getChildren()).transform(new Function<OmniEclipseProject, File>() {
-
-            @Override
-            public File apply(OmniEclipseProject project) {
-                return project.getProjectDirectory();
-            }
-        }).toList();
+    private boolean isJavaProject(OmniEclipseProject modelProject) {
+        return !modelProject.getSourceDirectories().isEmpty();
     }
 
 }
