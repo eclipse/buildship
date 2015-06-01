@@ -214,9 +214,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             IFolder outputFolder = createOutputFolder(project, new SubProgressMonitor(monitor, 1));
             javaProject.setOutputLocation(outputFolder.getFullPath(), new SubProgressMonitor(monitor, 1));
 
-            // avoid out-of-sync messages when the content of the .gradle folder changes upon running a Gradle build
-            markDotGradleFolderAsDerived(project, new SubProgressMonitor(monitor, 1));
-
             // save the project configuration
             javaProject.save(new SubProgressMonitor(monitor, 2), true);
 
@@ -267,18 +264,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         } catch (Exception e) {
             String message = String.format("Cannot create output folder for Eclipse project %s.", project.getName());
             throw new GradlePluginsRuntimeException(message, e);
-        } finally {
-            monitor.done();
-        }
-    }
-
-    private void markDotGradleFolderAsDerived(IProject project, IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask(String.format("Mark .gradle folder as derived for Eclipse project %s", project.getName()), 1);
-        try {
-            IFolder dotGradleFolder = project.getFolder(".gradle");
-            if (dotGradleFolder.exists()) {
-                dotGradleFolder.setDerived(true, new SubProgressMonitor(monitor, 1));
-            }
         } finally {
             monitor.done();
         }
