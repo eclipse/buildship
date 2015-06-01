@@ -12,6 +12,7 @@
 package org.eclipse.buildship.core.projectimport;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
@@ -36,7 +37,7 @@ public final class ProjectImportConfiguration {
     private final Property<String> arguments;
     private final Property<List<String>> workingSets;
 
-    public ProjectImportConfiguration() {
+    ProjectImportConfiguration() {
         this(Validators.<File>noOp(), Validators.<GradleDistributionWrapper>noOp(), Validators.<File>noOp(), Validators.<File>noOp(),
                 Validators.<String>noOp(), Validators.<String>noOp(), Validators.<List<String>>noOp());
     }
@@ -52,6 +53,7 @@ public final class ProjectImportConfiguration {
         this.jvmArguments = Property.create(jvmArgumentsValidator);
         this.arguments = Property.create(argumentsValidator);
         this.workingSets = Property.create(workingSetsValidators);
+        this.workingSets.setValue(Collections.<String>emptyList());
     }
 
     public Property<File> getProjectDir() {
