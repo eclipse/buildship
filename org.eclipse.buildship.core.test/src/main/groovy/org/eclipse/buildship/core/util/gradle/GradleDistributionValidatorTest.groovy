@@ -1,50 +1,14 @@
-package org.eclipse.buildship.core.gradle
+package org.eclipse.buildship.core.util.gradle
 
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper.DistributionType
-
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
-
-class GradleConnectionValidatorTest extends Specification {
+class GradleDistributionValidatorTest extends Specification {
 
     @Rule
     TemporaryFolder tempFolder
-
-    def "Required directory validator passes only existing directory"() {
-        given:
-        def nullFolder = null
-        def existingFile = tempFolder.newFile('existing-file')
-        def existingFolder = existingFile.parentFile
-        def nonExistingFile = new File('/nonexistinFolder/nonexistingFile')
-        def nonExistingFolder = nonExistingFile.parentFile
-        def validator = GradleConnectionValidators.requiredDirectoryValidator('somePrefix')
-
-        expect:
-        validator.validate(nullFolder).present
-        validator.validate(existingFile).present
-        !validator.validate(existingFolder).present
-        validator.validate(nonExistingFile).present
-        validator.validate(nonExistingFolder).present
-    }
-
-    def "Optional directory validator passes existing directories and null values"() {
-        setup:
-        def nullFolder = null
-        def existingFile = tempFolder.newFile('existing-file')
-        def existingFolder = existingFile.parentFile
-        def nonExistingFile = new File('/nonexistinFolder/nonexistingFile')
-        def nonExistingFolder = nonExistingFile.parentFile
-        def validator = GradleConnectionValidators.optionalDirectoryValidator('somePrefix')
-
-        expect:
-        !validator.validate(nullFolder).present
-        validator.validate(existingFile).present
-        !validator.validate(existingFolder).present
-        validator.validate(nonExistingFile).present
-        validator.validate(nonExistingFolder).present
-    }
 
     def "Distribution validator passes only with semantically valid objects"() {
         setup:
@@ -69,7 +33,7 @@ class GradleConnectionValidatorTest extends Specification {
         def versionDistributionEmptyConfiguration = GradleDistributionWrapper.from(DistributionType.VERSION, '')
 
         // target validator
-        def validator = GradleConnectionValidators.gradleDistributionValidator()
+        def validator = GradleDistributionValidator.gradleDistributionValidator()
 
         expect:
         !validator.validate(wrapperDistribution).present
@@ -87,19 +51,6 @@ class GradleConnectionValidatorTest extends Specification {
 
         validator.validate(versionDistributionNullConfiguration).present
         validator.validate(versionDistributionEmptyConfiguration).present
-    }
-
-    def "Null validator reports error without touching the target object"() {
-        setup:
-        def validator = GradleConnectionValidators.nullValidator()
-        def target = Mock(Object)
-
-        when:
-        def result = validator.validate(target)
-
-        then:
-        !result.isPresent()
-        0 * target./.*/(_) // no method was called on the target
     }
 
 }

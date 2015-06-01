@@ -37,11 +37,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 
-import org.eclipse.buildship.core.gradle.GradleConnectionValidators;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
+import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
@@ -60,7 +60,7 @@ public final class JavaHomeTab extends AbstractLaunchConfigurationTab {
     public JavaHomeTab() {
         this.defaultFont = FontUtils.getDefaultDialogFont();
         this.builderFactory = new UiBuilder.UiBuilderFactory(this.defaultFont);
-        this.javaHomeValidator = GradleConnectionValidators.optionalDirectoryValidator(CoreMessages.RunConfiguration_Label_JavaHome);
+        this.javaHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.RunConfiguration_Label_JavaHome);
     }
 
     @Override

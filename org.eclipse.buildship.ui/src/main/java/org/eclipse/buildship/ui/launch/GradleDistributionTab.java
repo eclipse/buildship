@@ -45,9 +45,9 @@ import org.eclipse.swt.widgets.Text;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.gradle.GradleConnectionValidators;
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper;
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper.DistributionType;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
@@ -90,7 +90,7 @@ public final class GradleDistributionTab extends AbstractLaunchConfigurationTab 
     public GradleDistributionTab() {
         this.defaultFont = FontUtils.getDefaultDialogFont();
         this.builderFactory = new UiBuilder.UiBuilderFactory(this.defaultFont);
-        this.gradleDistributionValidator = GradleConnectionValidators.gradleDistributionValidator();
+        this.gradleDistributionValidator = GradleDistributionValidator.gradleDistributionValidator();
         this.publishedGradleVersions = CorePlugin.publishedGradleVersions();
 
         this.optionSelectionChangedListener = new SelectionAdapter() {

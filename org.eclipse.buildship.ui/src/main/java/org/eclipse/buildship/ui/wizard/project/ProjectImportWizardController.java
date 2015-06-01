@@ -35,9 +35,10 @@ import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.buildship.core.gradle.GradleConnectionValidators;
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper;
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper.DistributionType;
+import org.eclipse.buildship.core.util.binding.Validators;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectImportJob;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
@@ -67,13 +68,13 @@ public final class ProjectImportWizardController {
 
     public ProjectImportWizardController(IWizard projectImportWizard) {
         // assemble configuration object that serves as the data model of the wizard
-        Validator<File> projectDirValidator = GradleConnectionValidators.requiredDirectoryValidator(ProjectWizardMessages.Label_ProjectRootDirectory);
-        Validator<GradleDistributionWrapper> gradleDistributionValidator = GradleConnectionValidators.gradleDistributionValidator();
-        Validator<File> gradleUserHomeValidator = GradleConnectionValidators.optionalDirectoryValidator(ProjectWizardMessages.Label_GradleUserHome);
-        Validator<File> javaHomeValidator = GradleConnectionValidators.optionalDirectoryValidator(ProjectWizardMessages.Label_JavaHome);
-        Validator<String> jvmArgumentsValidator = GradleConnectionValidators.nullValidator();
-        Validator<String> argumentsValidator = GradleConnectionValidators.nullValidator();
-        Validator<List<String>> workingSetsValidator = GradleConnectionValidators.nullValidator();
+        Validator<File> projectDirValidator = Validators.requiredDirectoryValidator(ProjectWizardMessages.Label_ProjectRootDirectory);
+        Validator<GradleDistributionWrapper> gradleDistributionValidator = GradleDistributionValidator.gradleDistributionValidator();
+        Validator<File> gradleUserHomeValidator = Validators.optionalDirectoryValidator(ProjectWizardMessages.Label_GradleUserHome);
+        Validator<File> javaHomeValidator = Validators.optionalDirectoryValidator(ProjectWizardMessages.Label_JavaHome);
+        Validator<String> jvmArgumentsValidator = Validators.nullValidator();
+        Validator<String> argumentsValidator = Validators.nullValidator();
+        Validator<List<String>> workingSetsValidator = Validators.nullValidator();
 
         this.configuration = new ProjectImportConfiguration(projectDirValidator, gradleDistributionValidator, gradleUserHomeValidator, javaHomeValidator,
                 jvmArgumentsValidator, argumentsValidator, workingSetsValidator);

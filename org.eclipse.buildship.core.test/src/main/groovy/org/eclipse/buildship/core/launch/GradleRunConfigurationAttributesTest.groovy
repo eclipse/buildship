@@ -13,8 +13,8 @@ package org.eclipse.buildship.core.launch
 
 import org.eclipse.debug.core.DebugPlugin
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper;
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper.DistributionType
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType
 import spock.lang.Shared;
 import spock.lang.Specification;
 
