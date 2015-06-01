@@ -9,65 +9,32 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.gradle;
+package org.eclipse.buildship.core.util.gradle;
+
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+import com.gradleware.tooling.toolingutils.binding.Validator;
+import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.osgi.util.NLS;
 
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
-
-import com.gradleware.tooling.toolingutils.binding.Validator;
-
-import org.eclipse.osgi.util.NLS;
-
-import org.eclipse.buildship.core.i18n.CoreMessages;
-
 /**
- * Factory class for {@link Validator} instances that validate Gradle connections attributes.
+ * Factory class for {@link com.gradleware.tooling.toolingutils.binding.Validator} instances that
+ * validate a {@link org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper} instance.
  */
-public final class GradleConnectionValidators {
+public final class GradleDistributionValidator {
 
-    private GradleConnectionValidators() {
+    private GradleDistributionValidator() {
     }
 
-    public static Validator<File> requiredDirectoryValidator(final String prefix) {
-        return new Validator<File>() {
-
-            @Override
-            public Optional<String> validate(File file) {
-                if (file == null) {
-                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeSpecified, prefix));
-                } else if (!file.exists()) {
-                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_DoesNotExist, prefix));
-                } else if (!file.isDirectory()) {
-                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeDirectory, prefix));
-                } else {
-                    return Optional.absent();
-                }
-            }
-        };
-    }
-
-    public static Validator<File> optionalDirectoryValidator(final String prefix) {
-        return new Validator<File>() {
-
-            @Override
-            public Optional<String> validate(File file) {
-                if (file == null) {
-                    return Optional.absent();
-                } else if (!file.exists()) {
-                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_DoesNotExist, prefix));
-                } else if (!file.isDirectory()) {
-                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeDirectory, prefix));
-                } else {
-                    return Optional.absent();
-                }
-            }
-        };
-    }
-
+    /**
+     * Creates a new {@code Validator} instance.
+     *
+     * @return the new instance
+     */
     public static Validator<GradleDistributionWrapper> gradleDistributionValidator() {
         return new Validator<GradleDistributionWrapper>() {
 
@@ -111,17 +78,6 @@ public final class GradleConnectionValidators {
                     return false;
                 }
             }
-        };
-    }
-
-    public static <T> Validator<T> nullValidator() {
-        return new Validator<T>() {
-
-            @Override
-            public Optional<String> validate(T value) {
-                return Optional.absent();
-            }
-
         };
     }
 

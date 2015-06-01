@@ -41,7 +41,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.console.ProcessStreams;
-import org.eclipse.buildship.core.gradle.GradleDistributionFormatter;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.internal.DefaultExecuteBuildLaunchRequestEvent;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;

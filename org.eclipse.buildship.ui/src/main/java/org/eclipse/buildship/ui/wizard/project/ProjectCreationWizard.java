@@ -35,12 +35,13 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.buildship.core.launch.RunGradleTasksJob;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
 
 /**
  * Page in the {@link ProjectCreationWizard} specifying the name of the Gradle project folder to create.
  */
-public final class ProjectCreationWizard extends Wizard implements INewWizard {
+public final class ProjectCreationWizard extends Wizard implements INewWizard, HelpContextIdProvider {
 
     /**
      * The section name declaration for {@link org.eclipse.jface.dialogs.DialogSettings} where the
@@ -157,13 +158,9 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard {
         return true;
     }
 
-    private static IDialogSettings getOrCreateDialogSection(IDialogSettings dialogSettings) {
-        // in Eclipse 3.6 the method DialogSettings#getOrCreateSection does not exist
-        IDialogSettings section = dialogSettings.getSection(PROJECT_CREATION_DIALOG_SETTINGS);
-        if (section == null) {
-            section = dialogSettings.addNewSection(PROJECT_CREATION_DIALOG_SETTINGS);
-        }
-        return section;
+    @Override
+    public String getHelpContextId() {
+        return HelpContext.PROJECT_CREATION;
     }
 
     @Override
@@ -173,6 +170,15 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard {
             pageChangeProvider.removePageChangedListener(this.pageChangeListener);
         }
         super.dispose();
+    }
+
+    private static IDialogSettings getOrCreateDialogSection(IDialogSettings dialogSettings) {
+        // in Eclipse 3.6 the method DialogSettings#getOrCreateSection does not exist
+        IDialogSettings section = dialogSettings.getSection(PROJECT_CREATION_DIALOG_SETTINGS);
+        if (section == null) {
+            section = dialogSettings.addNewSection(PROJECT_CREATION_DIALOG_SETTINGS);
+        }
+        return section;
     }
 
     /**

@@ -180,7 +180,10 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         // bind complete file to ProjectImportConfiguration
         ProjectImportConfigurationProjectDirObservable projectDirConfiguration = new ProjectImportConfigurationProjectDirObservable(getConfiguration());
         ProjectLocationComputedValue projectLocationComputedValue = new ProjectLocationComputedValue(projectNameValue, defaultLocationSelection, projectDirTextTarget);
-        this.dbc.bindValue(projectLocationComputedValue, projectDirConfiguration);
+        UpdateValueStrategy updateProjectLocationStrategy = new UpdateValueStrategy();
+        updateProjectLocationStrategy.setBeforeSetValidator(new ProjectCustomLocationValidator(defaultLocationSelection));
+        Binding projectCustomLocationBinding = this.dbc.bindValue(projectLocationComputedValue, projectDirConfiguration, updateProjectLocationStrategy, null);
+        addControlDecorationSupport(projectCustomLocationBinding);
 
         // bind enabled state of location configuration
         UpdateValueStrategy booleanInvertStrategy = new UpdateValueStrategy();
