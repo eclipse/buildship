@@ -47,7 +47,7 @@ public final class RerunBuildExecutionAction extends Action {
 
             @Override
             public void done(IJobChangeEvent event) {
-                RerunBuildExecutionAction.this.setEnabled(event.getJob().getState() != Job.NONE);
+                RerunBuildExecutionAction.this.setEnabled(event.getJob().getState() == Job.NONE);
             }
         });
         setEnabled(job.getState() == Job.NONE);
