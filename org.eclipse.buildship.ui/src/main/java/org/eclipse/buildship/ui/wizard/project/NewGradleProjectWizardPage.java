@@ -11,17 +11,13 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
+import java.util.Queue;
+
+import com.gradleware.tooling.toolingutils.binding.Property;
+
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingutils.binding.Property;
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.UiPluginConstants;
-import org.eclipse.buildship.ui.util.databinding.conversion.BooleanInvert;
-import org.eclipse.buildship.ui.util.databinding.dialog.MessageRestoringValidationMessageProvider;
-import org.eclipse.buildship.ui.util.databinding.observable.ProjectLocationComputedValue;
-import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
-import org.eclipse.buildship.ui.util.widget.UiBuilder;
+
 import org.eclipse.core.databinding.AggregateValidationStatus;
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
@@ -45,11 +41,23 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 
-import java.util.Queue;
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.UiPluginConstants;
+import org.eclipse.buildship.ui.util.databinding.conversion.BooleanInvert;
+import org.eclipse.buildship.ui.util.databinding.dialog.MessageRestoringValidationMessageProvider;
+import org.eclipse.buildship.ui.util.databinding.observable.ProjectLocationComputedValue;
+import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
+import org.eclipse.buildship.ui.util.widget.UiBuilder;
 
 /**
  * First Wizard page for the new Gradle project wizard.
@@ -170,7 +178,10 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         // bind complete file to ProjectImportConfiguration
         ProjectImportConfigurationProjectDirObservable projectDirConfiguration = new ProjectImportConfigurationProjectDirObservable(getConfiguration());
         ProjectLocationComputedValue projectLocationComputedValue = new ProjectLocationComputedValue(projectNameValue, defaultLocationSelection, projectDirTextTarget);
-        this.dbc.bindValue(projectLocationComputedValue, projectDirConfiguration);
+        UpdateValueStrategy updateProjectLocationStrategy = new UpdateValueStrategy();
+        updateProjectLocationStrategy.setBeforeSetValidator(new ProjectCustomLocationValidator(defaultLocationSelection));
+        Binding projectCustomLocationBinding = this.dbc.bindValue(projectLocationComputedValue, projectDirConfiguration, updateProjectLocationStrategy, null);
+        addControlDecorationSupport(projectCustomLocationBinding);
 
         // bind enabled state of location configuration
         UpdateValueStrategy booleanInvertStrategy = new UpdateValueStrategy();
