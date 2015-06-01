@@ -11,27 +11,27 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import org.eclipse.ui.IImportWizard;
-import org.osgi.service.prefs.BackingStoreException;
-
 import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
+import org.osgi.service.prefs.BackingStoreException;
 
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.ui.IImportWizard;
 import org.eclipse.ui.IWorkbench;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
 
 /**
  * Eclipse wizard for importing Gradle projects into the workspace.
  */
-public final class ProjectImportWizard extends Wizard implements IImportWizard {
+public final class ProjectImportWizard extends Wizard implements IImportWizard, HelpContextIdProvider {
 
     /**
      * The section name declaration for {@link org.eclipse.jface.dialogs.DialogSettings} where the import wizard stores its
@@ -153,6 +153,11 @@ public final class ProjectImportWizard extends Wizard implements IImportWizard {
 
     public void setFinishGloballyEnabled(boolean finishGloballyEnabled) {
         this.finishGloballyEnabled = finishGloballyEnabled;
+    }
+
+    @Override
+    public String getHelpContextId() {
+        return HelpContext.PROJECT_IMPORT;
     }
 
     private static IDialogSettings getOrCreateDialogSection(IDialogSettings dialogSettings) {

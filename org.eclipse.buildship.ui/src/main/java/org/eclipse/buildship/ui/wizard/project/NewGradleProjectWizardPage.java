@@ -87,7 +87,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
 
     @Override
     protected void createWidgets(Composite root) {
-        GridLayoutFactory.swtDefaults().spacing(5, 15).numColumns(3).applyTo(root);
+        GridLayoutFactory.swtDefaults().numColumns(3).applyTo(root);
         createContent(root);
         bindUI();
         createPageCompleteObservable();
