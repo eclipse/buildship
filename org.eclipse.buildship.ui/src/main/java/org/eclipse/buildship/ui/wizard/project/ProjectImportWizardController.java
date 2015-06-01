@@ -36,6 +36,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.util.binding.GradleConnectionValidators;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
@@ -68,7 +69,7 @@ public final class ProjectImportWizardController {
     public ProjectImportWizardController(IWizard projectImportWizard) {
         // assemble configuration object that serves as the data model of the wizard
         Validator<File> projectDirValidator = GradleConnectionValidators.requiredDirectoryValidator(ProjectWizardMessages.Label_ProjectRootDirectory);
-        Validator<GradleDistributionWrapper> gradleDistributionValidator = GradleConnectionValidators.gradleDistributionValidator();
+        Validator<GradleDistributionWrapper> gradleDistributionValidator = GradleDistributionValidator.gradleDistributionValidator();
         Validator<File> gradleUserHomeValidator = GradleConnectionValidators.optionalDirectoryValidator(ProjectWizardMessages.Label_GradleUserHome);
         Validator<File> javaHomeValidator = GradleConnectionValidators.optionalDirectoryValidator(ProjectWizardMessages.Label_JavaHome);
         Validator<String> jvmArgumentsValidator = GradleConnectionValidators.nullValidator();
