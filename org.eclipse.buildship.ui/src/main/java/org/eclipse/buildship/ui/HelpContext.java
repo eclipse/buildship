@@ -21,6 +21,8 @@ public final class HelpContext {
     // the context id is defined in the external (xml) file specified in the plugin.xml
     public static final String PROJECT_IMPORT = UiPlugin.PLUGIN_ID + ".projectimport"; //$NON-NLS-1$
 
+    public static final String PROJECT_CREATION = UiPlugin.PLUGIN_ID + ".projectcreation"; //$NON-NLS-1$
+
     private HelpContext() {
     }
 
