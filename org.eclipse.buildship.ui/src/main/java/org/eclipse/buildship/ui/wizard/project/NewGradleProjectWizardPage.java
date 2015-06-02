@@ -11,12 +11,15 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
+import java.util.List;
 import java.util.Queue;
 
-import com.google.common.collect.EvictingQueue;
-import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingutils.binding.Property;
+
+import com.google.common.base.Function;
+import com.google.common.collect.EvictingQueue;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.databinding.AggregateValidationStatus;
 import org.eclipse.core.databinding.Binding;
@@ -48,7 +51,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkingSet;
-import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.ui.UiPlugin;
@@ -76,7 +78,6 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
     private Label locationLabel;
     private Combo projectDirCombo;
     private Button projectDirBrowseButton;
-    private WorkingSetConfigurationBlock workingSetConfigurationBlock;
     private AggregateValidationStatus validationStatus;
 
     public NewGradleProjectWizardPage(ProjectImportConfiguration configuration) {
@@ -129,15 +130,32 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
                 ProjectWizardMessages.Label_ProjectRootDirectory));
 
         // create workingset configuration group
-        this.workingSetConfigurationBlock = new WorkingSetConfigurationBlock(new String[] { UiPluginConstants.RESOURCE, UiPluginConstants.JAVA }, UiPlugin.getInstance()
-                .getDialogSettings());
-
         Group workingSetGroup = new Group(root, SWT.NONE);
         workingSetGroup.setText(ProjectWizardMessages.Label_WorkingSets);
         GridLayoutFactory.swtDefaults().applyTo(workingSetGroup);
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, SWT.DEFAULT).applyTo(workingSetGroup);
 
-        this.workingSetConfigurationBlock.createContent(workingSetGroup);
+        WorkingSetConfigurationWidget workingSetConfigurationWidget = new WorkingSetConfigurationWidget(new String[] { UiPluginConstants.RESOURCE, UiPluginConstants.JAVA },
+                UiPlugin.getInstance()
+                .getDialogSettings());
+        workingSetConfigurationWidget.createContent(workingSetGroup);
+        workingSetConfigurationWidget.addWorkingSetChangeListener(new WorkingSetChangedListener() {
+
+            @Override
+            public void workingSetsChanged(List<IWorkingSet> workingSets) {
+                getConfiguration().setWorkingSets(toWorkingSetNames(workingSets));
+            }
+        });
+    }
+
+    private List<String> toWorkingSetNames(List<IWorkingSet> workingSets) {
+        return FluentIterable.<IWorkingSet> from(workingSets).transform(new Function<IWorkingSet, String>() {
+
+            @Override
+            public String apply(IWorkingSet workingSet) {
+                return workingSet.getName();
+            }
+        }).toList();
     }
 
     private void addProjectLocationSettingBehavior() {
@@ -230,10 +248,6 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
     public boolean isPageComplete() {
         Object value = this.validationStatus.getValue();
         return (value instanceof IStatus && ((IStatus) value).isOK());
-    }
-
-    public ImmutableList<IWorkingSet> getSelectedWorkingSets() {
-        return ImmutableList.copyOf(this.workingSetConfigurationBlock.getSelectedWorkingSets());
     }
 
     @Override
