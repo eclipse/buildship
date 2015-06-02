@@ -13,13 +13,14 @@ package org.eclipse.buildship.core.model;
 
 import java.util.List;
 
+import com.google.common.util.concurrent.FutureCallback;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.gradle.tooling.ProgressListener;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
-import com.gradleware.tooling.toolingclient.Consumer;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
@@ -44,32 +45,37 @@ public final class LoadEclipseGradleBuildJob extends ToolingApiJob {
     private final ProcessStreamsProvider processStreamsProvider;
     private final FetchStrategy modelFetchStrategy;
     private final ProjectConfiguration configuration;
-    private final Consumer<Optional<OmniEclipseGradleBuild>> postProcessor;
+
+    private OmniEclipseGradleBuild result;
 
     public LoadEclipseGradleBuildJob(ModelRepositoryProvider modelRepositoryProvider, ProcessStreamsProvider processStreamsProvider, FetchStrategy modelFetchStrategy,
-                                     ProjectConfiguration configuration, Consumer<Optional<OmniEclipseGradleBuild>> postProcessor) {
+                                     ProjectConfiguration configuration, final FutureCallback<OmniEclipseGradleBuild> resultHandler) {
         super(String.format("Loading tasks of project located at %s", configuration.getProjectDir().getAbsolutePath()));
+
         this.modelRepositoryProvider = Preconditions.checkNotNull(modelRepositoryProvider);
         this.processStreamsProvider = Preconditions.checkNotNull(processStreamsProvider);
         this.modelFetchStrategy = Preconditions.checkNotNull(modelFetchStrategy);
         this.configuration = Preconditions.checkNotNull(configuration);
-        this.postProcessor = Preconditions.checkNotNull(postProcessor);
+
+        this.result = null;
+
+        addJobChangeListener(new JobChangeAdapter() {
+
+            @Override
+            public void done(IJobChangeEvent event) {
+                if (event.getResult().isOK()) {
+                    resultHandler.onSuccess(LoadEclipseGradleBuildJob.this.result);
+                } else {
+                    resultHandler.onFailure(event.getResult().getException());
+                }
+            }
+        });
     }
 
     @Override
     protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
-        try {
-            OmniEclipseGradleBuild eclipseGradleBuild = loadTasksOfEclipseProject(monitor);
-            this.postProcessor.accept(Optional.of(eclipseGradleBuild));
-        } catch (Exception e) {
-            this.postProcessor.accept(Optional.<OmniEclipseGradleBuild>absent());
-            throw e;
-        }
-    }
-
-    public OmniEclipseGradleBuild loadTasksOfEclipseProject(IProgressMonitor monitor) {
         monitor.beginTask(String.format("Load tasks of project located at %s", this.configuration.getProjectDir().getName()), 1);
-        return fetchEclipseGradleBuild(new SubProgressMonitor(monitor, 1));
+        this.result = fetchEclipseGradleBuild(new SubProgressMonitor(monitor, 1));
     }
 
     private OmniEclipseGradleBuild fetchEclipseGradleBuild(IProgressMonitor monitor) {
