@@ -97,15 +97,16 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         UiBuilder.UiBuilderFactory uiBuilderFactory = getUiBuilderFactory();
 
         // label and text to specify the project name
-        Composite nameContainerComposite = new Composite(root, SWT.NONE);
-        GridLayoutFactory.swtDefaults().numColumns(2).applyTo(nameContainerComposite);
-        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, 1).applyTo(nameContainerComposite);
+        Group nameContainerGroup = new Group(root, SWT.NONE);
+        nameContainerGroup.setText(ProjectWizardMessages.Group_Label_ProjectName);
+        GridLayoutFactory.swtDefaults().numColumns(2).applyTo(nameContainerGroup);
+        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, 1).applyTo(nameContainerGroup);
 
-        uiBuilderFactory.newLabel(nameContainerComposite).alignLeft().text(ProjectWizardMessages.Label_ProjectName).control();
-        this.projectNameText = uiBuilderFactory.newText(nameContainerComposite).alignFillHorizontal().control();
+        uiBuilderFactory.newLabel(nameContainerGroup).alignLeft().text(ProjectWizardMessages.Label_ProjectName).control();
+        this.projectNameText = uiBuilderFactory.newText(nameContainerGroup).alignFillHorizontal().control();
 
         Group locationGroup = new Group(root, SWT.NONE);
-        locationGroup.setText(ProjectWizardMessages.Label_ProjectLocation);
+        locationGroup.setText(ProjectWizardMessages.Group_Label_ProjectLocation);
         GridLayoutFactory.swtDefaults().numColumns(3).applyTo(locationGroup);
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, SWT.DEFAULT).applyTo(locationGroup);
 
@@ -133,7 +134,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
                 .getDialogSettings());
 
         Group workingSetGroup = new Group(root, SWT.NONE);
-        workingSetGroup.setText(ProjectWizardMessages.Label_WorkingSets);
+        workingSetGroup.setText(ProjectWizardMessages.Group_Label_WorkingSets);
         GridLayoutFactory.swtDefaults().applyTo(workingSetGroup);
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, SWT.DEFAULT).applyTo(workingSetGroup);
 

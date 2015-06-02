@@ -20,10 +20,6 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.gradle.tooling.BuildCancelledException;
-import org.gradle.tooling.BuildException;
 
 import java.io.File;
 import java.util.List;
@@ -50,26 +46,7 @@ public final class RunGradleTasksJob extends ToolingApiJob {
     }
 
     @Override
-    protected IStatus run(IProgressMonitor monitor) {
-        try {
-            runLaunchConfiguration(monitor);
-            return Status.OK_STATUS;
-        } catch (BuildCancelledException e) {
-            // if the job was cancelled by the user, do not show an error dialog
-            CorePlugin.logger().info(e.getMessage());
-            return Status.CANCEL_STATUS;
-        } catch (BuildException e) {
-            // return only a warning if there was a problem while running the Gradle build since the
-            // error is also visible in the Gradle console
-            return new Status(IStatus.WARNING, CorePlugin.PLUGIN_ID, "Gradle build failure during task execution.", e);
-        } catch (Exception e) {
-            return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, "Launching the Gradle tasks failed.", e);
-        } finally {
-            monitor.done();
-        }
-    }
-
-    public void runLaunchConfiguration(IProgressMonitor monitor) {
+    protected void runToolingApiJob(IProgressMonitor monitor)  {
         List<String> tasks = this.configurationAttributes.getTasks();
         File workingDir = this.configurationAttributes.getWorkingDir();
         GradleDistribution gradleDistribution = this.configurationAttributes.getGradleDistribution();

@@ -11,6 +11,28 @@
 
 package org.eclipse.buildship.core.launch;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+import com.gradleware.tooling.toolingclient.LaunchableConfig;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.launch.internal.DefaultExecuteBuildLaunchRequestEvent;
+import org.eclipse.buildship.core.util.collections.CollectionsUtils;
+import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
+import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
+import org.eclipse.buildship.core.util.progress.ToolingApiJob;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -18,36 +40,6 @@ import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
-
-import org.gradle.tooling.BuildCancelledException;
-import org.gradle.tooling.BuildException;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingclient.LaunchableConfig;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.ILaunchConfiguration;
-
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.console.ProcessStreams;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
-import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.launch.internal.DefaultExecuteBuildLaunchRequestEvent;
-import org.eclipse.buildship.core.util.collections.CollectionsUtils;
-import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
-import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 
 /**
  * Runs the given {@link ILaunch} instance.
@@ -60,34 +52,15 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
     private final ILaunchConfiguration launchConfiguration;
 
     public RunGradleConfigurationDelegateJob(ILaunch launch, ILaunchConfiguration launchConfiguration) {
-        super("Launching Gradle tasks");
+        super("Launching Gradle tasks", false);
 
         this.launch = Preconditions.checkNotNull(launch);
         this.launchConfiguration = Preconditions.checkNotNull(launchConfiguration);
     }
 
-    @Override
-    protected IStatus run(IProgressMonitor monitor) {
-        try {
-            runLaunchConfiguration(monitor);
-            return Status.OK_STATUS;
-        } catch (BuildCancelledException e) {
-            // if the job was cancelled by the user, do not show an error dialog
-            CorePlugin.logger().info(e.getMessage());
-            return Status.CANCEL_STATUS;
-        } catch (BuildException e) {
-            // return only a warning if there was a problem while running the Gradle build since the
-            // error is also visible in the Gradle console
-            return new Status(IStatus.WARNING, CorePlugin.PLUGIN_ID, "Gradle build failure during task execution.", e);
-        } catch (Exception e) {
-            return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, "Launching the Gradle tasks failed.", e);
-        } finally {
-            monitor.done();
-        }
-    }
-
     @SuppressWarnings("unchecked")
-    public void runLaunchConfiguration(IProgressMonitor monitor) {
+    @Override
+    protected void runToolingApiJob(IProgressMonitor monitor) {
         // derive all build launch settings from the launch configuration
         GradleRunConfigurationAttributes configurationAttributes = GradleRunConfigurationAttributes.from(this.launchConfiguration);
         List<String> tasks = configurationAttributes.getTasks();
