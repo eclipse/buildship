@@ -43,6 +43,7 @@ public final class ProjectWizardMessages extends NLS {
     public static String Label_GradleVersion;
     public static String Label_ProjectStructure;
 
+    public static String Label_Name;
     public static String Label_ProjectName;
     public static String Label_ProjectLocation;
     public static String Label_CustomLocation;
