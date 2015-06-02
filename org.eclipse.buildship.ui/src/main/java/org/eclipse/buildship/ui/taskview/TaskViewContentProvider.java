@@ -13,6 +13,7 @@ package org.eclipse.buildship.ui.taskview;
 
 import java.util.List;
 
+import com.google.common.util.concurrent.FutureCallback;
 import org.eclipse.ui.PlatformUI;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
@@ -24,7 +25,6 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import com.gradleware.tooling.toolingclient.Consumer;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
@@ -180,20 +180,28 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
     }
 
     /**
-     * {@code Consumer} that, when it gets invoked, refreshes the task view.
+     * Refreshes the task view when invoked, regardless of whether the underlying operation was successful or not.
      */
-    private static final class LoadEclipseGradleBuildPostProcess implements Consumer<Optional<OmniEclipseGradleBuild>> {
+    private static final class LoadEclipseGradleBuildPostProcess implements FutureCallback<OmniEclipseGradleBuild> {
 
         private final TaskView taskView;
 
         private LoadEclipseGradleBuildPostProcess(TaskView taskView) {
-            this.taskView = taskView;
+            this.taskView = Preconditions.checkNotNull(taskView);
         }
 
+         @Override
+         public void onSuccess(OmniEclipseGradleBuild omniEclipseGradleBuild) {
+             refreshTaskView();
+         }
+
         @Override
-        public void accept(Optional<OmniEclipseGradleBuild> eclipseGradleBuild) {
+         public void onFailure(Throwable throwable) {
+            refreshTaskView();
+        }
+
+        private void refreshTaskView() {
             // refresh the content of the task view to display the results
-            // (refresh regardless of whether the mode was loaded successfully or not)
             PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
                 @Override

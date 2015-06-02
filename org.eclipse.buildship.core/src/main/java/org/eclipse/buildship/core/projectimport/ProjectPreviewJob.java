@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.gradle.tooling.ProgressListener;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 
@@ -44,10 +43,10 @@ public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
     private final FixedRequestAttributes fixedAttributes;
     private final TransientRequestAttributes transientAttributes;
 
-    private Optional<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> result;
+    private Pair<OmniBuildEnvironment, OmniGradleBuildStructure> result;
 
     public ProjectPreviewJob(ProjectImportConfiguration configuration, List<ProgressListener> listeners,
-                             final FutureCallback<Optional<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>>> resultHandler) {
+                             final FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler) {
         super("Loading Gradle project preview");
 
         this.fixedAttributes = configuration.toFixedAttributes();
@@ -76,7 +75,7 @@ public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
 
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(new SubProgressMonitor(monitor, 2));
         OmniGradleBuildStructure gradleBuildStructure = fetchGradleBuildStructure(new SubProgressMonitor(monitor, 8));
-        this.result = Optional.of(new Pair<OmniBuildEnvironment, OmniGradleBuildStructure>(buildEnvironment, gradleBuildStructure));
+        this.result = new Pair<OmniBuildEnvironment, OmniGradleBuildStructure>(buildEnvironment, gradleBuildStructure);
     }
 
     private OmniBuildEnvironment fetchBuildEnvironment(IProgressMonitor monitor) {
