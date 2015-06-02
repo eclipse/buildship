@@ -65,7 +65,7 @@ public final class ToolingApiInvoker {
         // if the job was cancelled by the user, just log the event
         String message = String.format("%s cancelled.", this.workName);
         CorePlugin.logger().info(message, e);
-        return createCancelStatus(e);
+        return createCancelStatus(message, e);
     }
 
     private IStatus handleBuildFailed(BuildException e) {
@@ -74,7 +74,7 @@ public final class ToolingApiInvoker {
         String message = String.format("%s failed due to an error in the referenced Gradle build.", this.workName);
         CorePlugin.logger().warn(message, e);
         CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(e), IStatus.WARNING, e);
-        return createInfoStatus(e);
+        return createInfoStatus(message, e);
     }
 
     private IStatus handleGradleConnectionFailed(GradleConnectionException e) {
@@ -83,7 +83,7 @@ public final class ToolingApiInvoker {
         String message = String.format("%s failed due to an error connecting to the Gradle build.", this.workName);
         CorePlugin.logger().warn(message, e);
         CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(e), IStatus.WARNING, e);
-        return createInfoStatus(e);
+        return createInfoStatus(message, e);
     }
 
     private IStatus handlePluginFailed(GradlePluginsRuntimeException e) {
@@ -91,7 +91,7 @@ public final class ToolingApiInvoker {
         String message = String.format("%s failed due to an error configuring Eclipse.", this.workName);
         CorePlugin.logger().error(message, e);
         CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(e), IStatus.ERROR, e);
-        return createInfoStatus(e);
+        return createInfoStatus(message, e);
     }
 
     private IStatus handleUnknownFailed(Throwable t) {
@@ -99,7 +99,7 @@ public final class ToolingApiInvoker {
         String message = String.format("%s failed due to an unexpected error.", this.workName);
         CorePlugin.logger().error(message, t);
         CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(t), IStatus.ERROR, t);
-        return createInfoStatus(t);
+        return createInfoStatus(message, t);
     }
 
     private String collectErrorMessages(Throwable t) {
@@ -123,12 +123,12 @@ public final class ToolingApiInvoker {
         }
     }
 
-    private static Status createInfoStatus(Throwable t) {
-        return new Status(IStatus.INFO, CorePlugin.PLUGIN_ID, "", t);
+    private static Status createInfoStatus(String message, Throwable t) {
+        return new Status(IStatus.INFO, CorePlugin.PLUGIN_ID, message, t);
     }
 
-    private static Status createCancelStatus(BuildCancelledException e) {
-        return new Status(IStatus.CANCEL, CorePlugin.PLUGIN_ID, "", e);
+    private static Status createCancelStatus(String message, BuildCancelledException e) {
+        return new Status(IStatus.CANCEL, CorePlugin.PLUGIN_ID, message, e);
     }
 
 }
