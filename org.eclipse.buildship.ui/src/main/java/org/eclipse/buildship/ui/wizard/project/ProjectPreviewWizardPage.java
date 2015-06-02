@@ -18,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.ui.PlatformUI;
 import org.gradle.tooling.ProgressListener;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
@@ -258,7 +257,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     /**
      * Updates the project preview once the necessary Gradle models have been loaded.
      */
-    private final class ProjectPreviewJobResultHandler implements FutureCallback<Optional<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>>> {
+    private final class ProjectPreviewJobResultHandler implements FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> {
 
         private final CountDownLatch latch;
 
@@ -267,12 +266,12 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         }
 
         @Override
-        public void onSuccess(Optional<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> result) {
+        public void onSuccess(Pair<OmniBuildEnvironment, OmniGradleBuildStructure> result) {
             // the job has already taken care of logging the success
             this.latch.countDown();
 
-            updateSummary(result.isPresent() ? Optional.of(result.get().getFirst()) : Optional.<OmniBuildEnvironment> absent());
-            populateTree(result.isPresent() ? Optional.of(result.get().getSecond()) : Optional.<OmniGradleBuildStructure> absent());
+            updateSummary(result.getFirst());
+            populateTree(result.getSecond());
         }
 
         @Override
@@ -283,42 +282,30 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
             clearTree();
         }
 
-        private void updateSummary(final Optional<OmniBuildEnvironment> buildEnvironment) {
+        private void updateSummary(final OmniBuildEnvironment buildEnvironment) {
             PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
                 @Override
                 public void run() {
-                    // if loading the build environment had been cancelled, there is nothing to
-                    // update in the summary
-                    if (!buildEnvironment.isPresent()) {
-                        return;
+                    if (buildEnvironment.getGradle().getGradleUserHome().isPresent()) {
+                        ProjectPreviewWizardPage.this.gradleUserHomeLabel.setText(buildEnvironment.getGradle().getGradleUserHome().get().getAbsolutePath());
                     }
-
-                    if (buildEnvironment.get().getGradle().getGradleUserHome().isPresent()) {
-                        ProjectPreviewWizardPage.this.gradleUserHomeLabel.setText(buildEnvironment.get().getGradle().getGradleUserHome().get().getAbsolutePath());
-                    }
-                    ProjectPreviewWizardPage.this.gradleVersionLabel.setText(buildEnvironment.get().getGradle().getGradleVersion());
-                    ProjectPreviewWizardPage.this.javaHomeLabel.setText(buildEnvironment.get().getJava().getJavaHome().getAbsolutePath());
-                    ProjectPreviewWizardPage.this.jvmArgumentsLabel.setText(CollectionsUtils.joinWithSpace(buildEnvironment.get().getJava().getJvmArguments()));
+                    ProjectPreviewWizardPage.this.gradleVersionLabel.setText(buildEnvironment.getGradle().getGradleVersion());
+                    ProjectPreviewWizardPage.this.javaHomeLabel.setText(buildEnvironment.getJava().getJavaHome().getAbsolutePath());
+                    ProjectPreviewWizardPage.this.jvmArgumentsLabel.setText(CollectionsUtils.joinWithSpace(buildEnvironment.getJava().getJvmArguments()));
                 }
             });
         }
 
-        private void populateTree(final Optional<OmniGradleBuildStructure> buildStructure) {
+        private void populateTree(final OmniGradleBuildStructure buildStructure) {
             PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
                 @Override
                 public void run() {
                     ProjectPreviewWizardPage.this.projectPreviewTree.removeAll();
 
-                    // if loading the build structure had been cancelled, there is nothing to
-                    // populate in the tree
-                    if (!buildStructure.isPresent()) {
-                        return;
-                    }
-
                     // populate the tree from the build structure
-                    OmniGradleProjectStructure rootProjectStructure = buildStructure.get().getRootProject();
+                    OmniGradleProjectStructure rootProjectStructure = buildStructure.getRootProject();
                     TreeItem rootTreeItem = new TreeItem(ProjectPreviewWizardPage.this.projectPreviewTree, SWT.NONE);
                     rootTreeItem.setText(rootProjectStructure.getName());
                     rootTreeItem.setExpanded(true);
