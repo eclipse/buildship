@@ -13,7 +13,6 @@ package org.eclipse.buildship.core.model;
 
 import java.util.List;
 
-import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Optional;
@@ -28,11 +27,8 @@ import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
@@ -61,25 +57,13 @@ public final class LoadEclipseGradleBuildJob extends ToolingApiJob {
     }
 
     @Override
-    protected IStatus run(IProgressMonitor monitor) {
+    protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
         try {
-            // load model
-            try {
-                OmniEclipseGradleBuild eclipseGradleBuild = loadTasksOfEclipseProject(monitor);
-                this.postProcessor.accept(Optional.of(eclipseGradleBuild));
-                return Status.OK_STATUS;
-            } catch (BuildCancelledException e) {
-                // if the job was cancelled by the user, do not show an error dialog
-                CorePlugin.logger().info(e.getMessage());
-                this.postProcessor.accept(Optional.<OmniEclipseGradleBuild>absent());
-                return Status.CANCEL_STATUS;
-            } catch (Exception e) {
-                this.postProcessor.accept(Optional.<OmniEclipseGradleBuild>absent());
-                return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID,
-                        String.format("Loading the tasks of the project located at %s failed.", this.configuration.getProjectDir().getName()), e);
-            }
-        } finally {
-            monitor.done();
+            OmniEclipseGradleBuild eclipseGradleBuild = loadTasksOfEclipseProject(monitor);
+            this.postProcessor.accept(Optional.of(eclipseGradleBuild));
+        } catch (Exception e) {
+            this.postProcessor.accept(Optional.<OmniEclipseGradleBuild>absent());
+            throw e;
         }
     }
 
