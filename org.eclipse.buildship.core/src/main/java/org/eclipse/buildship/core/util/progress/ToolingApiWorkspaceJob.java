@@ -19,7 +19,6 @@ import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 
 /**
  * Base class for cancellable workspace jobs that invoke the Gradle Tooling API.
@@ -70,7 +69,7 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
      * notification content and its severity depend on the type of the thrown exception.
      * <p/>
      * If no exception is thrown in the template method, the job's return status is
-     * {@link Status#OK_STATUS}. If an exception occurs, a non-error, non-ok status
+     * {@link org.eclipse.core.runtime.Status#OK_STATUS}. If an exception occurs, a non-error, non-ok status
      * is returned. This disables the platform UI to show the built-in (and rather basic)
      * exception dialog.
      *
