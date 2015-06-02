@@ -222,7 +222,9 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
 
                         @Override
                         public void done(IJobChangeEvent event) {
-                            ProjectCreationWizard.this.controller.performImportProject();
+                            if (event.getResult().isOK()) {
+                                ProjectCreationWizard.this.controller.performImportProject();
+                            }
                         }
                     });
                 }
