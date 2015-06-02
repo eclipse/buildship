@@ -14,12 +14,10 @@ package org.eclipse.buildship.ui.wizard.project;
 import java.util.List;
 import java.util.Queue;
 
-import com.gradleware.tooling.toolingutils.binding.Property;
-
-import com.google.common.base.Function;
 import com.google.common.collect.EvictingQueue;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+
+import com.gradleware.tooling.toolingutils.binding.Property;
 
 import org.eclipse.core.databinding.AggregateValidationStatus;
 import org.eclipse.core.databinding.Binding;
@@ -147,16 +145,6 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
                 getConfiguration().setWorkingSets(toWorkingSetNames(workingSets));
             }
         });
-    }
-
-    private List<String> toWorkingSetNames(List<IWorkingSet> workingSets) {
-        return FluentIterable.from(workingSets).transform(new Function<IWorkingSet, String>() {
-
-            @Override
-            public String apply(IWorkingSet workingSet) {
-                return workingSet.getName();
-            }
-        }).toList();
     }
 
     private void addProjectLocationSettingBehavior() {
