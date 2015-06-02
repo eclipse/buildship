@@ -12,6 +12,7 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.List;
+import java.util.Set;
 
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
@@ -23,7 +24,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
@@ -169,10 +169,8 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
     }
 
     private void updateSourceFoldersInClasspath(List<IClasspathEntry> gradleModelSourceFolders, IJavaProject project, IProgressMonitor monitor) throws JavaModelException {
-        // collect all existing source folders
-        ImmutableList<IClasspathEntry> rawClasspath = ImmutableList.copyOf(project.getRawClasspath());
-
-        final ImmutableSet<String> gradleSourcePaths = FluentIterable.from(gradleModelSourceFolders).transform(new Function<IClasspathEntry, String>() {
+        // collect the paths of all source folders of the new Gradle model
+        final Set<String> gradleModelSourcePaths = FluentIterable.from(gradleModelSourceFolders).transform(new Function<IClasspathEntry, String>() {
 
             @Override
             public String apply(IClasspathEntry entry) {
@@ -180,31 +178,33 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
             }
         }).toSet();
 
-        // keep the source folders not coming from the Gradle model
-        final List<IClasspathEntry> sourceFoldersOutsideFromGradle = FluentIterable.from(rawClasspath).filter(new Predicate<IClasspathEntry>() {
+        // collect all source folders currently configured on the project
+        List<IClasspathEntry> rawClasspath = ImmutableList.copyOf(project.getRawClasspath());
+
+        // filter out the source folders that are part of the new or previous Gradle model (keeping only the manually added source folders)
+        final List<IClasspathEntry> manuallyAddedSourceFolders = FluentIterable.from(rawClasspath).filter(new Predicate<IClasspathEntry>() {
 
             @Override
             public boolean apply(IClasspathEntry entry) {
-                // if a manually-created source folder also exists in the Gradle model too, then
-                // treat it as a Gradle source folder
-                if (gradleSourcePaths.contains(entry.getPath().toString())) {
+                // if a source folder is part of the new Gradle model, always treat it as a Gradle source folder
+                if (gradleModelSourcePaths.contains(entry.getPath().toString())) {
                     return false;
                 }
 
-                // marked with extra attribute
+                // if a source folder is marked as coming from a previous Gradle model, treat it as a Gradle source folder
                 for (IClasspathAttribute attribute : entry.getExtraAttributes()) {
                     if (attribute.getName().equals(CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL) && attribute.getValue().equals("true")) {
                         return false;
                     }
                 }
+
+                // treat it as a manually added source folder
                 return true;
             }
         }).toList();
 
-        // new classpath = current source folders from the Gradle model + the previous ones defined
-        // manually
-        ImmutableList<IClasspathEntry> newRawClasspathEntries = ImmutableList.<IClasspathEntry> builder().addAll(gradleModelSourceFolders).addAll(sourceFoldersOutsideFromGradle)
-                .build();
+        // new classpath = current source folders from the Gradle model + the previous ones defined manually
+        ImmutableList<IClasspathEntry> newRawClasspathEntries = ImmutableList.<IClasspathEntry> builder().addAll(gradleModelSourceFolders).addAll(manuallyAddedSourceFolders).build();
         IClasspathEntry[] newRawClasspath = newRawClasspathEntries.toArray(new IClasspathEntry[newRawClasspathEntries.size()]);
         project.setRawClasspath(newRawClasspath, monitor);
     }
@@ -227,8 +227,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
             @Override
             public boolean apply(OmniExternalDependency dependency) {
-                // Eclipse only accepts archives as external dependencies (but not, for example, a
-                // DLL)
+                // Eclipse only accepts archives as external dependencies (but not, for example, a DLL)
                 String name = dependency.getFile().getName();
                 return name.endsWith(".jar") || name.endsWith(".zip");
             }
