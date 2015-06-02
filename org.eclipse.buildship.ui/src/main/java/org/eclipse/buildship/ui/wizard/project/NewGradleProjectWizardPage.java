@@ -136,9 +136,9 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         GridLayoutFactory.swtDefaults().applyTo(workingSetGroup);
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, SWT.DEFAULT).applyTo(workingSetGroup);
 
-        WorkingSetConfigurationWidget workingSetConfigurationWidget = new WorkingSetConfigurationWidget(new String[] { UiPluginConstants.RESOURCE, UiPluginConstants.JAVA },
-                UiPlugin.getInstance()
-                .getDialogSettings());
+        WorkingSetConfigurationWidget workingSetConfigurationWidget = new WorkingSetConfigurationWidget(
+                new String[]{UiPluginConstants.RESOURCE, UiPluginConstants.JAVA},
+                UiPlugin.getInstance().getDialogSettings());
         workingSetConfigurationWidget.createContent(workingSetGroup);
         workingSetConfigurationWidget.addWorkingSetChangeListener(new WorkingSetChangedListener() {
 
@@ -150,7 +150,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
     }
 
     private List<String> toWorkingSetNames(List<IWorkingSet> workingSets) {
-        return FluentIterable.<IWorkingSet> from(workingSets).transform(new Function<IWorkingSet, String>() {
+        return FluentIterable.from(workingSets).transform(new Function<IWorkingSet, String>() {
 
             @Override
             public String apply(IWorkingSet workingSet) {

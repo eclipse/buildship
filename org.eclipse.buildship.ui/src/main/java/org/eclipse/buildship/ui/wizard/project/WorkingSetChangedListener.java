@@ -16,12 +16,18 @@ import java.util.List;
 import org.eclipse.ui.IWorkingSet;
 
 /**
- * A {@link WorkingSetChangedListener} gets informed when the selected {@link IWorkingSet} objects
- * in the {@link WorkingSetConfigurationWidget} change.
+ * A {@link WorkingSetChangedListener} gets informed when the selected {@link IWorkingSet} instances
+ * of the {@link WorkingSetConfigurationWidget} change.
  *
  * @see WorkingSetConfigurationWidget
  */
 public interface WorkingSetChangedListener {
 
+    /**
+     * Invoked when the working sets change.
+     *
+     * @param workingSets the new working sets
+     */
     void workingSetsChanged(List<IWorkingSet> workingSets);
+
 }

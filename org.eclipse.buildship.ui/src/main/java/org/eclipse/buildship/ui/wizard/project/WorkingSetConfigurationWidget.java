@@ -26,28 +26,32 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 
 /**
- * This class adds listener functionality to the {@link WorkingSetConfigurationBlock} class.
+ * Enhances the {@link WorkingSetConfigurationBlock} class with {@link WorkingSetChangedListener} functionality.
  *
  * @see WorkingSetChangedListener
  */
-public class WorkingSetConfigurationWidget extends WorkingSetConfigurationBlock {
+public final class WorkingSetConfigurationWidget extends WorkingSetConfigurationBlock {
 
-    private List<WorkingSetChangedListener> listener = new CopyOnWriteArrayList<WorkingSetChangedListener>();
+    private final List<WorkingSetChangedListener> listener;
 
     public WorkingSetConfigurationWidget(String[] workingSetIds, IDialogSettings settings) {
         super(workingSetIds, settings);
+        this.listener = new CopyOnWriteArrayList<WorkingSetChangedListener>();
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public WorkingSetConfigurationWidget(String[] workingSetIds, IDialogSettings settings, String addButtonLabel, String comboLabel, String selectLabel) {
         super(workingSetIds, settings, addButtonLabel, comboLabel, selectLabel);
+        this.listener = new CopyOnWriteArrayList<WorkingSetChangedListener>();
     }
 
     @Override
     public void createContent(Composite parent) {
         super.createContent(parent);
-        Combo workingSetCombo = searchForWorkingSetCombo(parent);
-        // no null check here since there must be a combo created by the parent class
-        workingSetCombo.addModifyListener(new ModifyListener() {
+
+        // add modification listener to the working sets combo
+        Combo workingSetsCombo = findWorkingSetsCombo(parent);
+        workingSetsCombo.addModifyListener(new ModifyListener() {
 
             @Override
             public void modifyText(ModifyEvent e) {
@@ -56,17 +60,17 @@ public class WorkingSetConfigurationWidget extends WorkingSetConfigurationBlock 
         });
     }
 
-    private Combo searchForWorkingSetCombo(Composite parent) {
+    private Combo findWorkingSetsCombo(Composite parent) {
         Control[] children = parent.getChildren();
         for (Control control : children) {
             if (control instanceof Combo) {
                 return (Combo) control;
             } else if (control instanceof Composite) {
-                return searchForWorkingSetCombo((Composite) control);
+                return findWorkingSetsCombo((Composite) control);
             }
         }
 
-        return null;
+        throw new IllegalStateException("Cannot find working sets Combo.");
     }
 
     public void addWorkingSetChangeListener(WorkingSetChangedListener workingSetListener) {
@@ -77,10 +81,10 @@ public class WorkingSetConfigurationWidget extends WorkingSetConfigurationBlock 
         this.listener.remove(workingSetListener);
     }
 
-    protected void fireWorkingSetChanged() {
+    private void fireWorkingSetChanged() {
+        ImmutableList<IWorkingSet> workingSets = ImmutableList.copyOf(getSelectedWorkingSets());
         for (WorkingSetChangedListener workingSetChangedListener : this.listener) {
-            IWorkingSet[] selectedWorkingSets = getSelectedWorkingSets();
-            workingSetChangedListener.workingSetsChanged(ImmutableList.<IWorkingSet> copyOf(selectedWorkingSets));
+            workingSetChangedListener.workingSetsChanged(workingSets);
         }
     }
 
