@@ -32,6 +32,7 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
 
     private final CancellationTokenSource tokenSource;
     private final String workName;
+    private final boolean notifyUserAboutBuildFailures;
 
     /**
      * Creates a new job with the specified name. The job name is a human-readable value that is
@@ -41,9 +42,23 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
      * @param name the name of the job
      */
     protected ToolingApiWorkspaceJob(String name) {
+        this(name, true);
+
+    }
+
+    /**
+     * Creates a new job with the specified name. The job name is a human-readable value that is
+     * displayed to users. The name does not need to be unique, but it must not be {@code null}. A
+     * token for Gradle build cancellation is created.
+     *
+     * @param name the name of the job
+     * @param notifyUserAboutBuildFailures {@code true} if the user should be visually notified about build failures that happen while running the job
+     */
+    protected ToolingApiWorkspaceJob(String name, boolean notifyUserAboutBuildFailures) {
         super(name);
         this.tokenSource = GradleConnector.newCancellationTokenSource();
         this.workName = name;
+        this.notifyUserAboutBuildFailures = notifyUserAboutBuildFailures;
     }
 
     protected CancellationToken getToken() {
@@ -52,7 +67,7 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
 
     @Override
     public final IStatus runInWorkspace(final IProgressMonitor monitor) throws CoreException {
-        ToolingApiInvoker invoker = new ToolingApiInvoker(this.workName);
+        ToolingApiInvoker invoker = new ToolingApiInvoker(this.workName, this.notifyUserAboutBuildFailures);
         return invoker.invoke(new ToolingApiCommand() {
             @Override
             public void run() throws Exception {

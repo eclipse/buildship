@@ -34,9 +34,11 @@ import java.util.List;
 public final class ToolingApiInvoker {
 
     private final String workName;
+    private final boolean notifyUserAboutBuildFailures;
 
-    public ToolingApiInvoker(String workName) {
+    public ToolingApiInvoker(String workName, boolean notifyUserAboutBuildFailures) {
         this.workName = Preconditions.checkNotNull(workName);
+        this.notifyUserAboutBuildFailures = notifyUserAboutBuildFailures;
     }
 
     /**
@@ -84,7 +86,9 @@ public final class ToolingApiInvoker {
         // put it in the error log (log as a warning instead)
         String message = String.format("%s failed due to an error in the referenced Gradle build.", this.workName);
         CorePlugin.logger().warn(message, e);
-        CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(e), IStatus.WARNING, e);
+        if (this.notifyUserAboutBuildFailures) {
+            CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(e), IStatus.WARNING, e);
+        }
         return createInfoStatus(message, e);
     }
 

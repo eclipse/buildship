@@ -52,7 +52,7 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
     private final ILaunchConfiguration launchConfiguration;
 
     public RunGradleConfigurationDelegateJob(ILaunch launch, ILaunchConfiguration launchConfiguration) {
-        super("Launching Gradle tasks");
+        super("Launching Gradle tasks", false);
 
         this.launch = Preconditions.checkNotNull(launch);
         this.launchConfiguration = Preconditions.checkNotNull(launchConfiguration);
