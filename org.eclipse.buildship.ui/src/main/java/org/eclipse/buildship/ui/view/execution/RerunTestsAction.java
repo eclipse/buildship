@@ -32,15 +32,16 @@ import org.eclipse.buildship.ui.generic.NodeSelection;
 import org.eclipse.buildship.ui.generic.SelectionSpecificAction;
 
 /**
- * Runs the tests again from the node selection in the Execution page.
+ * Reruns the tests selected in the target {@code ExecutionPage}.
  */
 public final class RerunTestsAction extends Action implements SelectionSpecificAction {
 
     private final ExecutionPage executionPage;
 
     public RerunTestsAction(ExecutionPage executionPage) {
-        super(ExecutionsViewMessages.Action_RerunTests_Text);
         this.executionPage = Preconditions.checkNotNull(executionPage);
+
+        setText(ExecutionsViewMessages.Action_RerunTests_Text);
     }
 
     @Override
