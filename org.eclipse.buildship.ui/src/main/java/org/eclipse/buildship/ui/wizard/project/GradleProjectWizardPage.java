@@ -43,12 +43,11 @@ import org.eclipse.buildship.ui.util.widget.UiBuilder;
 public final class GradleProjectWizardPage extends AbstractWizardPage {
 
     private Text projectDirText;
-    private Group workingSetGroup;
     private WorkingSetConfigurationWidget workingSetConfigurationWidget;
 
     public GradleProjectWizardPage(ProjectImportConfiguration configuration) {
         super("GradleProject", ProjectWizardMessages.Title_GradleProjectWizardPage, ProjectWizardMessages.InfoMessage_GradleProjectWizardPageDefault, //$NON-NLS-1$
-                configuration, ImmutableList.<Property<?>> of(configuration.getProjectDir(), configuration.getWorkingSets()));
+                configuration, ImmutableList.of(configuration.getProjectDir(), configuration.getWorkingSets()));
     }
 
     @Override
@@ -80,14 +79,13 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
         projectDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.projectDirText, ProjectWizardMessages.Label_ProjectRootDirectory));
 
         // composite for working set
-        this.workingSetGroup = new Group(root, SWT.NONE);
-        this.workingSetGroup.setText(ProjectWizardMessages.Group_Label_WorkingSets);
-        GridLayoutFactory.swtDefaults().applyTo(this.workingSetGroup);
-        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, SWT.DEFAULT).applyTo(this.workingSetGroup);
+        Group workingSetGroup = new Group(root, SWT.NONE);
+        workingSetGroup.setText(ProjectWizardMessages.Group_Label_WorkingSets);
+        GridLayoutFactory.swtDefaults().applyTo(workingSetGroup);
+        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, SWT.DEFAULT).applyTo(workingSetGroup);
 
-        this.workingSetConfigurationWidget = new WorkingSetConfigurationWidget(new String[] { UiPluginConstants.RESOURCE, UiPluginConstants.JAVA }, UiPlugin.getInstance()
-                .getDialogSettings());
-        this.workingSetConfigurationWidget.createContent(this.workingSetGroup);
+        this.workingSetConfigurationWidget = new WorkingSetConfigurationWidget(new String[] { UiPluginConstants.RESOURCE, UiPluginConstants.JAVA }, UiPlugin.getInstance().getDialogSettings());
+        this.workingSetConfigurationWidget.createContent(workingSetGroup);
     }
 
     private void bindToConfiguration() {

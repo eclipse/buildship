@@ -235,13 +235,7 @@ public abstract class AbstractWizardPage extends WizardPage {
         return true;
     }
 
-    @Override
-    public void dispose() {
-        this.defaultFont.dispose();
-        super.dispose();
-    }
-
-    protected static List<String> toWorkingSetNames(List<IWorkingSet> workingSets) {
+    protected List<String> toWorkingSetNames(List<IWorkingSet> workingSets) {
         return FluentIterable.from(workingSets).transform(new Function<IWorkingSet, String>() {
 
             @Override
@@ -250,4 +244,11 @@ public abstract class AbstractWizardPage extends WizardPage {
             }
         }).toList();
     }
+
+    @Override
+    public void dispose() {
+        this.defaultFont.dispose();
+        super.dispose();
+    }
+
 }
