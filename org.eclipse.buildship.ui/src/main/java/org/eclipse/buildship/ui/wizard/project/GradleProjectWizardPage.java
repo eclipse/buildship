@@ -35,6 +35,7 @@ import org.eclipse.buildship.ui.util.widget.UiBuilder;
 public final class GradleProjectWizardPage extends AbstractWizardPage {
 
     private Text projectDirText;
+    private TextDecoratingValidationListener projectDirTextDecoratingValidator;
 
     public GradleProjectWizardPage(ProjectImportConfiguration configuration) {
         super("GradleProject", ProjectWizardMessages.Title_GradleProjectWizardPage, ProjectWizardMessages.InfoMessage_GradleProjectWizardPageDefault, //$NON-NLS-1$
@@ -58,6 +59,7 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
         File projectDir = getConfiguration().getProjectDir().getValue();
         String projectDirValue = FileUtils.getAbsolutePath(projectDir).orNull();
         this.projectDirText = uiBuilderFactory.newText(root).alignFillHorizontal().text(projectDirValue).control();
+        this.projectDirTextDecoratingValidator = TextDecoratingValidationListener.newInstance(this.projectDirText);
 
         // browse button for file chooser
         Button projectDirBrowseButton = uiBuilderFactory.newButton(root).alignLeft().text(ProjectWizardMessages.Button_Label_Browse).control();
@@ -72,6 +74,8 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
                 getConfiguration().setProjectDir(FileUtils.getAbsoluteFile(GradleProjectWizardPage.this.projectDirText.getText()).orNull());
             }
         });
+
+        getConfiguration().getProjectDir().addValidationListener(this.projectDirTextDecoratingValidator);
     }
 
     @Override
