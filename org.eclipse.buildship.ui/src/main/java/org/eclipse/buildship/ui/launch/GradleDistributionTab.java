@@ -58,7 +58,6 @@ import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.selection.Enabler;
 import org.eclipse.buildship.ui.util.widget.ButtonUtils;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
-import org.eclipse.buildship.ui.wizard.project.ProjectWizardMessages;
 
 /**
  * Specifies the Gradle distribution to apply when executing tasks via the run configurations.
