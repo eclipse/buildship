@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingutils.binding.Property;
 
+import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.core.databinding.AggregateValidationStatus;
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
@@ -80,7 +81,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
 
     public NewGradleProjectWizardPage(ProjectImportConfiguration configuration) {
         super("NewGradleProject", ProjectWizardMessages.Title_NewGradleProjectWizardPage, ProjectWizardMessages.InfoMessage_NewGradleProjectWizardPageDefault, //$NON-NLS-1$
-                configuration, ImmutableList.<Property<?>> of(configuration.getProjectDir()));
+                configuration, ImmutableList.<Property<?>>of(configuration.getProjectDir()));
         setPageComplete(false);
     }
 
@@ -124,7 +125,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         addProjectLocationSettingBehavior();
 
         // browse button for file chooser
-        this.projectDirBrowseButton = uiBuilderFactory.newButton(locationGroup).alignLeft().text(ProjectWizardMessages.Button_Label_Browse).control();
+        this.projectDirBrowseButton = uiBuilderFactory.newButton(locationGroup).alignLeft().text(UiMessages.Button_Label_Browse).control();
         this.projectDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.projectDirCombo,
                 ProjectWizardMessages.Label_ProjectRootDirectory));
 

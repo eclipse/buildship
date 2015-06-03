@@ -16,8 +16,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-import com.gradleware.tooling.toolingutils.binding.Property;
-
+import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -75,7 +74,7 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
         this.projectDirText = uiBuilderFactory.newText(projectDirectoryGroup).alignFillHorizontal().text(projectDirValue).control();
 
         // browse button for file chooser
-        Button projectDirBrowseButton = uiBuilderFactory.newButton(projectDirectoryGroup).alignLeft().text(ProjectWizardMessages.Button_Label_Browse).control();
+        Button projectDirBrowseButton = uiBuilderFactory.newButton(projectDirectoryGroup).alignLeft().text(UiMessages.Button_Label_Browse).control();
         projectDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.projectDirText, ProjectWizardMessages.Label_ProjectRootDirectory));
 
         // composite for working set
