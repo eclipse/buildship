@@ -44,7 +44,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.gradle.Specs;
-import org.eclipse.buildship.core.model.LoadEclipseGradleBuildsJob;
+import org.eclipse.buildship.core.gradle.LoadEclipseGradleBuildsJob;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 /**
