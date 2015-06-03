@@ -21,6 +21,7 @@ import org.gradle.tooling.events.FinishEvent;
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.ProgressEvent;
 import org.gradle.tooling.events.StartEvent;
+import org.gradle.tooling.events.test.JvmTestOperationDescriptor;
 
 import java.util.Map;
 
@@ -43,8 +44,14 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
 
     @Override
     public void statusChanged(ProgressEvent progressEvent) {
-        // create or get the OperationItem for the descriptor of the given progress event
+        // do not process the event if the operation is technical/artificial, i.e. the event
+        // is not of interest to a normal user running a build
         OperationDescriptor descriptor = progressEvent.getDescriptor();
+        if (isExcluded(descriptor)) {
+            return;
+        }
+
+        // create a new operation item if the event is a start event, otherwise update the item
         OperationItem operationItem = this.executionItemMap.get(descriptor);
         if (null == operationItem) {
             operationItem = new OperationItem((StartEvent) progressEvent);
@@ -56,14 +63,31 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
         // configure the operation item based on the event details
         this.operationItemConfigurator.configure(operationItem);
 
-        // attach to parent, if this is a new operation (in case of StartEvent)
-        OperationItem parentExecutionItem = this.executionItemMap.get(descriptor.getParent());
+        // attach to (first non-excluded) parent, if this is a new operation (in case of StartEvent)
+        OperationItem parentExecutionItem = this.executionItemMap.get(findFirstNonExcludedParent(descriptor));
         parentExecutionItem.addChild(operationItem);
 
-        // ensure that if it is a newly added node it is made visible
+        // ensure that if it is a newly added node it is made visible (in case of StartEvent)
         if (operationItem.getFinishEvent() == null) {
             makeNodeVisible(operationItem);
         }
+    }
+
+    private boolean isExcluded(OperationDescriptor descriptor) {
+        // ignore the 'artificial' events issued for the root test event and for each forked test process event
+        if (descriptor instanceof JvmTestOperationDescriptor) {
+            JvmTestOperationDescriptor jvmTestOperationDescriptor = (JvmTestOperationDescriptor) descriptor;
+            return jvmTestOperationDescriptor.getSuiteName() != null && jvmTestOperationDescriptor.getClassName() == null;
+        } else {
+            return false;
+        }
+    }
+
+    private OperationDescriptor findFirstNonExcludedParent(OperationDescriptor descriptor) {
+        while (isExcluded(descriptor.getParent())) {
+            descriptor = descriptor.getParent();
+        }
+        return descriptor.getParent();
     }
 
     private void makeNodeVisible(final OperationItem operationItem) {
