@@ -34,14 +34,14 @@ import org.eclipse.buildship.ui.generic.SelectionSpecificAction;
 /**
  * Reruns the tests selected in the target {@code ExecutionPage}.
  */
-public final class RerunTestsAction extends Action implements SelectionSpecificAction {
+public final class RerunTestAction extends Action implements SelectionSpecificAction {
 
     private final ExecutionPage executionPage;
 
-    public RerunTestsAction(ExecutionPage executionPage) {
+    public RerunTestAction(ExecutionPage executionPage) {
         this.executionPage = Preconditions.checkNotNull(executionPage);
 
-        setText(ExecutionsViewMessages.Action_RerunTests_Text);
+        setText(ExecutionsViewMessages.Action_RerunTest_Text);
     }
 
     @Override
