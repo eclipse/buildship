@@ -34,7 +34,6 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelectionProvider;
-import org.eclipse.buildship.ui.generic.QuickSearchManager;
 import org.eclipse.buildship.ui.util.nodeselection.SelectionHistoryManager;
 
 /**
