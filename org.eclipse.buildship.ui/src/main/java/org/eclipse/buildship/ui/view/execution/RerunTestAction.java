@@ -54,7 +54,7 @@ public final class RerunTestAction extends Action implements SelectionSpecificAc
 
         // create a new, updated launch config with the new arguments and launch it
         GradleRunConfigurationAttributes newConfiguration = GradleRunConfigurationAttributes
-                .with(configuration.getTasks(), configuration.getWorkingDirExpression(), configuration.getGradleDistribution(), configuration.getGradleUserHomeExpression(), configuration
+                .with(ImmutableList.<String>of(), configuration.getWorkingDirExpression(), configuration.getGradleDistribution(), configuration.getGradleUserHomeExpression(), configuration
                         .getJavaHomeExpression(), configuration.getJvmArgumentExpressions(), newArguments, configuration.isShowExecutionView(), configuration
                         .isShowConsoleView());
         ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateRunConfiguration(newConfiguration);
@@ -62,10 +62,11 @@ public final class RerunTestAction extends Action implements SelectionSpecificAc
     }
 
     private ImmutableList<String> argumentsForReRunningPreviousTests(GradleRunConfigurationAttributes configuration) {
-        Builder<String> newArguments = ImmutableList.<String> builder().addAll(configuration.getArguments());
+        Builder<String> newArguments = ImmutableList.builder();
         for (JvmTestOperationDescriptor event : collectTestOperations(this.executionPage.getSelection())) {
             String className = event.getClassName();
             if (className != null) {
+                newArguments.add("test"); //$NON-NLS-1$
                 newArguments.add("--tests"); //$NON-NLS-1$
                 newArguments.add(event.getClassName());
             }
