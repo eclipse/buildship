@@ -12,7 +12,7 @@
 package org.eclipse.buildship.ui.view.task;
 
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
-import org.eclipse.buildship.ui.generic.NodeSelection;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 import org.eclipse.core.commands.ExecutionEvent;
 
 /**

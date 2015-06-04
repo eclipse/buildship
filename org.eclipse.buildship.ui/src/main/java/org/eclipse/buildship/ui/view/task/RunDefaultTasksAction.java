@@ -14,8 +14,8 @@ package org.eclipse.buildship.ui.view.task;
 import org.eclipse.buildship.ui.PluginImage;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.generic.CommandBackedAction;
-import org.eclipse.buildship.ui.generic.NodeSelection;
-import org.eclipse.buildship.ui.generic.SelectionSpecificAction;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
+import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
 
 /**
  * Runs the default tasks of the selected Gradle project.

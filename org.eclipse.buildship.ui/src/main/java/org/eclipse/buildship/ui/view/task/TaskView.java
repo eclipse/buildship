@@ -32,10 +32,10 @@ import org.eclipse.ui.part.ViewPart;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.ui.generic.NodeSelection;
-import org.eclipse.buildship.ui.generic.NodeSelectionProvider;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelectionProvider;
 import org.eclipse.buildship.ui.generic.QuickSearchManager;
-import org.eclipse.buildship.ui.generic.SelectionHistoryManager;
+import org.eclipse.buildship.ui.util.nodeselection.SelectionHistoryManager;
 
 /**
  * A view displaying the Gradle tasks of the Gradle projects in the workspace.

@@ -19,7 +19,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import org.eclipse.buildship.ui.generic.NodeSelection;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 
 /**
  * Base class for all {@code AbstractHandler} classes that contain execution logic that depends on the current selection.

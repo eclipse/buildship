@@ -24,10 +24,10 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Menu;
 
 import org.eclipse.buildship.ui.UiPluginConstants;
-import org.eclipse.buildship.ui.generic.ActionEnablingSelectionChangedListener;
-import org.eclipse.buildship.ui.generic.ActionShowingContextMenuListener;
+import org.eclipse.buildship.ui.util.nodeselection.ActionEnablingSelectionChangedListener;
+import org.eclipse.buildship.ui.util.nodeselection.ActionShowingContextMenuListener;
 import org.eclipse.buildship.ui.generic.ContextActivatingViewPartListener;
-import org.eclipse.buildship.ui.generic.SelectionSpecificAction;
+import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
 
 /**
  * Adds UI contributions to the {@link TaskView}.

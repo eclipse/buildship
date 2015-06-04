@@ -14,7 +14,7 @@ package org.eclipse.buildship.ui.view.task;
 import com.google.common.base.Optional;
 import com.gradleware.tooling.toolingmodel.OmniGradleScript;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
-import org.eclipse.buildship.ui.generic.NodeSelection;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 import org.eclipse.buildship.ui.util.editor.EditorUtils;
 import org.eclipse.core.commands.ExecutionEvent;
 

@@ -15,8 +15,8 @@ import com.google.common.base.Optional;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.ui.generic.CommandBackedAction;
-import org.eclipse.buildship.ui.generic.NodeSelection;
-import org.eclipse.buildship.ui.generic.SelectionSpecificAction;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
+import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
 
 /**
  * Creates a new run configuration for the selected Gradle tasks.

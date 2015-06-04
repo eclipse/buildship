@@ -21,7 +21,7 @@ import org.eclipse.ui.handlers.IHandlerService;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.generic.NodeSelection;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 
 /**
  * Runs the selected Gradle tasks.
@@ -61,7 +61,7 @@ public final class TreeViewerDoubleClickListener implements IDoubleClickListener
         }
     }
 
-    @SuppressWarnings("cast")
+    @SuppressWarnings({"cast", "RedundantCast"})
     private IHandlerService getHandlerService() {
         return (IHandlerService) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(IHandlerService.class);
     }

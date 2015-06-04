@@ -22,7 +22,7 @@ import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
-import org.eclipse.buildship.ui.generic.NodeSelection;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 import org.eclipse.core.resources.IProject;
 
 import java.util.List;

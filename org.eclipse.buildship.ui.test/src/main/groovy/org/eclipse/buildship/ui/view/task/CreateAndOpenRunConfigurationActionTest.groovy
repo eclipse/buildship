@@ -3,7 +3,7 @@ package org.eclipse.buildship.ui.view.task
 import com.google.common.base.Optional
 import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager
 import org.eclipse.buildship.ui.UiPluginConstants
-import org.eclipse.buildship.ui.generic.NodeSelection
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelection
 import org.eclipse.buildship.ui.test.fixtures.TestEnvironment
 import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.jface.viewers.StructuredSelection

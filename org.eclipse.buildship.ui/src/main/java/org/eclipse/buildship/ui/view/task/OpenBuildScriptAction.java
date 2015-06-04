@@ -12,8 +12,8 @@
 package org.eclipse.buildship.ui.view.task;
 
 import org.eclipse.buildship.ui.generic.CommandBackedAction;
-import org.eclipse.buildship.ui.generic.NodeSelection;
-import org.eclipse.buildship.ui.generic.SelectionSpecificAction;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
+import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
 
 /**
  * Opens the build script of the selected Gradle project.

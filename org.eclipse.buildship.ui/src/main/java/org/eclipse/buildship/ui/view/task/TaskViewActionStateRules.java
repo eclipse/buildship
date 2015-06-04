@@ -14,7 +14,7 @@ package org.eclipse.buildship.ui.view.task;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 
-import org.eclipse.buildship.ui.generic.NodeSelection;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 
 /**
  * Contains the logic that determines the state of the actions of the {@link TaskView} for a given
