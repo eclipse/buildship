@@ -14,10 +14,10 @@ package org.eclipse.buildship.core.configuration.internal;
 import java.io.File;
 import java.util.Map;
 
+import com.gradleware.tooling.toolingmodel.Path;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-
-import com.gradleware.tooling.toolingmodel.Path;
 
 import org.eclipse.core.resources.IProject;
 

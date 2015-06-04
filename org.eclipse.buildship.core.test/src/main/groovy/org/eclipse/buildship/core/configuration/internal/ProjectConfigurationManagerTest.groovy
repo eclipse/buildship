@@ -11,27 +11,29 @@
 
 package org.eclipse.buildship.core.configuration.internal
 
-import com.google.common.collect.ImmutableList
-import org.eclipse.buildship.core.GradlePluginsRuntimeException
-import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
-import org.eclipse.buildship.core.projectimport.ProjectImportJob
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
-import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import com.gradleware.tooling.junit.TestFile
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.Path
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.configuration.ProjectConfiguration
-import org.eclipse.buildship.core.configuration.ProjectConfigurationManager
-import org.eclipse.core.resources.IProject
-import org.eclipse.core.runtime.NullProgressMonitor
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-
 import spock.lang.Shared
 import spock.lang.Specification
+
+import com.google.common.collect.ImmutableList
+
+import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.NullProgressMonitor
+
+import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.GradlePluginsRuntimeException
+import org.eclipse.buildship.core.configuration.GradleProjectNature
+import org.eclipse.buildship.core.configuration.ProjectConfiguration
+import org.eclipse.buildship.core.configuration.ProjectConfigurationManager
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
+import org.eclipse.buildship.core.projectimport.ProjectImportJob
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
+import org.eclipse.buildship.core.workspace.WorkspaceOperations
 
 class ProjectConfigurationManagerTest extends Specification {
 
@@ -50,7 +52,7 @@ class ProjectConfigurationManagerTest extends Specification {
 
     def "no Gradle root project configurations available when there are no projects"() {
         setup:
-        Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
+        Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations(new NullProgressMonitor())
         assert rootProjectConfigurations == [] as Set
     }
 
@@ -60,7 +62,7 @@ class ProjectConfigurationManagerTest extends Specification {
         workspaceOperations.createProject("sample-project", projectDir, ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
 
         when:
-        Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
+        Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations(new NullProgressMonitor())
 
         then:
         assert rootProjectConfigurations == [] as Set
@@ -73,7 +75,7 @@ class ProjectConfigurationManagerTest extends Specification {
         project.close(new NullProgressMonitor())
 
         when:
-        Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
+        Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations(new NullProgressMonitor())
 
         then:
         assert rootProjectConfigurations == [] as Set
@@ -108,18 +110,18 @@ class ProjectConfigurationManagerTest extends Specification {
         new ProjectImportJob(importConfigurationOne).runToolingApiJobInWorkspace(new NullProgressMonitor())
 
         when:
-        Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
+        Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations(new NullProgressMonitor())
 
         then:
         rootProjectConfigurations == [
-                ProjectConfiguration.from(
-                        new FixedRequestAttributes(rootDir,
-                                null,
-                                GradleDistribution.fromBuild(),
-                                null,
-                                ImmutableList.of(),
-                                ImmutableList.of()),
-                        Path.from(':'), rootDir)] as Set
+            ProjectConfiguration.from(
+            new FixedRequestAttributes(rootDir,
+            null,
+            GradleDistribution.fromBuild(),
+            null,
+            ImmutableList.of(),
+            ImmutableList.of()),
+            Path.from(':'), rootDir)] as Set
     }
 
     def "two Gradle root project configurations when two Gradle multi-project builds are imported"() {
@@ -176,26 +178,26 @@ class ProjectConfigurationManagerTest extends Specification {
         new ProjectImportJob(importConfigurationTwo).runToolingApiJobInWorkspace(new NullProgressMonitor())
 
         when:
-        Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
+        Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations(new NullProgressMonitor())
 
         then:
         rootProjectConfigurations == [
-                ProjectConfiguration.from(
-                        new FixedRequestAttributes(rootDirOne,
-                                null,
-                                GradleDistribution.fromBuild(),
-                                null,
-                                ImmutableList.of(),
-                                ImmutableList.of()),
-                        Path.from(':'), rootDirOne),
-                ProjectConfiguration.from(
-                        new FixedRequestAttributes(rootDirTwo,
-                                null,
-                                GradleDistribution.forVersion('1.12'),
-                                null,
-                                ImmutableList.of(),
-                                ImmutableList.of()),
-                        Path.from(':'), rootDirTwo)] as Set
+            ProjectConfiguration.from(
+            new FixedRequestAttributes(rootDirOne,
+            null,
+            GradleDistribution.fromBuild(),
+            null,
+            ImmutableList.of(),
+            ImmutableList.of()),
+            Path.from(':'), rootDirOne),
+            ProjectConfiguration.from(
+            new FixedRequestAttributes(rootDirTwo,
+            null,
+            GradleDistribution.forVersion('1.12'),
+            null,
+            ImmutableList.of(),
+            ImmutableList.of()),
+            Path.from(':'), rootDirTwo)] as Set
     }
 
     def "error thrown when projects of same multi-project build have different shared project configurations"() {
@@ -207,7 +209,7 @@ class ProjectConfigurationManagerTest extends Specification {
         def requestAttributes = new FixedRequestAttributes(rootProjectDir, null, GradleDistribution.forVersion("2.0"), null,
                 ImmutableList.copyOf("-Xmx256M"), ImmutableList.copyOf("foo"))
         def projectConfiguration = ProjectConfiguration.from(requestAttributes, Path.from(":"), rootProjectDir)
-        configurationManager.saveProjectConfiguration(projectConfiguration, rootProject)
+        configurationManager.saveProjectConfiguration(new NullProgressMonitor(), projectConfiguration, rootProject)
 
         // create child project and use Gradle version 1.0 in the persisted configuration
         File childProjectDir = tempFolder.newFolder()
@@ -215,10 +217,10 @@ class ProjectConfigurationManagerTest extends Specification {
         def childRequestAttributes = new FixedRequestAttributes(rootProjectDir, null, GradleDistribution.forVersion("1.0"), null,
                 ImmutableList.copyOf("-Xmx256M"), ImmutableList.copyOf("foo"))
         def childProjectConfiguration = ProjectConfiguration.from(childRequestAttributes, Path.from(":child"), childProjectDir)
-        configurationManager.saveProjectConfiguration(childProjectConfiguration, childProject)
+        configurationManager.saveProjectConfiguration(new NullProgressMonitor(),childProjectConfiguration, childProject)
 
         when:
-        configurationManager.getRootProjectConfigurations()
+        configurationManager.getRootProjectConfigurations(new NullProgressMonitor())
 
         then:
         thrown(GradlePluginsRuntimeException)
@@ -234,10 +236,10 @@ class ProjectConfigurationManagerTest extends Specification {
         def projectConfiguration = ProjectConfiguration.from(requestAttributes, Path.from(":"), projectDir)
 
         when:
-        configurationManager.saveProjectConfiguration(projectConfiguration, project)
+        configurationManager.saveProjectConfiguration(new NullProgressMonitor(), projectConfiguration, project)
 
         then:
-        configurationManager.readProjectConfiguration(project) == projectConfiguration
+        configurationManager.readProjectConfiguration(new NullProgressMonitor(), project) == projectConfiguration
     }
 
     def "save and read project with minimal configuration"() {
@@ -250,10 +252,9 @@ class ProjectConfigurationManagerTest extends Specification {
         def projectConfiguration = ProjectConfiguration.from(attributes, Path.from(":"), projectDir)
 
         when:
-        configurationManager.saveProjectConfiguration(projectConfiguration, project)
+        configurationManager.saveProjectConfiguration(new NullProgressMonitor(), projectConfiguration, project)
 
         then:
-        configurationManager.readProjectConfiguration(project) == projectConfiguration
+        configurationManager.readProjectConfiguration(new NullProgressMonitor(), project) == projectConfiguration
     }
-
 }
