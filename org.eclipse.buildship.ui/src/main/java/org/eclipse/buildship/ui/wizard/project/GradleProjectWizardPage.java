@@ -16,7 +16,6 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -32,6 +31,7 @@ import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.UiPluginConstants;
+import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.layout.LayoutUtils;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
@@ -60,21 +60,20 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
         UiBuilder.UiBuilderFactory uiBuilderFactory = getUiBuilderFactory();
 
         // project directory container
-        Group projectDirectoryGroup = new Group(root, SWT.NONE);
-        projectDirectoryGroup.setText(ProjectWizardMessages.Group_Label_ProjectRootDirectory);
-        GridLayoutFactory.swtDefaults().numColumns(3).applyTo(projectDirectoryGroup);
-        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, SWT.DEFAULT).applyTo(projectDirectoryGroup);
+        Composite projectDirectoryComposite = new Composite(root, SWT.NONE);
+        GridLayoutFactory.swtDefaults().numColumns(3).extendedMargins(0, 0, 0, 10).applyTo(projectDirectoryComposite);
+        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, SWT.DEFAULT).applyTo(projectDirectoryComposite);
 
         // project directory label
-        uiBuilderFactory.newLabel(projectDirectoryGroup).alignLeft().text(ProjectWizardMessages.Label_Directory).control();
+        uiBuilderFactory.newLabel(projectDirectoryComposite).alignLeft().text(ProjectWizardMessages.Label_ProjectRootDirectory).control();
 
         // project directory text field
         File projectDir = getConfiguration().getProjectDir().getValue();
         String projectDirValue = FileUtils.getAbsolutePath(projectDir).orNull();
-        this.projectDirText = uiBuilderFactory.newText(projectDirectoryGroup).alignFillHorizontal().text(projectDirValue).control();
+        this.projectDirText = uiBuilderFactory.newText(projectDirectoryComposite).alignFillHorizontal().text(projectDirValue).control();
 
         // browse button for file chooser
-        Button projectDirBrowseButton = uiBuilderFactory.newButton(projectDirectoryGroup).alignLeft().text(UiMessages.Button_Label_Browse).control();
+        Button projectDirBrowseButton = uiBuilderFactory.newButton(projectDirectoryComposite).alignLeft().text(UiMessages.Button_Label_Browse).control();
         projectDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.projectDirText, ProjectWizardMessages.Label_ProjectRootDirectory));
 
         // composite for working set

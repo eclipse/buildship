@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingutils.binding.Property;
 
-import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.core.databinding.AggregateValidationStatus;
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
@@ -54,6 +53,7 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.UiPluginConstants;
+import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.buildship.ui.util.databinding.conversion.BooleanInvert;
 import org.eclipse.buildship.ui.util.databinding.dialog.MessageRestoringValidationMessageProvider;
 import org.eclipse.buildship.ui.util.databinding.observable.ProjectLocationComputedValue;
@@ -97,16 +97,15 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         UiBuilder.UiBuilderFactory uiBuilderFactory = getUiBuilderFactory();
 
         // label and text to specify the project name
-        Group nameContainerGroup = new Group(root, SWT.NONE);
-        nameContainerGroup.setText(ProjectWizardMessages.Group_Label_ProjectName);
-        GridLayoutFactory.swtDefaults().numColumns(2).applyTo(nameContainerGroup);
-        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, 1).applyTo(nameContainerGroup);
+        Composite projectNameComposite = new Composite(root, SWT.NONE);
+        GridLayoutFactory.swtDefaults().extendedMargins(0, 0, 0, 10).numColumns(2).applyTo(projectNameComposite);
+        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, 1).applyTo(projectNameComposite);
 
-        uiBuilderFactory.newLabel(nameContainerGroup).alignLeft().text(ProjectWizardMessages.Label_ProjectName).control();
-        this.projectNameText = uiBuilderFactory.newText(nameContainerGroup).alignFillHorizontal().control();
+        uiBuilderFactory.newLabel(projectNameComposite).alignLeft().text(ProjectWizardMessages.Label_ProjectName).control();
+        this.projectNameText = uiBuilderFactory.newText(projectNameComposite).alignFillHorizontal().control();
 
         Group locationGroup = new Group(root, SWT.NONE);
-        locationGroup.setText(ProjectWizardMessages.Group_Label_ProjectLocation);
+        locationGroup.setText(ProjectWizardMessages.Label_ProjectLocation);
         GridLayoutFactory.swtDefaults().numColumns(3).applyTo(locationGroup);
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, SWT.DEFAULT).applyTo(locationGroup);
 
@@ -127,7 +126,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         // browse button for file chooser
         this.projectDirBrowseButton = uiBuilderFactory.newButton(locationGroup).alignLeft().text(UiMessages.Button_Label_Browse).control();
         this.projectDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.projectDirCombo,
-                ProjectWizardMessages.Label_ProjectRootDirectory));
+                ProjectWizardMessages.Label_RootProjectDirectory));
 
         // create workingset configuration group
         Group workingSetGroup = new Group(root, SWT.NONE);
