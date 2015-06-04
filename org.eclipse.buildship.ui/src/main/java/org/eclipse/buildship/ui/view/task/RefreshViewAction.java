@@ -13,7 +13,7 @@ package org.eclipse.buildship.ui.view.task;
 
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.generic.CommandBackedAction;
+import org.eclipse.buildship.ui.view.CommandBackedAction;
 
 /**
  * An action on the {@link TaskView} to reload/refresh the content of the task view.

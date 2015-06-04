@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.generic;
+package org.eclipse.buildship.ui.view;
 
 import com.google.common.base.Preconditions;
 
@@ -50,7 +50,7 @@ public abstract class CommandBackedAction extends Action {
         }
     }
 
-    @SuppressWarnings("cast")
+    @SuppressWarnings({"cast", "RedundantCast"})
     private IHandlerService getHandlerService() {
         return (IHandlerService) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(IHandlerService.class);
     }
