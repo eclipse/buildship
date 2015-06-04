@@ -10,8 +10,6 @@
     <suppress checks="RegexpHeader"
               files="org\.eclipse\.buildship\.ui[/|\\]src[/|\\]main[/|\\]java[/|\\]org[/|\\]eclipse[/|\\]buildship[/|\\]ui[/|\\]util[/|\\]selection[/|\\]SelectionUtils\.java" />
     <suppress checks="RegexpHeader"
-              files="org\.eclipse\.buildship\.ui[/|\\]src[/|\\]main[/|\\]java[/|\\]org[/|\\]eclipse[/|\\]buildship[/|\\]ui[/|\\]util[/|\\]editor[/|\\]EditorOpener\.java" />
-    <suppress checks="RegexpHeader"
-              files="org\.eclipse\.buildship\.ui[/|\\]src[/|\\]main[/|\\]java[/|\\]org[/|\\]eclipse[/|\\]buildship[/|\\]ui[/|\\]viewer[/|\\].*\.java" />
+              files="org\.eclipse\.buildship\.ui[/|\\]src[/|\\]main[/|\\]java[/|\\]org[/|\\]eclipse[/|\\]buildship[/|\\]ui[/|\\]external[/|\\]viewer[/|\\].*\.java" />
 </suppressions>
 
