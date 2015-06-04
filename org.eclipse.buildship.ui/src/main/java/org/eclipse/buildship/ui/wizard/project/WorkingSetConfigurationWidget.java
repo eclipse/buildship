@@ -14,6 +14,7 @@ package org.eclipse.buildship.ui.wizard.project;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -22,6 +23,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 
@@ -58,15 +60,39 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
                 fireWorkingSetChanged();
             }
         });
+
+        // remove the colon from the 'Working sets:' label
+        Label workingSetsLabel = findWorkingSetsLabel(parent);
+        workingSetsLabel.setText(workingSetsLabel.getText().replace(":", ""));
     }
 
     private Combo findWorkingSetsCombo(Composite parent) {
+        return (Combo) findControl(parent, new Predicate<Control>() {
+
+            @Override
+            public boolean apply(Control control) {
+                return control instanceof Combo;
+            }
+        });
+    }
+
+    private Label findWorkingSetsLabel(Composite parent) {
+        return (Label) findControl(parent, new Predicate<Control>() {
+
+            @Override
+            public boolean apply(Control control) {
+                return (control instanceof Label);
+            }
+        });
+    }
+
+    private Control findControl(Composite parent, Predicate<Control> predicate) {
         Control[] children = parent.getChildren();
         for (Control control : children) {
-            if (control instanceof Combo) {
-                return (Combo) control;
+            if (predicate.apply(control)) {
+                return control;
             } else if (control instanceof Composite) {
-                return findWorkingSetsCombo((Composite) control);
+                return findControl((Composite) control, predicate);
             }
         }
 

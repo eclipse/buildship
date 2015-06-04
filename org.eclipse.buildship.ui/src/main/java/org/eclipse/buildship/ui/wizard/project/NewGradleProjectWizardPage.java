@@ -126,7 +126,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         // browse button for file chooser
         this.projectDirBrowseButton = uiBuilderFactory.newButton(locationGroup).alignLeft().text(UiMessages.Button_Label_Browse).control();
         this.projectDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.projectDirCombo,
-                ProjectWizardMessages.Label_RootProjectDirectory));
+                ProjectWizardMessages.Label_ProjectRootDirectory));
 
         // create workingset configuration group
         Group workingSetGroup = new Group(root, SWT.NONE);
