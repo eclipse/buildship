@@ -15,11 +15,15 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -28,7 +32,8 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 
 /**
- * Enhances the {@link WorkingSetConfigurationBlock} class with {@link WorkingSetChangedListener} functionality.
+ * Enhances the {@link WorkingSetConfigurationBlock} class with {@link WorkingSetChangedListener}
+ * functionality.
  *
  * @see WorkingSetChangedListener
  */
@@ -61,32 +66,34 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
             }
         });
 
+        // add modification listener to the working sets combo
+        Button workingSetsEnabledButton = findWorkingSetsEnabledButton(parent);
+        workingSetsEnabledButton.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                fireWorkingSetChanged();
+            }
+        });
+
         // remove the colon from the 'Working sets:' label
         Label workingSetsLabel = findWorkingSetsLabel(parent);
         workingSetsLabel.setText(workingSetsLabel.getText().replace(":", ""));
     }
 
-    private Combo findWorkingSetsCombo(Composite parent) {
-        return (Combo) findControl(parent, new Predicate<Control>() {
+    private Button findWorkingSetsEnabledButton(Composite parent) {
+        return (Button) findControl(parent, Predicates.instanceOf(Button.class));
+    }
 
-            @Override
-            public boolean apply(Control control) {
-                return control instanceof Combo;
-            }
-        });
+    private Combo findWorkingSetsCombo(Composite parent) {
+        return (Combo) findControl(parent, Predicates.instanceOf(Combo.class));
     }
 
     private Label findWorkingSetsLabel(Composite parent) {
-        return (Label) findControl(parent, new Predicate<Control>() {
-
-            @Override
-            public boolean apply(Control control) {
-                return (control instanceof Label);
-            }
-        });
+        return (Label) findControl(parent, Predicates.instanceOf(Label.class));
     }
 
-    private Control findControl(Composite parent, Predicate<Control> predicate) {
+    private Control findControl(Composite parent, Predicate<? super Control> predicate) {
         Control[] children = parent.getChildren();
         for (Control control : children) {
             if (predicate.apply(control)) {
@@ -96,7 +103,7 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
             }
         }
 
-        throw new IllegalStateException("Cannot find working sets Combo.");
+        throw new IllegalStateException("Cannot find control with the specified condition");
     }
 
     public void addWorkingSetChangeListener(WorkingSetChangedListener workingSetListener) {
