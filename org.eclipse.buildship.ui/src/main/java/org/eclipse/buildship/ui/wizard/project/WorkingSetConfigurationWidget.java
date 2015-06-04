@@ -56,17 +56,11 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
     public void createContent(Composite parent) {
         super.createContent(parent);
 
-        // add modification listener to the working sets combo
-        Combo workingSetsCombo = findWorkingSetsCombo(parent);
-        workingSetsCombo.addModifyListener(new ModifyListener() {
+        // remove the colon from the 'Working sets:' label
+        Label workingSetsLabel = findWorkingSetsLabel(parent);
+        workingSetsLabel.setText(workingSetsLabel.getText().replace(":", ""));
 
-            @Override
-            public void modifyText(ModifyEvent e) {
-                fireWorkingSetChanged();
-            }
-        });
-
-        // add modification listener to the working sets combo
+        // add modification listener to the working sets checkbox
         Button workingSetsEnabledButton = findWorkingSetsEnabledButton(parent);
         workingSetsEnabledButton.addSelectionListener(new SelectionAdapter() {
 
@@ -76,9 +70,19 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
             }
         });
 
-        // remove the colon from the 'Working sets:' label
-        Label workingSetsLabel = findWorkingSetsLabel(parent);
-        workingSetsLabel.setText(workingSetsLabel.getText().replace(":", ""));
+        // add modification listener to the working sets combo
+        Combo workingSetsCombo = findWorkingSetsCombo(parent);
+        workingSetsCombo.addModifyListener(new ModifyListener() {
+
+            @Override
+            public void modifyText(ModifyEvent e) {
+                fireWorkingSetChanged();
+            }
+        });
+    }
+
+    private Label findWorkingSetsLabel(Composite parent) {
+        return (Label) findControl(parent, Predicates.instanceOf(Label.class));
     }
 
     private Button findWorkingSetsEnabledButton(Composite parent) {
@@ -87,10 +91,6 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
 
     private Combo findWorkingSetsCombo(Composite parent) {
         return (Combo) findControl(parent, Predicates.instanceOf(Combo.class));
-    }
-
-    private Label findWorkingSetsLabel(Composite parent) {
-        return (Label) findControl(parent, Predicates.instanceOf(Label.class));
     }
 
     private Control findControl(Composite parent, Predicate<? super Control> predicate) {

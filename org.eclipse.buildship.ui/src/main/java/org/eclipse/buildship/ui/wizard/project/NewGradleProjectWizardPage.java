@@ -70,44 +70,46 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
     private void createContent(Composite root) {
         UiBuilder.UiBuilderFactory uiBuilderFactory = getUiBuilderFactory();
 
-        // label and text to specify the project name
+        // project name container
         Composite projectNameComposite = new Composite(root, SWT.NONE);
         GridLayoutFactory.swtDefaults().extendedMargins(0, 0, 0, 10).numColumns(2).applyTo(projectNameComposite);
-        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, 1).applyTo(projectNameComposite);
+        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, SWT.DEFAULT).applyTo(projectNameComposite);
 
+        // project name label
         uiBuilderFactory.newLabel(projectNameComposite).alignLeft().text(ProjectWizardMessages.Label_ProjectName).control();
+
+        // project name text field
         this.projectNameText = uiBuilderFactory.newText(projectNameComposite).alignFillHorizontal().control();
 
+        // project location container
         Group locationGroup = new Group(root, SWT.NONE);
-        locationGroup.setText(ProjectWizardMessages.Label_ProjectLocation);
+        locationGroup.setText(ProjectWizardMessages.Group_Label_ProjectLocation);
         GridLayoutFactory.swtDefaults().numColumns(3).applyTo(locationGroup);
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, SWT.DEFAULT).applyTo(locationGroup);
 
-        // check button for the usage of the default workspace location
+        // project custom location check button to enable/disable the default workspace location
         this.defaultWorkspaceLocationButton = new Button(locationGroup, SWT.CHECK);
         GridDataFactory.swtDefaults().span(3, SWT.DEFAULT).applyTo(this.defaultWorkspaceLocationButton);
         this.defaultWorkspaceLocationButton.setText(ProjectWizardMessages.Button_UseDefaultLocation);
 
-        // project directory label
+        // project custom location label
         uiBuilderFactory.newLabel(locationGroup).alignLeft().text(ProjectWizardMessages.Label_CustomLocation);
 
-        // combo for typing an alternative project path, which also provides recently used paths
+        // project custom location combo for typing an alternative project path, which also provides recently used paths
         this.projectDirCombo = new Combo(locationGroup, SWT.BORDER);
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.projectDirCombo);
 
         // browse button for file chooser
         this.projectDirBrowseButton = uiBuilderFactory.newButton(locationGroup).alignLeft().text(UiMessages.Button_Label_Browse).control();
-        this.projectDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.projectDirCombo,
-                ProjectWizardMessages.Label_ProjectRootDirectory));
+        this.projectDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.projectDirCombo, ProjectWizardMessages.Label_ProjectRootDirectory));
 
-        // working set
+        // working set container
         Group workingSetGroup = new Group(root, SWT.NONE);
         workingSetGroup.setText(ProjectWizardMessages.Group_Label_WorkingSets);
         GridLayoutFactory.swtDefaults().applyTo(workingSetGroup);
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, SWT.DEFAULT).applyTo(workingSetGroup);
 
-        this.workingSetConfigurationComposite = new WorkingSetConfigurationWidget(new String[] { UiPluginConstants.RESOURCE, UiPluginConstants.JAVA }, UiPlugin.getInstance()
-                .getDialogSettings());
+        this.workingSetConfigurationComposite = new WorkingSetConfigurationWidget(new String[] { UiPluginConstants.RESOURCE, UiPluginConstants.JAVA }, UiPlugin.getInstance().getDialogSettings());
         this.workingSetConfigurationComposite.createContent(workingSetGroup);
     }
 
