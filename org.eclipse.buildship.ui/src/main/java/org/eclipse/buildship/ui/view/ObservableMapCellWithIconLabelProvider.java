@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.viewer;
+package org.eclipse.buildship.ui.view;
 
 import com.google.common.collect.ImmutableMap;
 import org.eclipse.core.databinding.observable.map.IObservableMap;
@@ -24,10 +24,10 @@ import org.eclipse.swt.graphics.TextStyle;
 import java.util.Map;
 
 /**
- * This ObservableMapCellLabelProvider implementation also supports an image for a
+ * This ObservableMapCellLabelProvider implementation supports a label and an image for a
  * {@link org.eclipse.jface.viewers.ViewerCell}.
  */
-public class ObservableMapCellWithIconLabelProvider extends ObservableMapCellLabelProvider implements IStyledLabelProvider {
+public final class ObservableMapCellWithIconLabelProvider extends ObservableMapCellLabelProvider implements IStyledLabelProvider {
 
     private final ImmutableMap<String, ColorDescriptor> customTextColoringMapping;
     private final ResourceManager resourceManager;
