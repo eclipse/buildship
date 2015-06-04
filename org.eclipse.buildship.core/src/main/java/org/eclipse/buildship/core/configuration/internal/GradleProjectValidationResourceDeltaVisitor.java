@@ -18,6 +18,7 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectMarker;
@@ -125,7 +126,7 @@ final class GradleProjectValidationResourceDeltaVisitor implements IResourceDelt
             // validate the state of the .settings/gradle.prefs file
             else {
                 try {
-                    CorePlugin.projectConfigurationManager().readProjectConfiguration(this.project);
+                    CorePlugin.projectConfigurationManager().readProjectConfiguration(new NullProgressMonitor(), this.project);
                 } catch (Exception e) {
                     String message = String.format("Invalid Gradle project configuration file: %s", this.preferencesFile.getProjectRelativePath());
                     GradleProjectMarker.INSTANCE.addMarkerToResource(this.preferencesFile, message);

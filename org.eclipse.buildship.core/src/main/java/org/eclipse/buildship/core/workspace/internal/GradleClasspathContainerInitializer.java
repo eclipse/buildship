@@ -11,6 +11,21 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.util.List;
+
+import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
+import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
+import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
+import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
+import org.gradle.tooling.CancellationToken;
+import org.gradle.tooling.GradleConnector;
+import org.gradle.tooling.ProgressListener;
+
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -18,11 +33,26 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.gradleware.tooling.toolingmodel.*;
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
+
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.jobs.IJobManager;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jdt.core.ClasspathContainerInitializer;
+import org.eclipse.jdt.core.IClasspathContainer;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
@@ -31,20 +61,6 @@ import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 import org.eclipse.buildship.core.workspace.ClasspathDefinition;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.jobs.IJobManager;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jdt.core.*;
-import org.gradle.tooling.CancellationToken;
-import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.ProgressListener;
-
-import java.util.List;
 
 /**
  * Initializes the classpath of each Eclipse workspace project that has a Gradle nature with the
@@ -89,7 +105,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
     }
 
     private void internalInitialize(IPath containerPath, IJavaProject project, IProgressMonitor monitor) throws JavaModelException {
-        Optional<OmniEclipseProject> eclipseProject = findEclipseProject(project.getProject());
+        Optional<OmniEclipseProject> eclipseProject = findEclipseProject(project.getProject(), monitor);
         if (eclipseProject.isPresent()) {
             // refresh the project
             CorePlugin.workspaceOperations().refresh(project.getProject(), new SubProgressMonitor(monitor, 25));
@@ -109,8 +125,8 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         }
     }
 
-    private Optional<OmniEclipseProject> findEclipseProject(IProject project) {
-        ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
+    private Optional<OmniEclipseProject> findEclipseProject(IProject project, IProgressMonitor monitor) {
+        ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(monitor, project);
         OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(configuration.getRequestAttributes());
         return eclipseGradleBuild.getRootEclipseProject().tryFind(Specs.eclipseProjectMatchesProjectPath(configuration.getProjectPath()));
     }
