@@ -52,24 +52,6 @@ public final class Validators {
         };
     }
 
-    public static Validator<File> onlyParentDirectoryExistsValidator(final String prefix) {
-        return new Validator<File>() {
-
-            @Override
-            public Optional<String> validate(File file) {
-                if (file == null) {
-                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeSpecified, prefix));
-                } else if (file.exists()) {
-                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_AlreadyExistsIn_1, prefix, "the file system"));
-                } else if (!file.getParentFile().exists()) {
-                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_DoesNotExist, prefix));
-                } else {
-                    return Optional.absent();
-                }
-            }
-        };
-    }
-
     public static Validator<File> optionalDirectoryValidator(final String prefix) {
         return new Validator<File>() {
 
@@ -88,7 +70,25 @@ public final class Validators {
         };
     }
 
-    public static Validator<String> projectNameValidator(final String prefix) {
+     public static Validator<File> onlyParentDirectoryExistsValidator(final String parentPrefix, final String childPrefix) {
+        return new Validator<File>() {
+
+            @Override
+            public Optional<String> validate(File file) {
+                if (file == null) {
+                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeSpecified, parentPrefix));
+                } else if (file.exists()) {
+                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_AlreadyExists, childPrefix));
+                } else if (!file.getParentFile().exists()) {
+                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_DoesNotExist, parentPrefix));
+                } else {
+                    return Optional.absent();
+                }
+            }
+        };
+    }
+
+    public static Validator<String> uniqueWorkspaceProjectNameValidator(final String prefix) {
         return new Validator<String>() {
 
             @Override
@@ -96,7 +96,7 @@ public final class Validators {
                 if (Strings.isNullOrEmpty(projectName)) {
                     return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeSpecified, prefix));
                 } else if (projectNameAlreadyExistsInWorkspace(projectName)) {
-                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_AlreadyExistsIn_1, prefix, "the current workspace"));
+                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_AlreadyExists, prefix));
                 } else {
                     return Optional.absent();
                 }

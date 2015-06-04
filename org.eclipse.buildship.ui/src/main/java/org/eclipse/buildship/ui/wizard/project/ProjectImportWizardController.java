@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.gradle.tooling.ProgressListener;
 
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -65,9 +64,6 @@ public class ProjectImportWizardController {
     private static final String SETTINGS_KEY_JVM_ARGUMENTS = "jvm_arguments"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_ARGUMENTS = "arguments"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_WORKING_SETS = "working_sets"; //$NON-NLS-1$
-    private static final String SETTINGS_KEY_NEW_PROJECT_NAME = "new_project_name"; //$NON-NLS-1$
-    private static final String SETTINGS_KEY_POSSIBLE_LOCATIONS = "possible_locations"; //$NON-NLS-1$
-    private static final String SETTINGS_KEY_USE_DEFAULT_WORKSPACE_LOCATION = "use_default_workspace_location"; //$NON-NLS-1$
 
     private final ProjectImportConfiguration configuration;
 
@@ -80,12 +76,9 @@ public class ProjectImportWizardController {
         Validator<String> jvmArgumentsValidator = Validators.nullValidator();
         Validator<String> argumentsValidator = Validators.nullValidator();
         Validator<List<String>> workingSetsValidator = Validators.nullValidator();
-        Validator<String> newProjectNameValidator = Validators.projectNameValidator(ProjectWizardMessages.Label_ProjectName);
-        Validator<File> newProjectLocationValidator = Validators.onlyParentDirectoryExistsValidator(ProjectWizardMessages.Label_CustomLocation);
-        Validator<List<String>> possibleLocationsValidator = Validators.nullValidator();
 
         this.configuration = new ProjectImportConfiguration(projectDirValidator, gradleDistributionValidator, gradleUserHomeValidator, javaHomeValidator,
-                jvmArgumentsValidator, argumentsValidator, workingSetsValidator, newProjectNameValidator, newProjectLocationValidator, possibleLocationsValidator);
+                jvmArgumentsValidator, argumentsValidator, workingSetsValidator);
 
         // initialize values from the persisted dialog settings
         IDialogSettings dialogSettings = projectImportWizard.getDialogSettings();
@@ -97,9 +90,6 @@ public class ProjectImportWizardController {
         Optional<String> jvmArguments = Optional.fromNullable(Strings.emptyToNull(dialogSettings.get(SETTINGS_KEY_JVM_ARGUMENTS)));
         Optional<String> arguments = Optional.fromNullable(Strings.emptyToNull(dialogSettings.get(SETTINGS_KEY_ARGUMENTS)));
         List<String> workingSets = ImmutableList.copyOf(CollectionsUtils.nullToEmpty(dialogSettings.getArray(SETTINGS_KEY_WORKING_SETS)));
-        Optional<String> newProjectName = Optional.fromNullable(Strings.emptyToNull(dialogSettings.get(SETTINGS_KEY_NEW_PROJECT_NAME)));
-        List<String> possibleLocations = ImmutableList.copyOf(CollectionsUtils.nullToEmpty(dialogSettings.getArray(SETTINGS_KEY_POSSIBLE_LOCATIONS)));
-        String useDefaultWorkspaceLocation = MoreObjects.firstNonNull(dialogSettings.get(SETTINGS_KEY_USE_DEFAULT_WORKSPACE_LOCATION), "true");
 
         this.configuration.setProjectDir(projectDir.orNull());
         this.configuration.setGradleDistribution(createGradleDistribution(gradleDistributionType, gradleDistributionConfiguration));
@@ -108,9 +98,6 @@ public class ProjectImportWizardController {
         this.configuration.setJvmArguments(jvmArguments.orNull());
         this.configuration.setArguments(arguments.orNull());
         this.configuration.setWorkingSets(workingSets);
-        this.configuration.setNewProjectName(newProjectName.orNull());
-        this.configuration.setPossibleLocations(possibleLocations);
-        this.configuration.setUseWorkspaceLocation(Boolean.valueOf(useDefaultWorkspaceLocation));
 
         // store the values every time they change
         saveFilePropertyWhenChanged(dialogSettings, SETTINGS_KEY_PROJECT_DIR, this.configuration.getProjectDir());
@@ -120,9 +107,6 @@ public class ProjectImportWizardController {
         saveStringPropertyWhenChanged(dialogSettings, SETTINGS_KEY_JVM_ARGUMENTS, this.configuration.getJvmArguments());
         saveStringPropertyWhenChanged(dialogSettings, SETTINGS_KEY_ARGUMENTS, this.configuration.getArguments());
         saveStringArrayPropertyWhenChanged(dialogSettings, SETTINGS_KEY_WORKING_SETS, this.configuration.getWorkingSets());
-        saveStringPropertyWhenChanged(dialogSettings, SETTINGS_KEY_NEW_PROJECT_NAME, this.getConfiguration().getNewProjectName());
-        saveStringArrayPropertyWhenChanged(dialogSettings, SETTINGS_KEY_POSSIBLE_LOCATIONS, this.configuration.getPossibleLocations());
-        saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_USE_DEFAULT_WORKSPACE_LOCATION, this.configuration.getUseWorkspaceLocation());
     }
 
     private GradleDistributionWrapper createGradleDistribution(Optional<String> gradleDistributionType, Optional<String> gradleDistributionConfiguration) {
@@ -137,16 +121,6 @@ public class ProjectImportWizardController {
             @Override
             public void validationTriggered(Property<?> source, Optional<String> validationErrorMessage) {
                 settings.put(settingsKey, target.getValue());
-            }
-        });
-    }
-
-    private void saveBooleanPropertyWhenChanged(final IDialogSettings settings, final String settingsKey, final Property<Boolean> target) {
-        target.addValidationListener(new ValidationListener() {
-
-            @Override
-            public void validationTriggered(Property<?> source, Optional<String> validationErrorMessage) {
-                settings.put(settingsKey, String.valueOf(target.getValue()));
             }
         });
     }

@@ -52,7 +52,7 @@ public final class CoreMessages extends NLS {
     public static String ErrorMessage_0_IsNotValid;
     public static String ErrorMessage_0_MustBeSpecified;
     public static String ErrorMessage_0_MustBeDirectory;
-    public static String ErrorMessage_0_AlreadyExistsIn_1;
+    public static String ErrorMessage_0_AlreadyExists;
 
     static {
         // initialize resource bundle

@@ -35,21 +35,16 @@ public final class ProjectImportConfiguration {
     private final Property<String> jvmArguments;
     private final Property<String> arguments;
     private final Property<List<String>> workingSets;
-    private final Property<String> newProjectName;
-    private final Property<File> newProjectLocation;
-    private final Property<List<String>> possibleLocations;
-    private final Property<Boolean> useWorkspaceLocation;
 
     public ProjectImportConfiguration() {
         this(Validators.<File>noOp(), Validators.<GradleDistributionWrapper>noOp(), Validators.<File>noOp(), Validators.<File>noOp(),
-                Validators.<String>noOp(), Validators.<String>noOp(), Validators.<List<String>>noOp(), Validators.<String>noOp(), Validators.<File>noOp(), Validators.<List<String>>noOp());
+                Validators.<String>noOp(), Validators.<String>noOp(), Validators.<List<String>>noOp());
     }
 
     public ProjectImportConfiguration(Validator<File> projectDirValidator, Validator<GradleDistributionWrapper> gradleDistributionValidator,
-                                      Validator<File> gradleUserHomeValidator, Validator<File> javaHomeValidator, Validator<String> jvmArgumentsValidator,
-                                      Validator<String> argumentsValidator, Validator<List<String>> workingSetsValidators,
-                                      Validator<String> newProjectNameValidator, Validator<File> newProjectLocationValidator,
-                                      Validator<List<String>> possibleLocationsValidator) {
+                                      Validator<File> gradleUserHomeValidator, Validator<File> javaHomeValidator,
+                                      Validator<String> jvmArgumentsValidator, Validator<String> argumentsValidator,
+                                      Validator<List<String>> workingSetsValidators) {
         this.projectDir = Property.create(projectDirValidator);
         this.gradleDistribution = Property.create(gradleDistributionValidator);
         this.gradleUserHome = Property.create(gradleUserHomeValidator);
@@ -57,10 +52,6 @@ public final class ProjectImportConfiguration {
         this.jvmArguments = Property.create(jvmArgumentsValidator);
         this.arguments = Property.create(argumentsValidator);
         this.workingSets = Property.create(workingSetsValidators);
-        this.newProjectName= Property.create(newProjectNameValidator);
-        this.newProjectLocation = Property.create(newProjectLocationValidator);
-        this.possibleLocations = Property.create(possibleLocationsValidator);
-        this.useWorkspaceLocation = Property.create(Validators.<Boolean>noOp());
     }
 
     public Property<File> getProjectDir() {
@@ -119,38 +110,6 @@ public final class ProjectImportConfiguration {
         this.workingSets.setValue(workingSets);
     }
 
-    public Property<String> getNewProjectName() {
-        return this.newProjectName;
-    }
-
-    public void setNewProjectName(String newProjectName) {
-        this.newProjectName.setValue(newProjectName);
-    }
-
-    public Property<File> getNewProjectLocation() {
-        return this.newProjectLocation;
-    }
-
-    public void setNewProjectLocation(File newProjectLocation) {
-        this.newProjectLocation.setValue(newProjectLocation);
-    }
-
-    public Property<List<String>> getPossibleLocations() {
-        return this.possibleLocations;
-    }
-
-    public void setPossibleLocations(List<String> possibleLocations) {
-        this.possibleLocations.setValue(possibleLocations);
-    }
-
-    public Property<Boolean> getUseWorkspaceLocation() {
-        return this.useWorkspaceLocation;
-    }
-
-    public void setUseWorkspaceLocation(Boolean useWorkspaceLocation) {
-        this.useWorkspaceLocation.setValue(useWorkspaceLocation);
-    }
-
     public FixedRequestAttributes toFixedAttributes() {
         File projectDir = getProjectDir().getValue();
         GradleDistribution gradleDistribution = getGradleDistribution().getValue().toGradleDistribution();
@@ -161,4 +120,5 @@ public final class ProjectImportConfiguration {
 
         return new FixedRequestAttributes(projectDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments);
     }
+
 }

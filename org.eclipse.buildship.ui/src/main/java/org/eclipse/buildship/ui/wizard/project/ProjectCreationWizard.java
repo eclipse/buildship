@@ -14,7 +14,6 @@ package org.eclipse.buildship.ui.wizard.project;
 import java.io.File;
 import java.util.List;
 
-import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingutils.binding.Property;
@@ -34,6 +33,7 @@ import org.eclipse.ui.IWorkbench;
 
 import org.eclipse.buildship.core.launch.RunGradleTasksJob;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
@@ -89,10 +89,12 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
         this.controller = new ProjectImportWizardController(this);
         this.pageChangeListener = new ProjectCreatingPageChangedListener(this);
 
-        // instantiate the pages and pass the configuration object that serves as the data model of
-        // the wizard
+        // instantiate the pages and pass the configuration object that serves as
+        // the data model of the wizard
         ProjectImportConfiguration configuration = this.controller.getConfiguration();
-        this.newGradleProjectPage = new NewGradleProjectWizardPage(configuration);
+        Property<String> projectName = Property.create(Validators.uniqueWorkspaceProjectNameValidator(ProjectWizardMessages.Label_ProjectName));
+        Property<File> targetProjectDir = Property.create(Validators.onlyParentDirectoryExistsValidator(ProjectWizardMessages.Label_CustomLocation, ProjectWizardMessages.Message_TargetProjectDirectory));
+        this.newGradleProjectPage = new NewGradleProjectWizardPage(configuration, projectName, targetProjectDir);
         this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller, ProjectWizardMessages.Title_NewGradleProjectPreviewWizardPage,
                 ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageDefault, ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageContext);
     }
@@ -131,24 +133,8 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
 
     @Override
     public boolean performFinish() {
-        saveProjectLocation();
         performInitNewProject(true, GRADLE_INIT_TASK_CMD_LINE);
         return true;
-    }
-
-    private void saveProjectLocation() {
-        if (!this.controller.getConfiguration().getUseWorkspaceLocation().getValue()) {
-
-            Property<List<String>> possibleLocationsProperty = this.controller.getConfiguration().getPossibleLocations();
-            List<String> possibleLocations = possibleLocationsProperty.getValue();
-            String newPossibleLocation = this.controller.getConfiguration().getNewProjectLocation().getValue().getAbsoluteFile().getParent();
-            if (!possibleLocations.contains(newPossibleLocation)) {
-                EvictingQueue<String> queue = EvictingQueue.create(10);
-                queue.addAll(possibleLocations);
-                queue.add(newPossibleLocation);
-                possibleLocationsProperty.setValue(ImmutableList.copyOf(queue.toArray(new String[queue.size()])));
-            }
-        }
     }
 
     @Override
