@@ -81,7 +81,7 @@
          point="org.eclipse.ui.views">
       <view
             id="org.eclipse.buildship.ui.views.taskview"
-            class="org.eclipse.buildship.ui.taskview.TaskView"
+            class="org.eclipse.buildship.ui.view.task.TaskView"
             category="org.eclipse.buildship.ui.views"
             icon="icons/full/eview16/tasks_view.png"
             name="Gradle Tasks"
@@ -141,23 +141,23 @@
           point="org.eclipse.ui.handlers">
       <handler
              commandId="org.eclipse.buildship.ui.commands.refreshtaskview"
-             class="org.eclipse.buildship.ui.taskview.RefreshViewHandler">
+             class="org.eclipse.buildship.ui.view.task.RefreshViewHandler">
       </handler>
       <handler
             commandId="org.eclipse.buildship.ui.commands.runtasks"
-            class="org.eclipse.buildship.ui.taskview.RunTasksHandler">
+            class="org.eclipse.buildship.ui.view.task.RunTasksHandler">
       </handler>
       <handler
                 commandId="org.eclipse.buildship.ui.commands.rundefaulttasks"
-                class="org.eclipse.buildship.ui.taskview.RunTasksHandler">
+                class="org.eclipse.buildship.ui.view.task.RunTasksHandler">
       </handler>
       <handler
             commandId="org.eclipse.buildship.ui.commands.openrunconfiguration"
-            class="org.eclipse.buildship.ui.taskview.OpenRunConfigurationHandler">
+            class="org.eclipse.buildship.ui.view.task.OpenRunConfigurationHandler">
       </handler>
       <handler
             commandId="org.eclipse.buildship.ui.commands.openbuildscript"
-            class="org.eclipse.buildship.ui.taskview.OpenBuildScriptHandler">
+            class="org.eclipse.buildship.ui.view.task.OpenBuildScriptHandler">
       </handler>
     </extension>
 
@@ -227,15 +227,15 @@
     <extension
           point="org.eclipse.core.runtime.adapters">
        <factory
-             adaptableType="org.eclipse.buildship.ui.taskview.TaskNode"
-             class="org.eclipse.buildship.ui.taskview.adapter.TaskNodeAdapterFactory">
+             adaptableType="org.eclipse.buildship.ui.view.task.TaskNode"
+             class="org.eclipse.buildship.ui.view.task.adapter.TaskNodeAdapterFactory">
           <adapter
                 type="org.eclipse.ui.views.properties.IPropertySource">
           </adapter>
        </factory>
        <factory
-             adaptableType="org.eclipse.buildship.ui.taskview.ProjectNode"
-             class="org.eclipse.buildship.ui.taskview.adapter.ProjectNodeAdapterFactory">
+             adaptableType="org.eclipse.buildship.ui.view.task.ProjectNode"
+             class="org.eclipse.buildship.ui.view.task.adapter.ProjectNodeAdapterFactory">
           <adapter
                 type="org.eclipse.ui.views.properties.IPropertySource">
           </adapter>
