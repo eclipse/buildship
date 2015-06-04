@@ -11,7 +11,6 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingutils.binding.Property;
@@ -21,6 +20,7 @@ import org.eclipse.buildship.ui.UiPluginConstants;
 import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.layout.LayoutUtils;
+import org.eclipse.buildship.ui.util.selection.TargetWidgetsInvertingSelectionListener;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -164,26 +164,6 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
     @Override
     protected String getPageContextInformation() {
         return ProjectWizardMessages.InfoMessage_NewGradleProjectWizardPageContext;
-    }
-
-    private static final class TargetWidgetsInvertingSelectionListener extends SelectionAdapter {
-
-        private final Button source;
-        private final ImmutableList<Control> targets;
-
-        private TargetWidgetsInvertingSelectionListener(Button source, Control... targets) {
-            this.source = Preconditions.checkNotNull(source);
-            this.targets = ImmutableList.copyOf(targets);
-        }
-
-        @Override
-        public void widgetSelected(SelectionEvent e) {
-            boolean enabled = this.source.getSelection();
-            for (Control control : this.targets) {
-                control.setEnabled(!enabled);
-            }
-        }
-
     }
 
 }
