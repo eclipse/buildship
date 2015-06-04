@@ -9,7 +9,7 @@
  *     Simon Scholz <simon.scholz@vogella.com> - Initial API and implementation based on WorkbenchSWTMessages
  *******************************************************************************/
 
-package org.eclipse.buildship.ui.viewer;
+package org.eclipse.buildship.ui.external.viewer;
 
 import org.eclipse.osgi.util.NLS;
 
@@ -18,7 +18,7 @@ import org.eclipse.osgi.util.NLS;
  */
 public class ViewerMessages extends NLS {
 
-    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.viewer.ViewerMessages";//$NON-NLS-1$
+    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.external.viewer.ViewerMessages";//$NON-NLS-1$
 
     public static String FilteredTree_AccessibleListenerClearButton;
     public static String FilteredTree_ClearToolTip;

@@ -9,7 +9,7 @@
  *     Simon Scholz <simon.scholz@vogella.com> - initial API and implementation based on org.eclipse.ui.dialogs.FilteredTree
  *******************************************************************************/
 
-package org.eclipse.buildship.ui.viewer;
+package org.eclipse.buildship.ui.external.viewer;
 
 import java.net.URL;
 

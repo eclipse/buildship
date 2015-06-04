@@ -8,7 +8,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.buildship.ui.viewer;
+package org.eclipse.buildship.ui.external.viewer;
 
 import java.util.Vector;
 

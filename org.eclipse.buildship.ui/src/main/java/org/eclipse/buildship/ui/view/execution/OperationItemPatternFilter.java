@@ -11,7 +11,7 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import org.eclipse.buildship.ui.viewer.PatternFilter;
+import org.eclipse.buildship.ui.external.viewer.PatternFilter;
 import org.eclipse.jface.viewers.Viewer;
 
 /**

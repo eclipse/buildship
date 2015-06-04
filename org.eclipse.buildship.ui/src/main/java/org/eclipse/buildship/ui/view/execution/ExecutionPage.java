@@ -58,7 +58,7 @@ import org.eclipse.buildship.ui.view.ExpandTreeNodesAction;
 import org.eclipse.buildship.ui.view.MultiPageView;
 import org.eclipse.buildship.ui.view.PageSite;
 import org.eclipse.buildship.ui.view.ObservableMapCellWithIconLabelProvider;
-import org.eclipse.buildship.ui.viewer.FilteredTree;
+import org.eclipse.buildship.ui.external.viewer.FilteredTree;
 
 /**
  * Displays the tree of a single build execution.
