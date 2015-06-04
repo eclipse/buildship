@@ -14,6 +14,7 @@ package org.eclipse.buildship.ui.wizard.project;
 import java.io.File;
 import java.util.List;
 
+import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Function;
@@ -104,7 +105,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
         // second line: local installation directory
         this.useLocalInstallationDirOption = uiBuilderFactory.newRadio(root).alignLeft().text(CoreMessages.GradleDistribution_Label_LocalInstallationDirectory).control();
         this.localInstallationDirText = uiBuilderFactory.newText(root).alignFillHorizontal().disabled().control();
-        Button localInstallationDirBrowseButton = uiBuilderFactory.newButton(root).alignLeft().disabled().text(ProjectWizardMessages.Button_Label_Browse).control();
+        Button localInstallationDirBrowseButton = uiBuilderFactory.newButton(root).alignLeft().disabled().text(UiMessages.Button_Label_Browse).control();
         localInstallationDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.localInstallationDirText, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
 
         // third line: remote distribution installation
@@ -202,7 +203,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
         String gradleUserHomeString = FileUtils.getAbsolutePath(gradleUserHome).orNull();
         this.gradleUserHomeText = uiBuilderFactory.newText(root).alignFillHorizontal().text(gradleUserHomeString).control();
 
-        Button gradleUserHomeButton = uiBuilderFactory.newButton(root).alignLeft().text(ProjectWizardMessages.Button_Label_Browse).control();
+        Button gradleUserHomeButton = uiBuilderFactory.newButton(root).alignLeft().text(UiMessages.Button_Label_Browse).control();
         gradleUserHomeButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.gradleUserHomeText, ProjectWizardMessages.Label_GradleUserHome));
 
         // Java home
@@ -212,7 +213,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
         String javaHomeString = FileUtils.getAbsolutePath(javaHome).orNull();
         this.javaHomeText = uiBuilderFactory.newText(root).alignFillHorizontal().text(javaHomeString).control();
 
-        Button javaHomeButton = uiBuilderFactory.newButton(root).alignLeft().text(ProjectWizardMessages.Button_Label_Browse).control();
+        Button javaHomeButton = uiBuilderFactory.newButton(root).alignLeft().text(UiMessages.Button_Label_Browse).control();
         javaHomeButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.javaHomeText, ProjectWizardMessages.Label_JavaHome));
 
         // JVM arguments

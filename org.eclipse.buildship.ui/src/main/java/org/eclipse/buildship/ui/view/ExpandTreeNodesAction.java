@@ -13,8 +13,8 @@ package org.eclipse.buildship.ui.view;
 
 import com.google.common.base.Preconditions;
 
-import org.eclipse.buildship.ui.generic.NodeSelection;
-import org.eclipse.buildship.ui.generic.SelectionSpecificAction;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
+import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ISelection;

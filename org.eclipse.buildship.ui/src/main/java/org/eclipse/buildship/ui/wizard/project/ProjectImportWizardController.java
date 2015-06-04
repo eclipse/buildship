@@ -44,7 +44,7 @@ import org.eclipse.buildship.core.projectimport.ProjectImportJob;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.ui.taskview.TaskView;
+import org.eclipse.buildship.ui.view.task.TaskView;
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 import org.eclipse.buildship.ui.view.execution.ExecutionsView;
 

@@ -207,19 +207,6 @@
         name="buildship.latest.version"
         value="1.0"
         defaultValue=""/>
-    <setupTask
-        xsi:type="setup:VariableTask"
-        id="buildship.variables.mylynusername"
-        name="mylyn.username"
-        defaultValue="anonymous"
-        label="Mylyn Username"/>
-    <setupTask
-        xsi:type="setup:VariableTask"
-        id="buildship.variables.mylynpassword"
-        type="PASSWORD"
-        name="mylyn.password"
-        defaultValue="anonymous"
-        label="Mylyn Password"/>
   </setupTask>
   <setupTask
       xsi:type="git:GitCloneTask"
@@ -439,8 +426,8 @@
       xsi:type="mylyn:MylynQueriesTask"
       id="buildship.mylyn"
       repositoryURL="https://bugs.eclipse.org/bugs"
-      userID="${mylyn.username}"
-      password="${mylyn.password}">
+      userID="${bugzilla.id}"
+      password="${eclipse.user.password}">
     <query summary="All Buildship Bugs"
         url="https://bugs.eclipse.org/bugs/buglist.cgi?bug_status=UNCONFIRMED&amp;bug_status=NEW&amp;bug_status=ASSIGNED&amp;bug_status=REOPENED&amp;bug_status=RESOLVED&amp;bug_status=VERIFIED&amp;bug_status=CLOSED&amp;list_id=11735764&amp;product=Buildship&amp;query_format=advanced&amp;resolution=---&amp;resolution=FIXED&amp;resolution=INVALID&amp;resolution=WONTFIX&amp;resolution=DUPLICATE&amp;resolution=WORKSFORME&amp;resolution=MOVED&amp;resolution=NOT_ECLIPSE"/>
     <description>Add Buildship bugzilla tickets to the IDE</description>

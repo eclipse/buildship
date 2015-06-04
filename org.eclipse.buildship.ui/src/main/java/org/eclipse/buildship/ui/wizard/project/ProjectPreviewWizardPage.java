@@ -46,7 +46,6 @@ import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.util.font.FontUtils;
@@ -160,7 +159,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         updateGradleVersionLabel(this.gradleVersionLabel, configuration.getGradleDistribution(), CoreMessages.Value_Unknown);
         updateFileLabel(this.gradleUserHomeLabel, configuration.getGradleUserHome(), CoreMessages.Value_UseGradleDefault);
         updateFileLabel(this.javaHomeLabel, configuration.getJavaHome(), CoreMessages.Value_UseGradleDefault);
-        updateStringLabel(this.jvmArgumentsLabel, configuration.getJvmArguments(), CoreMessages.Value_UseGradleDefault);
+        updateStringLabel(this.jvmArgumentsLabel, configuration.getJvmArguments(), CoreMessages.Value_None);
         updateStringLabel(this.argumentsLabel, configuration.getArguments(), CoreMessages.Value_None);
     }
 
@@ -292,7 +291,6 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
                     }
                     ProjectPreviewWizardPage.this.gradleVersionLabel.setText(buildEnvironment.getGradle().getGradleVersion());
                     ProjectPreviewWizardPage.this.javaHomeLabel.setText(buildEnvironment.getJava().getJavaHome().getAbsolutePath());
-                    ProjectPreviewWizardPage.this.jvmArgumentsLabel.setText(CollectionsUtils.joinWithSpace(buildEnvironment.getJava().getJvmArguments()));
                 }
             });
         }

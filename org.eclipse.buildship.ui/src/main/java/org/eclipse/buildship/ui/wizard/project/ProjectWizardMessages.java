@@ -28,10 +28,6 @@ public final class ProjectWizardMessages extends NLS {
     public static String Title_NewGradleProjectWizardPage;
     public static String Title_NewGradleProjectPreviewWizardPage;
 
-    public static String Title_Select_0;
-
-    public static String Button_Label_Browse;
-
     public static String Label_ProjectRootDirectory;
     public static String Label_GradleUserHome;
     public static String Label_JavaHome;
@@ -43,10 +39,10 @@ public final class ProjectWizardMessages extends NLS {
     public static String Label_GradleVersion;
     public static String Label_ProjectStructure;
 
+    public static String Label_CustomLocation;
     public static String Label_ProjectName;
     public static String Label_ProjectLocation;
-    public static String Label_CustomLocation;
-    public static String Label_WorkingSets;
+    public static String Group_Label_WorkingSets;
     public static String Button_UseDefaultLocation;
 
     public static String InfoMessage_GradleWelcomeWizardPageDefault;

@@ -32,7 +32,6 @@ public final class LaunchMessages extends NLS {
     public static String Button_Label_BrowseFilesystem;
     public static String Button_Label_BrowseWorkspace;
     public static String Button_Label_SelectVariables;
-    public static String Button_Label_Browse;
 
     public static String ErrorMessage_CannotResolveExpression_0;
 

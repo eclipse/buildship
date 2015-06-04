@@ -13,7 +13,7 @@ package org.eclipse.buildship.ui.view.execution;
 
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.viewer.FilteredTree;
+import org.eclipse.buildship.ui.external.viewer.FilteredTree;
 import org.eclipse.jface.action.Action;
 
 /**

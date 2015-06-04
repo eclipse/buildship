@@ -46,19 +46,19 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
-import org.eclipse.buildship.ui.generic.ActionShowingContextMenuListener;
-import org.eclipse.buildship.ui.generic.NodeSelection;
-import org.eclipse.buildship.ui.generic.NodeSelectionProvider;
-import org.eclipse.buildship.ui.generic.SelectionHistoryManager;
-import org.eclipse.buildship.ui.generic.SelectionSpecificAction;
+import org.eclipse.buildship.ui.util.nodeselection.ActionShowingContextMenuListener;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelectionProvider;
+import org.eclipse.buildship.ui.util.nodeselection.SelectionHistoryManager;
+import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
 import org.eclipse.buildship.ui.util.color.ColorUtils;
 import org.eclipse.buildship.ui.view.BasePage;
 import org.eclipse.buildship.ui.view.CollapseTreeNodesAction;
 import org.eclipse.buildship.ui.view.ExpandTreeNodesAction;
 import org.eclipse.buildship.ui.view.MultiPageView;
 import org.eclipse.buildship.ui.view.PageSite;
-import org.eclipse.buildship.ui.viewer.FilteredTree;
-import org.eclipse.buildship.ui.viewer.ObservableMapCellWithIconLabelProvider;
+import org.eclipse.buildship.ui.view.ObservableMapCellWithIconLabelProvider;
+import org.eclipse.buildship.ui.external.viewer.FilteredTree;
 
 /**
  * Displays the tree of a single build execution.
@@ -223,8 +223,9 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         ExpandTreeNodesAction expandNodesAction = new ExpandTreeNodesAction(treeViewer);
         CollapseTreeNodesAction collapseNodesAction = new CollapseTreeNodesAction(treeViewer);
         OpenTestSourceFileAction openTestSourceFileAction = new OpenTestSourceFileAction(this);
+        RerunTestAction rerunTestAction = new RerunTestAction(this);
         ShowFailureAction showFailureAction = new ShowFailureAction(this);
-        return ImmutableList.<SelectionSpecificAction> of(expandNodesAction, collapseNodesAction, openTestSourceFileAction, showFailureAction);
+        return ImmutableList.<SelectionSpecificAction> of(expandNodesAction, collapseNodesAction, openTestSourceFileAction, rerunTestAction, showFailureAction);
     }
 
     private void registerListeners() {

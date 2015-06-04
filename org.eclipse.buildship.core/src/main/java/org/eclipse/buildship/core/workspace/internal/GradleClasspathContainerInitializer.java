@@ -78,6 +78,8 @@ import org.eclipse.buildship.core.workspace.ClasspathDefinition;
  */
 public final class GradleClasspathContainerInitializer extends ClasspathContainerInitializer {
 
+    private static final String CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL = "FROM_GRADLE_MODEL";
+
     /**
      * Looks up the {@link OmniEclipseProject} for the target project, takes all external Jar
      * dependencies and assigns them to the classpath container with id

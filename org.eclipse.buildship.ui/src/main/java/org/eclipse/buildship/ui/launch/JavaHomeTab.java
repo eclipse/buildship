@@ -18,6 +18,7 @@ import com.google.common.base.Strings;
 
 import com.gradleware.tooling.toolingutils.binding.Validator;
 
+import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -102,7 +103,7 @@ public final class JavaHomeTab extends AbstractLaunchConfigurationTab {
             }
         });
 
-        Button javaHomeBrowseButton = this.builderFactory.newButton(root).alignLeft().text(LaunchMessages.Button_Label_Browse).control();
+        Button javaHomeBrowseButton = this.builderFactory.newButton(root).alignLeft().text(UiMessages.Button_Label_Browse).control();
         javaHomeBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.javaHomeText, CoreMessages.RunConfiguration_Label_JavaHome));
     }
 
