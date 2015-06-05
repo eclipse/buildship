@@ -11,12 +11,10 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicates;
-import com.google.common.collect.FluentIterable;
 import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.event.EventListener;
 import org.eclipse.buildship.core.projectimport.ProjectCreatedEvent;
+import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
@@ -37,13 +35,8 @@ public final class WorkingSetsAddingProjectCreatedListener implements EventListe
     }
 
     private void handleProjectCreatedEvent(ProjectCreatedEvent event) {
-        final IWorkingSetManager workingSetManager = PlatformUI.getWorkbench().getWorkingSetManager();
-        IWorkingSet[] workingSets = FluentIterable.from(event.getWorkingSets()).transform(new Function<String, IWorkingSet>() {
-            @Override
-            public IWorkingSet apply(String name) {
-                return workingSetManager.getWorkingSet(name);
-            }
-        }).filter(Predicates.notNull()).toArray(IWorkingSet.class);
+        IWorkingSetManager workingSetManager = PlatformUI.getWorkbench().getWorkingSetManager();
+        IWorkingSet[] workingSets = WorkingSetUtils.toWorkingSets(event.getWorkingSets());
         workingSetManager.addToWorkingSets(event.getProject(), workingSets);
     }
 

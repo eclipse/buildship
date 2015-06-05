@@ -16,6 +16,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
+import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -84,6 +85,7 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
 
         this.workingSetConfigurationWidget = new WorkingSetConfigurationWidget(new String[] { UiPluginConstants.RESOURCE, UiPluginConstants.JAVA }, UiPlugin.getInstance().getDialogSettings());
         this.workingSetConfigurationWidget.createContent(workingSetGroup);
+        this.workingSetConfigurationWidget.setWorkingSets(WorkingSetUtils.toWorkingSets(getConfiguration().getWorkingSets().getValue()));
     }
 
     private void bindToConfiguration() {
