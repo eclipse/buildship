@@ -63,6 +63,7 @@ public class ProjectImportWizardController {
     private static final String SETTINGS_KEY_JAVA_HOME = "java_home"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_JVM_ARGUMENTS = "jvm_arguments"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_ARGUMENTS = "arguments"; //$NON-NLS-1$
+    private static final String SETTINGS_KEY_APPLY_WORKING_SETS = "apply_working_sets"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_WORKING_SETS = "working_sets"; //$NON-NLS-1$
 
     private final ProjectImportConfiguration configuration;
@@ -75,10 +76,11 @@ public class ProjectImportWizardController {
         Validator<File> javaHomeValidator = Validators.optionalDirectoryValidator(ProjectWizardMessages.Label_JavaHome);
         Validator<String> jvmArgumentsValidator = Validators.nullValidator();
         Validator<String> argumentsValidator = Validators.nullValidator();
+        Validator<Boolean> applyWorkingSetsValidator = Validators.nullValidator();
         Validator<List<String>> workingSetsValidator = Validators.nullValidator();
 
         this.configuration = new ProjectImportConfiguration(projectDirValidator, gradleDistributionValidator, gradleUserHomeValidator, javaHomeValidator,
-                jvmArgumentsValidator, argumentsValidator, workingSetsValidator);
+                jvmArgumentsValidator, argumentsValidator, applyWorkingSetsValidator, workingSetsValidator);
 
         // initialize values from the persisted dialog settings
         IDialogSettings dialogSettings = projectImportWizard.getDialogSettings();
@@ -89,6 +91,7 @@ public class ProjectImportWizardController {
         Optional<File> javaHome = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_JAVA_HOME));
         Optional<String> jvmArguments = Optional.fromNullable(Strings.emptyToNull(dialogSettings.get(SETTINGS_KEY_JVM_ARGUMENTS)));
         Optional<String> arguments = Optional.fromNullable(Strings.emptyToNull(dialogSettings.get(SETTINGS_KEY_ARGUMENTS)));
+        Optional<Boolean> applyWorkingSets = Optional.fromNullable(dialogSettings.getBoolean(SETTINGS_KEY_APPLY_WORKING_SETS));
         List<String> workingSets = ImmutableList.copyOf(CollectionsUtils.nullToEmpty(dialogSettings.getArray(SETTINGS_KEY_WORKING_SETS)));
 
         this.configuration.setProjectDir(projectDir.orNull());
@@ -97,6 +100,7 @@ public class ProjectImportWizardController {
         this.configuration.setJavaHome(javaHome.orNull());
         this.configuration.setJvmArguments(jvmArguments.orNull());
         this.configuration.setArguments(arguments.orNull());
+        this.configuration.setApplyWorkingSets(applyWorkingSets.or(Boolean.FALSE));
         this.configuration.setWorkingSets(workingSets);
 
         // store the values every time they change
@@ -106,6 +110,7 @@ public class ProjectImportWizardController {
         saveFilePropertyWhenChanged(dialogSettings, SETTINGS_KEY_JAVA_HOME, this.configuration.getJavaHome());
         saveStringPropertyWhenChanged(dialogSettings, SETTINGS_KEY_JVM_ARGUMENTS, this.configuration.getJvmArguments());
         saveStringPropertyWhenChanged(dialogSettings, SETTINGS_KEY_ARGUMENTS, this.configuration.getArguments());
+        saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_APPLY_WORKING_SETS, this.configuration.getApplyWorkingSets());
         saveStringArrayPropertyWhenChanged(dialogSettings, SETTINGS_KEY_WORKING_SETS, this.configuration.getWorkingSets());
     }
 
@@ -115,7 +120,16 @@ public class ProjectImportWizardController {
         return GradleDistributionWrapper.from(distributionType, distributionConfiguration);
     }
 
-    private void saveStringPropertyWhenChanged(final IDialogSettings settings, final String settingsKey, final Property<String> target) {
+    private void saveBooleanPropertyWhenChanged(final IDialogSettings settings, final String settingsKey, final Property<Boolean> target) {
+        target.addValidationListener(new ValidationListener() {
+
+            @Override
+            public void validationTriggered(Property<?> source, Optional<String> validationErrorMessage) {
+                settings.put(settingsKey, target.getValue());
+            }
+        });
+    }
+   private void saveStringPropertyWhenChanged(final IDialogSettings settings, final String settingsKey, final Property<String> target) {
         target.addValidationListener(new ValidationListener() {
 
             @Override

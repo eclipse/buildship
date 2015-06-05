@@ -114,6 +114,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         this.workingSetConfigurationWidget = new WorkingSetConfigurationWidget(new String[]{UiPluginConstants.RESOURCE, UiPluginConstants.JAVA}, UiPlugin.getInstance().getDialogSettings());
         this.workingSetConfigurationWidget.createContent(workingSetGroup);
         this.workingSetConfigurationWidget.setWorkingSets(WorkingSetUtils.toWorkingSets(getConfiguration().getWorkingSets().getValue()));
+        this.workingSetConfigurationWidget.getWorkingSetsEnabledButton().setSelection(getConfiguration().getApplyWorkingSets().getValue());
 
         // add listener to deal with the enabling of the widgets that are part of the location group
         this.useDefaultWorkspaceLocationButton.addSelectionListener(new TargetWidgetsInvertingSelectionListener(this.useDefaultWorkspaceLocationButton, this.customLocationCombo, customLocationBrowseButton));
@@ -145,7 +146,16 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
 
             @Override
             public void workingSetsChanged(List<IWorkingSet> workingSets) {
-                getConfiguration().setWorkingSets(toWorkingSetNames(workingSets));
+                List<String> workingSetNames = toWorkingSetNames(workingSets);
+                getConfiguration().setWorkingSets(workingSetNames);
+            }
+        });
+        this.workingSetConfigurationWidget.getWorkingSetsEnabledButton().addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                boolean selected = NewGradleProjectWizardPage.this.workingSetConfigurationWidget.getWorkingSetsEnabledButton().getSelection();
+                getConfiguration().setApplyWorkingSets(selected);
             }
         });
     }

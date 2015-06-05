@@ -22,6 +22,8 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
@@ -86,6 +88,7 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
         this.workingSetConfigurationWidget = new WorkingSetConfigurationWidget(new String[] { UiPluginConstants.RESOURCE, UiPluginConstants.JAVA }, UiPlugin.getInstance().getDialogSettings());
         this.workingSetConfigurationWidget.createContent(workingSetGroup);
         this.workingSetConfigurationWidget.setWorkingSets(WorkingSetUtils.toWorkingSets(getConfiguration().getWorkingSets().getValue()));
+        this.workingSetConfigurationWidget.getWorkingSetsEnabledButton().setSelection(getConfiguration().getApplyWorkingSets().getValue());
     }
 
     private void bindToConfiguration() {
@@ -93,14 +96,24 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
 
             @Override
             public void modifyText(ModifyEvent e) {
-                getConfiguration().setProjectDir(FileUtils.getAbsoluteFile(GradleProjectWizardPage.this.projectDirText.getText()).orNull());
+                File projectDir = FileUtils.getAbsoluteFile(GradleProjectWizardPage.this.projectDirText.getText()).orNull();
+                getConfiguration().setProjectDir(projectDir);
             }
         });
         this.workingSetConfigurationWidget.addWorkingSetChangeListener(new WorkingSetChangedListener() {
 
             @Override
             public void workingSetsChanged(List<IWorkingSet> workingSets) {
-                getConfiguration().setWorkingSets(toWorkingSetNames(workingSets));
+                List<String> workingSetNames = toWorkingSetNames(workingSets);
+                getConfiguration().setWorkingSets(workingSetNames);
+            }
+        });
+        this.workingSetConfigurationWidget.getWorkingSetsEnabledButton().addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                boolean selected = GradleProjectWizardPage.this.workingSetConfigurationWidget.getWorkingSetsEnabledButton().getSelection();
+                getConfiguration().setApplyWorkingSets(selected);
             }
         });
     }
