@@ -40,7 +40,7 @@ public final class FilterTaskSelectorsAction extends Action {
     @Override
     public void run() {
         this.taskViewer.getState().setTaskSelectorsVisible(isChecked());
-        this.taskViewer.getTreeViewer().setFilters(TaskNodeViewerFilter.createFor(this.taskViewer.getState()));
+        this.taskViewer.getTreeViewer().refresh();
     }
 
 }

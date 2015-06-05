@@ -17,6 +17,7 @@ import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -88,13 +89,14 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
         this.nonEmptyInputPage.setLayout(gridLayout);
 
         // add tree with two columns
-        this.filteredTree = new FilteredTree(this.nonEmptyInputPage, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI, new PatternFilter());
+        this.filteredTree = new FilteredTree(this.nonEmptyInputPage, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI, new PatternFilter(true));
         this.filteredTree.setShowFilterControls(false);
         this.treeViewer = this.filteredTree.getViewer();
         this.treeViewer.getControl().setLayoutData(new GridData(GridData.FILL_BOTH));
 
         // set content provider and label provider on the tree
-        TaskNodeViewerFilter.addFilter(this.state, this.treeViewer);
+        ViewerFilter taskNodeFilter = TaskNodeViewerFilter.createFor(getState());
+        this.treeViewer.addFilter(taskNodeFilter);
         this.treeViewer.setComparator(TaskNodeViewerSorter.createFor(this.state));
         this.treeViewer.setContentProvider(new TaskViewContentProvider(this, CorePlugin.modelRepositoryProvider(), CorePlugin.processStreamsProvider(), CorePlugin
                 .workspaceOperations()));

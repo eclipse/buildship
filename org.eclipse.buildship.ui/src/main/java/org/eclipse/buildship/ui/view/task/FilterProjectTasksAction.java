@@ -40,7 +40,7 @@ public final class FilterProjectTasksAction extends Action {
     @Override
     public void run() {
         this.taskViewer.getState().setProjectTasksVisible(isChecked());
-        this.taskViewer.getTreeViewer().setFilters(TaskNodeViewerFilter.createFor(this.taskViewer.getState()));
+        this.taskViewer.getTreeViewer().refresh();
     }
 
 }
