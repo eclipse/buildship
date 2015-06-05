@@ -214,7 +214,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         TreeViewer treeViewer = getPageControl().getViewer();
         MenuManager menuManager = new MenuManager();
         menuManager.setRemoveAllWhenShown(true);
-        menuManager.addMenuListener(new ActionShowingContextMenuListener(this, createContextMenuActions(treeViewer)));
+        menuManager.addMenuListener(new ActionShowingContextMenuListener(this, createContextMenuActions(treeViewer), ImmutableList.<SelectionSpecificAction>of(), ImmutableList.<SelectionSpecificAction>of()));
         Menu contextMenu = menuManager.createContextMenu(treeViewer.getTree());
         treeViewer.getTree().setMenu(contextMenu);
         pageSite.getViewSite().registerContextMenu(menuManager, treeViewer);
