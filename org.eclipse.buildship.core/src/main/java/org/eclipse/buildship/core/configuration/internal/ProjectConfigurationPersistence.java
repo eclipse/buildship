@@ -21,7 +21,6 @@ import java.util.Map;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
 import com.google.common.io.CharStreams;
-import com.google.common.io.Closeables;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -90,7 +89,6 @@ final class ProjectConfigurationPersistence {
             } else {
                 configFile.create(inputStream, true, null);
             }
-            Closeables.closeQuietly(inputStream);
         } catch (CoreException e) {
             String message = String.format("Cannot persist Gradle configuration for project %s.", workspaceProject.getName());
             CorePlugin.logger().error(message, e);
