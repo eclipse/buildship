@@ -128,8 +128,7 @@ public final class UiBuilder<T extends Control> {
             ((Combo) control).setText(text);
         } else if (control instanceof Group) {
             ((Group)control).setText(text);
-        }
-        else {
+        } else {
             throw new IllegalStateException(String.format("Cannot set text on control of type %s.", control().getClass()));
         }
 
