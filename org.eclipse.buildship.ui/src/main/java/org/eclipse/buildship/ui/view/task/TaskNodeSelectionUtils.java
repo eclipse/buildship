@@ -11,11 +11,18 @@
 
 package org.eclipse.buildship.ui.view.task;
 
+import java.util.List;
+
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
@@ -23,9 +30,6 @@ import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
-import org.eclipse.core.resources.IProject;
-
-import java.util.List;
 
 /**
  * Utility class related to the node selection in the {@link TaskView}.
@@ -112,7 +116,7 @@ public final class TaskNodeSelectionUtils {
     private static Optional<FixedRequestAttributes> getFixedRequestAttributes(ProjectNode projectNode) {
         Optional<IProject> workspaceProject = projectNode.getWorkspaceProject();
         if (workspaceProject.isPresent() && workspaceProject.get().isOpen() && GradleProjectNature.INSTANCE.isPresentOn(workspaceProject.get())) {
-            ProjectConfiguration projectConfiguration = CorePlugin.projectConfigurationManager().readProjectConfiguration(workspaceProject.get());
+            ProjectConfiguration projectConfiguration = CorePlugin.projectConfigurationManager().readProjectConfiguration(new NullProgressMonitor(), workspaceProject.get());
             return Optional.of(projectConfiguration.getRequestAttributes());
         } else {
             return Optional.absent();

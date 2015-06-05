@@ -14,12 +14,13 @@ package org.eclipse.buildship.core.configuration.internal;
 import java.io.File;
 import java.util.Map;
 
+import com.gradleware.tooling.toolingmodel.Path;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 
-import com.gradleware.tooling.toolingmodel.Path;
-
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
@@ -42,14 +43,14 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
     }
 
     @Override
-    public ImmutableSet<ProjectConfiguration> getRootProjectConfigurations() {
+    public ImmutableSet<ProjectConfiguration> getRootProjectConfigurations(IProgressMonitor monitor) {
         // collect all Gradle root project configurations in the workspace by asking each Eclipse
         // project with a Gradle nature for the Gradle root project it belongs to
         ImmutableSet.Builder<ProjectConfiguration> rootConfigurations = ImmutableSet.builder();
         for (IProject workspaceProject : this.workspaceOperations.getAllProjects()) {
             if (workspaceProject.isOpen() && GradleProjectNature.INSTANCE.isPresentOn(workspaceProject)) {
                 // calculate the root configuration to which the current configuration belongs
-                ProjectConfiguration projectConfiguration = this.projectConfigurationPersistence.readProjectConfiguration(workspaceProject);
+                ProjectConfiguration projectConfiguration = this.projectConfigurationPersistence.readProjectConfiguration(monitor, workspaceProject);
                 File rootProjectDir = projectConfiguration.getRequestAttributes().getProjectDir();
                 ProjectConfiguration rootProjectConfiguration = ProjectConfiguration.from(projectConfiguration.getRequestAttributes(), Path.from(":"), rootProjectDir);
                 rootConfigurations.add(rootProjectConfiguration);
@@ -77,12 +78,12 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
     }
 
     @Override
-    public ImmutableSet<ProjectConfiguration> getAllProjectConfigurations() {
+    public ImmutableSet<ProjectConfiguration> getAllProjectConfigurations(IProgressMonitor monitor) {
         // collect all the Gradle project configurations in the workspace
         ImmutableSet.Builder<ProjectConfiguration> allConfigurations = ImmutableSet.builder();
         for (IProject workspaceProject : this.workspaceOperations.getAllProjects()) {
             if (workspaceProject.isOpen() && GradleProjectNature.INSTANCE.isPresentOn(workspaceProject)) {
-                ProjectConfiguration projectConfiguration = this.projectConfigurationPersistence.readProjectConfiguration(workspaceProject);
+                ProjectConfiguration projectConfiguration = this.projectConfigurationPersistence.readProjectConfiguration(monitor, workspaceProject);
                 allConfigurations.add(projectConfiguration);
             }
         }
@@ -92,13 +93,13 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
     }
 
     @Override
-    public void saveProjectConfiguration(ProjectConfiguration projectConfiguration, IProject workspaceProject) {
-        this.projectConfigurationPersistence.saveProjectConfiguration(projectConfiguration, workspaceProject);
+    public void saveProjectConfiguration(IProgressMonitor monitor, ProjectConfiguration projectConfiguration, IProject workspaceProject) {
+        this.projectConfigurationPersistence.saveProjectConfiguration(monitor, projectConfiguration, workspaceProject);
     }
 
     @Override
-    public ProjectConfiguration readProjectConfiguration(IProject workspaceProject) {
-        return this.projectConfigurationPersistence.readProjectConfiguration(workspaceProject);
+    public ProjectConfiguration readProjectConfiguration(IProgressMonitor monitor, IProject workspaceProject) {
+        return this.projectConfigurationPersistence.readProjectConfiguration(monitor, workspaceProject);
     }
 
 }

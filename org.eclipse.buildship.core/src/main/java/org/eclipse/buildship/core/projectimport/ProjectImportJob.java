@@ -14,13 +14,6 @@ package org.eclipse.buildship.core.projectimport;
 import java.io.File;
 import java.util.List;
 
-import org.gradle.tooling.ProgressListener;
-
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
@@ -30,6 +23,12 @@ import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
 import com.gradleware.tooling.toolingmodel.util.Pair;
+import org.gradle.tooling.ProgressListener;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -88,7 +87,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
             OmniEclipseProject rootProject = eclipseGradleBuild.getRootEclipseProject();
             List<OmniEclipseProject> allProjects = rootProject.getAll();
             for (OmniEclipseProject project : allProjects) {
-                importProject(project, eclipseGradleBuild, new SubProgressMonitor(monitor, 50 / allProjects.size()));
+                importProject(new SubProgressMonitor(monitor, 50 / allProjects.size()), project, eclipseGradleBuild);
             }
         } finally {
             manager.endRule(workspaceRoot);
@@ -111,7 +110,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         }
     }
 
-    private void importProject(OmniEclipseProject project, OmniEclipseGradleBuild eclipseGradleBuild, IProgressMonitor monitor) {
+    private void importProject(IProgressMonitor monitor, OmniEclipseProject project, OmniEclipseGradleBuild eclipseGradleBuild) {
         monitor.beginTask("Import project " + project.getName(), 4);
         try {
             // check if an Eclipse project already exists at the location of the Gradle project to import
@@ -147,10 +146,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
 
             // persist the Gradle-specific configuration in the Eclipse project's .settings folder
             ProjectConfiguration projectConfiguration = ProjectConfiguration.from(this.fixedAttributes, project);
-            CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, workspaceProject);
-
-            // refresh the project content
-            workspaceOperations.refresh(workspaceProject, new SubProgressMonitor(monitor, 1));
+            CorePlugin.projectConfigurationManager().saveProjectConfiguration(monitor, projectConfiguration, workspaceProject);
 
             // notify the listeners that a new IProject has been created
             ProjectCreatedEvent event = new DefaultProjectCreatedEvent(workspaceProject, this.workingSets);

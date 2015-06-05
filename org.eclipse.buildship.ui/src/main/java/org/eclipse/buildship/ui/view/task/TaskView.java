@@ -16,6 +16,7 @@ import java.util.Set;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
@@ -159,7 +160,7 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
      */
     public void reload(FetchStrategy modelFetchStrategy) {
         try {
-            Set<ProjectConfiguration> rootProjectConfigs = CorePlugin.projectConfigurationManager().getRootProjectConfigurations();
+            Set<ProjectConfiguration> rootProjectConfigs = CorePlugin.projectConfigurationManager().getRootProjectConfigurations(new NullProgressMonitor());
             this.pages.showPage(rootProjectConfigs.isEmpty() ? this.emptyInputPage : this.nonEmptyInputPage);
             this.treeViewer.setInput(new TaskViewContent(rootProjectConfigs, modelFetchStrategy));
         } catch (Exception e) {
