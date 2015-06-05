@@ -225,9 +225,8 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         OpenTestSourceFileAction openTestSourceFileAction = new OpenTestSourceFileAction(this);
         ExpandTreeNodesAction expandNodesAction = new ExpandTreeNodesAction(treeViewer);
         CollapseTreeNodesAction collapseNodesAction = new CollapseTreeNodesAction(treeViewer);
-        RerunTestAction rerunTestAction = new RerunTestAction(this);
 
-        List<SelectionSpecificAction> contextMenuActions = ImmutableList.<SelectionSpecificAction>of(showFailureAction, rerunTestAction, openTestSourceFileAction, expandNodesAction, collapseNodesAction);
+        List<SelectionSpecificAction> contextMenuActions = ImmutableList.<SelectionSpecificAction>of(showFailureAction, openTestSourceFileAction, expandNodesAction, collapseNodesAction);
         List<SelectionSpecificAction> contextMenuActionsPrecededBySeparator = ImmutableList.<SelectionSpecificAction>of(openTestSourceFileAction, expandNodesAction);
         ImmutableList<SelectionSpecificAction> contextMenuActionsSucceededBySeparator = ImmutableList.of();
 
