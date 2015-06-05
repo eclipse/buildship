@@ -11,6 +11,8 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -30,7 +32,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkingSet;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
+
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
  * Enhances the {@link WorkingSetConfigurationBlock} class with {@link WorkingSetChangedListener}
@@ -75,12 +80,20 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
             }
         });
 
-        // add modification listener to the working sets combo
+        // add modification and selection change listener to the working sets combo
         this.workingSetsCombo = findWorkingSetsCombo(parent);
         this.workingSetsCombo.addModifyListener(new ModifyListener() {
 
             @Override
             public void modifyText(ModifyEvent e) {
+                fireWorkingSetChanged();
+            }
+        });
+
+        this.workingSetsCombo.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
                 fireWorkingSetChanged();
             }
         });
@@ -104,10 +117,10 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
     private Button findWorkingSetsSelectButton(Composite parent) {
         Predicate<Object> isButton = Predicates.instanceOf(Button.class);
         Predicate<Control> hasPushStyle = new Predicate<Control>() {
+
             @Override
             public boolean apply(Control control) {
                 return (control.getStyle() & SWT.PUSH) == SWT.PUSH;
-
             }
         };
         return (Button) findControl(parent, Predicates.and(isButton, hasPushStyle));
@@ -172,4 +185,26 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
         }
     }
 
+    public void modifyCurrentWorkingSetItem(IWorkingSet[] result) {
+        // this method changes the text of the currently selected label such that the target working sets are visible
+        // this is the exact behavior what happens when the working set is changed with the dialog box
+        // but because that implementation is private we can call it only via reflection
+        // TODO (donat) a possible solution would be to inline the whole class and make the update function public
+        try {
+            Field selectedWorkingSets = WorkingSetConfigurationBlock.class.getDeclaredField("selectedWorkingSets");
+            selectedWorkingSets.setAccessible(true);
+            if (result != null) {
+                selectedWorkingSets.set(this, result);
+                if (result.length > 0) {
+                    PlatformUI.getWorkbench().getWorkingSetManager().addRecentWorkingSet(result[0]);
+                }
+            }
+
+            Method updateWorkingSetSelection = WorkingSetConfigurationBlock.class.getDeclaredMethod("updateWorkingSetSelection");
+            updateWorkingSetSelection.setAccessible(true);
+            updateWorkingSetSelection.invoke(this);
+        } catch (Exception e) {
+            throw new GradlePluginsRuntimeException(e);
+        }
+    }
 }
