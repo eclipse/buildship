@@ -19,11 +19,13 @@ import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.external.viewer.FilteredTree;
 import org.eclipse.buildship.ui.i18n.UiMessages;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
+import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
 
 /**
  * Toggles the filter widget in the {@link FilteredTree}.
  */
-public final class ShowFilterAction extends Action {
+public final class ShowFilterAction extends Action implements SelectionSpecificAction {
 
     private final FilteredTree filteredTree;
 
@@ -48,6 +50,21 @@ public final class ShowFilterAction extends Action {
         } else {
             this.filteredTree.getFilterControl().setText(""); //$NON-NLS-1$
         }
+    }
+
+    @Override
+    public boolean isVisibleFor(NodeSelection selection) {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabledFor(NodeSelection selection) {
+        return true;
+    }
+
+    @Override
+    public void setEnabledFor(NodeSelection selection) {
+        setEnabled(true);
     }
 
 }
