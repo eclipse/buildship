@@ -43,6 +43,7 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
 
     private Button workingSetsEnabledButton;
     private Combo workingSetsCombo;
+    private Button workingSetsSelectButton;
 
     public WorkingSetConfigurationWidget(String[] workingSetIds, IDialogSettings settings) {
         super(workingSetIds, settings);
@@ -82,6 +83,8 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
                 fireWorkingSetChanged();
             }
         });
+
+        // this.workingSetsSelectButton = findWorkingSetsSelectButton(parent);
     }
 
     private Label findWorkingSetsLabel(Composite parent) {
@@ -95,6 +98,17 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
     private Combo findWorkingSetsCombo(Composite parent) {
         return (Combo) findControl(parent, Predicates.instanceOf(Combo.class));
     }
+
+//    private Button findWorkingSetsSelectButton(Composite parent) {
+//        Predicate<Object> objectPredicate = Predicates.instanceOf(Button.class);
+//        Predicate<Object> and = Predicates.and(objectPredicate, new Predicate<Object>() {
+//            @Override
+//            public boolean apply(Object o) {
+//                return (o instanceof Button) && ((Button) o).getText().contains("Select");
+//            }
+//        });
+//        return (Button) findControl(parent, and);
+//    }
 
     private Control findControl(Composite parent, Predicate<? super Control> predicate) {
         Control[] children = parent.getChildren();
@@ -115,6 +129,10 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
 
     public Combo getWorkingSetsCombo() {
         return this.workingSetsCombo;
+    }
+
+    public Button getWorkingSetsSelectButton() {
+        return this.workingSetsSelectButton;
     }
 
     public void addWorkingSetChangeListener(WorkingSetChangedListener workingSetListener) {
