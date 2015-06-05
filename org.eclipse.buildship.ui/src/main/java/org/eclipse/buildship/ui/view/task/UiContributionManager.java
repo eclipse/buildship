@@ -13,16 +13,6 @@ package org.eclipse.buildship.ui.view.task;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.jface.action.GroupMarker;
-import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.swt.widgets.Menu;
-
 import org.eclipse.buildship.ui.UiPluginConstants;
 import org.eclipse.buildship.ui.util.nodeselection.ActionEnablingSelectionChangedListener;
 import org.eclipse.buildship.ui.util.nodeselection.ActionShowingContextMenuListener;
@@ -31,6 +21,10 @@ import org.eclipse.buildship.ui.view.CollapseTreeNodesAction;
 import org.eclipse.buildship.ui.view.ContextActivatingViewPartListener;
 import org.eclipse.buildship.ui.view.ExpandTreeNodesAction;
 import org.eclipse.buildship.ui.view.ShowFilterAction;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.jface.action.*;
+import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.swt.widgets.Menu;
 
 /**
  * Adds UI contributions to the {@link TaskView}.
@@ -46,6 +40,8 @@ public final class UiContributionManager {
     private final TaskView taskView;
     private final ImmutableList<SelectionSpecificAction> toolBarActions;
     private final ImmutableList<SelectionSpecificAction> contextMenuActions;
+    private final ImmutableList<SelectionSpecificAction> contextMenuActionsPrecededBySeparator;
+    private final ImmutableList<SelectionSpecificAction> contextMenuActionsSucceededBySeparator;
     private final ActionEnablingSelectionChangedListener toolBarActionsSelectionChangedListener;
     private final TreeViewerSelectionChangeListener treeViewerSelectionChangeListener;
     private final TreeViewerDoubleClickListener treeViewerDoubleClickListener;
@@ -71,6 +67,8 @@ public final class UiContributionManager {
         // add selection-sensitive context menu actions
         this.contextMenuActions = ImmutableList.<SelectionSpecificAction>of(expandNodesAction, collapseNodesAction,
                 runTasksAction, runDefaultTasksAction, createRunConfigurationAction, openRunConfigurationAction, openBuildScriptAction);
+        this.contextMenuActionsPrecededBySeparator = ImmutableList.<SelectionSpecificAction>of(openBuildScriptAction);
+        this.contextMenuActionsSucceededBySeparator = ImmutableList.<SelectionSpecificAction>of(collapseNodesAction);
 
         // create listeners
         this.toolBarActionsSelectionChangedListener = new ActionEnablingSelectionChangedListener(taskView, this.toolBarActions);
@@ -120,7 +118,7 @@ public final class UiContributionManager {
         TreeViewer treeViewer = this.taskView.getTreeViewer();
         MenuManager menuManager = new MenuManager();
         menuManager.setRemoveAllWhenShown(true);
-        menuManager.addMenuListener(new ActionShowingContextMenuListener(this.taskView, this.contextMenuActions));
+        menuManager.addMenuListener(new ActionShowingContextMenuListener(this.taskView, this.contextMenuActions, this.contextMenuActionsPrecededBySeparator, this.contextMenuActionsSucceededBySeparator));
         Menu contextMenu = menuManager.createContextMenu(treeViewer.getTree());
         treeViewer.getTree().setMenu(contextMenu);
         this.taskView.getViewSite().registerContextMenu(menuManager, treeViewer);

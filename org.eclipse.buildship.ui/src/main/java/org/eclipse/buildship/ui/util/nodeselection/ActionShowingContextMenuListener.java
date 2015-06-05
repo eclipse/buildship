@@ -11,13 +11,13 @@
 
 package org.eclipse.buildship.ui.util.nodeselection;
 
-import java.util.List;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.Separator;
+
+import java.util.List;
 
 /**
  * Adds {@link SelectionSpecificAction} instances as menu items to the context menu of the provided
@@ -29,10 +29,15 @@ public final class ActionShowingContextMenuListener implements IMenuListener {
 
     private final NodeSelectionProvider selectionProvider;
     private final ImmutableList<SelectionSpecificAction> actions;
+    private final ImmutableList<? extends SelectionSpecificAction> actionsPrecededBySeparator;
+    private final ImmutableList<? extends SelectionSpecificAction> actionsSucceededBySeparator;
 
-    public ActionShowingContextMenuListener(NodeSelectionProvider selectionProvider, List<? extends SelectionSpecificAction> actions) {
+    public ActionShowingContextMenuListener(NodeSelectionProvider selectionProvider, List<? extends SelectionSpecificAction> actions,
+                                            List<? extends SelectionSpecificAction> actionsPrecededBySeparator, List<? extends SelectionSpecificAction> actionsSucceededBySeparator) {
         this.selectionProvider = Preconditions.checkNotNull(selectionProvider);
         this.actions = ImmutableList.copyOf(actions);
+        this.actionsPrecededBySeparator = ImmutableList.copyOf(actionsPrecededBySeparator);
+        this.actionsSucceededBySeparator = ImmutableList.copyOf(actionsSucceededBySeparator);
     }
 
     @Override
@@ -44,8 +49,19 @@ public final class ActionShowingContextMenuListener implements IMenuListener {
     private void handleSelection(IMenuManager manager, NodeSelection selection) {
         for (SelectionSpecificAction action : this.actions) {
             if (action.isVisibleFor(selection)) {
+                // add preceding separator if requested
+                if (this.actionsPrecededBySeparator.contains(action)) {
+                    manager.add(new Separator());
+                }
+
+                // enable / add action
                 action.setEnabledFor(selection);
                 manager.add(action);
+
+                // add succeeding separator if requested
+                if (this.actionsSucceededBySeparator.contains(action)) {
+                    manager.add(new Separator());
+                }
             }
         }
     }
