@@ -1,6 +1,6 @@
 package org.eclipse.buildship.core
 
-import spock.lang.Specification;
+import spock.lang.Specification
 
 class CorePluginTest extends Specification {
 
@@ -13,9 +13,9 @@ class CorePluginTest extends Specification {
         CorePlugin.modelRepositoryProvider() != null
         CorePlugin.workspaceOperations() != null
         CorePlugin.projectConfigurationManager() != null
+        CorePlugin.projectService() != null
         CorePlugin.processStreamsProvider() != null
         CorePlugin.gradleLaunchConfigurationManager() != null
         CorePlugin.userNotification() != null
     }
-
 }

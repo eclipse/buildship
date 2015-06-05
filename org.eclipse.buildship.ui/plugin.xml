@@ -134,6 +134,10 @@
             name="Open Gradle Build Script"
             description="Opens the Gradle build script for the selected Gradle project">
       </command>
+      <command
+            id="org.eclipse.buildship.ui.convertproject"
+            name="Convert to Gradle Project...">
+      </command>
     </extension>
 
     <!-- integration of Gradle commands -->
@@ -158,6 +162,10 @@
       <handler
             commandId="org.eclipse.buildship.ui.commands.openbuildscript"
             class="org.eclipse.buildship.ui.view.task.OpenBuildScriptHandler">
+      </handler>
+      <handler
+            class="org.eclipse.buildship.ui.wizard.project.ConvertToGradleProjectHandler"
+            commandId="org.eclipse.buildship.ui.convertproject">
       </handler>
     </extension>
 
@@ -241,4 +249,31 @@
           </adapter>
        </factory>
     </extension>
+    
+    <!-- attach menus -->
+    <extension
+          point="org.eclipse.ui.menus">
+       <menuContribution
+             allPopups="false"
+             locationURI="popup:org.eclipse.ui.projectConfigure">
+          <command
+                commandId="org.eclipse.buildship.ui.convertproject"
+                style="push">
+             <visibleWhen
+                   checkEnabled="false">
+                <and>
+                    <not>
+                       <adapt
+                             type="org.eclipse.core.resources.IProject">
+                          <test
+                                property="org.eclipse.core.resources.projectNature"
+                                value="org.eclipse.buildship.core.gradleprojectnature">
+                          </test>
+                       </adapt>
+                   </not>
+                </and>
+             </visibleWhen>
+          </command>
+       </menuContribution>
+   </extension>
 </plugin>

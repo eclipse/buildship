@@ -7,18 +7,22 @@
  *
  * Contributors:
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
+ *     Simon Scholz <simon.scholz@vogella.com> - Bug 465355
  */
 
 package org.eclipse.buildship.core.workspace;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.List;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
 
@@ -34,6 +38,20 @@ public interface WorkspaceOperations {
      * @return all projects of the workspace
      */
     ImmutableList<IProject> getAllProjects();
+
+    /**
+     * Copies a {@link File} to a given {@link IContainer}.
+     *
+     * @param progressMonitor
+     *
+     * @param file file or directory from the file system
+     * @param destContainer {@link IContainer}, where the directory or file should be added
+     * @param recursively <code>true</code> if also the contents of the directory should be copied
+     *            or <code>false</code> if not.
+     * @throws CoreException
+     * @throws FileNotFoundException
+     */
+    void copyFileToContainer(IProgressMonitor progressMonitor, File file, IContainer destContainer, boolean recursively) throws FileNotFoundException, CoreException;
 
     /**
      * Returns the workspace's project with the given name, if it exists. Open and closed projects
@@ -114,5 +132,14 @@ public interface WorkspaceOperations {
      * @param monitor the monitor to report progress on
      */
     void refresh(IProject project, IProgressMonitor monitor);
+
+    /**
+     * Adds a nature to the given {@link IProject}.
+     *
+     * @param project {@link IProject}, where the nature should be added
+     * @param natureId id of the project nature, which should be added
+     * @param monitor {@link IProgressMonitor} for monitoring progress
+     */
+    void addNature(IProject project, String natureId, IProgressMonitor monitor);
 
 }
