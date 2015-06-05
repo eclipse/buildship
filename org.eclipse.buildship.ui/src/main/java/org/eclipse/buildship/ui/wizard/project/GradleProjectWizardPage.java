@@ -16,7 +16,6 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -38,6 +37,7 @@ import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.layout.LayoutUtils;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
+import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
 
 /**
  * Page in the {@link ProjectImportWizard} specifying the Gradle root project folder to import.
@@ -105,7 +105,7 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
 
             @Override
             public void workingSetsChanged(List<IWorkingSet> workingSets) {
-                List<String> workingSetNames = toWorkingSetNames(workingSets);
+                List<String> workingSetNames = WorkingSetUtils.toWorkingSetNames(workingSets);
                 getConfiguration().setWorkingSets(workingSetNames);
             }
         });
