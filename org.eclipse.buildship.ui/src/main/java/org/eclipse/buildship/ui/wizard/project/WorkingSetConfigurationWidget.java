@@ -85,6 +85,7 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
             }
         });
 
+        // fish out the Select button
         this.workingSetsSelectButton = findWorkingSetsSelectButton(parent);
     }
 
@@ -146,6 +147,14 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
 
     public Button getWorkingSetsSelectButton() {
         return this.workingSetsSelectButton;
+    }
+
+    @Override
+    public void setWorkingSets(IWorkingSet[] workingSets) {
+        // WorkingSetConfigurationBlock chokes if it is passed an empty array
+        if (workingSets.length > 0) {
+            super.setWorkingSets(workingSets);
+        }
     }
 
     public void addWorkingSetChangeListener(WorkingSetChangedListener workingSetListener) {
