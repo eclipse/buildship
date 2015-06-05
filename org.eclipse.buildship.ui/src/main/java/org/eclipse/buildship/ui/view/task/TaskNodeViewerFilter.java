@@ -54,14 +54,12 @@ public final class TaskNodeViewerFilter extends ViewerFilter {
     }
 
     /**
-     * Adds this filter to the given {@link StructuredViewer} according to the given
-     * {@link TaskViewState}.
+     * Adds a new instance to the given {@link StructuredViewer} based on the given {@link TaskViewState}.
      * <p>
      * The arguments define all of the the criteria of the filtering that must match.
      *
      * @param state the state from which to derive the nodes to include
      * @param viewer the {@link StructuredViewer} to which the filter should be added
-     * @return the new filter instance
      */
     public static void addFilter(TaskViewState state, StructuredViewer viewer) {
         Predicate<TaskNode> predicate = createCompositeFilter(state.isProjectTasksVisible(), state.isTaskSelectorsVisible(), state.isPrivateTasksVisible());
