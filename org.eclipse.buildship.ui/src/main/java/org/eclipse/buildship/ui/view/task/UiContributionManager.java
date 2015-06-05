@@ -93,9 +93,9 @@ public final class UiContributionManager {
         manager.add(new GroupMarker(TOOLBAR_TREE_GROUP));
         manager.appendToGroup(TOOLBAR_TREE_GROUP, new ExpandTreeNodesAction(this.taskView.getTreeViewer()));
         manager.appendToGroup(TOOLBAR_TREE_GROUP, new CollapseTreeNodesAction(this.taskView.getTreeViewer()));
-        manager.appendToGroup(TOOLBAR_TREE_GROUP, new ShowFilterAction(this.taskView));
-        manager.add(new GroupMarker(TOOLBAR_MISC_GROUP));
+        manager.appendToGroup(TOOLBAR_TREE_GROUP, new ShowFilterAction(this.taskView.getFilteredTree()));
         manager.appendToGroup(TOOLBAR_TREE_GROUP, new Separator());
+        manager.add(new GroupMarker(TOOLBAR_MISC_GROUP));
         manager.appendToGroup(TOOLBAR_MISC_GROUP, new RefreshViewAction(UiPluginConstants.REFRESH_TASKVIEW_COMMAND_ID));
         manager.appendToGroup(TOOLBAR_MISC_GROUP, new ToggleLinkToSelectionAction(this.taskView));
     }

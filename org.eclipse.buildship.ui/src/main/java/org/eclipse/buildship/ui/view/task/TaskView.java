@@ -55,7 +55,6 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
     private Label errorInputPage;
     private Composite nonEmptyInputPage;
     private TreeViewer treeViewer;
-
     private FilteredTree filteredTree;
 
     @Override
@@ -126,10 +125,6 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
             }
         });
 
-        // configure and manage a label with quick search functionality
-        Label quickSearchLabel = new Label(this.nonEmptyInputPage, SWT.NONE);
-        quickSearchLabel.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, false, 1, 1));
-
         // manage the selection history as required for the task execution
         getSite().setSelectionProvider(this.treeViewer);
         this.selectionHistoryManager = new SelectionHistoryManager(this.getTreeViewer());
@@ -188,6 +183,10 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
         return this.treeViewer;
     }
 
+    public FilteredTree getFilteredTree() {
+        return this.filteredTree;
+    }
+
     @Override
     public NodeSelection getSelection() {
         return this.selectionHistoryManager.getSelectionHistory();
@@ -201,11 +200,4 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
         super.dispose();
     }
 
-    @Override
-    public Object getAdapter(Class adapter) {
-        if (FilteredTree.class.equals(adapter)) {
-            return this.filteredTree;
-        }
-        return super.getAdapter(adapter);
-    }
 }
