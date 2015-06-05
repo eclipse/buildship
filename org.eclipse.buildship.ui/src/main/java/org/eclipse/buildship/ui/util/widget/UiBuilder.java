@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
@@ -125,7 +126,10 @@ public final class UiBuilder<T extends Control> {
             ((Button) control).setText(text);
         } else if (control instanceof Combo) {
             ((Combo) control).setText(text);
-        } else {
+        } else if (control instanceof Group) {
+            ((Group)control).setText(text);
+        }
+        else {
             throw new IllegalStateException(String.format("Cannot set text on control of type %s.", control().getClass()));
         }
 
@@ -193,6 +197,19 @@ public final class UiBuilder<T extends Control> {
         }
 
         /**
+         * Creates a new checkbox which is a {@link Button} control with the {@link SWT#CHECK}
+         * style bit specified.
+         *
+         * @param parent the parent control
+         * @return the builder
+         */
+        public UiBuilder<Button> newCheckbox(Composite parent) {
+            UiBuilder<Button> builder = new UiBuilder<Button>(new Button(parent, SWT.CHECK));
+            init(builder);
+            return builder;
+        }
+
+        /**
          * Creates a new {@link Combo} control.
          *
          * @param parent the parent control
@@ -212,6 +229,18 @@ public final class UiBuilder<T extends Control> {
          */
         public UiBuilder<Tree> newTree(Composite parent) {
             UiBuilder<Tree> builder = new UiBuilder<Tree>(new Tree(parent, SWT.NONE));
+            init(builder);
+            return builder;
+        }
+
+        /**
+         * Creates a new {@link Group} control.
+         *
+         * @param parent The parent control of the result group.
+         * @return the builder
+         */
+        public UiBuilder<Group> newGroup(Composite parent) {
+            UiBuilder<Group> builder = new UiBuilder<Group>(new Group(parent, SWT.NONE));
             init(builder);
             return builder;
         }
