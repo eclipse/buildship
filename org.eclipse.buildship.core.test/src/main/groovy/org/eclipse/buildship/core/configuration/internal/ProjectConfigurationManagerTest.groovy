@@ -172,7 +172,7 @@ class ProjectConfigurationManagerTest extends Specification {
         def importConfigurationTwo = new ProjectImportConfiguration()
         importConfigurationTwo.projectDir = new File(rootDirTwo.absolutePath)
         importConfigurationTwo.gradleDistribution = GradleDistributionWrapper.from(GradleDistributionWrapper.DistributionType.VERSION, '1.12')
-        importConfigurationOne.applyWorkingSets = true
+        importConfigurationTwo.applyWorkingSets = true
         importConfigurationTwo.workingSets = []
 
         new ProjectImportJob(importConfigurationOne).runToolingApiJobInWorkspace(new NullProgressMonitor())
