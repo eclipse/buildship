@@ -65,10 +65,11 @@ public final class UiContributionManager {
         this.toolBarActions = ImmutableList.of();
 
         // add selection-sensitive context menu actions
-        this.contextMenuActions = ImmutableList.<SelectionSpecificAction>of(expandNodesAction, collapseNodesAction,
-                runTasksAction, runDefaultTasksAction, createRunConfigurationAction, openRunConfigurationAction, openBuildScriptAction);
-        this.contextMenuActionsPrecededBySeparator = ImmutableList.<SelectionSpecificAction>of(openBuildScriptAction);
-        this.contextMenuActionsSucceededBySeparator = ImmutableList.<SelectionSpecificAction>of(collapseNodesAction);
+        this.contextMenuActions = ImmutableList.<SelectionSpecificAction>of(runTasksAction, runDefaultTasksAction,
+                createRunConfigurationAction, openRunConfigurationAction,
+                openBuildScriptAction, expandNodesAction, collapseNodesAction);
+        this.contextMenuActionsPrecededBySeparator = ImmutableList.<SelectionSpecificAction>of(openBuildScriptAction, expandNodesAction);
+        this.contextMenuActionsSucceededBySeparator = ImmutableList.of();
 
         // create listeners
         this.toolBarActionsSelectionChangedListener = new ActionEnablingSelectionChangedListener(taskView, this.toolBarActions);
