@@ -40,7 +40,9 @@ import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 public final class WorkingSetConfigurationWidget extends WorkingSetConfigurationBlock {
 
     private final List<WorkingSetChangedListener> listener;
+
     private Button workingSetsEnabledButton;
+    private Combo workingSetsCombo;
 
     public WorkingSetConfigurationWidget(String[] workingSetIds, IDialogSettings settings) {
         super(workingSetIds, settings);
@@ -72,8 +74,8 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
         });
 
         // add modification listener to the working sets combo
-        Combo workingSetsCombo = findWorkingSetsCombo(parent);
-        workingSetsCombo.addModifyListener(new ModifyListener() {
+        this.workingSetsCombo = findWorkingSetsCombo(parent);
+        this.workingSetsCombo.addModifyListener(new ModifyListener() {
 
             @Override
             public void modifyText(ModifyEvent e) {
@@ -109,6 +111,10 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
 
     public Button getWorkingSetsEnabledButton() {
         return this.workingSetsEnabledButton;
+    }
+
+    public Combo getWorkingSetsCombo() {
+        return this.workingSetsCombo;
     }
 
     public void addWorkingSetChangeListener(WorkingSetChangedListener workingSetListener) {
