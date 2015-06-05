@@ -119,6 +119,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         this.workingSetConfigurationWidget.getWorkingSetsEnabledButton().setSelection(getConfiguration().getApplyWorkingSets().getValue());
         this.workingSetConfigurationWidget.getWorkingSetsCombo().setEnabled(getConfiguration().getApplyWorkingSets().getValue());
         this.workingSetConfigurationWidget.getWorkingSetsSelectButton().setEnabled(getConfiguration().getApplyWorkingSets().getValue());
+
         // add listener to deal with the enabling of the widgets that are part of the location group
         this.useDefaultWorkspaceLocationButton.addSelectionListener(new TargetWidgetsInvertingSelectionListener(this.useDefaultWorkspaceLocationButton, this.customLocationCombo, customLocationBrowseButton));
     }
