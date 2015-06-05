@@ -153,6 +153,7 @@ class ProjectImportJobTest extends Specification {
         ProjectImportConfiguration configuration = new ProjectImportConfiguration()
         configuration.gradleDistribution = GradleDistributionWrapper.from(GradleDistribution.fromBuild())
         configuration.projectDir = location
+        configuration.applyWorkingSets = true
         configuration.workingSets = []
         new ProjectImportJob(configuration)
     }
