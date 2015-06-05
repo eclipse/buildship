@@ -31,6 +31,7 @@ public final class UiMessages extends NLS {
     public static String Action_SwitchPage_Tooltip;
     public static String Action_ExpandNodes_Tooltip;
     public static String Action_CollapseNodes_Tooltip;
+    public static String Action_ShowFilter_Tooltip;
     public static String Action_CancelExecution_Tooltip;
 
     public static String Action_ShowTreeHeader_Text;

@@ -18,7 +18,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.external.viewer.FilteredTree;
-import org.eclipse.buildship.ui.view.execution.ExecutionsViewMessages;
+import org.eclipse.buildship.ui.i18n.UiMessages;
 
 /**
  * Toggles the filter widget in the {@link FilteredTree}.
@@ -31,7 +31,7 @@ public final class ShowFilterAction extends Action {
         super(null, AS_CHECK_BOX);
         this.filteredTree = Preconditions.checkNotNull(filteredTree);
 
-        setToolTipText(ExecutionsViewMessages.Action_ShowFilter_Tooltip);
+        setToolTipText(UiMessages.Action_ShowFilter_Tooltip);
         setImageDescriptor(PluginImages.FILTER_EXECUTION.withState(ImageState.ENABLED).getImageDescriptor());
         setChecked(false);
     }

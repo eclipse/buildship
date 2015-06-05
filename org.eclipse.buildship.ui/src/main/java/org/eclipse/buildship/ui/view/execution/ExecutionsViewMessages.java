@@ -37,7 +37,6 @@ public final class ExecutionsViewMessages extends NLS {
     public static String Action_RemoveAllExecutionPages_Tooltip;
     public static String Action_RerunBuild_Tooltip;
     public static String Action_SwitchToConsole_Tooltip;
-    public static String Action_ShowFilter_Tooltip;
 
     public static String Dialog_Failure_Title;
     public static String Dialog_Failure_Back_Tooltip;
