@@ -62,12 +62,15 @@ public final class UiContributionManager {
         CreateRunConfigurationAction createRunConfigurationAction = new CreateRunConfigurationAction(UiPluginConstants.OPEN_RUN_CONFIGURATION_COMMAND_ID);
         OpenRunConfigurationAction openRunConfigurationAction = new OpenRunConfigurationAction(UiPluginConstants.OPEN_RUN_CONFIGURATION_COMMAND_ID);
         OpenBuildScriptAction openBuildScriptAction = new OpenBuildScriptAction(UiPluginConstants.OPEN_BUILD_SCRIPT_COMMAND_ID);
+        ExpandTreeNodesAction expandNodesAction = new ExpandTreeNodesAction(this.taskView.getTreeViewer());
+        CollapseTreeNodesAction collapseNodesAction = new CollapseTreeNodesAction(this.taskView.getTreeViewer());
 
         // add selection-sensitive tool bar actions
         this.toolBarActions = ImmutableList.of();
 
         // add selection-sensitive context menu actions
-        this.contextMenuActions = ImmutableList.<SelectionSpecificAction> of(runTasksAction, runDefaultTasksAction, createRunConfigurationAction, openRunConfigurationAction, openBuildScriptAction);
+        this.contextMenuActions = ImmutableList.<SelectionSpecificAction>of(expandNodesAction, collapseNodesAction,
+                runTasksAction, runDefaultTasksAction, createRunConfigurationAction, openRunConfigurationAction, openBuildScriptAction);
 
         // create listeners
         this.toolBarActionsSelectionChangedListener = new ActionEnablingSelectionChangedListener(taskView, this.toolBarActions);
