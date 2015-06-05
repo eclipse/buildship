@@ -14,6 +14,7 @@ package org.eclipse.buildship.ui.view.task;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
+import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
@@ -50,6 +51,21 @@ public final class TaskNodeViewerFilter extends ViewerFilter {
     public static ViewerFilter[] createFor(TaskViewState state) {
         Predicate<TaskNode> predicate = createCompositeFilter(state.isProjectTasksVisible(), state.isTaskSelectorsVisible(), state.isPrivateTasksVisible());
         return new TaskNodeViewerFilter[] { (new TaskNodeViewerFilter(predicate)) };
+    }
+
+    /**
+     * Adds this filter to the given {@link StructuredViewer} according to the given
+     * {@link TaskViewState}.
+     * <p>
+     * The arguments define all of the the criteria of the filtering that must match.
+     *
+     * @param state the state from which to derive the nodes to include
+     * @param viewer the {@link StructuredViewer} to which the filter should be added
+     * @return the new filter instance
+     */
+    public static void addFilter(TaskViewState state, StructuredViewer viewer) {
+        Predicate<TaskNode> predicate = createCompositeFilter(state.isProjectTasksVisible(), state.isTaskSelectorsVisible(), state.isPrivateTasksVisible());
+        viewer.addFilter(new TaskNodeViewerFilter(predicate));
     }
 
     private static Predicate<TaskNode> createCompositeFilter(final boolean showProjectTasks, final boolean showTaskSelectors, final boolean showPrivateTasks) {

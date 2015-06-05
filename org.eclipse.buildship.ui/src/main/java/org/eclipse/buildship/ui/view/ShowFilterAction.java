@@ -9,24 +9,29 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.execution;
+package org.eclipse.buildship.ui.view;
+
+import com.google.common.base.Preconditions;
+
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.action.Action;
 
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.external.viewer.FilteredTree;
-import org.eclipse.jface.action.Action;
+import org.eclipse.buildship.ui.view.execution.ExecutionPage;
+import org.eclipse.buildship.ui.view.execution.ExecutionsViewMessages;
 
 /**
  * Toggles the filter widget in the {@link ExecutionPage}.
  */
 public final class ShowFilterAction extends Action {
 
-    private final ExecutionPage page;
+    private IAdaptable adaptable;
 
-    public ShowFilterAction(ExecutionPage page) {
+    public ShowFilterAction(IAdaptable adaptable) {
         super(null, AS_CHECK_BOX);
-        this.page = page;
-
+        this.adaptable = Preconditions.checkNotNull(adaptable);
         setToolTipText(ExecutionsViewMessages.Action_ShowFilter_Tooltip);
         setImageDescriptor(PluginImages.FILTER_EXECUTION.withState(ImageState.ENABLED).getImageDescriptor());
         setChecked(false);
@@ -35,15 +40,17 @@ public final class ShowFilterAction extends Action {
     @Override
     public void run() {
         // toggle filter
-        FilteredTree filteredTree = this.page.getPageControl();
-        filteredTree.setShowFilterControls(!filteredTree.isShowFilterControls());
+        FilteredTree filteredTree = (FilteredTree) this.adaptable.getAdapter(FilteredTree.class);
+        if (filteredTree != null) {
+            filteredTree.setShowFilterControls(!filteredTree.isShowFilterControls());
 
-        // if the filter has become visible set the focus on it
-        // if the filter has disappeared clear the filter text to display all nodes
-        if (filteredTree.isShowFilterControls()) {
-            filteredTree.getFilterControl().setFocus();
-        } else {
-            filteredTree.getFilterControl().setText(""); //$NON-NLS-1$
+            // if the filter has become visible set the focus on it
+            // if the filter has disappeared clear the filter text to display all nodes
+            if (filteredTree.isShowFilterControls()) {
+                filteredTree.getFilterControl().setFocus();
+            } else {
+                filteredTree.getFilterControl().setText(""); //$NON-NLS-1$
+            }
         }
     }
 
