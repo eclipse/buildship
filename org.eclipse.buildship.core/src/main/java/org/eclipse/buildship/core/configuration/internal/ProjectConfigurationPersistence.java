@@ -11,15 +11,17 @@
 
 package org.eclipse.buildship.core.configuration.internal;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.Map;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
-import com.google.common.io.CharSource;
-import com.google.common.io.Files;
+import com.google.common.io.CharStreams;
+import com.google.common.io.Closeables;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -27,6 +29,8 @@ import com.google.gson.GsonBuilder;
 import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.CorePlugin;
@@ -35,6 +39,7 @@ import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.core.runtime.CoreException;
 
 /**
  * Manages reading and writing of the Gradle-specific configuration of an Eclipse project.
@@ -49,6 +54,9 @@ final class ProjectConfigurationPersistence {
     private static final String CONNECTION_JAVA_HOME = "connection_java_home";
     private static final String CONNECTION_JVM_ARGUMENTS = "connection_jvm_arguments";
     private static final String CONNECTION_ARGUMENTS = "connection_arguments";
+
+    private static final String ECLIPSE_SETTINGS_FOLDER = ".settings";
+    private static final String GRADLE_PREFERENCES_FILE = "gradle.prefs";
 
     /**
      * Saves the given Gradle project configuration in the Eclipse project's <i>.settings</i>
@@ -75,13 +83,25 @@ final class ProjectConfigurationPersistence {
         String json = gson.toJson(config, createMapTypeToken());
 
         try {
-            File configFile = createConfigFile(workspaceProject);
-            CharSource.wrap(json).copyTo(Files.asCharSink(configFile, Charsets.UTF_8));
-        } catch (IOException e) {
+            IFile configFile = createConfigFile(workspaceProject);
+            InputStream inputStream = new ByteArrayInputStream(json.getBytes(Charsets.UTF_8));
+            if (configFile.exists()) {
+                configFile.setContents(inputStream, IFile.FORCE, null);
+            } else {
+                configFile.create(inputStream, true, null);
+            }
+            Closeables.closeQuietly(inputStream);
+        } catch (CoreException e) {
             String message = String.format("Cannot persist Gradle configuration for project %s.", workspaceProject.getName());
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
         }
+    }
+
+    private IFile createConfigFile(IProject workspaceProject) throws CoreException {
+        IFolder folder = workspaceProject.getFolder(ECLIPSE_SETTINGS_FOLDER);
+        FileUtils.ensureFolderHierarchyExists(folder);
+        return folder.getFile(GRADLE_PREFERENCES_FILE);
     }
 
     /**
@@ -93,9 +113,9 @@ final class ProjectConfigurationPersistence {
     public ProjectConfiguration readProjectConfiguration(IProject workspaceProject) {
         String json;
         try {
-            File configFile = createConfigFile(workspaceProject);
-            json = Files.toString(configFile, Charsets.UTF_8);
-        } catch (IOException e) {
+            IFile configFile = getConfigFile(workspaceProject);
+            json = CharStreams.toString(new InputStreamReader(configFile.getContents(), Charsets.UTF_8));
+        } catch (Exception e) {
             String message = String.format("Cannot read Gradle configuration for project %s.", workspaceProject.getName());
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
@@ -112,10 +132,8 @@ final class ProjectConfigurationPersistence {
         return ProjectConfiguration.from(requestAttributes, Path.from(projectConfig.get(PROJECT_PATH)), new File(projectConfig.get(PROJECT_DIR)));
     }
 
-    private File createConfigFile(IProject workspaceProject) throws IOException {
-        File file = new File(workspaceProject.getLocation().toFile(), ".settings/gradle.prefs");
-        Files.createParentDirs(file);
-        return file;
+    private IFile getConfigFile(IProject workspaceProject) throws CoreException {
+        return workspaceProject.getFolder(ECLIPSE_SETTINGS_FOLDER).getFile(GRADLE_PREFERENCES_FILE);
     }
 
     @SuppressWarnings("serial")
