@@ -197,6 +197,12 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
                 File projectDir = this.projectCreationWizard.controller.getConfiguration().getProjectDir().getValue();
                 if (projectDir != null) {
                     FileUtils.deleteRecursively(projectDir);
+
+                    // at this point the new project wizard page has a validation error because the
+                    // project location validator is triggered before the location directory is
+                    // deleted. to clear the error and re-enable the wizard finish button, the page
+                    // page completion is re-calculated and set here
+                    this.projectCreationWizard.newGradleProjectPage.setPageComplete(this.projectCreationWizard.newGradleProjectPage.isPageComplete());
                 }
             }
             this.previousPage = (IWizardPage) event.getSelectedPage();
