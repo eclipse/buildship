@@ -114,10 +114,10 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
 
     private Control findControl(Composite parent, Predicate<? super Control> predicate) {
         Control result = findControlRecursively(parent, predicate);
-        if (result == null) {
-            throw new IllegalStateException("Cannot find control under the root composite matching to the provided condition");
-        } else {
+        if (result != null) {
             return result;
+        } else {
+            throw new IllegalStateException("Cannot find control under the root composite matching to the provided condition.");
         }
     }
 
@@ -133,7 +133,6 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
                 }
             }
         }
-
         return null;
     }
 
