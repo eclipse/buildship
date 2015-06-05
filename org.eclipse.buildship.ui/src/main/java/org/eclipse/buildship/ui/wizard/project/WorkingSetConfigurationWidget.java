@@ -40,6 +40,7 @@ import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 public final class WorkingSetConfigurationWidget extends WorkingSetConfigurationBlock {
 
     private final List<WorkingSetChangedListener> listener;
+    private Button workingSetsEnabledButton;
 
     public WorkingSetConfigurationWidget(String[] workingSetIds, IDialogSettings settings) {
         super(workingSetIds, settings);
@@ -61,8 +62,8 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
         workingSetsLabel.setText(workingSetsLabel.getText().replace(":", ""));
 
         // add modification listener to the working sets checkbox
-        Button workingSetsEnabledButton = findWorkingSetsEnabledButton(parent);
-        workingSetsEnabledButton.addSelectionListener(new SelectionAdapter() {
+        this.workingSetsEnabledButton = findWorkingSetsEnabledButton(parent);
+        this.workingSetsEnabledButton.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -104,6 +105,10 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
         }
 
         throw new IllegalStateException("Cannot find control with the specified condition");
+    }
+
+    public Button getWorkingSetsEnabledButton() {
+        return this.workingSetsEnabledButton;
     }
 
     public void addWorkingSetChangeListener(WorkingSetChangedListener workingSetListener) {
