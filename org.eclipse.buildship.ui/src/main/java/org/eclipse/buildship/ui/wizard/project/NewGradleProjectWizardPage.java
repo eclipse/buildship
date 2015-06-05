@@ -11,9 +11,29 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
+import java.io.File;
+import java.util.List;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+
 import com.gradleware.tooling.toolingutils.binding.Property;
+
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IWorkingSet;
+
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.UiPluginConstants;
@@ -23,19 +43,6 @@ import org.eclipse.buildship.ui.util.layout.LayoutUtils;
 import org.eclipse.buildship.ui.util.selection.TargetWidgetsInvertingSelectionListener;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
 import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.IWorkingSet;
-
-import java.io.File;
-import java.util.List;
 
 /**
  * Page on the {@link org.eclipse.buildship.ui.wizard.project.ProjectCreationWizard} declaring the project name and project location.
@@ -79,14 +86,12 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         this.projectNameText = uiBuilderFactory.newText(projectNameComposite).alignFillHorizontal().control();
 
         // project location container
-        Group locationGroup = new Group(root, SWT.NONE);
-        locationGroup.setText(ProjectWizardMessages.Group_Label_ProjectLocation);
+        Group locationGroup = uiBuilderFactory.newGroup(root).text(ProjectWizardMessages.Group_Label_ProjectLocation).control();
         GridLayoutFactory.swtDefaults().numColumns(3).applyTo(locationGroup);
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, SWT.DEFAULT).applyTo(locationGroup);
 
         // project custom location check button to enable/disable the default workspace location
-        this.useDefaultWorkspaceLocationButton = new Button(locationGroup, SWT.CHECK);
-        this.useDefaultWorkspaceLocationButton.setText(ProjectWizardMessages.Button_UseDefaultLocation);
+        this.useDefaultWorkspaceLocationButton =  uiBuilderFactory.newCheckbox(locationGroup).text(ProjectWizardMessages.Button_UseDefaultLocation).control();
         this.useDefaultWorkspaceLocationButton.setSelection(true);
         GridDataFactory.swtDefaults().span(3, SWT.DEFAULT).applyTo(this.useDefaultWorkspaceLocationButton);
 
@@ -94,20 +99,17 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         uiBuilderFactory.newLabel(locationGroup).alignLeft().text(ProjectWizardMessages.Label_CustomLocation);
 
         // project custom location combo for typing an alternative project path, which also provides recently used paths
-        this.customLocationCombo = new Combo(locationGroup, SWT.BORDER);
-        this.customLocationCombo.setText(ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString());
+        this.customLocationCombo = uiBuilderFactory.newCombo(locationGroup).text(ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString()).control();
         this.customLocationCombo.setEnabled(!this.useDefaultWorkspaceLocationButton.getSelection());
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.customLocationCombo);
 
         // browse button for file chooser
-        Button customLocationBrowseButton = uiBuilderFactory.newButton(locationGroup).alignLeft().control();
-        customLocationBrowseButton.setText(UiMessages.Button_Label_Browse);
+        Button customLocationBrowseButton = uiBuilderFactory.newButton(locationGroup).alignLeft().text(UiMessages.Button_Label_Browse).control();
         customLocationBrowseButton.setEnabled(!this.useDefaultWorkspaceLocationButton.getSelection());
         customLocationBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.customLocationCombo, ProjectWizardMessages.Label_ProjectRootDirectory));
 
         // working set container
-        Group workingSetGroup = new Group(root, SWT.NONE);
-        workingSetGroup.setText(ProjectWizardMessages.Group_Label_WorkingSets);
+        Group workingSetGroup = uiBuilderFactory.newGroup(root).text(ProjectWizardMessages.Group_Label_WorkingSets).control();
         GridLayoutFactory.swtDefaults().applyTo(workingSetGroup);
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, SWT.DEFAULT).applyTo(workingSetGroup);
 
