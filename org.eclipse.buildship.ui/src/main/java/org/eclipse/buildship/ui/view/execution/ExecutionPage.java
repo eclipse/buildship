@@ -214,19 +214,24 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         TreeViewer treeViewer = getPageControl().getViewer();
         MenuManager menuManager = new MenuManager();
         menuManager.setRemoveAllWhenShown(true);
-        menuManager.addMenuListener(new ActionShowingContextMenuListener(this, createContextMenuActions(treeViewer), ImmutableList.<SelectionSpecificAction>of(), ImmutableList.<SelectionSpecificAction>of()));
+        menuManager.addMenuListener(createContextMenuListener(treeViewer));
         Menu contextMenu = menuManager.createContextMenu(treeViewer.getTree());
         treeViewer.getTree().setMenu(contextMenu);
         pageSite.getViewSite().registerContextMenu(menuManager, treeViewer);
     }
 
-    private List<SelectionSpecificAction> createContextMenuActions(TreeViewer treeViewer) {
+    private ActionShowingContextMenuListener createContextMenuListener(TreeViewer treeViewer) {
+        ShowFailureAction showFailureAction = new ShowFailureAction(this);
+        OpenTestSourceFileAction openTestSourceFileAction = new OpenTestSourceFileAction(this);
         ExpandTreeNodesAction expandNodesAction = new ExpandTreeNodesAction(treeViewer);
         CollapseTreeNodesAction collapseNodesAction = new CollapseTreeNodesAction(treeViewer);
-        OpenTestSourceFileAction openTestSourceFileAction = new OpenTestSourceFileAction(this);
         RerunTestAction rerunTestAction = new RerunTestAction(this);
-        ShowFailureAction showFailureAction = new ShowFailureAction(this);
-        return ImmutableList.<SelectionSpecificAction> of(expandNodesAction, collapseNodesAction, openTestSourceFileAction, rerunTestAction, showFailureAction);
+
+        List<SelectionSpecificAction> contextMenuActions = ImmutableList.<SelectionSpecificAction>of(showFailureAction, rerunTestAction, openTestSourceFileAction, expandNodesAction, collapseNodesAction);
+        List<SelectionSpecificAction> contextMenuActionsPrecededBySeparator = ImmutableList.<SelectionSpecificAction>of(openTestSourceFileAction, expandNodesAction);
+        ImmutableList<SelectionSpecificAction> contextMenuActionsSucceededBySeparator = ImmutableList.of();
+
+        return new ActionShowingContextMenuListener(this, contextMenuActions, contextMenuActionsPrecededBySeparator, contextMenuActionsSucceededBySeparator);
     }
 
     private void registerListeners() {
