@@ -14,9 +14,9 @@ package org.eclipse.buildship.ui.wizard.project;
 import java.io.File;
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingutils.binding.Property;
+
+import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -37,6 +37,7 @@ import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
 
 /**
  * Page in the {@link ProjectCreationWizard} specifying the name of the Gradle project folder to
@@ -110,7 +111,10 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
 
     @Override
     public void init(IWorkbench workbench, IStructuredSelection selection) {
-        // nothing to do
+        List<String> workingSetNames = WorkingSetUtils.getSelectedWorkingSetNames(selection);
+        if (!workingSetNames.isEmpty()) {
+            this.controller.getConfiguration().setWorkingSets(workingSetNames);
+        }
     }
 
     @Override
