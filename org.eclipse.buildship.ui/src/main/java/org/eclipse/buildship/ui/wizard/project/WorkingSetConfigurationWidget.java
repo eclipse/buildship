@@ -162,14 +162,6 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
         return this.workingSetsSelectButton;
     }
 
-    @Override
-    public void setWorkingSets(IWorkingSet[] workingSets) {
-        // WorkingSetConfigurationBlock chokes if it is passed an empty array
-        if (workingSets.length > 0) {
-            super.setWorkingSets(workingSets);
-        }
-    }
-
     public void addWorkingSetChangeListener(WorkingSetChangedListener workingSetListener) {
         this.listener.add(workingSetListener);
     }
@@ -189,7 +181,6 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
         // this method changes the text of the currently selected label such that the target working sets are visible
         // this is the exact behavior what happens when the working set is changed with the dialog box
         // but because that implementation is private we can call it only via reflection
-        // TODO (donat) a possible solution would be to inline the whole class and make the update function public
         try {
             Field selectedWorkingSets = WorkingSetConfigurationBlock.class.getDeclaredField("selectedWorkingSets");
             selectedWorkingSets.setAccessible(true);
@@ -207,4 +198,5 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
             throw new GradlePluginsRuntimeException(e);
         }
     }
+
 }
