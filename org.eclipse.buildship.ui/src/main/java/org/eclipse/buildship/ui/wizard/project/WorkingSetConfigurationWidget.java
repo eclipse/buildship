@@ -101,15 +101,15 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
     }
 
     private Button findWorkingSetsSelectButton(Composite parent) {
-        Predicate<Object> buttonClassPredicate = Predicates.instanceOf(Button.class);
-        Predicate<Control> pushStylePredicate = new Predicate<Control>() {
+        Predicate<Object> isButton = Predicates.instanceOf(Button.class);
+        Predicate<Control> hasPushStyle = new Predicate<Control>() {
             @Override
-            public boolean apply(Control c) {
-                return (c.getStyle() & SWT.PUSH) == SWT.PUSH;
+            public boolean apply(Control control) {
+                return (control.getStyle() & SWT.PUSH) == SWT.PUSH;
 
             }
         };
-        return (Button) findControl(parent, Predicates.and(buttonClassPredicate, pushStylePredicate));
+        return (Button) findControl(parent, Predicates.and(isButton, hasPushStyle));
     }
 
     private Control findControl(Composite parent, Predicate<? super Control> predicate) {
