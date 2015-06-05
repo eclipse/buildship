@@ -16,10 +16,8 @@ import java.util.List;
 import com.gradleware.tooling.toolingutils.binding.Property;
 import com.gradleware.tooling.toolingutils.binding.ValidationListener;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.google.common.collect.FluentIterable;
 
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -33,7 +31,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
@@ -233,16 +230,6 @@ public abstract class AbstractWizardPage extends WizardPage {
             }
         }
         return true;
-    }
-
-    protected List<String> toWorkingSetNames(List<IWorkingSet> workingSets) {
-        return FluentIterable.from(workingSets).transform(new Function<IWorkingSet, String>() {
-
-            @Override
-            public String apply(IWorkingSet workingSet) {
-                return workingSet.getName();
-            }
-        }).toList();
     }
 
     @Override
