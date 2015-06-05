@@ -19,6 +19,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -41,6 +42,10 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
 
     private final List<WorkingSetChangedListener> listener;
 
+    private Button workingSetsEnabledButton;
+    private Combo workingSetsCombo;
+    private Button workingSetsSelectButton;
+
     public WorkingSetConfigurationWidget(String[] workingSetIds, IDialogSettings settings) {
         super(workingSetIds, settings);
         this.listener = new CopyOnWriteArrayList<WorkingSetChangedListener>();
@@ -61,8 +66,8 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
         workingSetsLabel.setText(workingSetsLabel.getText().replace(":", ""));
 
         // add modification listener to the working sets checkbox
-        Button workingSetsEnabledButton = findWorkingSetsEnabledButton(parent);
-        workingSetsEnabledButton.addSelectionListener(new SelectionAdapter() {
+        this.workingSetsEnabledButton = findWorkingSetsEnabledButton(parent);
+        this.workingSetsEnabledButton.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -71,14 +76,16 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
         });
 
         // add modification listener to the working sets combo
-        Combo workingSetsCombo = findWorkingSetsCombo(parent);
-        workingSetsCombo.addModifyListener(new ModifyListener() {
+        this.workingSetsCombo = findWorkingSetsCombo(parent);
+        this.workingSetsCombo.addModifyListener(new ModifyListener() {
 
             @Override
             public void modifyText(ModifyEvent e) {
                 fireWorkingSetChanged();
             }
         });
+
+        this.workingSetsSelectButton = findWorkingSetsSelectButton(parent);
     }
 
     private Label findWorkingSetsLabel(Composite parent) {
@@ -93,17 +100,52 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
         return (Combo) findControl(parent, Predicates.instanceOf(Combo.class));
     }
 
+    private Button findWorkingSetsSelectButton(Composite parent) {
+        Predicate<Object> isButton = Predicates.instanceOf(Button.class);
+        Predicate<Control> hasPushStyle = new Predicate<Control>() {
+            @Override
+            public boolean apply(Control control) {
+                return (control.getStyle() & SWT.PUSH) == SWT.PUSH;
+
+            }
+        };
+        return (Button) findControl(parent, Predicates.and(isButton, hasPushStyle));
+    }
+
     private Control findControl(Composite parent, Predicate<? super Control> predicate) {
+        Control result = findControlRecursively(parent, predicate);
+        if (result != null) {
+            return result;
+        } else {
+            throw new IllegalStateException("Cannot find control under the root composite matching to the provided condition.");
+        }
+    }
+
+    private Control findControlRecursively(Composite parent, Predicate<? super Control> predicate) {
         Control[] children = parent.getChildren();
         for (Control control : children) {
             if (predicate.apply(control)) {
                 return control;
             } else if (control instanceof Composite) {
-                return findControl((Composite) control, predicate);
+                Control result = findControlRecursively((Composite) control, predicate);
+                if (result != null) {
+                    return result;
+                }
             }
         }
+        return null;
+    }
 
-        throw new IllegalStateException("Cannot find control with the specified condition");
+    public Button getWorkingSetsEnabledButton() {
+        return this.workingSetsEnabledButton;
+    }
+
+    public Combo getWorkingSetsCombo() {
+        return this.workingSetsCombo;
+    }
+
+    public Button getWorkingSetsSelectButton() {
+        return this.workingSetsSelectButton;
     }
 
     public void addWorkingSetChangeListener(WorkingSetChangedListener workingSetListener) {

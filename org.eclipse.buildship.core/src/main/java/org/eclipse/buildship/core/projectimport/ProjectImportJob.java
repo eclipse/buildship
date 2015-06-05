@@ -65,8 +65,9 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
     public ProjectImportJob(ProjectImportConfiguration configuration) {
         super("Importing Gradle project");
 
+        // extract the required data from the mutable configuration object
         this.fixedAttributes = configuration.toFixedAttributes();
-        this.workingSets = ImmutableList.copyOf(configuration.getWorkingSets().getValue());
+        this.workingSets = configuration.getApplyWorkingSets().getValue() ? ImmutableList.copyOf(configuration.getWorkingSets().getValue()) : ImmutableList.<String>of();
 
         // explicitly show a dialog with the progress while the import is in process
         setUser(true);
