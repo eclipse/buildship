@@ -184,11 +184,10 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
         try {
             Field selectedWorkingSets = WorkingSetConfigurationBlock.class.getDeclaredField("selectedWorkingSets");
             selectedWorkingSets.setAccessible(true);
-            if (result != null) {
-                selectedWorkingSets.set(this, result);
-                if (result.length > 0) {
-                    PlatformUI.getWorkbench().getWorkingSetManager().addRecentWorkingSet(result[0]);
-                }
+
+            selectedWorkingSets.set(this, result);
+            if (result.length > 0) {
+                PlatformUI.getWorkbench().getWorkingSetManager().addRecentWorkingSet(result[0]);
             }
 
             Method updateWorkingSetSelection = WorkingSetConfigurationBlock.class.getDeclaredMethod("updateWorkingSetSelection");
