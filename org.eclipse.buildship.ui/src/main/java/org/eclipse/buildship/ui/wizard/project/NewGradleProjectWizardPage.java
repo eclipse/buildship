@@ -11,9 +11,29 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
+import java.io.File;
+import java.util.List;
+
+import com.gradleware.tooling.toolingutils.binding.Property;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingutils.binding.Property;
+
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IWorkingSet;
+
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.UiPluginConstants;
@@ -23,19 +43,6 @@ import org.eclipse.buildship.ui.util.layout.LayoutUtils;
 import org.eclipse.buildship.ui.util.selection.TargetWidgetsInvertingSelectionListener;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
 import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.IWorkingSet;
-
-import java.io.File;
-import java.util.List;
 
 /**
  * Page on the {@link org.eclipse.buildship.ui.wizard.project.ProjectCreationWizard} declaring the project name and project location.
@@ -113,7 +120,10 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
 
         this.workingSetConfigurationWidget = new WorkingSetConfigurationWidget(new String[]{UiPluginConstants.RESOURCE, UiPluginConstants.JAVA}, UiPlugin.getInstance().getDialogSettings());
         this.workingSetConfigurationWidget.createContent(workingSetGroup);
-        this.workingSetConfigurationWidget.setWorkingSets(WorkingSetUtils.toWorkingSets(getConfiguration().getWorkingSets().getValue()));
+        IWorkingSet[] selectedWorkingSets = WorkingSetUtils.toWorkingSets(getConfiguration().getWorkingSets().getValue());
+        if (selectedWorkingSets.length > 0) {
+            this.workingSetConfigurationWidget.setWorkingSets(selectedWorkingSets);
+        }
 
         // add listener to deal with the enabling of the widgets that are part of the location group
         this.useDefaultWorkspaceLocationButton.addSelectionListener(new TargetWidgetsInvertingSelectionListener(this.useDefaultWorkspaceLocationButton, this.customLocationCombo, customLocationBrowseButton));
