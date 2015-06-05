@@ -11,134 +11,137 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import java.util.List;
-import java.util.Queue;
-
-import com.google.common.collect.EvictingQueue;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingutils.binding.Property;
-
-import org.eclipse.core.databinding.AggregateValidationStatus;
-import org.eclipse.core.databinding.Binding;
-import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.observable.ChangeEvent;
-import org.eclipse.core.databinding.observable.IChangeListener;
-import org.eclipse.core.databinding.observable.value.IObservableValue;
-import org.eclipse.core.databinding.observable.value.IValueChangeListener;
-import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
-import org.eclipse.core.databinding.observable.value.WritableValue;
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.UiPluginConstants;
+import org.eclipse.buildship.ui.i18n.UiMessages;
+import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
+import org.eclipse.buildship.ui.util.layout.LayoutUtils;
+import org.eclipse.buildship.ui.util.selection.TargetWidgetsInvertingSelectionListener;
+import org.eclipse.buildship.ui.util.widget.UiBuilder;
+import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jface.databinding.dialog.DialogPageSupport;
-import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport;
-import org.eclipse.jface.databinding.swt.ISWTObservableValue;
-import org.eclipse.jface.databinding.swt.WidgetProperties;
-import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.IWorkingSet;
 
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.UiPluginConstants;
-import org.eclipse.buildship.ui.i18n.UiMessages;
-import org.eclipse.buildship.ui.util.databinding.conversion.BooleanInvert;
-import org.eclipse.buildship.ui.util.databinding.dialog.MessageRestoringValidationMessageProvider;
-import org.eclipse.buildship.ui.util.databinding.observable.ProjectLocationComputedValue;
-import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
-import org.eclipse.buildship.ui.util.widget.UiBuilder;
+import java.io.File;
+import java.util.List;
 
 /**
- * First Wizard page for the new Gradle project wizard.
- *
+ * Page on the {@link org.eclipse.buildship.ui.wizard.project.ProjectCreationWizard} declaring the project name and project location.
  */
 public final class NewGradleProjectWizardPage extends AbstractWizardPage {
 
-    public static final String PROJECT_LOCATION_DIALOG_SETTING_ARRAY = "projectLocations"; //$NON-NLS-1$
-
-    private final Queue<String> locationQueue = EvictingQueue.create(10);
-
-    private DataBindingContext dbc;
+    private final Property<String> projectNameProperty;
+    private final Property<File> targetProjectDirProperty;
 
     private Text projectNameText;
-    private Button defaultWorkspaceLocationButton;
-    private Label locationLabel;
-    private Combo projectDirCombo;
-    private Button projectDirBrowseButton;
-    private AggregateValidationStatus validationStatus;
+    private Button useDefaultWorkspaceLocationButton;
+    private Combo customLocationCombo;
+    private WorkingSetConfigurationWidget workingSetConfigurationWidget;
 
-    public NewGradleProjectWizardPage(ProjectImportConfiguration configuration) {
+    public NewGradleProjectWizardPage(ProjectImportConfiguration configuration, Property<String> projectNameProperty, Property<File> targetProjectDirProperty) {
         super("NewGradleProject", ProjectWizardMessages.Title_NewGradleProjectWizardPage, ProjectWizardMessages.InfoMessage_NewGradleProjectWizardPageDefault, //$NON-NLS-1$
-                configuration, ImmutableList.<Property<?>>of(configuration.getProjectDir()));
-        setPageComplete(false);
+                configuration, ImmutableList.of(projectNameProperty, targetProjectDirProperty, configuration.getWorkingSets()));
+        this.projectNameProperty = projectNameProperty;
+        this.targetProjectDirProperty = targetProjectDirProperty;
     }
 
     @Override
     protected void createWidgets(Composite root) {
-        GridLayoutFactory.swtDefaults().numColumns(3).applyTo(root);
+        root.setLayout(LayoutUtils.newGridLayout(3));
         createContent(root);
-        bindUI();
-        createPageCompleteObservable();
+        bindToConfiguration();
     }
 
     private void createContent(Composite root) {
         UiBuilder.UiBuilderFactory uiBuilderFactory = getUiBuilderFactory();
 
-        // label and text to specify the project name
+        // project name container
         Composite projectNameComposite = new Composite(root, SWT.NONE);
         GridLayoutFactory.swtDefaults().extendedMargins(0, 0, 0, 10).numColumns(2).applyTo(projectNameComposite);
-        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, 1).applyTo(projectNameComposite);
+        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, SWT.DEFAULT).applyTo(projectNameComposite);
 
+        // project name label
         uiBuilderFactory.newLabel(projectNameComposite).alignLeft().text(ProjectWizardMessages.Label_ProjectName).control();
+
+        // project name text field
         this.projectNameText = uiBuilderFactory.newText(projectNameComposite).alignFillHorizontal().control();
 
+        // project location container
         Group locationGroup = new Group(root, SWT.NONE);
-        locationGroup.setText(ProjectWizardMessages.Label_ProjectLocation);
+        locationGroup.setText(ProjectWizardMessages.Group_Label_ProjectLocation);
         GridLayoutFactory.swtDefaults().numColumns(3).applyTo(locationGroup);
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, SWT.DEFAULT).applyTo(locationGroup);
 
-        // check button for the usage of the default workspace location
-        this.defaultWorkspaceLocationButton = new Button(locationGroup, SWT.CHECK);
-        GridDataFactory.swtDefaults().span(3, SWT.DEFAULT).applyTo(this.defaultWorkspaceLocationButton);
-        this.defaultWorkspaceLocationButton.setText(ProjectWizardMessages.Button_UseDefaultLocation);
-        this.defaultWorkspaceLocationButton.setSelection(true);
+        // project custom location check button to enable/disable the default workspace location
+        this.useDefaultWorkspaceLocationButton = new Button(locationGroup, SWT.CHECK);
+        this.useDefaultWorkspaceLocationButton.setText(ProjectWizardMessages.Button_UseDefaultLocation);
+        this.useDefaultWorkspaceLocationButton.setSelection(true);
+        GridDataFactory.swtDefaults().span(3, SWT.DEFAULT).applyTo(this.useDefaultWorkspaceLocationButton);
 
-        // project directory label
-        this.locationLabel = uiBuilderFactory.newLabel(locationGroup).alignLeft().text(ProjectWizardMessages.Label_CustomLocation).control();
+        // project custom location label
+        uiBuilderFactory.newLabel(locationGroup).alignLeft().text(ProjectWizardMessages.Label_CustomLocation);
 
-        // combo for typing an alternative project path, which also provides recently used paths
-        this.projectDirCombo = new Combo(locationGroup, SWT.BORDER);
-        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.projectDirCombo);
-        addProjectLocationSettingBehavior();
+        // project custom location combo for typing an alternative project path, which also provides recently used paths
+        this.customLocationCombo = new Combo(locationGroup, SWT.BORDER);
+        this.customLocationCombo.setText(ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString());
+        this.customLocationCombo.setEnabled(!this.useDefaultWorkspaceLocationButton.getSelection());
+        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.customLocationCombo);
 
         // browse button for file chooser
-        this.projectDirBrowseButton = uiBuilderFactory.newButton(locationGroup).alignLeft().text(UiMessages.Button_Label_Browse).control();
-        this.projectDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.projectDirCombo,
-                ProjectWizardMessages.Label_ProjectRootDirectory));
+        Button customLocationBrowseButton = uiBuilderFactory.newButton(locationGroup).alignLeft().control();
+        customLocationBrowseButton.setText(UiMessages.Button_Label_Browse);
+        customLocationBrowseButton.setEnabled(!this.useDefaultWorkspaceLocationButton.getSelection());
+        customLocationBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.customLocationCombo, ProjectWizardMessages.Label_ProjectRootDirectory));
 
-        // create workingset configuration group
+        // working set container
         Group workingSetGroup = new Group(root, SWT.NONE);
         workingSetGroup.setText(ProjectWizardMessages.Group_Label_WorkingSets);
         GridLayoutFactory.swtDefaults().applyTo(workingSetGroup);
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, SWT.DEFAULT).applyTo(workingSetGroup);
 
-        WorkingSetConfigurationWidget workingSetConfigurationWidget = new WorkingSetConfigurationWidget(
-                new String[]{UiPluginConstants.RESOURCE, UiPluginConstants.JAVA},
-                UiPlugin.getInstance().getDialogSettings());
-        workingSetConfigurationWidget.createContent(workingSetGroup);
-        workingSetConfigurationWidget.addWorkingSetChangeListener(new WorkingSetChangedListener() {
+        this.workingSetConfigurationWidget = new WorkingSetConfigurationWidget(new String[]{UiPluginConstants.RESOURCE, UiPluginConstants.JAVA}, UiPlugin.getInstance().getDialogSettings());
+        this.workingSetConfigurationWidget.createContent(workingSetGroup);
+        this.workingSetConfigurationWidget.setWorkingSets(WorkingSetUtils.toWorkingSets(getConfiguration().getWorkingSets().getValue()));
+
+        // add listener to deal with the enabling of the widgets that are part of the location group
+        this.useDefaultWorkspaceLocationButton.addSelectionListener(new TargetWidgetsInvertingSelectionListener(this.useDefaultWorkspaceLocationButton, this.customLocationCombo, customLocationBrowseButton));
+    }
+
+    private void bindToConfiguration() {
+        this.projectNameText.addModifyListener(new ModifyListener() {
+
+            @Override
+            public void modifyText(ModifyEvent e) {
+                updateLocation();
+            }
+        });
+        this.useDefaultWorkspaceLocationButton.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                updateLocation();
+            }
+        });
+        this.customLocationCombo.addModifyListener(new ModifyListener() {
+
+            @Override
+            public void modifyText(ModifyEvent e) {
+                updateLocation();
+            }
+        });
+        this.workingSetConfigurationWidget.addWorkingSetChangeListener(new WorkingSetChangedListener() {
 
             @Override
             public void workingSetsChanged(List<IWorkingSet> workingSets) {
@@ -147,112 +150,21 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         });
     }
 
-    private void addProjectLocationSettingBehavior() {
-        IDialogSettings dialogSettings = getDialogSettings();
-        String[] locations = dialogSettings.getArray(PROJECT_LOCATION_DIALOG_SETTING_ARRAY);
-        if (locations != null && locations.length > 0) {
-            this.projectDirCombo.setItems(locations);
-            this.projectDirCombo.setText(locations[0]);
-        } else {
-            IPath location = ResourcesPlugin.getWorkspace().getRoot().getLocation();
-            this.projectDirCombo.setText(location.toOSString());
-        }
-        this.projectDirCombo.addModifyListener(new ModifyListener() {
+    private void updateLocation() {
+        File parentLocation = this.useDefaultWorkspaceLocationButton.getSelection() ?
+                new File(ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString()) :
+                !Strings.isNullOrEmpty(this.customLocationCombo.getText()) ? new File(this.customLocationCombo.getText()) : null;
+        File projectDir = parentLocation != null ? new File(parentLocation, this.projectNameText.getText()) : null;
 
-            @Override
-            public void modifyText(ModifyEvent e) {
-                Combo combo = (Combo) e.getSource();
-                NewGradleProjectWizardPage.this.locationQueue.offer(combo.getText());
-            }
-        });
-    }
-
-    private void bindUI() {
-        this.dbc = new DataBindingContext();
-
-        // bind project name
-        ISWTObservableValue projectNameTarget = WidgetProperties.text(SWT.Modify).observe(this.projectNameText);
-        UpdateValueStrategy updateProjectNameStrategy = new UpdateValueStrategy();
-        updateProjectNameStrategy.setAfterGetValidator(ProjectNameValidator.INSTANCE);
-        WritableValue projectNameValue = new WritableValue("", String.class); //$NON-NLS-1$
-        Binding projectNameBinding = this.dbc.bindValue(projectNameTarget, projectNameValue, updateProjectNameStrategy, null);
-        addControlDecorationSupport(projectNameBinding);
-
-        // bind default location usage
-        ISWTObservableValue defaultLocationSelection = WidgetProperties.selection().observe(this.defaultWorkspaceLocationButton);
-
-        // bind project directory
-        ISWTObservableValue projectDirTextTarget = WidgetProperties.selection().observe(this.projectDirCombo);
-
-        // bind complete file to ProjectImportConfiguration
-        ProjectImportConfigurationProjectDirObservable projectDirConfiguration = new ProjectImportConfigurationProjectDirObservable(getConfiguration());
-        ProjectLocationComputedValue projectLocationComputedValue = new ProjectLocationComputedValue(projectNameValue, defaultLocationSelection, projectDirTextTarget);
-        UpdateValueStrategy updateProjectLocationStrategy = new UpdateValueStrategy();
-        updateProjectLocationStrategy.setBeforeSetValidator(new ProjectCustomLocationValidator(defaultLocationSelection));
-        Binding projectCustomLocationBinding = this.dbc.bindValue(projectLocationComputedValue, projectDirConfiguration, updateProjectLocationStrategy, null);
-        addControlDecorationSupport(projectCustomLocationBinding);
-
-        // bind enabled state of location configuration
-        UpdateValueStrategy booleanInvertStrategy = new UpdateValueStrategy();
-        booleanInvertStrategy.setConverter(new BooleanInvert());
-        this.dbc.bindValue(WidgetProperties.enabled().observe(this.locationLabel), defaultLocationSelection, booleanInvertStrategy, booleanInvertStrategy);
-        this.dbc.bindValue(WidgetProperties.enabled().observe(this.projectDirCombo), defaultLocationSelection, booleanInvertStrategy, booleanInvertStrategy);
-        this.dbc.bindValue(WidgetProperties.enabled().observe(this.projectDirBrowseButton), defaultLocationSelection, booleanInvertStrategy, booleanInvertStrategy);
-    }
-
-    private void addControlDecorationSupport(final Binding binding) {
-        binding.getTarget().addChangeListener(new IChangeListener() {
-
-            private boolean isControlDecorationSupportAdded;
-
-            @Override
-            public void handleChange(ChangeEvent event) {
-                if (!this.isControlDecorationSupportAdded) {
-                    this.isControlDecorationSupportAdded = true;
-                    // show validation status at the widget itself
-                    ControlDecorationSupport.create(binding, SWT.LEFT | SWT.TOP);
-                    // show validation status as Wizard message
-                    DialogPageSupport dialogPageSupport = DialogPageSupport.create(NewGradleProjectWizardPage.this, NewGradleProjectWizardPage.this.dbc);
-                    dialogPageSupport.setValidationMessageProvider(new MessageRestoringValidationMessageProvider(ProjectWizardMessages.InfoMessage_NewGradleProjectWizardPageDefault));
-                }
-            }
-        });
-    }
-
-    private void createPageCompleteObservable() {
-        this.validationStatus = new AggregateValidationStatus(this.dbc, AggregateValidationStatus.MAX_SEVERITY);
-        this.validationStatus.addValueChangeListener(new IValueChangeListener() {
-
-            @Override
-            public void handleValueChange(ValueChangeEvent event) {
-                IObservableValue observableValue = event.getObservableValue();
-                Object value = observableValue.getValue();
-                // only allow to complete this page if the status is ok
-                setPageComplete(value instanceof IStatus && ((IStatus) value).isOK());
-            }
-        });
-    }
-
-    @Override
-    public boolean isPageComplete() {
-        Object value = this.validationStatus.getValue();
-        return (value instanceof IStatus && ((IStatus) value).isOK());
+        // always update project name last to ensure project name validation errors have precedence in the UI
+        getConfiguration().getProjectDir().setValue(projectDir);
+        this.targetProjectDirProperty.setValue(projectDir);
+        this.projectNameProperty.setValue(NewGradleProjectWizardPage.this.projectNameText.getText());
     }
 
     @Override
     protected String getPageContextInformation() {
         return ProjectWizardMessages.InfoMessage_NewGradleProjectWizardPageContext;
-    }
-
-    @Override
-    public void dispose() {
-        if (this.dbc != null) {
-            this.dbc.dispose();
-        }
-        if (this.locationQueue != null && !this.locationQueue.isEmpty()) {
-            getDialogSettings().put(PROJECT_LOCATION_DIALOG_SETTING_ARRAY, this.locationQueue.toArray(new String[this.locationQueue.size()]));
-        }
-        super.dispose();
     }
 
 }

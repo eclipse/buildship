@@ -16,6 +16,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
+import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -76,7 +77,7 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
         Button projectDirBrowseButton = uiBuilderFactory.newButton(projectDirectoryComposite).alignLeft().text(UiMessages.Button_Label_Browse).control();
         projectDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.projectDirText, ProjectWizardMessages.Label_ProjectRootDirectory));
 
-        // composite for working set
+        // working set container
         Group workingSetGroup = new Group(root, SWT.NONE);
         workingSetGroup.setText(ProjectWizardMessages.Group_Label_WorkingSets);
         GridLayoutFactory.swtDefaults().applyTo(workingSetGroup);
@@ -84,6 +85,7 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
 
         this.workingSetConfigurationWidget = new WorkingSetConfigurationWidget(new String[] { UiPluginConstants.RESOURCE, UiPluginConstants.JAVA }, UiPlugin.getInstance().getDialogSettings());
         this.workingSetConfigurationWidget.createContent(workingSetGroup);
+        this.workingSetConfigurationWidget.setWorkingSets(WorkingSetUtils.toWorkingSets(getConfiguration().getWorkingSets().getValue()));
     }
 
     private void bindToConfiguration() {

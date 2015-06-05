@@ -39,11 +39,12 @@ public final class ProjectWizardMessages extends NLS {
     public static String Label_GradleVersion;
     public static String Label_ProjectStructure;
 
-    public static String Label_CustomLocation;
     public static String Label_ProjectName;
-    public static String Label_ProjectLocation;
-    public static String Group_Label_WorkingSets;
+    public static String Group_Label_ProjectLocation;
     public static String Button_UseDefaultLocation;
+    public static String Label_CustomLocation;
+    public static String Group_Label_WorkingSets;
+    public static String Message_TargetProjectDirectory;
 
     public static String InfoMessage_GradleWelcomeWizardPageDefault;
     public static String InfoMessage_GradleProjectWizardPageDefault;
@@ -60,9 +61,6 @@ public final class ProjectWizardMessages extends NLS {
 
     public static String InfoMessage_NewGradleProjectWizardPageContext;
     public static String InfoMessage_NewGradleProjectPreviewWizardPageContext;
-
-    public static String ErrorMessage_ProjectName_MustBeSpecified;
-    public static String ErrorMessage_ProjectName_AlreadyExists;
 
     static {
         // initialize resource bundle

@@ -16,6 +16,8 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
+import com.gradleware.tooling.toolingutils.binding.Property;
+
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -31,12 +33,14 @@ import org.eclipse.ui.IWorkbench;
 
 import org.eclipse.buildship.core.launch.RunGradleTasksJob;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
 
 /**
- * Page in the {@link ProjectCreationWizard} specifying the name of the Gradle project folder to create.
+ * Page in the {@link ProjectCreationWizard} specifying the name of the Gradle project folder to
+ * create.
  */
 public final class ProjectCreationWizard extends Wizard implements INewWizard, HelpContextIdProvider {
 
@@ -49,7 +53,8 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
     private static final String PROJECT_CREATION_DIALOG_SETTINGS = "org.eclipse.buildship.ui.wizard.project.creation"; //$NON-NLS-1$
 
     /**
-     * The Gradle tasks to run to initialize a new Gradle Java project, i.e. <code>gradle init --type java-library'</code>.
+     * The Gradle tasks to run to initialize a new Gradle Java project, i.e.
+     * <code>gradle init --type java-library'</code>.
      */
     private static final ImmutableList<String> GRADLE_INIT_TASK_CMD_LINE = ImmutableList.of("init", "--type", "java-library");
 
@@ -84,13 +89,14 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
         this.controller = new ProjectImportWizardController(this);
         this.pageChangeListener = new ProjectCreatingPageChangedListener(this);
 
-        // instantiate the pages and pass the configuration object that serves as the data model of the wizard
+        // instantiate the pages and pass the configuration object that serves as
+        // the data model of the wizard
         ProjectImportConfiguration configuration = this.controller.getConfiguration();
-        this.newGradleProjectPage = new NewGradleProjectWizardPage(configuration);
-        this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller,
-                ProjectWizardMessages.Title_NewGradleProjectPreviewWizardPage,
-                ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageDefault,
-                ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageContext);
+        Property<String> projectName = Property.create(Validators.uniqueWorkspaceProjectNameValidator(ProjectWizardMessages.Label_ProjectName));
+        Property<File> targetProjectDir = Property.create(Validators.onlyParentDirectoryExistsValidator(ProjectWizardMessages.Label_CustomLocation, ProjectWizardMessages.Message_TargetProjectDirectory));
+        this.newGradleProjectPage = new NewGradleProjectWizardPage(configuration, projectName, targetProjectDir);
+        this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller, ProjectWizardMessages.Title_NewGradleProjectPreviewWizardPage,
+                ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageDefault, ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageContext);
     }
 
     @Override
@@ -169,8 +175,8 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
     }
 
     /**
-     * Listens to page changes and either creates or deletes the new project depending from
-     * which page to which page the user is switching.
+     * Listens to page changes and either creates or deletes the new project depending from which
+     * page to which page the user is switching.
      */
     private static final class ProjectCreatingPageChangedListener implements IPageChangedListener {
 
@@ -203,7 +209,9 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
         File projectDir = configuration.getProjectDir().getValue();
         if (!projectDir.exists()) {
             if (projectDir.mkdir()) {
-                RunGradleTasksJob runGradleTasksJob = new RunGradleTasksJob(gradleTaskToRun, configuration.getProjectDir().getValue(), configuration.getGradleDistribution().getValue().toGradleDistribution(), configuration.getGradleUserHome().getValue(), configuration.getJavaHome().getValue(), configuration.getJvmArguments().getValue(), configuration.getArguments().getValue());
+                RunGradleTasksJob runGradleTasksJob = new RunGradleTasksJob(gradleTaskToRun, configuration.getProjectDir().getValue(), configuration.getGradleDistribution()
+                        .getValue().toGradleDistribution(), configuration.getGradleUserHome().getValue(), configuration.getJavaHome().getValue(), configuration.getJvmArguments()
+                        .getValue(), configuration.getArguments().getValue());
                 if (doImport) {
                     runGradleTasksJob.addJobChangeListener(new JobChangeAdapter() {
 

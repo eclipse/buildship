@@ -14,18 +14,19 @@ package org.eclipse.buildship.ui.wizard.project;
 import java.io.File;
 import java.util.List;
 
+import org.gradle.tooling.ProgressListener;
+
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.FutureCallback;
+
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 import com.gradleware.tooling.toolingmodel.util.Pair;
 import com.gradleware.tooling.toolingutils.binding.Property;
 import com.gradleware.tooling.toolingutils.binding.ValidationListener;
 import com.gradleware.tooling.toolingutils.binding.Validator;
-import org.gradle.tooling.ProgressListener;
-
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
-import com.google.common.util.concurrent.FutureCallback;
 
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
@@ -35,24 +36,24 @@ import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.buildship.core.util.binding.Validators;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectImportJob;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
+import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.ui.view.task.TaskView;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType;
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 import org.eclipse.buildship.ui.view.execution.ExecutionsView;
+import org.eclipse.buildship.ui.view.task.TaskView;
 
 /**
  * Controller class for the {@link ProjectImportWizard}. Contains all non-UI related calculations
  * the wizard has to perform.
  */
-public final class ProjectImportWizardController {
+public class ProjectImportWizardController {
 
     // keys to load/store project properties in the dialog setting
     private static final String SETTINGS_KEY_PROJECT_DIR = "project_location"; //$NON-NLS-1$
