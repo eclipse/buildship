@@ -112,7 +112,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
     }
 
     private void importProject(OmniEclipseProject project, OmniEclipseGradleBuild eclipseGradleBuild, IProgressMonitor monitor) {
-        monitor.beginTask("Import project " + project.getName(), 4);
+        monitor.beginTask("Import project " + project.getName(), 3);
         try {
             // check if an Eclipse project already exists at the location of the Gradle project to import
             WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations();
@@ -148,9 +148,6 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
             // persist the Gradle-specific configuration in the Eclipse project's .settings folder
             ProjectConfiguration projectConfiguration = ProjectConfiguration.from(this.fixedAttributes, project);
             CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, workspaceProject);
-
-            // refresh the project content
-            workspaceOperations.refresh(workspaceProject, new SubProgressMonitor(monitor, 1));
 
             // notify the listeners that a new IProject has been created
             ProjectCreatedEvent event = new DefaultProjectCreatedEvent(workspaceProject, this.workingSets);
