@@ -11,10 +11,7 @@
 
 package org.eclipse.buildship.core.configuration.internal;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.util.Map;
 
@@ -85,7 +82,7 @@ final class ProjectConfigurationPersistence {
             IFile configFile = createConfigFile(workspaceProject);
             InputStream inputStream = new ByteArrayInputStream(json.getBytes(Charsets.UTF_8));
             if (configFile.exists()) {
-                configFile.setContents(inputStream, IFile.FORCE, null);
+                configFile.setContents(inputStream, true, false, null);
             } else {
                 configFile.create(inputStream, true, null);
             }
@@ -112,7 +109,16 @@ final class ProjectConfigurationPersistence {
         String json;
         try {
             IFile configFile = getConfigFile(workspaceProject);
-            json = CharStreams.toString(new InputStreamReader(configFile.getContents(), Charsets.UTF_8));
+            InputStream inputStream = configFile.getContents();
+            try {
+                json = CharStreams.toString(new InputStreamReader(inputStream, Charsets.UTF_8));
+            } finally {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
         } catch (Exception e) {
             String message = String.format("Cannot read Gradle configuration for project %s.", workspaceProject.getName());
             CorePlugin.logger().error(message, e);
