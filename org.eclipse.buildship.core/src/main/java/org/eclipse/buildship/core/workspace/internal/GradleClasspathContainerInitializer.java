@@ -112,9 +112,6 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
     private void internalInitialize(IPath containerPath, IJavaProject project, IProgressMonitor monitor) throws JavaModelException {
         Optional<OmniEclipseProject> eclipseProject = findEclipseProject(project.getProject());
         if (eclipseProject.isPresent()) {
-            // refresh the project
-            CorePlugin.workspaceOperations().refresh(project.getProject(), new SubProgressMonitor(monitor, 25));
-
             // update source folders
             List<IClasspathEntry> sourceFolders = collectSourceFolders(eclipseProject.get(), project);
             updateSourceFoldersInClasspath(sourceFolders, project, new SubProgressMonitor(monitor, 25));
