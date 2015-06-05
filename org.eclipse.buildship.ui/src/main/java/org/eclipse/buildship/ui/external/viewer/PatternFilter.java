@@ -20,11 +20,12 @@ import com.ibm.icu.text.BreakIterator;
 
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.CellLabelProvider;
+import org.eclipse.jface.viewers.ColumnViewer;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
+import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.StructuredViewer;
-import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
@@ -65,23 +66,23 @@ public class PatternFilter extends ViewerFilter {
         // we don't want to optimize if we've extended the filter ... this
         // needs to be addressed in 3.4
         // https://bugs.eclipse.org/bugs/show_bug.cgi?id=186404
-        if (matcher == null && useEarlyReturnIfMatcherIsNull) {
+        if (this.matcher == null && this.useEarlyReturnIfMatcherIsNull) {
             return elements;
         }
 
-        if (!useCache) {
+        if (!this.useCache) {
             return super.filter(viewer, parent, elements);
         }
 
-        Object[] filtered = cache.get(parent);
+        Object[] filtered = this.cache.get(parent);
         if (filtered == null) {
-            Boolean foundAny = foundAnyCache.get(parent);
+            Boolean foundAny = this.foundAnyCache.get(parent);
             if (foundAny != null && !foundAny.booleanValue()) {
                 filtered = EMPTY;
             } else {
                 filtered = super.filter(viewer, parent, elements);
             }
-            cache.put(parent, filtered);
+            this.cache.put(parent, filtered);
         }
         return filtered;
     }
@@ -96,22 +97,22 @@ public class PatternFilter extends ViewerFilter {
      * @return true if any of the elements makes it through the filter.
      */
     private boolean isAnyVisible(Viewer viewer, Object parent, Object[] elements) {
-        if (matcher == null) {
+        if (this.matcher == null) {
             return true;
         }
 
-        if (!useCache) {
+        if (!this.useCache) {
             return computeAnyVisible(viewer, elements);
         }
 
-        Object[] filtered = cache.get(parent);
+        Object[] filtered = this.cache.get(parent);
         if (filtered != null) {
             return filtered.length > 0;
         }
-        Boolean foundAny = foundAnyCache.get(parent);
+        Boolean foundAny = this.foundAnyCache.get(parent);
         if (foundAny == null) {
             foundAny = computeAnyVisible(viewer, elements) ? Boolean.TRUE : Boolean.FALSE;
-            foundAnyCache.put(parent, foundAny);
+            this.foundAnyCache.put(parent, foundAny);
         }
         return foundAny.booleanValue();
     }
@@ -155,21 +156,21 @@ public class PatternFilter extends ViewerFilter {
         // these 2 strings allow the PatternFilter to be extended in
         // 3.3 - https://bugs.eclipse.org/bugs/show_bug.cgi?id=186404
         if ("org.eclipse.ui.keys.optimization.true".equals(patternString)) { //$NON-NLS-1$
-            useEarlyReturnIfMatcherIsNull = true;
+            this.useEarlyReturnIfMatcherIsNull = true;
             return;
         } else if ("org.eclipse.ui.keys.optimization.false".equals(patternString)) { //$NON-NLS-1$
-            useEarlyReturnIfMatcherIsNull = false;
+            this.useEarlyReturnIfMatcherIsNull = false;
             return;
         }
         clearCaches();
         if (patternString == null || patternString.equals("")) { //$NON-NLS-1$
-            matcher = null;
+            this.matcher = null;
         } else {
             String pattern = patternString + "*"; //$NON-NLS-1$
-            if (includeLeadingWildcard) {
+            if (this.includeLeadingWildcard) {
                 pattern = "*" + pattern; //$NON-NLS-1$
             }
-            matcher = new StringMatcher(pattern, true, false);
+            this.matcher = new StringMatcher(pattern, true, false);
         }
     }
 
@@ -178,8 +179,8 @@ public class PatternFilter extends ViewerFilter {
      * content changes.
      */
     /* package */void clearCaches() {
-        cache.clear();
-        foundAnyCache.clear();
+        this.cache.clear();
+        this.foundAnyCache.clear();
     }
 
     /**
@@ -190,10 +191,10 @@ public class PatternFilter extends ViewerFilter {
      * @return whether the string matches the pattern
      */
     private boolean match(String string) {
-        if (matcher == null) {
+        if (this.matcher == null) {
             return true;
         }
-        return matcher.match(string);
+        return this.matcher.match(string);
     }
 
     /**
@@ -255,22 +256,30 @@ public class PatternFilter extends ViewerFilter {
      * @return true if the given element's label matches the filter text
      */
     protected boolean isLeafMatch(Viewer viewer, Object element) {
-        String labelText = ((ILabelProvider) ((StructuredViewer) viewer).getLabelProvider()).getText(element);
+        IBaseLabelProvider baseLabelProvider = ((StructuredViewer) viewer).getLabelProvider();
+        String labelText = getTextFromLabelProvider(baseLabelProvider, element);
 
         if (labelText == null) {
-            // also check for CellLabelProvider, which are also ILabelProvider, e.g.,
-            // ColumnLabelProvider
-            CellLabelProvider labelProvider = null;
-            if (viewer instanceof TreeViewer) {
-                labelProvider = ((TreeViewer) viewer).getLabelProvider(0);
-            } else if (viewer instanceof TableViewer) {
-                labelProvider = ((TableViewer) viewer).getLabelProvider(0);
+            // also check for CellLabelProvider, which are also ILabelProvider,
+            // e.g., ColumnLabelProvider
+            CellLabelProvider cellLabelProvider = null;
+            if (viewer instanceof ColumnViewer) {
+                cellLabelProvider = ((ColumnViewer) viewer).getLabelProvider(0);
             }
-            if (labelProvider instanceof ILabelProvider) {
-                labelText = ((ILabelProvider) labelProvider).getText(element);
-            }
+            labelText = getTextFromLabelProvider(cellLabelProvider, element);
         }
         return wordMatches(labelText);
+    }
+
+    private String getTextFromLabelProvider(IBaseLabelProvider baseLabelProvider, Object element) {
+        String labelText = null;
+        if (baseLabelProvider instanceof ILabelProvider) {
+            labelText = ((ILabelProvider) baseLabelProvider).getText(element);
+        } else if (baseLabelProvider instanceof IStyledLabelProvider) {
+            labelText = ((IStyledLabelProvider) baseLabelProvider).getStyledText(element).getString();
+        }
+
+        return labelText;
     }
 
     /**

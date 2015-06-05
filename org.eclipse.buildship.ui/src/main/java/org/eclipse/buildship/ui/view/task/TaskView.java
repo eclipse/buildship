@@ -32,6 +32,8 @@ import org.eclipse.ui.part.ViewPart;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.ui.external.viewer.FilteredTree;
+import org.eclipse.buildship.ui.external.viewer.PatternFilter;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelectionProvider;
 import org.eclipse.buildship.ui.util.nodeselection.SelectionHistoryManager;
@@ -46,7 +48,6 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
 
     private TaskViewState state;
     private UiContributionManager uiContributionManager;
-    private QuickSearchManager quickSearchManager;
     private SelectionHistoryManager selectionHistoryManager;
 
     private PageBook pages;
@@ -54,6 +55,7 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
     private Label errorInputPage;
     private Composite nonEmptyInputPage;
     private TreeViewer treeViewer;
+    private FilteredTree filteredTree;
 
     @Override
     public void init(IViewSite site) throws PartInitException {
@@ -86,11 +88,13 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
         this.nonEmptyInputPage.setLayout(gridLayout);
 
         // add tree with two columns
-        this.treeViewer = new TreeViewer(this.nonEmptyInputPage, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+        this.filteredTree = new FilteredTree(this.nonEmptyInputPage, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI, new PatternFilter());
+        this.filteredTree.setShowFilterControls(false);
+        this.treeViewer = this.filteredTree.getViewer();
         this.treeViewer.getControl().setLayoutData(new GridData(GridData.FILL_BOTH));
 
         // set content provider and label provider on the tree
-        this.treeViewer.setFilters(TaskNodeViewerFilter.createFor(this.state));
+        TaskNodeViewerFilter.addFilter(this.state, this.treeViewer);
         this.treeViewer.setComparator(TaskNodeViewerSorter.createFor(this.state));
         this.treeViewer.setContentProvider(new TaskViewContentProvider(this, CorePlugin.modelRepositoryProvider(), CorePlugin.processStreamsProvider(), CorePlugin
                 .workspaceOperations()));
@@ -121,11 +125,6 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
             }
         });
 
-        // configure and manage a label with quick search functionality
-        Label quickSearchLabel = new Label(this.nonEmptyInputPage, SWT.NONE);
-        quickSearchLabel.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, false, 1, 1));
-        this.quickSearchManager = new QuickSearchManager(this.treeViewer.getTree(), quickSearchLabel);
-
         // manage the selection history as required for the task execution
         getSite().setSelectionProvider(this.treeViewer);
         this.selectionHistoryManager = new SelectionHistoryManager(this.getTreeViewer());
@@ -145,11 +144,6 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
      */
     public void refresh() {
         this.treeViewer.refresh(true);
-
-        // ensure the quick search is reset when the tree view is refreshed
-        // in order to avoid a stale state of the selection history
-        // (there seems to be no listener available to handle this more generically)
-        this.quickSearchManager.reset();
     }
 
     /**
@@ -189,6 +183,10 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
         return this.treeViewer;
     }
 
+    public FilteredTree getFilteredTree() {
+        return this.filteredTree;
+    }
+
     @Override
     public NodeSelection getSelection() {
         return this.selectionHistoryManager.getSelectionHistory();
@@ -197,7 +195,6 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
     @Override
     public void dispose() {
         this.state.dispose();
-        this.quickSearchManager.dispose();
         this.selectionHistoryManager.dispose();
         this.uiContributionManager.dispose();
         super.dispose();

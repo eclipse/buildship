@@ -27,7 +27,10 @@ import org.eclipse.buildship.ui.UiPluginConstants;
 import org.eclipse.buildship.ui.util.nodeselection.ActionEnablingSelectionChangedListener;
 import org.eclipse.buildship.ui.util.nodeselection.ActionShowingContextMenuListener;
 import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
+import org.eclipse.buildship.ui.view.CollapseTreeNodesAction;
 import org.eclipse.buildship.ui.view.ContextActivatingViewPartListener;
+import org.eclipse.buildship.ui.view.ExpandTreeNodesAction;
+import org.eclipse.buildship.ui.view.ShowFilterAction;
 
 /**
  * Adds UI contributions to the {@link TaskView}.
@@ -35,6 +38,7 @@ import org.eclipse.buildship.ui.view.ContextActivatingViewPartListener;
 public final class UiContributionManager {
 
     private static final String TOOLBAR_MISC_GROUP = "toolbarMiscGroup";
+    private static final String TOOLBAR_TREE_GROUP = "toolbarTreeGroup";
     private static final String MENU_SORTING_GROUP = "toolbarSortingGroup";
     private static final String MENU_FILTERING_GROUP = "menuFilteringGroup";
     private static final String MENU_MISC_GROUP = "menuMiscGroup";
@@ -86,6 +90,11 @@ public final class UiContributionManager {
 
     private void populateToolBar() {
         IToolBarManager manager = this.taskView.getViewSite().getActionBars().getToolBarManager();
+        manager.add(new GroupMarker(TOOLBAR_TREE_GROUP));
+        manager.appendToGroup(TOOLBAR_TREE_GROUP, new ExpandTreeNodesAction(this.taskView.getTreeViewer()));
+        manager.appendToGroup(TOOLBAR_TREE_GROUP, new CollapseTreeNodesAction(this.taskView.getTreeViewer()));
+        manager.appendToGroup(TOOLBAR_TREE_GROUP, new ShowFilterAction(this.taskView.getFilteredTree()));
+        manager.appendToGroup(TOOLBAR_TREE_GROUP, new Separator());
         manager.add(new GroupMarker(TOOLBAR_MISC_GROUP));
         manager.appendToGroup(TOOLBAR_MISC_GROUP, new RefreshViewAction(UiPluginConstants.REFRESH_TASKVIEW_COMMAND_ID));
         manager.appendToGroup(TOOLBAR_MISC_GROUP, new ToggleLinkToSelectionAction(this.taskView));
