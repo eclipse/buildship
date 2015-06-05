@@ -14,11 +14,11 @@ package org.eclipse.buildship.ui.view.execution;
 import java.util.List;
 import java.util.Map;
 
+import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
+
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.beans.IBeanValueProperty;
@@ -46,20 +46,21 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.ui.external.viewer.FilteredTree;
+import org.eclipse.buildship.ui.external.viewer.PatternFilter;
+import org.eclipse.buildship.ui.util.color.ColorUtils;
 import org.eclipse.buildship.ui.util.nodeselection.ActionShowingContextMenuListener;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelectionProvider;
 import org.eclipse.buildship.ui.util.nodeselection.SelectionHistoryManager;
 import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
-import org.eclipse.buildship.ui.util.color.ColorUtils;
 import org.eclipse.buildship.ui.view.BasePage;
 import org.eclipse.buildship.ui.view.CollapseTreeNodesAction;
 import org.eclipse.buildship.ui.view.ExpandTreeNodesAction;
 import org.eclipse.buildship.ui.view.MultiPageView;
-import org.eclipse.buildship.ui.view.PageSite;
 import org.eclipse.buildship.ui.view.ObservableMapCellWithIconLabelProvider;
+import org.eclipse.buildship.ui.view.PageSite;
 import org.eclipse.buildship.ui.view.ShowFilterAction;
-import org.eclipse.buildship.ui.external.viewer.FilteredTree;
 
 /**
  * Displays the tree of a single build execution.
@@ -102,7 +103,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     @Override
     public FilteredTree createPageWithResult(Composite parent) {
         // configure tree
-        FilteredTree filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, new OperationItemPatternFilter());
+        FilteredTree filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, new PatternFilter(true));
         filteredTree.setShowFilterControls(false);
         filteredTree.getViewer().getTree().setHeaderVisible(this.state.isShowTreeHeader());
 

@@ -40,7 +40,7 @@ public final class FilterPrivateTasksAction extends Action {
     @Override
     public void run() {
         this.taskViewer.getState().setPrivateTasksVisible(isChecked());
-        this.taskViewer.getTreeViewer().setFilters(TaskNodeViewerFilter.createFor(this.taskViewer.getState()));
+        this.taskViewer.getTreeViewer().refresh();
     }
 
 }
