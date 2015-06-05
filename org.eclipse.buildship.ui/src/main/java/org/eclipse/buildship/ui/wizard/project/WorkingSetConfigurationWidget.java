@@ -19,6 +19,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -84,7 +85,7 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
             }
         });
 
-        // this.workingSetsSelectButton = findWorkingSetsSelectButton(parent);
+        this.workingSetsSelectButton = findWorkingSetsSelectButton(parent);
     }
 
     private Label findWorkingSetsLabel(Composite parent) {
@@ -99,28 +100,41 @@ public final class WorkingSetConfigurationWidget extends WorkingSetConfiguration
         return (Combo) findControl(parent, Predicates.instanceOf(Combo.class));
     }
 
-//    private Button findWorkingSetsSelectButton(Composite parent) {
-//        Predicate<Object> objectPredicate = Predicates.instanceOf(Button.class);
-//        Predicate<Object> and = Predicates.and(objectPredicate, new Predicate<Object>() {
-//            @Override
-//            public boolean apply(Object o) {
-//                return (o instanceof Button) && ((Button) o).getText().contains("Select");
-//            }
-//        });
-//        return (Button) findControl(parent, and);
-//    }
+    private Button findWorkingSetsSelectButton(Composite parent) {
+        Predicate<Object> buttonClassPredicate = Predicates.instanceOf(Button.class);
+        Predicate<Control> pushStylePredicate = new Predicate<Control>() {
+            @Override
+            public boolean apply(Control c) {
+                return (c.getStyle() & SWT.PUSH) == SWT.PUSH;
+
+            }
+        };
+        return (Button) findControl(parent, Predicates.and(buttonClassPredicate, pushStylePredicate));
+    }
 
     private Control findControl(Composite parent, Predicate<? super Control> predicate) {
+        Control result = findControlRecursively(parent, predicate);
+        if (result == null) {
+            throw new IllegalStateException("Cannot find control under the root composite matching to the provided condition");
+        } else {
+            return result;
+        }
+    }
+
+    private Control findControlRecursively(Composite parent, Predicate<? super Control> predicate) {
         Control[] children = parent.getChildren();
         for (Control control : children) {
             if (predicate.apply(control)) {
                 return control;
             } else if (control instanceof Composite) {
-                return findControl((Composite) control, predicate);
+                Control result = findControlRecursively((Composite) control, predicate);
+                if (result != null) {
+                    return result;
+                }
             }
         }
 
-        throw new IllegalStateException("Cannot find control with the specified condition");
+        return null;
     }
 
     public Button getWorkingSetsEnabledButton() {
