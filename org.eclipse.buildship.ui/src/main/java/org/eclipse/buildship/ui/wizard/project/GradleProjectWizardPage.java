@@ -80,8 +80,7 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
         projectDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.projectDirText, ProjectWizardMessages.Label_ProjectRootDirectory));
 
         // working set container
-        Group workingSetGroup = new Group(root, SWT.NONE);
-        workingSetGroup.setText(ProjectWizardMessages.Group_Label_WorkingSets);
+        Group workingSetGroup = uiBuilderFactory.newGroup(root).text(ProjectWizardMessages.Group_Label_WorkingSets).control();
         GridLayoutFactory.swtDefaults().applyTo(workingSetGroup);
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, SWT.DEFAULT).applyTo(workingSetGroup);
 
