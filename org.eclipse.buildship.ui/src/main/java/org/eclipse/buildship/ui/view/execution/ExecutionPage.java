@@ -163,7 +163,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         filteredTree.getViewer().setInput(root);
 
         // listen to progress events
-        this.buildLaunchRequest.typedProgressListeners(new ExecutionProgressListener(this, root));
+        this.buildLaunchRequest.addTypedProgressListeners(new ExecutionProgressListener(this, root));
 
         // return the tree as the outermost page control
         return filteredTree;
