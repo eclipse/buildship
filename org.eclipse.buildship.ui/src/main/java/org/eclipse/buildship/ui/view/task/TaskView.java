@@ -17,7 +17,6 @@ import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
