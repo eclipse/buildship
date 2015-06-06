@@ -37,7 +37,7 @@ that are written to the output streams.
 Having colors and in-place updates of characters in the Run Console will gives us a similarly powerful output as on the command line.
 
 
-## Provide run configuration option to switch to the Console when running a build
+## ~~Provide run configuration option to switch to the Console when running a build~~
 
 ### Requested Change
 
