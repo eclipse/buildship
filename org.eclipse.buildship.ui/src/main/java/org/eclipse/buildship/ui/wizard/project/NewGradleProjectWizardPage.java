@@ -14,10 +14,10 @@ package org.eclipse.buildship.ui.wizard.project;
 import java.io.File;
 import java.util.List;
 
+import com.gradleware.tooling.toolingutils.binding.Property;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-
-import com.gradleware.tooling.toolingutils.binding.Property;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -150,7 +150,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
 
             @Override
             public void workingSetsChanged(List<IWorkingSet> workingSets) {
-                List<String> workingSetNames = toWorkingSetNames(workingSets);
+                List<String> workingSetNames = WorkingSetUtils.toWorkingSetNames(workingSets);
                 getConfiguration().setWorkingSets(workingSetNames);
             }
         });

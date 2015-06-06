@@ -11,6 +11,8 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
+import java.util.List;
+
 import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
 import org.osgi.service.prefs.BackingStoreException;
 
@@ -27,6 +29,7 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
 
 /**
  * Eclipse wizard for importing Gradle projects into the workspace.
@@ -95,7 +98,11 @@ public final class ProjectImportWizard extends Wizard implements IImportWizard, 
 
     @Override
     public void init(IWorkbench workbench, IStructuredSelection selection) {
-        // do nothing
+        List<String> workingSetNames = WorkingSetUtils.getSelectedWorkingSetNames(selection);
+        if (!workingSetNames.isEmpty()) {
+            this.controller.getConfiguration().setApplyWorkingSets(true);
+            this.controller.getConfiguration().setWorkingSets(workingSetNames);
+        }
     }
 
     @Override
