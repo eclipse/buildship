@@ -14,8 +14,6 @@ package org.eclipse.buildship.ui.wizard.project;
 import java.io.File;
 import java.util.List;
 
-import com.gradleware.tooling.toolingutils.binding.Property;
-
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -33,7 +31,6 @@ import org.eclipse.ui.IWorkbench;
 
 import org.eclipse.buildship.core.launch.RunGradleTasksJob;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
@@ -63,8 +60,9 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
     private final NewGradleProjectWizardPage newGradleProjectPage;
     private final ProjectPreviewWizardPage projectPreviewPage;
 
-    // the controller that contains the wizard logic
-    private final ProjectImportWizardController controller;
+    // the controllers that contain the wizard logic
+    private final ProjectImportWizardController importController;
+    private final ProjectCreationWizardController creationController;
     private final IPageChangedListener pageChangeListener;
 
     /**
@@ -86,17 +84,17 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
         // recent values entered by the user
         setDialogSettings(dialogSettings);
 
-        // instantiate the controller for this wizard
-        this.controller = new ProjectImportWizardController(this);
+        // instantiate the controllers for this wizard
+        this.importController = new ProjectImportWizardController(this);
+        this.creationController = new ProjectCreationWizardController(this);
         this.pageChangeListener = new ProjectCreatingPageChangedListener(this);
 
-        // instantiate the pages and pass the configuration object that serves as
-        // the data model of the wizard
-        ProjectImportConfiguration configuration = this.controller.getConfiguration();
-        Property<String> projectName = Property.create(Validators.uniqueWorkspaceProjectNameValidator(ProjectWizardMessages.Label_ProjectName));
-        Property<File> targetProjectDir = Property.create(Validators.onlyParentDirectoryExistsValidator(ProjectWizardMessages.Label_CustomLocation, ProjectWizardMessages.Message_TargetProjectDirectory));
-        this.newGradleProjectPage = new NewGradleProjectWizardPage(configuration, projectName, targetProjectDir);
-        this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller, ProjectWizardMessages.Title_NewGradleProjectPreviewWizardPage,
+        // instantiate the pages and pass the configuration objects that serve as
+        // the data models of the wizard
+        ProjectImportConfiguration importConfiguration = this.importController.getConfiguration();
+        ProjectCreationConfiguration creationConfiguration = this.creationController.getConfiguration();
+        this.newGradleProjectPage = new NewGradleProjectWizardPage(importConfiguration, creationConfiguration);
+        this.projectPreviewPage = new ProjectPreviewWizardPage(this.importController, ProjectWizardMessages.Title_NewGradleProjectPreviewWizardPage,
                 ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageDefault, ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageContext);
     }
 
@@ -113,8 +111,8 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
     public void init(IWorkbench workbench, IStructuredSelection selection) {
         List<String> workingSetNames = WorkingSetUtils.getSelectedWorkingSetNames(selection);
         if (!workingSetNames.isEmpty()) {
-            this.controller.getConfiguration().setApplyWorkingSets(true);
-            this.controller.getConfiguration().setWorkingSets(workingSetNames);
+            this.importController.getConfiguration().setApplyWorkingSets(true);
+            this.importController.getConfiguration().setWorkingSets(workingSetNames);
         }
     }
 
@@ -148,7 +146,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
         // needs to be removed
         IWizardPage currentPage = getContainer().getCurrentPage();
         if (this.projectPreviewPage.equals(currentPage)) {
-            File projectDir = ProjectCreationWizard.this.controller.getConfiguration().getProjectDir().getValue();
+            File projectDir = ProjectCreationWizard.this.importController.getConfiguration().getProjectDir().getValue();
             if (projectDir != null) {
                 FileUtils.deleteRecursively(projectDir);
             }
@@ -199,7 +197,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
                 this.projectCreationWizard.performInitNewProject(false, GRADLE_INIT_TASK_CMD_LINE);
             } else if (this.projectCreationWizard.projectPreviewPage.equals(this.previousPage) && this.projectCreationWizard.newGradleProjectPage.equals(event.getSelectedPage())) {
                 // user moved back, so we need to delete the previously created Gradle project
-                File projectDir = this.projectCreationWizard.controller.getConfiguration().getProjectDir().getValue();
+                File projectDir = this.projectCreationWizard.importController.getConfiguration().getProjectDir().getValue();
                 if (projectDir != null) {
                     FileUtils.deleteRecursively(projectDir);
 
@@ -216,7 +214,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
     }
 
     private boolean performInitNewProject(final boolean doImport, List<String> gradleTaskToRun) {
-        ProjectImportConfiguration configuration = this.controller.getConfiguration();
+        ProjectImportConfiguration configuration = this.importController.getConfiguration();
         File projectDir = configuration.getProjectDir().getValue();
         if (!projectDir.exists()) {
             if (projectDir.mkdir()) {
@@ -229,7 +227,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
                         @Override
                         public void done(IJobChangeEvent event) {
                             if (event.getResult().isOK()) {
-                                ProjectCreationWizard.this.controller.performImportProject();
+                                ProjectCreationWizard.this.importController.performImportProject();
                             }
                         }
                     });
@@ -240,7 +238,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
             }
         } else {
             if (doImport) {
-                this.controller.performImportProject();
+                this.importController.performImportProject();
             }
         }
         return true;
