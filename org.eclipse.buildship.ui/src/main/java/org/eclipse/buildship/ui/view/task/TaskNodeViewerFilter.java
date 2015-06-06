@@ -14,7 +14,6 @@ package org.eclipse.buildship.ui.view.task;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
-import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
@@ -48,30 +47,17 @@ public final class TaskNodeViewerFilter extends ViewerFilter {
      * @param state the state from which to derive the nodes to include
      * @return the new filter instance
      */
-    public static ViewerFilter[] createFor(TaskViewState state) {
-        Predicate<TaskNode> predicate = createCompositeFilter(state.isProjectTasksVisible(), state.isTaskSelectorsVisible(), state.isPrivateTasksVisible());
-        return new TaskNodeViewerFilter[] { (new TaskNodeViewerFilter(predicate)) };
+    public static ViewerFilter createFor(TaskViewState state) {
+        Predicate<TaskNode> predicate = createCompositeFilter(state);
+        return new TaskNodeViewerFilter(predicate);
     }
 
-    /**
-     * Adds a new instance to the given {@link StructuredViewer} based on the given {@link TaskViewState}.
-     * <p>
-     * The arguments define all of the the criteria of the filtering that must match.
-     *
-     * @param state the state from which to derive the nodes to include
-     * @param viewer the {@link StructuredViewer} to which the filter should be added
-     */
-    public static void addFilter(TaskViewState state, StructuredViewer viewer) {
-        Predicate<TaskNode> predicate = createCompositeFilter(state.isProjectTasksVisible(), state.isTaskSelectorsVisible(), state.isPrivateTasksVisible());
-        viewer.addFilter(new TaskNodeViewerFilter(predicate));
-    }
-
-    private static Predicate<TaskNode> createCompositeFilter(final boolean showProjectTasks, final boolean showTaskSelectors, final boolean showPrivateTasks) {
+    private static Predicate<TaskNode> createCompositeFilter(final TaskViewState state) {
         Predicate<TaskNode> projectTasks = new Predicate<TaskNode>() {
 
             @Override
             public boolean apply(TaskNode taskNode) {
-                return showProjectTasks && taskNode.getType() == TaskNode.TaskNodeType.PROJECT_TASK_NODE;
+                return state.isProjectTasksVisible() && taskNode.getType() == TaskNode.TaskNodeType.PROJECT_TASK_NODE;
             }
         };
 
@@ -79,7 +65,7 @@ public final class TaskNodeViewerFilter extends ViewerFilter {
 
             @Override
             public boolean apply(TaskNode taskNode) {
-                return showTaskSelectors && taskNode.getType() == TaskNode.TaskNodeType.TASK_SELECTOR_NODE;
+                return state.isTaskSelectorsVisible() && taskNode.getType() == TaskNode.TaskNodeType.TASK_SELECTOR_NODE;
             }
         };
 
@@ -87,7 +73,7 @@ public final class TaskNodeViewerFilter extends ViewerFilter {
 
             @Override
             public boolean apply(TaskNode taskNode) {
-                return showPrivateTasks || taskNode.isPublic();
+                return state.isPrivateTasksVisible() || taskNode.isPublic();
             }
         };
 
