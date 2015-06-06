@@ -113,6 +113,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
     public void init(IWorkbench workbench, IStructuredSelection selection) {
         List<String> workingSetNames = WorkingSetUtils.getSelectedWorkingSetNames(selection);
         if (!workingSetNames.isEmpty()) {
+            this.controller.getConfiguration().setApplyWorkingSets(true);
             this.controller.getConfiguration().setWorkingSets(workingSetNames);
         }
     }

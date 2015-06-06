@@ -51,10 +51,10 @@ public final class WorkingSetUtils {
     }
 
     /**
-     * Converts the given working {@link org.eclipse.ui.IWorkingSet} instances to WorkingSet names.
+     * Converts the given working {@link org.eclipse.ui.IWorkingSet} instances to working set names.
      *
-     * @param workingSets {@link org.eclipse.ui.IWorkingSet} instances
-     * @return a list of the workingset names
+     * @param workingSets the working sets
+     * @return the names of the working sets
      */
     public static List<String> toWorkingSetNames(List<IWorkingSet> workingSets) {
         return FluentIterable.from(workingSets).transform(new Function<IWorkingSet, String>() {
@@ -66,19 +66,31 @@ public final class WorkingSetUtils {
         }).toList();
     }
 
+    /**
+     * Returns the names of the selected {@link org.eclipse.ui.IWorkingSet} instances.
+     *
+     * @param selection the selection
+     * @return the names of the selected working sets
+     */
     public static List<String> getSelectedWorkingSetNames(IStructuredSelection selection) {
         List<IWorkingSet> selectedWorkingSets = getSelectedWorkingSets(selection);
         return toWorkingSetNames(selectedWorkingSets);
     }
 
+    /**
+     * Returns the selected {@link org.eclipse.ui.IWorkingSet} instances.
+     *
+     * @param selection the selection
+     * @return the selected working sets
+     */
     public static List<IWorkingSet> getSelectedWorkingSets(IStructuredSelection selection) {
         if (!(selection instanceof ITreeSelection)) {
-            return ImmutableList.<IWorkingSet> of();
+            return ImmutableList.of();
         }
 
         ITreeSelection treeSelection = (ITreeSelection) selection;
         if (treeSelection.isEmpty()) {
-            return ImmutableList.<IWorkingSet> of();
+            return ImmutableList.of();
         }
 
         List<?> elements = treeSelection.toList();
@@ -86,25 +98,26 @@ public final class WorkingSetUtils {
             Object element = elements.get(0);
             TreePath[] paths = treeSelection.getPathsFor(element);
             if (paths.length != 1) {
-                return ImmutableList.<IWorkingSet> of();
+                return ImmutableList.of();
             }
 
             TreePath path = paths[0];
             if (path.getSegmentCount() == 0) {
-                return ImmutableList.<IWorkingSet> of();
+                return ImmutableList.of();
             }
 
             Object candidate = path.getSegment(0);
             if (!(candidate instanceof IWorkingSet)) {
-                return ImmutableList.<IWorkingSet> of();
+                return ImmutableList.of();
             }
 
             IWorkingSet workingSetCandidate = (IWorkingSet) candidate;
-            return ImmutableList.<IWorkingSet> of(workingSetCandidate);
+            return ImmutableList.of(workingSetCandidate);
+        } else {
+            @SuppressWarnings("unchecked")
+            List<IWorkingSet> workingSets = (List<IWorkingSet>) FluentIterable.from(elements).filter(Predicates.instanceOf(IWorkingSet.class)).toList();
+            return workingSets;
         }
-
-        ImmutableList<?> result = FluentIterable.from(elements).filter(Predicates.instanceOf(IWorkingSet.class)).toList();
-        return (List<IWorkingSet>) result;
     }
 
 }
