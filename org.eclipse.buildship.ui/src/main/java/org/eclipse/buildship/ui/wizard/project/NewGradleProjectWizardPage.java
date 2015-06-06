@@ -14,8 +14,6 @@ package org.eclipse.buildship.ui.wizard.project;
 import java.io.File;
 import java.util.List;
 
-import com.gradleware.tooling.toolingutils.binding.Property;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
@@ -49,19 +47,17 @@ import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
  */
 public final class NewGradleProjectWizardPage extends AbstractWizardPage {
 
-    private final Property<String> projectNameProperty;
-    private final Property<File> targetProjectDirProperty;
+    private final ProjectCreationConfiguration creationConfiguration;
 
     private Text projectNameText;
     private Button useDefaultWorkspaceLocationButton;
     private Combo customLocationCombo;
     private WorkingSetConfigurationWidget workingSetConfigurationWidget;
 
-    public NewGradleProjectWizardPage(ProjectImportConfiguration configuration, Property<String> projectNameProperty, Property<File> targetProjectDirProperty) {
+    public NewGradleProjectWizardPage(ProjectImportConfiguration importConfiguration, ProjectCreationConfiguration creationConfiguration) {
         super("NewGradleProject", ProjectWizardMessages.Title_NewGradleProjectWizardPage, ProjectWizardMessages.InfoMessage_NewGradleProjectWizardPageDefault, //$NON-NLS-1$
-                configuration, ImmutableList.of(projectNameProperty, targetProjectDirProperty, configuration.getWorkingSets()));
-        this.projectNameProperty = projectNameProperty;
-        this.targetProjectDirProperty = targetProjectDirProperty;
+                importConfiguration, ImmutableList.of(creationConfiguration.getProjectName(), creationConfiguration.getTargetProjectDir(), importConfiguration.getWorkingSets()));
+        this.creationConfiguration = creationConfiguration;
     }
 
     @Override
@@ -91,8 +87,8 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, SWT.DEFAULT).applyTo(locationGroup);
 
         // project custom location check button to enable/disable the default workspace location
-        this.useDefaultWorkspaceLocationButton =  uiBuilderFactory.newCheckbox(locationGroup).text(ProjectWizardMessages.Button_UseDefaultLocation).control();
-        this.useDefaultWorkspaceLocationButton.setSelection(true);
+        this.useDefaultWorkspaceLocationButton = uiBuilderFactory.newCheckbox(locationGroup).text(ProjectWizardMessages.Button_UseDefaultLocation).control();
+        this.useDefaultWorkspaceLocationButton.setSelection(this.creationConfiguration.getUseDefaultLocation().getValue());
         GridDataFactory.swtDefaults().span(3, SWT.DEFAULT).applyTo(this.useDefaultWorkspaceLocationButton);
 
         // project custom location label
@@ -172,8 +168,9 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
 
         // always update project name last to ensure project name validation errors have precedence in the UI
         getConfiguration().getProjectDir().setValue(projectDir);
-        this.targetProjectDirProperty.setValue(projectDir);
-        this.projectNameProperty.setValue(NewGradleProjectWizardPage.this.projectNameText.getText());
+        this.creationConfiguration.setTargetProjectDir(projectDir);
+        this.creationConfiguration.setUseDefaultLocation(this.useDefaultWorkspaceLocationButton.getSelection());
+        this.creationConfiguration.setProjectName(this.projectNameText.getText());
     }
 
     @Override
