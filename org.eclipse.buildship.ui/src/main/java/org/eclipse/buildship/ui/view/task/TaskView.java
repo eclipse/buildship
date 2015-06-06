@@ -94,9 +94,8 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
         this.treeViewer = this.filteredTree.getViewer();
         this.treeViewer.getControl().setLayoutData(new GridData(GridData.FILL_BOTH));
 
-        // set content provider and label provider on the tree
-        ViewerFilter taskNodeFilter = TaskNodeViewerFilter.createFor(getState());
-        this.treeViewer.addFilter(taskNodeFilter);
+        // set filter, comparator, content provider, and label provider on the tree
+        this.treeViewer.addFilter(TaskNodeViewerFilter.createFor(getState()));
         this.treeViewer.setComparator(TaskNodeViewerSorter.createFor(this.state));
         this.treeViewer.setContentProvider(new TaskViewContentProvider(this, CorePlugin.modelRepositoryProvider(), CorePlugin.processStreamsProvider(), CorePlugin
                 .workspaceOperations()));
