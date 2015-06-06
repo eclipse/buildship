@@ -21,11 +21,13 @@ import com.ibm.icu.text.BreakIterator;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewer;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.StructuredViewer;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
@@ -60,6 +62,14 @@ public class PatternFilter extends ViewerFilter {
     private boolean useEarlyReturnIfMatcherIsNull = true;
 
     private static Object[] EMPTY = new Object[0];
+
+    public PatternFilter() {
+        this(false);
+    }
+
+    public PatternFilter(boolean includeLeadingWildcard) {
+        setIncludeLeadingWildcard(includeLeadingWildcard);
+    }
 
     @Override
     public final Object[] filter(Viewer viewer, Object parent, Object[] elements) {
@@ -256,27 +266,36 @@ public class PatternFilter extends ViewerFilter {
      * @return true if the given element's label matches the filter text
      */
     protected boolean isLeafMatch(Viewer viewer, Object element) {
-        IBaseLabelProvider baseLabelProvider = ((StructuredViewer) viewer).getLabelProvider();
-        String labelText = getTextFromLabelProvider(baseLabelProvider, element);
+        // check for CellLabelProvider, which are also ILabelProvider,
+        // e.g., ColumnLabelProvider
+        CellLabelProvider cellLabelProvider = null;
+        if (viewer instanceof ColumnViewer) {
+            cellLabelProvider = ((ColumnViewer) viewer).getLabelProvider(0);
+        }
+        String labelText = getTextFromLabelProvider(cellLabelProvider, element);
 
         if (labelText == null) {
-            // also check for CellLabelProvider, which are also ILabelProvider,
-            // e.g., ColumnLabelProvider
-            CellLabelProvider cellLabelProvider = null;
-            if (viewer instanceof ColumnViewer) {
-                cellLabelProvider = ((ColumnViewer) viewer).getLabelProvider(0);
-            }
-            labelText = getTextFromLabelProvider(cellLabelProvider, element);
+            IBaseLabelProvider baseLabelProvider = ((StructuredViewer) viewer).getLabelProvider();
+            labelText = getTextFromLabelProvider(baseLabelProvider, element);
         }
         return wordMatches(labelText);
     }
 
     private String getTextFromLabelProvider(IBaseLabelProvider baseLabelProvider, Object element) {
+        if (baseLabelProvider == null) {
+            return null;
+        }
         String labelText = null;
         if (baseLabelProvider instanceof ILabelProvider) {
             labelText = ((ILabelProvider) baseLabelProvider).getText(element);
         } else if (baseLabelProvider instanceof IStyledLabelProvider) {
             labelText = ((IStyledLabelProvider) baseLabelProvider).getStyledText(element).getString();
+        } else if (baseLabelProvider instanceof DelegatingStyledCellLabelProvider) {
+            IStyledLabelProvider styledStringProvider = ((DelegatingStyledCellLabelProvider) baseLabelProvider).getStyledStringProvider();
+            StyledString styledText = styledStringProvider.getStyledText(element);
+            if (styledText != null) {
+                labelText = styledText.getString();
+            }
         }
 
         return labelText;
