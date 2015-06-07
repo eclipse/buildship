@@ -11,11 +11,13 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import java.io.File;
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
-
+import org.eclipse.buildship.core.launch.RunGradleTasksJob;
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.ui.HelpContext;
+import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -29,12 +31,8 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
-import org.eclipse.buildship.core.launch.RunGradleTasksJob;
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.ui.HelpContext;
-import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
+import java.io.File;
+import java.util.List;
 
 /**
  * Page in the {@link ProjectCreationWizard} specifying the name of the Gradle project folder to
@@ -136,7 +134,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
 
     @Override
     public boolean performFinish() {
-        performInitNewProject(true, GRADLE_INIT_TASK_CMD_LINE);
+        createAndImportGradleProject();
         return true;
     }
 
@@ -194,7 +192,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
         @Override
         public void pageChanged(PageChangedEvent event) {
             if (this.projectCreationWizard.newGradleProjectPage.equals(this.previousPage) && this.projectCreationWizard.projectPreviewPage.equals(event.getSelectedPage())) {
-                this.projectCreationWizard.performInitNewProject(false, GRADLE_INIT_TASK_CMD_LINE);
+                this.projectCreationWizard.createGradleProject();
             } else if (this.projectCreationWizard.projectPreviewPage.equals(this.previousPage) && this.projectCreationWizard.newGradleProjectPage.equals(event.getSelectedPage())) {
                 // user moved back, so we need to delete the previously created Gradle project
                 File projectDir = this.projectCreationWizard.importController.getConfiguration().getProjectDir().getValue();
@@ -213,32 +211,44 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
 
     }
 
-    private boolean performInitNewProject(final boolean doImport, List<String> gradleTaskToRun) {
+    private boolean createAndImportGradleProject() {
         ProjectImportConfiguration configuration = this.importController.getConfiguration();
         File projectDir = configuration.getProjectDir().getValue();
         if (!projectDir.exists()) {
             if (projectDir.mkdir()) {
-                RunGradleTasksJob runGradleTasksJob = new RunGradleTasksJob(gradleTaskToRun, configuration.getProjectDir().getValue(), configuration.getGradleDistribution()
+                RunGradleTasksJob runGradleTasksJob = new RunGradleTasksJob(GRADLE_INIT_TASK_CMD_LINE, configuration.getProjectDir().getValue(), configuration.getGradleDistribution()
                         .getValue().toGradleDistribution(), configuration.getGradleUserHome().getValue(), configuration.getJavaHome().getValue(), configuration.getJvmArguments()
                         .getValue(), configuration.getArguments().getValue());
-                if (doImport) {
-                    runGradleTasksJob.addJobChangeListener(new JobChangeAdapter() {
+                runGradleTasksJob.addJobChangeListener(new JobChangeAdapter() {
 
-                        @Override
-                        public void done(IJobChangeEvent event) {
-                            if (event.getResult().isOK()) {
-                                ProjectCreationWizard.this.importController.performImportProject();
-                            }
+                    @Override
+                    public void done(IJobChangeEvent event) {
+                        if (event.getResult().isOK()) {
+                            ProjectCreationWizard.this.importController.performImportProject();
                         }
-                    });
-                }
+                    }
+                });
                 runGradleTasksJob.schedule();
             } else {
                 return false;
             }
         } else {
-            if (doImport) {
-                this.importController.performImportProject();
+            this.importController.performImportProject();
+        }
+        return true;
+    }
+
+    private boolean createGradleProject() {
+        ProjectImportConfiguration configuration = this.importController.getConfiguration();
+        File projectDir = configuration.getProjectDir().getValue();
+        if (!projectDir.exists()) {
+            if (projectDir.mkdir()) {
+                RunGradleTasksJob runGradleTasksJob = new RunGradleTasksJob(GRADLE_INIT_TASK_CMD_LINE, configuration.getProjectDir().getValue(), configuration.getGradleDistribution()
+                        .getValue().toGradleDistribution(), configuration.getGradleUserHome().getValue(), configuration.getJavaHome().getValue(), configuration.getJvmArguments()
+                        .getValue(), configuration.getArguments().getValue());
+                runGradleTasksJob.schedule();
+            } else {
+                return false;
             }
         }
         return true;
