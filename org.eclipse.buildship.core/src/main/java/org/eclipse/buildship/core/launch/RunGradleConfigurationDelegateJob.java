@@ -65,7 +65,7 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
     @SuppressWarnings("unchecked")
     @Override
     protected void runToolingApiJob(IProgressMonitor monitor) {
-        // activate all plugins which contribute to the build execution
+        // activate all plugins which contribute to a build execution
         BuildExecutionParticipants.activateParticipantPlugins();
 
         // derive all build launch settings from the launch configuration

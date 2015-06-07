@@ -17,8 +17,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.buildship.core.CorePlugin;
 
 /**
- * Helper class to activate plugins which contribute to the {@code executionparticipants} extension.
- * point.
+ * Helper class to activate plugins which contribute to the {@code executionparticipants} extension point.
  */
 public final class BuildExecutionParticipants {
 
@@ -39,7 +38,8 @@ public final class BuildExecutionParticipants {
                 // start the specified plugin
                 Platform.getBundle(pluginId).start();
             } catch (Exception e) {
-                CorePlugin.logger().error("Failed to activate execution participant plugin " + pluginId, e);
+                String message = String.format("Failed to activate plugin %s referenced in extension point 'executionparticipants'.", pluginId);
+                CorePlugin.logger().error(message, e);
             }
         }
     }

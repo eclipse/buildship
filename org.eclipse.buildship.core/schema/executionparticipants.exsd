@@ -6,12 +6,12 @@
          <meta.schema plugin="org.eclipse.buildship.core" id="executionparticipants" name="Build Execution Participants"/>
       </appinfo>
       <documentation>
-         Extension point to register plug-ins to be activated just before a build execution has started.
-This extension is entirely for internal usage and not inteded to be used outside of the Buildship project.
+         Extension point to register plug-ins to activate just before a build execution starts.
+         This extension point is entirely for internal usage and not intended for any usage outside of the Buildship project.
       </documentation>
-   </annotation>
+</annotation>
 
-   <element name="extension">
+<element name="extension">
       <annotation>
          <appinfo>
             <meta.element />
@@ -43,9 +43,9 @@ This extension is entirely for internal usage and not inteded to be used outside
             </annotation>
          </attribute>
       </complexType>
-   </element>
+</element>
 
-   <element name="plugin">
+<element name="plugin">
       <complexType>
          <attribute name="id" type="string" use="required">
             <annotation>
@@ -54,5 +54,5 @@ This extension is entirely for internal usage and not inteded to be used outside
             </annotation>
          </attribute>
       </complexType>
-   </element>
+</element>
 </schema>
