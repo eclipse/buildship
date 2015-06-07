@@ -310,10 +310,8 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
                     // populate the tree from the build structure
                     OmniGradleProjectStructure rootProject = buildStructure.getRootProject();
                     TreeItem rootTreeItem = new TreeItem(ProjectPreviewWizardPage.this.projectPreviewTree, SWT.NONE);
-                    String rootProjectName = rootProject.getName();
-                    rootTreeItem.setText(rootProjectName);
                     rootTreeItem.setExpanded(true);
-                    markProjectIfExists(rootProjectName, rootTreeItem);
+                    setNodeText(rootProject.getName(), rootTreeItem);
                     populateRecursively(rootProject, rootTreeItem);
                 }
             });
@@ -332,17 +330,17 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         private void populateRecursively(OmniGradleProjectStructure gradleProjectStructure, TreeItem parent) {
             for (OmniGradleProjectStructure childProject : gradleProjectStructure.getChildren()) {
                 TreeItem treeItem = new TreeItem(parent, SWT.NONE);
-                String projectName = childProject.getName();
-                treeItem.setText(projectName);
-                markProjectIfExists(projectName, treeItem);
+                setNodeText(childProject.getName(), treeItem);
                 populateRecursively(childProject, treeItem);
             }
         }
 
-        private void markProjectIfExists(String projectName, TreeItem treeItem) {
+        private void setNodeText(String projectName, TreeItem treeItem) {
             Optional<IProject> project = CorePlugin.workspaceOperations().findProjectByName(projectName);
-            if (project.isPresent()) {
-                treeItem.setText(NLS.bind(ProjectWizardMessages.Tree_Item_0_Project_Name_Already_Used_In_Workspace, treeItem.getText()));
+            if (!project.isPresent()) {
+                treeItem.setText(projectName);
+            } else {
+                treeItem.setText(NLS.bind(ProjectWizardMessages.Tree_Item_0_ProjectNameAlreadyUsedInWorkspace, projectName));
                 Display display = treeItem.getParent().getShell().getDisplay();
                 treeItem.setForeground(display.getSystemColor(SWT.COLOR_RED));
             }
