@@ -18,6 +18,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 
+import com.gradleware.tooling.toolingutils.binding.Property;
 import com.gradleware.tooling.toolingutils.binding.Validator;
 
 import org.eclipse.core.resources.IProject;
@@ -70,17 +71,15 @@ public final class Validators {
         };
     }
 
-     public static Validator<File> onlyParentDirectoryExistsValidator(final String parentPrefix, final String childPrefix) {
+    public static Validator<File> nonExistentDirectoryValidator(final String prefix) {
         return new Validator<File>() {
 
             @Override
             public Optional<String> validate(File file) {
                 if (file == null) {
-                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeSpecified, parentPrefix));
+                    return Optional.absent();
                 } else if (file.exists()) {
-                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_AlreadyExists, childPrefix));
-                } else if (!file.getParentFile().exists()) {
-                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_DoesNotExist, parentPrefix));
+                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_AlreadyExists, prefix));
                 } else {
                     return Optional.absent();
                 }
@@ -111,6 +110,15 @@ public final class Validators {
                         return projectName.equals(project.getName());
                     }
                 });
+            }
+        };
+    }
+
+    public static <T> Validator<T> validateIfConditionFalse(final Validator<T> validator, final Property<Boolean> condition) {
+        return new Validator<T>() {
+            @Override
+            public Optional<String> validate(T value) {
+                return Boolean.FALSE.equals(condition.getValue()) ? validator.validate(value) : Optional.<String>absent();
             }
         };
     }
