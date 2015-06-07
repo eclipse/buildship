@@ -27,7 +27,6 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
@@ -52,7 +51,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
 
     private Text projectNameText;
     private Button useDefaultWorkspaceLocationButton;
-    private Combo customLocationCombo;
+    private Text customLocationText;
     private WorkingSetConfigurationWidget workingSetConfigurationWidget;
 
     public NewGradleProjectWizardPage(ProjectImportConfiguration importConfiguration, ProjectCreationConfiguration creationConfiguration) {
@@ -96,15 +95,15 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         uiBuilderFactory.newLabel(locationGroup).alignLeft().text(ProjectWizardMessages.Label_CustomLocation);
 
         // project custom location combo for typing an alternative project path, which also provides recently used paths
-        this.customLocationCombo = uiBuilderFactory.newCombo(locationGroup).text(ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString()).control();
-        this.customLocationCombo.setEnabled(!this.useDefaultWorkspaceLocationButton.getSelection());
-        this.customLocationCombo.setText(FileUtils.getAbsolutePath(this.creationConfiguration.getCustomLocation().getValue()).or(""));
-        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.customLocationCombo);
+        this.customLocationText = uiBuilderFactory.newText(locationGroup).text(ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString()).control();
+        this.customLocationText.setEnabled(!this.useDefaultWorkspaceLocationButton.getSelection());
+        this.customLocationText.setText(FileUtils.getAbsolutePath(this.creationConfiguration.getCustomLocation().getValue()).or(""));
+        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.customLocationText);
 
         // browse button for file chooser
         Button customLocationBrowseButton = uiBuilderFactory.newButton(locationGroup).alignLeft().text(UiMessages.Button_Label_Browse).control();
         customLocationBrowseButton.setEnabled(!this.useDefaultWorkspaceLocationButton.getSelection());
-        customLocationBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.customLocationCombo, ProjectWizardMessages.Label_ProjectRootDirectory));
+        customLocationBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.customLocationText, ProjectWizardMessages.Label_ProjectRootDirectory));
 
         // working set container
         Group workingSetGroup = uiBuilderFactory.newGroup(root).text(ProjectWizardMessages.Group_Label_WorkingSets).control();
@@ -119,7 +118,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         this.workingSetConfigurationWidget.getWorkingSetsSelectButton().setEnabled(getConfiguration().getApplyWorkingSets().getValue());
 
         // add listener to deal with the enabling of the widgets that are part of the location group
-        this.useDefaultWorkspaceLocationButton.addSelectionListener(new TargetWidgetsInvertingSelectionListener(this.useDefaultWorkspaceLocationButton, this.customLocationCombo, customLocationBrowseButton));
+        this.useDefaultWorkspaceLocationButton.addSelectionListener(new TargetWidgetsInvertingSelectionListener(this.useDefaultWorkspaceLocationButton, this.customLocationText, customLocationBrowseButton));
     }
 
     private void bindToConfiguration() {
@@ -137,7 +136,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
                 updateLocation();
             }
         });
-        this.customLocationCombo.addModifyListener(new ModifyListener() {
+        this.customLocationText.addModifyListener(new ModifyListener() {
 
             @Override
             public void modifyText(ModifyEvent e) {
@@ -165,13 +164,13 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
     private void updateLocation() {
         File parentLocation = this.useDefaultWorkspaceLocationButton.getSelection() ?
                 new File(ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString()) :
-                !Strings.isNullOrEmpty(this.customLocationCombo.getText()) ? new File(this.customLocationCombo.getText()) : null;
+                !Strings.isNullOrEmpty(this.customLocationText.getText()) ? new File(this.customLocationText.getText()) : null;
         File projectDir = parentLocation != null ? new File(parentLocation, this.projectNameText.getText()) : null;
 
         // always update project name last to ensure project name validation errors have precedence in the UI
         getConfiguration().getProjectDir().setValue(projectDir);
         this.creationConfiguration.setTargetProjectDir(projectDir);
-        this.creationConfiguration.setCustomLocation(FileUtils.getAbsoluteFile(this.customLocationCombo.getText()).orNull());
+        this.creationConfiguration.setCustomLocation(FileUtils.getAbsoluteFile(this.customLocationText.getText()).orNull());
         this.creationConfiguration.setUseDefaultLocation(this.useDefaultWorkspaceLocationButton.getSelection());
         this.creationConfiguration.setProjectName(this.projectNameText.getText());
     }
