@@ -28,6 +28,8 @@ public final class ProjectWizardMessages extends NLS {
     public static String Title_NewGradleProjectWizardPage;
     public static String Title_NewGradleProjectPreviewWizardPage;
 
+    public static String Title_Dialog_PreGradle20VersionUsed;
+
     public static String Label_ProjectRootDirectory;
     public static String Label_GradleUserHome;
     public static String Label_JavaHome;
@@ -61,6 +63,8 @@ public final class ProjectWizardMessages extends NLS {
 
     public static String InfoMessage_NewGradleProjectWizardPageContext;
     public static String InfoMessage_NewGradleProjectPreviewWizardPageContext;
+
+    public static String InfoMessage_PreGradle20VersionUsed;
 
     static {
         // initialize resource bundle
