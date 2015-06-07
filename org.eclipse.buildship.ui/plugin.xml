@@ -274,4 +274,12 @@
           </command>
        </menuContribution>
    </extension>
+
+    <!-- if a build execition starts and this plugin hasn't been activated, then do it -->
+    <extension
+          point="org.eclipse.buildship.core.executionparticipants">
+       <plugin
+             id="org.eclipse.buildship.ui">
+       </plugin>
+    </extension>
 </plugin>
