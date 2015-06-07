@@ -29,7 +29,8 @@ import java.io.File;
 public final class ProjectCreationWizardController {
 
     // keys to load/store project properties in the dialog setting
-    private static final String SETTINGS_KEY_LOCATION_USE_DEFAULT = "location_use_default"; //$NON-NLS-1$
+    private static final String SETTINGS_KEY_LOCATION_USE_DEFAULT = "use_default_location"; //$NON-NLS-1$
+    private static final String SETTINGS_KEY_CUSTOM_LOCATION = "custom_location"; //$NON-NLS-1$
 
     private final ProjectCreationConfiguration configuration;
 
@@ -37,18 +38,22 @@ public final class ProjectCreationWizardController {
         // assemble configuration object that serves as the extra data model of the creation wizard
         Validator<String> projectNameValidator = Validators.uniqueWorkspaceProjectNameValidator(ProjectWizardMessages.Label_ProjectName);
         Validator<Boolean> useDefaultLocationValidator = Validators.nullValidator();
+        Validator<File> customLocationValidator = Validators.nullValidator();
         Validator<File> targetProjectDirValidator = Validators.onlyParentDirectoryExistsValidator(ProjectWizardMessages.Label_CustomLocation, ProjectWizardMessages.Message_TargetProjectDirectory);
 
-        this.configuration = new ProjectCreationConfiguration(projectNameValidator, useDefaultLocationValidator, targetProjectDirValidator);
+        this.configuration = new ProjectCreationConfiguration(projectNameValidator, useDefaultLocationValidator, customLocationValidator, targetProjectDirValidator);
 
         // initialize values from the persisted dialog settings
         IDialogSettings dialogSettings = projectCreationWizard.getDialogSettings();
         Optional<Boolean> useDefaultLocation = Optional.fromNullable(dialogSettings.getBoolean(SETTINGS_KEY_LOCATION_USE_DEFAULT));
+        Optional<File> customLocation = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_CUSTOM_LOCATION));
 
         this.configuration.setUseDefaultLocation(useDefaultLocation.or(Boolean.TRUE));
+        this.configuration.setCustomLocation(customLocation.orNull());
 
         // store the values every time they change
         saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_LOCATION_USE_DEFAULT, this.configuration.getUseDefaultLocation());
+        saveFilePropertyWhenChanged(dialogSettings, SETTINGS_KEY_CUSTOM_LOCATION, this.configuration.getCustomLocation());
     }
 
     private void saveBooleanPropertyWhenChanged(final IDialogSettings settings, final String settingsKey, final Property<Boolean> target) {
