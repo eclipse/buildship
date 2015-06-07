@@ -79,11 +79,11 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     private Label gradleUserHomeLabel;
     private Label gradleDistributionLabel;
     private Label gradleVersionLabel;
+    private Label gradleVersionWarningLabel;
     private Label javaHomeLabel;
     private Label jvmArgumentsLabel;
     private Label argumentsLabel;
     private Tree projectPreviewTree;
-    private Label versionWarningLabel;
 
     public ProjectPreviewWizardPage(ProjectImportWizardController controller) {
         this(controller, ProjectWizardMessages.Title_PreviewImportWizardPage, ProjectWizardMessages.InfoMessage_PreviewImportWizardPageDefault,
@@ -132,17 +132,22 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         this.gradleDistributionLabel = uiBuilderFactory.newLabel(container).alignFillHorizontal().disabled().font(this.valueFont).control();
 
         uiBuilderFactory.newLabel(container).text(ProjectWizardMessages.Label_GradleVersion + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
-
         Composite gradleVersionContainer = new Composite(container, SWT.NONE);
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(gradleVersionContainer);
         GridLayoutFactory.swtDefaults().margins(0, 0).extendedMargins(0, 0, 0, 0).spacing(0, 0).numColumns(2).applyTo(gradleVersionContainer);
 
         this.gradleVersionLabel = uiBuilderFactory.newLabel(gradleVersionContainer).alignLeft().disabled().font(this.valueFont).control();
-        this.versionWarningLabel = uiBuilderFactory.newLabel(gradleVersionContainer).alignLeft().control();
+        this.gradleVersionWarningLabel = uiBuilderFactory.newLabel(gradleVersionContainer).alignLeft().control();
+        this.gradleVersionWarningLabel.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK));
+        this.gradleVersionWarningLabel.setToolTipText(ProjectWizardMessages.InfoMessage_PreGradle20VersionUsed);
+        this.gradleVersionWarningLabel.setVisible(false);
+        this.gradleVersionWarningLabel.addMouseListener(new MouseAdapter() {
 
-        this.versionWarningLabel.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK));
-        this.versionWarningLabel.setToolTipText(ProjectWizardMessages.InfoMessage_PreGradle20VersionUsed);
-        this.versionWarningLabel.setVisible(false);
+            @Override
+            public void mouseUp(MouseEvent e) {
+                MessageDialog.openInformation(getShell(), ProjectWizardMessages.Title_Dialog_PreGradle20VersionUsed, ProjectWizardMessages.InfoMessage_PreGradle20VersionUsed);
+            }
+        });
 
         createSpacingRow(container, 2);
 
@@ -156,14 +161,6 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
         uiBuilderFactory.newLabel(container).text(ProjectWizardMessages.Label_ProgramArguments + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
         this.argumentsLabel = uiBuilderFactory.newLabel(container).alignFillHorizontal().disabled().font(this.valueFont).control();
-
-        this.versionWarningLabel.addMouseListener(new MouseAdapter() {
-
-            @Override
-            public void mouseUp(MouseEvent e) {
-                MessageDialog.openInformation(getShell(), ProjectWizardMessages.Title_Dialog_PreGradle20VersionUsed, ProjectWizardMessages.InfoMessage_PreGradle20VersionUsed);
-            }
-        });
     }
 
     private void createPreviewGroup(Composite container) {
@@ -333,7 +330,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
                     // set the version text and show the version warning if the value is a pre-2.0 version
                     ProjectPreviewWizardPage.this.gradleVersionLabel.setText(newVersion);
                     int versionCompare = GradleVersion.version(newVersion).compareTo(GradleVersion.version("2.0")); //$NON-NLS-1$
-                    ProjectPreviewWizardPage.this.versionWarningLabel.setVisible(versionCompare < 0);
+                    ProjectPreviewWizardPage.this.gradleVersionWarningLabel.setVisible(versionCompare < 0);
                     ProjectPreviewWizardPage.this.gradleVersionLabel.getParent().layout();
                 }
             });
