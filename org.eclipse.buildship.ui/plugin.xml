@@ -134,7 +134,7 @@
       </command>
     </extension>
 
-    <!-- integration of Gradle commands -->
+    <!-- integration of Gradle command handlers -->
     <extension
           point="org.eclipse.ui.handlers">
       <handler
@@ -238,5 +238,13 @@
                 type="org.eclipse.ui.views.properties.IPropertySource">
           </adapter>
        </factory>
+    </extension>
+
+    <!-- extension point to register plugins that need to be activated (if not already activated) when a build execution starts -->
+    <extension
+          point="org.eclipse.buildship.core.executionparticipants">
+       <plugin
+             id="org.eclipse.buildship.ui">
+       </plugin>
     </extension>
 </plugin>

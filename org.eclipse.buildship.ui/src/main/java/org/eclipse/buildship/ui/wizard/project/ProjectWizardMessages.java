@@ -66,6 +66,8 @@ public final class ProjectWizardMessages extends NLS {
 
     public static String InfoMessage_PreGradle20VersionUsed;
 
+    public static String Tree_Item_0_ProjectNameAlreadyUsedInWorkspace;
+
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, ProjectWizardMessages.class);
