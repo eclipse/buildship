@@ -14,7 +14,6 @@ package org.eclipse.buildship.ui.wizard.project;
 import com.google.common.base.Optional;
 import com.gradleware.tooling.toolingutils.binding.Property;
 import com.gradleware.tooling.toolingutils.binding.ValidationListener;
-import com.gradleware.tooling.toolingutils.binding.Validator;
 import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -36,12 +35,12 @@ public final class ProjectCreationWizardController {
 
     public ProjectCreationWizardController(INewWizard projectCreationWizard) {
         // assemble configuration object that serves as the extra data model of the creation wizard
-        Validator<String> projectNameValidator = Validators.uniqueWorkspaceProjectNameValidator(ProjectWizardMessages.Label_ProjectName);
-        Validator<Boolean> useDefaultLocationValidator = Validators.nullValidator();
-        Validator<File> customLocationValidator = Validators.nullValidator();
-        Validator<File> targetProjectDirValidator = Validators.onlyParentDirectoryExistsValidator(ProjectWizardMessages.Label_CustomLocation, ProjectWizardMessages.Message_TargetProjectDirectory);
+        Property<String> projectNameProperty = Property.create(Validators.uniqueWorkspaceProjectNameValidator(ProjectWizardMessages.Label_ProjectName));
+        Property<Boolean> useDefaultLocationProperty = Property.create(Validators.<Boolean>nullValidator());
+        Property<File> customLocationProperty = Property.create(Validators.validateIfConditionFalse(Validators.requiredDirectoryValidator(ProjectWizardMessages.Label_CustomLocation), useDefaultLocationProperty));
+        Property<File> targetProjectDirProperty = Property.create(Validators.nonExistentDirectoryValidator(ProjectWizardMessages.Message_TargetProjectDirectory));
 
-        this.configuration = new ProjectCreationConfiguration(projectNameValidator, useDefaultLocationValidator, customLocationValidator, targetProjectDirValidator);
+        this.configuration = new ProjectCreationConfiguration(projectNameProperty, useDefaultLocationProperty, customLocationProperty, targetProjectDirProperty);
 
         // initialize values from the persisted dialog settings
         IDialogSettings dialogSettings = projectCreationWizard.getDialogSettings();

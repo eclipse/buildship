@@ -56,7 +56,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
 
     public NewGradleProjectWizardPage(ProjectImportConfiguration importConfiguration, ProjectCreationConfiguration creationConfiguration) {
         super("NewGradleProject", ProjectWizardMessages.Title_NewGradleProjectWizardPage, ProjectWizardMessages.InfoMessage_NewGradleProjectWizardPageDefault, //$NON-NLS-1$
-                importConfiguration, ImmutableList.of(creationConfiguration.getProjectName(), creationConfiguration.getTargetProjectDir(), importConfiguration.getWorkingSets()));
+                importConfiguration, ImmutableList.of(creationConfiguration.getProjectName(), creationConfiguration.getCustomLocation(), creationConfiguration.getTargetProjectDir(), importConfiguration.getWorkingSets()));
         this.creationConfiguration = creationConfiguration;
     }
 

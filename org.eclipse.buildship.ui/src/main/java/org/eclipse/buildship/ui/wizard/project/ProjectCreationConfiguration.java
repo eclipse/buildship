@@ -11,8 +11,8 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
+import com.google.common.base.Preconditions;
 import com.gradleware.tooling.toolingutils.binding.Property;
-import com.gradleware.tooling.toolingutils.binding.Validator;
 
 import java.io.File;
 
@@ -26,11 +26,11 @@ public final class ProjectCreationConfiguration {
     private final Property<File> customLocation;
     private final Property<File> targetProjectDir;
 
-    public ProjectCreationConfiguration(Validator<String> projectNameValidator, Validator<Boolean> useDefaultLocationValidator, Validator<File> customLocationValidator, Validator<File> targetProjectDirValidator) {
-        this.projectName = Property.create(projectNameValidator);
-        this.useDefaultLocation = Property.create(useDefaultLocationValidator);
-        this.customLocation = Property.create(customLocationValidator);
-        this.targetProjectDir = Property.create(targetProjectDirValidator);
+    public ProjectCreationConfiguration(Property<String> projectName, Property<Boolean> useDefaultLocation, Property<File> customLocation, Property<File> targetProjectDir) {
+        this.projectName = Preconditions.checkNotNull(projectName);
+        this.useDefaultLocation = Preconditions.checkNotNull(useDefaultLocation);
+        this.customLocation = Preconditions.checkNotNull(customLocation);
+        this.targetProjectDir = Preconditions.checkNotNull(targetProjectDir);
     }
 
     public Property<String> getProjectName() {
