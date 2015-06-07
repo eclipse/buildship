@@ -211,7 +211,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
 
     }
 
-    private boolean createAndImportGradleProject() {
+    private void createAndImportGradleProject() {
         ProjectImportConfiguration configuration = this.importController.getConfiguration();
         File projectDir = configuration.getProjectDir().getValue();
         if (!projectDir.exists()) {
@@ -229,16 +229,13 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
                     }
                 });
                 runGradleTasksJob.schedule();
-            } else {
-                return false;
             }
         } else {
             this.importController.performImportProject();
         }
-        return true;
     }
 
-    private boolean createGradleProject() {
+    private void createGradleProject() {
         ProjectImportConfiguration configuration = this.importController.getConfiguration();
         File projectDir = configuration.getProjectDir().getValue();
         if (!projectDir.exists()) {
@@ -247,11 +244,8 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
                         .getValue().toGradleDistribution(), configuration.getGradleUserHome().getValue(), configuration.getJavaHome().getValue(), configuration.getJvmArguments()
                         .getValue(), configuration.getArguments().getValue());
                 runGradleTasksJob.schedule();
-            } else {
-                return false;
             }
         }
-        return true;
     }
 
 }
