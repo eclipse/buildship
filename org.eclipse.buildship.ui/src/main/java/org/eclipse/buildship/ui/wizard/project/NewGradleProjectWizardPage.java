@@ -11,13 +11,17 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import java.io.File;
-import java.util.List;
-
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.UiPluginConstants;
+import org.eclipse.buildship.ui.i18n.UiMessages;
+import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
+import org.eclipse.buildship.ui.util.layout.LayoutUtils;
+import org.eclipse.buildship.ui.util.selection.TargetWidgetsInvertingSelectionListener;
+import org.eclipse.buildship.ui.util.widget.UiBuilder;
+import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -32,15 +36,8 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkingSet;
 
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.UiPluginConstants;
-import org.eclipse.buildship.ui.i18n.UiMessages;
-import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
-import org.eclipse.buildship.ui.util.layout.LayoutUtils;
-import org.eclipse.buildship.ui.util.selection.TargetWidgetsInvertingSelectionListener;
-import org.eclipse.buildship.ui.util.widget.UiBuilder;
-import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
+import java.io.File;
+import java.util.List;
 
 /**
  * Page on the {@link org.eclipse.buildship.ui.wizard.project.ProjectCreationWizard} declaring the project name and project location.
@@ -97,7 +94,9 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         // project custom location combo for typing an alternative project path, which also provides recently used paths
         this.customLocationText = uiBuilderFactory.newText(locationGroup).text(ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString()).control();
         this.customLocationText.setEnabled(!this.useDefaultWorkspaceLocationButton.getSelection());
-        this.customLocationText.setText(FileUtils.getAbsolutePath(this.creationConfiguration.getCustomLocation().getValue()).or(""));
+        this.customLocationText.setText(this.useDefaultWorkspaceLocationButton.getSelection() ?
+                ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString() :
+                FileUtils.getAbsolutePath(this.creationConfiguration.getCustomLocation().getValue()).or(""));
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.customLocationText);
 
         // browse button for file chooser
@@ -133,6 +132,10 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
+                String location = NewGradleProjectWizardPage.this.useDefaultWorkspaceLocationButton.getSelection() ?
+                        ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString() :
+                        FileUtils.getAbsolutePath(NewGradleProjectWizardPage.this.creationConfiguration.getCustomLocation().getValue()).or("");
+                NewGradleProjectWizardPage.this.customLocationText.setText(location);
                 updateLocation();
             }
         });
@@ -163,14 +166,16 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
 
     private void updateLocation() {
         File parentLocation = this.useDefaultWorkspaceLocationButton.getSelection() ?
-                new File(ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString()) :
-                !Strings.isNullOrEmpty(this.customLocationText.getText()) ? new File(this.customLocationText.getText()) : null;
+                ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile() :
+                FileUtils.getAbsoluteFile(this.customLocationText.getText()).orNull();
         File projectDir = parentLocation != null ? new File(parentLocation, this.projectNameText.getText()) : null;
 
         // always update project name last to ensure project name validation errors have precedence in the UI
         getConfiguration().getProjectDir().setValue(projectDir);
         this.creationConfiguration.setTargetProjectDir(projectDir);
-        this.creationConfiguration.setCustomLocation(FileUtils.getAbsoluteFile(this.customLocationText.getText()).orNull());
+        if (!this.useDefaultWorkspaceLocationButton.getSelection()) {
+            this.creationConfiguration.setCustomLocation(FileUtils.getAbsoluteFile(this.customLocationText.getText()).orNull());
+        }
         this.creationConfiguration.setUseDefaultLocation(this.useDefaultWorkspaceLocationButton.getSelection());
         this.creationConfiguration.setProjectName(this.projectNameText.getText());
     }
