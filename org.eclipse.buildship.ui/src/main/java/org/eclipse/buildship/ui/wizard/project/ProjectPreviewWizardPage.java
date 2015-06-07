@@ -15,9 +15,9 @@ import java.io.File;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.ui.PlatformUI;
 import org.gradle.tooling.ProgressListener;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
@@ -28,24 +28,29 @@ import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
 import com.gradleware.tooling.toolingmodel.util.Pair;
 import com.gradleware.tooling.toolingutils.binding.Property;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.util.font.FontUtils;
@@ -303,11 +308,13 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
                     ProjectPreviewWizardPage.this.projectPreviewTree.removeAll();
 
                     // populate the tree from the build structure
-                    OmniGradleProjectStructure rootProjectStructure = buildStructure.getRootProject();
+                    OmniGradleProjectStructure rootProject = buildStructure.getRootProject();
                     TreeItem rootTreeItem = new TreeItem(ProjectPreviewWizardPage.this.projectPreviewTree, SWT.NONE);
-                    rootTreeItem.setText(rootProjectStructure.getName());
+                    String rootProjectName = rootProject.getName();
+                    rootTreeItem.setText(rootProjectName);
                     rootTreeItem.setExpanded(true);
-                    populateRecursively(rootProjectStructure, rootTreeItem);
+                    markProjectIfExists(rootProjectName, rootTreeItem);
+                    populateRecursively(rootProject, rootTreeItem);
                 }
             });
         }
@@ -323,10 +330,21 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         }
 
         private void populateRecursively(OmniGradleProjectStructure gradleProjectStructure, TreeItem parent) {
-            for (OmniGradleProjectStructure child : gradleProjectStructure.getChildren()) {
+            for (OmniGradleProjectStructure childProject : gradleProjectStructure.getChildren()) {
                 TreeItem treeItem = new TreeItem(parent, SWT.NONE);
-                treeItem.setText(child.getName());
-                populateRecursively(child, treeItem);
+                String projectName = childProject.getName();
+                treeItem.setText(projectName);
+                markProjectIfExists(projectName, treeItem);
+                populateRecursively(childProject, treeItem);
+            }
+        }
+
+        private void markProjectIfExists(String projectName, TreeItem treeItem) {
+            Optional<IProject> project = CorePlugin.workspaceOperations().findProjectByName(projectName);
+            if (project.isPresent()) {
+                treeItem.setText(NLS.bind(ProjectWizardMessages.Tree_Item_0_Project_Name_Already_Used_In_Workspace, treeItem.getText()));
+                Display display = treeItem.getParent().getShell().getDisplay();
+                treeItem.setForeground(display.getSystemColor(SWT.COLOR_RED));
             }
         }
     }
