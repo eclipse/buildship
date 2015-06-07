@@ -17,6 +17,7 @@ import java.util.List;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
+import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -97,6 +98,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         // project custom location combo for typing an alternative project path, which also provides recently used paths
         this.customLocationCombo = uiBuilderFactory.newCombo(locationGroup).text(ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString()).control();
         this.customLocationCombo.setEnabled(!this.useDefaultWorkspaceLocationButton.getSelection());
+        this.customLocationCombo.setText(FileUtils.getAbsolutePath(this.creationConfiguration.getCustomLocation().getValue()).or(""));
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.customLocationCombo);
 
         // browse button for file chooser
@@ -169,6 +171,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         // always update project name last to ensure project name validation errors have precedence in the UI
         getConfiguration().getProjectDir().setValue(projectDir);
         this.creationConfiguration.setTargetProjectDir(projectDir);
+        this.creationConfiguration.setCustomLocation(FileUtils.getAbsoluteFile(this.customLocationCombo.getText()).orNull());
         this.creationConfiguration.setUseDefaultLocation(this.useDefaultWorkspaceLocationButton.getSelection());
         this.creationConfiguration.setProjectName(this.projectNameText.getText());
     }
