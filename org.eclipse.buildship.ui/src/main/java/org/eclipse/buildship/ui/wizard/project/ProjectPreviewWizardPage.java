@@ -16,6 +16,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.gradle.tooling.ProgressListener;
+import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
@@ -31,9 +32,14 @@ import com.gradleware.tooling.toolingutils.binding.Property;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -44,6 +50,7 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ISharedImages;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
@@ -76,13 +83,15 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     private Label jvmArgumentsLabel;
     private Label argumentsLabel;
     private Tree projectPreviewTree;
+    private Label versionWarningLabel;
 
     public ProjectPreviewWizardPage(ProjectImportWizardController controller) {
-        this(controller, ProjectWizardMessages.Title_PreviewImportWizardPage, ProjectWizardMessages.InfoMessage_PreviewImportWizardPageDefault, ProjectWizardMessages.InfoMessage_GradlePreviewWizardPageContext);
+        this(controller, ProjectWizardMessages.Title_PreviewImportWizardPage, ProjectWizardMessages.InfoMessage_PreviewImportWizardPageDefault,
+                ProjectWizardMessages.InfoMessage_GradlePreviewWizardPageContext);
     }
 
     public ProjectPreviewWizardPage(ProjectImportWizardController controller, String title, String defaultMessage, String pageContextInformation) {
-        super("ProjectPreview", title, defaultMessage, controller.getConfiguration(), ImmutableList.<Property<?>>of()); //$NON-NLS-1$
+        super("ProjectPreview", title, defaultMessage, controller.getConfiguration(), ImmutableList.<Property<?>> of()); //$NON-NLS-1$
         this.controller = controller;
         this.keyFont = FontUtils.getCustomDialogFont(SWT.BOLD);
         this.valueFont = FontUtils.getCustomDialogFont(SWT.NONE);
@@ -123,7 +132,17 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         this.gradleDistributionLabel = uiBuilderFactory.newLabel(container).alignFillHorizontal().disabled().font(this.valueFont).control();
 
         uiBuilderFactory.newLabel(container).text(ProjectWizardMessages.Label_GradleVersion + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
-        this.gradleVersionLabel = uiBuilderFactory.newLabel(container).alignFillHorizontal().disabled().font(this.valueFont).control();
+
+        Composite gradleVersionContainer = new Composite(container, SWT.NONE);
+        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(gradleVersionContainer);
+        GridLayoutFactory.swtDefaults().margins(0, 0).extendedMargins(0, 0, 0, 0).spacing(0, 0).numColumns(2).applyTo(gradleVersionContainer);
+
+        this.gradleVersionLabel = uiBuilderFactory.newLabel(gradleVersionContainer).alignLeft().disabled().font(this.valueFont).control();
+        this.versionWarningLabel = uiBuilderFactory.newLabel(gradleVersionContainer).alignLeft().control();
+
+        this.versionWarningLabel.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK));
+        this.versionWarningLabel.setToolTipText(ProjectWizardMessages.InfoMessage_PreGradle20VersionUsed);
+        this.versionWarningLabel.setVisible(false);
 
         createSpacingRow(container, 2);
 
@@ -137,6 +156,14 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
         uiBuilderFactory.newLabel(container).text(ProjectWizardMessages.Label_ProgramArguments + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
         this.argumentsLabel = uiBuilderFactory.newLabel(container).alignFillHorizontal().disabled().font(this.valueFont).control();
+
+        this.versionWarningLabel.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseUp(MouseEvent e) {
+                MessageDialog.openInformation(getShell(), ProjectWizardMessages.Title_Dialog_PreGradle20VersionUsed, ProjectWizardMessages.InfoMessage_PreGradle20VersionUsed);
+            }
+        });
     }
 
     private void createPreviewGroup(Composite container) {
@@ -205,6 +232,10 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
             default:
                 throw new GradlePluginsRuntimeException("Unrecognized Gradle distribution type: " + gradleDistributionWrapper.getType()); //$NON-NLS-1$
         }
+
+        // if the length of the text is changed and the version warning is visible then we have to
+        // adjust their horizontal alignment
+        target.getParent().layout();
     }
 
     @Override
@@ -241,7 +272,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
                 @Override
                 public void run(IProgressMonitor monitor) throws InterruptedException {
-                    monitor.beginTask("Loading project preview", IProgressMonitor.UNKNOWN);
+                    monitor.beginTask("Loading project preview", IProgressMonitor.UNKNOWN); //$NON-NLS-1$
                     listener.setMonitor(monitor);
                     while (!latch.await(500, TimeUnit.MILLISECONDS)) {
                         // regularly check if the job was cancelled until
@@ -254,7 +285,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
                 }
             });
         } catch (Exception e) {
-            UiPlugin.logger().error("Failed to load preview.", e);
+            UiPlugin.logger().error("Failed to load preview.", e); //$NON-NLS-1$
         }
     }
 
@@ -294,8 +325,16 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
                     if (buildEnvironment.getGradle().getGradleUserHome().isPresent()) {
                         ProjectPreviewWizardPage.this.gradleUserHomeLabel.setText(buildEnvironment.getGradle().getGradleUserHome().get().getAbsolutePath());
                     }
-                    ProjectPreviewWizardPage.this.gradleVersionLabel.setText(buildEnvironment.getGradle().getGradleVersion());
+                    updateGradleVersionLabel(buildEnvironment.getGradle().getGradleVersion());
                     ProjectPreviewWizardPage.this.javaHomeLabel.setText(buildEnvironment.getJava().getJavaHome().getAbsolutePath());
+                }
+
+                private void updateGradleVersionLabel(String newVersion) {
+                    // set the version text and show the version warning if the value is a pre-2.0 version
+                    ProjectPreviewWizardPage.this.gradleVersionLabel.setText(newVersion);
+                    int versionCompare = GradleVersion.version(newVersion).compareTo(GradleVersion.version("2.0")); //$NON-NLS-1$
+                    ProjectPreviewWizardPage.this.versionWarningLabel.setVisible(versionCompare < 0);
+                    ProjectPreviewWizardPage.this.gradleVersionLabel.getParent().layout();
                 }
             });
         }
