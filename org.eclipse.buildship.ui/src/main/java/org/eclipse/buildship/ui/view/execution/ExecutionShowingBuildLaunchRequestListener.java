@@ -35,20 +35,19 @@ public final class ExecutionShowingBuildLaunchRequestListener implements EventLi
     }
 
     private void handleBuildLaunchRequest(final ExecuteBuildLaunchRequestEvent event) {
-        if (event.getRunConfigurationAttributes().isShowExecutionView()) {
-            // call synchronously to make sure we do not miss any progress events
-            PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+        // call synchronously to make sure we do not miss any progress events
+        PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 
-                @Override
-                public void run() {
-                    // activate the executions view
-                    ExecutionsView view = WorkbenchUtils.showView(ExecutionsView.ID, null, IWorkbenchPage.VIEW_ACTIVATE);
+            @Override
+            public void run() {
+                // activate the executions view
+                int mode = event.getRunConfigurationAttributes().isShowExecutionView() ? IWorkbenchPage.VIEW_ACTIVATE : IWorkbenchPage.VIEW_CREATE;
+                ExecutionsView view = WorkbenchUtils.showView(ExecutionsView.ID, null, mode);
 
-                    // show the launched build in a new page of the Executions View
-                    view.addExecutionPage(event.getBuildJob(), event.getProcessName(), event.getBuildLaunchRequest(), event.getRunConfigurationAttributes());
-                }
-            });
-        }
+                // show the launched build in a new page of the Executions View
+                view.addExecutionPage(event.getBuildJob(), event.getProcessName(), event.getBuildLaunchRequest(), event.getRunConfigurationAttributes());
+            }
+        });
     }
 
 }
