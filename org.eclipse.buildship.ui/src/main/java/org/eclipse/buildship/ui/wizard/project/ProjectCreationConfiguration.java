@@ -23,11 +23,13 @@ public final class ProjectCreationConfiguration {
 
     private final Property<String> projectName;
     private final Property<Boolean> useDefaultLocation;
+    private final Property<File> customLocationValidator;
     private final Property<File> targetProjectDir;
 
-    public ProjectCreationConfiguration(Validator<String> projectNameValidator, Validator<Boolean> useDefaultLocationValidator, Validator<File> targetProjectDirValidator) {
+    public ProjectCreationConfiguration(Validator<String> projectNameValidator, Validator<Boolean> useDefaultLocationValidator, Validator<File> customLocationValidator, Validator<File> targetProjectDirValidator) {
         this.projectName = Property.create(projectNameValidator);
         this.useDefaultLocation = Property.create(useDefaultLocationValidator);
+        this.customLocationValidator = Property.create(customLocationValidator);
         this.targetProjectDir = Property.create(targetProjectDirValidator);
     }
 
@@ -45,6 +47,14 @@ public final class ProjectCreationConfiguration {
 
     public void setUseDefaultLocation(boolean useDefaultLocation) {
         this.useDefaultLocation.setValue(useDefaultLocation);
+    }
+
+    public Property<File> getCustomLocationValidator() {
+        return this.customLocationValidator;
+    }
+
+    public void getCustomLocationValidator(File customLocation) {
+        this.customLocationValidator.setValue(customLocation);
     }
 
     public Property<File> getTargetProjectDir() {
