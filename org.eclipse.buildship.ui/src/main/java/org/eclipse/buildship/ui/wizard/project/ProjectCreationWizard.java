@@ -98,13 +98,12 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
         ProjectImportConfiguration importConfiguration = this.importController.getConfiguration();
         ProjectCreationConfiguration creationConfiguration = this.creationController.getConfiguration();
         this.newGradleProjectPage = new NewGradleProjectWizardPage(importConfiguration, creationConfiguration);
-        this.projectPreviewPage = new ProjectPreviewWizardPage(this.importController.getConfiguration(), new ProjectPreviewWizardPage.ProjectPreviewLoader() {
+        this.projectPreviewPage = new ProjectPreviewWizardPage(importConfiguration, new ProjectPreviewWizardPage.ProjectPreviewLoader() {
             @Override
             public Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler, List<ProgressListener> listeners) {
                 return ProjectCreationWizard.this.importController.performPreviewProject(resultHandler, listeners);
             }
-        }, ProjectWizardMessages.Title_NewGradleProjectPreviewWizardPage,
-                ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageDefault, ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageContext);
+        }, ProjectWizardMessages.Title_NewGradleProjectPreviewWizardPage, ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageDefault, ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageContext);
     }
 
     @Override
