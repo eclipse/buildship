@@ -106,7 +106,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
         this.projectPreviewPage = new ProjectPreviewWizardPage(importConfiguration, new ProjectPreviewWizardPage.ProjectPreviewLoader() {
             @Override
             public Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler, List<ProgressListener> listeners) {
-                ProjectPreviewJob projectPreviewJob = new ProjectPreviewJob(importConfiguration, listeners, new MyAsyncHandler(importConfiguration), resultHandler);
+                ProjectPreviewJob projectPreviewJob = new ProjectPreviewJob(importConfiguration, listeners, new NewGradleProjectInitializer(importConfiguration), resultHandler);
                 projectPreviewJob.schedule();
                 return projectPreviewJob;
             }
@@ -151,7 +151,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
 
     @Override
     public boolean performFinish() {
-        return this.importController.performImportProject(new MyAsyncHandler(this.importController.getConfiguration()));
+        return this.importController.performImportProject(new NewGradleProjectInitializer(this.importController.getConfiguration()));
     }
 
     @Override
@@ -226,13 +226,13 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
     }
 
     /**
-     * Initializes te Gradle project from the given configuration.
+     * Initializes a new Gradle project from the given configuration.
      */
-    private static final class MyAsyncHandler implements AsyncHandler {
+    private static final class NewGradleProjectInitializer implements AsyncHandler {
 
         private final FixedRequestAttributes fixedAttributes;
 
-        private MyAsyncHandler(ProjectImportConfiguration configuration) {
+        private NewGradleProjectInitializer(ProjectImportConfiguration configuration) {
             this.fixedAttributes = configuration.toFixedAttributes();
         }
 
