@@ -21,7 +21,6 @@ import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.Pair;
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.launch.RunGradleTasksJob;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
 import org.eclipse.buildship.core.util.file.FileUtils;
@@ -30,9 +29,7 @@ import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.IPageChangeProvider;
 import org.eclipse.jface.dialogs.IPageChangedListener;
@@ -154,8 +151,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
 
     @Override
     public boolean performFinish() {
-        createAndImportGradleProject();
-        return true;
+        return this.importController.performImportProject(new MyAsyncHandler(this.importController.getConfiguration()));
     }
 
     @Override
@@ -227,30 +223,6 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
             this.previousPage = (IWizardPage) event.getSelectedPage();
         }
 
-    }
-
-    private void createAndImportGradleProject() {
-        ProjectImportConfiguration configuration = this.importController.getConfiguration();
-        File projectDir = configuration.getProjectDir().getValue();
-        if (!projectDir.exists()) {
-            if (projectDir.mkdir()) {
-                RunGradleTasksJob runGradleTasksJob = new RunGradleTasksJob(GRADLE_INIT_TASK_CMD_LINE, configuration.getProjectDir().getValue(), configuration.getGradleDistribution()
-                        .getValue().toGradleDistribution(), configuration.getGradleUserHome().getValue(), configuration.getJavaHome().getValue(), configuration.getJvmArguments()
-                        .getValue(), configuration.getArguments().getValue());
-                runGradleTasksJob.addJobChangeListener(new JobChangeAdapter() {
-
-                    @Override
-                    public void done(IJobChangeEvent event) {
-                        if (event.getResult().isOK()) {
-                            ProjectCreationWizard.this.importController.performImportProject();
-                        }
-                    }
-                });
-                runGradleTasksJob.schedule();
-            }
-        } else {
-            this.importController.performImportProject();
-        }
     }
 
     /**

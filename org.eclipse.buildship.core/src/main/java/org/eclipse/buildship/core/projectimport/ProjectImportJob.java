@@ -14,6 +14,8 @@ package org.eclipse.buildship.core.projectimport;
 import java.io.File;
 import java.util.List;
 
+import com.google.common.base.Preconditions;
+import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Function;
@@ -61,13 +63,15 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
 
     private final FixedRequestAttributes fixedAttributes;
     private final ImmutableList<String> workingSets;
+    private final AsyncHandler initializer;
 
-    public ProjectImportJob(ProjectImportConfiguration configuration) {
+    public ProjectImportJob(ProjectImportConfiguration configuration, AsyncHandler initializer) {
         super("Importing Gradle project");
 
         // extract the required data from the mutable configuration object
         this.fixedAttributes = configuration.toFixedAttributes();
         this.workingSets = configuration.getApplyWorkingSets().getValue() ? ImmutableList.copyOf(configuration.getWorkingSets().getValue()) : ImmutableList.<String>of();
+        this.initializer = Preconditions.checkNotNull(initializer);
 
         // explicitly show a dialog with the progress while the import is in process
         setUser(true);
@@ -76,6 +80,8 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
     @Override
     public void runToolingApiJobInWorkspace(IProgressMonitor monitor) {
         monitor.beginTask("Import Gradle project", 100);
+
+        this.initializer.run(new SubProgressMonitor(monitor, 10));
 
         // all Java operations use the workspace root as a scheduling rule
         // see org.eclipse.jdt.internal.core.JavaModelOperation#getSchedulingRule()

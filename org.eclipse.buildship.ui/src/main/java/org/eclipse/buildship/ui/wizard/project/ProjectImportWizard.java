@@ -164,7 +164,7 @@ public final class ProjectImportWizard extends Wizard implements IImportWizard, 
 
     @Override
     public boolean performFinish() {
-        return this.controller.performImportProject();
+        return this.controller.performImportProject(AsyncHandler.NO_OP);
     }
 
     @Override
