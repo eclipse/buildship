@@ -136,6 +136,10 @@
             id="org.eclipse.buildship.ui.convertproject"
             name="Convert to Gradle Project...">
       </command>
+      <command
+            id="org.eclipse.buildship.ui.command.refreshProjects"
+            name="Refresh Projects">
+      </command>
     </extension>
 
     <!-- integration of Gradle command handlers -->
@@ -164,6 +168,10 @@
       <handler
             class="org.eclipse.buildship.ui.wizard.project.ConvertToGradleProjectHandler"
             commandId="org.eclipse.buildship.ui.convertproject">
+      </handler>
+      <handler
+            class="org.eclipse.buildship.ui.handler.RefreshHandler"
+            commandId="org.eclipse.buildship.ui.command.refreshProjects">
       </handler>
     </extension>
 
@@ -272,6 +280,35 @@
                 </and>
              </visibleWhen>
           </command>
+       </menuContribution>
+       <menuContribution
+             allPopups="true"
+             locationURI="popup:org.eclipse.jdt.ui.PackageExplorer?after=additions">
+          <menu
+                id="menu.Gradle"
+                label="Gradle">
+             <command
+                   commandId="org.eclipse.buildship.ui.command.refreshProjects"
+                   style="push">
+                <visibleWhen
+                      checkEnabled="false">
+                   <with
+                         variable="activeMenuSelection">
+                      <iterate
+                            ifEmpty="false">
+                         <adapt
+                               type="org.eclipse.core.resources.IProject">
+                            <test
+                                  forcePluginActivation="true"
+                                  property="org.eclipse.core.resources.projectNature"
+                                  value="org.eclipse.buildship.core.gradleprojectnature">
+                            </test>
+                         </adapt>
+                      </iterate>
+                   </with>
+                </visibleWhen>
+             </command>
+          </menu>
        </menuContribution>
    </extension>
 
