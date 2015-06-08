@@ -28,8 +28,8 @@ public final class OpenRunConfigurationAction extends CommandBackedAction implem
     public OpenRunConfigurationAction(String commandId) {
         super(commandId);
 
-        setText(TasksViewMessages.Action_OpenRunConfiguration_Text);
-        setToolTipText(TasksViewMessages.Action_OpenRunConfiguration_Tooltip);
+        setText(TaskViewMessages.Action_OpenRunConfiguration_Text);
+        setToolTipText(TaskViewMessages.Action_OpenRunConfiguration_Tooltip);
     }
 
     @Override

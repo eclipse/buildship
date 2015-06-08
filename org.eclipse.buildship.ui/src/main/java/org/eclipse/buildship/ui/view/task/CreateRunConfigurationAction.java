@@ -28,8 +28,8 @@ public final class CreateRunConfigurationAction extends CommandBackedAction impl
     public CreateRunConfigurationAction(String commandId) {
         super(commandId);
 
-        setText(TasksViewMessages.Action_CreateRunConfiguration_Text);
-        setToolTipText(TasksViewMessages.Action_CreateRunConfiguration_Tooltip);
+        setText(TaskViewMessages.Action_CreateRunConfiguration_Text);
+        setToolTipText(TaskViewMessages.Action_CreateRunConfiguration_Tooltip);
     }
 
     @Override

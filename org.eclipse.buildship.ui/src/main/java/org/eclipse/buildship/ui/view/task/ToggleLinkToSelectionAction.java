@@ -30,7 +30,7 @@ public final class ToggleLinkToSelectionAction extends Action {
         super(null, AS_CHECK_BOX);
         this.taskView = Preconditions.checkNotNull(taskView);
 
-        setToolTipText(TasksViewMessages.Action_LinkToSelection_Tooltip);
+        setToolTipText(TaskViewMessages.Action_LinkToSelection_Tooltip);
         setImageDescriptor(PluginImages.LINK_TO_SELECTION.withState(PluginImage.ImageState.ENABLED).getImageDescriptor());
         setChecked(taskView.getState().isLinkToSelection());
     }

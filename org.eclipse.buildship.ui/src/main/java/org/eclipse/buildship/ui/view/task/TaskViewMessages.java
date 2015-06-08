@@ -16,9 +16,9 @@ import org.eclipse.osgi.util.NLS;
 /**
  * Lists the i18n resource keys for the task view messages.
  */
-public final class TasksViewMessages extends NLS {
+public final class TaskViewMessages extends NLS {
 
-    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.view.task.TasksViewMessages"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.view.task.TaskViewMessages"; //$NON-NLS-1$
 
     public static String Label_No_Gradle_Projects;
     public static String Label_Reload_Problem;
@@ -53,10 +53,10 @@ public final class TasksViewMessages extends NLS {
 
     static {
         // initialize resource bundle
-        NLS.initializeMessages(BUNDLE_NAME, TasksViewMessages.class);
+        NLS.initializeMessages(BUNDLE_NAME, TaskViewMessages.class);
     }
 
-    private TasksViewMessages() {
+    private TaskViewMessages() {
     }
 
 }

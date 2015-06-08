@@ -24,8 +24,8 @@ public final class RefreshViewAction extends CommandBackedAction {
     public RefreshViewAction(String commandId) {
         super(commandId);
 
-        setText(TasksViewMessages.Action_Refresh_Text);
-        setToolTipText(TasksViewMessages.Action_Refresh_Tooltip);
+        setText(TaskViewMessages.Action_Refresh_Text);
+        setToolTipText(TaskViewMessages.Action_Refresh_Tooltip);
         setImageDescriptor(PluginImages.REFRESH.withState(ImageState.ENABLED).getImageDescriptor());
         setDisabledImageDescriptor(PluginImages.REFRESH.withState(ImageState.DISABLED).getImageDescriptor());
     }
