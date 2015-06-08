@@ -14,6 +14,11 @@ package org.eclipse.buildship.ui.handler;
 import java.util.List;
 import java.util.Set;
 
+import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
+import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
 
@@ -23,12 +28,6 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableSet;
-
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
-import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -41,6 +40,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.ui.packageview.PackageFragmentRootContainer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -53,6 +53,7 @@ import org.eclipse.buildship.core.workspace.ClasspathDefinition;
 /**
  * Command handler to refresh the classpath for the currently selected Gradle projects.
  */
+@SuppressWarnings("restriction")
 public final class RefreshGradleClasspathContainerHandler extends AbstractHandler {
 
     @Override
@@ -123,9 +124,10 @@ public final class RefreshGradleClasspathContainerHandler extends AbstractHandle
                 OmniGradleBuildStructure structure = CorePlugin
                         .modelRepositoryProvider()
                         .getModelRepository(requestAttributes)
-                        .fetchGradleBuildStructure(new TransientRequestAttributes(false, stream.getOutput(), stream.getError(), stream.getInput(),
-                                ImmutableList.<ProgressListener> of(), ImmutableList.<org.gradle.tooling.events.ProgressListener> of(), GradleConnector
-                                        .newCancellationTokenSource().token()), FetchStrategy.LOAD_IF_NOT_CACHED);
+                        .fetchGradleBuildStructure(
+                                new TransientRequestAttributes(false, stream.getOutput(), stream.getError(), stream.getInput(), ImmutableList.<ProgressListener> of(),
+                                        ImmutableList.<org.gradle.tooling.events.ProgressListener> of(), GradleConnector.newCancellationTokenSource().token()),
+                                FetchStrategy.LOAD_IF_NOT_CACHED);
                 return structure.getRootProject();
             }
         }).toSet();
@@ -164,6 +166,12 @@ public final class RefreshGradleClasspathContainerHandler extends AbstractHandle
                 if (resource != null) {
                     IProject project = resource.getProject();
                     result.add(project);
+                }else {
+                    PackageFragmentRootContainer fragmentRootContainer = (PackageFragmentRootContainer) adapterManager
+                            .getAdapter(selectionItem, PackageFragmentRootContainer.class);
+                    if (fragmentRootContainer != null) {
+                        result.add(fragmentRootContainer.getJavaProject().getProject());
+                    }
                 }
             }
         }

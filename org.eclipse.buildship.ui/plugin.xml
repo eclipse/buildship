@@ -261,30 +261,95 @@
              allPopups="true"
              locationURI="popup:org.eclipse.jdt.ui.PackageExplorer?after=additions">
           <menu
-                id="org.eclipse.buildship.ui.contextmenuentry"
+                id="menu.package.explorer.Gradle"
                 label="Gradle">
              <command
                    commandId="org.eclipse.buildship.ui.command.refreshProjects"
                    style="push">
                 <visibleWhen
                       checkEnabled="false">
-                   <with
-                         variable="activeMenuSelection">
-                      <iterate
-                            ifEmpty="false">
-                         <adapt
-                               type="org.eclipse.core.resources.IProject">
-                            <test
-                                  forcePluginActivation="true"
-                                  property="org.eclipse.core.resources.projectNature"
-                                  value="org.eclipse.buildship.core.gradleprojectnature">
-                            </test>
-                         </adapt>
-                      </iterate>
-                   </with>
+                   <and>
+                      <with
+                            variable="activeMenuSelection">
+                         <iterate
+                               ifEmpty="false">
+                            <or>
+                               <adapt
+                                     type="org.eclipse.core.resources.IProject">
+                                  <test
+                                        forcePluginActivation="true"
+                                        property="org.eclipse.core.resources.projectNature"
+                                        value="org.eclipse.buildship.core.gradleprojectnature">
+                                  </test>
+                               </adapt>
+                               <and>
+                                  <instanceof
+                                        value="org.eclipse.jdt.internal.ui.packageview.PackageFragmentRootContainer">
+                                  </instanceof>
+                                  <test
+                                        forcePluginActivation="true"
+                                        property="org.eclipse.buildship.ui.PackageFragmentRootContainer.hasGradleNature">
+                                  </test>
+                               </and>
+                            </or>
+                         </iterate>
+                      </with>
+                   </and>
                 </visibleWhen>
              </command>
           </menu>
        </menuContribution>
+       <menuContribution
+             allPopups="true"
+             locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions">
+          <menu
+                id="menu.project.explorer.Gradle"
+                label="Gradle">
+             <command
+                   commandId="org.eclipse.buildship.ui.command.refreshProjects"
+                   style="push">
+                <visibleWhen
+                      checkEnabled="false">
+                      <and>
+                   <with
+                         variable="activeMenuSelection">
+                      <iterate
+                            ifEmpty="false">
+                         <or>
+                            <adapt
+                                  type="org.eclipse.core.resources.IProject">
+                               <test
+                                     forcePluginActivation="true"
+                                     property="org.eclipse.core.resources.projectNature"
+                                     value="org.eclipse.buildship.core.gradleprojectnature">
+                               </test>
+                            </adapt>
+                               <and>
+                                  <instanceof
+                                        value="org.eclipse.jdt.internal.ui.packageview.PackageFragmentRootContainer">
+                                  </instanceof>
+                                  <test
+                                        forcePluginActivation="true"
+                                        property="org.eclipse.buildship.ui.PackageFragmentRootContainer.hasGradleNature">
+                                  </test>
+                               </and>
+                         </or>
+                      </iterate>
+                   </with>
+                   </and>
+                </visibleWhen>
+             </command>
+          </menu>
+       </menuContribution>
+    </extension>
+    <extension
+          point="org.eclipse.core.expressions.propertyTesters">
+       <propertyTester
+             class="org.eclipse.buildship.ui.propertytester.GradleNaturePropertyTester"
+             id="org.eclipse.buildship.ui.propertyTester"
+             namespace="org.eclipse.buildship.ui.PackageFragmentRootContainer"
+             properties="hasGradleNature"
+             type="java.lang.Object">
+       </propertyTester>
     </extension>
 </plugin>
