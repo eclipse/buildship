@@ -253,12 +253,12 @@
              adaptable="true"
              icon="icons/full/ovr16/gradle_logo.png"
              id="org.eclipse.buildship.ui.gradledecorator"
-             label="Gradle Decorator"
+             label="%buildship.decorator.name"
              lightweight="true"
              location="TOP_LEFT"
              state="true">
           <description>
-             Adds an icon decoration to all gradle projects
+             %buildship.decorator.description
           </description>
           <enablement>
              <and>
