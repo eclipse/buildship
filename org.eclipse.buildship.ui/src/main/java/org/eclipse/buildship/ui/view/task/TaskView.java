@@ -74,11 +74,11 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
 
         // if there is no task data to display, show only a label
         this.emptyInputPage = new Label(this.pages, SWT.NONE);
-        this.emptyInputPage.setText(TasksViewMessages.Label_No_Gradle_Projects);
+        this.emptyInputPage.setText(TaskViewMessages.Label_No_Gradle_Projects);
 
         // if there is a problem loading the task data, show an error label
         this.errorInputPage = new Label(this.pages, SWT.NONE);
-        this.errorInputPage.setText(TasksViewMessages.Label_Reload_Problem);
+        this.errorInputPage.setText(TaskViewMessages.Label_Reload_Problem);
         this.errorInputPage.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_RED));
 
         // if there is task data to display, show the task tree and the search label on the bottom
@@ -102,11 +102,11 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
 
         // add columns to the tree
         final TreeColumn taskNameColumn = new TreeColumn(this.treeViewer.getTree(), SWT.LEFT);
-        taskNameColumn.setText(TasksViewMessages.Tree_Column_Name_Text);
+        taskNameColumn.setText(TaskViewMessages.Tree_Column_Name_Text);
         taskNameColumn.setWidth(this.state.getHeaderNameColumnWidth());
 
         final TreeColumn taskDescriptionColumn = new TreeColumn(this.treeViewer.getTree(), SWT.LEFT);
-        taskDescriptionColumn.setText(TasksViewMessages.Tree_Column_Description_Text);
+        taskDescriptionColumn.setText(TaskViewMessages.Tree_Column_Description_Text);
         taskDescriptionColumn.setWidth(this.state.getHeaderDescriptionColumnWidth());
 
         // when changed save the header width into the state

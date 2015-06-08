@@ -26,8 +26,8 @@ public final class RunDefaultTasksAction extends CommandBackedAction implements 
     public RunDefaultTasksAction(String commandId) {
         super(commandId);
 
-        setText(TasksViewMessages.Action_RunDefaultTasks_Text);
-        setToolTipText(TasksViewMessages.Action_RunDefaultTasks_Tooltip);
+        setText(TaskViewMessages.Action_RunDefaultTasks_Text);
+        setToolTipText(TaskViewMessages.Action_RunDefaultTasks_Tooltip);
         setImageDescriptor(PluginImages.RUN_TASKS.withState(PluginImage.ImageState.ENABLED).getImageDescriptor());
     }
 

@@ -23,8 +23,8 @@ public final class OpenBuildScriptAction extends CommandBackedAction implements 
     public OpenBuildScriptAction(String commandId) {
         super(commandId);
 
-        setText(TasksViewMessages.Action_OpenBuildScript_Text);
-        setToolTipText(TasksViewMessages.Action_OpenBuildScript_Tooltip);
+        setText(TaskViewMessages.Action_OpenBuildScript_Text);
+        setToolTipText(TaskViewMessages.Action_OpenBuildScript_Tooltip);
     }
 
     @Override

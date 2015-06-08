@@ -26,8 +26,8 @@ public final class RunTasksAction extends CommandBackedAction implements Selecti
     public RunTasksAction(String commandId) {
         super(commandId);
 
-        setText(TasksViewMessages.Action_RunTasks_Text);
-        setToolTipText(TasksViewMessages.Action_RunTasks_Tooltip);
+        setText(TaskViewMessages.Action_RunTasks_Text);
+        setToolTipText(TaskViewMessages.Action_RunTasks_Tooltip);
         setImageDescriptor(PluginImages.RUN_TASKS.withState(PluginImage.ImageState.ENABLED).getImageDescriptor());
     }
 
