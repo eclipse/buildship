@@ -40,7 +40,6 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -89,7 +88,16 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
      * {@link ClasspathDefinition#GRADLE_CLASSPATH_CONTAINER_ID}.
      */
     @Override
-    public void initialize(final IPath containerPath, final IJavaProject javaProject) throws CoreException {
+    public void initialize(IPath containerPath, IJavaProject javaProject) {
+        scheduleClasspathInitialization(containerPath, javaProject, FetchStrategy.LOAD_IF_NOT_CACHED);
+    }
+
+    @Override
+    public void requestClasspathContainerUpdate(IPath containerPath, IJavaProject project, IClasspathContainer containerSuggestion) {
+        scheduleClasspathInitialization(containerPath, project, FetchStrategy.FORCE_RELOAD);
+    }
+
+    private void scheduleClasspathInitialization(final IPath containerPath, final IJavaProject javaProject, final FetchStrategy fetchStrategy) {
         new ToolingApiWorkspaceJob("Initialize Gradle classpath for project '" + javaProject.getElementName() + "'") {
 
             @Override
@@ -101,7 +109,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
                 IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
                 manager.beginRule(workspaceRoot, monitor);
                 try {
-                    internalInitialize(containerPath, javaProject, monitor);
+                    internalInitialize(containerPath, javaProject, fetchStrategy, monitor);
                 } finally {
                     manager.endRule(workspaceRoot);
                 }
@@ -109,8 +117,8 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         }.schedule();
     }
 
-    private void internalInitialize(IPath containerPath, IJavaProject project, IProgressMonitor monitor) throws JavaModelException {
-        Optional<OmniEclipseProject> eclipseProject = findEclipseProject(project.getProject());
+    private void internalInitialize(IPath containerPath, IJavaProject project, FetchStrategy fetchStrategy, IProgressMonitor monitor) throws JavaModelException {
+        Optional<OmniEclipseProject> eclipseProject = findEclipseProject(project.getProject(), fetchStrategy);
         if (eclipseProject.isPresent()) {
             // update source folders
             List<IClasspathEntry> sourceFolders = collectSourceFolders(eclipseProject.get(), project);
@@ -127,13 +135,13 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         }
     }
 
-    private Optional<OmniEclipseProject> findEclipseProject(IProject project) {
+    private Optional<OmniEclipseProject> findEclipseProject(IProject project, FetchStrategy fetchStrategy) {
         ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
-        OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(configuration.getRequestAttributes());
+        OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(configuration.getRequestAttributes(), fetchStrategy);
         return eclipseGradleBuild.getRootEclipseProject().tryFind(Specs.eclipseProjectMatchesProjectPath(configuration.getProjectPath()));
     }
 
-    private OmniEclipseGradleBuild fetchEclipseGradleBuild(FixedRequestAttributes fixedRequestAttributes) {
+    private OmniEclipseGradleBuild fetchEclipseGradleBuild(FixedRequestAttributes fixedRequestAttributes, FetchStrategy fetchStrategy) {
         ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
         List<ProgressListener> noProgressListeners = ImmutableList.of();
         List<org.gradle.tooling.events.ProgressListener> noTypedProgressListeners = ImmutableList.of();
@@ -141,7 +149,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), null, noProgressListeners,
                 noTypedProgressListeners, cancellationToken);
         ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(fixedRequestAttributes);
-        return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
+        return repository.fetchEclipseGradleBuild(transientAttributes, fetchStrategy);
     }
 
     private List<IClasspathEntry> collectSourceFolders(OmniEclipseProject gradleProject, final IJavaProject workspaceProject) {
@@ -282,7 +290,6 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         public int getKind() {
             return IClasspathContainer.K_APPLICATION;
         }
-
     }
 
 }
