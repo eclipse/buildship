@@ -31,12 +31,17 @@ import org.eclipse.buildship.ui.PluginImages;
  * {@link IStyledLabelProvider} for the task name column in the TaskView.
  *
  */
-public class TaskNameLabelProvider extends LabelProvider implements IStyledLabelProvider {
+public final class TaskNameLabelProvider extends LabelProvider implements IStyledLabelProvider {
 
-    private WorkbenchLabelProvider workbenchLabelProvider;
+    private final WorkbenchLabelProvider workbenchLabelProvider;
 
     public TaskNameLabelProvider() {
         this.workbenchLabelProvider = new WorkbenchLabelProvider();
+    }
+
+    @Override
+    public String getText(Object element) {
+        return element == null ? "" : getStyledText(element).getString();
     }
 
     @Override
@@ -52,11 +57,6 @@ public class TaskNameLabelProvider extends LabelProvider implements IStyledLabel
         } else {
             throw new IllegalStateException(String.format("Unknown element type of element %s.", element));
         }
-    }
-
-    @Override
-    public String getText(Object element) {
-        return getStyledText(element).getString();
     }
 
     @Override
@@ -87,7 +87,7 @@ public class TaskNameLabelProvider extends LabelProvider implements IStyledLabel
     }
 
     private Image getProjectImage(ProjectNode project) {
-            Optional<IProject> workspaceProject = project.getWorkspaceProject();
+        Optional<IProject> workspaceProject = project.getWorkspaceProject();
         return workspaceProject.isPresent() ? this.workbenchLabelProvider.getImage(workspaceProject.get()) : null;
     }
 
@@ -126,4 +126,5 @@ public class TaskNameLabelProvider extends LabelProvider implements IStyledLabel
         this.workbenchLabelProvider.dispose();
         super.dispose();
     }
+
 }

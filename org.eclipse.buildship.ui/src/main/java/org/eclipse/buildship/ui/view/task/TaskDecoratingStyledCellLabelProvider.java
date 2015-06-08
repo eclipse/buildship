@@ -11,6 +11,8 @@
 
 package org.eclipse.buildship.ui.view.task;
 
+import com.google.common.base.Optional;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.DecoratingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.IDecorationContext;
 import org.eclipse.jface.viewers.ILabelDecorator;
@@ -20,10 +22,10 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 
 /**
- * {@link DecoratingStyledCellLabelProvider}, which is used to offer appropriate Eclipse elements
- * for the LabelProvider, which should be styled.
+ * Decorating label provider which is used to offer appropriate Eclipse elements for
+ * the target label provider that needs to be styled.
  */
-public class TaskDecoratingStyledCellLabelProvider extends DecoratingStyledCellLabelProvider {
+public final class TaskDecoratingStyledCellLabelProvider extends DecoratingStyledCellLabelProvider {
 
     public TaskDecoratingStyledCellLabelProvider(IStyledLabelProvider labelProvider, ILabelDecorator decorator, IDecorationContext decorationContext) {
         super(labelProvider, decorator, decorationContext);
@@ -55,9 +57,14 @@ public class TaskDecoratingStyledCellLabelProvider extends DecoratingStyledCellL
     }
 
     protected Object getTaskViewElement(Object element) {
+        // 'convert' ProjectNode to IProject in order to render the Gradle project decorators like in all other Eclipse views
         if (element instanceof ProjectNode) {
-            return ((ProjectNode) element).getWorkspaceProject().get();
+            ProjectNode projectNode = (ProjectNode) element;
+            Optional<IProject> workspaceProject = projectNode.getWorkspaceProject();
+            return workspaceProject.isPresent() ? workspaceProject.get() : projectNode;
+        } else {
+            return element;
         }
-        return element;
     }
+
 }
