@@ -16,7 +16,9 @@ import java.util.Set;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.jface.viewers.ILabelDecorator;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -27,6 +29,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
 
@@ -93,19 +96,24 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
         this.treeViewer = this.filteredTree.getViewer();
         this.treeViewer.getControl().setLayoutData(new GridData(GridData.FILL_BOTH));
 
-        // set filter, comparator, content provider, and label provider on the tree
+        // set filter, comparator, and content provider
         this.treeViewer.addFilter(TaskNodeViewerFilter.createFor(getState()));
         this.treeViewer.setComparator(TaskNodeViewerSorter.createFor(this.state));
         this.treeViewer.setContentProvider(new TaskViewContentProvider(this, CorePlugin.modelRepositoryProvider(), CorePlugin.processStreamsProvider(), CorePlugin
                 .workspaceOperations()));
-        this.treeViewer.setLabelProvider(new TaskViewLabelProvider());
 
-        // add columns to the tree
-        final TreeColumn taskNameColumn = new TreeColumn(this.treeViewer.getTree(), SWT.LEFT);
+        // add columns to the tree and configure label providers
+        ILabelDecorator labelDecorator = PlatformUI.getWorkbench().getDecoratorManager().getLabelDecorator();
+
+        TreeViewerColumn treeViewerNameColumn = new TreeViewerColumn(this.treeViewer, SWT.LEFT);
+        treeViewerNameColumn.setLabelProvider(new TaskDecoratingStyledCellLabelProvider(new TaskNameLabelProvider(), labelDecorator, null));
+        final TreeColumn taskNameColumn = treeViewerNameColumn.getColumn();
         taskNameColumn.setText(TaskViewMessages.Tree_Column_Name_Text);
         taskNameColumn.setWidth(this.state.getHeaderNameColumnWidth());
 
-        final TreeColumn taskDescriptionColumn = new TreeColumn(this.treeViewer.getTree(), SWT.LEFT);
+        TreeViewerColumn treeViewerDescriptionColumn = new TreeViewerColumn(this.treeViewer, SWT.LEFT);
+        treeViewerDescriptionColumn.setLabelProvider(new TaskDescriptionLabelProvider());
+        final TreeColumn taskDescriptionColumn = treeViewerDescriptionColumn.getColumn();
         taskDescriptionColumn.setText(TaskViewMessages.Tree_Column_Description_Text);
         taskDescriptionColumn.setWidth(this.state.getHeaderDescriptionColumnWidth());
 
