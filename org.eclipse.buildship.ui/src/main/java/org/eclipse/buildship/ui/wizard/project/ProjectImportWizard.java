@@ -13,7 +13,13 @@ package org.eclipse.buildship.ui.wizard.project;
 
 import java.util.List;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
+import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
+import com.gradleware.tooling.toolingmodel.util.Pair;
 import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
+import org.eclipse.core.runtime.jobs.Job;
+import org.gradle.tooling.ProgressListener;
 import org.osgi.service.prefs.BackingStoreException;
 
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
@@ -90,7 +96,12 @@ public final class ProjectImportWizard extends Wizard implements IImportWizard, 
         this.welcomeWizardPage = new GradleWelcomeWizardPage(configuration);
         this.gradleProjectPage = new GradleProjectWizardPage(configuration);
         this.gradleOptionsPage = new GradleOptionsWizardPage(configuration, publishedGradleVersions);
-        this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller);
+        this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller, new ProjectPreviewWizardPage.ProjectPreviewLoader() {
+            @Override
+            public Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler, List<ProgressListener> listeners) {
+                return ProjectImportWizard.this.controller.performPreviewProject(resultHandler, listeners);
+            }
+        });
 
         // the wizard must not be finishable unless this global flag is enabled
         this.finishGloballyEnabled = true;

@@ -12,9 +12,11 @@
 package org.eclipse.buildship.ui.wizard.project;
 
 import java.io.File;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.base.Preconditions;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.util.GradleVersion;
 
@@ -65,6 +67,7 @@ import org.eclipse.buildship.ui.util.widget.UiBuilder;
 public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
     private final ProjectImportWizardController controller;
+    private final ProjectPreviewLoader projectPreviewLoader;
     private final Font keyFont;
     private final Font valueFont;
     private final String pageContextInformation;
@@ -79,14 +82,15 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     private Label argumentsLabel;
     private Tree projectPreviewTree;
 
-    public ProjectPreviewWizardPage(ProjectImportWizardController controller) {
-        this(controller, ProjectWizardMessages.Title_PreviewImportWizardPage, ProjectWizardMessages.InfoMessage_PreviewImportWizardPageDefault,
+    public ProjectPreviewWizardPage(ProjectImportWizardController controller, ProjectPreviewLoader previewLoader) {
+        this(controller, previewLoader, ProjectWizardMessages.Title_PreviewImportWizardPage, ProjectWizardMessages.InfoMessage_PreviewImportWizardPageDefault,
                 ProjectWizardMessages.InfoMessage_GradlePreviewWizardPageContext);
     }
 
-    public ProjectPreviewWizardPage(ProjectImportWizardController controller, String title, String defaultMessage, String pageContextInformation) {
+    public ProjectPreviewWizardPage(ProjectImportWizardController controller, ProjectPreviewLoader previewLoader, String title, String defaultMessage, String pageContextInformation) {
         super("ProjectPreview", title, defaultMessage, controller.getConfiguration(), ImmutableList.<Property<?>> of()); //$NON-NLS-1$
-        this.controller = controller;
+        this.controller = Preconditions.checkNotNull(controller);
+        this.projectPreviewLoader = Preconditions.checkNotNull(previewLoader);
         this.keyFont = FontUtils.getCustomDialogFont(SWT.BOLD);
         this.valueFont = FontUtils.getCustomDialogFont(SWT.NONE);
         this.pageContextInformation = pageContextInformation;
@@ -253,7 +257,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     private void scheduleProjectPreviewJob() {
         final CountDownLatch latch = new CountDownLatch(1);
         final DelegatingProgressListener listener = new DelegatingProgressListener();
-        final Job job = this.controller.performPreviewProject(new ProjectPreviewJobResultHandler(latch), ImmutableList.<ProgressListener> of(listener));
+        final Job job = this.projectPreviewLoader.loadPreview(new ProjectPreviewJobResultHandler(latch), ImmutableList.<ProgressListener>of(listener));
 
         try {
             // once cancellation has been requested by the user, do not block any longer
@@ -278,6 +282,12 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         } catch (Exception e) {
             UiPlugin.logger().error("Failed to load preview.", e); //$NON-NLS-1$
         }
+    }
+
+    public interface ProjectPreviewLoader {
+
+        Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler, List<ProgressListener> listeners);
+
     }
 
     /**
