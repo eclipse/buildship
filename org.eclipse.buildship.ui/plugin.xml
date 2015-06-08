@@ -247,4 +247,27 @@
              id="org.eclipse.buildship.ui">
        </plugin>
     </extension>
+    <extension
+          point="org.eclipse.ui.decorators">
+       <decorator
+             adaptable="true"
+             icon="icons/full/ovr16/gradle_logo.png"
+             id="org.eclipse.buildship.ui.gradledecorator"
+             label="%buildship.decorator.name"
+             lightweight="true"
+             location="TOP_LEFT"
+             state="true">
+          <description>
+             %buildship.decorator.description
+          </description>
+          <enablement>
+             <and>
+                <objectState
+                      name="nature"
+                      value="org.eclipse.buildship.core.gradleprojectnature">
+                </objectState>
+             </and>
+          </enablement>
+       </decorator>
+    </extension>
 </plugin>
