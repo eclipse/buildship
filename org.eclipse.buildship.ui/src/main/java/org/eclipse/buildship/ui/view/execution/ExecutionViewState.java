@@ -24,7 +24,7 @@ import org.eclipse.buildship.ui.view.TreeViewerState;
  * Represents the (persistable) configuration state of the {@link ExecutionsView}. Backed by the
  * Eclipse Preferences API.
  */
-public final class ExecutionsViewState implements TreeViewerState {
+public final class ExecutionViewState implements TreeViewerState {
 
     private static final String PREF_SHOW_TREE_HEADER = "executionsView.showTreeHeader"; //$NON-NLS-1$
     private static final String PREF_HEADER_NAME_COLUMN_WIDTH = "executionsView.headerNameColumnWidth"; //$NON-NLS-1$
