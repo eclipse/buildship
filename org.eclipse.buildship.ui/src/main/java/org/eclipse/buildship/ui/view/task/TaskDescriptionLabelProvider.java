@@ -12,13 +12,12 @@
 package org.eclipse.buildship.ui.view.task;
 
 import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.swt.graphics.Color;
 
 import org.eclipse.buildship.ui.util.color.ColorUtils;
 
 /**
- * {@link IStyledLabelProvider} for the task description column in the TaskView.
+ * Styled label provider for the task description column in the TaskView.
  */
 public final class TaskDescriptionLabelProvider extends ColumnLabelProvider {
 
