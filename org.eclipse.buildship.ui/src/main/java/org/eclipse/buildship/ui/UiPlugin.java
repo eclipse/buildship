@@ -112,6 +112,7 @@ public final class UiPlugin extends AbstractUIPlugin {
 
     private void registerListeners() {
         this.consoleShowingLaunchListener = new ConsoleShowingLaunchListener();
+        this.consoleShowingLaunchListener.handleAlreadyRunningLaunches();
         DebugPlugin.getDefault().getLaunchManager().addLaunchListener(this.consoleShowingLaunchListener);
 
         this.executionShowingBuildLaunchRequestListener = new ExecutionShowingBuildLaunchRequestListener();

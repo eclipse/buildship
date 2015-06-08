@@ -12,17 +12,20 @@
 package org.eclipse.buildship.ui.launch;
 
 import com.google.common.base.Optional;
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
-import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate;
-import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.UiPluginConstants;
-import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
+
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
+
+import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate;
+import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.UiPluginConstants;
+import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 
 /**
  * {@link ILaunchListener} implementation showing/activating the Console View when a new Gradle build has launched and the {@link
@@ -68,6 +71,18 @@ public final class ConsoleShowingLaunchListener implements ILaunchListener {
 
     @Override
     public void launchChanged(ILaunch launch) {
+    }
+
+    /**
+     * Applies the logic of this listener to all already running Gradle consoles. This is needed since in case the ui plugin is started <i>after</i> a
+     * run configuration has been launched, this listener will be registered too late to be notified about the launched console.
+     */
+    public void handleAlreadyRunningLaunches() {
+        for (ILaunch launch : DebugPlugin.getDefault().getLaunchManager().getLaunches()) {
+            if (!launch.isTerminated()) {
+                launchAdded(launch);
+            }
+        }
     }
 
 }
