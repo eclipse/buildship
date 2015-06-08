@@ -162,7 +162,7 @@
             class="org.eclipse.buildship.ui.view.task.OpenBuildScriptHandler">
       </handler>
       <handler
-            class="org.eclipse.buildship.ui.handler.RefreshHandler"
+            class="org.eclipse.buildship.ui.handler.RefreshGradleClasspathContainerHandler"
             commandId="org.eclipse.buildship.ui.command.refreshProjects">
       </handler>
     </extension>
@@ -286,7 +286,7 @@
              allPopups="true"
              locationURI="popup:org.eclipse.jdt.ui.PackageExplorer?after=additions">
           <menu
-                id="menu.Gradle"
+                id="org.eclipse.buildship.ui.contextmenuentry"
                 label="Gradle">
              <command
                    commandId="org.eclipse.buildship.ui.command.refreshProjects"
