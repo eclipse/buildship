@@ -22,7 +22,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 
 /**
- * Decorating label provider which is used to offer appropriate Eclipse elements for
+ * Decorating styled label provider which is used to offer appropriate Eclipse elements for
  * the target label provider that needs to be styled.
  */
 public final class TaskDecoratingStyledCellLabelProvider extends DecoratingStyledCellLabelProvider {

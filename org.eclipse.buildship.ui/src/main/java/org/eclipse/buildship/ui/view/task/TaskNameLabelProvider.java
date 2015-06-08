@@ -28,8 +28,7 @@ import org.eclipse.buildship.ui.PluginImageWithState;
 import org.eclipse.buildship.ui.PluginImages;
 
 /**
- * {@link IStyledLabelProvider} for the task name column in the TaskView.
- *
+ * Styled label provider for the task name column in the TaskView.
  */
 public final class TaskNameLabelProvider extends LabelProvider implements IStyledLabelProvider {
 
