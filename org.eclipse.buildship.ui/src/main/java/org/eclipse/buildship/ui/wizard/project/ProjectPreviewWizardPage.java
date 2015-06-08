@@ -72,7 +72,6 @@ import org.eclipse.buildship.ui.util.widget.UiBuilder;
  */
 public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
-    private final ProjectImportWizardController controller;
     private final ProjectPreviewLoader projectPreviewLoader;
     private final Font keyFont;
     private final Font valueFont;
@@ -88,14 +87,15 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     private Label argumentsLabel;
     private Tree projectPreviewTree;
 
-    public ProjectPreviewWizardPage(ProjectImportWizardController controller, ProjectPreviewLoader previewLoader) {
-        this(controller, previewLoader, ProjectWizardMessages.Title_PreviewImportWizardPage, ProjectWizardMessages.InfoMessage_PreviewImportWizardPageDefault,
+    public ProjectPreviewWizardPage(ProjectImportConfiguration configuration, ProjectPreviewLoader previewLoader) {
+        this(configuration, previewLoader,
+                ProjectWizardMessages.Title_PreviewImportWizardPage,
+                ProjectWizardMessages.InfoMessage_PreviewImportWizardPageDefault,
                 ProjectWizardMessages.InfoMessage_GradlePreviewWizardPageContext);
     }
 
-    public ProjectPreviewWizardPage(ProjectImportWizardController controller, ProjectPreviewLoader previewLoader, String title, String defaultMessage, String pageContextInformation) {
-        super("ProjectPreview", title, defaultMessage, controller.getConfiguration(), ImmutableList.<Property<?>> of()); //$NON-NLS-1$
-        this.controller = Preconditions.checkNotNull(controller);
+    public ProjectPreviewWizardPage(ProjectImportConfiguration configuration, ProjectPreviewLoader previewLoader, String title, String defaultMessage, String pageContextInformation) {
+        super("ProjectPreview", title, defaultMessage, configuration, ImmutableList.<Property<?>> of()); //$NON-NLS-1$
         this.projectPreviewLoader = Preconditions.checkNotNull(previewLoader);
         this.keyFont = FontUtils.getCustomDialogFont(SWT.BOLD);
         this.valueFont = FontUtils.getCustomDialogFont(SWT.NONE);
@@ -290,8 +290,19 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         }
     }
 
+    /**
+     * Loads the Gradle project data required to populate the preview page. Having the logic to load the data outside of the actual project preview wizard page
+     * allows the wizard that is using the preview page to do additional things in preparation of showing the preview.
+     */
     public interface ProjectPreviewLoader {
 
+        /**
+         * Loads the Gradle project data required to populate the preview page.
+         *
+         * @param resultHandler the handler that is called once the project data has been loaded or a failure occurred
+         * @param listeners     the progress listeners to register when calling Gradle
+         * @return the job in which the Gradle project data is loaded
+         */
         Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler, List<ProgressListener> listeners);
 
     }

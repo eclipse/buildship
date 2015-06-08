@@ -96,7 +96,7 @@ public final class ProjectImportWizard extends Wizard implements IImportWizard, 
         this.welcomeWizardPage = new GradleWelcomeWizardPage(configuration);
         this.gradleProjectPage = new GradleProjectWizardPage(configuration);
         this.gradleOptionsPage = new GradleOptionsWizardPage(configuration, publishedGradleVersions);
-        this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller, new ProjectPreviewWizardPage.ProjectPreviewLoader() {
+        this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller.getConfiguration(), new ProjectPreviewWizardPage.ProjectPreviewLoader() {
             @Override
             public Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler, List<ProgressListener> listeners) {
                 return ProjectImportWizard.this.controller.performPreviewProject(resultHandler, listeners);
