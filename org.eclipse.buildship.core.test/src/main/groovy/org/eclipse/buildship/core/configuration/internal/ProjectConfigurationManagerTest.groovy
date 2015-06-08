@@ -17,6 +17,7 @@ import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
 import org.eclipse.buildship.core.projectimport.ProjectImportJob
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
+import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import com.gradleware.tooling.junit.TestFile
 import com.gradleware.tooling.toolingclient.GradleDistribution
@@ -106,7 +107,7 @@ class ProjectConfigurationManagerTest extends Specification {
         importConfigurationOne.applyWorkingSets = true
         importConfigurationOne.workingSets = []
 
-        new ProjectImportJob(importConfigurationOne).runToolingApiJobInWorkspace(new NullProgressMonitor())
+        new ProjectImportJob(importConfigurationOne, AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
 
         when:
         Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
@@ -175,8 +176,8 @@ class ProjectConfigurationManagerTest extends Specification {
         importConfigurationTwo.applyWorkingSets = true
         importConfigurationTwo.workingSets = []
 
-        new ProjectImportJob(importConfigurationOne).runToolingApiJobInWorkspace(new NullProgressMonitor())
-        new ProjectImportJob(importConfigurationTwo).runToolingApiJobInWorkspace(new NullProgressMonitor())
+        new ProjectImportJob(importConfigurationOne, AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
+        new ProjectImportJob(importConfigurationTwo, AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
 
         when:
         Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()

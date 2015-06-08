@@ -6,6 +6,7 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectBuilder
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
+import org.eclipse.buildship.core.util.progress.AsyncHandler
 
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -155,7 +156,7 @@ class ProjectImportJobTest extends Specification {
         configuration.projectDir = location
         configuration.applyWorkingSets = true
         configuration.workingSets = []
-        new ProjectImportJob(configuration)
+        new ProjectImportJob(configuration, AsyncHandler.NO_OP)
     }
 
 }
