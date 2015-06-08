@@ -13,6 +13,8 @@ package org.eclipse.buildship.core.projectimport;
 
 import java.util.List;
 
+import com.google.common.base.Preconditions;
+import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.collect.ImmutableList;
@@ -42,10 +44,11 @@ public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
 
     private final FixedRequestAttributes fixedAttributes;
     private final TransientRequestAttributes transientAttributes;
+    private final AsyncHandler initializer;
 
     private Pair<OmniBuildEnvironment, OmniGradleBuildStructure> result;
 
-    public ProjectPreviewJob(ProjectImportConfiguration configuration, List<ProgressListener> listeners,
+    public ProjectPreviewJob(ProjectImportConfiguration configuration, List<ProgressListener> listeners, AsyncHandler initializer,
                              final FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler) {
         super("Loading Gradle project preview");
 
@@ -53,6 +56,7 @@ public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
         ProcessStreams stream = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
         this.transientAttributes = new TransientRequestAttributes(false, stream.getOutput(), stream.getError(), null, listeners,
                 ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
+        this.initializer = Preconditions.checkNotNull(initializer);
 
         this.result = null;
 
@@ -71,7 +75,9 @@ public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
 
     @Override
     public void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
-        monitor.beginTask("Load Gradle project preview", 10);
+        monitor.beginTask("Load Gradle project preview", 20);
+
+        this.initializer.run(new SubProgressMonitor(monitor, 10));
 
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(new SubProgressMonitor(monitor, 2));
         OmniGradleBuildStructure gradleBuildStructure = fetchGradleBuildStructure(new SubProgressMonitor(monitor, 8));

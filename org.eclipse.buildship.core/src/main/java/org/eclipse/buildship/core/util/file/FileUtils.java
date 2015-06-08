@@ -28,6 +28,21 @@ public final class FileUtils {
     }
 
     /**
+     * Derives a {@code File} instance with absolute path from the specified {@code File} instance.
+     *
+     * @param file the relative or absolute file of the {@code File} instance to derive
+     * @return the absolute {@code File} if the file is not {@code null}, otherwise
+     * {@link Optional#absent()}
+     */
+    public static Optional<File> getAbsoluteFile(File file) {
+        if (file == null) {
+            return Optional.absent();
+        } else {
+            return Optional.of(file.isAbsolute() ? file : file.getAbsoluteFile());
+        }
+    }
+
+    /**
      * Derives a {@code File} instance with absolute path from the specified path.
      *
      * @param path the relative or absolute path of the {@code File} instance to derive
