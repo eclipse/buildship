@@ -247,4 +247,27 @@
              id="org.eclipse.buildship.ui">
        </plugin>
     </extension>
+    <extension
+          point="org.eclipse.ui.decorators">
+       <decorator
+             adaptable="true"
+             icon="icons/full/ovr16/gradle_logo.png"
+             id="org.eclipse.buildship.ui.gradledecorator"
+             label="Gradle Decorator"
+             lightweight="true"
+             location="TOP_LEFT"
+             state="true">
+          <description>
+             Adds an icon decoration to all gradle projects
+          </description>
+          <enablement>
+             <and>
+                <objectState
+                      name="nature"
+                      value="org.eclipse.buildship.core.gradleprojectnature">
+                </objectState>
+             </and>
+          </enablement>
+       </decorator>
+    </extension>
 </plugin>
