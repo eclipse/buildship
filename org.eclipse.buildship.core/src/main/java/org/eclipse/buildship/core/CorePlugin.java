@@ -18,7 +18,7 @@ import java.util.Hashtable;
 import com.gradleware.tooling.toolingclient.ToolingClient;
 import com.gradleware.tooling.toolingmodel.repository.Environment;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
-import com.gradleware.tooling.toolingmodel.repository.internal.DefaultModelRepositoryProvider;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProviderFactory;
 import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -162,7 +162,7 @@ public final class CorePlugin extends Plugin {
 
     private ModelRepositoryProvider createModelRepositoryProvider() {
         ToolingClient toolingClient = (ToolingClient) this.toolingClientServiceTracker.getService();
-        return new DefaultModelRepositoryProvider(toolingClient, Environment.ECLIPSE);
+        return ModelRepositoryProviderFactory.create(toolingClient, Environment.ECLIPSE);
     }
 
     private WorkspaceOperations createWorkspaceOperations() {
