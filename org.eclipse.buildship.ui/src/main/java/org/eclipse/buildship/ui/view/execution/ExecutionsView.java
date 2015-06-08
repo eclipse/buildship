@@ -35,7 +35,7 @@ public final class ExecutionsView extends MultiPageView {
     // view id declared in the plugin.xml
     public static final String ID = "org.eclipse.buildship.ui.views.executionview"; //$NON-NLS-1$
 
-    private ExecutionsViewState state;
+    private ExecutionViewState state;
     private IContributionItem switchPagesAction;
 
     @Override
@@ -43,7 +43,7 @@ public final class ExecutionsView extends MultiPageView {
         super.init(site);
 
         // load the persisted state before we create any UI components that query for some state
-        this.state = new ExecutionsViewState();
+        this.state = new ExecutionViewState();
         this.state.load();
 
         // create the global actions
