@@ -18,12 +18,12 @@ import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.Pair;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.launch.RunGradleTasksJob;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
-import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.ui.HelpContext;
@@ -258,41 +258,42 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
      */
     private static final class MyAsyncHandler implements AsyncHandler {
 
-        // todo (etst) finish this (set progress task name, copy attributes, etc.)
-
-        private final ProjectImportConfiguration configuration;
+        private final FixedRequestAttributes fixedAttributes;
 
         private MyAsyncHandler(ProjectImportConfiguration configuration) {
-            this.configuration = configuration;
+            this.fixedAttributes = configuration.toFixedAttributes();
         }
 
         @Override
         public void run(IProgressMonitor monitor) {
-            File projectDir = this.configuration.getProjectDir().getValue().getAbsoluteFile();
-            if (!projectDir.exists()) {
-                if (projectDir.mkdir()) {
-                    List<String> tasks = GRADLE_INIT_TASK_CMD_LINE;
-                    GradleDistribution gradleDistribution = this.configuration.getGradleDistribution().getValue().toGradleDistribution();
-                    File gradleUserHome = FileUtils.getAbsoluteFile(this.configuration.getGradleUserHome().getValue()).orNull();
-                    File javaHome = FileUtils.getAbsoluteFile(this.configuration.getJavaHome().getValue()).orNull();
-                    ImmutableList<String> jvmArguments = CollectionsUtils.splitBySpace(this.configuration.getJvmArguments().getValue());
-                    ImmutableList<String> arguments = CollectionsUtils.splitBySpace(this.configuration.getArguments().getValue());
+            monitor.beginTask("Init Gradle project", IProgressMonitor.UNKNOWN);
+            try {
+                File projectDir = this.fixedAttributes.getProjectDir().getAbsoluteFile();
+                if (!projectDir.exists()) {
+                    if (projectDir.mkdir()) {
+                        // prepare the request
+                        List<String> tasks = GRADLE_INIT_TASK_CMD_LINE;
+                        GradleDistribution gradleDistribution = this.fixedAttributes.getGradleDistribution();
+                        File gradleUserHome = FileUtils.getAbsoluteFile(this.fixedAttributes.getGradleUserHome()).orNull();
+                        File javaHome = FileUtils.getAbsoluteFile(this.fixedAttributes.getJavaHome()).orNull();
+                        List<String> jvmArguments = this.fixedAttributes.getJvmArguments();
+                        List<String> arguments = this.fixedAttributes.getArguments();
 
-                    // start tracking progress
-                    monitor.beginTask(String.format("Launch Gradle tasks %s", tasks), IProgressMonitor.UNKNOWN);
+                        // configure the request
+                        BuildLaunchRequest request = CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(tasks));
+                        request.projectDir(projectDir);
+                        request.gradleDistribution(gradleDistribution);
+                        request.gradleUserHomeDir(gradleUserHome);
+                        request.javaHomeDir(javaHome);
+                        request.jvmArguments(jvmArguments.toArray(new String[jvmArguments.size()]));
+                        request.arguments(arguments.toArray(new String[arguments.size()]));
 
-                    // configure the request
-                    BuildLaunchRequest request = CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(tasks));
-                    request.projectDir(projectDir);
-                    request.gradleDistribution(gradleDistribution);
-                    request.gradleUserHomeDir(gradleUserHome);
-                    request.javaHomeDir(javaHome);
-                    request.jvmArguments(jvmArguments.toArray(new String[jvmArguments.size()]));
-                    request.arguments(arguments.toArray(new String[arguments.size()]));
-
-                    // launch the build
-                    request.executeAndWait();
+                        // launch the build
+                        request.executeAndWait();
+                    }
                 }
+            } finally {
+                monitor.done();
             }
         }
     }
