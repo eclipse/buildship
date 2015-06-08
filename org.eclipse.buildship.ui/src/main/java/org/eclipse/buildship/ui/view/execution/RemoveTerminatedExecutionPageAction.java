@@ -34,7 +34,7 @@ import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 public final class RemoveTerminatedExecutionPageAction extends RemovePageAction {
 
     public RemoveTerminatedExecutionPageAction(ExecutionPage page) {
-        super(page, ExecutionsViewMessages.Action_RemoveExecutionPage_Tooltip);
+        super(page, ExecutionViewMessages.Action_RemoveExecutionPage_Tooltip);
 
         registerJobChangeListener();
     }

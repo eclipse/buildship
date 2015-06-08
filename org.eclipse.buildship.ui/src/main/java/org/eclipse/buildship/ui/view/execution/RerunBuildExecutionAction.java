@@ -34,7 +34,7 @@ public final class RerunBuildExecutionAction extends Action {
     public RerunBuildExecutionAction(ExecutionPage executionPage) {
         this.page = Preconditions.checkNotNull(executionPage);
 
-        setToolTipText(ExecutionsViewMessages.Action_RerunBuild_Tooltip);
+        setToolTipText(ExecutionViewMessages.Action_RerunBuild_Tooltip);
         setImageDescriptor(PluginImages.RERUN_BUILD.withState(ImageState.ENABLED).getImageDescriptor());
         setDisabledImageDescriptor(PluginImages.RERUN_BUILD.withState(ImageState.DISABLED).getImageDescriptor());
 

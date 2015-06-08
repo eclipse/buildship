@@ -108,11 +108,11 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         filteredTree.getViewer().getTree().setHeaderVisible(this.state.isShowTreeHeader());
 
         this.nameColumn = new TreeViewerColumn(filteredTree.getViewer(), SWT.NONE);
-        this.nameColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Name_Text);
+        this.nameColumn.getColumn().setText(ExecutionViewMessages.Tree_Column_Operation_Name_Text);
         this.nameColumn.getColumn().setWidth(this.state.getHeaderNameColumnWidth());
 
         this.durationColumn = new TreeViewerColumn(filteredTree.getViewer(), SWT.RIGHT);
-        this.durationColumn.getColumn().setText(ExecutionsViewMessages.Tree_Column_Operation_Duration_Text);
+        this.durationColumn.getColumn().setText(ExecutionViewMessages.Tree_Column_Operation_Duration_Text);
         this.durationColumn.getColumn().setWidth(this.state.getHeaderDurationColumnWidth());
 
         // configure data binding
