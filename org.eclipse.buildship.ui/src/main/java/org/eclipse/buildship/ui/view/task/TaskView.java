@@ -96,15 +96,15 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
         this.treeViewer = this.filteredTree.getViewer();
         this.treeViewer.getControl().setLayoutData(new GridData(GridData.FILL_BOTH));
 
-        // set filter, comparator, content provider, and label provider on the tree
+        // set filter, comparator, and content provider
         this.treeViewer.addFilter(TaskNodeViewerFilter.createFor(getState()));
         this.treeViewer.setComparator(TaskNodeViewerSorter.createFor(this.state));
         this.treeViewer.setContentProvider(new TaskViewContentProvider(this, CorePlugin.modelRepositoryProvider(), CorePlugin.processStreamsProvider(), CorePlugin
                 .workspaceOperations()));
 
+        // add columns to the tree and configure label providers
         ILabelDecorator labelDecorator = PlatformUI.getWorkbench().getDecoratorManager().getLabelDecorator();
 
-        // add columns to the tree
         TreeViewerColumn treeViewerNameColumn = new TreeViewerColumn(this.treeViewer, SWT.LEFT);
         treeViewerNameColumn.setLabelProvider(new TaskDecoratingStyledCellLabelProvider(new TaskNameLabelProvider(), labelDecorator, null));
         final TreeColumn taskNameColumn = treeViewerNameColumn.getColumn();

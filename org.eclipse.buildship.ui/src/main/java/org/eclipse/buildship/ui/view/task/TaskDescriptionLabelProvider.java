@@ -20,9 +20,9 @@ import org.eclipse.buildship.ui.util.color.ColorUtils;
 /**
  * {@link IStyledLabelProvider} for the task description column in the TaskView.
  */
-public class TaskDescriptionLabelProvider extends ColumnLabelProvider {
+public final class TaskDescriptionLabelProvider extends ColumnLabelProvider {
 
-    private Color descriptionColor;
+    private final Color descriptionColor;
 
     public TaskDescriptionLabelProvider() {
         this.descriptionColor = ColorUtils.getDecorationsColorFromCurrentTheme();
@@ -57,4 +57,5 @@ public class TaskDescriptionLabelProvider extends ColumnLabelProvider {
     public Color getForeground(Object element) {
         return this.descriptionColor;
     }
+
 }
