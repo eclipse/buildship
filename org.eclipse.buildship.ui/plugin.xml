@@ -132,6 +132,10 @@
             name="Open Gradle Build Script"
             description="Opens the Gradle build script for the selected Gradle project">
       </command>
+      <command
+            id="org.eclipse.buildship.ui.command.refreshProjects"
+            name="Refresh Projects">
+      </command>
     </extension>
 
     <!-- integration of Gradle command handlers -->
@@ -156,6 +160,10 @@
       <handler
             commandId="org.eclipse.buildship.ui.commands.openbuildscript"
             class="org.eclipse.buildship.ui.view.task.OpenBuildScriptHandler">
+      </handler>
+      <handler
+            class="org.eclipse.buildship.ui.handler.RefreshHandler"
+            commandId="org.eclipse.buildship.ui.command.refreshProjects">
       </handler>
     </extension>
 
@@ -271,5 +279,37 @@
        <plugin
              id="org.eclipse.buildship.ui">
        </plugin>
+    </extension>
+    <extension
+          point="org.eclipse.ui.menus">
+       <menuContribution
+             allPopups="true"
+             locationURI="popup:org.eclipse.jdt.ui.PackageExplorer?after=additions">
+          <menu
+                id="menu.Gradle"
+                label="Gradle">
+             <command
+                   commandId="org.eclipse.buildship.ui.command.refreshProjects"
+                   style="push">
+                <visibleWhen
+                      checkEnabled="false">
+                   <with
+                         variable="activeMenuSelection">
+                      <iterate
+                            ifEmpty="false">
+                         <adapt
+                               type="org.eclipse.core.resources.IProject">
+                            <test
+                                  forcePluginActivation="true"
+                                  property="org.eclipse.core.resources.projectNature"
+                                  value="org.eclipse.buildship.core.gradleprojectnature">
+                            </test>
+                         </adapt>
+                      </iterate>
+                   </with>
+                </visibleWhen>
+             </command>
+          </menu>
+       </menuContribution>
     </extension>
 </plugin>
