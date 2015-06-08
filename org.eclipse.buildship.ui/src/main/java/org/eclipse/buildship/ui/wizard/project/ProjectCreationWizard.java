@@ -13,16 +13,23 @@ package org.eclipse.buildship.ui.wizard.project;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
+import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 import com.gradleware.tooling.toolingmodel.util.Pair;
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.launch.RunGradleTasksJob;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
+import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -102,7 +109,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
         this.projectPreviewPage = new ProjectPreviewWizardPage(importConfiguration, new ProjectPreviewWizardPage.ProjectPreviewLoader() {
             @Override
             public Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler, List<ProgressListener> listeners) {
-                ProjectPreviewJob projectPreviewJob = new ProjectPreviewJob(importConfiguration, listeners, resultHandler);
+                ProjectPreviewJob projectPreviewJob = new ProjectPreviewJob(importConfiguration, listeners, new MyAsyncHandler(importConfiguration), resultHandler);
                 projectPreviewJob.schedule();
                 return projectPreviewJob;
             }
@@ -204,9 +211,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
 
         @Override
         public void pageChanged(PageChangedEvent event) {
-            if (this.projectCreationWizard.newGradleProjectPage.equals(this.previousPage) && this.projectCreationWizard.projectPreviewPage.equals(event.getSelectedPage())) {
-                this.projectCreationWizard.createGradleProject();
-            } else if (this.projectCreationWizard.projectPreviewPage.equals(this.previousPage) && this.projectCreationWizard.newGradleProjectPage.equals(event.getSelectedPage())) {
+            if (this.projectCreationWizard.projectPreviewPage.equals(this.previousPage) && this.projectCreationWizard.newGradleProjectPage.equals(event.getSelectedPage())) {
                 // user moved back, so we need to delete the previously created Gradle project
                 File projectDir = this.projectCreationWizard.importController.getConfiguration().getProjectDir().getValue();
                 if (projectDir != null) {
@@ -248,15 +253,46 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
         }
     }
 
-    private void createGradleProject() {
-        ProjectImportConfiguration configuration = this.importController.getConfiguration();
-        File projectDir = configuration.getProjectDir().getValue();
-        if (!projectDir.exists()) {
-            if (projectDir.mkdir()) {
-                RunGradleTasksJob runGradleTasksJob = new RunGradleTasksJob(GRADLE_INIT_TASK_CMD_LINE, configuration.getProjectDir().getValue(), configuration.getGradleDistribution()
-                        .getValue().toGradleDistribution(), configuration.getGradleUserHome().getValue(), configuration.getJavaHome().getValue(), configuration.getJvmArguments()
-                        .getValue(), configuration.getArguments().getValue());
-                runGradleTasksJob.schedule();
+    /**
+     * Initializes te Gradle project from the given configuration.
+     */
+    private static final class MyAsyncHandler implements AsyncHandler {
+
+        // todo (etst) finish this (set progress task name, copy attributes, etc.)
+
+        private final ProjectImportConfiguration configuration;
+
+        private MyAsyncHandler(ProjectImportConfiguration configuration) {
+            this.configuration = configuration;
+        }
+
+        @Override
+        public void run(IProgressMonitor monitor) {
+            File projectDir = this.configuration.getProjectDir().getValue().getAbsoluteFile();
+            if (!projectDir.exists()) {
+                if (projectDir.mkdir()) {
+                    List<String> tasks = GRADLE_INIT_TASK_CMD_LINE;
+                    GradleDistribution gradleDistribution = this.configuration.getGradleDistribution().getValue().toGradleDistribution();
+                    File gradleUserHome = FileUtils.getAbsoluteFile(this.configuration.getGradleUserHome().getValue()).orNull();
+                    File javaHome = FileUtils.getAbsoluteFile(this.configuration.getJavaHome().getValue()).orNull();
+                    ImmutableList<String> jvmArguments = CollectionsUtils.splitBySpace(this.configuration.getJvmArguments().getValue());
+                    ImmutableList<String> arguments = CollectionsUtils.splitBySpace(this.configuration.getArguments().getValue());
+
+                    // start tracking progress
+                    monitor.beginTask(String.format("Launch Gradle tasks %s", tasks), IProgressMonitor.UNKNOWN);
+
+                    // configure the request
+                    BuildLaunchRequest request = CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(tasks));
+                    request.projectDir(projectDir);
+                    request.gradleDistribution(gradleDistribution);
+                    request.gradleUserHomeDir(gradleUserHome);
+                    request.javaHomeDir(javaHome);
+                    request.jvmArguments(jvmArguments.toArray(new String[jvmArguments.size()]));
+                    request.arguments(arguments.toArray(new String[arguments.size()]));
+
+                    // launch the build
+                    request.executeAndWait();
+                }
             }
         }
     }

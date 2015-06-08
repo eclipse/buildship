@@ -19,6 +19,7 @@ import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 import com.gradleware.tooling.toolingmodel.util.Pair;
 import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
+import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.core.runtime.jobs.Job;
 import org.gradle.tooling.ProgressListener;
 import org.osgi.service.prefs.BackingStoreException;
@@ -100,7 +101,7 @@ public final class ProjectImportWizard extends Wizard implements IImportWizard, 
         this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller.getConfiguration(), new ProjectPreviewWizardPage.ProjectPreviewLoader() {
             @Override
             public Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler, List<ProgressListener> listeners) {
-                ProjectPreviewJob projectPreviewJob = new ProjectPreviewJob(configuration, listeners, resultHandler);
+                ProjectPreviewJob projectPreviewJob = new ProjectPreviewJob(configuration, listeners, AsyncHandler.NO_OP, resultHandler);
                 projectPreviewJob.schedule();
                 return projectPreviewJob;
             }
