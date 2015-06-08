@@ -12,6 +12,10 @@
 package org.eclipse.buildship.ui.wizard.project;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.FutureCallback;
+import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
+import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
+import com.gradleware.tooling.toolingmodel.util.Pair;
 import org.eclipse.buildship.core.launch.RunGradleTasksJob;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.file.FileUtils;
@@ -19,6 +23,7 @@ import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.IPageChangeProvider;
@@ -30,6 +35,7 @@ import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
+import org.gradle.tooling.ProgressListener;
 
 import java.io.File;
 import java.util.List;
@@ -92,7 +98,12 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
         ProjectImportConfiguration importConfiguration = this.importController.getConfiguration();
         ProjectCreationConfiguration creationConfiguration = this.creationController.getConfiguration();
         this.newGradleProjectPage = new NewGradleProjectWizardPage(importConfiguration, creationConfiguration);
-        this.projectPreviewPage = new ProjectPreviewWizardPage(this.importController, ProjectWizardMessages.Title_NewGradleProjectPreviewWizardPage,
+        this.projectPreviewPage = new ProjectPreviewWizardPage(this.importController, new ProjectPreviewWizardPage.ProjectPreviewLoader() {
+            @Override
+            public Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler, List<ProgressListener> listeners) {
+                return ProjectCreationWizard.this.importController.performPreviewProject(resultHandler, listeners);
+            }
+        }, ProjectWizardMessages.Title_NewGradleProjectPreviewWizardPage,
                 ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageDefault, ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageContext);
     }
 
