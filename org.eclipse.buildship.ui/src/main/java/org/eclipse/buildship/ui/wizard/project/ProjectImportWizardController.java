@@ -37,6 +37,7 @@ import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType;
+import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 import org.eclipse.buildship.ui.view.execution.ExecutionsView;
 import org.eclipse.buildship.ui.view.task.TaskView;
@@ -167,8 +168,8 @@ public class ProjectImportWizardController {
         return this.configuration;
     }
 
-    public boolean performImportProject() {
-        ProjectImportJob importJob = new ProjectImportJob(this.configuration);
+    public boolean performImportProject(AsyncHandler initializer) {
+        ProjectImportJob importJob = new ProjectImportJob(this.configuration, initializer);
         importJob.addJobChangeListener(new JobChangeAdapter() {
 
             @Override
