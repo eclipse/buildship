@@ -39,9 +39,9 @@ public final class OperationItemConfigurator {
             OperationResult result = operationItem.getFinishEvent().getResult();
             DecimalFormat durationFormat = new DecimalFormat("#0.000"); //$NON-NLS-1$
             String duration = durationFormat.format((result.getEndTime() - result.getStartTime()) / 1000.0);
-            return NLS.bind(ExecutionsViewMessages.Tree_Item_Operation_Finished_In_0_Sec_Text, duration);
+            return NLS.bind(ExecutionViewMessages.Tree_Item_Operation_Finished_In_0_Sec_Text, duration);
         } else {
-            return ExecutionsViewMessages.Tree_Item_Operation_Started_Text;
+            return ExecutionViewMessages.Tree_Item_Operation_Started_Text;
         }
     }
 

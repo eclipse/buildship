@@ -35,7 +35,7 @@ public final class ShowFailureAction extends Action implements SelectionSpecific
     private final NodeSelectionProvider selectionProvider;
 
     public ShowFailureAction(NodeSelectionProvider selectionProvider) {
-        super(ExecutionsViewMessages.Action_ShowFailure_Text);
+        super(ExecutionViewMessages.Action_ShowFailure_Text);
         this.selectionProvider = Preconditions.checkNotNull(selectionProvider);
     }
 
@@ -43,7 +43,7 @@ public final class ShowFailureAction extends Action implements SelectionSpecific
     public void run() {
         Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
         List<FinishEvent> failureEvents = collectEventsWithFailure(this.selectionProvider.getSelection());
-        new FailureDialog(shell, ExecutionsViewMessages.Dialog_Failure_Title, failureEvents).open();
+        new FailureDialog(shell, ExecutionViewMessages.Dialog_Failure_Title, failureEvents).open();
     }
 
     private List<FinishEvent> collectEventsWithFailure(NodeSelection selection) {

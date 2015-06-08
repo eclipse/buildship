@@ -47,7 +47,7 @@ public final class ExecutionsView extends MultiPageView {
         this.state.load();
 
         // create the global actions
-        this.switchPagesAction = new ActionContributionItem(new SwitchToNextPageAction(this, ExecutionsViewMessages.Action_SwitchExecutionPage_Tooltip));
+        this.switchPagesAction = new ActionContributionItem(new SwitchToNextPageAction(this, ExecutionViewMessages.Action_SwitchExecutionPage_Tooltip));
         this.switchPagesAction.setVisible(false);
 
         // add actions to the global toolbar of the executions view
@@ -67,7 +67,7 @@ public final class ExecutionsView extends MultiPageView {
 
     @Override
     protected Page createDefaultPage() {
-        return new MessagePage(ExecutionsViewMessages.Label_No_Execution);
+        return new MessagePage(ExecutionViewMessages.Label_No_Execution);
     }
 
     public void addExecutionPage(Job buildJob, String processName, BuildLaunchRequest buildLaunchRequest, GradleRunConfigurationAttributes configurationAttributes) {

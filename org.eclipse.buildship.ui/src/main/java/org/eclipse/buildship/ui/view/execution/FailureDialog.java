@@ -86,30 +86,30 @@ public final class FailureDialog extends Dialog {
 
         Label operationNameLabel = new Label(container, SWT.NONE);
         operationNameLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
-        operationNameLabel.setText(ExecutionsViewMessages.Dialog_Failure_Operation_Label);
+        operationNameLabel.setText(ExecutionViewMessages.Dialog_Failure_Operation_Label);
 
         this.operationNameText = new Label(container, SWT.NONE);
         GridData operationNameLayoutData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
         this.operationNameText.setLayoutData(operationNameLayoutData);
 
         this.backButton = new Button(container, SWT.FLAT | SWT.CENTER);
-        this.backButton.setToolTipText(ExecutionsViewMessages.Dialog_Failure_Back_Tooltip);
+        this.backButton.setToolTipText(ExecutionViewMessages.Dialog_Failure_Back_Tooltip);
         this.backButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
         this.backButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_TOOL_BACK));
 
         this.nextButton = new Button(container, SWT.FLAT | SWT.CENTER);
-        this.nextButton.setToolTipText(ExecutionsViewMessages.Dialog_Failure_Next_Tooltip);
+        this.nextButton.setToolTipText(ExecutionViewMessages.Dialog_Failure_Next_Tooltip);
         this.nextButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
         this.nextButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_TOOL_FORWARD));
 
         this.copyButton = new Button(container, SWT.FLAT | SWT.CENTER);
-        this.copyButton.setToolTipText(ExecutionsViewMessages.Dialog_Failure_Copy_Details_Tooltip);
+        this.copyButton.setToolTipText(ExecutionViewMessages.Dialog_Failure_Copy_Details_Tooltip);
         this.copyButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
         this.copyButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_TOOL_COPY));
 
         Label messageLabel = new Label(container, SWT.NONE);
         messageLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
-        messageLabel.setText(ExecutionsViewMessages.Dialog_Failure_Message_Label);
+        messageLabel.setText(ExecutionViewMessages.Dialog_Failure_Message_Label);
 
         this.messageText = new Text(container, SWT.BORDER);
         GridData messageTextLayoutData = new GridData(SWT.FILL, SWT.CENTER, true, false, 4, 1);
@@ -118,7 +118,7 @@ public final class FailureDialog extends Dialog {
 
         Label detailsLabel = new Label(container, SWT.NONE);
         detailsLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
-        detailsLabel.setText(ExecutionsViewMessages.Dialog_Failure_Details_Label);
+        detailsLabel.setText(ExecutionViewMessages.Dialog_Failure_Details_Label);
 
         this.detailsText = new Text(container, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
         GridData detailsTextGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 4, 1);
@@ -128,7 +128,7 @@ public final class FailureDialog extends Dialog {
 
         this.urlLabel = new Label(container, SWT.NONE);
         this.urlLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-        this.urlLabel.setText(ExecutionsViewMessages.Dialog_Failure_Link_Label);
+        this.urlLabel.setText(ExecutionViewMessages.Dialog_Failure_Link_Label);
 
         this.urlLink = new Link(container, SWT.NONE);
         this.urlLink.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 4, 1));
@@ -244,7 +244,7 @@ public final class FailureDialog extends Dialog {
         result.append(Strings.nullToEmpty(failure.getDescription()));
         List<? extends Failure> causes = failure.getCauses();
         if (!causes.isEmpty()) {
-            result.append('\n').append(ExecutionsViewMessages.Dialog_Failure_Root_Cause_Label).append(' ');
+            result.append('\n').append(ExecutionViewMessages.Dialog_Failure_Root_Cause_Label).append(' ');
             for (Failure cause : causes) {
                 result.append(collectDetailsRecursively(cause));
             }

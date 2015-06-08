@@ -30,7 +30,7 @@ public final class SwitchToConsoleViewAction extends Action {
     public SwitchToConsoleViewAction(Page page) {
         this.page = Preconditions.checkNotNull(page);
 
-        setToolTipText(ExecutionsViewMessages.Action_SwitchToConsole_Tooltip);
+        setToolTipText(ExecutionViewMessages.Action_SwitchToConsole_Tooltip);
         setImageDescriptor(PluginImages.SWITCH_TO_CONSOLE.withState(PluginImage.ImageState.ENABLED).getImageDescriptor());
     }
 
