@@ -16,8 +16,8 @@ import java.util.List;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
-import org.eclipse.buildship.ui.util.color.ColorUtils;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableColorProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -28,6 +28,7 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImageWithState;
 import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.buildship.ui.util.color.ColorUtils;
 
 /**
  * Label provider for the {@link TaskView}. Provides the labels, the icons for the table tree, and
@@ -39,11 +40,11 @@ public final class TaskViewLabelProvider implements ITableLabelProvider, ITableC
     private static final int DESCRIPTION_COLUMN = 1;
 
     private final Color descriptionColor;
-    private final WorkbenchLabelProvider workbenchLabelProvider;
+    private final ILabelProvider decoratingWorkbenchLabelProvider;
 
     public TaskViewLabelProvider() {
         this.descriptionColor = ColorUtils.getDecorationsColorFromCurrentTheme();
-        this.workbenchLabelProvider = new WorkbenchLabelProvider();
+        this.decoratingWorkbenchLabelProvider = WorkbenchLabelProvider.getDecoratingWorkbenchLabelProvider();
     }
 
     @Override
@@ -108,7 +109,7 @@ public final class TaskViewLabelProvider implements ITableLabelProvider, ITableC
     private Image getProjectImage(ProjectNode project, int columnIndex) {
         if (columnIndex == NAME_COLUMN) {
             Optional<IProject> workspaceProject = project.getWorkspaceProject();
-            return workspaceProject.isPresent() ? this.workbenchLabelProvider.getImage(workspaceProject.get()) : null;
+            return workspaceProject.isPresent() ? this.decoratingWorkbenchLabelProvider.getImage(workspaceProject.get()) : null;
         } else {
             return null;
         }
@@ -177,7 +178,7 @@ public final class TaskViewLabelProvider implements ITableLabelProvider, ITableC
 
     @Override
     public void dispose() {
-        this.workbenchLabelProvider.dispose();
+        this.decoratingWorkbenchLabelProvider.dispose();
     }
 
 }
