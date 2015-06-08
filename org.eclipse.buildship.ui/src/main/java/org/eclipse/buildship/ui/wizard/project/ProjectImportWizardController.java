@@ -175,14 +175,6 @@ public class ProjectImportWizardController {
         return this.configuration;
     }
 
-    public Job performPreviewProject(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler, List<ProgressListener> listeners) {
-        // the ProjectPreviewJob requires atypical constructor arguments since it is run as part of
-        // the wizard framework
-        ProjectPreviewJob projectPreviewJob = new ProjectPreviewJob(this.configuration, listeners, resultHandler);
-        projectPreviewJob.schedule();
-        return projectPreviewJob;
-    }
-
     public boolean performImportProject() {
         ProjectImportJob importJob = new ProjectImportJob(this.configuration);
         importJob.addJobChangeListener(new JobChangeAdapter() {
