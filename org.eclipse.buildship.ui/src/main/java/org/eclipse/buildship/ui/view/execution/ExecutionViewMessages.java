@@ -25,7 +25,7 @@ public final class ExecutionViewMessages extends NLS {
     public static String Tree_Column_Operation_Name_Text;
     public static String Tree_Column_Operation_Duration_Text;
 
-    public static String Tree_Item_Operation_Started_Text;
+    public static String Tree_Item_Operation_Running_For_0_Sec_Text;
     public static String Tree_Item_Operation_Finished_In_0_Sec_Text;
 
     public static String Action_ShowFailure_Text;
