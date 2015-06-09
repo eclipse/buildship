@@ -20,9 +20,6 @@ import org.gradle.tooling.events.StartEvent;
 import org.gradle.tooling.events.test.JvmTestOperationDescriptor;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 
 import org.eclipse.jface.viewers.AbstractTreeViewer;
@@ -38,18 +35,18 @@ import org.eclipse.buildship.ui.view.Page;
  */
 public final class ExecutionProgressListener implements org.gradle.tooling.events.ProgressListener {
 
-    private static final int UPDATE_DURATION_JOB_INTERVAL = 1000;
+    private static final int UPDATE_DURATION_JOB_INTERVAL_IN_MS = 1000;
 
     private final Page executionPage;
     private final Map<OperationDescriptor, OperationItem> executionItemMap;
-    private final OperationItemConfigurator operationItemConfigurator;
+    private final OperationItemRenderer operationItemRenderer;
     private UpdateDurationJob updateDurationJob;
 
     public ExecutionProgressListener(Page executionPage, OperationItem root) {
         this.executionPage = Preconditions.checkNotNull(executionPage);
         this.executionItemMap = Maps.newLinkedHashMap();
         this.executionItemMap.put(null, Preconditions.checkNotNull(root));
-        this.operationItemConfigurator = new OperationItemConfigurator();
+        this.operationItemRenderer = new OperationItemRenderer();
     }
 
     @Override
@@ -61,19 +58,23 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
             return;
         }
 
+        // create the job to update the duration of running operations as late as possible
+        // to make sure it is only created if really needed
+        initDurationJobIfNeeded();
+
         // create a new operation item if the event is a start event, otherwise update the item
         OperationItem operationItem = this.executionItemMap.get(descriptor);
         if (null == operationItem) {
             operationItem = new OperationItem((StartEvent) progressEvent);
             this.executionItemMap.put(descriptor, operationItem);
+            this.updateDurationJob.addOperationItem(operationItem);
         } else {
             operationItem.setFinishEvent((FinishEvent) progressEvent);
+            this.updateDurationJob.removeOperationItem(operationItem);
         }
 
-        updateDurationJob();
-
         // configure the operation item based on the event details
-        this.operationItemConfigurator.configure(operationItem);
+        this.operationItemRenderer.update(operationItem);
 
         // attach to (first non-excluded) parent, if this is a new operation (in case of StartEvent)
         OperationItem parentExecutionItem = this.executionItemMap.get(findFirstNonExcludedParent(descriptor));
@@ -85,24 +86,11 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
         }
     }
 
-    private void updateDurationJob() {
+    private void initDurationJobIfNeeded() {
         if (this.updateDurationJob == null) {
-            this.updateDurationJob = new UpdateDurationJob(UPDATE_DURATION_JOB_INTERVAL, this.operationItemConfigurator);
-            this.updateDurationJob.schedule(UPDATE_DURATION_JOB_INTERVAL);
+            this.updateDurationJob = new UpdateDurationJob(UPDATE_DURATION_JOB_INTERVAL_IN_MS, this.operationItemRenderer);
+            this.updateDurationJob.schedule(UPDATE_DURATION_JOB_INTERVAL_IN_MS);
         }
-        ImmutableList<OperationItem> unfinishedOperationItems = getUnfinishedOperationItems();
-        this.updateDurationJob.setOperationItems(unfinishedOperationItems);
-    }
-
-    private ImmutableList<OperationItem> getUnfinishedOperationItems() {
-        ImmutableList<OperationItem> unfinishedOperationItems = FluentIterable.<OperationItem> from(this.executionItemMap.values()).filter(new Predicate<OperationItem>() {
-
-            @Override
-            public boolean apply(OperationItem operationItem) {
-                return operationItem.getStartEvent() != null && !(isExcluded(operationItem.getStartEvent().getDescriptor())) && operationItem.getFinishEvent() == null;
-            }
-        }).toList();
-        return unfinishedOperationItems;
     }
 
     private boolean isExcluded(OperationDescriptor descriptor) {

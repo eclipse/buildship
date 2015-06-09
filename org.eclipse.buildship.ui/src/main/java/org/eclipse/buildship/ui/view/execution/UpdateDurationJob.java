@@ -11,50 +11,70 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
+import com.google.common.collect.Maps;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.gradle.tooling.events.OperationDescriptor;
 
 /**
- * This job updates the duration of running Operations in the ExecutionView every 1000 ms.
+ * Updates the duration of the registered {@link OperationItem} instances in the {@link ExecutionsView} in regular intervals.
  */
-public class UpdateDurationJob extends Job {
+public final class UpdateDurationJob extends Job {
 
-    private boolean running = true;
-    private long repeatDelay;
-    private OperationItemConfigurator operationItemConfigurator;
-    private Collection<OperationItem> operationItems = ImmutableList.<OperationItem> of();
+    private final long repeatDelay;
+    private final OperationItemRenderer operationItemRenderer;
+    private final Map<OperationDescriptor, OperationItem> operationItems;
+    private volatile boolean running;
 
-    public UpdateDurationJob(long repeatDelay, OperationItemConfigurator operationItemConfigurator) {
-        super("Updating Operation Duration...");
+    public UpdateDurationJob(long repeatDelay, OperationItemRenderer operationItemRenderer) {
+        super("Updating duration of non-finished operations");
+
         this.repeatDelay = repeatDelay;
-        this.operationItemConfigurator = operationItemConfigurator;
+        this.operationItemRenderer = operationItemRenderer;
+        this.operationItems = Maps.newHashMap();
+        this.running = true;
     }
 
     @Override
     protected IStatus run(IProgressMonitor monitor) {
-        ImmutableList<OperationItem> immuteableOperationItems = ImmutableList.<OperationItem> copyOf(this.operationItems);
-        for (OperationItem operationItem : immuteableOperationItems) {
-            this.operationItemConfigurator.updateDuration(operationItem);
+        // update all registered operation items
+        for (OperationItem operationItem : getOperationItems()) {
+            this.operationItemRenderer.updateDuration(operationItem);
         }
+
+        // reschedule the job such that is runs again in repeatDelay ms
         schedule(this.repeatDelay);
         return Status.OK_STATUS;
     }
 
-    public Collection<OperationItem> getOperationItems() {
-        return this.operationItems;
+    public void addOperationItem(OperationItem operationItem) {
+        Preconditions.checkNotNull(operationItem.getStartEvent());
+        synchronized (this.operationItems) {
+            this.operationItems.put(operationItem.getStartEvent().getDescriptor(), operationItem);
+        }
     }
 
-    public void setOperationItems(Collection<OperationItem> operationItems) {
-        if (operationItems.isEmpty()) {
-            stop();
-        } else {
-            this.operationItems = operationItems;
+    public void removeOperationItem(OperationItem operationItem) {
+        Preconditions.checkNotNull(operationItem.getStartEvent());
+        synchronized (this.operationItems) {
+            this.operationItems.remove(operationItem.getStartEvent().getDescriptor());
+            if (this.operationItems.isEmpty()) {
+                stop();
+            }
+        }
+    }
+
+    private List<OperationItem> getOperationItems() {
+        synchronized (this.operationItems) {
+            return ImmutableList.copyOf(this.operationItems.values());
         }
     }
 
@@ -66,4 +86,5 @@ public class UpdateDurationJob extends Job {
     public void stop() {
         this.running = false;
     }
+
 }
