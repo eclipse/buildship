@@ -24,10 +24,13 @@ import java.text.DecimalFormat;
  */
 public final class OperationItemConfigurator {
 
+    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
     public void configure(OperationItem operationItem) {
-        operationItem.setName(calculateName(operationItem));
-        operationItem.setDuration(calculateDuration(operationItem));
-        operationItem.setImage(calculateImage(operationItem));
+        synchronized (operationItem) {
+            operationItem.setName(calculateName(operationItem));
+            operationItem.setDuration(calculateDuration(operationItem));
+            operationItem.setImage(calculateImage(operationItem));
+        }
     }
 
     private String calculateName(OperationItem operationItem) {
@@ -41,7 +44,10 @@ public final class OperationItemConfigurator {
             String duration = durationFormat.format((result.getEndTime() - result.getStartTime()) / 1000.0);
             return NLS.bind(ExecutionViewMessages.Tree_Item_Operation_Finished_In_0_Sec_Text, duration);
         } else {
-            return ExecutionViewMessages.Tree_Item_Operation_Started_Text;
+            long startTime = System.currentTimeMillis() - 5432;
+            DecimalFormat durationFormat = new DecimalFormat("#0.000"); //$NON-NLS-1$
+            String duration = durationFormat.format((System.currentTimeMillis() - startTime) / 1000.0);
+            return NLS.bind("Running for {0} s", duration);
         }
     }
 
@@ -59,6 +65,15 @@ public final class OperationItemConfigurator {
             }
         } else {
             return PluginImages.OPERATION_IN_PROGRESS.withState(PluginImage.ImageState.ENABLED).getImageDescriptor();
+        }
+    }
+
+    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
+    public void updateDuration(OperationItem operationItem) {
+        synchronized (operationItem) {
+            if (operationItem.getFinishEvent() == null) {
+                operationItem.setDuration(calculateDuration(operationItem));
+            }
         }
     }
 
