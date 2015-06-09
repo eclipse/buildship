@@ -29,14 +29,21 @@ import org.eclipse.buildship.ui.PluginImages;
  */
 public final class OperationItemConfigurator {
 
-    private DecimalFormat durationFormat = new DecimalFormat("#0.000"); //$NON-NLS-1$
+    private final DecimalFormat durationFormat = new DecimalFormat("#0.000"); //$NON-NLS-1$
 
     @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
-    public void configure(OperationItem operationItem) {
+    public void update(OperationItem operationItem) {
         synchronized (operationItem) {
             operationItem.setName(calculateName(operationItem));
             operationItem.setDuration(calculateDuration(operationItem));
             operationItem.setImage(calculateImage(operationItem));
+        }
+    }
+
+    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
+    public void updateDuration(OperationItem operationItem) {
+        synchronized (operationItem) {
+            operationItem.setDuration(calculateDuration(operationItem));
         }
     }
 
@@ -47,14 +54,15 @@ public final class OperationItemConfigurator {
     private String calculateDuration(OperationItem operationItem) {
         if (operationItem.getFinishEvent() != null) {
             OperationResult result = operationItem.getFinishEvent().getResult();
-            String duration = this.durationFormat.format((result.getEndTime() - result.getStartTime()) / 1000.0);
+            String duration = formatDuration(result.getStartTime(), result.getEndTime());
             return NLS.bind(ExecutionViewMessages.Tree_Item_Operation_Finished_In_0_Sec_Text, duration);
         } else if (operationItem.getStartEvent() != null) {
-            long startTime = operationItem.getStartEvent().getEventTime();
-            String duration = this.durationFormat.format((System.currentTimeMillis() - startTime) / 1000.0);
-            return NLS.bind("Running... ({0} s)", duration);
+            String duration = formatDuration(operationItem.getStartEvent().getEventTime(), System.currentTimeMillis());
+            return NLS.bind(ExecutionViewMessages.Tree_Item_Operation_Running_For_0_Sec_Text, duration);
+        } else {
+            // only happens for the artificial root node
+            return ""; //$NON-NLS-1$
         }
-        return ExecutionViewMessages.Tree_Item_Operation_Started_Text;
     }
 
     private ImageDescriptor calculateImage(OperationItem operationItem) {
@@ -74,12 +82,10 @@ public final class OperationItemConfigurator {
         }
     }
 
-    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
-    public void updateDuration(OperationItem operationItem) {
-        synchronized (operationItem) {
-            if (operationItem.getFinishEvent() == null) {
-                operationItem.setDuration(calculateDuration(operationItem));
-            }
+    private String formatDuration(long startTime, long endTime) {
+        // synchronize since Format classes are not thread-safe
+        synchronized (this.durationFormat) {
+            return this.durationFormat.format((endTime - startTime) / 1000.0);
         }
     }
 
