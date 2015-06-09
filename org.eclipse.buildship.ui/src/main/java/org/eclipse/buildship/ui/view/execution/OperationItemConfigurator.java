@@ -11,18 +11,25 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import org.eclipse.buildship.ui.PluginImage;
-import org.eclipse.buildship.ui.PluginImages;
+import java.text.DecimalFormat;
+
+import org.gradle.tooling.events.FailureResult;
+import org.gradle.tooling.events.OperationResult;
+import org.gradle.tooling.events.SkippedResult;
+import org.gradle.tooling.events.SuccessResult;
+
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.osgi.util.NLS;
-import org.gradle.tooling.events.*;
 
-import java.text.DecimalFormat;
+import org.eclipse.buildship.ui.PluginImage;
+import org.eclipse.buildship.ui.PluginImages;
 
 /**
  * Configures an {@code OperationItem} instance.
  */
 public final class OperationItemConfigurator {
+
+    private DecimalFormat durationFormat = new DecimalFormat("#0.000"); //$NON-NLS-1$
 
     @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
     public void configure(OperationItem operationItem) {
@@ -40,15 +47,14 @@ public final class OperationItemConfigurator {
     private String calculateDuration(OperationItem operationItem) {
         if (operationItem.getFinishEvent() != null) {
             OperationResult result = operationItem.getFinishEvent().getResult();
-            DecimalFormat durationFormat = new DecimalFormat("#0.000"); //$NON-NLS-1$
-            String duration = durationFormat.format((result.getEndTime() - result.getStartTime()) / 1000.0);
+            String duration = this.durationFormat.format((result.getEndTime() - result.getStartTime()) / 1000.0);
             return NLS.bind(ExecutionViewMessages.Tree_Item_Operation_Finished_In_0_Sec_Text, duration);
-        } else {
-            long startTime = System.currentTimeMillis() - 5432;
-            DecimalFormat durationFormat = new DecimalFormat("#0.000"); //$NON-NLS-1$
-            String duration = durationFormat.format((System.currentTimeMillis() - startTime) / 1000.0);
-            return NLS.bind("Running for {0} s", duration);
+        } else if (operationItem.getStartEvent() != null) {
+            long startTime = operationItem.getStartEvent().getEventTime();
+            String duration = this.durationFormat.format((System.currentTimeMillis() - startTime) / 1000.0);
+            return NLS.bind("Running... ({0} s)", duration);
         }
+        return ExecutionViewMessages.Tree_Item_Operation_Started_Text;
     }
 
     private ImageDescriptor calculateImage(OperationItem operationItem) {
