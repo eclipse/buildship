@@ -25,9 +25,9 @@ import org.eclipse.buildship.ui.PluginImage;
 import org.eclipse.buildship.ui.PluginImages;
 
 /**
- * Configures an {@code OperationItem} instance.
+ * Renders an {@code OperationItem} instance.
  */
-public final class OperationItemConfigurator {
+public final class OperationItemRenderer {
 
     private final DecimalFormat durationFormat = new DecimalFormat("#0.000"); //$NON-NLS-1$
 
