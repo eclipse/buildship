@@ -20,6 +20,12 @@
       label="Project Development Tools">
     <requirement
         name="org.eclipse.buildship.feature.group"/>
+    <requirement
+        name="org.codehaus.groovy.eclipse.feature.feature.group"/>
+    <requirement
+        name="org.codehaus.groovy20.feature.feature.group"/>
+    <repository
+        url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.5"/>
     <repository
         url="http://download.eclipse.org/buildship/updates/snapshots/${buildship.latest.version}"/>
     <description>Installs the required plugins to the IDE.</description>
