@@ -11,29 +11,39 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import org.eclipse.buildship.ui.view.Page;
-import org.eclipse.jface.viewers.AbstractTreeViewer;
-import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.ui.PlatformUI;
+import java.util.Map;
+
 import org.gradle.tooling.events.FinishEvent;
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.ProgressEvent;
 import org.gradle.tooling.events.StartEvent;
 import org.gradle.tooling.events.test.JvmTestOperationDescriptor;
 
-import java.util.Map;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
+
+import org.eclipse.jface.viewers.AbstractTreeViewer;
+import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.ui.PlatformUI;
+
+import org.eclipse.buildship.ui.view.Page;
 
 /**
- * Listens to {@link org.gradle.tooling.events.ProgressEvent} instances that are sent by the Tooling API while a build is executed. Each
- * incoming event is added to the execution tree as an {@link OperationItem} instance.
+ * Listens to {@link org.gradle.tooling.events.ProgressEvent} instances that are sent by the Tooling
+ * API while a build is executed. Each incoming event is added to the execution tree as an
+ * {@link OperationItem} instance.
  */
 public final class ExecutionProgressListener implements org.gradle.tooling.events.ProgressListener {
+
+    private static final int UPDATE_DURATION_JOB_INTERVAL = 1000;
 
     private final Page executionPage;
     private final Map<OperationDescriptor, OperationItem> executionItemMap;
     private final OperationItemConfigurator operationItemConfigurator;
+    private UpdateDurationJob updateDurationJob;
 
     public ExecutionProgressListener(Page executionPage, OperationItem root) {
         this.executionPage = Preconditions.checkNotNull(executionPage);
@@ -60,6 +70,8 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
             operationItem.setFinishEvent((FinishEvent) progressEvent);
         }
 
+        updateDurationJob();
+
         // configure the operation item based on the event details
         this.operationItemConfigurator.configure(operationItem);
 
@@ -73,8 +85,29 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
         }
     }
 
+    private void updateDurationJob() {
+        if (this.updateDurationJob == null) {
+            this.updateDurationJob = new UpdateDurationJob(UPDATE_DURATION_JOB_INTERVAL, this.operationItemConfigurator);
+            this.updateDurationJob.schedule(UPDATE_DURATION_JOB_INTERVAL);
+        }
+        ImmutableList<OperationItem> unfinishedOperationItems = getUnfinishedOperationItems();
+        this.updateDurationJob.setOperationItems(unfinishedOperationItems);
+    }
+
+    private ImmutableList<OperationItem> getUnfinishedOperationItems() {
+        ImmutableList<OperationItem> unfinishedOperationItems = FluentIterable.<OperationItem> from(this.executionItemMap.values()).filter(new Predicate<OperationItem>() {
+
+            @Override
+            public boolean apply(OperationItem operationItem) {
+                return operationItem.getStartEvent() != null && !(isExcluded(operationItem.getStartEvent().getDescriptor())) && operationItem.getFinishEvent() == null;
+            }
+        }).toList();
+        return unfinishedOperationItems;
+    }
+
     private boolean isExcluded(OperationDescriptor descriptor) {
-        // ignore the 'artificial' events issued for the root test event and for each forked test process event
+        // ignore the 'artificial' events issued for the root test event and for each forked test
+        // process event
         if (descriptor instanceof JvmTestOperationDescriptor) {
             JvmTestOperationDescriptor jvmTestOperationDescriptor = (JvmTestOperationDescriptor) descriptor;
             return jvmTestOperationDescriptor.getSuiteName() != null && jvmTestOperationDescriptor.getClassName() == null;
@@ -92,9 +125,10 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
 
     private void makeNodeVisible(final OperationItem operationItem) {
         PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+
             @Override
             public void run() {
-                @SuppressWarnings({"cast", "RedundantCast"})
+                @SuppressWarnings({ "cast", "RedundantCast" })
                 TreeViewer treeViewer = (TreeViewer) ExecutionProgressListener.this.executionPage.getAdapter(TreeViewer.class);
                 treeViewer.expandToLevel(operationItem, AbstractTreeViewer.ALL_LEVELS);
             }
