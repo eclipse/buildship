@@ -19,8 +19,6 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.ITreeSelection;
-import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
@@ -34,8 +32,8 @@ public final class WorkingSetUtils {
     }
 
     /**
-     * Converts the given working set names to {@link org.eclipse.ui.IWorkingSet} instances.
-     * Filters out working sets that cannot be found by the {@link IWorkingSetManager}.
+     * Converts the given working set names to {@link org.eclipse.ui.IWorkingSet} instances. Filters
+     * out working sets that cannot be found by the {@link IWorkingSetManager}.
      *
      * @param workingSetNames the names of the working sets
      * @return the {@link org.eclipse.ui.IWorkingSet} instances
@@ -43,6 +41,7 @@ public final class WorkingSetUtils {
     public static IWorkingSet[] toWorkingSets(List<String> workingSetNames) {
         final IWorkingSetManager workingSetManager = PlatformUI.getWorkbench().getWorkingSetManager();
         return FluentIterable.from(workingSetNames).transform(new Function<String, IWorkingSet>() {
+
             @Override
             public IWorkingSet apply(String name) {
                 return workingSetManager.getWorkingSet(name);
@@ -67,7 +66,8 @@ public final class WorkingSetUtils {
     }
 
     /**
-     * Returns the names of the selected {@link org.eclipse.ui.IWorkingSet} instances.
+     * Returns the names of the selected {@link org.eclipse.ui.IWorkingSet} instancesor an empty
+     * List, if the selection does not contain any {@link org.eclipse.ui.IWorkingSet}.
      *
      * @param selection the selection
      * @return the names of the selected working sets
@@ -78,46 +78,21 @@ public final class WorkingSetUtils {
     }
 
     /**
-     * Returns the selected {@link org.eclipse.ui.IWorkingSet} instances.
+     * Returns the selected {@link org.eclipse.ui.IWorkingSet} instances or an empty List, if the
+     * selection does not contain any {@link org.eclipse.ui.IWorkingSet}.
      *
      * @param selection the selection
      * @return the selected working sets
      */
     public static List<IWorkingSet> getSelectedWorkingSets(IStructuredSelection selection) {
-        if (!(selection instanceof ITreeSelection)) {
+        if (selection.isEmpty() || !(selection instanceof IStructuredSelection)) {
             return ImmutableList.of();
         }
 
-        ITreeSelection treeSelection = (ITreeSelection) selection;
-        if (treeSelection.isEmpty()) {
-            return ImmutableList.of();
-        }
-
-        List<?> elements = treeSelection.toList();
-        if (elements.size() == 1) {
-            Object element = elements.get(0);
-            TreePath[] paths = treeSelection.getPathsFor(element);
-            if (paths.length != 1) {
-                return ImmutableList.of();
-            }
-
-            TreePath path = paths[0];
-            if (path.getSegmentCount() == 0) {
-                return ImmutableList.of();
-            }
-
-            Object candidate = path.getSegment(0);
-            if (!(candidate instanceof IWorkingSet)) {
-                return ImmutableList.of();
-            }
-
-            IWorkingSet workingSetCandidate = (IWorkingSet) candidate;
-            return ImmutableList.of(workingSetCandidate);
-        } else {
-            @SuppressWarnings("unchecked")
-            List<IWorkingSet> workingSets = (List<IWorkingSet>) FluentIterable.from(elements).filter(Predicates.instanceOf(IWorkingSet.class)).toList();
-            return workingSets;
-        }
+        List<?> elements = selection.toList();
+        @SuppressWarnings("unchecked")
+        List<IWorkingSet> workingSets = (List<IWorkingSet>) FluentIterable.from(elements).filter(Predicates.instanceOf(IWorkingSet.class)).toList();
+        return workingSets;
     }
 
 }
