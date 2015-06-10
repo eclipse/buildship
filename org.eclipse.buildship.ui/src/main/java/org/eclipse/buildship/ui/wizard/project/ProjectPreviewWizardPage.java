@@ -11,50 +11,20 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import java.io.File;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.FluentIterable;
-import org.eclipse.buildship.core.gradle.Limitations;
-import org.eclipse.osgi.util.NLS;
-import org.gradle.tooling.ProgressListener;
-
 import com.google.common.base.Strings;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
-
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
 import com.gradleware.tooling.toolingmodel.util.Pair;
 import com.gradleware.tooling.toolingutils.binding.Property;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ISharedImages;
-
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.gradle.Limitations;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
@@ -64,7 +34,29 @@ import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.layout.LayoutUtils;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
+import org.gradle.tooling.ProgressListener;
 import org.gradle.util.GradleVersion;
+
+import java.io.File;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Page in the {@link ProjectImportWizard} showing a preview about the project about to be
@@ -95,7 +87,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     }
 
     public ProjectPreviewWizardPage(ProjectImportConfiguration configuration, ProjectPreviewLoader previewLoader, String title, String defaultMessage, String pageContextInformation) {
-        super("ProjectPreview", title, defaultMessage, configuration, ImmutableList.<Property<?>> of()); //$NON-NLS-1$
+        super("ProjectPreview", title, defaultMessage, configuration, ImmutableList.<Property<?>>of()); //$NON-NLS-1$
         this.projectPreviewLoader = Preconditions.checkNotNull(previewLoader);
         this.keyFont = FontUtils.getCustomDialogFont(SWT.BOLD);
         this.valueFont = FontUtils.getCustomDialogFont(SWT.NONE);
@@ -199,6 +191,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         updateFileLabel(this.projectDirLabel, configuration.getProjectDir(), CoreMessages.Value_UseGradleDefault);
         updateGradleDistributionLabel(this.gradleDistributionLabel, configuration.getGradleDistribution(), CoreMessages.Value_UseGradleDefault);
         updateGradleVersionLabel(this.gradleVersionLabel, configuration.getGradleDistribution(), CoreMessages.Value_Unknown);
+        updateGradleVersionWarningLabel();
         updateFileLabel(this.gradleUserHomeLabel, configuration.getGradleUserHome(), CoreMessages.Value_UseGradleDefault);
         updateFileLabel(this.javaHomeLabel, configuration.getJavaHome(), CoreMessages.Value_UseGradleDefault);
         updateStringLabel(this.jvmArgumentsLabel, configuration.getJvmArguments(), CoreMessages.Value_None);
@@ -246,6 +239,17 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         // if the length of the text is changed and the version warning is visible then we have to
         // adjust their horizontal alignment
         target.getParent().layout();
+    }
+
+    private void updateGradleVersionWarningLabel() {
+        try {
+            GradleVersion version = GradleVersion.version(this.gradleVersionLabel.getText());
+            Limitations limitations = new Limitations(version);
+            this.gradleVersionWarningLabel.setVisible(!limitations.getLimitations().isEmpty());
+        } catch (IllegalArgumentException e) {
+            this.gradleVersionWarningLabel.setVisible(false);
+        }
+        ProjectPreviewWizardPage.this.gradleVersionLabel.getParent().layout();
     }
 
     @Override
@@ -349,17 +353,20 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
                 @Override
                 public void run() {
+                    // update Gradle user home
                     if (buildEnvironment.getGradle().getGradleUserHome().isPresent()) {
-                        ProjectPreviewWizardPage.this.gradleUserHomeLabel.setText(buildEnvironment.getGradle().getGradleUserHome().get().getAbsolutePath());
+                        String gradleUserHome = buildEnvironment.getGradle().getGradleUserHome().get().getAbsolutePath();
+                        ProjectPreviewWizardPage.this.gradleUserHomeLabel.setText(gradleUserHome);
                     }
-                    updateGradleVersionLabel(buildEnvironment.getGradle().getGradleVersion());
-                    ProjectPreviewWizardPage.this.javaHomeLabel.setText(buildEnvironment.getJava().getJavaHome().getAbsolutePath());
-                }
 
-                private void updateGradleVersionLabel(String newVersion) {
-                    // set the version text and show the version warning if the value is a pre-2.0 version
-                    ProjectPreviewWizardPage.this.gradleVersionLabel.setText(newVersion);
-                    ProjectPreviewWizardPage.this.gradleVersionLabel.getParent().layout();
+                    // update Gradle version
+                    String gradleVersion = buildEnvironment.getGradle().getGradleVersion();
+                    ProjectPreviewWizardPage.this.gradleVersionLabel.setText(gradleVersion);
+                    updateGradleVersionWarningLabel();
+
+                    // update Java home
+                    String javaHome = buildEnvironment.getJava().getJavaHome().getAbsolutePath();
+                    ProjectPreviewWizardPage.this.javaHomeLabel.setText(javaHome);
                 }
             });
         }
