@@ -11,15 +11,18 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import com.google.common.base.Optional;
+import java.io.File;
+
 import com.gradleware.tooling.toolingutils.binding.Property;
 import com.gradleware.tooling.toolingutils.binding.ValidationListener;
-import org.eclipse.buildship.core.util.binding.Validators;
-import org.eclipse.buildship.core.util.file.FileUtils;
+
+import com.google.common.base.Optional;
+
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.ui.INewWizard;
 
-import java.io.File;
+import org.eclipse.buildship.core.util.binding.Validators;
+import org.eclipse.buildship.core.util.file.FileUtils;
 
 /**
  * Controller class for the {@link org.eclipse.buildship.ui.wizard.project.ProjectImportWizard}. Contains all non-UI related calculations
@@ -44,10 +47,10 @@ public final class ProjectCreationWizardController {
 
         // initialize values from the persisted dialog settings
         IDialogSettings dialogSettings = projectCreationWizard.getDialogSettings();
-        Optional<Boolean> useDefaultLocation = Optional.fromNullable(dialogSettings.getBoolean(SETTINGS_KEY_LOCATION_USE_DEFAULT));
+        boolean useDefaultLocation = dialogSettings.get(SETTINGS_KEY_LOCATION_USE_DEFAULT) != null ? dialogSettings.getBoolean(SETTINGS_KEY_LOCATION_USE_DEFAULT) : true;
         Optional<File> customLocation = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_CUSTOM_LOCATION));
 
-        this.configuration.setUseDefaultLocation(useDefaultLocation.or(Boolean.TRUE));
+        this.configuration.setUseDefaultLocation(useDefaultLocation);
         this.configuration.setCustomLocation(customLocation.orNull());
 
         // store the values every time they change
