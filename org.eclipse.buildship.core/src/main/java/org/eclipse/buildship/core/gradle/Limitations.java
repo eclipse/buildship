@@ -38,7 +38,7 @@ public final class Limitations {
 
     private void addIfNeeded(String version, String limitation, ImmutableList.Builder<Pair<GradleVersion, String>> limitations) {
         GradleVersion gradleVersion = GradleVersion.version(version);
-        if (this.targetVersion.compareTo(gradleVersion) < 0) {
+        if (this.targetVersion.getBaseVersion().compareTo(gradleVersion) < 0) {
             limitations.add(createLimitation(gradleVersion, limitation));
         }
     }
