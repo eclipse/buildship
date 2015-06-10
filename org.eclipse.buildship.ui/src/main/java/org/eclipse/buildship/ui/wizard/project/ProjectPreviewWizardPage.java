@@ -20,7 +20,6 @@ import com.google.common.base.Preconditions;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.util.GradleVersion;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
@@ -31,14 +30,12 @@ import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
 import com.gradleware.tooling.toolingmodel.util.Pair;
 import com.gradleware.tooling.toolingutils.binding.Property;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -46,7 +43,6 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Tree;
@@ -54,7 +50,6 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ISharedImages;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
@@ -368,7 +363,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
                     OmniGradleProjectStructure rootProject = buildStructure.getRootProject();
                     TreeItem rootTreeItem = new TreeItem(ProjectPreviewWizardPage.this.projectPreviewTree, SWT.NONE);
                     rootTreeItem.setExpanded(true);
-                    setNodeText(rootProject.getName(), rootTreeItem);
+                    rootTreeItem.setText(rootProject.getName());
                     populateRecursively(rootProject, rootTreeItem);
                 }
             });
@@ -387,21 +382,11 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         private void populateRecursively(OmniGradleProjectStructure gradleProjectStructure, TreeItem parent) {
             for (OmniGradleProjectStructure childProject : gradleProjectStructure.getChildren()) {
                 TreeItem treeItem = new TreeItem(parent, SWT.NONE);
-                setNodeText(childProject.getName(), treeItem);
+                treeItem.setText(childProject.getName());
                 populateRecursively(childProject, treeItem);
             }
         }
 
-        private void setNodeText(String projectName, TreeItem treeItem) {
-            Optional<IProject> project = CorePlugin.workspaceOperations().findProjectByName(projectName);
-            if (!project.isPresent()) {
-                treeItem.setText(projectName);
-            } else {
-                treeItem.setText(NLS.bind(ProjectWizardMessages.Tree_Item_0_ProjectNameAlreadyUsedInWorkspace, projectName));
-                Display display = treeItem.getParent().getShell().getDisplay();
-                treeItem.setForeground(display.getSystemColor(SWT.COLOR_RED));
-            }
-        }
     }
 
     @Override
