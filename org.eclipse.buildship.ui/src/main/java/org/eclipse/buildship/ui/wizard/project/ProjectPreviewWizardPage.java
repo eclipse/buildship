@@ -16,9 +16,13 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.FluentIterable;
+import org.eclipse.buildship.core.gradle.Limitations;
+import org.eclipse.osgi.util.NLS;
 import org.gradle.tooling.ProgressListener;
-import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -60,6 +64,7 @@ import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.layout.LayoutUtils;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
+import org.gradle.util.GradleVersion;
 
 /**
  * Page in the {@link ProjectImportWizard} showing a preview about the project about to be
@@ -138,13 +143,22 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         this.gradleVersionLabel = uiBuilderFactory.newLabel(gradleVersionContainer).alignLeft().disabled().font(this.valueFont).control();
         this.gradleVersionWarningLabel = uiBuilderFactory.newLabel(gradleVersionContainer).alignLeft().control();
         this.gradleVersionWarningLabel.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK));
-        this.gradleVersionWarningLabel.setToolTipText(ProjectWizardMessages.InfoMessage_PreGradle20VersionUsed);
-        this.gradleVersionWarningLabel.setVisible(false);
+        this.gradleVersionWarningLabel.setToolTipText(ProjectWizardMessages.Limitations_Tooltip);
         this.gradleVersionWarningLabel.addMouseListener(new MouseAdapter() {
 
             @Override
             public void mouseUp(MouseEvent e) {
-                MessageDialog.openInformation(getShell(), ProjectWizardMessages.Title_Dialog_PreGradle20VersionUsed, ProjectWizardMessages.InfoMessage_PreGradle20VersionUsed);
+                String version = ProjectPreviewWizardPage.this.gradleVersionLabel.getText();
+                Limitations limitations = new Limitations(GradleVersion.version(version));
+                FluentIterable<String> limitationMessages = FluentIterable.from(limitations.getLimitations()).transform(new Function<Pair<GradleVersion, String>, String>() {
+
+                    @Override
+                    public String apply(Pair<GradleVersion, String> limitation) {
+                        return limitation.getSecond();
+                    }
+                });
+                String message = NLS.bind(ProjectWizardMessages.Limitations_Details_0_1, version, Joiner.on('\n').join(limitationMessages));
+                MessageDialog.openInformation(getShell(), ProjectWizardMessages.Title_Dialog_Limitations, message);
             }
         });
 
@@ -345,8 +359,6 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
                 private void updateGradleVersionLabel(String newVersion) {
                     // set the version text and show the version warning if the value is a pre-2.0 version
                     ProjectPreviewWizardPage.this.gradleVersionLabel.setText(newVersion);
-                    int versionCompare = GradleVersion.version(newVersion).compareTo(GradleVersion.version("2.0")); //$NON-NLS-1$
-                    ProjectPreviewWizardPage.this.gradleVersionWarningLabel.setVisible(versionCompare < 0);
                     ProjectPreviewWizardPage.this.gradleVersionLabel.getParent().layout();
                 }
             });
