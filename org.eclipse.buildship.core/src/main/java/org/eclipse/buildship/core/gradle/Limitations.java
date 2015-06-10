@@ -1,0 +1,39 @@
+package org.eclipse.buildship.core.gradle;
+
+import com.google.common.collect.ImmutableList;
+import com.gradleware.tooling.toolingmodel.util.Pair;
+import org.gradle.util.GradleVersion;
+
+import java.util.List;
+
+/**
+ * Provides the limitations of the Buildship functionality for a given target Gradle version.
+ */
+public final class Limitations {
+
+    private final GradleVersion targetVersion;
+
+    public Limitations(GradleVersion targetVersion) {
+        this.targetVersion = targetVersion;
+    }
+
+    public List<Pair<GradleVersion, String>> getLimitations() {
+        ImmutableList.Builder<Pair<GradleVersion, String>> limitations = ImmutableList.builder();
+        addIfNeeded("2.1", "No cancellation support", limitations);
+        addIfNeeded("2.4", "No test progress visualization", limitations);
+        addIfNeeded("2.5", "No build/task progress visualization", limitations);
+        return limitations.build();
+    }
+
+    private void addIfNeeded(String version, String limitation, ImmutableList.Builder<Pair<GradleVersion, String>> limitations) {
+        GradleVersion gradleVersion = GradleVersion.version(version);
+        if (this.targetVersion.compareTo(gradleVersion) < 0) {
+            limitations.add(createLimitation(gradleVersion, limitation));
+        }
+    }
+
+    private Pair<GradleVersion, String> createLimitation(GradleVersion version, String limitation) {
+        return new Pair<GradleVersion, String>(version, limitation + " in Gradle versions <" + version.getVersion() + ".");
+    }
+
+}

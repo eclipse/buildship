@@ -66,6 +66,10 @@ public final class ProjectWizardMessages extends NLS {
 
     public static String InfoMessage_PreGradle20VersionUsed;
 
+    public static String Title_Dialog_Limitations;
+    public static String Limitations_Tooltip;
+    public static String Limitations_Details_0_1;
+
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, ProjectWizardMessages.class);
