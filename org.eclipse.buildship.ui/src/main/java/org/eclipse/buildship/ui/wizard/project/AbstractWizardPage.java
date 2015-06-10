@@ -69,7 +69,7 @@ public abstract class AbstractWizardPage extends WizardPage {
         // set the basic message and the attached image
         setTitle(title);
         setMessage(defaultMessage);
-        setImageDescriptor(ImageDescriptor.createFromFile(GradleProjectWizardPage.class, "/icons/full/wizban/import_wiz.png")); //$NON-NLS-1$
+        setImageDescriptor(ImageDescriptor.createFromFile(GradleProjectWizardPage.class, "/icons/full/wizban/wizard.png")); //$NON-NLS-1$
 
         // set up the UI builder
         this.defaultFont = FontUtils.getDefaultDialogFont();
