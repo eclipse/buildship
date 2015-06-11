@@ -84,7 +84,7 @@ public class ProjectImportWizardController {
         Optional<File> javaHome = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_JAVA_HOME));
         Optional<String> jvmArguments = Optional.fromNullable(Strings.emptyToNull(dialogSettings.get(SETTINGS_KEY_JVM_ARGUMENTS)));
         Optional<String> arguments = Optional.fromNullable(Strings.emptyToNull(dialogSettings.get(SETTINGS_KEY_ARGUMENTS)));
-        Optional<Boolean> applyWorkingSets = Optional.fromNullable(dialogSettings.getBoolean(SETTINGS_KEY_APPLY_WORKING_SETS));
+        boolean applyWorkingSets = dialogSettings.get(SETTINGS_KEY_APPLY_WORKING_SETS) != null && dialogSettings.getBoolean(SETTINGS_KEY_APPLY_WORKING_SETS);
         List<String> workingSets = ImmutableList.copyOf(CollectionsUtils.nullToEmpty(dialogSettings.getArray(SETTINGS_KEY_WORKING_SETS)));
 
         this.configuration.setProjectDir(projectDir.orNull());
@@ -93,7 +93,7 @@ public class ProjectImportWizardController {
         this.configuration.setJavaHome(javaHome.orNull());
         this.configuration.setJvmArguments(jvmArguments.orNull());
         this.configuration.setArguments(arguments.orNull());
-        this.configuration.setApplyWorkingSets(applyWorkingSets.or(Boolean.FALSE));
+        this.configuration.setApplyWorkingSets(applyWorkingSets);
         this.configuration.setWorkingSets(workingSets);
 
         // store the values every time they change

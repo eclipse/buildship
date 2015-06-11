@@ -47,7 +47,7 @@ public final class ProjectCreationWizardController {
 
         // initialize values from the persisted dialog settings
         IDialogSettings dialogSettings = projectCreationWizard.getDialogSettings();
-        boolean useDefaultLocation = dialogSettings.get(SETTINGS_KEY_LOCATION_USE_DEFAULT) != null ? dialogSettings.getBoolean(SETTINGS_KEY_LOCATION_USE_DEFAULT) : true;
+        boolean useDefaultLocation = dialogSettings.get(SETTINGS_KEY_LOCATION_USE_DEFAULT) == null || dialogSettings.getBoolean(SETTINGS_KEY_LOCATION_USE_DEFAULT);
         Optional<File> customLocation = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_CUSTOM_LOCATION));
 
         this.configuration.setUseDefaultLocation(useDefaultLocation);
