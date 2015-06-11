@@ -158,8 +158,8 @@ public final class RefreshGradleClasspathContainerHandler extends AbstractHandle
             IStructuredSelection selection = (IStructuredSelection) currentSelection;
             IAdapterManager adapterManager = Platform.getAdapterManager();
             for (Object selectionItem : selection.toList()) {
-                @SuppressWarnings("cast")
-                IResource resource = adapterManager.getAdapter(selectionItem, IResource.class);
+                @SuppressWarnings({"cast", "RedundantCast"})
+                IResource resource = (IResource) adapterManager.getAdapter(selectionItem, IResource.class);
                 if (resource != null) {
                     IProject project = resource.getProject();
                     result.add(project);
