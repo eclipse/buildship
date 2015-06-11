@@ -18,8 +18,6 @@ import org.junit.Test;
 
 public class ProjectImportWizardUiTest extends AbstractSwtbotTest {
 
-    // todo (etst) review
-
     @Test
     public void canOpenImportWizardFromMenuBar() throws Exception {
         // open the import wizard
@@ -29,7 +27,8 @@ public class ProjectImportWizardUiTest extends AbstractSwtbotTest {
         bot.tree().expandNode("Gradle").select("Gradle Project");
         bot.button("Next >").click();
 
-        // if the wizard was opened the label is available, otherwise a WidgetNotFoundException is thrown
+        // if the wizard was opened the label is available, otherwise a WidgetNotFoundException is
+        // thrown
         bot.styledText(ProjectWizardMessages.InfoMessage_GradleWelcomeWizardPageContext);
 
         // cancel the wizard
