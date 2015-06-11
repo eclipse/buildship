@@ -164,7 +164,7 @@
       </handler>
       <handler
             commandId="org.eclipse.buildship.ui.commands.refreshprojects"
-            class="org.eclipse.buildship.ui.handler.RefreshGradleClasspathContainerHandler">
+            class="org.eclipse.buildship.ui.workspace.RefreshGradleClasspathContainerHandler">
       </handler>
     </extension>
 

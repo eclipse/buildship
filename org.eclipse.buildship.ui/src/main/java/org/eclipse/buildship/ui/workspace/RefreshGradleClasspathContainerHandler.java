@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.handler;
+package org.eclipse.buildship.ui.workspace;
 
 import java.util.List;
 import java.util.Set;
