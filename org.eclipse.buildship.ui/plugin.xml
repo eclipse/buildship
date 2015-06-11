@@ -133,8 +133,9 @@
             description="Opens the Gradle build script for the selected Gradle project">
       </command>
       <command
-            id="org.eclipse.buildship.ui.command.refreshProjects"
-            name="Refresh Projects">
+            id="org.eclipse.buildship.ui.commands.refreshprojects"
+            name="Refresh Projects"
+            description="Refreshes the project configuration for the selected projects">
       </command>
     </extension>
 
@@ -162,8 +163,8 @@
             class="org.eclipse.buildship.ui.view.task.OpenBuildScriptHandler">
       </handler>
       <handler
-            class="org.eclipse.buildship.ui.handler.RefreshGradleClasspathContainerHandler"
-            commandId="org.eclipse.buildship.ui.command.refreshProjects">
+            commandId="org.eclipse.buildship.ui.commands.refreshprojects"
+            class="org.eclipse.buildship.ui.handler.RefreshGradleClasspathContainerHandler">
       </handler>
     </extension>
 
@@ -273,43 +274,45 @@
         </decorator>
     </extension>
 
+    <!-- register Gradle context menu item on Project Explorer and Package Explorer -->
+    <extension
+            point="org.eclipse.ui.menus">
+        <menuContribution
+                allPopups="true"
+                locationURI="popup:org.eclipse.jdt.ui.PackageExplorer?after=additions">
+            <menu
+                    id="org.eclipse.buildship.ui.contextmenuentry"
+                    label="Gradle">
+                <command
+                        commandId="org.eclipse.buildship.ui.commands.refreshprojects"
+                        style="push">
+                    <visibleWhen
+                            checkEnabled="false">
+                        <with
+                                variable="activeMenuSelection">
+                            <iterate
+                                    ifEmpty="false">
+                                <adapt
+                                        type="org.eclipse.core.resources.IProject">
+                                    <test
+                                            forcePluginActivation="true"
+                                            property="org.eclipse.core.resources.projectNature"
+                                            value="org.eclipse.buildship.core.gradleprojectnature">
+                                    </test>
+                                </adapt>
+                            </iterate>
+                        </with>
+                    </visibleWhen>
+                </command>
+            </menu>
+        </menuContribution>
+    </extension>
+
     <!-- extension point to register plugins that need to be activated (if not already activated) when a build execution starts -->
     <extension
           point="org.eclipse.buildship.core.executionparticipants">
        <plugin
              id="org.eclipse.buildship.ui">
        </plugin>
-    </extension>
-    <extension
-          point="org.eclipse.ui.menus">
-       <menuContribution
-             allPopups="true"
-             locationURI="popup:org.eclipse.jdt.ui.PackageExplorer?after=additions">
-          <menu
-                id="org.eclipse.buildship.ui.contextmenuentry"
-                label="Gradle">
-             <command
-                   commandId="org.eclipse.buildship.ui.command.refreshProjects"
-                   style="push">
-                <visibleWhen
-                      checkEnabled="false">
-                   <with
-                         variable="activeMenuSelection">
-                      <iterate
-                            ifEmpty="false">
-                         <adapt
-                               type="org.eclipse.core.resources.IProject">
-                            <test
-                                  forcePluginActivation="true"
-                                  property="org.eclipse.core.resources.projectNature"
-                                  value="org.eclipse.buildship.core.gradleprojectnature">
-                            </test>
-                         </adapt>
-                      </iterate>
-                   </with>
-                </visibleWhen>
-             </command>
-          </menu>
-       </menuContribution>
     </extension>
 </plugin>
