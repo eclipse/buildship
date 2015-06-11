@@ -51,7 +51,7 @@ import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.workspace.ClasspathDefinition;
 
 /**
- * Command handler to refresh the classpath for the currently selected Gradle projects.
+ * Refreshes the classpath for the currently selected Gradle projects.
  */
 public final class RefreshGradleClasspathContainerHandler extends AbstractHandler {
 
@@ -70,17 +70,16 @@ public final class RefreshGradleClasspathContainerHandler extends AbstractHandle
     }
 
     private ImmutableSet<String> getAllProjectNames(Set<OmniGradleProjectStructure> rootProjects) {
-        com.google.common.collect.ImmutableSet.Builder<String> relatedProjects = ImmutableSet.<String> builder();
+        ImmutableSet.Builder<String> relatedProjects = ImmutableSet.builder();
         for (OmniGradleProjectStructure rootProject : rootProjects) {
             relatedProjects.addAll(getAllProjectNamesInGradleRootProject(rootProject));
         }
 
-        final ImmutableSet<String> allProjectNames = relatedProjects.build();
-        return allProjectNames;
+        return relatedProjects.build();
     }
 
     private List<String> getAllProjectNamesInGradleRootProject(OmniGradleProjectStructure root) {
-        Builder<String> result = ImmutableList.<String> builder();
+        Builder<String> result = ImmutableList.builder();
         result.add(root.getName());
         for (OmniGradleProjectStructure child : root.getChildren()) {
             result.add(child.getName());
@@ -154,13 +153,13 @@ public final class RefreshGradleClasspathContainerHandler extends AbstractHandle
 
     private List<IProject> collectSelectedProjects(ExecutionEvent event) {
         ISelection currentSelection = HandlerUtil.getCurrentSelection(event);
-        Builder<IProject> result = ImmutableList.<IProject> builder();
+        Builder<IProject> result = ImmutableList.builder();
         if (currentSelection instanceof IStructuredSelection) {
             IStructuredSelection selection = (IStructuredSelection) currentSelection;
             IAdapterManager adapterManager = Platform.getAdapterManager();
             for (Object selectionItem : selection.toList()) {
                 @SuppressWarnings("cast")
-                IResource resource = (IResource) adapterManager.getAdapter(selectionItem, IResource.class);
+                IResource resource = adapterManager.getAdapter(selectionItem, IResource.class);
                 if (resource != null) {
                     IProject project = resource.getProject();
                     result.add(project);
