@@ -51,7 +51,7 @@ import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.workspace.ClasspathDefinition;
 
 /**
- * Refreshes the classpath for the currently selected Gradle projects.
+ * Refreshes the classpath for all Gradle projects that belong to the same builds as the currently selected Gradle projects.
  */
 public final class RefreshGradleClasspathContainerHandler extends AbstractHandler {
 
@@ -93,11 +93,7 @@ public final class RefreshGradleClasspathContainerHandler extends AbstractHandle
             @Override
             public boolean apply(IProject project) {
                 try {
-                    if (!project.isAccessible() || !projectNames.contains(project.getName()) || !project.hasNature(JavaCore.NATURE_ID)) {
-                        return false;
-                    } else {
-                        return true;
-                    }
+                    return project.isAccessible() && projectNames.contains(project.getName()) && project.hasNature(JavaCore.NATURE_ID);
                 } catch (CoreException e) {
                     throw new GradlePluginsRuntimeException(e);
                 }
