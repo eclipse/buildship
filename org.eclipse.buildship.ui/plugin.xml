@@ -137,8 +137,9 @@
             name="Convert to Gradle Project...">
       </command>
       <command
-            id="org.eclipse.buildship.ui.command.refreshProjects"
-            name="Refresh Projects">
+            id="org.eclipse.buildship.ui.commands.refreshprojects"
+            name="Refresh Projects"
+            description="Refreshes the project configuration for the selected projects">
       </command>
     </extension>
 
@@ -170,8 +171,8 @@
             commandId="org.eclipse.buildship.ui.convertproject">
       </handler>
       <handler
-            class="org.eclipse.buildship.ui.handler.RefreshHandler"
-            commandId="org.eclipse.buildship.ui.command.refreshProjects">
+            commandId="org.eclipse.buildship.ui.commands.refreshprojects"
+            class="org.eclipse.buildship.ui.handler.RefreshGradleClasspathContainerHandler">
       </handler>
     </extension>
 
