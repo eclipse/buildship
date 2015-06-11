@@ -11,10 +11,12 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import org.eclipse.buildship.ui.AbstractSwtbotTest;
+import org.junit.Test;
+
+import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 
-import org.junit.Test;
+import org.eclipse.buildship.ui.AbstractSwtbotTest;
 
 public class ProjectImportWizardUiTest extends AbstractSwtbotTest {
 
@@ -22,6 +24,7 @@ public class ProjectImportWizardUiTest extends AbstractSwtbotTest {
     public void canOpenImportWizardFromMenuBar() throws Exception {
         // open the import wizard
         bot.menu("File").menu("Import...").click();
+        bot.waitUntil(Conditions.shellIsActive("Import"));
         SWTBotShell shell = bot.shell("Import");
         shell.activate();
         bot.tree().expandNode("Gradle").select("Gradle Project");
