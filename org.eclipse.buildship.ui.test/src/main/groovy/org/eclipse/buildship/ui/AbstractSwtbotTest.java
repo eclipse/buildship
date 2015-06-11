@@ -11,6 +11,11 @@
 
 package org.eclipse.buildship.ui;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
+
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
@@ -18,12 +23,10 @@ import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.results.BoolResult;
 import org.eclipse.swtbot.swt.finder.results.VoidResult;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.ui.PlatformUI;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
 
 /**
  * Contains convenience test setup and helper methods for tests based on SWTBot .
@@ -50,13 +53,34 @@ public abstract class AbstractSwtbotTest {
     }
 
     @Before
-    public void forceShellActivateToMakeTestWorkingOnLinux() {
+    public void closeAllShellsExceptTheApplicationShellAndForceShellActivation() {
+        // in case an UI test fails some shells might not be closed properly, therefore we close
+        // these here and log it
+        SWTBotShell[] shells = bot.shells();
+        for (SWTBotShell swtBotShell : shells) {
+            if (swtBotShell.isOpen() && !isEclipseApplicationShell(swtBotShell)) {
+                bot.captureScreenshot(swtBotShell.getText() + " NotClosed.jpg");
+                swtBotShell.close();
+                UiPlugin.logger().warn(swtBotShell.getText() + "was not closed properly");
+            }
+        }
+
         // http://wiki.eclipse.org/SWTBot/Troubleshooting#No_active_Shell_when_running_SWTBot_tests_in_Xvfb
         UIThreadRunnable.syncExec(new VoidResult() {
 
             @Override
             public void run() {
                 PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().forceActive();
+            }
+        });
+    }
+
+    public boolean isEclipseApplicationShell(final SWTBotShell swtBotShell) {
+        return UIThreadRunnable.syncExec(new BoolResult() {
+
+            @Override
+            public Boolean run() {
+                return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().equals(swtBotShell.widget);
             }
         });
     }
