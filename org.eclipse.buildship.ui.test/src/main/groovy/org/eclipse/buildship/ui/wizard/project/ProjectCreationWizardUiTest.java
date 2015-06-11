@@ -20,10 +20,6 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 
 import org.eclipse.buildship.ui.AbstractSwtbotTest;
 
-/**
- * SWTBot tests for the {@link ProjectCreationWizard}.
- *
- */
 public class ProjectCreationWizardUiTest extends AbstractSwtbotTest {
 
     @Test
