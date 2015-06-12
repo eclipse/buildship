@@ -29,7 +29,7 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.ui.PlatformUI;
 
 @RunWith(SWTBotJunit4ClassRunner.class)
-public abstract class AbstractSwtbotTest {
+public abstract class BaseSWTBotTest {
 
     protected static SWTWorkbenchBot bot;
 

@@ -16,9 +16,9 @@ import org.junit.Test;
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 
-import org.eclipse.buildship.ui.AbstractSwtbotTest;
+import org.eclipse.buildship.ui.BaseSWTBotTest;
 
-public class ProjectImportWizardUiTest extends AbstractSwtbotTest {
+public class ProjectImportWizardUiTest extends BaseSWTBotTest {
 
     @Test
     public void canOpenImportWizardFromMenuBar() throws Exception {
