@@ -19,9 +19,9 @@ import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 
-import org.eclipse.buildship.ui.AbstractSwtbotTest;
+import org.eclipse.buildship.ui.BaseSWTBotTest;
 
-public class ProjectCreationWizardUiTest extends AbstractSwtbotTest {
+public class ProjectCreationWizardUiTest extends BaseSWTBotTest {
 
     @Test
     public void canOpenNewWizardFromMenuBar() throws Exception {
