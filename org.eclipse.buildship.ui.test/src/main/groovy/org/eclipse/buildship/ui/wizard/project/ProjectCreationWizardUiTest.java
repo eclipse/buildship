@@ -49,9 +49,9 @@ public class ProjectCreationWizardUiTest extends AbstractSwtbotTest {
 
     private void openGradleNewWizard() {
         bot.menu("File").menu("New").menu("Other...").click();
-        bot.waitUntil(Conditions.shellIsActive("New"));
         SWTBotShell shell = bot.shell("New");
         shell.activate();
+        bot.waitUntil(Conditions.shellIsActive("New"));
         bot.tree().expandNode("Gradle").select("Gradle Project");
         bot.button("Next >").click();
     }

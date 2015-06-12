@@ -28,14 +28,8 @@ import org.eclipse.swtbot.swt.finder.results.VoidResult;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.ui.PlatformUI;
 
-/**
- * Contains convenience test setup and helper methods for tests based on SWTBot .
- *
- */
 @RunWith(SWTBotJunit4ClassRunner.class)
 public abstract class AbstractSwtbotTest {
-
-    // todo (etst) review
 
     protected static SWTWorkbenchBot bot;
 
@@ -48,20 +42,20 @@ public abstract class AbstractSwtbotTest {
                 view.close();
             }
         } catch (WidgetNotFoundException e) {
-            UiPlugin.logger().error("Failed to initialize SWTBot test", e);
+            UiPlugin.logger().error("Failed to initialize SWTBot test.", e);
         }
     }
 
     @Before
     public void closeAllShellsExceptTheApplicationShellAndForceShellActivation() {
-        // in case an UI test fails some shells might not be closed properly, therefore we close
+        // in case a UI test fails some shells might not be closed properly, therefore we close
         // these here and log it
         SWTBotShell[] shells = bot.shells();
         for (SWTBotShell swtBotShell : shells) {
             if (swtBotShell.isOpen() && !isEclipseApplicationShell(swtBotShell)) {
                 bot.captureScreenshot(swtBotShell.getText() + " NotClosed.jpg");
+                UiPlugin.logger().warn(swtBotShell.getText() + " was not closed properly.");
                 swtBotShell.close();
-                UiPlugin.logger().warn(swtBotShell.getText() + "was not closed properly");
             }
         }
 
@@ -86,11 +80,17 @@ public abstract class AbstractSwtbotTest {
     }
 
     @After
-    public void waitJobsToFinishAfterTextExecution() {
-        waitForJobs();
+    public void waitForJobsToFinishAfterTextExecution() {
+        waitForJobsToFinish();
     }
 
-    protected void delay(long waitTimeMillis) {
+    protected void waitForJobsToFinish() {
+        while (Job.getJobManager().currentJob() != null) {
+            delay(500);
+        }
+    }
+
+    private void delay(long waitTimeMillis) {
         Display display = Display.getCurrent();
         if (display != null) {
             long endTimeMillis = System.currentTimeMillis() + waitTimeMillis;
@@ -104,13 +104,8 @@ public abstract class AbstractSwtbotTest {
             try {
                 Thread.sleep(waitTimeMillis);
             } catch (InterruptedException e) {
+                // ignore
             }
-        }
-    }
-
-    protected void waitForJobs() {
-        while (Job.getJobManager().currentJob() != null) {
-            delay(400);
         }
     }
 

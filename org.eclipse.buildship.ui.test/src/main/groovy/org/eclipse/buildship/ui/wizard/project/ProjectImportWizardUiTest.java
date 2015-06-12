@@ -34,9 +34,9 @@ public class ProjectImportWizardUiTest extends AbstractSwtbotTest {
 
     private void openGradleImportWizard() {
         bot.menu("File").menu("Import...").click();
-        bot.waitUntil(Conditions.shellIsActive("Import"));
         SWTBotShell shell = bot.shell("Import");
         shell.activate();
+        bot.waitUntil(Conditions.shellIsActive("Import"));
         bot.tree().expandNode("Gradle").select("Gradle Project");
         bot.button("Next >").click();
     }
