@@ -15,6 +15,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 
@@ -24,12 +25,7 @@ public class ProjectCreationWizardUiTest extends AbstractSwtbotTest {
 
     @Test
     public void canOpenNewWizardFromMenuBar() throws Exception {
-        // open the import wizard
-        bot.menu("File").menu("New").menu("Other...").click();
-        SWTBotShell shell = bot.shell("New");
-        shell.activate();
-        bot.tree().expandNode("Gradle").select("Gradle Project");
-        bot.button("Next >").click();
+        openGradleNewWizard();
 
         // if the wizard was opened the label is available, otherwise a WidgetNotFoundException is
         // thrown
@@ -41,12 +37,7 @@ public class ProjectCreationWizardUiTest extends AbstractSwtbotTest {
 
     @Test
     public void defaultLocationButtonInitiallyChecked() throws Exception {
-        // open the import wizard
-        bot.menu("File").menu("New").menu("Other...").click();
-        SWTBotShell shell = bot.shell("New");
-        shell.activate();
-        bot.tree().expandNode("Gradle").select("Gradle Project");
-        bot.button("Next >").click();
+        openGradleNewWizard();
 
         // check whether the checkbox is initially checked
         SWTBotCheckBox useDefaultLocationCheckBox = bot.checkBox(ProjectWizardMessages.Button_UseDefaultLocation, 0);
@@ -54,6 +45,15 @@ public class ProjectCreationWizardUiTest extends AbstractSwtbotTest {
 
         // cancel the wizard
         bot.button("Cancel").click();
+    }
+
+    private void openGradleNewWizard() {
+        bot.menu("File").menu("New").menu("Other...").click();
+        SWTBotShell shell = bot.shell("New");
+        shell.activate();
+        bot.waitUntil(Conditions.shellIsActive("New"));
+        bot.tree().expandNode("Gradle").select("Gradle Project");
+        bot.button("Next >").click();
     }
 
 }

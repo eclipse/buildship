@@ -11,21 +11,18 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import org.eclipse.buildship.ui.AbstractSwtbotTest;
+import org.junit.Test;
+
+import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 
-import org.junit.Test;
+import org.eclipse.buildship.ui.AbstractSwtbotTest;
 
 public class ProjectImportWizardUiTest extends AbstractSwtbotTest {
 
     @Test
     public void canOpenImportWizardFromMenuBar() throws Exception {
-        // open the import wizard
-        bot.menu("File").menu("Import...").click();
-        SWTBotShell shell = bot.shell("Import");
-        shell.activate();
-        bot.tree().expandNode("Gradle").select("Gradle Project");
-        bot.button("Next >").click();
+        openGradleImportWizard();
 
         // if the wizard was opened the label is available, otherwise a WidgetNotFoundException is
         // thrown
@@ -33,6 +30,15 @@ public class ProjectImportWizardUiTest extends AbstractSwtbotTest {
 
         // cancel the wizard
         bot.button("Cancel").click();
+    }
+
+    private void openGradleImportWizard() {
+        bot.menu("File").menu("Import...").click();
+        SWTBotShell shell = bot.shell("Import");
+        shell.activate();
+        bot.waitUntil(Conditions.shellIsActive("Import"));
+        bot.tree().expandNode("Gradle").select("Gradle Project");
+        bot.button("Next >").click();
     }
 
 }
