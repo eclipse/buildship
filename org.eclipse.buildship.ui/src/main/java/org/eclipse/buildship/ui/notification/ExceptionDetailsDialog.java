@@ -148,7 +148,7 @@ public final class ExceptionDetailsDialog extends Dialog {
         createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, false);
         this.detailsButton = createButton(parent, IDialogConstants.DETAILS_ID, IDialogConstants.SHOW_DETAILS_LABEL, false);
         this.copyErrorButton = createButton(parent, COPY_ERROR_BUTTON_ID, "", false); //$NON-NLS-1$
-        this.copyErrorButton.setToolTipText(UiMessages.ExceptionDetailsDialog_Copy_Error_Button_Tooltip);
+        this.copyErrorButton.setToolTipText(UiMessages.Button_CopyFailuresToClipboard_Tooltip);
         this.copyErrorButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_TOOL_COPY));
     }
 
