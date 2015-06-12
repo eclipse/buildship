@@ -146,11 +146,11 @@ public final class ExceptionDetailsDialog extends Dialog {
 
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
-        createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, false);
-        this.detailsButton = createButton(parent, IDialogConstants.DETAILS_ID, IDialogConstants.SHOW_DETAILS_LABEL, false);
         Button copyExceptionButton = createButton(parent, COPY_EXCEPTION_BUTTON_ID, "", false);
         copyExceptionButton.setToolTipText(UiMessages.Button_CopyFailuresToClipboard_Tooltip);
         copyExceptionButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_TOOL_COPY));
+        this.detailsButton = createButton(parent, IDialogConstants.DETAILS_ID, IDialogConstants.SHOW_DETAILS_LABEL, false);
+        createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, false);
     }
 
     @Override
