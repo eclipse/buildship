@@ -29,15 +29,9 @@ set of plugins for the IDE. Check if the _VM_ and the _Bundle pool_ have proper 
 
 ### 2. Configure the Buildship model
 
-In a web browser, download the Oomph model for Buildship from the [project's git repository](https://raw.githubusercontent.com/eclipse/buildship/master/buildship.setup). Go back
-to Oomph, click on the plus sign at the top of the form, and select the downloaded Oomph model from your local file system. Once the model is applied successfully, double-click
-on the _Buildship_ node. If everything goes well, you should see the screen below. Then click _Next_.
-
-Note that we plan to move the model into Oomph's central product catalog. This will omit the step of downloading the model manually the users of the model will automatically
-receive the updates every time the model is changed.
+The Buildship setup model is available in the Oomph project catalog under the GitHub projects, just select it and hit next.
 
 ![Buildship setup model added](oomph/install-2.png)
-
 
 ### 3. Specify installation properties
 
