@@ -48,8 +48,8 @@ import org.eclipse.buildship.ui.util.font.FontUtils;
  */
 public final class ExceptionDetailsDialog extends Dialog {
 
-    public static final int COPY_ERROR_BUTTON_ID = 25;
     private static final String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
+    private static final int COPY_EXCEPTION_BUTTON_ID = 25;
 
     private final Image image;
     private final String title;
@@ -59,7 +59,6 @@ public final class ExceptionDetailsDialog extends Dialog {
 
     private Button detailsButton;
     private Control stackTraceArea;
-    private Button copyErrorButton;
 
     private Clipboard clipboard;
 
@@ -140,6 +139,8 @@ public final class ExceptionDetailsDialog extends Dialog {
         detailsLabelGridData.grabExcessHorizontalSpace = true;
         detailsLabel.setLayoutData(detailsLabelGridData);
 
+        this.clipboard = new Clipboard(getShell().getDisplay());
+
         return container;
     }
 
@@ -147,14 +148,14 @@ public final class ExceptionDetailsDialog extends Dialog {
     protected void createButtonsForButtonBar(Composite parent) {
         createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, false);
         this.detailsButton = createButton(parent, IDialogConstants.DETAILS_ID, IDialogConstants.SHOW_DETAILS_LABEL, false);
-        this.copyErrorButton = createButton(parent, COPY_ERROR_BUTTON_ID, "", false); //$NON-NLS-1$
-        this.copyErrorButton.setToolTipText(UiMessages.Button_CopyFailuresToClipboard_Tooltip);
-        this.copyErrorButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_TOOL_COPY));
+        Button copyExceptionButton = createButton(parent, COPY_EXCEPTION_BUTTON_ID, "", false);
+        copyExceptionButton.setToolTipText(UiMessages.Button_CopyFailuresToClipboard_Tooltip);
+        copyExceptionButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_TOOL_COPY));
     }
 
     @Override
     protected void setButtonLayoutData(Button button) {
-        if (button.getData() != null && button.getData().equals(COPY_ERROR_BUTTON_ID)) {
+        if (button.getData() != null && button.getData().equals(COPY_EXCEPTION_BUTTON_ID)) {
             // do not set a width hint for the copy error button, like it is done in the super
             // implementation
             GridDataFactory.swtDefaults().applyTo(button);
@@ -165,9 +166,9 @@ public final class ExceptionDetailsDialog extends Dialog {
 
     @Override
     protected void initializeBounds() {
+        // do not make columns equal width so that we can have a smaller 'copy failure' button
         Composite buttonBar = (Composite) getButtonBar();
         GridLayout layout = (GridLayout) buttonBar.getLayout();
-        // do not make columns equal width so that we can have a smaller copy error button
         layout.makeColumnsEqualWidth = false;
         super.initializeBounds();
     }
@@ -176,7 +177,7 @@ public final class ExceptionDetailsDialog extends Dialog {
     protected void buttonPressed(int id) {
         if (id == IDialogConstants.DETAILS_ID) {
             toggleStacktraceArea();
-        } else if (id == COPY_ERROR_BUTTON_ID) {
+        } else if (id == COPY_EXCEPTION_BUTTON_ID) {
             copyErrorToClipboard();
         } else {
             super.buttonPressed(id);
@@ -191,7 +192,7 @@ public final class ExceptionDetailsDialog extends Dialog {
         sb.append(LINE_SEPARATOR);
         sb.append(getStackTrace());
 
-        getClipboard().setContents(new String[] { sb.toString() }, new Transfer[] { TextTransfer.getInstance() });
+        this.clipboard.setContents(new String[]{sb.toString()}, new Transfer[]{TextTransfer.getInstance()});
     }
 
     private void toggleStacktraceArea() {
@@ -234,8 +235,6 @@ public final class ExceptionDetailsDialog extends Dialog {
         // create stacktrace content
         Text text = new Text(container, SWT.MULTI | SWT.READ_ONLY | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
         text.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-        // set stacktrace string to the Text control
         text.setText(getStackTrace());
 
         return container;
@@ -244,15 +243,7 @@ public final class ExceptionDetailsDialog extends Dialog {
     private String getStackTrace() {
         StringWriter writer = new StringWriter(1000);
         this.throwable.printStackTrace(new PrintWriter(writer));
-
         return writer.toString();
-    }
-
-    private Clipboard getClipboard() {
-        if (this.clipboard == null) {
-            this.clipboard = new Clipboard(getShell().getDisplay());
-        }
-        return this.clipboard;
     }
 
     @Override
@@ -263,4 +254,5 @@ public final class ExceptionDetailsDialog extends Dialog {
         }
         return super.close();
     }
+
 }
