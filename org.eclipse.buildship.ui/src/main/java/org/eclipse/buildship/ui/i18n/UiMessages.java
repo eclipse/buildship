@@ -36,7 +36,7 @@ public final class UiMessages extends NLS {
 
     public static String Action_ShowTreeHeader_Text;
 
-    public static String ExceptionDetailsDialog_Copy_Error_Button_Tooltip;
+    public static String Button_CopyFailuresToClipboard_Tooltip;
 
     static {
         // initialize resource bundle
