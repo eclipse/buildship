@@ -12,37 +12,32 @@
 package org.eclipse.buildship.core.project.internal;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
-import com.gradleware.tooling.toolingmodel.Path;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.Logger;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
+import org.eclipse.buildship.core.gradle.model.GradleModel;
+import org.eclipse.buildship.core.gradle.model.internal.GradleModelImpl;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.project.ProjectConversionExtension;
 import org.eclipse.buildship.core.project.ProjectService;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.SubMonitor;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
+import com.gradleware.tooling.toolingmodel.Path;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 /**
  * Default implementation of the {@link ProjectService}.
@@ -50,114 +45,87 @@ import org.eclipse.buildship.core.workspace.WorkspaceOperations;
  */
 public class DefaultProjectService implements ProjectService {
 
-    private WorkspaceOperations workspaceOperations;
-    private ProjectConfigurationManager projectConfigurationManager;
-    private Logger logger;
+	private static final String GRADLE_CONVERSION_EXTENSION_ID = CorePlugin.PLUGIN_ID + ".gradleconversionextension";
+	private static final String GRADLE_CONVERSION_EXTENSION_NATURE_ATTRIBUTE = "nature";
 
-    public DefaultProjectService(WorkspaceOperations workspaceOperations, ProjectConfigurationManager projectConfigurationManager, Logger logger) {
-        this.workspaceOperations = Preconditions.checkNotNull(workspaceOperations);
-        this.projectConfigurationManager = Preconditions.checkNotNull(projectConfigurationManager);
-        this.logger = Preconditions.checkNotNull(logger);
-    }
+	private WorkspaceOperations workspaceOperations;
+	private ProjectConfigurationManager projectConfigurationManager;
+	private Logger logger;
 
-    @Override
-    public void convertToGradleProject(IProgressMonitor progressMonitor, GradleRunConfigurationAttributes configurationAttributes, IProject project) throws CoreException,
-            IOException {
+	public DefaultProjectService(WorkspaceOperations workspaceOperations,
+			ProjectConfigurationManager projectConfigurationManager, Logger logger) {
+		this.workspaceOperations = Preconditions.checkNotNull(workspaceOperations);
+		this.projectConfigurationManager = Preconditions.checkNotNull(projectConfigurationManager);
+		this.logger = Preconditions.checkNotNull(logger);
+	}
 
-        if (project.hasNature(GradleProjectNature.ID)) {
-            this.logger.info("Tried to convert " + project.getName() + " project, but it has already the Gradle project nature.");
-            progressMonitor.done();
-            return;
-        }
+	@Override
+	public void convertToGradleProject(IProgressMonitor progressMonitor,
+			GradleRunConfigurationAttributes configurationAttributes, IProject project)
+					throws Exception {
 
-        SubMonitor mainMonitor = SubMonitor.convert(progressMonitor, "Converting project to a Gradle project", 100);
+		if (project.hasNature(GradleProjectNature.ID)) {
+			this.logger.info("Tried to convert " + project.getName()
+					+ " project, but it has already the Gradle project nature.");
+			progressMonitor.done();
+			return;
+		}
 
-        // create Gradle files for the project
-        File gradleFilesDirectory = createGradleFileForProject(configurationAttributes, project, mainMonitor);
-        mainMonitor.setWorkRemaining(70);
+		SubMonitor mainMonitor = SubMonitor.convert(progressMonitor, "Converting project to a Gradle project", 100);
 
-        // copy gradle Gradle files from gradleFilesDirectory directory to the project
-        this.workspaceOperations.copyFileToContainer(mainMonitor.newChild(20), gradleFilesDirectory, project, true);
-        mainMonitor.setWorkRemaining(50);
+		// create Gradle files for the project
+		File gradleFilesDirectory = this.createGradleFileForProject(configurationAttributes, project, mainMonitor);
+		mainMonitor.setWorkRemaining(70);
 
-        // persist the Gradle-specific configuration in the Eclipse project's .settings folder
-        FixedRequestAttributes fixedRequestAttributes = new FixedRequestAttributes(project.getLocation().toFile(), configurationAttributes.getGradleUserHome(),
-                configurationAttributes.getGradleDistribution(), configurationAttributes.getJavaHome(), configurationAttributes.getJvmArguments(),
-                configurationAttributes.getArguments());
-        ProjectConfiguration projectConfiguration = ProjectConfiguration.from(fixedRequestAttributes, Path.from(":"), project.getLocation().toFile());
-        this.projectConfigurationManager.saveProjectConfiguration(projectConfiguration, project);
-        mainMonitor.setWorkRemaining(20);
+		// copy gradle Gradle files from gradleFilesDirectory directory to the
+		// project
+		this.workspaceOperations.copyFileToContainer(mainMonitor.newChild(20), gradleFilesDirectory, project, true);
+		mainMonitor.setWorkRemaining(50);
 
-        // add the gradle nature to the project
-        this.workspaceOperations.addNature(project, GradleProjectNature.ID, mainMonitor.newChild(20));
+		// persist the Gradle-specific configuration in the Eclipse project's
+		// .settings folder
+		FixedRequestAttributes fixedRequestAttributes = new FixedRequestAttributes(project.getLocation().toFile(),
+				configurationAttributes.getGradleUserHome(), configurationAttributes.getGradleDistribution(),
+				configurationAttributes.getJavaHome(), configurationAttributes.getJvmArguments(),
+				configurationAttributes.getArguments());
+		ProjectConfiguration projectConfiguration = ProjectConfiguration.from(fixedRequestAttributes, Path.from(":"),
+				project.getLocation().toFile());
+		this.projectConfigurationManager.saveProjectConfiguration(projectConfiguration, project);
+		mainMonitor.setWorkRemaining(20);
 
-        mainMonitor.done();
-    }
+		// add the gradle nature to the project
+		this.workspaceOperations.addNature(project, GradleProjectNature.ID, mainMonitor.newChild(20));
 
-    private File createGradleFileForProject(GradleRunConfigurationAttributes configurationAttributes, IProject project, SubMonitor mainMonitor) throws CoreException,
-            JavaModelException, IOException {
-        File gradleFilesDirectory = null;
-        if (project.hasNature(JavaCore.NATURE_ID)) {
-            IJavaProject javaProject = JavaCore.create(project);
-            IClasspathEntry[] rawClasspath = javaProject.getRawClasspath();
-            List<String> dependencies = getRawDependencies(rawClasspath, project.getFullPath());
-            List<SourceSet> sourceSets = getSourceSets(javaProject);
-            gradleFilesDirectory = GradleInitializer.getInitializedGradleFiles(mainMonitor.newChild(30), configurationAttributes, project.getName(), sourceSets,
-                    ImmutableList.<String> of("java"), ImmutableList.<String> of("jcenter()"), dependencies);
-        } else {
-            gradleFilesDirectory = GradleInitializer.getInitializedGradleFiles(mainMonitor.newChild(30), configurationAttributes, project.getName(),
-                    ImmutableList.<SourceSet> of(), ImmutableList.<String> of(), ImmutableList.<String> of(), ImmutableList.<String> of());
-        }
-        return gradleFilesDirectory;
-    }
+		mainMonitor.done();
+	}
 
-    private List<SourceSet> getSourceSets(IJavaProject javaProject) throws JavaModelException {
-        IPackageFragmentRoot[] packageFragmentRoots = javaProject.getPackageFragmentRoots();
+	private File createGradleFileForProject(GradleRunConfigurationAttributes configurationAttributes, IProject project,
+			SubMonitor mainMonitor) throws Exception {
+		List<ProjectConversionExtension> projectConversionExtensions = this.getProjectConversionExtensions(project);
+		GradleModel gradleModel = new GradleModelImpl();
+		gradleModel.setRootProjectName(project.getName());
+		for (ProjectConversionExtension projectConversionExtension : projectConversionExtensions) {
+			projectConversionExtension.addProjectSpecificInformation(mainMonitor, project, gradleModel);
+		}
 
-        return FluentIterable.<IPackageFragmentRoot> of(packageFragmentRoots).filter(new Predicate<IPackageFragmentRoot>() {
+		return GradleInitializer.getInitializedGradleFiles(mainMonitor.newChild(30),
+					configurationAttributes, gradleModel);
+	}
 
-            @Override
-            public boolean apply(IPackageFragmentRoot arg0) {
-                IResource fragmentRoot;
-                try {
-                    fragmentRoot = arg0.getCorrespondingResource();
-                    return fragmentRoot != null && (fragmentRoot.getType() != IResource.FILE);
-                } catch (JavaModelException e) {
-                    // ignore
-                }
-                return false;
-            }
-        }).transform(new Function<IPackageFragmentRoot, SourceSet>() {
-
-            @Override
-            public SourceSet apply(IPackageFragmentRoot packageFragmentRoot) {
-                SourceSet sourceSet = new SourceSet();
-                sourceSet.setName("java");
-                sourceSet.setPath(packageFragmentRoot.getElementName());
-                return sourceSet;
-            }
-        }).toList();
-    }
-
-    private List<String> getRawDependencies(IClasspathEntry[] rawClasspath, final IPath projectPath) {
-        if (rawClasspath.length < 1) {
-            return ImmutableList.<String> of();
-        }
-        List<String> dependencies = FluentIterable.<IClasspathEntry> of(rawClasspath).transform(new Function<IClasspathEntry, String>() {
-
-            @Override
-            public String apply(IClasspathEntry classpathEntry) {
-                return classpathEntry.getPath().makeRelativeTo(projectPath).toPortableString();
-            }
-        }).filter(new Predicate<String>() {
-
-            @Override
-            public boolean apply(String classPath) {
-                // We currently only support file referenced dependencies
-                return classPath.endsWith(".jar");
-            }
-        }).toList();
-        return dependencies;
-    }
+	private List<ProjectConversionExtension> getProjectConversionExtensions(IProject project) throws CoreException {
+		Builder<ProjectConversionExtension> projectConversionExtensions = ImmutableList
+				.<ProjectConversionExtension> builder();
+		IExtensionRegistry extensionRegistry = Platform.getExtensionRegistry();
+		IConfigurationElement[] configurationElements = extensionRegistry
+				.getConfigurationElementsFor(GRADLE_CONVERSION_EXTENSION_ID);
+		for (IConfigurationElement configurationElement : configurationElements) {
+			String nature = configurationElement.getAttribute(GRADLE_CONVERSION_EXTENSION_NATURE_ATTRIBUTE);
+			if (nature == null || project.hasNature(nature)) {
+				ProjectConversionExtension executableExtension = (ProjectConversionExtension) configurationElement.createExecutableExtension("class");
+				projectConversionExtensions.add(executableExtension);
+			}
+		}
+		return projectConversionExtensions.build();
+	}
 
 }

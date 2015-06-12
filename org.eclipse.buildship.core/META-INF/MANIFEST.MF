@@ -15,14 +15,15 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jdt.launching,
  org.eclipse.debug.core,
  org.slf4j.api;bundle-version="[1.7.10,1.8.0)",
- com.google.gson;bundle-version="[2.2.4,2.3.0)",
- com.gradleware.tooling.model;bundle-version="[0.4.0,0.5.0)"
+ com.gradleware.tooling.model;bundle-version="[0.4.0,0.5.0)",
+ com.google.gson
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.buildship.core,
  org.eclipse.buildship.core.configuration,
  org.eclipse.buildship.core.console,
  org.eclipse.buildship.core.event,
  org.eclipse.buildship.core.gradle,
+ org.eclipse.buildship.core.gradle.model,
  org.eclipse.buildship.core.i18n,
  org.eclipse.buildship.core.launch,
  org.eclipse.buildship.core.notification,

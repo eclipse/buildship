@@ -14,13 +14,20 @@ package org.eclipse.buildship.core.project.internal;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.util.List;
-
-import org.eclipse.core.runtime.IProgressMonitor;
+import java.util.Collection;
 
 import org.eclipse.buildship.core.gradle.BuildRunner;
+import org.eclipse.buildship.core.gradle.model.Dependency;
+import org.eclipse.buildship.core.gradle.model.GradleModel;
+import org.eclipse.buildship.core.gradle.model.Plugin;
+import org.eclipse.buildship.core.gradle.model.Repository;
+import org.eclipse.buildship.core.gradle.model.SourceSet;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.core.runtime.IProgressMonitor;
+
+import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
+import com.google.common.io.Files;
 
 /**
  * This class is used to create a Gradle project. Internally gradle init is called on a temp
@@ -34,8 +41,7 @@ public class GradleInitializer {
     private GradleInitializer() {
     }
 
-    public static File getInitializedGradleFiles(IProgressMonitor monitor, GradleRunConfigurationAttributes configurationAttributes, String rootProjectName,
-            List<SourceSet> sourceSets, List<String> gradlePlugins, List<String> repositories, List<String> fileSystemClassPaths) throws IOException {
+    public static File getInitializedGradleFiles(IProgressMonitor monitor, GradleRunConfigurationAttributes configurationAttributes, GradleModel gradleModel) throws IOException {
         // do a simple gradle init in a temp directory
         File gradleInitTempDir = Files.createTempDir();
         gradleInitTempDir.deleteOnExit();
@@ -52,9 +58,9 @@ public class GradleInitializer {
         });
         for (File file : listFiles) {
             if (file.getName().startsWith("settings")) {
-                Files.write("rootProject.name = '" + rootProjectName + "'", file, Charsets.UTF_8);
+                Files.write("rootProject.name = '" + gradleModel.getRootProjectName() + "'", file, Charsets.UTF_8);
             } else if (file.getName().startsWith("build")) {
-                String gradleBuildFileContents = getBuildFileContents(gradlePlugins, repositories, sourceSets, fileSystemClassPaths);
+                String gradleBuildFileContents = getBuildFileContents(gradleModel.getPlugins(), gradleModel.getRepositories(), gradleModel.getSourceSets(), gradleModel.getDependencies());
                 Files.write(gradleBuildFileContents, file, Charsets.UTF_8);
             }
         }
@@ -62,20 +68,21 @@ public class GradleInitializer {
         return gradleInitTempDir;
     }
 
-    private static String getBuildFileContents(List<String> gradlePlugins, List<String> repositories, List<SourceSet> sourceSets, List<String> fileSystemClassPaths)
-            throws IOException {
-        StringBuilder buffer = new StringBuilder();
-        addGradlePlugins(buffer, gradlePlugins);
-        buffer.append(LINE_SEPARATOR);
-        addRepositories(buffer, repositories);
-        buffer.append(LINE_SEPARATOR);
-        addSourceSets(buffer, sourceSets);
-        buffer.append(LINE_SEPARATOR);
-        addDependencies(buffer, fileSystemClassPaths);
-        return buffer.toString();
-    }
+    private static String getBuildFileContents(Collection<Plugin> plugins, Collection<Repository> repositories,
+			Collection<SourceSet> sourceSets, Collection<Dependency> dependencies) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        addGradlePlugins(sb, plugins);
+        sb.append(LINE_SEPARATOR);
+        addRepositories(sb, repositories);
+        sb.append(LINE_SEPARATOR);
+        addSourceSets(sb, sourceSets);
+        sb.append(LINE_SEPARATOR);
+        addDependencies(sb, dependencies);
+        return sb.toString();
+	}
 
-    private static void addSourceSets(Appendable appendable, List<SourceSet> sourceSets) throws IOException {
+
+    private static void addSourceSets(Appendable appendable, Collection<SourceSet> sourceSets) throws IOException {
         if(sourceSets.isEmpty()) {
             return;
         }
@@ -101,24 +108,24 @@ public class GradleInitializer {
         appendable.append(LINE_SEPARATOR);
     }
 
-    private static void addGradlePlugins(Appendable appendable, List<String> gradlePlugins) throws IOException {
-        for (String gradlePlugin : gradlePlugins) {
+    private static void addGradlePlugins(Appendable appendable, Collection<Plugin> gradlePlugins) throws IOException {
+        for (Plugin gradlePlugin : gradlePlugins) {
             appendable.append("apply plugin: '");
-            appendable.append(gradlePlugin);
+            appendable.append(gradlePlugin.getName());
             appendable.append("'");
             appendable.append(LINE_SEPARATOR);
         }
     }
 
-    private static void addRepositories(Appendable appendable, List<String> repositories) throws IOException {
+    private static void addRepositories(Appendable appendable, Collection<Repository> repositories) throws IOException {
         if (repositories.isEmpty()) {
             return;
         }
         appendable.append("repositories {");
         appendable.append(LINE_SEPARATOR);
 
-        for (String repository : repositories) {
-            appendable.append(repository);
+        for (Repository repository : repositories) {
+            appendable.append(repository.getRepository());
             appendable.append(LINE_SEPARATOR);
         }
 
@@ -126,15 +133,15 @@ public class GradleInitializer {
         appendable.append(LINE_SEPARATOR);
     }
 
-    private static void addDependencies(Appendable appendable, List<String> fileSystemClassPaths) throws IOException {
-        if(fileSystemClassPaths.isEmpty()) {
+    private static void addDependencies(Appendable appendable, Collection<Dependency> dependencies) throws IOException {
+        if(dependencies.isEmpty()) {
             return;
         }
         appendable.append("dependencies {");
         appendable.append(LINE_SEPARATOR);
-        for (String classPath : fileSystemClassPaths) {
+        for (Dependency dependency : dependencies) {
             appendable.append("compile files('");
-            appendable.append(classPath);
+            appendable.append(dependency.getDependencyString());
             appendable.append("')");
             appendable.append(LINE_SEPARATOR);
         }

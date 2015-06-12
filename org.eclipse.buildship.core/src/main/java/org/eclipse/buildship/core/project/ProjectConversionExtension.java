@@ -11,15 +11,17 @@
 
 package org.eclipse.buildship.core.project;
 
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.gradle.model.GradleModel;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
- * This service offers Gradle specific operations for projects.
- *
+ * This interface is used for the
+ * org.eclipse.buildship.core.gradleconversionextension extension point so that
+ * other projects can contribute to the {@link GradleModel} in order to convert
+ * the given {@link IProject} to a Gradle project.
  */
-public interface ProjectService {
+public interface ProjectConversionExtension {
 
-    void convertToGradleProject(IProgressMonitor progressMonitor, GradleRunConfigurationAttributes configurationAttributes, IProject project) throws Exception;
+	void addProjectSpecificInformation(IProgressMonitor monitor, IProject project, GradleModel model) throws Exception;
 }

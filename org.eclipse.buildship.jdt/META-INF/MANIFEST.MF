@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Buildship, Eclipse Plug-ins for Gradle - JDT
+Bundle-SymbolicName: org.eclipse.buildship.jdt;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.eclipse.buildship.jdt.JDTPlugin
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.buildship.core,
+ org.eclipse.core.resources,
+ org.eclipse.jdt.core,
+ com.gradleware.tooling.model;bundle-version="0.4.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Bundle-Vendor: Eclipse Buildship

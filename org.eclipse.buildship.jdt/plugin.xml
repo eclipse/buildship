@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.buildship.core.gradleconversionextension">
+      <ProjectConversionExtension
+            class="org.eclipse.buildship.jdt.project.JDTProjectConversionExtension"
+            nature="org.eclipse.jdt.core.javanature">
+      </ProjectConversionExtension>
+   </extension>
+
+</plugin>
