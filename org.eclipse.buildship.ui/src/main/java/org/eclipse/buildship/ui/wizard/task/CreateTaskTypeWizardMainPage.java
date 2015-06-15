@@ -14,6 +14,10 @@ package org.eclipse.buildship.ui.wizard.task;
 
 import java.util.List;
 
+import org.eclipse.buildship.core.model.taskmetadata.TaskType;
+import org.eclipse.buildship.ui.PluginImage.ImageState;
+import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.buildship.ui.databinding.validators.TaskNameValidator;
 import org.eclipse.core.databinding.AggregateValidationStatus;
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
@@ -44,11 +48,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-
-import org.eclipse.buildship.core.model.taskmetadata.TaskType;
-import org.eclipse.buildship.ui.PluginImage.ImageState;
-import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.databinding.validators.TaskNameValidator;
 
 /**
  * Shows the first page of the {@link NewGradleTaskWizard}, where the user sets the task type and the name
@@ -81,7 +80,7 @@ public class CreateTaskTypeWizardMainPage extends WizardPage {
         this.taskTypes.add(TaskType.DEFAULT_TASK_TYPE);
 
         setTitle("Set name and task type");
-        setImageDescriptor(PluginImages.IMPORT_WIZARD.withState(ImageState.ENABLED).getImageDescriptor());
+        setImageDescriptor(PluginImages.WIZARD.withState(ImageState.ENABLED).getImageDescriptor());
         setPageComplete(false);
     }
 
@@ -94,14 +93,14 @@ public class CreateTaskTypeWizardMainPage extends WizardPage {
         Label taskNameLabel = new Label(composite, SWT.None);
         taskNameLabel.setText("Task Name");
 
-        taskNameText = new Text(composite, SWT.BORDER);
-        taskNameText.setMessage("Set the name of your task");
-        GridDataFactory.fillDefaults().grab(true, false).applyTo(taskNameText);
+        this.taskNameText = new Text(composite, SWT.BORDER);
+        this.taskNameText.setMessage("Set the name of your task");
+        GridDataFactory.fillDefaults().grab(true, false).applyTo(this.taskNameText);
 
         Label taskTypesLabel = new Label(composite, SWT.None);
         taskTypesLabel.setText("Task Type");
 
-        comboViewer = new ComboViewer(composite, SWT.READ_ONLY);
+        this.comboViewer = new ComboViewer(composite, SWT.READ_ONLY);
 
         bindUI();
 
@@ -111,47 +110,47 @@ public class CreateTaskTypeWizardMainPage extends WizardPage {
     }
 
     private void bindUI() {
-        ViewerSupport.bind(comboViewer, taskTypes, PojoProperties.value(TaskType.class, "name")); //$NON-NLS-1$
+        ViewerSupport.bind(this.comboViewer, this.taskTypes, PojoProperties.value(TaskType.class, "name")); //$NON-NLS-1$
 
-        dbc = new DataBindingContext();
+        this.dbc = new DataBindingContext();
 
-        ISWTObservableValue taskNameTarget = WidgetProperties.text(SWT.Modify).observe(taskNameText);
-        IObservableValue taskNameModel = BeanProperties.value(TaskCreationModel.class, TaskCreationModel.FIELD_TASKNAME, String.class).observe(taskCreationModel);
+        ISWTObservableValue taskNameTarget = WidgetProperties.text(SWT.Modify).observe(this.taskNameText);
+        IObservableValue taskNameModel = BeanProperties.value(TaskCreationModel.class, TaskCreationModel.FIELD_TASKNAME, String.class).observe(this.taskCreationModel);
 
         UpdateValueStrategy nonEmptyCheckUpdateStrategy = new UpdateValueStrategy();
         nonEmptyCheckUpdateStrategy.setAfterGetValidator(new TaskNameValidator());
 
-        Binding taskNameBinding = dbc.bindValue(taskNameTarget, taskNameModel, nonEmptyCheckUpdateStrategy, nonEmptyCheckUpdateStrategy);
-        // Add ControlDecorationSupport, when the first change occurs so that warnings are not shown
-        // immediately
+        Binding taskNameBinding = this.dbc.bindValue(taskNameTarget, taskNameModel, nonEmptyCheckUpdateStrategy, nonEmptyCheckUpdateStrategy);
         addControlDecorationSupport(taskNameBinding);
 
-        IViewerObservableValue taskTypeTarget = ViewerProperties.singleSelection().observe(comboViewer);
-        IObservableValue taskTypeModel = BeanProperties.value(TaskCreationModel.class, TaskCreationModel.FIELD_TASKTYPE, TaskType.class).observe(taskCreationModel);
-
-        dbc.bindValue(taskTypeTarget, taskTypeModel);
+        IViewerObservableValue taskTypeTarget = ViewerProperties.singleSelection().observe(this.comboViewer);
+        IObservableValue taskTypeModel = BeanProperties.value(TaskCreationModel.class, TaskCreationModel.FIELD_TASKTYPE, TaskType.class).observe(this.taskCreationModel);
+        Binding taskTypeBinding = this.dbc.bindValue(taskTypeTarget, taskTypeModel);
+        addControlDecorationSupport(taskTypeBinding);
     }
 
-    private void addControlDecorationSupport(final Binding taskNameBinding) {
-        taskNameBinding.getTarget().addChangeListener(new IChangeListener() {
+    private void addControlDecorationSupport(final Binding binding) {
+        // Add ControlDecorationSupport, when the first change occurs so that
+        // warnings are not shown immediately
+        binding.getTarget().addChangeListener(new IChangeListener() {
 
             private boolean isControlDecorationSupportAdded;
 
             @Override
             public void handleChange(ChangeEvent event) {
-                if (!isControlDecorationSupportAdded) {
-                    isControlDecorationSupportAdded = true;
+                if (!this.isControlDecorationSupportAdded) {
+                    this.isControlDecorationSupportAdded = true;
                     // show validation status at the widget itself
-                    ControlDecorationSupport.create(taskNameBinding, SWT.LEFT | SWT.TOP);
+                    ControlDecorationSupport.create(binding, SWT.LEFT | SWT.TOP);
                     // show validation status as Wizard message
-                    DialogPageSupport.create(CreateTaskTypeWizardMainPage.this, dbc);
+                    DialogPageSupport.create(CreateTaskTypeWizardMainPage.this, CreateTaskTypeWizardMainPage.this.dbc);
                 }
             }
         });
     }
 
     private void createPageCompleteObservable() {
-        AggregateValidationStatus aggregateValidationStatus = new AggregateValidationStatus(dbc, AggregateValidationStatus.MAX_SEVERITY);
+        AggregateValidationStatus aggregateValidationStatus = new AggregateValidationStatus(this.dbc, AggregateValidationStatus.MAX_SEVERITY);
         aggregateValidationStatus.addValueChangeListener(new IValueChangeListener() {
 
             @Override
@@ -166,14 +165,14 @@ public class CreateTaskTypeWizardMainPage extends WizardPage {
 
     @Override
     public boolean canFlipToNextPage() {
-        return super.canFlipToNextPage() && !comboViewer.getSelection().isEmpty()
-                && !(TaskType.DEFAULT_TASK_TYPE.equals(((IStructuredSelection) comboViewer.getSelection()).getFirstElement()));
+        return super.canFlipToNextPage() && !this.comboViewer.getSelection().isEmpty()
+                && !(TaskType.DEFAULT_TASK_TYPE.equals(((IStructuredSelection) this.comboViewer.getSelection()).getFirstElement()));
     }
 
     @Override
     public void dispose() {
-        if (dbc != null) {
-            dbc.dispose();
+        if (this.dbc != null) {
+            this.dbc.dispose();
         }
         super.dispose();
     }

@@ -14,14 +14,13 @@ package org.eclipse.buildship.ui.wizard.task;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import org.eclipse.core.databinding.observable.map.IObservableMap;
-import org.eclipse.core.databinding.observable.map.WritableMap;
-import org.eclipse.jface.text.templates.Template;
-
 import org.eclipse.buildship.core.model.taskmetadata.TaskProperty;
 import org.eclipse.buildship.core.model.taskmetadata.TaskType;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.view.ObservableItem;
+import org.eclipse.core.databinding.observable.map.IObservableMap;
+import org.eclipse.core.databinding.observable.map.WritableMap;
+import org.eclipse.jface.text.templates.Template;
 
 /**
  * This model contains all information, which is configured by the NewGradleTaskWizard.
@@ -45,7 +44,7 @@ public class TaskCreationModel extends ObservableItem {
     private IObservableMap taskPropertyValues = new WritableMap(TaskProperty.class, String.class);
 
     public String getTaskName() {
-        return taskName;
+        return this.taskName;
     }
 
     public void setTaskName(String taskName) {
@@ -53,10 +52,7 @@ public class TaskCreationModel extends ObservableItem {
     }
 
     public TaskType getTaskType() {
-        if (TaskType.DEFAULT_TASK_TYPE.equals(taskType)) {
-            return null;
-        }
-        return taskType;
+        return this.taskType;
     }
 
     public void setTaskType(TaskType taskType) {
@@ -64,7 +60,7 @@ public class TaskCreationModel extends ObservableItem {
     }
 
     public IObservableMap getTaskPropertyValues() {
-        return taskPropertyValues;
+        return this.taskPropertyValues;
     }
 
     public void setTaskPropertyValues(IObservableMap taskPropertyValues) {
@@ -96,7 +92,7 @@ public class TaskCreationModel extends ObservableItem {
 
     private String getPropertiesString() {
         StringBuilder sb = new StringBuilder();
-        for (Iterator<?> iterator = taskPropertyValues.entrySet().iterator(); iterator.hasNext();) {
+        for (Iterator<?> iterator = this.taskPropertyValues.entrySet().iterator(); iterator.hasNext();) {
             Entry<?, ?> entry = (Entry<?, ?>) iterator.next();
             String value = (String) entry.getValue();
             if (value != null && !value.isEmpty()) {

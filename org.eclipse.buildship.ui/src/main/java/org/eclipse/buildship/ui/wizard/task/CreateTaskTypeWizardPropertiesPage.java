@@ -12,6 +12,12 @@
 
 package org.eclipse.buildship.ui.wizard.task;
 
+import org.eclipse.buildship.core.model.taskmetadata.TaskProperty;
+import org.eclipse.buildship.core.model.taskmetadata.TaskType;
+import org.eclipse.buildship.ui.PluginImage.ImageState;
+import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.buildship.ui.wizard.task.renderer.PropertyRenderer;
+import org.eclipse.buildship.ui.wizard.task.renderer.StringPropertyRenderer;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.Observables;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
@@ -26,13 +32,6 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-
-import org.eclipse.buildship.core.model.taskmetadata.TaskProperty;
-import org.eclipse.buildship.core.model.taskmetadata.TaskType;
-import org.eclipse.buildship.ui.PluginImage.ImageState;
-import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.wizard.task.renderer.PropertyRenderer;
-import org.eclipse.buildship.ui.wizard.task.renderer.StringPropertyRenderer;
 
 /**
  * Shows the second page from the {@link NewGradleTaskWizard}, where the user sets the property values
@@ -52,38 +51,38 @@ public class CreateTaskTypeWizardPropertiesPage extends WizardPage {
         this.taskCreationModel = taskCreationModel;
         setTitle("Set Properties");
         setMessage("You can directly configure the properties of the previously chosen task type.");
-        setImageDescriptor(PluginImages.IMPORT_WIZARD.withState(ImageState.ENABLED).getImageDescriptor());
+        setImageDescriptor(PluginImages.WIZARD.withState(ImageState.ENABLED).getImageDescriptor());
     }
 
     @Override
     public void createControl(Composite parent) {
-        sComposite = new ScrolledComposite(parent, SWT.V_SCROLL | SWT.H_SCROLL);
-        composite = new Composite(sComposite, SWT.NONE);
-        sComposite.setContent(composite);
-        GridLayoutFactory.fillDefaults().numColumns(2).applyTo(composite);
+        this.sComposite = new ScrolledComposite(parent, SWT.V_SCROLL | SWT.H_SCROLL);
+        this.composite = new Composite(this.sComposite, SWT.NONE);
+        this.sComposite.setContent(this.composite);
+        GridLayoutFactory.fillDefaults().numColumns(2).applyTo(this.composite);
 
-        sComposite.setExpandHorizontal(true);
-        sComposite.setExpandVertical(true);
+        this.sComposite.setExpandHorizontal(true);
+        this.sComposite.setExpandVertical(true);
 
-        setControl(sComposite);
+        setControl(this.sComposite);
     }
 
     public void showTaskTypeProperties() {
         // dispose old properties
-        disposeCompositeChildren(composite);
-        TaskType taskType = taskCreationModel.getTaskType();
+        disposeCompositeChildren(this.composite);
+        TaskType taskType = this.taskCreationModel.getTaskType();
         if (taskType != null) {
-            dbc = new DataBindingContext();
-            StyledText taskTypeLabel = new StyledText(composite, SWT.READ_ONLY);
+            this.dbc = new DataBindingContext();
+            StyledText taskTypeLabel = new StyledText(this.composite, SWT.READ_ONLY);
             taskTypeLabel.setBackgroundMode(SWT.INHERIT_FORCE);
-            taskTypeLabel.setBackground(composite.getBackground());
+            taskTypeLabel.setBackground(this.composite.getBackground());
             taskTypeLabel.setText("These are the properties of the " + taskType.getName() + " Task Type");
             taskTypeLabel.setStyleRange(new StyleRange(32, taskType.getName().length(), null, null, SWT.BOLD));
             taskTypeLabel.setToolTipText(taskType.getDescription());
             GridDataFactory.swtDefaults().span(2, 1).applyTo(taskTypeLabel);
             boolean firstTextHasFocus = false;
             for (TaskProperty taskProperty : taskType.getTaskProperties()) {
-                Label label = new Label(composite, SWT.NONE);
+                Label label = new Label(this.composite, SWT.NONE);
                 label.setText(taskProperty.getName());
                 label.setToolTipText(taskProperty.getDescription());
 
@@ -92,7 +91,7 @@ public class CreateTaskTypeWizardPropertiesPage extends WizardPage {
                     // use StringPropertyRenderer as default
                     propertyRenderer = new StringPropertyRenderer();
                 }
-                propertyRenderer.createControl(composite);
+                propertyRenderer.createControl(this.composite);
 
                 // ensure that the first Text control gains the focus
                 if (!firstTextHasFocus) {
@@ -100,13 +99,13 @@ public class CreateTaskTypeWizardPropertiesPage extends WizardPage {
                     firstTextHasFocus = true;
                 }
 
-                IObservableValue taskPropertyModel = Observables.observeMapEntry(taskCreationModel.getTaskPropertyValues(), taskProperty, TaskProperty.class);
+                IObservableValue taskPropertyModel = Observables.observeMapEntry(this.taskCreationModel.getTaskPropertyValues(), taskProperty, TaskProperty.class);
 
-                dbc.bindValue(propertyRenderer.getObservable(), taskPropertyModel, propertyRenderer.getTargetUpdateValueStrategy(),
+                this.dbc.bindValue(propertyRenderer.getObservable(), taskPropertyModel, propertyRenderer.getTargetUpdateValueStrategy(),
                         propertyRenderer.getModelUpdateValueStrategy());
             }
-            sComposite.setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-            composite.layout();
+            this.sComposite.setMinSize(this.composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+            this.composite.layout();
         }
     }
 
@@ -119,8 +118,8 @@ public class CreateTaskTypeWizardPropertiesPage extends WizardPage {
 
     @Override
     public void dispose() {
-        if (dbc != null) {
-            dbc.dispose();
+        if (this.dbc != null) {
+            this.dbc.dispose();
         }
         super.dispose();
     }
