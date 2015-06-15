@@ -18,6 +18,7 @@ import com.google.common.base.Strings;
 
 import com.gradleware.tooling.toolingutils.binding.Validator;
 
+import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -37,11 +38,11 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.buildship.core.gradle.GradleConnectionValidators;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
+import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
@@ -60,7 +61,7 @@ public final class GradleUserHomeTab extends AbstractLaunchConfigurationTab {
     public GradleUserHomeTab() {
         this.defaultFont = FontUtils.getDefaultDialogFont();
         this.builderFactory = new UiBuilder.UiBuilderFactory(this.defaultFont);
-        this.gradleUserHomeValidator = GradleConnectionValidators.optionalDirectoryValidator(CoreMessages.RunConfiguration_Label_GradleUserHome);
+        this.gradleUserHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.RunConfiguration_Label_GradleUserHome);
     }
 
     @Override
@@ -102,7 +103,7 @@ public final class GradleUserHomeTab extends AbstractLaunchConfigurationTab {
             }
         });
 
-        Button gradleUserHomeBrowseButton = this.builderFactory.newButton(root).alignLeft().text(LaunchMessages.Button_Label_Browse).control();
+        Button gradleUserHomeBrowseButton = this.builderFactory.newButton(root).alignLeft().text(UiMessages.Button_Label_Browse).control();
         gradleUserHomeBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.gradleUserHomeText,
                 CoreMessages.RunConfiguration_Label_GradleUserHome));
     }

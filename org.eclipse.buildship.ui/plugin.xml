@@ -9,24 +9,56 @@
       </contexts>
     </extension>
 
+    <!-- integration of a Gradle project creation wizard -->
+    <extension
+         point="org.eclipse.ui.newWizards">
+      <wizard
+            id="org.eclipse.buildship.ui.wizard.project.creation"
+            class="org.eclipse.buildship.ui.wizard.project.ProjectCreationWizard"
+            category="org.eclipse.buildship.ui.creationwizards"
+            icon="icons/full/etool16/creation_wiz.png"
+            name="Gradle Project"
+            canFinishEarly="false"
+            hasPages="true"
+            project="true">
+         <description>
+            Create a new Gradle project in the local file system.
+         </description>
+         <keywordReference id="org.eclipse.buildship.ui.keyword.buildship"/>
+      </wizard>
+      <category
+            id="org.eclipse.buildship.ui.creationwizards"
+            name="Gradle">
+      </category>
+    </extension>
+
     <!-- integration of a Gradle project import wizard -->
     <extension
          point="org.eclipse.ui.importWizards">
       <wizard
-            id="org.eclipse.buildship.ui.wizards.projectimport"
-            class="org.eclipse.buildship.ui.projectimport.ProjectImportWizard"
-            category="org.eclipse.buildship.ui.wizards"
+            id="org.eclipse.buildship.ui.wizards.project.import"
+            class="org.eclipse.buildship.ui.wizard.project.ProjectImportWizard"
+            category="org.eclipse.buildship.ui.importwizards"
             icon="icons/full/etool16/import_wiz.png"
             name="Gradle Project">
          <description>
             Import a Gradle project in the local file system.
          </description>
-         <selection class="org.eclipse.core.resources.IResource"/>
+         <keywordReference id="org.eclipse.buildship.ui.keyword.buildship"/>
       </wizard>
       <category
-            id="org.eclipse.buildship.ui.wizards"
+            id="org.eclipse.buildship.ui.importwizards"
             name="Gradle">
       </category>
+    </extension>
+
+    <!-- definition of keywords available in search fields of Gradle project wizards -->
+    <extension
+          point="org.eclipse.ui.keywords">
+       <keyword
+             id="org.eclipse.buildship.ui.keyword.buildship"
+             label="Buildship">
+       </keyword>
     </extension>
 
     <!-- integration of Gradle icons into explorer -->
@@ -47,7 +79,7 @@
          point="org.eclipse.ui.views">
       <view
             id="org.eclipse.buildship.ui.views.taskview"
-            class="org.eclipse.buildship.ui.taskview.TaskView"
+            class="org.eclipse.buildship.ui.view.task.TaskView"
             category="org.eclipse.buildship.ui.views"
             icon="icons/full/eview16/tasks_view.png"
             name="Gradle Tasks"
@@ -59,8 +91,7 @@
             category="org.eclipse.buildship.ui.views"
             icon="icons/full/eview16/executions_view.png"
             name="Gradle Executions"
-            restorable="true"
-            allowMultiple="true">
+            restorable="true">
       </view>
       <category
             id="org.eclipse.buildship.ui.views"
@@ -105,30 +136,39 @@
             id="org.eclipse.buildship.ui.createGradleTask"
             name="Create Gradle Task">
       </command>
+      <command
+            id="org.eclipse.buildship.ui.commands.refreshprojects"
+            name="Refresh Projects"
+            description="Refreshes the project configuration for the selected projects">
+      </command>
     </extension>
 
-    <!-- integration of Gradle commands -->
+    <!-- integration of Gradle command handlers -->
     <extension
           point="org.eclipse.ui.handlers">
       <handler
              commandId="org.eclipse.buildship.ui.commands.refreshtaskview"
-             class="org.eclipse.buildship.ui.taskview.RefreshViewHandler">
+             class="org.eclipse.buildship.ui.view.task.RefreshViewHandler">
       </handler>
       <handler
             commandId="org.eclipse.buildship.ui.commands.runtasks"
-            class="org.eclipse.buildship.ui.taskview.RunTasksHandler">
+            class="org.eclipse.buildship.ui.view.task.RunTasksHandler">
       </handler>
       <handler
                 commandId="org.eclipse.buildship.ui.commands.rundefaulttasks"
-                class="org.eclipse.buildship.ui.taskview.RunTasksHandler">
+                class="org.eclipse.buildship.ui.view.task.RunTasksHandler">
       </handler>
       <handler
             commandId="org.eclipse.buildship.ui.commands.openrunconfiguration"
-            class="org.eclipse.buildship.ui.taskview.OpenRunConfigurationHandler">
+            class="org.eclipse.buildship.ui.view.task.OpenRunConfigurationHandler">
       </handler>
       <handler
             commandId="org.eclipse.buildship.ui.commands.openbuildscript"
-            class="org.eclipse.buildship.ui.taskview.OpenBuildScriptHandler">
+            class="org.eclipse.buildship.ui.view.task.OpenBuildScriptHandler">
+      </handler>
+      <handler
+            commandId="org.eclipse.buildship.ui.commands.refreshprojects"
+            class="org.eclipse.buildship.ui.workspace.RefreshGradleClasspathContainerHandler">
       </handler>
     </extension>
 
@@ -203,15 +243,15 @@
           name="IPropertySource adapter"
           point="org.eclipse.core.runtime.adapters">
        <factory
-             adaptableType="org.eclipse.buildship.ui.taskview.TaskNode"
-             class="org.eclipse.buildship.ui.taskview.adapter.TaskNodeAdapterFactory">
+             adaptableType="org.eclipse.buildship.ui.view.task.TaskNode"
+             class="org.eclipse.buildship.ui.view.task.adapter.TaskNodeAdapterFactory">
           <adapter
                 type="org.eclipse.ui.views.properties.IPropertySource">
           </adapter>
        </factory>
        <factory
-             adaptableType="org.eclipse.buildship.ui.taskview.ProjectNode"
-             class="org.eclipse.buildship.ui.taskview.adapter.ProjectNodeAdapterFactory">
+             adaptableType="org.eclipse.buildship.ui.view.task.ProjectNode"
+             class="org.eclipse.buildship.ui.view.task.adapter.ProjectNodeAdapterFactory">
           <adapter
                 type="org.eclipse.ui.views.properties.IPropertySource">
           </adapter>
@@ -252,5 +292,72 @@ ${taskPropertyValues}
 }
           </pattern>
        </template>
+    </extension>
+
+    <!-- extension point to decorate the Gradle projects with a small Gradle icon -->
+    <extension
+            point="org.eclipse.ui.decorators">
+        <decorator
+                id="org.eclipse.buildship.ui.gradledecorator"
+                label="Gradle Decorator"
+                icon="icons/full/ovr16/gradle_logo.png"
+                lightweight="true"
+                location="TOP_LEFT"
+                adaptable="true"
+                state="true">
+            <description>
+                Adds an icon decoration to all Gradle projects
+            </description>
+            <enablement>
+                <and>
+                    <objectState
+                            name="nature"
+                            value="org.eclipse.buildship.core.gradleprojectnature">
+                    </objectState>
+                </and>
+            </enablement>
+        </decorator>
+    </extension>
+
+    <!-- register Gradle context menu item on Project Explorer and Package Explorer -->
+    <extension
+            point="org.eclipse.ui.menus">
+        <menuContribution
+                allPopups="true"
+                locationURI="popup:org.eclipse.jdt.ui.PackageExplorer?after=additions">
+            <menu
+                    id="org.eclipse.buildship.ui.contextmenuentry"
+                    label="Gradle">
+                <command
+                        commandId="org.eclipse.buildship.ui.commands.refreshprojects"
+                        style="push">
+                    <visibleWhen
+                            checkEnabled="false">
+                        <with
+                                variable="activeMenuSelection">
+                            <iterate
+                                    ifEmpty="false">
+                                <adapt
+                                        type="org.eclipse.core.resources.IProject">
+                                    <test
+                                            forcePluginActivation="true"
+                                            property="org.eclipse.core.resources.projectNature"
+                                            value="org.eclipse.buildship.core.gradleprojectnature">
+                                    </test>
+                                </adapt>
+                            </iterate>
+                        </with>
+                    </visibleWhen>
+                </command>
+            </menu>
+        </menuContribution>
+    </extension>
+
+    <!-- extension point to register plugins that need to be activated (if not already activated) when a build execution starts -->
+    <extension
+          point="org.eclipse.buildship.core.executionparticipants">
+       <plugin
+             id="org.eclipse.buildship.ui">
+       </plugin>
     </extension>
 </plugin>

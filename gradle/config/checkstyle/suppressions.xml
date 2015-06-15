@@ -5,9 +5,11 @@
         "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 
 <suppressions>
-
     <suppress checks="JavadocType"
               files=".+\.test(/|\\).+.java"/>
-
+    <suppress checks="RegexpHeader"
+              files="org\.eclipse\.buildship\.ui[/|\\]src[/|\\]main[/|\\]java[/|\\]org[/|\\]eclipse[/|\\]buildship[/|\\]ui[/|\\]util[/|\\]selection[/|\\]SelectionUtils\.java" />
+    <suppress checks="RegexpHeader"
+              files="org\.eclipse\.buildship\.ui[/|\\]src[/|\\]main[/|\\]java[/|\\]org[/|\\]eclipse[/|\\]buildship[/|\\]ui[/|\\]external[/|\\]viewer[/|\\].*\.java" />
 </suppressions>
 

@@ -25,7 +25,7 @@ public final class GradleConsolePageParticipant implements IConsolePageParticipa
 
     private CancelBuildExecutionAction cancelBuildExecutionAction;
     private RemoveTerminatedGradleConsoleAction removeConsoleAction;
-    private RemoveAllTerminatedConsolesAction removeAllConsolesAction;
+    private RemoveAllTerminatedGradleConsolesAction removeAllConsolesAction;
 
     /**
      * {@inheritDoc}
@@ -45,7 +45,7 @@ public final class GradleConsolePageParticipant implements IConsolePageParticipa
     private void addActionsToToolbar(IToolBarManager toolBarManager, GradleConsole gradleConsole) {
         this.cancelBuildExecutionAction = new CancelBuildExecutionAction(gradleConsole);
         this.removeConsoleAction = new RemoveTerminatedGradleConsoleAction(gradleConsole);
-        this.removeAllConsolesAction = new RemoveAllTerminatedConsolesAction(gradleConsole);
+        this.removeAllConsolesAction = new RemoveAllTerminatedGradleConsolesAction(gradleConsole);
 
         toolBarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, this.cancelBuildExecutionAction);
         toolBarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, this.removeConsoleAction);

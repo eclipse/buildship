@@ -5,7 +5,8 @@ import com.gradleware.tooling.toolingclient.GradleDistribution
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectBuilder
 import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
+import org.eclipse.buildship.core.util.progress.AsyncHandler
 
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -77,7 +78,7 @@ class ProjectImportJobTest extends Specification {
         projectDescriptorExists << [false, true]
     }
 
-    def "Imported parent projects have filters to hide the content of the children"() {
+    def "Imported parent projects have filters to hide the content of the children and the build folders"() {
         setup:
         File rootProject = newMultiProject()
         ProjectImportJob job = newProjectImportJob(rootProject)
@@ -89,7 +90,7 @@ class ProjectImportJobTest extends Specification {
         then:
         def filters = CorePlugin.workspaceOperations().findProjectByName(rootProject.name).get().getFilters()
         filters.length == 1
-        filters[0].fileInfoMatcherDescription.arguments.arguments == ['subproject']
+        filters[0].fileInfoMatcherDescription.arguments.arguments == ['subproject', 'build', '.gradle',]
     }
 
     def "Importing a project twice won't result in duplicate filters"() {
@@ -109,7 +110,7 @@ class ProjectImportJobTest extends Specification {
         then:
         def filters = CorePlugin.workspaceOperations().findProjectByName(rootProject.name).get().getFilters()
         filters.length == 1
-        filters[0].fileInfoMatcherDescription.arguments.arguments == ['subproject']
+        filters[0].fileInfoMatcherDescription.arguments.arguments == ['subproject', 'build', '.gradle']
     }
 
     def newProject(boolean projectDescriptorExists, boolean applyJavaPlugin) {
@@ -153,7 +154,9 @@ class ProjectImportJobTest extends Specification {
         ProjectImportConfiguration configuration = new ProjectImportConfiguration()
         configuration.gradleDistribution = GradleDistributionWrapper.from(GradleDistribution.fromBuild())
         configuration.projectDir = location
-        new ProjectImportJob(configuration)
+        configuration.applyWorkingSets = true
+        configuration.workingSets = []
+        new ProjectImportJob(configuration, AsyncHandler.NO_OP)
     }
 
 }

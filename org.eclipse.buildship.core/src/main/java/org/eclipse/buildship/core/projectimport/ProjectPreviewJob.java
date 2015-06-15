@@ -13,9 +13,10 @@ package org.eclipse.buildship.core.projectimport;
 
 import java.util.List;
 
+import com.google.common.base.Preconditions;
+import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.gradle.tooling.ProgressListener;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 
@@ -43,17 +44,19 @@ public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
 
     private final FixedRequestAttributes fixedAttributes;
     private final TransientRequestAttributes transientAttributes;
+    private final AsyncHandler initializer;
 
-    private Optional<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> result;
+    private Pair<OmniBuildEnvironment, OmniGradleBuildStructure> result;
 
-    public ProjectPreviewJob(ProjectImportConfiguration configuration, List<ProgressListener> listeners,
-                             final FutureCallback<Optional<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>>> resultHandler) {
+    public ProjectPreviewJob(ProjectImportConfiguration configuration, List<ProgressListener> listeners, AsyncHandler initializer,
+                             final FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler) {
         super("Loading Gradle project preview");
 
         this.fixedAttributes = configuration.toFixedAttributes();
         ProcessStreams stream = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
         this.transientAttributes = new TransientRequestAttributes(false, stream.getOutput(), stream.getError(), null, listeners,
                 ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
+        this.initializer = Preconditions.checkNotNull(initializer);
 
         this.result = null;
 
@@ -72,11 +75,15 @@ public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
 
     @Override
     public void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
-        monitor.beginTask("Load Gradle project preview", 10);
+        monitor.beginTask("Load Gradle project preview", 20);
+
+        this.initializer.run(new SubProgressMonitor(monitor, 10));
 
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(new SubProgressMonitor(monitor, 2));
         OmniGradleBuildStructure gradleBuildStructure = fetchGradleBuildStructure(new SubProgressMonitor(monitor, 8));
-        this.result = Optional.of(new Pair<OmniBuildEnvironment, OmniGradleBuildStructure>(buildEnvironment, gradleBuildStructure));
+        this.result = new Pair<OmniBuildEnvironment, OmniGradleBuildStructure>(buildEnvironment, gradleBuildStructure);
+
+        // monitor is closed by caller in super class
     }
 
     private OmniBuildEnvironment fetchBuildEnvironment(IProgressMonitor monitor) {

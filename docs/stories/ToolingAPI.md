@@ -103,7 +103,7 @@ We want to ensure that during the import of a Gradle project into Eclipse and du
 are run before and after the import, without the IDE user having to trigger or configure these tasks explicitly.
 
 
-## Allow to listen to build progress and task execution progress
+## ~~Allow to listen to build progress and task execution progress~~
 
 ### Requested Change
 
@@ -144,7 +144,7 @@ Once we can run tests from Eclipse through Gradle, debugging tests through Gradl
 of the deep integration since it allows the user to work with the Debugger UIs that he is already familiar with.
 
 
-## Make dependencies collection more correct
+## ~~Make dependencies collection more correct~~
 
 ### Requested Change
 

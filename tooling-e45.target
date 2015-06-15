@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="gradleware-tooling-mars" sequenceNumber="44">
+<?pde version="3.8"?><target name="gradleware-tooling-mars" sequenceNumber="46">
 <locations>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<repository location="http://download.eclipse.org/buildship/orbit-staging/"/>
+<unit id="org.eclipse.buildship.orbit.stagining.feature.group" version="1.0.15"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.buildship.orbit.stagining.feature.group" version="1.0.15"/>
+<repository location="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
+</location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.google.gson" version="2.2.4.v201311231704"/>
 <unit id="org.junit" version="4.11.0.v201303080030"/>
@@ -12,16 +20,8 @@
 <repository location="http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.buildship.orbit.stagining.feature.group" version="1.0.8"/>
-<repository location="http://download.eclipse.org/buildship/orbit-staging/"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.buildship.orbit.stagining.feature.group" version="1.0.8"/>
-<repository location="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.sdk.ide" version="4.5.0.I20150430-1445"/>
-<repository location="http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-mars-m7"/>
+<unit id="org.eclipse.sdk.ide" version="4.5.0.I20150528-0700"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.5milestones/S-4.5RC3-201505280700"/>
 </location>
 </locations>
 <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>

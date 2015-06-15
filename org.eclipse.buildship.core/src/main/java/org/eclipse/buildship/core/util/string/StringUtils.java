@@ -41,4 +41,14 @@ public final class StringUtils {
         return ImmutableList.copyOf(result);
     }
 
+    /**
+     * Returns {@link Object#toString()} of the given value if the value is not null, otherwise null is returned.
+     *
+     * @param value the value to stringify
+     * @return the string value or null
+     */
+    public static String valueOf(Object value) {
+        return value == null ? null : value.toString();
+    }
+
 }

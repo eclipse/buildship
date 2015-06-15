@@ -13,6 +13,9 @@
 package org.eclipse.buildship.core.launch;
 
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
+
+import org.eclipse.core.runtime.jobs.Job;
+
 import org.eclipse.buildship.core.event.Event;
 
 /**
@@ -20,6 +23,8 @@ import org.eclipse.buildship.core.event.Event;
  * request can still be modified by the recipients of this event.
  */
 public interface ExecuteBuildLaunchRequestEvent extends Event {
+
+    Job getBuildJob();
 
     BuildLaunchRequest getBuildLaunchRequest();
 

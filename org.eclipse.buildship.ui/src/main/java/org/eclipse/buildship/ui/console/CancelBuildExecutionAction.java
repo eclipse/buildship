@@ -21,6 +21,7 @@ import org.eclipse.jface.action.Action;
 
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.buildship.ui.i18n.UiMessages;
 
 /**
  * Cancel the build execution attached to the given {@link GradleConsole} instance.
@@ -32,9 +33,9 @@ public final class CancelBuildExecutionAction extends Action {
     public CancelBuildExecutionAction(GradleConsole gradleConsole) {
         this.gradleConsole = Preconditions.checkNotNull(gradleConsole);
 
-        setToolTipText(ConsoleMessages.Action_CancelBuildExecution_Tooltip);
-        setImageDescriptor(PluginImages.CANCEL_TASK_EXECUTION.withState(ImageState.ENABLED).getImageDescriptor());
-        setDisabledImageDescriptor(PluginImages.CANCEL_TASK_EXECUTION.withState(ImageState.DISABLED).getImageDescriptor());
+        setToolTipText(UiMessages.Action_CancelExecution_Tooltip);
+        setImageDescriptor(PluginImages.CANCEL_BUILD_EXECUTION.withState(ImageState.ENABLED).getImageDescriptor());
+        setDisabledImageDescriptor(PluginImages.CANCEL_BUILD_EXECUTION.withState(ImageState.DISABLED).getImageDescriptor());
 
         registerJobChangeListener();
     }
@@ -46,7 +47,7 @@ public final class CancelBuildExecutionAction extends Action {
 
                 @Override
                 public void done(IJobChangeEvent event) {
-                    CancelBuildExecutionAction.this.setEnabled(false);
+                    CancelBuildExecutionAction.this.setEnabled(event.getJob().getState() != Job.NONE);
                 }
             });
             setEnabled(job.get().getState() != Job.NONE);

@@ -11,20 +11,36 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import com.google.common.base.*;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.workspace.ClasspathDefinition;
-import org.eclipse.buildship.core.workspace.WorkspaceOperations;
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.*;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
+
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
+
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.workspace.ClasspathDefinition;
+import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 /**
  * Default implementation of the {@link WorkspaceOperations} interface.
@@ -92,7 +108,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
 
     @Override
-    public IProject createProject(String name, File location, List<File> childProjectLocations, List<String> natureIds, IProgressMonitor monitor) {
+    public IProject createProject(String name, File location, List<File> filteredSubFolders, List<String> natureIds, IProgressMonitor monitor) {
         // validate arguments
         Preconditions.checkNotNull(name);
         Preconditions.checkNotNull(location);
@@ -116,8 +132,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             IProject project = workspace.getRoot().getProject(name);
             project.create(projectDescription, new SubProgressMonitor(monitor, 1));
 
-            // attach filters to the project to hide the sub-projects of this project
-            ResourceFilter.attachFilters(project, childProjectLocations, new SubProgressMonitor(monitor, 1));
+            // attach filters to the project
+            ResourceFilter.attachFilters(project, filteredSubFolders, new SubProgressMonitor(monitor, 1));
 
             // open the project
             project.open(new SubProgressMonitor(monitor, 1));
@@ -139,7 +155,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
-    public IProject includeProject(IProjectDescription projectDescription, List<File> childProjectLocations, ImmutableList<String> extraNatureIds, IProgressMonitor monitor) {
+    public IProject includeProject(IProjectDescription projectDescription, List<File> filteredSubFolders, List<String> extraNatureIds, IProgressMonitor monitor) {
         // validate arguments
         Preconditions.checkNotNull(projectDescription);
         Preconditions.checkNotNull(extraNatureIds);
@@ -152,8 +168,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             IProject project = workspace.getRoot().getProject(projectDescription.getName());
             project.create(projectDescription, new SubProgressMonitor(monitor, 1));
 
-            // attach filters to the project to hide the sub-projects of this project
-            ResourceFilter.attachFilters(project, childProjectLocations, new SubProgressMonitor(monitor, 1));
+            // attach filters to the project
+            ResourceFilter.attachFilters(project, filteredSubFolders, new SubProgressMonitor(monitor, 1));
 
             // open the project
             project.open(new SubProgressMonitor(monitor, 1));
@@ -191,15 +207,12 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             IJavaProject javaProject = JavaCore.create(project);
             monitor.worked(5);
 
-            // set up resources (sources and classpath)
-            setSourcesAndClasspathOnProject(javaProject, classpath, new SubProgressMonitor(monitor, 5));
+            // set up initial classpath container on project
+            setClasspathOnProject(javaProject, classpath, new SubProgressMonitor(monitor, 5));
 
             // set up output location
             IFolder outputFolder = createOutputFolder(project, new SubProgressMonitor(monitor, 1));
             javaProject.setOutputLocation(outputFolder.getFullPath(), new SubProgressMonitor(monitor, 1));
-
-            // avoid out-of-sync messages when the content of the .gradle folder changes upon running a Gradle build
-            markDotGradleFolderAsDerived(project, new SubProgressMonitor(monitor, 1));
 
             // save the project configuration
             javaProject.save(new SubProgressMonitor(monitor, 2), true);
@@ -256,20 +269,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         }
     }
 
-    private void markDotGradleFolderAsDerived(IProject project, IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask(String.format("Mark .gradle folder as derived for Eclipse project %s", project.getName()), 1);
-        try {
-            IFolder dotGradleFolder = project.getFolder(".gradle");
-            if (dotGradleFolder.exists()) {
-                dotGradleFolder.setDerived(true, new SubProgressMonitor(monitor, 1));
-            }
-        } finally {
-            monitor.done();
-        }
-    }
-
-    private void setSourcesAndClasspathOnProject(IJavaProject javaProject, ClasspathDefinition classpath, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Configure sources and classpath for Eclipse project %s", javaProject.getProject().getName()), 9);
+    private void setClasspathOnProject(IJavaProject javaProject, ClasspathDefinition classpath, IProgressMonitor monitor) {
+        monitor.beginTask(String.format("Configure sources and classpath for Eclipse project %s", javaProject.getProject().getName()), 10);
         try {
             // create a new holder for all classpath entries
             Builder<IClasspathEntry> entries = ImmutableList.builder();
@@ -278,14 +279,10 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             entries.add(JavaCore.newContainerEntry(classpath.getJrePath()));
             monitor.worked(1);
 
-            // add source directories; create the directory if it doesn't exist
-            entries.addAll(collectSourceDirectories(classpath, javaProject));
-            monitor.worked(1);
-
-            // add classpath definition of where to store the external dependencies, the classpath
+            // add classpath definition of where to store the source/project/external dependencies, the classpath
             // will be populated lazily by the org.eclipse.jdt.core.classpathContainerInitializer
             // extension point (see GradleClasspathContainerInitializer)
-            entries.add(createClasspathContainerForExternalDependencies());
+            entries.add(createGradleClasspathContainer());
             monitor.worked(1);
 
             // assign the whole classpath at once to the project
@@ -299,38 +296,10 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         }
     }
 
-    private IClasspathEntry createClasspathContainerForExternalDependencies() throws JavaModelException {
+    private IClasspathEntry createGradleClasspathContainer() throws JavaModelException {
         // http://www-01.ibm.com/support/knowledgecenter/SSZND2_6.0.0/org.eclipse.jdt.doc.isv/guide/jdt_api_classpath.htm?cp=SSZND2_6.0.0%2F3-1-1-0-0-2
         Path containerPath = new Path(ClasspathDefinition.GRADLE_CLASSPATH_CONTAINER_ID);
         return JavaCore.newContainerEntry(containerPath, true);
-    }
-
-    private List<IClasspathEntry> collectSourceDirectories(ClasspathDefinition classpath, final IJavaProject javaProject) {
-        return FluentIterable.from(classpath.getSourceDirectories()).transform(new Function<String, IClasspathEntry>() {
-
-            @Override
-            public IClasspathEntry apply(String directory) {
-                IFolder sourceDirectory = javaProject.getProject().getFolder(Path.fromOSString(directory));
-                ensureFolderHierarchyExists(sourceDirectory);
-                IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(sourceDirectory);
-                return JavaCore.newSourceEntry(root.getPath());
-            }
-        }).toList();
-    }
-
-    private void ensureFolderHierarchyExists(IFolder folder) {
-        if (!folder.exists()) {
-            if (folder.getParent() instanceof IFolder) {
-                ensureFolderHierarchyExists((IFolder) folder.getParent());
-            }
-
-            try {
-                folder.create(true, true, null);
-            } catch (CoreException e) {
-                String message = String.format("Cannot create folder %s.", folder);
-                throw new GradlePluginsRuntimeException(message, e);
-            }
-        }
     }
 
     @Override

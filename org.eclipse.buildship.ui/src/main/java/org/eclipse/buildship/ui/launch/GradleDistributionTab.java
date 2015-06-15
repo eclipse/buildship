@@ -13,6 +13,7 @@ package org.eclipse.buildship.ui.launch;
 
 import java.util.List;
 
+import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Function;
@@ -45,14 +46,13 @@ import org.eclipse.swt.widgets.Text;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.gradle.GradleConnectionValidators;
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper;
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper.DistributionType;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.projectimport.ProjectImportMessages;
 import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.selection.Enabler;
@@ -90,7 +90,7 @@ public final class GradleDistributionTab extends AbstractLaunchConfigurationTab 
     public GradleDistributionTab() {
         this.defaultFont = FontUtils.getDefaultDialogFont();
         this.builderFactory = new UiBuilder.UiBuilderFactory(this.defaultFont);
-        this.gradleDistributionValidator = GradleConnectionValidators.gradleDistributionValidator();
+        this.gradleDistributionValidator = GradleDistributionValidator.gradleDistributionValidator();
         this.publishedGradleVersions = CorePlugin.publishedGradleVersions();
 
         this.optionSelectionChangedListener = new SelectionAdapter() {
@@ -153,7 +153,7 @@ public final class GradleDistributionTab extends AbstractLaunchConfigurationTab 
         // second line: local installation directory
         this.useLocalInstallationDirOption = this.builderFactory.newRadio(container).alignLeft().text(CoreMessages.GradleDistribution_Label_LocalInstallationDirectory).control();
         this.localInstallationDirText = this.builderFactory.newText(container).alignFillHorizontal().disabled().control();
-        Button localInstallationDirBrowseButton = this.builderFactory.newButton(container).alignLeft().disabled().text(ProjectImportMessages.Button_Label_Browse).control();
+        Button localInstallationDirBrowseButton = this.builderFactory.newButton(container).alignLeft().disabled().text(UiMessages.Button_Label_Browse).control();
         localInstallationDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(container.getShell(), this.localInstallationDirText,
                 CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
 

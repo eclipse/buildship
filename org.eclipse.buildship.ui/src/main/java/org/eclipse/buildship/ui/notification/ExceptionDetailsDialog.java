@@ -19,8 +19,12 @@ import com.google.common.base.Preconditions;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.window.SameShellProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -32,14 +36,20 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 
 /**
  * Custom {@link Dialog} implementation showing an exception and its stacktrace.
  */
 public final class ExceptionDetailsDialog extends Dialog {
+
+    private static final String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
+    private static final int COPY_EXCEPTION_BUTTON_ID = 25;
 
     private final Image image;
     private final String title;
@@ -49,6 +59,8 @@ public final class ExceptionDetailsDialog extends Dialog {
 
     private Button detailsButton;
     private Control stackTraceArea;
+
+    private Clipboard clipboard;
 
     public ExceptionDetailsDialog(Shell shell, String title, String message, String details, int severity, Throwable throwable) {
         super(new SameShellProvider(shell));
@@ -127,22 +139,61 @@ public final class ExceptionDetailsDialog extends Dialog {
         detailsLabelGridData.grabExcessHorizontalSpace = true;
         detailsLabel.setLayoutData(detailsLabelGridData);
 
+        this.clipboard = new Clipboard(getShell().getDisplay());
+
         return container;
     }
 
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
-        createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, false);
+        Button copyExceptionButton = createButton(parent, COPY_EXCEPTION_BUTTON_ID, "", false);
+        copyExceptionButton.setToolTipText(UiMessages.Button_CopyFailuresToClipboard_Tooltip);
+        copyExceptionButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_TOOL_COPY));
         this.detailsButton = createButton(parent, IDialogConstants.DETAILS_ID, IDialogConstants.SHOW_DETAILS_LABEL, false);
+        Button okButton = createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
+        okButton.setFocus();
+    }
+
+    @Override
+    protected void setButtonLayoutData(Button button) {
+        if (button.getData() != null && button.getData().equals(COPY_EXCEPTION_BUTTON_ID)) {
+            // do not set a width hint for the copy error button, like it is done in the super
+            // implementation
+            GridDataFactory.swtDefaults().applyTo(button);
+            return;
+        }
+        super.setButtonLayoutData(button);
+    }
+
+    @Override
+    protected void initializeBounds() {
+        // do not make columns equal width so that we can have a smaller 'copy failure' button
+        Composite buttonBar = (Composite) getButtonBar();
+        GridLayout layout = (GridLayout) buttonBar.getLayout();
+        layout.makeColumnsEqualWidth = false;
+        super.initializeBounds();
     }
 
     @Override
     protected void buttonPressed(int id) {
         if (id == IDialogConstants.DETAILS_ID) {
             toggleStacktraceArea();
+        } else if (id == COPY_EXCEPTION_BUTTON_ID) {
+            copyErrorToClipboard();
         } else {
             super.buttonPressed(id);
         }
+    }
+
+    private void copyErrorToClipboard() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.message);
+        sb.append(LINE_SEPARATOR);
+        sb.append(this.details);
+        sb.append(LINE_SEPARATOR);
+        sb.append(getStackTrace());
+
+        this.clipboard.setContents(new String[]{sb.toString()}, new Transfer[]{TextTransfer.getInstance()});
     }
 
     private void toggleStacktraceArea() {
@@ -185,13 +236,24 @@ public final class ExceptionDetailsDialog extends Dialog {
         // create stacktrace content
         Text text = new Text(container, SWT.MULTI | SWT.READ_ONLY | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
         text.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-        // set stacktrace string to the Text control
-        StringWriter writer = new StringWriter(1000);
-        this.throwable.printStackTrace(new PrintWriter(writer));
-        text.setText(writer.toString());
+        text.setText(getStackTrace());
 
         return container;
+    }
+
+    private String getStackTrace() {
+        StringWriter writer = new StringWriter(1000);
+        this.throwable.printStackTrace(new PrintWriter(writer));
+        return writer.toString();
+    }
+
+    @Override
+    public boolean close() {
+        if (this.clipboard != null) {
+            this.clipboard.dispose();
+            this.clipboard = null;
+        }
+        return super.close();
     }
 
 }

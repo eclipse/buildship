@@ -18,6 +18,7 @@ import com.google.common.base.Strings;
 
 import com.gradleware.tooling.toolingutils.binding.Validator;
 
+import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -37,11 +38,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 
-import org.eclipse.buildship.core.gradle.GradleConnectionValidators;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
+import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
@@ -60,7 +61,7 @@ public final class JavaHomeTab extends AbstractLaunchConfigurationTab {
     public JavaHomeTab() {
         this.defaultFont = FontUtils.getDefaultDialogFont();
         this.builderFactory = new UiBuilder.UiBuilderFactory(this.defaultFont);
-        this.javaHomeValidator = GradleConnectionValidators.optionalDirectoryValidator(CoreMessages.RunConfiguration_Label_JavaHome);
+        this.javaHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.RunConfiguration_Label_JavaHome);
     }
 
     @Override
@@ -102,7 +103,7 @@ public final class JavaHomeTab extends AbstractLaunchConfigurationTab {
             }
         });
 
-        Button javaHomeBrowseButton = this.builderFactory.newButton(root).alignLeft().text(LaunchMessages.Button_Label_Browse).control();
+        Button javaHomeBrowseButton = this.builderFactory.newButton(root).alignLeft().text(UiMessages.Button_Label_Browse).control();
         javaHomeBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.javaHomeText, CoreMessages.RunConfiguration_Label_JavaHome));
     }
 

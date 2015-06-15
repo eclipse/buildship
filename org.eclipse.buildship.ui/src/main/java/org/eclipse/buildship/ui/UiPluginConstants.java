@@ -60,6 +60,16 @@ public final class UiPluginConstants {
      */
     public static final String OPEN_BUILD_SCRIPT_COMMAND_ID = "org.eclipse.buildship.ui.commands.openbuildscript";
 
+    /**
+     * The id of the 'Resource' working set page.
+     */
+    public static final String RESOURCE = "org.eclipse.ui.resourceWorkingSetPage"; //$NON-NLS-1$
+
+    /**
+     * The id of the 'Java' working set page.
+     */
+    public static final String JAVA = "org.eclipse.jdt.ui.JavaWorkingSetPage"; //$NON-NLS-1$
+
     private UiPluginConstants() {
     }
 

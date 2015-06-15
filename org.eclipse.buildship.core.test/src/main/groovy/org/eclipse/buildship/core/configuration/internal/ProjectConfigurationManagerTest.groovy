@@ -16,7 +16,8 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
 import org.eclipse.buildship.core.projectimport.ProjectImportJob
-import org.eclipse.buildship.core.gradle.GradleDistributionWrapper
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
+import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import com.gradleware.tooling.junit.TestFile
 import com.gradleware.tooling.toolingclient.GradleDistribution
@@ -103,8 +104,10 @@ class ProjectConfigurationManagerTest extends Specification {
         def importConfigurationOne = new ProjectImportConfiguration()
         importConfigurationOne.projectDir = new File(rootDir.absolutePath)
         importConfigurationOne.gradleDistribution = GradleDistributionWrapper.from(GradleDistributionWrapper.DistributionType.WRAPPER, null)
+        importConfigurationOne.applyWorkingSets = true
+        importConfigurationOne.workingSets = []
 
-        new ProjectImportJob(importConfigurationOne).runToolingApiJobInWorkspace(new NullProgressMonitor())
+        new ProjectImportJob(importConfigurationOne, AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
 
         when:
         Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
@@ -164,13 +167,17 @@ class ProjectConfigurationManagerTest extends Specification {
         def importConfigurationOne = new ProjectImportConfiguration()
         importConfigurationOne.projectDir = new File(rootDirOne.absolutePath)
         importConfigurationOne.gradleDistribution = GradleDistributionWrapper.from(GradleDistributionWrapper.DistributionType.WRAPPER, null)
+        importConfigurationOne.applyWorkingSets = true
+        importConfigurationOne.workingSets = []
 
         def importConfigurationTwo = new ProjectImportConfiguration()
         importConfigurationTwo.projectDir = new File(rootDirTwo.absolutePath)
         importConfigurationTwo.gradleDistribution = GradleDistributionWrapper.from(GradleDistributionWrapper.DistributionType.VERSION, '1.12')
+        importConfigurationTwo.applyWorkingSets = true
+        importConfigurationTwo.workingSets = []
 
-        new ProjectImportJob(importConfigurationOne).runToolingApiJobInWorkspace(new NullProgressMonitor())
-        new ProjectImportJob(importConfigurationTwo).runToolingApiJobInWorkspace(new NullProgressMonitor())
+        new ProjectImportJob(importConfigurationOne, AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
+        new ProjectImportJob(importConfigurationTwo, AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
 
         when:
         Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
