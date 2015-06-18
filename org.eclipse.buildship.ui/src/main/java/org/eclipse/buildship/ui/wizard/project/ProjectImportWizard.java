@@ -13,26 +13,15 @@ package org.eclipse.buildship.ui.wizard.project;
 
 import java.util.List;
 
-<<<<<<< Upstream, based on branch 'WorkingSetConfigurationBlock' of git@github.com:vogellacompany/buildship.git
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
+import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
-=======
-import org.gradle.tooling.ProgressListener;
-import org.osgi.service.prefs.BackingStoreException;
-
-import com.google.common.util.concurrent.FutureCallback;
-
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
-import com.gradleware.tooling.toolingmodel.util.Pair;
-
->>>>>>> 8a09940 Use wrapper around PublishedGradleVersions to avoid plugin activation failure when the user is offline
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -44,24 +33,10 @@ import org.eclipse.ui.IWorkbench;
 import org.gradle.tooling.ProgressListener;
 import org.osgi.service.prefs.BackingStoreException;
 
-<<<<<<< Upstream, based on branch 'WorkingSetConfigurationBlock' of git@github.com:vogellacompany/buildship.git
-import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 import com.gradleware.tooling.toolingmodel.util.Pair;
-import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
-=======
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
-import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
-import org.eclipse.buildship.core.util.progress.AsyncHandler;
-import org.eclipse.buildship.ui.HelpContext;
-import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
->>>>>>> 8a09940 Use wrapper around PublishedGradleVersions to avoid plugin activation failure when the user is offline
 
 /**
  * Eclipse wizard for importing Gradle projects into the workspace.
@@ -93,7 +68,7 @@ public final class ProjectImportWizard extends Wizard implements IImportWizard, 
     // state bit storing that the wizard is blocked to finish globally
     private boolean finishGloballyEnabled;
 
-    private PublishedGradleVersions publishedGradleVersions;
+    private PublishedGradleVersionsWrapper publishedGradleVersions;
 
     /**
      * Creates a new instance and uses the {@link org.eclipse.jface.dialogs.DialogSettings} from {@link org.eclipse.buildship.ui.UiPlugin} and the
@@ -111,12 +86,7 @@ public final class ProjectImportWizard extends Wizard implements IImportWizard, 
      * @param dialogSettings the dialog settings to store/retrieve dialog preferences
      * @param publishedGradleVersions the published Gradle versions
      */
-<<<<<<< Upstream, based on branch 'WorkingSetConfigurationBlock' of git@github.com:vogellacompany/buildship.git
-    public ProjectImportWizard(IDialogSettings dialogSettings, PublishedGradleVersions publishedGradleVersions) {
-        this.publishedGradleVersions = Preconditions.checkNotNull(publishedGradleVersions);
-=======
     public ProjectImportWizard(IDialogSettings dialogSettings, PublishedGradleVersionsWrapper publishedGradleVersions) {
->>>>>>> 8a09940 Use wrapper around PublishedGradleVersions to avoid plugin activation failure when the user is offline
         // store the dialog settings on the wizard and use them to retrieve / persist the most
         // recent values entered by the user
         setDialogSettings(dialogSettings);
