@@ -11,15 +11,9 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.FutureCallback;
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingclient.LaunchableConfig;
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.util.Pair;
+import java.io.File;
+import java.util.List;
+
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
@@ -42,8 +36,15 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.gradle.tooling.ProgressListener;
 
-import java.io.File;
-import java.util.List;
+import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.FutureCallback;
+import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+import com.gradleware.tooling.toolingclient.LaunchableConfig;
+import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
+import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.util.Pair;
 
 /**
  * Page in the {@link ProjectCreationWizard} specifying the name of the Gradle project folder to
@@ -66,8 +67,8 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
     private static final ImmutableList<String> GRADLE_INIT_TASK_CMD_LINE = ImmutableList.of("init", "--type", "java-library");
 
     // the pages to display in the wizard
-    private final NewGradleProjectWizardPage newGradleProjectPage;
-    private final ProjectPreviewWizardPage projectPreviewPage;
+    private NewGradleProjectWizardPage newGradleProjectPage;
+    private ProjectPreviewWizardPage projectPreviewPage;
 
     // the controllers that contain the wizard logic
     private final ProjectImportWizardController importController;
@@ -97,20 +98,6 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
         this.importController = new ProjectImportWizardController(this);
         this.creationController = new ProjectCreationWizardController(this);
         this.pageChangeListener = new ProjectCreatingPageChangedListener(this);
-
-        // instantiate the pages and pass the configuration objects that serve as
-        // the data models of the wizard
-        final ProjectImportConfiguration importConfiguration = this.importController.getConfiguration();
-        ProjectCreationConfiguration creationConfiguration = this.creationController.getConfiguration();
-        this.newGradleProjectPage = new NewGradleProjectWizardPage(importConfiguration, creationConfiguration);
-        this.projectPreviewPage = new ProjectPreviewWizardPage(importConfiguration, new ProjectPreviewWizardPage.ProjectPreviewLoader() {
-            @Override
-            public Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler, List<ProgressListener> listeners) {
-                ProjectPreviewJob projectPreviewJob = new ProjectPreviewJob(importConfiguration, listeners, new NewGradleProjectInitializer(importConfiguration), resultHandler);
-                projectPreviewJob.schedule();
-                return projectPreviewJob;
-            }
-        }, ProjectWizardMessages.Title_NewGradleProjectPreviewWizardPage, ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageDefault, ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageContext);
     }
 
     @Override
@@ -138,8 +125,29 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
 
     @Override
     public void addPages() {
+        // instantiate the pages and pass the configuration objects that serve
+        // as the data models of the wizard
+        final ProjectImportConfiguration importConfiguration = this.importController.getConfiguration();
+        ProjectCreationConfiguration creationConfiguration = this.creationController.getConfiguration();
+
         // assign wizard pages to this wizard
+        this.newGradleProjectPage = new NewGradleProjectWizardPage(importConfiguration, creationConfiguration);
         addPage(this.newGradleProjectPage);
+
+        this.projectPreviewPage = new ProjectPreviewWizardPage(importConfiguration,
+                new ProjectPreviewWizardPage.ProjectPreviewLoader() {
+                    @Override
+                    public Job loadPreview(
+                            FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler,
+                            List<ProgressListener> listeners) {
+                        ProjectPreviewJob projectPreviewJob = new ProjectPreviewJob(importConfiguration, listeners,
+                                new NewGradleProjectInitializer(importConfiguration), resultHandler);
+                        projectPreviewJob.schedule();
+                        return projectPreviewJob;
+                    }
+                }, ProjectWizardMessages.Title_NewGradleProjectPreviewWizardPage,
+                ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageDefault,
+                ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageContext);
         addPage(this.projectPreviewPage);
 
         // show progress bar when getContainer().run() is called

@@ -11,11 +11,10 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import com.google.common.collect.ImmutableList;
+import java.io.File;
+
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.UiPluginConstants;
 import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.layout.LayoutUtils;
@@ -34,10 +33,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IWorkingSet;
 
-import java.io.File;
-import java.util.List;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Page on the {@link org.eclipse.buildship.ui.wizard.project.ProjectCreationWizard} declaring the project name and project location.
@@ -49,7 +46,6 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
     private Text projectNameText;
     private Button useDefaultWorkspaceLocationButton;
     private Text customLocationText;
-    private WorkingSetConfigurationWidget workingSetConfigurationWidget;
 
     public NewGradleProjectWizardPage(ProjectImportConfiguration importConfiguration, ProjectCreationConfiguration creationConfiguration) {
         super("NewGradleProject", ProjectWizardMessages.Title_NewGradleProjectWizardPage, ProjectWizardMessages.InfoMessage_NewGradleProjectWizardPageDefault, //$NON-NLS-1$
@@ -109,12 +105,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         GridLayoutFactory.swtDefaults().applyTo(workingSetGroup);
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, SWT.DEFAULT).applyTo(workingSetGroup);
 
-        this.workingSetConfigurationWidget = new WorkingSetConfigurationWidget(new String[]{UiPluginConstants.RESOURCE, UiPluginConstants.JAVA}, UiPlugin.getInstance().getDialogSettings());
-        this.workingSetConfigurationWidget.createContent(workingSetGroup);
-        this.workingSetConfigurationWidget.modifyCurrentWorkingSetItem(WorkingSetUtils.toWorkingSets(getConfiguration().getWorkingSets().getValue()));
-        this.workingSetConfigurationWidget.getWorkingSetsEnabledButton().setSelection(getConfiguration().getApplyWorkingSets().getValue());
-        this.workingSetConfigurationWidget.getWorkingSetsCombo().setEnabled(getConfiguration().getApplyWorkingSets().getValue());
-        this.workingSetConfigurationWidget.getWorkingSetsSelectButton().setEnabled(getConfiguration().getApplyWorkingSets().getValue());
+        WorkingSetUtils.createWorkingSetConfigurationBlock(workingSetGroup, getConfiguration());
 
         // add listener to deal with the enabling of the widgets that are part of the location group
         this.useDefaultWorkspaceLocationButton.addSelectionListener(new TargetWidgetsInvertingSelectionListener(this.useDefaultWorkspaceLocationButton, this.customLocationText, customLocationBrowseButton));
@@ -144,22 +135,6 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
             @Override
             public void modifyText(ModifyEvent e) {
                 updateLocation();
-            }
-        });
-        this.workingSetConfigurationWidget.addWorkingSetChangeListener(new WorkingSetChangedListener() {
-
-            @Override
-            public void workingSetsChanged(List<IWorkingSet> workingSets) {
-                List<String> workingSetNames = WorkingSetUtils.toWorkingSetNames(workingSets);
-                getConfiguration().setWorkingSets(workingSetNames);
-            }
-        });
-        this.workingSetConfigurationWidget.getWorkingSetsEnabledButton().addSelectionListener(new SelectionAdapter() {
-
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                boolean selected = NewGradleProjectWizardPage.this.workingSetConfigurationWidget.getWorkingSetsEnabledButton().getSelection();
-                getConfiguration().setApplyWorkingSets(selected);
             }
         });
     }
