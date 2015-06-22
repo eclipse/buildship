@@ -224,9 +224,19 @@ class UpdateSitePlugin implements Plugin<Project> {
             description = 'Signs the bundles that make up the update site.'
             inputs.dir new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
             outputs.dir new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME)
-            doLast { project.updateSite.signing(new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME), new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME)) }
-            doLast { copyOverAlreadySignedBundles(project) }
-            onlyIf { project.updateSite.signing != null }
+            doLast {
+                def unsignedFolder = new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
+                def signedFolder = new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME)
+                if (project.updateSite.signing != null) {
+                    project.updateSite.signing(unsignedFolder, signedFolder)
+                    copyOverAlreadySignedBundles(project)
+                } else {
+                    project.copy {
+                        from unsignedFolder
+                        into signedFolder
+                    }
+                }
+            }
         }
     }
 
