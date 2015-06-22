@@ -13,6 +13,7 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.List;
 
 import com.google.common.base.MoreObjects;
@@ -22,7 +23,10 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import com.google.common.io.Closeables;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -32,6 +36,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -50,6 +55,40 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     @Override
     public ImmutableList<IProject> getAllProjects() {
         return ImmutableList.copyOf(ResourcesPlugin.getWorkspace().getRoot().getProjects());
+    }
+
+    @Override
+    public void copyFileToContainer(IProgressMonitor progressMonitor, File file, IContainer destContainer, boolean recursively) throws FileNotFoundException, CoreException {
+        SubMonitor subMonitor = SubMonitor.convert(progressMonitor, "Copy " + file.getName() + " to " + destContainer.getName(), 100);
+        if (file.isDirectory()) {
+            File[] listFiles = file.listFiles();
+            subMonitor.setWorkRemaining(listFiles.length);
+            for (File f : listFiles) {
+                if (f.isDirectory()) {
+                    IFolder newFolder = destContainer.getFolder(new Path(f.getName()));
+                    newFolder.create(true, true, null);
+                    if (recursively) {
+                        copyFileToContainer(subMonitor.newChild(1), f, newFolder, recursively);
+                    }
+                } else {
+                    copyFileToContainer(f, destContainer, subMonitor);
+                }
+            }
+        } else {
+            copyFileToContainer(file, destContainer, subMonitor);
+        }
+    }
+
+    private void copyFileToContainer(File file, IContainer destContainer, SubMonitor subMonitor) throws FileNotFoundException, CoreException {
+        Preconditions.checkArgument(!file.isDirectory(), "The given file must not be an directory"); //$NON-NLS-1$
+        FileInputStream fileInputStream = null;
+        try {
+            fileInputStream = new FileInputStream(file);
+            IFile newFile = destContainer.getFile(new Path(file.getName()));
+            newFile.create(fileInputStream, true, subMonitor.newChild(1));
+        } finally {
+            Closeables.closeQuietly(fileInputStream);
+        }
     }
 
     @Override
@@ -94,7 +133,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             for (IProject project : allProjects) {
                 try {
                     // don't delete the project from the file system, only from the workspace
-                    // moreover, force the removal even if the object is out-of-sync with the file system
+                    // moreover, force the removal even if the object is out-of-sync with the file
+                    // system
                     project.delete(false, true, new SubProgressMonitor(monitor, 100 / allProjects.size()));
                 } catch (Exception e) {
                     String message = String.format("Cannot delete project %s.", project.getName());
@@ -105,7 +145,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             monitor.done();
         }
     }
-
 
     @Override
     public IProject createProject(String name, File location, List<File> filteredSubFolders, List<String> natureIds, IProgressMonitor monitor) {
@@ -227,7 +266,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         }
     }
 
-    private void addNature(IProject project, String natureId, IProgressMonitor monitor) {
+    @Override
+    public void addNature(IProject project, String natureId, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Add nature %s to Eclipse project %s", natureId, project.getName()), 1);
         try {
             // get the description
@@ -240,7 +280,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             }
 
             // add the nature to the project
-            ImmutableList<String> newIds = ImmutableList.<String>builder().addAll(currentNatureIds).add(natureId).build();
+            ImmutableList<String> newIds = ImmutableList.<String> builder().addAll(currentNatureIds).add(natureId).build();
             description.setNatureIds(newIds.toArray(new String[newIds.size()]));
 
             // save the updated description
@@ -279,7 +319,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             entries.add(JavaCore.newContainerEntry(classpath.getJrePath()));
             monitor.worked(1);
 
-            // add classpath definition of where to store the source/project/external dependencies, the classpath
+            // add classpath definition of where to store the source/project/external dependencies,
+            // the classpath
             // will be populated lazily by the org.eclipse.jdt.core.classpathContainerInitializer
             // extension point (see GradleClasspathContainerInitializer)
             entries.add(createGradleClasspathContainer());

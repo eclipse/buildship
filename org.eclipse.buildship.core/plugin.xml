@@ -3,6 +3,7 @@
 <plugin>
    <!-- extension point to activate plugins when a build execution starts -->
    <extension-point id="executionparticipants" name="Build Execution Participants" schema="schema/executionparticipants.exsd"/>
+   <extension-point id="gradleconversionextension" name="Gradle Conversion Extension" schema="schema/gradleconversionextension.exsd"/>
 
     <!-- initialization of the classpath container-->
     <extension

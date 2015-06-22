@@ -133,6 +133,10 @@
             description="Opens the Gradle build script for the selected Gradle project">
       </command>
       <command
+            id="org.eclipse.buildship.ui.convertproject"
+            name="Convert to Gradle Project...">
+      </command>
+      <command
             id="org.eclipse.buildship.ui.commands.refreshprojects"
             name="Refresh Projects"
             description="Refreshes the project configuration for the selected projects">
@@ -161,6 +165,10 @@
       <handler
             commandId="org.eclipse.buildship.ui.commands.openbuildscript"
             class="org.eclipse.buildship.ui.view.task.OpenBuildScriptHandler">
+      </handler>
+      <handler
+            class="org.eclipse.buildship.ui.wizard.project.ConvertToGradleProjectHandler"
+            commandId="org.eclipse.buildship.ui.convertproject">
       </handler>
       <handler
             commandId="org.eclipse.buildship.ui.commands.refreshprojects"
@@ -248,6 +256,62 @@
           </adapter>
        </factory>
     </extension>
+    
+    <!-- attach menus -->
+    <extension
+          point="org.eclipse.ui.menus">
+       <menuContribution
+             allPopups="false"
+             locationURI="popup:org.eclipse.ui.projectConfigure">
+          <command
+                commandId="org.eclipse.buildship.ui.convertproject"
+                style="push">
+             <visibleWhen
+                   checkEnabled="false">
+                <and>
+                    <not>
+                       <adapt
+                             type="org.eclipse.core.resources.IProject">
+                          <test
+                                property="org.eclipse.core.resources.projectNature"
+                                value="org.eclipse.buildship.core.gradleprojectnature">
+                          </test>
+                       </adapt>
+                   </not>
+                </and>
+             </visibleWhen>
+          </command>
+       </menuContribution>
+       <menuContribution
+             allPopups="true"
+             locationURI="popup:org.eclipse.jdt.ui.PackageExplorer?after=additions">
+          <menu
+                id="menu.Gradle"
+                label="Gradle">
+             <command
+                   commandId="org.eclipse.buildship.ui.command.refreshProjects"
+                   style="push">
+                <visibleWhen
+                      checkEnabled="false">
+                   <with
+                         variable="activeMenuSelection">
+                      <iterate
+                            ifEmpty="false">
+                         <adapt
+                               type="org.eclipse.core.resources.IProject">
+                            <test
+                                  forcePluginActivation="true"
+                                  property="org.eclipse.core.resources.projectNature"
+                                  value="org.eclipse.buildship.core.gradleprojectnature">
+                            </test>
+                         </adapt>
+                      </iterate>
+                   </with>
+                </visibleWhen>
+             </command>
+          </menu>
+       </menuContribution>
+   </extension>
 
     <!-- extension point to decorate the Gradle projects with a small Gradle icon -->
     <extension
@@ -272,40 +336,6 @@
                 </and>
             </enablement>
         </decorator>
-    </extension>
-
-    <!-- register Gradle context menu item on Project Explorer and Package Explorer -->
-    <extension
-            point="org.eclipse.ui.menus">
-        <menuContribution
-                allPopups="true"
-                locationURI="popup:org.eclipse.jdt.ui.PackageExplorer?after=additions">
-            <menu
-                    id="org.eclipse.buildship.ui.contextmenuentry"
-                    label="Gradle">
-                <command
-                        commandId="org.eclipse.buildship.ui.commands.refreshprojects"
-                        style="push">
-                    <visibleWhen
-                            checkEnabled="false">
-                        <with
-                                variable="activeMenuSelection">
-                            <iterate
-                                    ifEmpty="false">
-                                <adapt
-                                        type="org.eclipse.core.resources.IProject">
-                                    <test
-                                            forcePluginActivation="true"
-                                            property="org.eclipse.core.resources.projectNature"
-                                            value="org.eclipse.buildship.core.gradleprojectnature">
-                                    </test>
-                                </adapt>
-                            </iterate>
-                        </with>
-                    </visibleWhen>
-                </command>
-            </menu>
-        </menuContribution>
     </extension>
 
     <!-- extension point to register plugins that need to be activated (if not already activated) when a build execution starts -->
