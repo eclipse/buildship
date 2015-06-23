@@ -31,9 +31,8 @@ project, and see a summary of how the project will be created and imported.
 
 In the Gradle Task View, you can see the tasks of all the imported Gradle projects. The tasks can be sorted, filtered,
 and executed. The selection in Eclipse can be key linked to the selection of the task view, both ways. The content of
-the task view can be refreshed, meaning the latest versions of the Gradle build files are loaded. You can stop the refresh
-at any time by pressing the Stop button in the Progress View. You can navigate from a project to its build file through
-the context menu.
+the task view can be refreshed, meaning the latest versions of the Gradle build files are loaded. You can navigate from
+a project to its build file through the context menu.
 
 
 ## Task Execution
@@ -63,6 +62,6 @@ This is available if the Gradle build is run with target Gradle version 2.5 or n
 
 ## Cancellation
 
-You can cancel all long-running operations like importing a project, executing tasks, etc.
+You can cancel all long-running operations like importing a project, executing tasks, refreshing the tasks, etc.
 
 This is available if the Gradle build is run with target Gradle version 2.1 or newer.
