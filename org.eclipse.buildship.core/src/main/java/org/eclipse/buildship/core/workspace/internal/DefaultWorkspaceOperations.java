@@ -127,15 +127,13 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             // get an IProject instance and create the project
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
             IProjectDescription projectDescription = workspace.newProjectDescription(name);
-			IPath locationPath = Path.fromOSString(location.getPath());
-			// TODO This may be removed for Eclipse Version 4.4, because since
-			// 4.4 the LocationValidator class changed and does not throw an
-			// Exception any more
-			if (workspace.getRoot().getLocation().equals(locationPath)
-					|| workspace.getRoot().getLocation().equals(locationPath.removeLastSegments(1))) {
-				locationPath = null;
-			}
-			projectDescription.setLocation(locationPath);
+            IPath locationPath = Path.fromOSString(location.getPath());
+            IPath rootLocationPath = workspace.getRoot().getLocation();
+            if (rootLocationPath.equals(locationPath) || rootLocationPath.equals(locationPath.removeLastSegments(1))) {
+                // in Eclipse <4.4, the LocationValidator throws an exception in some scenarios
+                locationPath = null;
+            }
+            projectDescription.setLocation(locationPath);
             projectDescription.setComment(String.format("Project %s created by Buildship.", name));
             IProject project = workspace.getRoot().getProject(name);
             project.create(projectDescription, new SubProgressMonitor(monitor, 1));
