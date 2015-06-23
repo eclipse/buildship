@@ -15,20 +15,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
-
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.workspace.ClasspathDefinition;
+import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -38,9 +34,13 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.workspace.ClasspathDefinition;
-import org.eclipse.buildship.core.workspace.WorkspaceOperations;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 
 /**
  * Default implementation of the {@link WorkspaceOperations} interface.
@@ -127,7 +127,15 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             // get an IProject instance and create the project
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
             IProjectDescription projectDescription = workspace.newProjectDescription(name);
-            projectDescription.setLocation(Path.fromOSString(location.getPath()));
+			IPath locationPath = Path.fromOSString(location.getPath());
+			// TODO This may be removed for Eclipse Version 4.4, because since
+			// 4.4 the LocationValidator class changed and does not throw an
+			// Exception any more
+			if (workspace.getRoot().getLocation().equals(locationPath)
+					|| workspace.getRoot().getLocation().equals(locationPath.removeLastSegments(1))) {
+				locationPath = null;
+			}
+			projectDescription.setLocation(locationPath);
             projectDescription.setComment(String.format("Project %s created by Buildship.", name));
             IProject project = workspace.getRoot().getProject(name);
             project.create(projectDescription, new SubProgressMonitor(monitor, 1));
