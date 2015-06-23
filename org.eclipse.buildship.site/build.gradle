@@ -58,7 +58,7 @@ task uploadUpdateSite(dependsOn : createP2Repository) {
         //     |--1.0.0.v20150413-1512 (repository folder - simple update site)
 
         // define the folder structure
-        def releaseTypeFolder = "${ECLIPSE_ORG_FTP_UPDATE_SITES_PATH}/${releaseTypeFolder(project)}"
+        def releaseTypeFolder = "${ECLIPSE_ORG_FTP_UPDATE_SITES_PATH}/e${eclipsebuild.Config.on(project).targetPlatform.eclipseVersion}/${releaseTypeFolder(project)}"
         def versionFolder = "${releaseTypeFolder}/${releaseVersion()}"
         def repositoryFolder = "${versionFolder}/${project.version}"
 
@@ -198,7 +198,7 @@ private void addExtraPropertiesToArtifactsXml(Node artifactsXml) {
 }
 
 def calculateP2MirrorsUrl(Project project) {
-    def repositoryPath = "${ECLIPSE_ORG_MIRROR_PATH}/${releaseTypeFolder(project)}/${releaseVersion()}/${project.version}"
+    def repositoryPath = "${ECLIPSE_ORG_MIRROR_PATH}/e${eclipsebuild.Config.on(project).targetPlatform.eclipseVersion}/${releaseTypeFolder(project)}/${releaseVersion()}/${project.version}"
     "http://www.eclipse.org/downloads/download.php?file=${repositoryPath}&format=xml"
 }
 
