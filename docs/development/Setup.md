@@ -155,19 +155,21 @@ you can set the `eclipse.version` Gradle project property:
 
 Buildship is continuously built on our [Continuous Integration Server](https://builds.gradle.org/project.html?projectId=Tooling_Buildship&tab=projectOverview).
 
+
 ## Issue tracking
 
-All issues related to Buildship is recorded in [Bugzilla](https://bugs.eclipse.org/bugs/buglist.cgi?bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&list_id=12071590&product=Buildship&query_format=advanced&resolution=---&resolution=FIXED&resolution=INVALID&resolution=WONTFIX&resolution=DUPLICATE&resolution=WORKSFORME&resolution=MOVED&resolution=NOT_ECLIPSE).
+All issues related to Buildship are recorded in [Bugzilla](https://bugs.eclipse.org/bugs/buglist.cgi?bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&list_id=12071590&product=Buildship&query_format=advanced&resolution=---&resolution=FIXED&resolution=INVALID&resolution=WONTFIX&resolution=DUPLICATE&resolution=WORKSFORME&resolution=MOVED&resolution=NOT_ECLIPSE).
+
 
 ### Workflow
 
-The following lifecycle is applied on all Buildship issues in Bugzilla:
+The following workflow is applied to all Buildship issues tracked in Bugzilla:
 
 1. The reporter creates the issue.
-1. When enough information is supported then a committer sets the state to **assigned**.
-1. Once the issue is fixed and a snapshot version is released then the state is changed to **resolved**.
-1. The committers wait a few days if the reporter sets the state to **verified**.
-1. If no verification received then a committer sets the state to **closed**. 
+1. Once the issue is understood by the committers and the issue is about to be fixed, the state is set to **assigned**.
+1. After the issue is fixed and a snapshot version with the fix is released, the state is changed to **resolved**.
+1. The committer waits for a few days for the reporter to set the state to **verified**.
+1. Once verification is received or no feedback is received, the committer sets the state to **closed**.
 
 ## References
 
