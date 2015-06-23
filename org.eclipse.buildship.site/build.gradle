@@ -203,5 +203,5 @@ def calculateP2MirrorsUrl(Project project) {
 }
 
 def calculateStatsUri(Project project) {
-    "http://download.eclipse.org/stats/buildship/${releaseTypeFolder(project)}/${releaseVersion()}"
+    "http://download.eclipse.org/stats/buildship/e${eclipsebuild.Config.on(project).targetPlatform.eclipseVersion}/${releaseTypeFolder(project)}/${releaseVersion()}"
 }
