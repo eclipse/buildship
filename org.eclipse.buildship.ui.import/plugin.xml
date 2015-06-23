@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.e4.ui.importer.projectConfigurators">
+      <projectConfigurator
+            class="org.eclipse.buildship.ui.smartimport.internal.GradleProjectConfigurator"
+            label="%gradle.importer.label">
+         <activeWhen>
+            <hasFile
+                  path="build.gradle">
+            </hasFile>
+         </activeWhen>
+      </projectConfigurator>
+   </extension>
+</plugin>

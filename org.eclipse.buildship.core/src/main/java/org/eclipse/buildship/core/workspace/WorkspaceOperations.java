@@ -114,5 +114,14 @@ public interface WorkspaceOperations {
      * @param monitor the monitor to report progress on
      */
     void refresh(IProject project, IProgressMonitor monitor);
+    
+    /**
+     * Adds a nature to the given {@link IProject}.
+     *
+     * @param project {@link IProject}, where the nature should be added
+     * @param natureId id of the project nature, which should be added
+     * @param monitor {@link IProgressMonitor} for monitoring progress
+     */
+    void addNature(IProject project, String natureId, IProgressMonitor monitor);
 
 }

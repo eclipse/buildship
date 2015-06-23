@@ -14,15 +14,38 @@ package org.eclipse.buildship.core.projectimport;
 import java.io.File;
 import java.util.List;
 
-import com.google.common.base.Preconditions;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.gradle.Specs;
+import org.eclipse.buildship.core.projectimport.internal.DefaultProjectCreatedEvent;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
+import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
+import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
+import org.eclipse.buildship.core.workspace.ClasspathDefinition;
+import org.eclipse.buildship.core.workspace.WorkspaceOperations;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.jobs.IJobManager;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.launching.JavaRuntime;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
@@ -32,28 +55,6 @@ import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
 import com.gradleware.tooling.toolingmodel.util.Pair;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.core.runtime.jobs.IJobManager;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jdt.launching.JavaRuntime;
-
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.console.ProcessStreams;
-import org.eclipse.buildship.core.gradle.Specs;
-import org.eclipse.buildship.core.projectimport.internal.DefaultProjectCreatedEvent;
-import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
-import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
-import org.eclipse.buildship.core.workspace.ClasspathDefinition;
-import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 /**
  * Imports a Gradle project into Eclipse using the project import coordinates given by a
@@ -124,8 +125,18 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
             // check if an Eclipse project already exists at the location of the Gradle project to import
             WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations();
             File projectDirectory = project.getProjectDirectory();
-            Optional<IProjectDescription> projectDescription = workspaceOperations.findProjectInFolder(projectDirectory, new SubProgressMonitor(monitor, 1));
-
+            
+            IWorkspaceRoot workspaceDirectory = ResourcesPlugin.getWorkspace().getRoot();
+            
+            Optional<IProjectDescription> projectDescription;
+            Optional<IProject> workspaceProject = findProject(workspaceDirectory, projectDirectory);
+            
+            if (workspaceProject.isPresent()) {
+                projectDescription = Optional.of(workspaceProject.get().getDescription());
+            } else {
+                projectDescription = workspaceOperations.findProjectInFolder(projectDirectory, new SubProgressMonitor(monitor, 1));
+            }
+            
             // collect all the sub folders to hide under the project
             List<File> filteredSubFolders = ImmutableList.<File> builder().
                     addAll(collectChildProjectLocations(project)).
@@ -134,34 +145,47 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
                     build();
             ImmutableList<String> gradleNature = ImmutableList.of(GradleProjectNature.ID);
 
-            IProject workspaceProject;
-            if (projectDescription.isPresent()) {
+            if (workspaceProject.isPresent()) {
+                workspaceOperations.addNature(workspaceProject.get(), GradleProjectNature.ID, monitor);
+            } else if (projectDescription.isPresent()) {
                 // include the existing Eclipse project in the workspace
-                workspaceProject = workspaceOperations.includeProject(projectDescription.get(), filteredSubFolders, gradleNature, new SubProgressMonitor(monitor, 2));
+                workspaceProject = Optional.of(workspaceOperations.includeProject(projectDescription.get(), filteredSubFolders, gradleNature, new SubProgressMonitor(monitor, 2)));
             } else {
                 // create a new Eclipse project in the workspace for the current Gradle project
-                workspaceProject = workspaceOperations.createProject(project.getName(), project.getProjectDirectory(), filteredSubFolders, gradleNature, new SubProgressMonitor(monitor, 1));
-
-                // if the current Gradle project is a Java project, configure the Java nature, the classpath, and the source paths
-                if (isJavaProject(project)) {
-                    IPath jre = JavaRuntime.getDefaultJREContainerEntry().getPath();
-                    ClasspathDefinition classpath = new ClasspathDefinition(ImmutableList.<Pair<IPath, IPath>> of(), ImmutableList.<IPath> of(), ImmutableList.<String> of(), jre);
-                    workspaceOperations.createJavaProject(workspaceProject, classpath, new SubProgressMonitor(monitor, 1));
-                } else {
-                    monitor.worked(1);
-                }
+                workspaceProject = Optional.of(workspaceOperations.createProject(project.getName(), project.getProjectDirectory(), filteredSubFolders, gradleNature, new SubProgressMonitor(monitor, 1)));
+            }
+            
+            // if the current Gradle project is a Java project, configure the Java nature, the classpath, and the source paths
+            if (isJavaProject(project, workspaceProject)) {
+                IPath jre = JavaRuntime.getDefaultJREContainerEntry().getPath();
+                ClasspathDefinition classpath = new ClasspathDefinition(ImmutableList.<Pair<IPath, IPath>> of(), ImmutableList.<IPath> of(), ImmutableList.<String> of(), jre);
+                workspaceOperations.createJavaProject(workspaceProject.get(), classpath, new SubProgressMonitor(monitor, 1));
+            } else {
+                monitor.worked(1);
             }
 
             // persist the Gradle-specific configuration in the Eclipse project's .settings folder
             ProjectConfiguration projectConfiguration = ProjectConfiguration.from(this.fixedAttributes, project);
-            CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, workspaceProject);
+            CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, workspaceProject.get());
 
             // notify the listeners that a new IProject has been created
-            ProjectCreatedEvent event = new DefaultProjectCreatedEvent(workspaceProject, this.workingSets);
+            ProjectCreatedEvent event = new DefaultProjectCreatedEvent(workspaceProject.get(), this.workingSets);
             CorePlugin.listenerRegistry().dispatch(event);
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException("An error occurred during project import", e);
         } finally {
             monitor.done();
         }
+    }
+    
+    private Optional<IProject> findProject(IWorkspaceRoot workspaceDirectory,
+            File projectDirectory) {
+        IContainer[] containers = workspaceDirectory.findContainersForLocationURI(projectDirectory.toURI());
+        
+        if (containers.length > 0 && containers[0] instanceof IProject) {
+            return Optional.of((IProject) containers[0]);
+        }
+        return Optional.absent();
     }
 
     private List<File> collectChildProjectLocations(OmniEclipseProject project) {
@@ -188,8 +212,14 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         return new File(project.getProjectDirectory(), ".gradle");
     }
 
-    private boolean isJavaProject(OmniEclipseProject modelProject) {
-        return !modelProject.getSourceDirectories().isEmpty();
+    private boolean isJavaProject(OmniEclipseProject modelProject, Optional<IProject> workspaceProject) {
+        boolean hasJavaNature = false;
+        try {    
+            hasJavaNature = workspaceProject.isPresent() && workspaceProject.get().hasNature(JavaCore.NATURE_ID);
+        } catch (CoreException e) {
+        	CorePlugin.logger().error(e.getMessage());
+        }
+        return !modelProject.getSourceDirectories().isEmpty() && !hasJavaNature;
     }
 
 }

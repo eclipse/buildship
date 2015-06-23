@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- don't modify the feature's version attribute as it will be replaced by the build -->
+<feature
+      id="org.eclipse.buildship.ui.smartimport"
+      label="%featureName"
+      version="1.0.0.qualifier"
+      provider-name="%providerName"
+      plugin="org.eclipse.buildship.ui.smartimport">
+
+   <description>
+      %description
+   </description>
+
+   <copyright>
+      %copyright
+   </copyright>
+
+   <license url="%licenseUrl">
+      %license
+   </license>
+
+   <plugin
+         id="org.eclipse.buildship.ui.smartimport"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

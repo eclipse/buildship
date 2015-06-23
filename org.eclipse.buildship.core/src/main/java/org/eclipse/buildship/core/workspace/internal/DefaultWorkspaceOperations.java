@@ -233,7 +233,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         }
     }
 
-    private void addNature(IProject project, String natureId, IProgressMonitor monitor) {
+    @Override
+    public void addNature(IProject project, String natureId, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Add nature %s to Eclipse project %s", natureId, project.getName()), 1);
         try {
             // get the description

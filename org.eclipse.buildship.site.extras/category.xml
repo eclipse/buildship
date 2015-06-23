@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+    <category-def name="Buildship" label="Buildship: Smart Import for Gradle" />
+    <feature id="org.eclipse.buildship.smartimport"
+        url="features/org.eclipse.buildship.smartimport_0.0.0.jar"
+        version="0.0.0">
+        <category name="Buildship" />
+    </feature>
+</site>
