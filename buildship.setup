@@ -277,7 +277,7 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-mars-m6"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20150316021154/repository/"/>
+            url="http://download.eclipse.org/tools/orbit/downloads/drops/R20150519210750/repository"/>
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
         <repository
@@ -290,7 +290,7 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-luna-sr2"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20150316021154/repository/"/>
+            url="http://download.eclipse.org/tools/orbit/downloads/drops/R20150519210750/repository"/>
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
         <repository
@@ -303,7 +303,7 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-kepler-sr2"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20150316021154/repository/"/>
+            url="http://download.eclipse.org/tools/orbit/downloads/drops/R20150519210750/repository"/>
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
         <repository
@@ -316,7 +316,7 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-juno-sr2"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20150316021154/repository/"/>
+            url="http://download.eclipse.org/tools/orbit/downloads/drops/R20150519210750/repository"/>
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
         <repository
@@ -329,7 +329,7 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-indigo-sr2"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20150316021154/repository/"/>
+            url="http://download.eclipse.org/tools/orbit/downloads/drops/R20150519210750/repository"/>
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
         <repository
@@ -342,7 +342,7 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-helios-sr2"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20150316021154/repository/"/>
+            url="http://download.eclipse.org/tools/orbit/downloads/drops/R20150519210750/repository"/>
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
         <repository
@@ -365,7 +365,7 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20140917154621/repository"/>
+            url="http://download.eclipse.org/tools/orbit/downloads/drops/R20150519210750/repository"/>
         <repository
             url="http://download.eclipse.org/technology/swtbot/releases/latest"/>
       </repositoryList>
@@ -376,7 +376,7 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20140917154621/repository"/>
+            url="http://download.eclipse.org/tools/orbit/downloads/drops/R20150519210750/repository"/>
         <repository
             url="http://download.eclipse.org/technology/swtbot/releases/latest"/>
       </repositoryList>
@@ -387,7 +387,7 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20140917154621/repository"/>
+            url="http://download.eclipse.org/tools/orbit/downloads/drops/R20150519210750/repository"/>
         <repository
             url="http://download.eclipse.org/technology/swtbot/releases/latest"/>
       </repositoryList>
@@ -398,7 +398,7 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20140917154621/repository"/>
+            url="http://download.eclipse.org/tools/orbit/downloads/drops/R20150519210750/repository"/>
         <repository
             url="http://download.eclipse.org/technology/swtbot/releases/latest"/>
       </repositoryList>
@@ -409,7 +409,7 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20140917154621/repository"/>
+            url="http://download.eclipse.org/tools/orbit/downloads/drops/R20150519210750/repository"/>
         <repository
             url="http://download.eclipse.org/technology/swtbot/releases/latest"/>
       </repositoryList>
@@ -420,7 +420,7 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20140917154621/repository"/>
+            url="http://download.eclipse.org/tools/orbit/downloads/drops/R20150519210750/repository"/>
         <repository
             url="http://download.eclipse.org/technology/swtbot/releases/latest"/>
       </repositoryList>
