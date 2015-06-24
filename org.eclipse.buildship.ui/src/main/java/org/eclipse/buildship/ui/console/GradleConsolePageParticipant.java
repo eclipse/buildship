@@ -24,6 +24,7 @@ import org.eclipse.ui.part.IPageBookViewPage;
 public final class GradleConsolePageParticipant implements IConsolePageParticipant {
 
     private CancelBuildExecutionAction cancelBuildExecutionAction;
+    private RerunBuildExecutionAction rerunBuildExecutionAction;
     private RemoveTerminatedGradleConsoleAction removeConsoleAction;
     private RemoveAllTerminatedGradleConsolesAction removeAllConsolesAction;
 
@@ -44,10 +45,12 @@ public final class GradleConsolePageParticipant implements IConsolePageParticipa
 
     private void addActionsToToolbar(IToolBarManager toolBarManager, GradleConsole gradleConsole) {
         this.cancelBuildExecutionAction = new CancelBuildExecutionAction(gradleConsole);
+        this.rerunBuildExecutionAction = new RerunBuildExecutionAction(gradleConsole);
         this.removeConsoleAction = new RemoveTerminatedGradleConsoleAction(gradleConsole);
         this.removeAllConsolesAction = new RemoveAllTerminatedGradleConsolesAction(gradleConsole);
 
         toolBarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, this.cancelBuildExecutionAction);
+        toolBarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, this.rerunBuildExecutionAction);
         toolBarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, this.removeConsoleAction);
         toolBarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, this.removeAllConsolesAction);
     }

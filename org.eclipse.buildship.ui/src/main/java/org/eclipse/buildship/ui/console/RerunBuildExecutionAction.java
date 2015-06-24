@@ -9,9 +9,11 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.execution;
+package org.eclipse.buildship.ui.console;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -20,20 +22,19 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.jface.action.Action;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
-import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.buildship.ui.i18n.UiMessages;
 
 /**
- * Reruns the build represented by the target {@link ExecutionPage}.
+ * Reruns the build associated to the target {@link GradleConsole}.
  */
 public final class RerunBuildExecutionAction extends Action {
 
-    private final ExecutionPage page;
+    private final GradleConsole gradleConsole;
 
-    public RerunBuildExecutionAction(ExecutionPage executionPage) {
-        this.page = Preconditions.checkNotNull(executionPage);
+    public RerunBuildExecutionAction(GradleConsole gradleConsole) {
+        this.gradleConsole = Preconditions.checkNotNull(gradleConsole);
 
         setToolTipText(UiMessages.Action_RerunBuild_Tooltip);
         setImageDescriptor(PluginImages.RERUN_BUILD.withState(ImageState.ENABLED).getImageDescriptor());
@@ -43,20 +44,26 @@ public final class RerunBuildExecutionAction extends Action {
     }
 
     private void registerJobChangeListener() {
-        Job job = this.page.getBuildJob();
-        job.addJobChangeListener(new JobChangeAdapter() {
+        Optional<Job> job = this.gradleConsole.getProcessDescription().getJob();
+        if (job.isPresent()) {
+            job.get().addJobChangeListener(new JobChangeAdapter() {
 
-            @Override
-            public void done(IJobChangeEvent event) {
-                RerunBuildExecutionAction.this.setEnabled(event.getJob().getState() == Job.NONE);
-            }
-        });
-        setEnabled(job.getState() == Job.NONE);
+                @Override
+                public void done(IJobChangeEvent event) {
+                    RerunBuildExecutionAction.this.setEnabled(event.getJob().getState() == Job.NONE);
+                }
+            });
+        }
+        if (!job.isPresent()) {
+            setEnabled(false);
+        } else {
+            setEnabled(job.get().getState() == Job.NONE);
+        }
     }
 
     @Override
     public void run() {
-        ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateRunConfiguration(this.page.getConfigurationAttributes());
+        ILaunchConfiguration launchConfiguration = this.gradleConsole.getProcessDescription().getLaunch().get().getLaunchConfiguration();
         DebugUITools.launch(launchConfiguration, ILaunchManager.RUN_MODE);
     }
 
