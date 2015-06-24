@@ -99,7 +99,7 @@ final class ResourceFilter {
             // create the specified filters
             if (!filters.isEmpty()) {
                 try {
-                    project.createFilter(IResourceFilterDescription.EXCLUDE_ALL | IResourceFilterDescription.FOLDERS | IResourceFilterDescription.INHERITABLE, createCompositeFilter(filters), IResource.BACKGROUND_REFRESH, new SubProgressMonitor(
+                    project.createFilter(IResourceFilterDescription.EXCLUDE_ALL | IResourceFilterDescription.FOLDERS, createCompositeFilter(filters), IResource.BACKGROUND_REFRESH, new SubProgressMonitor(
                             monitor, 1));
                 } catch (CoreException e) {
                     String message = String.format("Cannot create new resource filters for project %s.", project);
