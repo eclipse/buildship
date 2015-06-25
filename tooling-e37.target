@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="gradleware-tooling-indigo" sequenceNumber="21">
+<?pde version="3.8"?><target name="buildship-indigo" sequenceNumber="21">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.sdk.ide" version="3.7.2.M20120208-0800"/>
