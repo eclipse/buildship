@@ -15,6 +15,8 @@ import java.io.File;
 import java.util.List;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.resources.FileInfoMatcherDescription;
@@ -36,15 +38,12 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 final class ResourceFilter {
 
     // to create filters we reuse the constants and classes from the org.eclipse.core.resources
-    // plug-in. The IDs are not exposed as a class, consequently we redefine them in this class.
-    // documentation:
+    // plug-in. The IDs are not exposed as a class, consequently we redefine them here.
+    // Documentation:
     // http://help.eclipse.org/luna/topic/org.eclipse.platform.doc.isv/guide/resInt_filters.htm
 
-    // resource filter matcher id
-    private static final String MATCHER_ID = "org.eclipse.core.resources.regexFilterMatcher";
-
-    // id to merge the resource filters as a single OR statement
-    private static final String OR_ID = "org.eclipse.ui.ide.orFilterMatcher";
+    // resource filter id
+    private static final String FILTER_ID = "org.eclipse.ui.ide.multiFilter"; //$NON-NLS-1$
 
     private ResourceFilter() {
     }
@@ -58,61 +57,69 @@ final class ResourceFilter {
      */
     public static void attachFilters(IProject project, List<File> childLocations, IProgressMonitor monitor) {
         monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
-        List<FileInfoMatcherDescription> filters = createFilters(project, childLocations);
-        setFilters(project, filters, monitor);
+        List<FileInfoMatcherDescription> matchers = createMatchers(project, childLocations);
+        setExclusionFilters(project, matchers, monitor);
     }
 
-    private static List<FileInfoMatcherDescription> createFilters(IProject project, List<File> children) {
-        ImmutableList.Builder<FileInfoMatcherDescription> filters = ImmutableList.builder();
+    private static List<FileInfoMatcherDescription> createMatchers(IProject project, List<File> children) {
+        ImmutableList.Builder<FileInfoMatcherDescription> matchers = ImmutableList.builder();
         IPath projectLocation = project.getLocation();
         for (File child : children) {
             IPath childLocation = new Path(child.getAbsolutePath());
             if (projectLocation.isPrefixOf(childLocation)) {
-                filters.add(new FileInfoMatcherDescription(MATCHER_ID, childLocation.makeRelativeTo(projectLocation).toPortableString()));
+                matchers.add(new FileInfoMatcherDescription(FILTER_ID, createMultiFilterArgument(childLocation.makeRelativeTo(projectLocation).toPortableString())));
             }
         }
-        return filters.build();
+        return matchers.build();
     }
 
-    private static void setFilters(IProject project, List<FileInfoMatcherDescription> filters, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Set resource filters for project %s", project), 2);
+    private static String createMultiFilterArgument(String relativeLocation) {
+        return "1.0-projectRelativePath-matches-false-false-" + relativeLocation; //$NON-NLS-1$
+
+    }
+
+    private static void setExclusionFilters(IProject project, List<FileInfoMatcherDescription> matchers, IProgressMonitor monitor) {
+        monitor.beginTask(String.format("Set resource filters for project %s", project), 2 + matchers.size()); //$NON-NLS-1$
         try {
-            // get all current filters
-            IResourceFilterDescription[] currentFilters;
+
+            // retrieve already defined filters
+            final IResourceFilterDescription[] existingFilters;
             try {
-                currentFilters = project.getFilters();
+                existingFilters = project.getFilters();
             } catch (CoreException e) {
-                String message = String.format("Cannot retrieve current resource filters for project %s.", project.getName());
+                String message = String.format("Cannot retrieve current resource filters for project %s.", project.getName()); //$NON-NLS-1$
                 throw new GradlePluginsRuntimeException(message, e);
             }
 
-            // delete all current filters
-            for (IResourceFilterDescription filter : currentFilters) {
-                try {
-                    filter.delete(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1));
-                } catch (CoreException e) {
-                    String message = String.format("Cannot delete current resource filter %s.", filter);
-                    throw new GradlePluginsRuntimeException(message, e);
-                }
-            }
+            // filter the 'filters' list such that it doesn't contain already existing elements
+            ImmutableList<FileInfoMatcherDescription> newMatchers = FluentIterable.from(matchers).filter(new Predicate<FileInfoMatcherDescription>() {
 
-            // create the specified filters
-            if (!filters.isEmpty()) {
+                @Override
+                public boolean apply(FileInfoMatcherDescription matcher) {
+                    for (IResourceFilterDescription existingFilter : existingFilters) {
+                        if (existingFilter.getFileInfoMatcherDescription().equals(matcher)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            }).toList();
+
+            // assign the new resource filters to the project
+            if (!matchers.isEmpty()) {
                 try {
-                    project.createFilter(IResourceFilterDescription.EXCLUDE_ALL | IResourceFilterDescription.FOLDERS, createCompositeFilter(filters), IResource.BACKGROUND_REFRESH, new SubProgressMonitor(
-                            monitor, 1));
+                    int type = IResourceFilterDescription.EXCLUDE_ALL | IResourceFilterDescription.FOLDERS | IResourceFilterDescription.INHERITABLE;
+                    for (FileInfoMatcherDescription matcher : newMatchers) {
+                        project.createFilter(type, matcher, IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1));
+                    }
                 } catch (CoreException e) {
-                    String message = String.format("Cannot create new resource filters for project %s.", project);
+                    String message = String.format("Cannot create new resource filters for project %s.", project); //$NON-NLS-1$
                     throw new GradlePluginsRuntimeException(message, e);
                 }
             }
         } finally {
             monitor.done();
         }
-    }
-
-    private static FileInfoMatcherDescription createCompositeFilter(List<FileInfoMatcherDescription> filters) {
-        return new FileInfoMatcherDescription(OR_ID, filters.toArray(new FileInfoMatcherDescription[filters.size()]));
     }
 
 }
