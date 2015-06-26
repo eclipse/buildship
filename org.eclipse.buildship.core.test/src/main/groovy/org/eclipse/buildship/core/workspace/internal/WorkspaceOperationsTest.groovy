@@ -12,7 +12,6 @@
 package org.eclipse.buildship.core.workspace.internal
 
 import com.google.common.collect.ImmutableList
-import org.eclipse.buildship.core.workspace.ClasspathDefinition
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.Path
@@ -219,10 +218,10 @@ class WorkspaceOperationsTest extends Specification {
         def attributes = new FixedRequestAttributes(rootFolder, null, GradleDistribution.fromBuild(), null, ImmutableList.<String> of(), ImmutableList.<String> of())
         ProjectConfiguration projectConfiguration = ProjectConfiguration.from(attributes, Path.from(':'), rootFolder);
         CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, project);
+        def jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath()
 
         when:
-        ClasspathDefinition classpath = new ClasspathDefinition(ImmutableList.of(), ImmutableList.of(), ImmutableList.of(), JavaRuntime.getDefaultJREContainerEntry().getPath())
-        IJavaProject javaProject = workspaceOperations.createJavaProject(project, classpath, new NullProgressMonitor())
+        IJavaProject javaProject = workspaceOperations.createJavaProject(project, jrePath, new NullProgressMonitor())
 
         then:
         javaProject != null
@@ -231,10 +230,10 @@ class WorkspaceOperationsTest extends Specification {
 
     def "A Java project can't be created from null project"() {
         setup:
-        ClasspathDefinition classpath = new ClasspathDefinition(ImmutableList.of(), ImmutableList.of(), ImmutableList.of(), JavaRuntime.getDefaultJREContainerEntry().getPath())
+        def jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath()
 
         when:
-        workspaceOperations.createJavaProject(null, classpath, new NullProgressMonitor())
+        workspaceOperations.createJavaProject(null, jrePath, new NullProgressMonitor())
 
         then:
         thrown(NullPointerException)
@@ -244,10 +243,10 @@ class WorkspaceOperationsTest extends Specification {
         setup:
         IProject project = Mock(IProject)
         project.isAccessible() >> false
-        ClasspathDefinition classpath = new ClasspathDefinition(ImmutableList.of(), ImmutableList.of(), ImmutableList.of(), JavaRuntime.getDefaultJREContainerEntry().getPath())
+        def jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath()
 
         when:
-        workspaceOperations.createJavaProject(project, classpath, new NullProgressMonitor())
+        workspaceOperations.createJavaProject(project, jrePath, new NullProgressMonitor())
 
         then:
         thrown(IllegalArgumentException)
