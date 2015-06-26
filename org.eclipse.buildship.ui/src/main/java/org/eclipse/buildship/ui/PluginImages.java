@@ -58,7 +58,10 @@ public enum PluginImages implements PluginImage {
     OPERATION_IN_PROGRESS(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_inprogress.png")),
     OPERATION_SUCCESS(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_success.png")),
     OPERATION_SKIPPED(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_skipped.png")),
-    OPERATION_FAILURE(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_failure.png"));
+    OPERATION_FAILURE(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_failure.png")),
+    WIZARD(ImmutableMap.of(ImageState.ENABLED, "icons/full/wizban/wizard.png")),
+    TEMPLATE(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/template.png")),
+    GRADLE_LOGO(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/gradle_logo.png"));
     // @formatter:on
 
     private final ImmutableMap<ImageState, String> images;

@@ -66,7 +66,7 @@
             point="org.eclipse.ui.editors">
       <editor
             id="org.eclipse.buildship.ui.gradlebuildscripteditor"
-            class="org.eclipse.ui.editors.text.TextEditor"
+            class="org.eclipse.buildship.ui.editor.GradleEditor"
             icon="icons/full/obj16/gradle_logo.png"
             name="Gradle Build Script Editor"
             default="false"
@@ -131,6 +131,10 @@
             categoryId="org.eclipse.ui.category.navigate"
             name="Open Gradle Build Script"
             description="Opens the Gradle build script for the selected Gradle project">
+      </command>
+      <command
+            id="org.eclipse.buildship.ui.createGradleTask"
+            name="Create Gradle Task">
       </command>
       <command
             id="org.eclipse.buildship.ui.commands.refreshprojects"
@@ -200,6 +204,10 @@
              icon="icons/full/elcl16/run.png"
              disabledIcon="icons/full/dlcl16/run.png">
        </image>
+       <image
+             commandId="org.eclipse.buildship.ui.createGradleTask"
+             icon="icons/full/eview16/executions_view.png">
+       </image>
     </extension>
 
     <!-- integration of a Gradle console into the Console View -->
@@ -232,6 +240,7 @@
 
     <!-- properties view for tasks and projects -->
     <extension
+          name="IPropertySource adapter"
           point="org.eclipse.core.runtime.adapters">
        <factory
              adaptableType="org.eclipse.buildship.ui.view.task.TaskNode"
@@ -247,6 +256,42 @@
                 type="org.eclipse.ui.views.properties.IPropertySource">
           </adapter>
        </factory>
+    </extension>
+    <extension
+          name="PropertyRenderer adapter"
+          point="org.eclipse.core.runtime.adapters">
+       <factory
+             adaptableType="org.eclipse.buildship.core.model.taskmetadata.TaskPropertyType"
+             class="org.eclipse.buildship.ui.wizard.task.renderer.PropertyRendererAdapterFactory">
+          <adapter
+                type="org.eclipse.buildship.ui.wizard.task.renderer.PropertyRenderer">
+          </adapter>
+       </factory>
+    </extension>
+    <extension
+          point="org.eclipse.ui.editors.templates">
+       <contextType
+             class="org.eclipse.buildship.ui.templates.GradleTemplateContextType"
+             id="gradle"
+             name="Gradle"
+             registryId="org.eclipse.buildship.ui.gradlebuildscripteditor">
+       </contextType>
+       <contextTypeRegistry
+             id="org.eclipse.buildship.ui.gradlebuildscripteditor">
+       </contextTypeRegistry>
+       <template
+             autoinsert="true"
+             contextTypeId="gradle"
+             description="Create a Gradle Task"
+             icon="icons/full/eview16/tasks_view.png"
+             id="org.eclipse.buildship.ui.templates.task"
+             name="Gradle Task">
+          <pattern>
+             task ${taskName} (type: ${taskType}){
+${taskPropertyValues}
+}
+          </pattern>
+       </template>
     </extension>
 
     <!-- extension point to decorate the Gradle projects with a small Gradle icon -->

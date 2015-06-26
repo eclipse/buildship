@@ -20,6 +20,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
 import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
@@ -32,6 +33,7 @@ import org.eclipse.buildship.ui.console.ConsoleProcessStreamsProvider;
 import org.eclipse.buildship.ui.launch.ConsoleShowingLaunchListener;
 import org.eclipse.buildship.ui.notification.DialogUserNotification;
 import org.eclipse.buildship.ui.view.execution.ExecutionShowingBuildLaunchRequestListener;
+import org.eclipse.buildship.ui.templates.GradleTemplateService;
 import org.eclipse.buildship.ui.wizard.project.WorkingSetsAddingProjectCreatedListener;
 
 /**
@@ -53,6 +55,7 @@ public final class UiPlugin extends AbstractUIPlugin {
     private ServiceRegistration loggerService;
     private ServiceRegistration processStreamsProviderService;
     private ServiceRegistration dialogUserNotificationService;
+    private ServiceRegistration templatesService;
     private ConsoleShowingLaunchListener consoleShowingLaunchListener;
     private ExecutionShowingBuildLaunchRequestListener executionShowingBuildLaunchRequestListener;
     private WorkingSetsAddingProjectCreatedListener workingSetsAddingProjectCreatedListener;
@@ -60,6 +63,7 @@ public final class UiPlugin extends AbstractUIPlugin {
     @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
+        TrayDialog.setDialogHelpAvailable(false);
         registerServices(context);
         registerListeners();
         plugin = this;
@@ -86,6 +90,7 @@ public final class UiPlugin extends AbstractUIPlugin {
         this.loggerService = registerService(context, Logger.class, createLogger(), preferences);
         this.processStreamsProviderService = registerService(context, ProcessStreamsProvider.class, createConsoleProcessStreamsProvider(), priorityPreferences);
         this.dialogUserNotificationService = registerService(context, UserNotification.class, createUserNotification(), priorityPreferences);
+        this.templatesService = registerService(context, GradleTemplateService.class, createGradleTemplateService(), preferences);
     }
 
     private <T> ServiceRegistration registerService(BundleContext context, Class<T> clazz, T service, Dictionary<String, Object> properties) {
@@ -102,6 +107,10 @@ public final class UiPlugin extends AbstractUIPlugin {
 
     private UserNotification createUserNotification() {
         return new DialogUserNotification();
+    }
+
+    private GradleTemplateService createGradleTemplateService() {
+        return new GradleTemplateService();
     }
 
     private void unregisterServices() {
@@ -134,6 +143,10 @@ public final class UiPlugin extends AbstractUIPlugin {
 
     public static Logger logger() {
         return getService(getInstance().loggerService.getReference());
+    }
+
+    public static GradleTemplateService templateService() {
+        return getService(getInstance().templatesService.getReference());
     }
 
     private static <T> T getService(ServiceReference reference) {
