@@ -13,17 +13,15 @@ package org.eclipse.buildship.ui.wizard.project;
 
 import java.util.List;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
-import com.gradleware.tooling.toolingmodel.util.Pair;
-import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
+import org.eclipse.buildship.ui.HelpContext;
+import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
 import org.eclipse.core.runtime.jobs.Job;
-import org.gradle.tooling.ProgressListener;
-import org.osgi.service.prefs.BackingStoreException;
-
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -31,13 +29,15 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IImportWizard;
 import org.eclipse.ui.IWorkbench;
+import org.gradle.tooling.ProgressListener;
+import org.osgi.service.prefs.BackingStoreException;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.ui.HelpContext;
-import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
+import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.FutureCallback;
+import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
+import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
+import com.gradleware.tooling.toolingmodel.util.Pair;
+import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
 
 /**
  * Eclipse wizard for importing Gradle projects into the workspace.
@@ -58,16 +58,18 @@ public final class ProjectImportWizard extends Wizard implements IImportWizard, 
     private static final String PREF_SHOW_WELCOME_PAGE = "org.eclipse.buildship.ui.wizard.project.import.showWelcomePage"; //$NON-NLS-1$
 
     // the pages to display in the wizard
-    private final GradleWelcomeWizardPage welcomeWizardPage;
-    private final GradleProjectWizardPage gradleProjectPage;
-    private final GradleOptionsWizardPage gradleOptionsPage;
-    private final ProjectPreviewWizardPage projectPreviewPage;
+    private GradleWelcomeWizardPage welcomeWizardPage;
+    private GradleProjectWizardPage gradleProjectPage;
+    private GradleOptionsWizardPage gradleOptionsPage;
+    private ProjectPreviewWizardPage projectPreviewPage;
 
     // the controller that contains the wizard logic
     private final ProjectImportWizardController controller;
 
     // state bit storing that the wizard is blocked to finish globally
     private boolean finishGloballyEnabled;
+
+    private PublishedGradleVersions publishedGradleVersions;
 
     /**
      * Creates a new instance and uses the {@link org.eclipse.jface.dialogs.DialogSettings} from {@link org.eclipse.buildship.ui.UiPlugin} and the
@@ -86,26 +88,13 @@ public final class ProjectImportWizard extends Wizard implements IImportWizard, 
      * @param publishedGradleVersions the published Gradle versions
      */
     public ProjectImportWizard(IDialogSettings dialogSettings, PublishedGradleVersions publishedGradleVersions) {
+        this.publishedGradleVersions = Preconditions.checkNotNull(publishedGradleVersions);
         // store the dialog settings on the wizard and use them to retrieve / persist the most
         // recent values entered by the user
         setDialogSettings(dialogSettings);
 
         // instantiate the controller for this wizard
         this.controller = new ProjectImportWizardController(this);
-
-        // instantiate the pages and pass the configuration object that serves as the data model of the wizard
-        final ProjectImportConfiguration configuration = this.controller.getConfiguration();
-        this.welcomeWizardPage = new GradleWelcomeWizardPage(configuration);
-        this.gradleProjectPage = new GradleProjectWizardPage(configuration);
-        this.gradleOptionsPage = new GradleOptionsWizardPage(configuration, publishedGradleVersions);
-        this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller.getConfiguration(), new ProjectPreviewWizardPage.ProjectPreviewLoader() {
-            @Override
-            public Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler, List<ProgressListener> listeners) {
-                ProjectPreviewJob projectPreviewJob = new ProjectPreviewJob(configuration, listeners, AsyncHandler.NO_OP, resultHandler);
-                projectPreviewJob.schedule();
-                return projectPreviewJob;
-            }
-        });
 
         // the wizard must not be finishable unless this global flag is enabled
         this.finishGloballyEnabled = true;
@@ -127,12 +116,29 @@ public final class ProjectImportWizard extends Wizard implements IImportWizard, 
 
     @Override
     public void addPages() {
-        // assign wizard pages to this wizard
+        // instantiate the pages and pass the configuration object that serves
+        // as the data model of the wizard
+        final ProjectImportConfiguration configuration = this.controller.getConfiguration();
+        this.welcomeWizardPage = new GradleWelcomeWizardPage(configuration);
         if (isShowWelcomePage()) {
             addPage(this.welcomeWizardPage);
         }
+        this.gradleProjectPage = new GradleProjectWizardPage(configuration);
         addPage(this.gradleProjectPage);
+        this.gradleOptionsPage = new GradleOptionsWizardPage(configuration, this.publishedGradleVersions);
         addPage(this.gradleOptionsPage);
+        this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller.getConfiguration(),
+                new ProjectPreviewWizardPage.ProjectPreviewLoader() {
+                    @Override
+                    public Job loadPreview(
+                            FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler,
+                            List<ProgressListener> listeners) {
+                        ProjectPreviewJob projectPreviewJob = new ProjectPreviewJob(configuration, listeners,
+                                AsyncHandler.NO_OP, resultHandler);
+                        projectPreviewJob.schedule();
+                        return projectPreviewJob;
+                    }
+                });
         addPage(this.projectPreviewPage);
 
         // show progress bar when getContainer().run() is called

@@ -9,17 +9,19 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.wizard.project;
+package org.eclipse.buildship.ui.external.widget;
 
 import java.util.List;
 
 import org.eclipse.ui.IWorkingSet;
 
+
 /**
- * A {@link WorkingSetChangedListener} gets informed when the selected {@link IWorkingSet} instances
- * of the {@link WorkingSetConfigurationWidget} change.
+ * A {@link WorkingSetChangedListener} gets informed when the selected
+ * {@link org.eclipse.ui.IWorkingSet} instances of the
+ * {@link WorkingSetConfigurationBlock} change.
  *
- * @see WorkingSetConfigurationWidget
+ * @see WorkingSetConfigurationBlock
  */
 public interface WorkingSetChangedListener {
 
