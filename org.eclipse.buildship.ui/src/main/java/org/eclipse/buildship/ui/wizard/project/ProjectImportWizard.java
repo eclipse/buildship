@@ -13,17 +13,16 @@ package org.eclipse.buildship.ui.wizard.project;
 
 import java.util.List;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
-import com.gradleware.tooling.toolingmodel.util.Pair;
-import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
-import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
-import org.eclipse.buildship.core.util.progress.AsyncHandler;
-import org.eclipse.core.runtime.jobs.Job;
 import org.gradle.tooling.ProgressListener;
 import org.osgi.service.prefs.BackingStoreException;
 
+import com.google.common.util.concurrent.FutureCallback;
+
+import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
+import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
+import com.gradleware.tooling.toolingmodel.util.Pair;
+
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -34,7 +33,10 @@ import org.eclipse.ui.IWorkbench;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
+import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
@@ -71,7 +73,7 @@ public final class ProjectImportWizard extends Wizard implements IImportWizard, 
 
     /**
      * Creates a new instance and uses the {@link org.eclipse.jface.dialogs.DialogSettings} from {@link org.eclipse.buildship.ui.UiPlugin} and the
-     * {@link PublishedGradleVersions} from the {@link CorePlugin}.
+     * {@link com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions} from the {@link CorePlugin}.
      */
     @SuppressWarnings("UnusedDeclaration")
     public ProjectImportWizard() {
@@ -80,12 +82,12 @@ public final class ProjectImportWizard extends Wizard implements IImportWizard, 
 
     /**
      * Creates a new instance and uses the given {@link org.eclipse.jface.dialogs.DialogSettings} and
-     * {@link PublishedGradleVersions}.
+     * {@link com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions}.
      *
      * @param dialogSettings the dialog settings to store/retrieve dialog preferences
      * @param publishedGradleVersions the published Gradle versions
      */
-    public ProjectImportWizard(IDialogSettings dialogSettings, PublishedGradleVersions publishedGradleVersions) {
+    public ProjectImportWizard(IDialogSettings dialogSettings, PublishedGradleVersionsWrapper publishedGradleVersions) {
         // store the dialog settings on the wizard and use them to retrieve / persist the most
         // recent values entered by the user
         setDialogSettings(dialogSettings);

@@ -13,7 +13,6 @@ package org.eclipse.buildship.ui.launch;
 
 import java.util.List;
 
-import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Function;
@@ -23,7 +22,6 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingutils.binding.Validator;
-import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
 
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -46,13 +44,15 @@ import org.eclipse.swt.widgets.Text;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.PublishedGradleVersionsWrapper;
+import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType;
-import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.selection.Enabler;
@@ -67,7 +67,7 @@ public final class GradleDistributionTab extends AbstractLaunchConfigurationTab 
     private final Font defaultFont;
     private final UiBuilder.UiBuilderFactory builderFactory;
     private final Validator<GradleDistributionWrapper> gradleDistributionValidator;
-    private final PublishedGradleVersions publishedGradleVersions;
+    private final PublishedGradleVersionsWrapper publishedGradleVersions;
 
     private Text localInstallationDirText;
     private Text remoteDistributionUriText;
