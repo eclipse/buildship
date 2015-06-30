@@ -24,7 +24,6 @@ import com.gradleware.tooling.toolingclient.ToolingClient;
 import com.gradleware.tooling.toolingmodel.repository.Environment;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProviderFactory;
-import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
 
 import org.eclipse.core.runtime.Plugin;
 
@@ -110,7 +109,7 @@ public final class CorePlugin extends Plugin {
 
         // initialize service trackers before the services are created
         this.loggerServiceTracker = createServiceTracker(context, Logger.class);
-        this.publishedGradleVersionsServiceTracker = createServiceTracker(context, PublishedGradleVersions.class);
+        this.publishedGradleVersionsServiceTracker = createServiceTracker(context, PublishedGradleVersionsWrapper.class);
         this.toolingClientServiceTracker = createServiceTracker(context, ToolingClient.class);
         this.modelRepositoryProviderServiceTracker = createServiceTracker(context, ModelRepositoryProvider.class);
         this.workspaceOperationsServiceTracker = createServiceTracker(context, WorkspaceOperations.class);
@@ -122,7 +121,7 @@ public final class CorePlugin extends Plugin {
 
         // register all services
         this.loggerService = registerService(context, Logger.class, createLogger(), preferences);
-        this.publishedGradleVersionsService = registerService(context, PublishedGradleVersions.class, createPublishedGradleVersions(), preferences);
+        this.publishedGradleVersionsService = registerService(context, PublishedGradleVersionsWrapper.class, createPublishedGradleVersions(), preferences);
         this.toolingClientService = registerService(context, ToolingClient.class, createToolingClient(), preferences);
         this.modelRepositoryProviderService = registerService(context, ModelRepositoryProvider.class, createModelRepositoryProvider(), preferences);
         this.workspaceOperationsService = registerService(context, WorkspaceOperations.class, createWorkspaceOperations(), preferences);
@@ -147,8 +146,8 @@ public final class CorePlugin extends Plugin {
         return new EclipseLogger(getLog(), PLUGIN_ID);
     }
 
-    private PublishedGradleVersions createPublishedGradleVersions() {
-        return PublishedGradleVersions.create(true);
+    private PublishedGradleVersionsWrapper createPublishedGradleVersions() {
+        return new PublishedGradleVersionsWrapper();
     }
 
     private ToolingClient createToolingClient() {
@@ -217,8 +216,8 @@ public final class CorePlugin extends Plugin {
         return (Logger) getInstance().loggerServiceTracker.getService();
     }
 
-    public static PublishedGradleVersions publishedGradleVersions() {
-        return (PublishedGradleVersions) getInstance().publishedGradleVersionsServiceTracker.getService();
+    public static PublishedGradleVersionsWrapper publishedGradleVersions() {
+        return (PublishedGradleVersionsWrapper) getInstance().publishedGradleVersionsServiceTracker.getService();
     }
 
     public static ToolingClient toolingClient() {

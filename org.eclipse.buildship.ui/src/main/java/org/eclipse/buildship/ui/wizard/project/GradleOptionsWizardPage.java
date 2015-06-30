@@ -14,15 +14,12 @@ package org.eclipse.buildship.ui.wizard.project;
 import java.io.File;
 import java.util.List;
 
-import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-
-import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -38,11 +35,13 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType;
+import org.eclipse.buildship.core.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType;
+import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.layout.LayoutUtils;
 import org.eclipse.buildship.ui.util.selection.Enabler;
@@ -53,7 +52,7 @@ import org.eclipse.buildship.ui.util.widget.UiBuilder;
  */
 public final class GradleOptionsWizardPage extends AbstractWizardPage {
 
-    private final PublishedGradleVersions publishedGradleVersions;
+    private final PublishedGradleVersionsWrapper publishedGradleVersions;
 
     // widgets in the Gradle distribution group
     private Text localInstallationDirText;
@@ -70,7 +69,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
     private Text jvmArgumentsText;
     private Text programArgumentsText;
 
-    public GradleOptionsWizardPage(ProjectImportConfiguration configuration, PublishedGradleVersions publishedGradleVersions) {
+    public GradleOptionsWizardPage(ProjectImportConfiguration configuration, PublishedGradleVersionsWrapper publishedGradleVersions) {
         super("GradleOptions", ProjectWizardMessages.Title_GradleOptionsWizardPage, ProjectWizardMessages.InfoMessage_GradleOptionsWizardPageDefault, //$NON-NLS-1$
                 configuration, ImmutableList.of(configuration.getGradleDistribution(), configuration.getJavaHome(), configuration.getGradleUserHome(), configuration.getJvmArguments(), configuration.getArguments()));
         this.publishedGradleVersions = publishedGradleVersions;
