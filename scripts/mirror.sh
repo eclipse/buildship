@@ -61,6 +61,7 @@ mirror http://download.eclipse.org/eclipse/updates/3.7/R-3.7.2-201202080800 rele
 mirror http://download.eclipse.org/eclipse/updates/4.2/R-4.2.2-201302041200 release-juno-sr2
 mirror http://download.eclipse.org/eclipse/updates/4.3/R-4.3.2-201402211700 release-kepler-sr2
 mirror http://download.eclipse.org/eclipse/updates/4.4/R-4.4.2-201502041700 release-luna-sr2
-mirror http://download.eclipse.org/eclipse/updates/4.5milestones/S-4.5RC3-201505280700 release-mars-rc3
+mirror http://download.eclipse.org/eclipse/updates/4.5/R-4.5-201506032000 release-mars
 mirror http://download.eclipse.org/technology/swtbot/releases/2.2.1 swtbot/release
 mirror http://download.eclipse.org/technology/swtbot/helios/dev-build/update-site swtbot/helios-dev
+mirror http://download.eclipse.org/tools/orbit/downloads/drops/R20150519210750/repository orbit-mars

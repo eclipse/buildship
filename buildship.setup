@@ -27,7 +27,7 @@
     <repository
         url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.5"/>
     <repository
-        url="http://download.eclipse.org/buildship/updates/snapshots/${buildship.latest.version}"/>
+        url="http://download.eclipse.org/buildship/updates/e45/snapshots/${buildship.latest.version}"/>
     <description>Installs the required plugins to the IDE.</description>
   </setupTask>
   <setupTask
@@ -273,78 +273,66 @@
       <repositoryList
           name="Mars">
         <repository
-            url="http://download.eclipse.org/eclipse/updates/4.5milestones/S-4.5M6-201503200800"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-mars"/>
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-mars-m6"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20150316021154/repository/"/>
-        <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
         <repository
             url="http://download.eclipse.org/buildship/orbit-staging"/>
       </repositoryList>
       <repositoryList
           name="Luna">
         <repository
-            url="http://download.eclipse.org/eclipse/updates/4.4/R-4.4.2-201502041700"/>
-        <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-luna-sr2"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20150316021154/repository/"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
         <repository
             url="http://download.eclipse.org/buildship/orbit-staging"/>
       </repositoryList>
       <repositoryList
           name="Kepler">
         <repository
-            url="http://download.eclipse.org/eclipse/updates/4.3/R-4.3.2-201402211700"/>
-        <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-kepler-sr2"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20150316021154/repository/"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
         <repository
             url="http://download.eclipse.org/buildship/orbit-staging"/>
       </repositoryList>
       <repositoryList
           name="Juno">
         <repository
-            url="http://download.eclipse.org/eclipse/updates/4.2/R-4.2.2-201302041200"/>
-        <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-juno-sr2"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20150316021154/repository/"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
         <repository
             url="http://download.eclipse.org/buildship/orbit-staging"/>
       </repositoryList>
       <repositoryList
           name="Indigo">
         <repository
-            url="http://download.eclipse.org/eclipse/updates/3.7/R-3.7.2-201202080800"/>
-        <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-indigo-sr2"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20150316021154/repository/"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
         <repository
             url="http://download.eclipse.org/buildship/orbit-staging"/>
       </repositoryList>
       <repositoryList
           name="Helios">
         <repository
-            url="http://download.eclipse.org/eclipse/updates/3.6/R-3.6.2-201102101200"/>
-        <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/release-helios-sr2"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20150316021154/repository/"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars-m6/"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
         <repository
             url="http://download.eclipse.org/buildship/orbit-staging"/>
       </repositoryList>
@@ -361,68 +349,44 @@
       <repositoryList
           name="Mars">
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit"/>
-        <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20140917154621/repository"/>
-        <repository
-            url="http://download.eclipse.org/technology/swtbot/releases/latest"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
       </repositoryList>
       <repositoryList
           name="Luna">
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit"/>
-        <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20140917154621/repository"/>
-        <repository
-            url="http://download.eclipse.org/technology/swtbot/releases/latest"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
       </repositoryList>
       <repositoryList
           name="Kepler">
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit"/>
-        <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20140917154621/repository"/>
-        <repository
-            url="http://download.eclipse.org/technology/swtbot/releases/latest"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
       </repositoryList>
       <repositoryList
           name="Juno">
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit"/>
-        <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20140917154621/repository"/>
-        <repository
-            url="http://download.eclipse.org/technology/swtbot/releases/latest"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
       </repositoryList>
       <repositoryList
           name="Indigo">
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit"/>
-        <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20140917154621/repository"/>
-        <repository
-            url="http://download.eclipse.org/technology/swtbot/releases/latest"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
       </repositoryList>
       <repositoryList
           name="Helios">
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit"/>
-        <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://download.eclipse.org/tools/orbit/downloads/drops/S20140917154621/repository"/>
-        <repository
-            url="http://download.eclipse.org/technology/swtbot/releases/latest"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
       </repositoryList>
     </targlet>
     <targlet

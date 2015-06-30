@@ -89,8 +89,10 @@ class ProjectImportJobTest extends Specification {
 
         then:
         def filters = CorePlugin.workspaceOperations().findProjectByName(rootProject.name).get().getFilters()
-        filters.length == 1
-        filters[0].fileInfoMatcherDescription.arguments.arguments == ['subproject', 'build', '.gradle',]
+        filters.length == 3
+        (filters[0].fileInfoMatcherDescription.arguments as String).endsWith('subproject')
+        (filters[1].fileInfoMatcherDescription.arguments as String).endsWith('build')
+        (filters[2].fileInfoMatcherDescription.arguments as String).endsWith('.gradle')
     }
 
     def "Importing a project twice won't result in duplicate filters"() {
@@ -109,8 +111,10 @@ class ProjectImportJobTest extends Specification {
 
         then:
         def filters = CorePlugin.workspaceOperations().findProjectByName(rootProject.name).get().getFilters()
-        filters.length == 1
-        filters[0].fileInfoMatcherDescription.arguments.arguments == ['subproject', 'build', '.gradle']
+        filters.length == 3
+        (filters[0].fileInfoMatcherDescription.arguments as String).endsWith('subproject')
+        (filters[1].fileInfoMatcherDescription.arguments as String).endsWith('build')
+        (filters[2].fileInfoMatcherDescription.arguments as String).endsWith('.gradle')
     }
 
     def newProject(boolean projectDescriptorExists, boolean applyJavaPlugin) {
