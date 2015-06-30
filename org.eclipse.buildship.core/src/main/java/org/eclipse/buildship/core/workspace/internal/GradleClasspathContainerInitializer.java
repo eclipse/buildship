@@ -1,4 +1,4 @@
-/*
+    /*
  * Copyright (c) 2015 the original author or authors.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
+import com.gradleware.tooling.toolingmodel.OmniEclipseLinkedResource;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
@@ -40,6 +41,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -121,7 +123,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         Optional<OmniEclipseProject> eclipseProject = findEclipseProject(project.getProject(), fetchStrategy);
         if (eclipseProject.isPresent()) {
             // update source folders
-            List<IClasspathEntry> sourceFolders = collectSourceFolders(eclipseProject.get(), project);
+            List<IClasspathEntry> sourceFolders = collectSourceFolders(eclipseProject.get(), project, new SubProgressMonitor(monitor, 20));
             updateSourceFoldersInClasspath(sourceFolders, project, new SubProgressMonitor(monitor, 25));
 
             // update project/external dependencies
@@ -152,13 +154,29 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         return repository.fetchEclipseGradleBuild(transientAttributes, fetchStrategy);
     }
 
-    private List<IClasspathEntry> collectSourceFolders(OmniEclipseProject gradleProject, final IJavaProject workspaceProject) {
+    private List<IClasspathEntry> collectSourceFolders(final OmniEclipseProject gradleProject, final IJavaProject workspaceProject, final IProgressMonitor monitor) {
         return FluentIterable.from(gradleProject.getSourceDirectories()).transform(new Function<OmniEclipseSourceDirectory, IClasspathEntry>() {
 
             @Override
             public IClasspathEntry apply(OmniEclipseSourceDirectory directory) {
                 IFolder sourceDirectory = workspaceProject.getProject().getFolder(Path.fromOSString(directory.getPath()));
-                FileUtils.ensureFolderHierarchyExists(sourceDirectory);
+
+                boolean linked = false;
+                for (OmniEclipseLinkedResource linkedResource : gradleProject.getLinkedResources()) {
+                    if (sourceDirectory.getName().equals(linkedResource.getName())) {
+                        linked = true;
+                        try {
+                            sourceDirectory.createLink(new Path(linkedResource.getLocation()), Integer.parseInt(linkedResource.getType()), monitor);
+                        } catch (NumberFormatException e) {
+                            throw new GradlePluginsRuntimeException(String.format("Failed to parse linked source type %s", linkedResource.getType()), e);
+                        } catch (CoreException e) {
+                            throw new GradlePluginsRuntimeException(String.format("Failed to create linked source folder %s", sourceDirectory.getName()), e);
+                        }
+                    }
+                }
+                if (!linked) {
+                    FileUtils.ensureFolderHierarchyExists(sourceDirectory);
+                }
                 IPackageFragmentRoot root = workspaceProject.getPackageFragmentRoot(sourceDirectory);
                 IClasspathAttribute fromGradleModel = JavaCore.newClasspathAttribute(CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL, "true");
                 // @formatter:off
