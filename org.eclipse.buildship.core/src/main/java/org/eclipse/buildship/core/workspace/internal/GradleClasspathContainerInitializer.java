@@ -24,6 +24,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
@@ -153,7 +154,8 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
     }
 
     private List<IClasspathEntry> collectSourceFolders(OmniEclipseProject gradleProject, final IJavaProject workspaceProject) {
-        return FluentIterable.from(gradleProject.getSourceDirectories()).transform(new Function<OmniEclipseSourceDirectory, IClasspathEntry>() {
+        // collect source folders
+        List<IClasspathEntry> sourceFolders = FluentIterable.from(gradleProject.getSourceDirectories()).transform(new Function<OmniEclipseSourceDirectory, IClasspathEntry>() {
 
             @Override
             public IClasspathEntry apply(OmniEclipseSourceDirectory directory) {
@@ -163,14 +165,17 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
                 IClasspathAttribute fromGradleModel = JavaCore.newClasspathAttribute(CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL, "true");
                 // @formatter:off
                 return JavaCore.newSourceEntry(root.getPath(),
-                        new IPath[] {},                               // include all files
-                        new IPath[] {},                               // don't exclude anything
-                        null,                                         // use the same output folder as defined on the project
-                        new IClasspathAttribute[] { fromGradleModel } // the source folder is loaded from the current Gradle model
-                    );
+                        new IPath[]{},                               // include all files
+                        new IPath[]{},                               // don't exclude anything
+                        null,                                        // use the same output folder as defined on the project
+                        new IClasspathAttribute[]{fromGradleModel}   // the source folder is loaded from the current Gradle model
+                );
                 // @formatter:on
             }
         }).toList();
+
+        // remove duplicate source folders since JDT (IJavaProject#setRawClasspath) does not allow duplicate source folders
+        return ImmutableSet.copyOf(sourceFolders).asList();
     }
 
     private void updateSourceFoldersInClasspath(List<IClasspathEntry> gradleModelSourceFolders, IJavaProject project, IProgressMonitor monitor) throws JavaModelException {
