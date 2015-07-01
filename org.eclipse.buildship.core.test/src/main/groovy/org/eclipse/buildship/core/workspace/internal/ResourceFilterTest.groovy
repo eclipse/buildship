@@ -34,7 +34,7 @@ class ResourceFilterTest extends Specification {
         CorePlugin.workspaceOperations().deleteAllProjects(null)
     }
 
-    def "Can define resource filters on the project"() {
+    def "Define resource filter on the project"() {
         given:
         projectFolder('filtered')
         projectFolder('unfiltered')
@@ -53,7 +53,7 @@ class ResourceFilterTest extends Specification {
         workspace().validateFiltered(project.getFolder('unfiltered')).isOK()
     }
 
-    def "Resource filter can be defined on subfolders"() {
+    def "Define resource filter on a subfolder"() {
         given:
         projectFolder('basefolder/subfolder')
 
@@ -69,15 +69,7 @@ class ResourceFilterTest extends Specification {
         !workspace().validateFiltered(project.getFolder('basefolder/subfolder')).isOK()
     }
 
-    def "Non-child locations are ignored"() {
-        given:
-        ResourceFilter.attachFilters(project, [tempFolder.newFolder('siblingproject')], null)
-
-        expect:
-        project.getFilters().length == 0
-    }
-
-    def "Resource filter on direct child folder doesn't hide anything in inner folder structure"() {
+    def "Defining resource filter on direct child folder does not hide anything in inner folder structure"() {
         given:
         projectFolder('pkg')
         projectFolder('src/main/java/pkg')
@@ -90,7 +82,16 @@ class ResourceFilterTest extends Specification {
         workspace().validateFiltered(project.getFolder('src/main/java/pkg')).isOK()
     }
 
-    def "Defining new resource filter preserves the previously defined ones"() {
+    def "Defining resource filter on non-child location is ignored"() {
+        given:
+        ResourceFilter.attachFilters(project, [tempFolder.newFolder('siblingproject')], null)
+
+        expect:
+        project.getFilters().length == 0
+    }
+
+
+    def "Defining new resource filter preserves the previously defined resource filters"() {
         given:
         projectFolder('alpha')
         projectFolder('beta')
@@ -111,7 +112,7 @@ class ResourceFilterTest extends Specification {
         (project.getFilters()[1].getFileInfoMatcherDescription().getArguments() as String).endsWith('beta')
     }
 
-    def "Resource filter definition is idempotent"() {
+    def "Defining new resource filter is idempotent"() {
         given:
         projectFolder('alpha')
 
