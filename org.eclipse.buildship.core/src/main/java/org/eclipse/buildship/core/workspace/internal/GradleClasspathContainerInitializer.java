@@ -98,8 +98,8 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         scheduleClasspathInitialization(containerPath, project, FetchStrategy.FORCE_RELOAD);
     }
 
-    private void scheduleClasspathInitialization(final IPath containerPath, final IJavaProject javaProject, final FetchStrategy fetchStrategy) {
-        new ToolingApiWorkspaceJob("Initialize Gradle classpath for project '" + javaProject.getElementName() + "'") {
+    private Job scheduleClasspathInitialization(final IPath containerPath, final IJavaProject javaProject, final FetchStrategy fetchStrategy) {
+        Job job = new ToolingApiWorkspaceJob("Initialize Gradle classpath for project '" + javaProject.getElementName() + "'") {
 
             @Override
             protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
@@ -115,7 +115,9 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
                     manager.endRule(workspaceRoot);
                 }
             }
-        }.schedule();
+        };
+        job.schedule();
+        return job;
     }
 
     private void internalInitialize(IPath containerPath, IJavaProject project, FetchStrategy fetchStrategy, IProgressMonitor monitor) throws JavaModelException {
