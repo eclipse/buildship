@@ -28,7 +28,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.SubProgressMonitor;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
@@ -75,13 +74,11 @@ final class ResourceFilter {
 
     private static String createMultiFilterArgument(String relativeLocation) {
         return "1.0-projectRelativePath-matches-false-false-" + relativeLocation; //$NON-NLS-1$
-
     }
 
     private static void setExclusionFilters(IProject project, List<FileInfoMatcherDescription> matchers, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Set resource filters for project %s", project), 2 + matchers.size()); //$NON-NLS-1$
+        monitor.beginTask(String.format("Set resource filters for project %s", project), IProgressMonitor.UNKNOWN); //$NON-NLS-1$
         try {
-
             // retrieve already defined filters
             final IResourceFilterDescription[] existingFilters;
             try {
@@ -91,7 +88,7 @@ final class ResourceFilter {
                 throw new GradlePluginsRuntimeException(message, e);
             }
 
-            // filter the 'filters' list such that it doesn't contain already existing elements
+            // filter the matchers by removing all matchers for which there is already a filter defined on the project
             ImmutableList<FileInfoMatcherDescription> newMatchers = FluentIterable.from(matchers).filter(new Predicate<FileInfoMatcherDescription>() {
 
                 @Override
@@ -105,12 +102,12 @@ final class ResourceFilter {
                 }
             }).toList();
 
-            // assign the new resource filters to the project
+            // create new filters for the new matchers and assign them to the project
             if (!matchers.isEmpty()) {
                 try {
                     int type = IResourceFilterDescription.EXCLUDE_ALL | IResourceFilterDescription.FOLDERS | IResourceFilterDescription.INHERITABLE;
                     for (FileInfoMatcherDescription matcher : newMatchers) {
-                        project.createFilter(type, matcher, IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1));
+                        project.createFilter(type, matcher, IResource.BACKGROUND_REFRESH, new NullProgressMonitor());
                     }
                 } catch (CoreException e) {
                     String message = String.format("Cannot create new resource filters for project %s.", project); //$NON-NLS-1$
