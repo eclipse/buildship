@@ -1,9 +1,16 @@
 # Frequently Asked Questions
 
-### Q. Importing my project with Buildship downloads a Gradle distribution, even though it was already downloaded previously, when built with the wrapper from the command line. Does Buildship use a different cache?
+### Q. Importing my Gradle project with Buildship downloads a Gradle distribution, even though the distribution was already downloaded previously when building the project with the Gradle Wrapper from the command line. Does Buildship use a different Gradle distribution cache?
 
-__A.__ No, if the Gradle wrapper is specified during the import, then Buildship uses the same cache as the command line. However, depending on which Gradle version is used, there might be some differences. The wrapper contains an archive called `gradle-wrapper.jar` which is created along with `gradlew`. Buildship uses the latest version of it. The wrapper script on the other hand has the version from its generator Gradle version.
+__A.__ No, if the Gradle Wrapper is specified during the import, then Buildship uses the same Gradle distribution cache as
+the command line. However, depending on which target Gradle version is used, there might be some differences. The wrapper
+contains an archive called `gradle-wrapper.jar` which is created along with `gradlew`. Buildship uses the latest version
+of the archive. The wrapper script on the other hand has the version of Gradle with which the script was generated.
 
-This archive contains - amongst others - the location calculation where to download the gradle distribution. [The calculation has changed in Gradle version 2.2](https://github.com/gradle/gradle/commit/2e6659547e71bb3fca1c952d823ec660433ab5d9). Consequently, Buildship won't find the previously downloaded Gradle version and fetches a new one.
+The `gradle-wrapper.jar` archive contains - amongst other things - the logic to calculate where to download the Gradle
+distribution from. The location calculation has [changed](https://github.com/gradle/gradle/commit/2e6659547e71bb3fca1c952d823ec660433ab5d9) in
+Gradle version 2.2. Consequently, Buildship does not find Gradle distributions that have been previously downloaded
+from the command line if the target Gradle version is <2.2 and downloads them again. Apart from this limitation, Buildship
+reuses cached Gradle distributions.
 
-Apart from this quirk Buildship reuses the caches and should operate as expected. If you are interested the discussion on this topic check out [this bugzilla](https://bugs.eclipse.org/bugs/show_bug.cgi?id=468466).
+If you are interested in the discussion of this topic, check out the issue in [Bugzilla](https://bugs.eclipse.org/bugs/show_bug.cgi?id=468466).
