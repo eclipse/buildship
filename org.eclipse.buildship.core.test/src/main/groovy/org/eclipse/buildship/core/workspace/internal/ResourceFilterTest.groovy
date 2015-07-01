@@ -1,12 +1,15 @@
 package org.eclipse.buildship.core.workspace.internal
 
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.util.file.FileUtils;
+
 import org.eclipse.core.filesystem.EFS
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IProjectDescription
 import org.eclipse.core.resources.IWorkspace
 import org.eclipse.core.runtime.NullProgressMonitor
+
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
@@ -131,21 +134,11 @@ class ResourceFilterTest extends Specification {
     }
 
     private def projectFolder(String path) {
-        createFolder(project.getFolder(path))
+        FileUtils.ensureFolderHierarchyExists(project.getFolder(path))
     }
 
     private static IWorkspace workspace() {
         LegacyEclipseSpockTestHelper.getWorkspace()
-    }
-
-    private static def createFolder(IFolder folder) {
-        if (!folder.exists()) {
-            def parent = folder.getParent()
-            if (parent instanceof IFolder) {
-                createFolder((IFolder) folder.getParent())
-            }
-            folder.create(false, false, null)
-        }
     }
 
     private static def toFile(IFolder folder) {
