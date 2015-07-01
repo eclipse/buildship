@@ -1,24 +1,15 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import spock.lang.Specification
-
+import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.core.filesystem.EFS
-import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IProjectDescription
-import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IWorkspace
-import org.eclipse.core.resources.ResourcesPlugin
-import org.eclipse.core.runtime.IPath
-import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.NullProgressMonitor
-import org.eclipse.core.runtime.Path
-import org.eclipse.core.runtime.SubProgressMonitor
-
-import org.eclipse.buildship.core.CorePlugin
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
+import spock.lang.Specification
 
 class ResourceFilterTest extends Specification {
 
@@ -29,9 +20,7 @@ class ResourceFilterTest extends Specification {
 
     def setup() {
         // create an empty sample project for all tests
-        File projectFolder = tempFolder.newFolder("project")
         IProjectDescription projectDescription = workspace().newProjectDescription("project")
-        Path locationPath = Path.fromOSString(projectFolder.getPath())
         project = workspace().getRoot().getProject("project")
         project.create(projectDescription, new NullProgressMonitor())
         project.open(new NullProgressMonitor())
@@ -141,12 +130,12 @@ class ResourceFilterTest extends Specification {
         (project.getFilters()[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('alpha')
     }
 
-    private static IWorkspace workspace() {
-        LegacyEclipseSpockTestHelper.getWorkspace()
-    }
-
     private def projectFolder(String path) {
         createFolder(project.getFolder(path))
+    }
+
+    private static IWorkspace workspace() {
+        LegacyEclipseSpockTestHelper.getWorkspace()
     }
 
     private static def createFolder(IFolder folder) {
@@ -163,4 +152,5 @@ class ResourceFilterTest extends Specification {
         def uri = folder.getLocationURI()
         EFS.getStore(uri).toLocalFile(0, new NullProgressMonitor())
     }
+
 }
