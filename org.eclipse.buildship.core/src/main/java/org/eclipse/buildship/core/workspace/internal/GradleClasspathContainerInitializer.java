@@ -154,6 +154,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
     }
 
     private List<IClasspathEntry> collectSourceFolders(OmniEclipseProject gradleProject, final IJavaProject workspaceProject) {
+        // collect source folders
         List<IClasspathEntry> sourceFolders = FluentIterable.from(gradleProject.getSourceDirectories()).transform(new Function<OmniEclipseSourceDirectory, IClasspathEntry>() {
 
             @Override
@@ -164,19 +165,16 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
                 IClasspathAttribute fromGradleModel = JavaCore.newClasspathAttribute(CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL, "true");
                 // @formatter:off
                 return JavaCore.newSourceEntry(root.getPath(),
-                        new IPath[] {},                               // include all files
-                        new IPath[] {},                               // don't exclude anything
-                        null,                                         // use the same output folder as defined on the project
-                        new IClasspathAttribute[] { fromGradleModel } // the source folder is loaded from the current Gradle model
-                    );
+                        new IPath[]{},                               // include all files
+                        new IPath[]{},                               // don't exclude anything
+                        null,                                        // use the same output folder as defined on the project
+                        new IClasspathAttribute[]{fromGradleModel}   // the source folder is loaded from the current Gradle model
+                );
                 // @formatter:on
             }
         }).toList();
 
-        return removeDuplicatesFromSourceFolders(sourceFolders);
-    }
-
-    private List<IClasspathEntry> removeDuplicatesFromSourceFolders(List<IClasspathEntry> sourceFolders) {
+        // remove duplicate source folders since JDT (IJavaProject#setRawClasspath) does not allow duplicate source folders
         return ImmutableSet.copyOf(sourceFolders).asList();
     }
 
