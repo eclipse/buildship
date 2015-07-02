@@ -2,11 +2,15 @@ package org.eclipse.buildship.core.projectimport
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
+import com.google.common.collect.ImmutableList
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectBuilder
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
+import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.core.resources.IWorkspaceRoot
+import org.eclipse.core.resources.ResourcesPlugin
 
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -115,6 +119,27 @@ class ProjectImportJobTest extends Specification {
         (filters[0].fileInfoMatcherDescription.arguments as String).endsWith('subproject')
         (filters[1].fileInfoMatcherDescription.arguments as String).endsWith('build')
         (filters[2].fileInfoMatcherDescription.arguments as String).endsWith('.gradle')
+    }
+
+    def "Can import deleted project located in default location"() {
+        setup:
+        def workspaceRootLocation = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString()
+        def root = new File(workspaceRootLocation)
+        def workspaceOperations = CorePlugin.workspaceOperations()
+
+        def project = workspaceOperations.createProject("projectname", root, ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
+        project.delete(false, true, new NullProgressMonitor())
+        ProjectImportJob job = newProjectImportJob(new File(workspaceRootLocation, "projectname"))
+
+        when:
+        job.schedule()
+        job.join()
+
+        then:
+        workspaceOperations.allProjects.size() == 1
+
+        cleanup:
+        project.delete(true, true, new NullProgressMonitor())
     }
 
     def newProject(boolean projectDescriptorExists, boolean applyJavaPlugin) {

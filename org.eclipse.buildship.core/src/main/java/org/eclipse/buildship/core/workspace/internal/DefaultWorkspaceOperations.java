@@ -65,6 +65,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
     @Override
     public Optional<IProjectDescription> findProjectInFolder(File location, IProgressMonitor monitor) {
+        IWorkspace workspace = ResourcesPlugin.getWorkspace();
+
         if (location == null || !location.exists()) {
             return Optional.absent();
         }
@@ -77,7 +79,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         try {
             FileInputStream dotProjectStream = new FileInputStream(dotProjectFile);
             IProjectDescription description = ResourcesPlugin.getWorkspace().loadProjectDescription(dotProjectStream);
-            description.setLocation(Path.fromOSString(location.getPath()));
+            setProjectDescriptionLocationURI(description, location, workspace);
             return Optional.of(description);
         } catch (Exception e) {
             String message = String.format("Cannot open existing Eclipse project from %s.", dotProjectFile.getAbsolutePath());
@@ -127,13 +129,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             // get an IProject instance and create the project
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
             IProjectDescription projectDescription = workspace.newProjectDescription(name);
-            IPath locationPath = Path.fromOSString(location.getPath());
-            IPath rootLocationPath = workspace.getRoot().getLocation();
-            if (rootLocationPath.equals(locationPath) || rootLocationPath.equals(locationPath.removeLastSegments(1))) {
-                // in Eclipse <4.4, the LocationValidator throws an exception in some scenarios
-                locationPath = null;
-            }
-            projectDescription.setLocation(locationPath);
+            setProjectDescriptionLocationURI(projectDescription, location, workspace);
             projectDescription.setComment(String.format("Project %s created by Buildship.", name));
             IProject project = workspace.getRoot().getProject(name);
             project.create(projectDescription, new SubProgressMonitor(monitor, 1));
@@ -318,6 +314,17 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         } finally {
             monitor.done();
         }
+    }
+
+    public void setProjectDescriptionLocationURI(IProjectDescription projectDescription, File location, IWorkspace workspace) {
+        IPath locationPath = Path.fromOSString(location.getPath());
+        IPath rootLocationPath = workspace.getRoot().getLocation();
+        if (rootLocationPath.equals(locationPath) || rootLocationPath.equals(locationPath.removeLastSegments(1))) {
+            // in Eclipse <4.4, the LocationValidator throws an exception in some scenarios
+            locationPath = null;
+        }
+
+        projectDescription.setLocation(locationPath);
     }
 
 }
