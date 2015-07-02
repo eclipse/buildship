@@ -42,15 +42,15 @@ public final class SourceFolderUpdater {
 
     private static final String CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL = "FROM_GRADLE_MODEL";
 
-    private IJavaProject project;
-    private List<OmniEclipseSourceDirectory> sourceFolders;
+    private final IJavaProject project;
+    private final List<OmniEclipseSourceDirectory> sourceFolders;
 
-    public SourceFolderUpdater(IJavaProject project, List<OmniEclipseSourceDirectory> sourceFolders) {
+    private SourceFolderUpdater(IJavaProject project, List<OmniEclipseSourceDirectory> sourceFolders) {
         this.project = Preconditions.checkNotNull(project);
         this.sourceFolders = Preconditions.checkNotNull(sourceFolders);
     }
 
-    public void update() throws JavaModelException {
+    private void updateClasspath() throws JavaModelException {
         List<IClasspathEntry> gradleSourceFolders = collectGradleSourceFolders();
         List<IClasspathEntry> newClasspathEntries = calculateNewClasspath(gradleSourceFolders);
         updateClasspath(newClasspathEntries);
@@ -121,13 +121,21 @@ public final class SourceFolderUpdater {
 
         // new classpath = current source folders from the Gradle model + the previous ones defined
         // manually
-        return ImmutableList.<IClasspathEntry> builder().addAll(gradleSourceFolders).addAll(manuallyAddedSourceFolders)
-                .build();
-
+        return ImmutableList.<IClasspathEntry> builder().addAll(gradleSourceFolders).addAll(manuallyAddedSourceFolders).build();
     }
 
     private void updateClasspath(List<IClasspathEntry> newClasspathEntries) throws JavaModelException {
         IClasspathEntry[] newRawClasspath = newClasspathEntries.toArray(new IClasspathEntry[newClasspathEntries.size()]);
         this.project.setRawClasspath(newRawClasspath, new NullProgressMonitor());
+    }
+
+    /**
+     * TODO (donat) add documentation.
+     * @param project
+     * @param sourceFolders
+     * @throws JavaModelException
+     */
+    public static void update(IJavaProject project, List<OmniEclipseSourceDirectory> sourceFolders) throws JavaModelException {
+        new SourceFolderUpdater(project, sourceFolders).updateClasspath();
     }
 }

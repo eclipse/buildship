@@ -44,13 +44,13 @@ public final class ClasspathContainerUpdater {
     private final OmniEclipseProject gradleProject;
     private final IPath classpathContainerPath;
 
-    public ClasspathContainerUpdater(IJavaProject eclipseProject, OmniEclipseProject gradleProject, IPath classpathContainerPath) {
+    private ClasspathContainerUpdater(IJavaProject eclipseProject, OmniEclipseProject gradleProject, IPath classpathContainerPath) {
         this.eclipseProject = Preconditions.checkNotNull(eclipseProject);
         this.gradleProject = Preconditions.checkNotNull(gradleProject);
         this.classpathContainerPath = Preconditions.checkNotNull(classpathContainerPath);
     }
 
-    public void update() throws JavaModelException {
+    private void updateClasspathContainer() throws JavaModelException {
         ImmutableList<IClasspathEntry> containerEntries = collectClasspathContainerEntries();
         setClasspathContainer(containerEntries);
     }
@@ -97,5 +97,9 @@ public final class ClasspathContainerUpdater {
         IClasspathContainer classpathContainer = new GradleClasspathContainer("Project and External Dependencies", this.classpathContainerPath, classpathEntries);
         JavaCore.setClasspathContainer(this.classpathContainerPath, new IJavaProject[] { this.eclipseProject }, new IClasspathContainer[] {
                 classpathContainer }, new NullProgressMonitor());
+    }
+
+    public static void update(IJavaProject eclipseProject, OmniEclipseProject gradleProject, IPath classpathContainerPath) throws JavaModelException {
+        new ClasspathContainerUpdater(eclipseProject, gradleProject, classpathContainerPath).updateClasspathContainer();
     }
 }

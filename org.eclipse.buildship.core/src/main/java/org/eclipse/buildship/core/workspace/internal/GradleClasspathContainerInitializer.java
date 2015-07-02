@@ -107,11 +107,10 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         Optional<OmniEclipseProject> eclipseProject = findEclipseProject(project.getProject(), fetchStrategy);
         if (eclipseProject.isPresent()) {
             // update source folders
-            new SourceFolderUpdater(project, eclipseProject.get().getSourceDirectories()).update();
+            SourceFolderUpdater.update(project, eclipseProject.get().getSourceDirectories());
 
             // update project/external dependencies
-            new ClasspathContainerUpdater(project, eclipseProject.get(), new org.eclipse.core.runtime.Path(ClasspathDefinition.GRADLE_CLASSPATH_CONTAINER_ID))
-                    .update();
+            ClasspathContainerUpdater.update(project, eclipseProject.get(), new org.eclipse.core.runtime.Path(ClasspathDefinition.GRADLE_CLASSPATH_CONTAINER_ID));
         } else {
             throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", project.getProject()));
         }
