@@ -33,7 +33,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.gradle.Specs;
-import org.eclipse.buildship.core.workspace.internal.GradleClasspathContainerInitializer.GradleClasspathContainer;
+import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
 /**
  * Updates the classpath container of the target project.
@@ -106,7 +106,7 @@ public final class ClasspathContainerUpdater {
     }
 
     private void setClasspathContainer(List<IClasspathEntry> classpathEntries) throws JavaModelException {
-        IClasspathContainer classpathContainer = new GradleClasspathContainer("Project and External Dependencies", this.classpathContainerPath, classpathEntries);
+        IClasspathContainer classpathContainer = GradleClasspathContainer.newInstance(classpathEntries);
         JavaCore.setClasspathContainer(this.classpathContainerPath, new IJavaProject[] { this.eclipseProject }, new IClasspathContainer[] {
                 classpathContainer }, new NullProgressMonitor());
     }

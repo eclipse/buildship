@@ -14,12 +14,11 @@ package org.eclipse.buildship.core.projectimport;
 import java.io.File;
 import java.util.List;
 
-import com.google.common.base.Preconditions;
-import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
@@ -31,7 +30,6 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
-import com.gradleware.tooling.toolingmodel.util.Pair;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -50,9 +48,9 @@ import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.projectimport.internal.DefaultProjectCreatedEvent;
+import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
-import org.eclipse.buildship.core.workspace.ClasspathDefinition;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 /**
@@ -144,9 +142,8 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
 
                 // if the current Gradle project is a Java project, configure the Java nature, the classpath, and the source paths
                 if (isJavaProject(project)) {
-                    IPath jre = JavaRuntime.getDefaultJREContainerEntry().getPath();
-                    ClasspathDefinition classpath = new ClasspathDefinition(ImmutableList.<Pair<IPath, IPath>> of(), ImmutableList.<IPath> of(), ImmutableList.<String> of(), jre);
-                    workspaceOperations.createJavaProject(workspaceProject, classpath, new SubProgressMonitor(monitor, 1));
+                    IPath jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath();
+                    workspaceOperations.createJavaProject(workspaceProject, jrePath, new SubProgressMonitor(monitor, 1));
                 } else {
                     monitor.worked(1);
                 }
