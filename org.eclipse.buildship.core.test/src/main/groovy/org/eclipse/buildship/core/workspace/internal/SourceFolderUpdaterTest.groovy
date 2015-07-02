@@ -92,6 +92,40 @@ class SourceFolderUpdaterTest extends Specification {
         project.rawClasspath[1].path.toPortableString() == "/project-name/src"
     }
 
+    def "Updating the sources keeps the order defined in the model"() {
+        given:
+        def project = javaProject('name' : 'project-name', 'model-source-folders' : [], 'manual-source-folders': [])
+        def newModelSourceFolders  = gradleSourceFolders(['c', 'a', 'b'])
+
+        when:
+        SourceFolderUpdater.update(project, newModelSourceFolders)
+
+        then:
+        project.rawClasspath.length == 3
+        project.rawClasspath[0].path.toPortableString().endsWith('c')
+        project.rawClasspath[1].path.toPortableString().endsWith('a')
+        project.rawClasspath[2].path.toPortableString().endsWith('b')
+    }
+
+    def "If the Gradle model contains a source folder which is was defined manually then the folder is transformed to a Gradle source folder" () {
+        given:
+        def project = javaProject('name' : 'project-name', 'model-source-folders' : [], 'manual-source-folders': ['src'])
+        def newModelSourceFolders  = gradleSourceFolders(['src'])
+
+        expect:
+        project.rawClasspath.length == 1
+        project.rawClasspath[0].path.toPortableString() == "/project-name/src"
+        project.rawClasspath[0].extraAttributes.length == 0
+
+        when:
+        SourceFolderUpdater.update(project, newModelSourceFolders)
+
+        then:
+        project.rawClasspath.length == 1
+        project.rawClasspath[0].path.toPortableString() == "/project-name/src"
+        project.rawClasspath[0].extraAttributes.length == 1
+        project.rawClasspath[0].extraAttributes[0].name == SourceFolderUpdater.CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL
+    }
 
     private List<OmniEclipseSourceDirectory> gradleSourceFolders(List<String> folderPaths) {
         folderPaths.collect { String folderPath ->
