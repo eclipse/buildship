@@ -23,7 +23,7 @@ import org.eclipse.buildship.core.configuration.ProjectConfiguration
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.IJavaProject
-import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.launching.JavaRuntime
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -34,7 +34,7 @@ import spock.lang.Specification
 class WorkspaceOperationsTest extends Specification {
 
     @Shared
-    WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations();
+    WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations()
 
     @Rule
     TemporaryFolder tempFolder
@@ -216,8 +216,8 @@ class WorkspaceOperationsTest extends Specification {
         def rootFolder = tempFolder.newFolder()
         IProject project = workspaceOperations.createProject("sample-project", rootFolder, ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
         def attributes = new FixedRequestAttributes(rootFolder, null, GradleDistribution.fromBuild(), null, ImmutableList.<String> of(), ImmutableList.<String> of())
-        ProjectConfiguration projectConfiguration = ProjectConfiguration.from(attributes, Path.from(':'), rootFolder);
-        CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, project);
+        ProjectConfiguration projectConfiguration = ProjectConfiguration.from(attributes, Path.from(':'), rootFolder)
+        CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, project)
         def jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath()
 
         when:

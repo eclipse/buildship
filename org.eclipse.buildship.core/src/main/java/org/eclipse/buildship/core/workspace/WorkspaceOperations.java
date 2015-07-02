@@ -100,7 +100,7 @@ public interface WorkspaceOperations {
      * Configures an existing {@link IProject} to be a {@link IJavaProject}.
      *
      * @param project the project to turn into a Java project
-     * @param jrePath the path to the Java Runtime to associate the project with
+     * @param jrePath the path of the Java runtime which will be added to the project
      * @param monitor the monitor to report progress on
      * @return the created Java project
      */
