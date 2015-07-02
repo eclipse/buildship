@@ -120,9 +120,6 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
             // update project/external dependencies
             ImmutableList<IClasspathEntry> dependencies = collectDependencies(eclipseProject.get());
             setClasspathContainer(dependencies, project, containerPath, new SubProgressMonitor(monitor, 25));
-
-            // save the updated project
-            project.save(new SubProgressMonitor(monitor, 25), true);
         } else {
             throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", project.getProject()));
         }
