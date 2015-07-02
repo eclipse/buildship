@@ -50,7 +50,7 @@ public final class ClasspathContainerUpdater {
         this.classpathContainerPath = Preconditions.checkNotNull(classpathContainerPath);
     }
 
-    public void updateClasspathContainer() throws JavaModelException {
+    public void update() throws JavaModelException {
         ImmutableList<IClasspathEntry> containerEntries = collectClasspathContainerEntries();
         setClasspathContainer(containerEntries);
     }

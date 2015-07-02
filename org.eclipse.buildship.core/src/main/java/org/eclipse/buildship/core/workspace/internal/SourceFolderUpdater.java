@@ -50,7 +50,7 @@ public final class SourceFolderUpdater {
         this.sourceFolders = Preconditions.checkNotNull(sourceFolders);
     }
 
-    public void updateClasspath() throws JavaModelException {
+    public void update() throws JavaModelException {
         List<IClasspathEntry> gradleSourceFolders = collectGradleSourceFolders();
         List<IClasspathEntry> newClasspathEntries = calculateNewClasspath(gradleSourceFolders);
         updateClasspath(newClasspathEntries);
