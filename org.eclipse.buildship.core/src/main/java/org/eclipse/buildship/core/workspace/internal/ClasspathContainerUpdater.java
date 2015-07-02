@@ -36,7 +36,19 @@ import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.workspace.internal.GradleClasspathContainerInitializer.GradleClasspathContainer;
 
 /**
- * TODO (donat) add documentation.
+ * Updates the classpath container of the target project.
+ * <p/>
+ * The execute the update call the static {@link #update(IJavaProject, OmniEclipseProject, IPath)}
+ * method. The method executes synchronously and unprotected, without thread synchronization or job
+ * scheduling.
+ * <p/>
+ * The update logic transforms all project and external dependencies to Eclipse classpath container
+ * entries and and uses them as the content of a fresh classpath container. At the end of the
+ * execution the new container is assigned to the project.
+ * <p/>
+ * If an invalid external dependency is received (anything else, than a {@code .jar} file) then that
+ * entry is omitted from the classpath container. Due to performance reasons only the file extension
+ * is checked.
  */
 public final class ClasspathContainerUpdater {
 
@@ -99,6 +111,15 @@ public final class ClasspathContainerUpdater {
                 classpathContainer }, new NullProgressMonitor());
     }
 
+    /**
+     * Updates the classpath container of the target project.
+     *
+     * @param eclipseProject the target project to update the classpath container on
+     * @param gradleProject the Gradle model to load the dependencies from
+     * @param classpathContainerPath the container path where to assign the classpath container
+     *            entry
+     * @throws JavaModelException if the container assignment fails
+     */
     public static void update(IJavaProject eclipseProject, OmniEclipseProject gradleProject, IPath classpathContainerPath) throws JavaModelException {
         new ClasspathContainerUpdater(eclipseProject, gradleProject, classpathContainerPath).updateClasspathContainer();
     }
