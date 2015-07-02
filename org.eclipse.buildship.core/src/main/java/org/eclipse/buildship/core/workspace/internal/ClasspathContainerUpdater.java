@@ -42,9 +42,9 @@ import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
  * method. The method executes synchronously and unprotected, without thread synchronization or job
  * scheduling.
  * <p/>
- * The update logic transforms all project and external dependencies to Eclipse classpath container
- * entries and and uses them as the content of a fresh classpath container. At the end of the
- * execution the new container is assigned to the project.
+ * The update logic composes a new classpath container containing all project and external
+ * dependencies defined in the Gradle model. At the end of the execution the old classpath container
+ * is replaced by the one being created.
  * <p/>
  * If an invalid external dependency is received (anything else, than a {@code .jar} file) then that
  * entry is omitted from the classpath container. Due to performance reasons only the file extension

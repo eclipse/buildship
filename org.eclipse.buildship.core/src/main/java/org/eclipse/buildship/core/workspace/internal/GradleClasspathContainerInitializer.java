@@ -45,7 +45,6 @@ import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
 /**
  * Initializes the classpath of each Eclipse workspace project that has a Gradle nature with the
@@ -53,8 +52,8 @@ import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
  * <p/>
  * When this initializer is invoked, it looks up the {@link OmniEclipseProject} for the given
  * Eclipse workspace project, takes all the found sources, project dependencies and external
- * dependencies, and assigns them to the {@link ClasspathDefinition#CONTAINER_ID}
- * classpath container.
+ * dependencies, and assigns them to the {@link ClasspathDefinition#CONTAINER_ID} classpath
+ * container.
  * <p/>
  * This initializer is assigned to the projects via the
  * {@code org.eclipse.jdt.core.classpathContainerInitializer} extension point.
@@ -63,11 +62,6 @@ import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
  */
 public final class GradleClasspathContainerInitializer extends ClasspathContainerInitializer {
 
-    /**
-     * Looks up the {@link OmniEclipseProject} for the target project, takes all external Jar
-     * dependencies and assigns them to the classpath container with id
-     * {@link ClasspathDefinition#CONTAINER_ID}.
-     */
     @Override
     public void initialize(IPath containerPath, IJavaProject javaProject) {
         scheduleClasspathInitialization(containerPath, javaProject, FetchStrategy.LOAD_IF_NOT_CACHED);
@@ -105,7 +99,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
             SourceFolderUpdater.update(project, eclipseProject.get().getSourceDirectories());
 
             // update project/external dependencies
-            ClasspathContainerUpdater.update(project, eclipseProject.get(), new org.eclipse.core.runtime.Path(GradleClasspathContainer.CONTAINER_ID));
+            ClasspathContainerUpdater.update(project, eclipseProject.get(), containerPath);
         } else {
             throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", project.getProject()));
         }

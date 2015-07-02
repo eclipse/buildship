@@ -8,14 +8,14 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory
 
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
-import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.NullProgressMonitor
-import org.eclipse.jdt.core.IClasspathAttribute;
+import org.eclipse.jdt.core.IClasspathAttribute
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
-import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IPackageFragmentRoot
 import org.eclipse.jdt.core.JavaCore
-import org.eclipse.jdt.core.util.IClassFileAttribute;
+import org.eclipse.jdt.core.util.IClassFileAttribute
 import org.eclipse.jdt.launching.JavaRuntime
 
 import org.eclipse.buildship.core.CorePlugin
@@ -47,7 +47,7 @@ class SourceFolderUpdaterTest extends Specification {
         project.rawClasspath[0].path.toPortableString() == "/project-name/src"
     }
 
-    def "Duplicate source folders are merged into one sorce entry"() {
+    def "Duplicate source folders are merged into one source entry"() {
         given:
         def project = javaProject('name' : 'project-name', 'model-source-folders' : [], 'manual-source-folders': [])
         def newModelSourceFolders  = gradleSourceFolders(['src', 'src'])
@@ -59,7 +59,7 @@ class SourceFolderUpdaterTest extends Specification {
         project.rawClasspath.length == 1
     }
 
-    def "Source folders coming from Gradle are removed if they no longer exist"() {
+    def "Previous mode source folders are removed if they no longer exist in the Gradle model"() {
         given:
         def project = javaProject('name' : 'project-name', 'model-source-folders' : ['src-old'], 'manual-source-folders': [])
         def newModelSourceFolders  = gradleSourceFolders(['src-new'])
@@ -92,7 +92,7 @@ class SourceFolderUpdaterTest extends Specification {
         project.rawClasspath[1].path.toPortableString() == "/project-name/src"
     }
 
-    def "Updating the sources keeps the order defined in the model"() {
+    def "Updating the sources preserve the order defined in the model"() {
         given:
         def project = javaProject('name' : 'project-name', 'model-source-folders' : [], 'manual-source-folders': [])
         def newModelSourceFolders  = gradleSourceFolders(['c', 'a', 'b'])
@@ -107,7 +107,7 @@ class SourceFolderUpdaterTest extends Specification {
         project.rawClasspath[2].path.toPortableString().endsWith('b')
     }
 
-    def "If the Gradle model contains a source folder which is was defined manually then the folder is transformed to a Gradle source folder" () {
+    def "If the Gradle model contains a source folder which is was previously defined manually then the folder is transformed to a Gradle source folder" () {
         given:
         def project = javaProject('name' : 'project-name', 'model-source-folders' : [], 'manual-source-folders': ['src'])
         def newModelSourceFolders  = gradleSourceFolders(['src'])
@@ -159,13 +159,13 @@ class SourceFolderUpdaterTest extends Specification {
         def manualSourceEntries = manualSourceFolders.collect { String path ->
             def folder = javaProject.project.getFolder(path)
             FileUtils.ensureFolderHierarchyExists(folder)
-            def root = javaProject.getPackageFragmentRoot(folder);
+            def root = javaProject.getPackageFragmentRoot(folder)
             JavaCore.newSourceEntry(root.path)
         }
         def modelSourceEntries = modelSourceFolders.collect { String path ->
             def folder = javaProject.project.getFolder(path)
             FileUtils.ensureFolderHierarchyExists(folder)
-            def root = javaProject.getPackageFragmentRoot(folder);
+            def root = javaProject.getPackageFragmentRoot(folder)
             def attribute = JavaCore.newClasspathAttribute(SourceFolderUpdater.CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL, "true")
             JavaCore.newSourceEntry(root.path, new IPath[0], new IPath[0], null, [attribute] as IClasspathAttribute[])
         }
