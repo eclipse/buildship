@@ -174,4 +174,5 @@ class SourceFolderUpdaterTest extends Specification {
         // return the created instance
         javaProject
     }
+
 }
