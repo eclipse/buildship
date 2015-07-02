@@ -15,9 +15,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.workspace.ClasspathDefinition;
-import org.eclipse.buildship.core.workspace.WorkspaceOperations;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
+
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -32,15 +37,10 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
+import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 /**
  * Default implementation of the {@link WorkspaceOperations} interface.
@@ -197,10 +197,10 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
-    public IJavaProject createJavaProject(IProject project, ClasspathDefinition classpath, IProgressMonitor monitor) {
+    public IJavaProject createJavaProject(IProject project, IPath jrePath, IProgressMonitor monitor) {
         // validate arguments
         Preconditions.checkNotNull(project);
-        Preconditions.checkNotNull(classpath);
+        Preconditions.checkNotNull(jrePath);
         Preconditions.checkArgument(project.isAccessible(), "Project must be open.");
 
         monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
@@ -214,7 +214,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             monitor.worked(5);
 
             // set up initial classpath container on project
-            setClasspathOnProject(javaProject, classpath, new SubProgressMonitor(monitor, 5));
+            setClasspathOnProject(javaProject, jrePath, new SubProgressMonitor(monitor, 5));
 
             // set up output location
             IFolder outputFolder = createOutputFolder(project, new SubProgressMonitor(monitor, 1));
@@ -275,20 +275,20 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         }
     }
 
-    private void setClasspathOnProject(IJavaProject javaProject, ClasspathDefinition classpath, IProgressMonitor monitor) {
+    private void setClasspathOnProject(IJavaProject javaProject, IPath jrePath, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Configure sources and classpath for Eclipse project %s", javaProject.getProject().getName()), 10);
         try {
             // create a new holder for all classpath entries
             Builder<IClasspathEntry> entries = ImmutableList.builder();
 
             // add the library with the JRE dependencies
-            entries.add(JavaCore.newContainerEntry(classpath.getJrePath()));
+            entries.add(JavaCore.newContainerEntry(jrePath));
             monitor.worked(1);
 
             // add classpath definition of where to store the source/project/external dependencies, the classpath
             // will be populated lazily by the org.eclipse.jdt.core.classpathContainerInitializer
             // extension point (see GradleClasspathContainerInitializer)
-            entries.add(createGradleClasspathContainer());
+            entries.add(GradleClasspathContainer.newClasspathEntry());
             monitor.worked(1);
 
             // assign the whole classpath at once to the project
@@ -300,12 +300,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         } finally {
             monitor.done();
         }
-    }
-
-    private IClasspathEntry createGradleClasspathContainer() throws JavaModelException {
-        // http://www-01.ibm.com/support/knowledgecenter/SSZND2_6.0.0/org.eclipse.jdt.doc.isv/guide/jdt_api_classpath.htm?cp=SSZND2_6.0.0%2F3-1-1-0-0-2
-        Path containerPath = new Path(ClasspathDefinition.GRADLE_CLASSPATH_CONTAINER_ID);
-        return JavaCore.newContainerEntry(containerPath, true);
     }
 
     @Override
