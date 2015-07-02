@@ -39,8 +39,8 @@ import org.eclipse.buildship.core.util.file.FileUtils;
 /**
  * Updates the source folders of the target project.
  * <p/>
- * The execute the update call {@link #update(IJavaProject, List)}. The method executes
- * synchronously and unprotected, without thread synchronization or job scheduling.
+ * The execute the update call the static {@link #update(IJavaProject, List)} method. The method
+ * executes synchronously and unprotected, without thread synchronization or job scheduling.
  * <p/>
  * The update logic applies the following rules on all source folders:
  * <ul>
@@ -49,8 +49,8 @@ import org.eclipse.buildship.core.util.file.FileUtils;
  * <li>If it was, but is no longer part of the model, then it will be deleted.</li>
  * <li>If it was created manually and is not part of the Gradle model, then it will remain
  * untouched.</li>
- * <li>If it was created manually and is also part of the Gradle model, it will be transformed such
- * that subsequent updates will consider it coming from the model.
+ * <li>If it was created manually and is also part of the Gradle model, then it will be transformed
+ * such that subsequent updates will consider it coming from the model.
  * </ul>
  */
 public final class SourceFolderUpdater {
