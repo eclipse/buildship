@@ -36,7 +36,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.buildship.core.util.file.FileUtils;
 
 /**
- * TODO (donat) add javadoc
+ * TODO (donat) add documentation.
  */
 public final class SourceFolderUpdater {
 
