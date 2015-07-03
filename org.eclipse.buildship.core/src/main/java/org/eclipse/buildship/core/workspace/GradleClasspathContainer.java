@@ -45,7 +45,7 @@ public abstract class GradleClasspathContainer implements IClasspathContainer {
      * @return the classpath container references
      */
     public static IClasspathContainer newInstance(List<IClasspathEntry> classpathEntries) {
-        return new DefaultGradleClasspathContainer(classpathEntries, new Path(GradleClasspathContainer.CONTAINER_ID));
+        return new DefaultGradleClasspathContainer(classpathEntries, new Path(CONTAINER_ID));
     }
 
     /**
@@ -71,7 +71,7 @@ public abstract class GradleClasspathContainer implements IClasspathContainer {
      * @throws GradlePluginsRuntimeException if the classpath container update request fails
      * @param project the target project
      */
-    public static void requestUpdateOn(IJavaProject project) {
+    public static void requestUpdateOf(IJavaProject project) {
         ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(CONTAINER_ID);
         org.eclipse.core.runtime.Path containerPath = new org.eclipse.core.runtime.Path(CONTAINER_ID);
         try {
@@ -80,4 +80,5 @@ public abstract class GradleClasspathContainer implements IClasspathContainer {
             throw new GradlePluginsRuntimeException(e);
         }
     }
+
 }
