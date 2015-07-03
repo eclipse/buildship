@@ -114,6 +114,7 @@ public final class UiPlugin extends AbstractUIPlugin {
         this.loggerService.unregister();
     }
 
+    @SuppressWarnings("RedundantCast")
     private void registerListeners() {
         this.consoleShowingLaunchListener = new ConsoleShowingLaunchListener();
         this.consoleShowingLaunchListener.handleAlreadyRunningLaunches();
@@ -126,11 +127,12 @@ public final class UiPlugin extends AbstractUIPlugin {
         CorePlugin.listenerRegistry().addEventListener(this.workingSetsAddingProjectCreatedListener);
 
         this.contextActivatingSelectionListener = new ContextActivatingSelectionListener(UiPluginConstants.GRADLE_NATURE_CONTEXT_ID, getWorkbench(), Predicates.hasGradleNature());
-        getWorkbench().getActiveWorkbenchWindow().getService(ISelectionService.class).addSelectionListener(this.contextActivatingSelectionListener);
+        ((ISelectionService) getWorkbench().getActiveWorkbenchWindow().getService(ISelectionService.class)).addSelectionListener(this.contextActivatingSelectionListener);
     }
 
+    @SuppressWarnings("RedundantCast")
     private void unregisterListeners() {
-        getWorkbench().getService(ISelectionService.class).removeSelectionListener(this.contextActivatingSelectionListener);
+        ((ISelectionService) getWorkbench().getService(ISelectionService.class)).removeSelectionListener(this.contextActivatingSelectionListener);
         CorePlugin.listenerRegistry().removeEventListener(this.workingSetsAddingProjectCreatedListener);
         CorePlugin.listenerRegistry().removeEventListener(this.executionShowingBuildLaunchRequestListener);
         DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(this.consoleShowingLaunchListener);
