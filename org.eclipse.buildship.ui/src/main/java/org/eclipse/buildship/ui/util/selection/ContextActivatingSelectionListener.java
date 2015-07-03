@@ -9,33 +9,31 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.workspace;
+package org.eclipse.buildship.ui.util.selection;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.ISelectionListener;
-import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.contexts.IContextActivation;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.services.IServiceLocator;
 
 /**
- * Dynamically activates the context with the specified id whenever the currently active
- * {@link IWorkbenchPartReference} belongs to the specified {@link IViewPart}.
+ * Dynamically activates the context with the specified id whenever the current selection matches
+ * the given {@link Predicate}.
  */
 public final class ContextActivatingSelectionListener implements ISelectionListener {
 
+    private final Predicate<? super ISelection> activationPredicate;
     private final String contextId;
     private final IContextService contextService;
-    private final Predicate<Object> activationPredicate;
     private IContextActivation activation;
 
     @SuppressWarnings({ "cast", "RedundantCast" })
-    public ContextActivatingSelectionListener(String contextId, IServiceLocator serviceLocator, Predicate<Object> activationPredicate) {
+    public ContextActivatingSelectionListener(String contextId, Predicate<? super ISelection> activationPredicate, IServiceLocator serviceLocator) {
         this.activationPredicate = Preconditions.checkNotNull(activationPredicate);
         this.contextId = Preconditions.checkNotNull(contextId);
         this.contextService = (IContextService) serviceLocator.getService(IContextService.class);

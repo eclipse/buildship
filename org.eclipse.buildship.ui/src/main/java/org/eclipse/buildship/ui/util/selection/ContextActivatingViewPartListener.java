@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view;
+package org.eclipse.buildship.ui.util.selection;
 
 import com.google.common.base.Preconditions;
 
@@ -18,8 +18,6 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.contexts.IContextActivation;
 import org.eclipse.ui.contexts.IContextService;
-
-import org.eclipse.buildship.ui.util.selection.SelectionUtils;
 
 /**
  * Dynamically activates the context with the specified id whenever the currently active
