@@ -59,7 +59,6 @@ public final class UiPlugin extends AbstractUIPlugin {
     private ConsoleShowingLaunchListener consoleShowingLaunchListener;
     private ExecutionShowingBuildLaunchRequestListener executionShowingBuildLaunchRequestListener;
     private WorkingSetsAddingProjectCreatedListener workingSetsAddingProjectCreatedListener;
-
     private ContextActivatingSelectionListener contextActivatingSelectionListener;
 
     @Override
@@ -126,18 +125,15 @@ public final class UiPlugin extends AbstractUIPlugin {
         this.workingSetsAddingProjectCreatedListener = new WorkingSetsAddingProjectCreatedListener();
         CorePlugin.listenerRegistry().addEventListener(this.workingSetsAddingProjectCreatedListener);
 
-        ISelectionService selectionService = (ISelectionService) getWorkbench().getActiveWorkbenchWindow().getService(ISelectionService.class);
-        UiPlugin.this.contextActivatingSelectionListener = new ContextActivatingSelectionListener(UiPluginConstants.GRADLE_NATURE_CONTEXT_ID, getWorkbench(),
-                Predicates.hasGradleNature());
-        selectionService.addSelectionListener(UiPlugin.this.contextActivatingSelectionListener);
+        this.contextActivatingSelectionListener = new ContextActivatingSelectionListener(UiPluginConstants.GRADLE_NATURE_CONTEXT_ID, getWorkbench(), Predicates.hasGradleNature());
+        getWorkbench().getActiveWorkbenchWindow().getService(ISelectionService.class).addSelectionListener(this.contextActivatingSelectionListener);
     }
 
     private void unregisterListeners() {
+        getWorkbench().getService(ISelectionService.class).removeSelectionListener(this.contextActivatingSelectionListener);
         CorePlugin.listenerRegistry().removeEventListener(this.workingSetsAddingProjectCreatedListener);
         CorePlugin.listenerRegistry().removeEventListener(this.executionShowingBuildLaunchRequestListener);
         DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(this.consoleShowingLaunchListener);
-        ISelectionService selectionService = getWorkbench().getService(ISelectionService.class);
-        selectionService.removeSelectionListener(this.contextActivatingSelectionListener);
     }
 
     public static UiPlugin getInstance() {
