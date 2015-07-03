@@ -13,6 +13,7 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.List;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 
 import org.eclipse.core.runtime.IPath;
@@ -26,18 +27,17 @@ import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
  */
 public final class DefaultGradleClasspathContainer extends GradleClasspathContainer {
 
-    private final String containerName = "Project and External Dependencies";
-    private final IClasspathEntry[] classpathEntries;
     private final IPath containerPath;
+    private final IClasspathEntry[] classpathEntries;
 
-    public DefaultGradleClasspathContainer(List<IClasspathEntry> classpathEntries, IPath containerPath) {
+    public DefaultGradleClasspathContainer(IPath containerPath, List<IClasspathEntry> classpathEntries) {
+        this.containerPath = Preconditions.checkNotNull(containerPath);
         this.classpathEntries = Iterables.toArray(classpathEntries, IClasspathEntry.class);
-        this.containerPath = containerPath;
     }
 
     @Override
     public String getDescription() {
-        return this.containerName;
+        return "Project and External Dependencies"; //$NON-NLS-1$
     }
 
     @Override
@@ -54,4 +54,5 @@ public final class DefaultGradleClasspathContainer extends GradleClasspathContai
     public int getKind() {
         return IClasspathContainer.K_APPLICATION;
     }
+
 }
