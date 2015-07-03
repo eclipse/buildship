@@ -37,6 +37,7 @@ import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.notification.UserNotification;
 import org.eclipse.buildship.core.notification.internal.ConsoleUserNotification;
+import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.util.logging.EclipseLogger;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 import org.eclipse.buildship.core.workspace.internal.DefaultWorkspaceOperations;

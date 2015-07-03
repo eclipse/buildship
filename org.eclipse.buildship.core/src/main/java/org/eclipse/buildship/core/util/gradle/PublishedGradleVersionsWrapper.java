@@ -9,10 +9,11 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core;
+package org.eclipse.buildship.core.util.gradle;
 
 import java.util.List;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Optional;
@@ -21,25 +22,28 @@ import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
 
 /**
- * Wraps the {@link PublishedGradleVersions} functionality enabling plug-in activation even if the
- * user is offline or behind a firewall and can't download the version information from the
- * Internet.
+ * Wraps the {@link PublishedGradleVersions} functionality to handle all exceptions gracefully. If an exception occurs while
+ * calling the underlying {@link PublishedGradleVersions} instance, empty version information is provided. This handles, for
+ * example, those scenarios where the versions cannot be retrieved because the user is behind a proxy or offline.
  */
 public final class PublishedGradleVersionsWrapper {
 
-    private Optional<PublishedGradleVersions> publishedGradleVersions;
+    private final Optional<PublishedGradleVersions> publishedGradleVersions;
 
     public PublishedGradleVersionsWrapper() {
+        this.publishedGradleVersions = create();
+    }
+
+    private Optional<PublishedGradleVersions> create() {
         try {
-            this.publishedGradleVersions = Optional.of(PublishedGradleVersions.create(true));
+            return Optional.of(PublishedGradleVersions.create(true));
         } catch (Exception e) {
-            e.printStackTrace();
-            this.publishedGradleVersions = Optional.absent();
+            CorePlugin.logger().warn("Cannot retrieve published Gradle version.", e);
+            return  Optional.absent();
         }
     }
 
     public List<GradleVersion> getVersions() {
-        // TODO (donat) retry instantiating if not present
         return this.publishedGradleVersions.isPresent() ? this.publishedGradleVersions.get().getVersions() : ImmutableList.<GradleVersion> of();
     }
 
