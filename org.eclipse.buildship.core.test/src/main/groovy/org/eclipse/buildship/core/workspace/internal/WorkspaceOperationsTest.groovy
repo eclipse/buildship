@@ -211,7 +211,7 @@ class WorkspaceOperationsTest extends Specification {
     // tests for createJavaProject() //
     ///////////////////////////////////
 
-    def "A Java project can be created"() {
+    def "Java project can be created"() {
         setup:
         def rootFolder = tempFolder.newFolder()
         IProject project = workspaceOperations.createProject("sample-project", rootFolder, ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
@@ -228,7 +228,7 @@ class WorkspaceOperationsTest extends Specification {
         javaProject.getProject() == project
     }
 
-    def "A Java project can't be created from null project"() {
+    def "Java project can't be created from null project"() {
         setup:
         def jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath()
 
@@ -239,7 +239,7 @@ class WorkspaceOperationsTest extends Specification {
         thrown(NullPointerException)
     }
 
-    def "A Java project can't be created from not accessible project"() {
+    def "Java project can't be created from not accessible project"() {
         setup:
         IProject project = Mock(IProject)
         project.isAccessible() >> false
@@ -252,7 +252,7 @@ class WorkspaceOperationsTest extends Specification {
         thrown(IllegalArgumentException)
     }
 
-    def "A Java classpath can't be null"() {
+    def "Java project can't be created without JRE path"() {
         setup:
         IProject project = workspaceOperations.createProject("sample-project", tempFolder.newFolder(), ImmutableList.of(), ImmutableList.of(JavaCore.NATURE_ID), new NullProgressMonitor())
 
@@ -262,4 +262,5 @@ class WorkspaceOperationsTest extends Specification {
         then:
         thrown(NullPointerException)
     }
+
 }
