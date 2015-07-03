@@ -154,7 +154,8 @@ public final class SourceFolderUpdater {
      * @throws JavaModelException if the classpath modification fails
      */
     public static void update(IJavaProject project, List<OmniEclipseSourceDirectory> sourceFolders, IProgressMonitor monitor) throws JavaModelException {
-        new SourceFolderUpdater(project, sourceFolders).updateClasspath(monitor);
+        SourceFolderUpdater updater = new SourceFolderUpdater(project, sourceFolders);
+        updater.updateClasspath(monitor);
     }
 
 }
