@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 
+import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
 /**
@@ -37,7 +38,7 @@ public final class DefaultGradleClasspathContainer extends GradleClasspathContai
 
     @Override
     public String getDescription() {
-        return "Project and External Dependencies"; //$NON-NLS-1$
+        return CoreMessages.ClasspathContainer_Label;
     }
 
     @Override
