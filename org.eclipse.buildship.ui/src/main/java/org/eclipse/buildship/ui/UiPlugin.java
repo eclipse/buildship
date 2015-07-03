@@ -21,6 +21,7 @@ import org.osgi.framework.ServiceRegistration;
 
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import org.eclipse.buildship.core.CorePlugin;
@@ -31,6 +32,8 @@ import org.eclipse.buildship.core.util.logging.EclipseLogger;
 import org.eclipse.buildship.ui.console.ConsoleProcessStreamsProvider;
 import org.eclipse.buildship.ui.launch.ConsoleShowingLaunchListener;
 import org.eclipse.buildship.ui.notification.DialogUserNotification;
+import org.eclipse.buildship.ui.util.Predicates.Predicates;
+import org.eclipse.buildship.ui.util.selection.ContextActivatingSelectionListener;
 import org.eclipse.buildship.ui.view.execution.ExecutionShowingBuildLaunchRequestListener;
 import org.eclipse.buildship.ui.wizard.project.WorkingSetsAddingProjectCreatedListener;
 
@@ -56,6 +59,7 @@ public final class UiPlugin extends AbstractUIPlugin {
     private ConsoleShowingLaunchListener consoleShowingLaunchListener;
     private ExecutionShowingBuildLaunchRequestListener executionShowingBuildLaunchRequestListener;
     private WorkingSetsAddingProjectCreatedListener workingSetsAddingProjectCreatedListener;
+    private ContextActivatingSelectionListener contextActivatingSelectionListener;
 
     @Override
     public void start(BundleContext context) throws Exception {
@@ -110,6 +114,7 @@ public final class UiPlugin extends AbstractUIPlugin {
         this.loggerService.unregister();
     }
 
+    @SuppressWarnings("RedundantCast")
     private void registerListeners() {
         this.consoleShowingLaunchListener = new ConsoleShowingLaunchListener();
         this.consoleShowingLaunchListener.handleAlreadyRunningLaunches();
@@ -120,9 +125,14 @@ public final class UiPlugin extends AbstractUIPlugin {
 
         this.workingSetsAddingProjectCreatedListener = new WorkingSetsAddingProjectCreatedListener();
         CorePlugin.listenerRegistry().addEventListener(this.workingSetsAddingProjectCreatedListener);
+
+        this.contextActivatingSelectionListener = new ContextActivatingSelectionListener(UiPluginConstants.GRADLE_NATURE_CONTEXT_ID, Predicates.hasGradleNature(), getWorkbench());
+        ((ISelectionService) getWorkbench().getActiveWorkbenchWindow().getService(ISelectionService.class)).addSelectionListener(this.contextActivatingSelectionListener);
     }
 
+    @SuppressWarnings("RedundantCast")
     private void unregisterListeners() {
+        ((ISelectionService) getWorkbench().getService(ISelectionService.class)).removeSelectionListener(this.contextActivatingSelectionListener);
         CorePlugin.listenerRegistry().removeEventListener(this.workingSetsAddingProjectCreatedListener);
         CorePlugin.listenerRegistry().removeEventListener(this.executionShowingBuildLaunchRequestListener);
         DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(this.consoleShowingLaunchListener);

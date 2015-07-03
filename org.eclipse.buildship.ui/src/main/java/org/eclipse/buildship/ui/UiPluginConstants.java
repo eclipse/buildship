@@ -26,6 +26,13 @@ public final class UiPluginConstants {
     public static final String TASKVIEW_CONTEXT_ID = "org.eclipse.buildship.ui.contexts.taskview";
 
     /**
+     * The context ID associated with projects which have the Gradle nature. This context
+     * is activated when a selection in the workbench occurs which is associated with an IProject
+     * which has the Gradle nature.
+     */
+    public static final String GRADLE_NATURE_CONTEXT_ID = "org.eclipse.buildship.ui.contexts.gradlenature";
+
+    /**
      * The id of the <i>Console View</i> provided by Eclipse core.
      */
     public static final String CONSOLE_VIEW_ID = "org.eclipse.ui.console.ConsoleView";
