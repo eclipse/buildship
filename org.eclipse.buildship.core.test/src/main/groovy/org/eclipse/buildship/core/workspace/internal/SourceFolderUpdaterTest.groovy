@@ -7,16 +7,12 @@ import spock.lang.Specification
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory
 
 import org.eclipse.core.resources.IFolder
-import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.IClasspathAttribute
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
-import org.eclipse.jdt.core.IPackageFragmentRoot
 import org.eclipse.jdt.core.JavaCore
-import org.eclipse.jdt.core.util.IClassFileAttribute
-import org.eclipse.jdt.launching.JavaRuntime
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.util.file.FileUtils
