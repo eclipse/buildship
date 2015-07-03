@@ -38,7 +38,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdapterManager;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jdt.core.ClasspathContainerInitializer;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.viewers.ISelection;
@@ -48,7 +47,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.console.ProcessStreams;
-import org.eclipse.buildship.core.workspace.ClasspathDefinition;
+import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
 /**
  * Refreshes the classpath for all Gradle projects that belong to the same builds as the currently selected Gradle projects.
@@ -59,7 +58,7 @@ public final class RefreshGradleClasspathContainerHandler extends AbstractHandle
     public Object execute(final ExecutionEvent event) throws ExecutionException {
         Set<OmniGradleProjectStructure> rootProjects = collectSelectedRootGradleProjects(event);
         for (IJavaProject javaProject : collectAllRelatedWorkspaceProjects(rootProjects)) {
-            updateClasspathContainer(javaProject);
+            GradleClasspathContainer.requestUpdateOf(javaProject);
         }
         return null;
     }
@@ -163,16 +162,6 @@ public final class RefreshGradleClasspathContainerHandler extends AbstractHandle
             }
         }
         return result.build();
-    }
-
-    private void updateClasspathContainer(IJavaProject project) {
-        ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(ClasspathDefinition.GRADLE_CLASSPATH_CONTAINER_ID);
-        org.eclipse.core.runtime.Path containerPath = new org.eclipse.core.runtime.Path(ClasspathDefinition.GRADLE_CLASSPATH_CONTAINER_ID);
-        try {
-            initializer.requestClasspathContainerUpdate(containerPath, project, null);
-        } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(e);
-        }
     }
 
 }

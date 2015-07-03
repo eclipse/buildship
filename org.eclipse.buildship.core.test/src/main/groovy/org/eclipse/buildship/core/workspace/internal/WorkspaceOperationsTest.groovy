@@ -12,7 +12,6 @@
 package org.eclipse.buildship.core.workspace.internal
 
 import com.google.common.collect.ImmutableList
-import org.eclipse.buildship.core.workspace.ClasspathDefinition
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.Path
@@ -24,7 +23,7 @@ import org.eclipse.buildship.core.configuration.ProjectConfiguration
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.IJavaProject
-import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.launching.JavaRuntime
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -35,7 +34,7 @@ import spock.lang.Specification
 class WorkspaceOperationsTest extends Specification {
 
     @Shared
-    WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations();
+    WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations()
 
     @Rule
     TemporaryFolder tempFolder
@@ -212,48 +211,48 @@ class WorkspaceOperationsTest extends Specification {
     // tests for createJavaProject() //
     ///////////////////////////////////
 
-    def "A Java project can be created"() {
+    def "Java project can be created"() {
         setup:
         def rootFolder = tempFolder.newFolder()
         IProject project = workspaceOperations.createProject("sample-project", rootFolder, ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
         def attributes = new FixedRequestAttributes(rootFolder, null, GradleDistribution.fromBuild(), null, ImmutableList.<String> of(), ImmutableList.<String> of())
-        ProjectConfiguration projectConfiguration = ProjectConfiguration.from(attributes, Path.from(':'), rootFolder);
-        CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, project);
+        ProjectConfiguration projectConfiguration = ProjectConfiguration.from(attributes, Path.from(':'), rootFolder)
+        CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, project)
+        def jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath()
 
         when:
-        ClasspathDefinition classpath = new ClasspathDefinition(ImmutableList.of(), ImmutableList.of(), ImmutableList.of(), JavaRuntime.getDefaultJREContainerEntry().getPath())
-        IJavaProject javaProject = workspaceOperations.createJavaProject(project, classpath, new NullProgressMonitor())
+        IJavaProject javaProject = workspaceOperations.createJavaProject(project, jrePath, new NullProgressMonitor())
 
         then:
         javaProject != null
         javaProject.getProject() == project
     }
 
-    def "A Java project can't be created from null project"() {
+    def "Java project can't be created from null project"() {
         setup:
-        ClasspathDefinition classpath = new ClasspathDefinition(ImmutableList.of(), ImmutableList.of(), ImmutableList.of(), JavaRuntime.getDefaultJREContainerEntry().getPath())
+        def jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath()
 
         when:
-        workspaceOperations.createJavaProject(null, classpath, new NullProgressMonitor())
+        workspaceOperations.createJavaProject(null, jrePath, new NullProgressMonitor())
 
         then:
         thrown(NullPointerException)
     }
 
-    def "A Java project can't be created from not accessible project"() {
+    def "Java project can't be created from not accessible project"() {
         setup:
         IProject project = Mock(IProject)
         project.isAccessible() >> false
-        ClasspathDefinition classpath = new ClasspathDefinition(ImmutableList.of(), ImmutableList.of(), ImmutableList.of(), JavaRuntime.getDefaultJREContainerEntry().getPath())
+        def jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath()
 
         when:
-        workspaceOperations.createJavaProject(project, classpath, new NullProgressMonitor())
+        workspaceOperations.createJavaProject(project, jrePath, new NullProgressMonitor())
 
         then:
         thrown(IllegalArgumentException)
     }
 
-    def "A Java classpath can't be null"() {
+    def "Java project can't be created without JRE path"() {
         setup:
         IProject project = workspaceOperations.createProject("sample-project", tempFolder.newFolder(), ImmutableList.of(), ImmutableList.of(JavaCore.NATURE_ID), new NullProgressMonitor())
 
@@ -263,4 +262,5 @@ class WorkspaceOperationsTest extends Specification {
         then:
         thrown(NullPointerException)
     }
+
 }

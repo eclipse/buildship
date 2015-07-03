@@ -25,7 +25,7 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -39,18 +39,15 @@ import org.eclipse.buildship.core.util.file.FileUtils;
 /**
  * Updates the source folders of the target project.
  * <p/>
- * The execute the update call the static {@link #update(IJavaProject, List)} method. The method
- * executes synchronously and unprotected, without thread synchronization or job scheduling.
+ * The update is triggered via {@link #update(IJavaProject, List, IProgressMonitor)}.
+ * The method executes synchronously and unprotected, without thread synchronization or job scheduling.
  * <p/>
  * The update logic applies the following rules on all source folders:
  * <ul>
- * <li>If it is defined in the Gradle model and it doesn't exist in the project, then it will be
- * created.</li>
- * <li>If it was, but is no longer part of the model, then it will be deleted.</li>
- * <li>If it was created manually and is not part of the Gradle model, then it will remain
- * untouched.</li>
- * <li>If it was created manually and is also part of the Gradle model, then it will be transformed
- * such that subsequent updates will consider it coming from the model.
+ * <li>If it is defined in the Gradle model and it doesn't exist in the project, then it will be created.</li>
+ * <li>If it was, but is no longer part of the Gradle model, then it will be deleted.</li>
+ * <li>If it was created manually and is not part of the Gradle model, then it will remain untouched.</li>
+ * <li>If it was created manually and is also part of the Gradle model, then it will be transformed such that subsequent updates will consider it coming from the Gradle model.
  * </ul>
  */
 public final class SourceFolderUpdater {
@@ -65,10 +62,10 @@ public final class SourceFolderUpdater {
         this.sourceFolders = Preconditions.checkNotNull(sourceFolders);
     }
 
-    private void updateClasspath() throws JavaModelException {
+    private void updateClasspath(IProgressMonitor monitor) throws JavaModelException {
         List<IClasspathEntry> gradleSourceFolders = collectGradleSourceFolders();
         List<IClasspathEntry> newClasspathEntries = calculateNewClasspath(gradleSourceFolders);
-        updateClasspath(newClasspathEntries);
+        updateClasspath(newClasspathEntries, monitor);
     }
 
     private List<IClasspathEntry> collectGradleSourceFolders() {
@@ -136,23 +133,26 @@ public final class SourceFolderUpdater {
 
         // new classpath = current source folders from the Gradle model + the previous ones defined
         // manually
-        return ImmutableList.<IClasspathEntry> builder().addAll(gradleSourceFolders).addAll(manuallyAddedSourceFolders).build();
+        return ImmutableList.<IClasspathEntry>builder().addAll(gradleSourceFolders).addAll(manuallyAddedSourceFolders).build();
     }
 
-    private void updateClasspath(List<IClasspathEntry> newClasspathEntries) throws JavaModelException {
+    private void updateClasspath(List<IClasspathEntry> newClasspathEntries, IProgressMonitor monitor) throws JavaModelException {
         IClasspathEntry[] newRawClasspath = newClasspathEntries.toArray(new IClasspathEntry[newClasspathEntries.size()]);
-        this.project.setRawClasspath(newRawClasspath, new NullProgressMonitor());
+        this.project.setRawClasspath(newRawClasspath, monitor);
     }
 
     /**
      * Updates the source folders on the target project.
      *
-     * @param project the target project to update the source folders on
+     * @param project       the target project to update the source folders on
      * @param sourceFolders the list of source folders from the Gradle model to assign to the
-     *            project
+     *                      project
+     * @param monitor       the monitor to report progress on
      * @throws JavaModelException if the classpath modification fails
      */
-    public static void update(IJavaProject project, List<OmniEclipseSourceDirectory> sourceFolders) throws JavaModelException {
-        new SourceFolderUpdater(project, sourceFolders).updateClasspath();
+    public static void update(IJavaProject project, List<OmniEclipseSourceDirectory> sourceFolders, IProgressMonitor monitor) throws JavaModelException {
+        SourceFolderUpdater updater = new SourceFolderUpdater(project, sourceFolders);
+        updater.updateClasspath(monitor);
     }
+
 }

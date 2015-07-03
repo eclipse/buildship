@@ -13,14 +13,13 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.List;
 
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
@@ -38,7 +37,6 @@ import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
 import org.eclipse.jdt.core.IClasspathContainer;
-import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 
@@ -48,7 +46,6 @@ import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
-import org.eclipse.buildship.core.workspace.ClasspathDefinition;
 
 /**
  * Initializes the classpath of each Eclipse workspace project that has a Gradle nature with the
@@ -56,8 +53,8 @@ import org.eclipse.buildship.core.workspace.ClasspathDefinition;
  * <p/>
  * When this initializer is invoked, it looks up the {@link OmniEclipseProject} for the given
  * Eclipse workspace project, takes all the found sources, project dependencies and external
- * dependencies, and assigns them to the {@link ClasspathDefinition#GRADLE_CLASSPATH_CONTAINER_ID}
- * classpath container.
+ * dependencies, and assigns them to the {@link org.eclipse.buildship.core.workspace.GradleClasspathContainer#CONTAINER_ID} classpath
+ * container.
  * <p/>
  * This initializer is assigned to the projects via the
  * {@code org.eclipse.jdt.core.classpathContainerInitializer} extension point.
@@ -66,11 +63,6 @@ import org.eclipse.buildship.core.workspace.ClasspathDefinition;
  */
 public final class GradleClasspathContainerInitializer extends ClasspathContainerInitializer {
 
-    /**
-     * Looks up the {@link OmniEclipseProject} for the target project, takes all external Jar
-     * dependencies and assigns them to the classpath container with id
-     * {@link ClasspathDefinition#GRADLE_CLASSPATH_CONTAINER_ID}.
-     */
     @Override
     public void initialize(IPath containerPath, IJavaProject javaProject) {
         scheduleClasspathInitialization(containerPath, javaProject, FetchStrategy.LOAD_IF_NOT_CACHED);
@@ -105,10 +97,10 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         Optional<OmniEclipseProject> eclipseProject = findEclipseProject(project.getProject(), fetchStrategy);
         if (eclipseProject.isPresent()) {
             // update source folders
-            SourceFolderUpdater.update(project, eclipseProject.get().getSourceDirectories());
+            SourceFolderUpdater.update(project, eclipseProject.get().getSourceDirectories(), new SubProgressMonitor(monitor, 50));
 
             // update project/external dependencies
-            ClasspathContainerUpdater.update(project, eclipseProject.get(), new org.eclipse.core.runtime.Path(ClasspathDefinition.GRADLE_CLASSPATH_CONTAINER_ID));
+            ClasspathContainerUpdater.update(project, eclipseProject.get(), containerPath, new SubProgressMonitor(monitor, 50));
         } else {
             throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", project.getProject()));
         }
@@ -129,42 +121,6 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
                 noTypedProgressListeners, cancellationToken);
         ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(fixedRequestAttributes);
         return repository.fetchEclipseGradleBuild(transientAttributes, fetchStrategy);
-    }
-
-    /**
-     * {@code IClasspathContainer} to describe the external dependencies.
-     */
-    static final class GradleClasspathContainer implements IClasspathContainer {
-
-        private final String containerName;
-        private final IPath path;
-        private final IClasspathEntry[] classpathEntries;
-
-        GradleClasspathContainer(String containerName, IPath path, List<IClasspathEntry> classpathEntries) {
-            this.containerName = Preconditions.checkNotNull(containerName);
-            this.path = Preconditions.checkNotNull(path);
-            this.classpathEntries = Iterables.toArray(classpathEntries, IClasspathEntry.class);
-        }
-
-        @Override
-        public String getDescription() {
-            return this.containerName;
-        }
-
-        @Override
-        public IPath getPath() {
-            return this.path;
-        }
-
-        @Override
-        public IClasspathEntry[] getClasspathEntries() {
-            return this.classpathEntries;
-        }
-
-        @Override
-        public int getKind() {
-            return IClasspathContainer.K_APPLICATION;
-        }
     }
 
 }

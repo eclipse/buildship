@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
 
@@ -99,11 +100,11 @@ public interface WorkspaceOperations {
      * Configures an existing {@link IProject} to be a {@link IJavaProject}.
      *
      * @param project the project to turn into a Java project
-     * @param classpath the classpath definition of the project
+     * @param jrePath the path of the Java runtime which will be added to the project
      * @param monitor the monitor to report progress on
      * @return the created Java project
      */
-    IJavaProject createJavaProject(IProject project, ClasspathDefinition classpath, IProgressMonitor monitor);
+    IJavaProject createJavaProject(IProject project, IPath jrePath, IProgressMonitor monitor);
 
     /**
      * Refreshes project content to get it in sync with the file system.

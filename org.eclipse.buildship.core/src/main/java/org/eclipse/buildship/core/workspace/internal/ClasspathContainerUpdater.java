@@ -24,7 +24,7 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
 
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -33,22 +33,21 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.gradle.Specs;
-import org.eclipse.buildship.core.workspace.internal.GradleClasspathContainerInitializer.GradleClasspathContainer;
+import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
 /**
  * Updates the classpath container of the target project.
  * <p/>
- * The execute the update call the static {@link #update(IJavaProject, OmniEclipseProject, IPath)}
- * method. The method executes synchronously and unprotected, without thread synchronization or job
- * scheduling.
+ * The update is triggered via {@link #update(IJavaProject, OmniEclipseProject, IPath, org.eclipse.core.runtime.IProgressMonitor)}.
+ * The method executes synchronously and unprotected, without thread synchronization or job scheduling.
  * <p/>
- * The update logic transforms all project and external dependencies to Eclipse classpath container
- * entries and and uses them as the content of a fresh classpath container. At the end of the
- * execution the new container is assigned to the project.
+ * The update logic composes a new classpath container containing all project and external
+ * dependencies defined in the Gradle model. At the end of the execution the old classpath
+ * container is replaced by the one being created.
  * <p/>
- * If an invalid external dependency is received (anything else, than a {@code .jar} file) then that
- * entry is omitted from the classpath container. Due to performance reasons only the file extension
- * is checked.
+ * If an invalid external dependency is received (anything else, than a {@code .jar} file
+ * or {@code .zip} file) the given entry is omitted from the classpath container. Due to
+ * performance reasons only the file extension is checked.
  */
 public final class ClasspathContainerUpdater {
 
@@ -62,9 +61,9 @@ public final class ClasspathContainerUpdater {
         this.classpathContainerPath = Preconditions.checkNotNull(classpathContainerPath);
     }
 
-    private void updateClasspathContainer() throws JavaModelException {
+    private void updateClasspathContainer(IProgressMonitor monitor) throws JavaModelException {
         ImmutableList<IClasspathEntry> containerEntries = collectClasspathContainerEntries();
-        setClasspathContainer(containerEntries);
+        setClasspathContainer(containerEntries, monitor);
     }
 
     private ImmutableList<IClasspathEntry> collectClasspathContainerEntries() {
@@ -86,8 +85,7 @@ public final class ClasspathContainerUpdater {
 
             @Override
             public boolean apply(OmniExternalDependency dependency) {
-                // Eclipse only accepts archives as external dependencies (but not, for example, a
-                // DLL)
+                // Eclipse only accepts archives as external dependencies (but not, for example, a DLL)
                 String name = dependency.getFile().getName();
                 return name.endsWith(".jar") || name.endsWith(".zip");
             }
@@ -102,25 +100,26 @@ public final class ClasspathContainerUpdater {
         }).toList();
 
         // return all dependencies as a joined list
-        return ImmutableList.<IClasspathEntry> builder().addAll(projectDependencies).addAll(externalDependencies).build();
+        return ImmutableList.<IClasspathEntry>builder().addAll(projectDependencies).addAll(externalDependencies).build();
     }
 
-    private void setClasspathContainer(List<IClasspathEntry> classpathEntries) throws JavaModelException {
-        IClasspathContainer classpathContainer = new GradleClasspathContainer("Project and External Dependencies", this.classpathContainerPath, classpathEntries);
-        JavaCore.setClasspathContainer(this.classpathContainerPath, new IJavaProject[] { this.eclipseProject }, new IClasspathContainer[] {
-                classpathContainer }, new NullProgressMonitor());
+    private void setClasspathContainer(List<IClasspathEntry> classpathEntries, IProgressMonitor monitor) throws JavaModelException {
+        IClasspathContainer classpathContainer = GradleClasspathContainer.newInstance(classpathEntries);
+        JavaCore.setClasspathContainer(this.classpathContainerPath, new IJavaProject[]{this.eclipseProject}, new IClasspathContainer[]{classpathContainer}, monitor);
     }
 
     /**
      * Updates the classpath container of the target project.
      *
-     * @param eclipseProject the target project to update the classpath container on
-     * @param gradleProject the Gradle model to load the dependencies from
-     * @param classpathContainerPath the container path where to assign the classpath container
-     *            entry
+     * @param eclipseProject         the target project to update the classpath container on
+     * @param gradleProject          the Gradle model to read the dependencies from
+     * @param classpathContainerPath the container path where to assign the classpath container entry
+     * @param monitor                the monitor to report progress on
      * @throws JavaModelException if the container assignment fails
      */
-    public static void update(IJavaProject eclipseProject, OmniEclipseProject gradleProject, IPath classpathContainerPath) throws JavaModelException {
-        new ClasspathContainerUpdater(eclipseProject, gradleProject, classpathContainerPath).updateClasspathContainer();
+    public static void update(IJavaProject eclipseProject, OmniEclipseProject gradleProject, IPath classpathContainerPath, IProgressMonitor monitor) throws JavaModelException {
+        ClasspathContainerUpdater updater = new ClasspathContainerUpdater(eclipseProject, gradleProject, classpathContainerPath);
+        updater.updateClasspathContainer(monitor);
     }
+
 }

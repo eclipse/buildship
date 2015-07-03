@@ -33,7 +33,7 @@ public final class ExpressionUtils {
      * @return the project reference as a variable expression, never null
      */
     public static String encodeWorkspaceLocation(IProject project) {
-        return getStringVariableManager().generateVariableExpression(WORKSPACE_LOC_VARIABLE, project.getFullPath().toString()); //$NON-NLS-1$
+        return getStringVariableManager().generateVariableExpression(WORKSPACE_LOC_VARIABLE, project.getFullPath().toString());
     }
 
     /**
