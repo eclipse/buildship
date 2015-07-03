@@ -133,15 +133,15 @@
             description="Opens the Gradle build script for the selected Gradle project">
       </command>
       <command
+            id="org.eclipse.buildship.ui.commands.refreshproject"
             categoryId="org.eclipse.buildship.ui.project"
-            description="Refreshes the project configuration for the selected projects"
-            id="org.eclipse.buildship.ui.commands.refreshprojects"
-            name="Refresh Projects">
+            name="Refresh Gradle Project"
+            description="Refreshes the selected Gradle project">
       </command>
       <category
-            description="This category describes Buildship related project commands"
             id="org.eclipse.buildship.ui.project"
-            name="Buildship Project Category">
+            name="Buildship"
+            description="Contains the Buildship specific commands">
       </category>
     </extension>
 
@@ -169,7 +169,7 @@
             class="org.eclipse.buildship.ui.view.task.OpenBuildScriptHandler">
       </handler>
       <handler
-            commandId="org.eclipse.buildship.ui.commands.refreshprojects"
+            commandId="org.eclipse.buildship.ui.commands.refreshproject"
             class="org.eclipse.buildship.ui.workspace.RefreshGradleClasspathContainerHandler">
       </handler>
     </extension>
@@ -197,7 +197,7 @@
              sequence="F5">
        </key>
        <key
-             commandId="org.eclipse.buildship.ui.commands.refreshprojects"
+             commandId="org.eclipse.buildship.ui.commands.refreshproject"
              contextId="org.eclipse.buildship.ui.context.gradleNatureContext"
              schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
              sequence="F5">
@@ -301,7 +301,7 @@
                     id="org.eclipse.buildship.ui.contextmenuentry"
                     label="Gradle">
                 <command
-                        commandId="org.eclipse.buildship.ui.commands.refreshprojects"
+                        commandId="org.eclipse.buildship.ui.commands.refreshproject"
                         style="push">
                     <visibleWhen
                             checkEnabled="false">
