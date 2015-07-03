@@ -73,8 +73,8 @@ public abstract class GradleClasspathContainer implements IClasspathContainer {
      */
     public static void requestUpdateOf(IJavaProject project) {
         ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(CONTAINER_ID);
-        org.eclipse.core.runtime.Path containerPath = new org.eclipse.core.runtime.Path(CONTAINER_ID);
         try {
+            Path containerPath = new Path(CONTAINER_ID);
             initializer.requestClasspathContainerUpdate(containerPath, project, null);
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(e);
