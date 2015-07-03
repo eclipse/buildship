@@ -45,7 +45,8 @@ public abstract class GradleClasspathContainer implements IClasspathContainer {
      * @return the classpath container references
      */
     public static IClasspathContainer newInstance(List<IClasspathEntry> classpathEntries) {
-        return new DefaultGradleClasspathContainer(classpathEntries, new Path(CONTAINER_ID));
+        Path containerPath = new Path(CONTAINER_ID);
+        return new DefaultGradleClasspathContainer(containerPath, classpathEntries);
     }
 
     /**
