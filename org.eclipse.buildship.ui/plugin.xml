@@ -183,8 +183,8 @@
                 parentId="org.eclipse.ui.contexts.window">
         </context>
         <context
-              id="org.eclipse.buildship.ui.context.gradleNatureContext"
-              name="Gradle Nature Context"
+              id="org.eclipse.buildship.ui.contexts.gradlenature"
+              name="Gradle Context"
               parentId="org.eclipse.ui.contexts.window">
         </context>
     </extension>
@@ -198,7 +198,7 @@
        </key>
        <key
              commandId="org.eclipse.buildship.ui.commands.refreshproject"
-             contextId="org.eclipse.buildship.ui.context.gradleNatureContext"
+             contextId="org.eclipse.buildship.ui.contexts.gradlenature"
              schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
              sequence="F5">
        </key>
