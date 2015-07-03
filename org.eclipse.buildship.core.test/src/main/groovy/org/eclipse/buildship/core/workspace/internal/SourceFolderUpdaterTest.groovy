@@ -39,7 +39,7 @@ class SourceFolderUpdaterTest extends Specification {
         project.rawClasspath.length == 0
 
         when:
-        SourceFolderUpdater.update(project, newModelSourceFolders)
+        SourceFolderUpdater.update(project, newModelSourceFolders, null)
 
         then:
         project.rawClasspath.length == 1
@@ -53,7 +53,7 @@ class SourceFolderUpdaterTest extends Specification {
         def newModelSourceFolders  = gradleSourceFolders(['src', 'src'])
 
         when:
-        SourceFolderUpdater.update(project, newModelSourceFolders)
+        SourceFolderUpdater.update(project, newModelSourceFolders, null)
 
         then:
         project.rawClasspath.length == 1
@@ -65,7 +65,7 @@ class SourceFolderUpdaterTest extends Specification {
         def newModelSourceFolders  = gradleSourceFolders(['src-new'])
 
         when:
-        SourceFolderUpdater.update(project, newModelSourceFolders)
+        SourceFolderUpdater.update(project, newModelSourceFolders, null)
 
         then:
         project.rawClasspath.length == 1
@@ -82,7 +82,7 @@ class SourceFolderUpdaterTest extends Specification {
         project.rawClasspath.length == 1
 
         when:
-        SourceFolderUpdater.update(project, newModelSourceFolders)
+        SourceFolderUpdater.update(project, newModelSourceFolders, null)
 
         then:
         project.rawClasspath.length == 2
@@ -98,7 +98,7 @@ class SourceFolderUpdaterTest extends Specification {
         def newModelSourceFolders  = gradleSourceFolders(['c', 'a', 'b'])
 
         when:
-        SourceFolderUpdater.update(project, newModelSourceFolders)
+        SourceFolderUpdater.update(project, newModelSourceFolders, null)
 
         then:
         project.rawClasspath.length == 3
@@ -118,7 +118,7 @@ class SourceFolderUpdaterTest extends Specification {
         project.rawClasspath[0].extraAttributes.length == 0
 
         when:
-        SourceFolderUpdater.update(project, newModelSourceFolders)
+        SourceFolderUpdater.update(project, newModelSourceFolders, null)
 
         then:
         project.rawClasspath.length == 1
