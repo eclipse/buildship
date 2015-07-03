@@ -132,7 +132,12 @@ public final class UiPlugin extends AbstractUIPlugin {
 
     @SuppressWarnings({"cast", "RedundantCast"})
     private void unregisterListeners() {
-        ((ISelectionService) getWorkbench().getService(ISelectionService.class)).removeSelectionListener(this.contextActivatingSelectionListener);
+        // if the selection service is disposed, then the listeners are already removed
+        // (see the javadoc on ISelectionService.addSelectionListener(ISelectionListener listener))
+        ISelectionService selectionService = ((ISelectionService) getWorkbench().getService(ISelectionService.class));
+        if (selectionService != null) {
+            selectionService.removeSelectionListener(this.contextActivatingSelectionListener);
+        }
         CorePlugin.listenerRegistry().removeEventListener(this.workingSetsAddingProjectCreatedListener);
         CorePlugin.listenerRegistry().removeEventListener(this.executionShowingBuildLaunchRequestListener);
         DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(this.consoleShowingLaunchListener);
