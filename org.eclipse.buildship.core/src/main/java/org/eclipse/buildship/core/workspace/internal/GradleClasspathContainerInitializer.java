@@ -52,7 +52,7 @@ import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
  * <p/>
  * When this initializer is invoked, it looks up the {@link OmniEclipseProject} for the given
  * Eclipse workspace project, takes all the found sources, project dependencies and external
- * dependencies, and assigns them to the {@link ClasspathDefinition#CONTAINER_ID} classpath
+ * dependencies, and assigns them to the {@link org.eclipse.buildship.core.workspace.GradleClasspathContainer#CONTAINER_ID} classpath
  * container.
  * <p/>
  * This initializer is assigned to the projects via the
