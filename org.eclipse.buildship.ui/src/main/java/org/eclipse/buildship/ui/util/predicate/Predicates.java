@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.util.Predicates;
+package org.eclipse.buildship.ui.util.predicate;
 
 import java.util.List;
 
