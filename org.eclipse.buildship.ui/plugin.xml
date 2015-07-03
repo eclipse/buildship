@@ -217,6 +217,11 @@
              icon="icons/full/elcl16/run.png"
              disabledIcon="icons/full/dlcl16/run.png">
        </image>
+       <image
+             commandId="org.eclipse.buildship.ui.commands.refreshproject"
+             icon="icons/full/elcl16/refresh.gif"
+             disabledIcon="icons/full/dlcl16/refresh.gif">
+       </image>
     </extension>
 
     <!-- integration of a Gradle console into the Console View -->
