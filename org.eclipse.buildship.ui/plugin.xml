@@ -133,10 +133,16 @@
             description="Opens the Gradle build script for the selected Gradle project">
       </command>
       <command
+            categoryId="org.eclipse.buildship.ui.project"
+            description="Refreshes the project configuration for the selected projects"
             id="org.eclipse.buildship.ui.commands.refreshprojects"
-            name="Refresh Projects"
-            description="Refreshes the project configuration for the selected projects">
+            name="Refresh Projects">
       </command>
+      <category
+            description="This category describes Buildship related project commands"
+            id="org.eclipse.buildship.ui.project"
+            name="Buildship Project Category">
+      </category>
     </extension>
 
     <!-- integration of Gradle command handlers -->
@@ -176,12 +182,23 @@
                 name="In Gradle Tasks View"
                 parentId="org.eclipse.ui.contexts.window">
         </context>
+        <context
+              id="org.eclipse.buildship.ui.context.gradleNatureContext"
+              name="Gradle Nature Context"
+              parentId="org.eclipse.ui.contexts.window">
+        </context>
     </extension>
     <extension
           point="org.eclipse.ui.bindings">
        <key
              commandId="org.eclipse.buildship.ui.commands.refreshtaskview"
              contextId="org.eclipse.buildship.ui.contexts.taskview"
+             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+             sequence="F5">
+       </key>
+       <key
+             commandId="org.eclipse.buildship.ui.commands.refreshprojects"
+             contextId="org.eclipse.buildship.ui.context.gradleNatureContext"
              schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
              sequence="F5">
        </key>
@@ -306,6 +323,14 @@
                 </command>
             </menu>
         </menuContribution>
+        <menuContribution
+             allPopups="true"
+             locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions">
+          <menu
+                id="org.eclipse.buildship.ui.contextmenuentry"
+                label="Gradle">
+          </menu>
+       </menuContribution>
     </extension>
 
     <!-- extension point to register plugins that need to be activated (if not already activated) when a build execution starts -->
