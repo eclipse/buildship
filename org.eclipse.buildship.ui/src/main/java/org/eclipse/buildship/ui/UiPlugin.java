@@ -114,7 +114,7 @@ public final class UiPlugin extends AbstractUIPlugin {
         this.loggerService.unregister();
     }
 
-    @SuppressWarnings("RedundantCast")
+    @SuppressWarnings({"cast", "RedundantCast"})
     private void registerListeners() {
         this.consoleShowingLaunchListener = new ConsoleShowingLaunchListener();
         this.consoleShowingLaunchListener.handleAlreadyRunningLaunches();
@@ -130,7 +130,7 @@ public final class UiPlugin extends AbstractUIPlugin {
         ((ISelectionService) getWorkbench().getActiveWorkbenchWindow().getService(ISelectionService.class)).addSelectionListener(this.contextActivatingSelectionListener);
     }
 
-    @SuppressWarnings("RedundantCast")
+    @SuppressWarnings({"cast", "RedundantCast"})
     private void unregisterListeners() {
         ((ISelectionService) getWorkbench().getService(ISelectionService.class)).removeSelectionListener(this.contextActivatingSelectionListener);
         CorePlugin.listenerRegistry().removeEventListener(this.workingSetsAddingProjectCreatedListener);
