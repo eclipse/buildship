@@ -32,7 +32,7 @@ import org.eclipse.buildship.core.util.logging.EclipseLogger;
 import org.eclipse.buildship.ui.console.ConsoleProcessStreamsProvider;
 import org.eclipse.buildship.ui.launch.ConsoleShowingLaunchListener;
 import org.eclipse.buildship.ui.notification.DialogUserNotification;
-import org.eclipse.buildship.ui.util.Predicates.Predicates;
+import org.eclipse.buildship.ui.util.predicate.Predicates;
 import org.eclipse.buildship.ui.util.selection.ContextActivatingSelectionListener;
 import org.eclipse.buildship.ui.view.execution.ExecutionShowingBuildLaunchRequestListener;
 import org.eclipse.buildship.ui.wizard.project.WorkingSetsAddingProjectCreatedListener;
