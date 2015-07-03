@@ -58,7 +58,7 @@ public final class RefreshGradleClasspathContainerHandler extends AbstractHandle
     public Object execute(final ExecutionEvent event) throws ExecutionException {
         Set<OmniGradleProjectStructure> rootProjects = collectSelectedRootGradleProjects(event);
         for (IJavaProject javaProject : collectAllRelatedWorkspaceProjects(rootProjects)) {
-            GradleClasspathContainer.requestUpdateOn(javaProject);
+            GradleClasspathContainer.requestUpdateOf(javaProject);
         }
         return null;
     }
