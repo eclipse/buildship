@@ -13,6 +13,7 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.List;
 
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
@@ -96,7 +97,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         Optional<OmniEclipseProject> eclipseProject = findEclipseProject(project.getProject(), fetchStrategy);
         if (eclipseProject.isPresent()) {
             // update source folders
-            SourceFolderUpdater.update(project, eclipseProject.get().getSourceDirectories());
+            SourceFolderUpdater.update(project, eclipseProject.get().getSourceDirectories(), new SubProgressMonitor(monitor, 50));
 
             // update project/external dependencies
             ClasspathContainerUpdater.update(project, eclipseProject.get(), containerPath);

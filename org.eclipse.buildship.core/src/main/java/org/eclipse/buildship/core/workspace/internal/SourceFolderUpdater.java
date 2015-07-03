@@ -25,7 +25,7 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -39,7 +39,7 @@ import org.eclipse.buildship.core.util.file.FileUtils;
 /**
  * Updates the source folders of the target project.
  * <p/>
- * The execute the update call the static {@link #update(IJavaProject, List)} method. The method
+ * To execute the update call the static {@link #update(IJavaProject, List, IProgressMonitor)} method. The method
  * executes synchronously and unprotected, without thread synchronization or job scheduling.
  * <p/>
  * The update logic applies the following rules on all source folders:
@@ -65,10 +65,10 @@ public final class SourceFolderUpdater {
         this.sourceFolders = Preconditions.checkNotNull(sourceFolders);
     }
 
-    private void updateClasspath() throws JavaModelException {
+    private void updateClasspath(IProgressMonitor monitor) throws JavaModelException {
         List<IClasspathEntry> gradleSourceFolders = collectGradleSourceFolders();
         List<IClasspathEntry> newClasspathEntries = calculateNewClasspath(gradleSourceFolders);
-        updateClasspath(newClasspathEntries);
+        updateClasspath(newClasspathEntries, monitor);
     }
 
     private List<IClasspathEntry> collectGradleSourceFolders() {
@@ -139,9 +139,9 @@ public final class SourceFolderUpdater {
         return ImmutableList.<IClasspathEntry> builder().addAll(gradleSourceFolders).addAll(manuallyAddedSourceFolders).build();
     }
 
-    private void updateClasspath(List<IClasspathEntry> newClasspathEntries) throws JavaModelException {
+    private void updateClasspath(List<IClasspathEntry> newClasspathEntries, IProgressMonitor monitor) throws JavaModelException {
         IClasspathEntry[] newRawClasspath = newClasspathEntries.toArray(new IClasspathEntry[newClasspathEntries.size()]);
-        this.project.setRawClasspath(newRawClasspath, new NullProgressMonitor());
+        this.project.setRawClasspath(newRawClasspath, monitor);
     }
 
     /**
@@ -150,9 +150,11 @@ public final class SourceFolderUpdater {
      * @param project the target project to update the source folders on
      * @param sourceFolders the list of source folders from the Gradle model to assign to the
      *            project
+     * @param monitor the monitor to report progress on
      * @throws JavaModelException if the classpath modification fails
      */
-    public static void update(IJavaProject project, List<OmniEclipseSourceDirectory> sourceFolders) throws JavaModelException {
-        new SourceFolderUpdater(project, sourceFolders).updateClasspath();
+    public static void update(IJavaProject project, List<OmniEclipseSourceDirectory> sourceFolders, IProgressMonitor monitor) throws JavaModelException {
+        new SourceFolderUpdater(project, sourceFolders).updateClasspath(monitor);
     }
+
 }
