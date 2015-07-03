@@ -100,7 +100,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
             SourceFolderUpdater.update(project, eclipseProject.get().getSourceDirectories(), new SubProgressMonitor(monitor, 50));
 
             // update project/external dependencies
-            ClasspathContainerUpdater.update(project, eclipseProject.get(), containerPath);
+            ClasspathContainerUpdater.update(project, eclipseProject.get(), containerPath, new SubProgressMonitor(monitor, 50));
         } else {
             throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", project.getProject()));
         }
