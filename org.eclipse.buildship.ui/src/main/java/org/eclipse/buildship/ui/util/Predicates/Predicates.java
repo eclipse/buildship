@@ -17,7 +17,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.internal.ui.packageview.PackageFragmentRootContainer;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -25,8 +24,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 
 /**
- * This class supplies some useful {@link Predicate} instances, which may for instance be used in
- * PropertyTesters.
+ * Supplies some useful {@link Predicate} instances. May also be used used in PropertyTesters.
  */
 @SuppressWarnings("restriction")
 public final class Predicates {
@@ -39,6 +37,7 @@ public final class Predicates {
 
             @Override
             public boolean apply(Object adaptable) {
+                @SuppressWarnings("RedundantCast")
                 IProject project = (IProject) Platform.getAdapterManager().getAdapter(adaptable, IProject.class);
                 if (project != null) {
                     return hasGradleNature(project);
@@ -56,11 +55,11 @@ public final class Predicates {
 
     private static boolean hasGradleNature(IProject project) {
         try {
-            return project.hasNature(GradleProjectNature.ID);
-        } catch (CoreException e) {
+            return GradleProjectNature.INSTANCE.isPresentOn(project);
+        } catch (RuntimeException e) {
             // ignore
+            return false;
         }
-        return false;
     }
 
 }
