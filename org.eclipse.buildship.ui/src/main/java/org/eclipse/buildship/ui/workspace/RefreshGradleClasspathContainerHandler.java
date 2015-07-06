@@ -107,10 +107,10 @@ public final class RefreshGradleClasspathContainerHandler extends AbstractHandle
     }
 
     private Set<OmniGradleProjectStructure> collectSelectedRootGradleProjects(ExecutionEvent event) {
-        return FluentIterable.from(collectSelectedJavaProjects(event)).transform(new Function<IJavaProject, OmniGradleProjectStructure>() {
+        return FluentIterable.from(collectSelectedProjects(event)).transform(new Function<IProject, OmniGradleProjectStructure>() {
 
             @Override
-            public OmniGradleProjectStructure apply(IJavaProject javaProject) {
+            public OmniGradleProjectStructure apply(IProject javaProject) {
                 FixedRequestAttributes requestAttributes = CorePlugin.projectConfigurationManager().readProjectConfiguration(javaProject.getProject()).getRequestAttributes();
                 ProcessStreams stream = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
 
@@ -123,27 +123,6 @@ public final class RefreshGradleClasspathContainerHandler extends AbstractHandle
                 return structure.getRootProject();
             }
         }).toSet();
-    }
-
-    private List<IJavaProject> collectSelectedJavaProjects(ExecutionEvent event) {
-        return FluentIterable.from(collectSelectedProjects(event)).filter(new Predicate<IProject>() {
-
-            @Override
-            public boolean apply(IProject project) {
-                try {
-                    return project.hasNature(JavaCore.NATURE_ID);
-                } catch (CoreException e) {
-                    CorePlugin.logger().error("Failed to obtain java project for " + project, e);
-                    return false;
-                }
-            }
-        }).transform(new Function<IProject, IJavaProject>() {
-
-            @Override
-            public IJavaProject apply(IProject project) {
-                return JavaCore.create(project);
-            }
-        }).toList();
     }
 
     private List<IProject> collectSelectedProjects(ExecutionEvent event) {
