@@ -101,20 +101,21 @@ class ProjectImportJobTest extends Specification {
 
     def "Importing a project twice won't result in duplicate filters"() {
         setup:
+        def workspaceOperations = CorePlugin.workspaceOperations()
         File rootProject = newMultiProject()
 
         when:
         ProjectImportJob job = newProjectImportJob(rootProject)
         job.schedule()
         job.join()
-        CorePlugin.workspaceOperations().deleteAllProjects(null)
+        workspaceOperations.deleteAllProjects(null)
 
         job = newProjectImportJob(rootProject)
         job.schedule()
         job.join()
 
         then:
-        def filters = CorePlugin.workspaceOperations().findProjectByName(rootProject.name).get().getFilters()
+        def filters = workspaceOperations.findProjectByName(rootProject.name).get().getFilters()
         filters.length == 3
         (filters[0].fileInfoMatcherDescription.arguments as String).endsWith('subproject')
         (filters[1].fileInfoMatcherDescription.arguments as String).endsWith('build')
@@ -123,23 +124,20 @@ class ProjectImportJobTest extends Specification {
 
     def "Can import deleted project located in default location"() {
         setup:
+        def workspaceOperations = CorePlugin.workspaceOperations()
         def workspaceRootLocation = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString()
         def root = new File(workspaceRootLocation)
-        def workspaceOperations = CorePlugin.workspaceOperations()
 
         def project = workspaceOperations.createProject("projectname", root, ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
         project.delete(false, true, new NullProgressMonitor())
-        ProjectImportJob job = newProjectImportJob(new File(workspaceRootLocation, "projectname"))
 
         when:
+        ProjectImportJob job = newProjectImportJob(new File(workspaceRootLocation, "projectname"))
         job.schedule()
         job.join()
 
         then:
         workspaceOperations.allProjects.size() == 1
-
-        cleanup:
-        project.delete(true, true, new NullProgressMonitor())
     }
 
     def newProject(boolean projectDescriptorExists, boolean applyJavaPlugin) {
