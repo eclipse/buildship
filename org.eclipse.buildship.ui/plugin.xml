@@ -313,6 +313,7 @@
                         <with
                                 variable="activeMenuSelection">
                             <iterate
+                                    operator="or"
                                     ifEmpty="false">
                                 <adapt
                                         type="org.eclipse.core.resources.IProject">
