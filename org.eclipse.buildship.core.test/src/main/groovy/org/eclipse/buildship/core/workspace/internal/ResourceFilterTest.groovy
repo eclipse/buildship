@@ -1,7 +1,8 @@
 package org.eclipse.buildship.core.workspace.internal
 
 import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
+import org.eclipse.buildship.core.util.file.FileUtils
 
 import org.eclipse.core.filesystem.EFS
 import org.eclipse.core.resources.IFolder
