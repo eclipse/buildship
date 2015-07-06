@@ -48,6 +48,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
+import org.eclipse.buildship.ui.util.predicate.Predicates;
 
 /**
  * Refreshes the classpath for all Gradle projects that belong to the same builds as the currently selected Gradle projects.
@@ -107,7 +108,7 @@ public final class RefreshGradleClasspathContainerHandler extends AbstractHandle
     }
 
     private Set<OmniGradleProjectStructure> collectSelectedRootGradleProjects(ExecutionEvent event) {
-        return FluentIterable.from(collectSelectedProjects(event)).transform(new Function<IProject, OmniGradleProjectStructure>() {
+        return FluentIterable.from(collectSelectedProjects(event)).filter(Predicates.hasGradleNature()).transform(new Function<IProject, OmniGradleProjectStructure>() {
 
             @Override
             public OmniGradleProjectStructure apply(IProject javaProject) {
