@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectBuilder
 import org.eclipse.buildship.core.configuration.GradleProjectNature
+import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.core.runtime.NullProgressMonitor
@@ -125,7 +126,7 @@ class ProjectImportJobTest extends Specification {
     def "Can import deleted project located in default location"() {
         setup:
         def workspaceOperations = CorePlugin.workspaceOperations()
-        def workspaceRootLocation = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString()
+        def workspaceRootLocation = LegacyEclipseSpockTestHelper.workspace.root.location.toString()
         def root = new File(workspaceRootLocation)
 
         def project = workspaceOperations.createProject("projectname", root, ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
