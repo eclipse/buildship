@@ -8,13 +8,34 @@ version of Gradle that Buildship interacts with, certain features of Buildship m
 
 ## Installing from eclipse.org update site
 
-We propose you install Buildship from one of the provided composite update sites listed on [eclipse.org](https://projects.eclipse.org/projects/tools.buildship/downloads):
+We propose you install Buildship from one of the provided composite update sites listed on [eclipse.org](https://projects.eclipse.org/projects/tools.buildship/downloads).
 
-  * `http://download.eclipse.org/buildship/updates/milestones/1.0`
-  * `http://download.eclipse.org/buildship/updates/snapshots/1.0`
+Buildship is also availiable in the [Eclipse Marketplace](http://marketplace.eclipse.org/content/buildship-gradle-integration).
 
-Each commit to the Buildship project creates a new snapshot version that is ready for download from eclipse.org. In regular intervals, the Buildship team
-creates a new milestone version and makes it available on eclipse.org.
+For manual installation the complete list of update sites:
+
+Eclipse Version | Type      | Update Site
+--------------  | ----------| ------------
+Mars (4.5)      | release   | `http://download.eclipse.org/buildship/updates/e45/releases/1.0`
+                | milestone | `http://download.eclipse.org/buildship/updates/e45/milestones/1.0`
+                | snapshot  | `http://download.eclipse.org/buildship/updates/e45/snapshots/1.0`
+Luna (4.4)      | release   | `http://download.eclipse.org/buildship/updates/e44/releases/1.0`
+                | milestone | `http://download.eclipse.org/buildship/updates/e44/milestones/1.0`
+                | snapshot  | `http://download.eclipse.org/buildship/updates/e44/snapshots/1.0`
+Kepler (4.3)    | release   | `http://download.eclipse.org/buildship/updates/e43/releases/1.0`
+                | milestone | `http://download.eclipse.org/buildship/updates/e43/milestones/1.0`
+                | snapshot  | `http://download.eclipse.org/buildship/updates/e43/snapshots/1.0`
+Juno (4.2)      | release   | `http://download.eclipse.org/buildship/updates/e42/releases/1.0`
+                | milestone | `http://download.eclipse.org/buildship/updates/e42/milestones/1.0`
+                | snapshot  | `http://download.eclipse.org/buildship/updates/e42/snapshots/1.0`
+Indigo (3.7)    | release   | `http://download.eclipse.org/buildship/updates/e37/releases/1.0`
+                | milestone | `http://download.eclipse.org/buildship/updates/e37/milestones/1.0`
+                | snapshot  | `http://download.eclipse.org/buildship/updates/e37/snapshots/1.0`
+Helios (3.6)    | release   | `http://download.eclipse.org/buildship/updates/e36/releases/1.0`
+                | milestone | `http://download.eclipse.org/buildship/updates/e36/milestones/1.0`
+                | snapshot  | `http://download.eclipse.org/buildship/updates/e36/snapshots/1.0`
+
+The continuous integration server generates a nightly snapshot release each day 23:00 CET which become availables at the snapshot update sites above. In regular intervals, the Buildship team also creates a new milestone version and makes it available in the milestone update sites.
 
 Apply the following instructions to install the latest snapshot or milestone of Buildship into Eclipse.
 
