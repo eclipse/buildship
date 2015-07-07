@@ -35,7 +35,7 @@ Helios (3.6)    | release   | `http://download.eclipse.org/buildship/updates/e36
                 | milestone | `http://download.eclipse.org/buildship/updates/e36/milestones/1.0`
                 | snapshot  | `http://download.eclipse.org/buildship/updates/e36/snapshots/1.0`
 
-The continuous integration server generates a nightly snapshot release each day 23:00 CET which become availables at the snapshot update sites above. In regular intervals, the Buildship team also creates a new milestone version and makes it available in the milestone update sites.
+The continuous integration server generates nightly snapshot releases each day 23:00 CET which become availables at the snapshot update sites above. In regular intervals, the Buildship team also creates a new milestone version and makes it available at the milestone update sites.
 
 Apply the following instructions to install the latest snapshot or milestone of Buildship into Eclipse.
 
