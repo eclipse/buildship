@@ -91,14 +91,14 @@ public final class CorePlugin extends Plugin {
     @Override
     public void start(BundleContext bundleContext) throws Exception {
         super.start(bundleContext);
-        registerServices(bundleContext);
         plugin = this;
+        registerServices(bundleContext);
     }
 
     @Override
     public void stop(BundleContext context) throws Exception {
-        plugin = null;
         unregisterServices();
+        plugin = null;
         super.stop(context);
     }
 
