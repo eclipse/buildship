@@ -64,16 +64,16 @@ public final class UiPlugin extends AbstractUIPlugin {
     @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
+        plugin = this;
         registerServices(context);
         registerListeners();
-        plugin = this;
     }
 
     @Override
     public void stop(BundleContext context) throws Exception {
-        plugin = null;
         unregisterListeners();
         unregisterServices();
+        plugin = null;
         super.stop(context);
     }
 
