@@ -8,9 +8,9 @@ version of Gradle that Buildship interacts with, certain features of Buildship m
 
 ## Installing from eclipse.org update site
 
-We propose you install Buildship from one of the provided composite update sites listed on [eclipse.org](https://projects.eclipse.org/projects/tools.buildship/downloads).
+We propose you install Buildship from the [Eclipse Marketplace](http://marketplace.eclipse.org/content/buildship-gradle-integration).
 
-Buildship is also available in the [Eclipse Marketplace](http://marketplace.eclipse.org/content/buildship-gradle-integration).
+Buildship is also available through one of the provided composite update sites listed on [eclipse.org](https://projects.eclipse.org/projects/tools.buildship/downloads).
 
 For manual installation the complete list of update sites:
 
@@ -35,7 +35,9 @@ Helios (3.6)    | release   | `http://download.eclipse.org/buildship/updates/e36
                 | milestone | `http://download.eclipse.org/buildship/updates/e36/milestones/1.0`
                 | snapshot  | `http://download.eclipse.org/buildship/updates/e36/snapshots/1.0`
 
-The continuous integration server generates nightly snapshot releases each day 23:00 CET which become available at the snapshot update sites above. In regular intervals, the Buildship team also creates a new milestone version and makes it available at the milestone update sites.
+The continuous integration server generates nightly snapshot releases each day 23:00 CET which instantly become
+available at the snapshot update sites above. In regular intervals, the Buildship team also creates new
+milestone releases and makes them available at the milestone update sites.
 
 Apply the following instructions to install the latest snapshot or milestone of Buildship into Eclipse.
 
