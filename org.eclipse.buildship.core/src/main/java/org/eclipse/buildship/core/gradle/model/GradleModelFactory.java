@@ -19,7 +19,7 @@ public class GradleModelFactory {
 	private GradleModelFactory() {
 	}
 
-	public static Dependency createDependeny(final String dependencyString) {
+    public static Dependency createDependency(final String dependencyString) {
 		return new Dependency() {
 
 			@Override

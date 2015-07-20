@@ -11,16 +11,11 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
-
-import com.google.common.base.Preconditions;
-
-import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.wizard.Wizard;
-
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.wizard.Wizard;
 
 /**
  * This wizard shows the {@link GradleOptionsWizardPage}, in order to configure the Gradle specific
@@ -44,13 +39,13 @@ public class GradleProjectConvertWizard extends Wizard {
 
         setDialogSettings(dialogSettings);
 
-        this.setController(new ProjectImportWizardController(this));
+        setController(new ProjectImportWizardController(this));
         // instantiate the pages and pass the configuration object that serves as the data model of
         // the wizard
-        ProjectImportConfiguration configuration = this.getController().getConfiguration();
+        ProjectImportConfiguration configuration = getController().getConfiguration();
         this.gradleOptionsPage = new GradleOptionsWizardPage(configuration, publishedGradleVersions);
-        this.gradleOptionsPage.setTitle("Convert to Gralde");
-        this.gradleOptionsPage.setMessage("Settings for the conversion to Gralde");
+        this.gradleOptionsPage.setTitle("Convert to Gradle");
+        this.gradleOptionsPage.setMessage("Settings for the conversion to Gradle");
     }
 
     @Override
