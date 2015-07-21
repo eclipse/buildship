@@ -79,26 +79,21 @@ public final class SourceFolderUpdater {
                 FileUtils.ensureFolderHierarchyExists(sourceDirectory);
                 final IPackageFragmentRoot root = SourceFolderUpdater.this.project.getPackageFragmentRoot(sourceDirectory);
                 IClasspathAttribute fromGradleModel = JavaCore.newClasspathAttribute(CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL, "true");
-                
-                IPath[] includes = new IPath[] {};
-                IPath[] excludes = new IPath[] {};
 
-                // preserve the includes/excludes defined by the user. 
+                // preserve the includes/excludes defined by the user.
                 // this should eventually be provided by the Tooling API,
                 // see Bug 470071
                 Optional<IClasspathEntry> userDefinedClasspathEntry = FluentIterable.from(rawClasspath).firstMatch(new Predicate<IClasspathEntry>() {
-                    
+
                     @Override
                     public boolean apply(IClasspathEntry entry) {
-                        return root.getPath().toString().equals(entry.getPath().toString());
+                        return root.getPath().equals(entry.getPath());
                     }
                 });
 
-                if (userDefinedClasspathEntry.isPresent()) {
-                    includes = userDefinedClasspathEntry.get().getInclusionPatterns();
-                    excludes = userDefinedClasspathEntry.get().getExclusionPatterns();
-                }
-                
+                IPath[] includes = userDefinedClasspathEntry.isPresent() ? userDefinedClasspathEntry.get().getInclusionPatterns() : new IPath[] {};
+                IPath[] excludes = userDefinedClasspathEntry.isPresent() ? userDefinedClasspathEntry.get().getExclusionPatterns() : new IPath[] {};
+
                 // @formatter:off
                 return JavaCore.newSourceEntry(root.getPath(),
                         includes,                                    // use manually defined inclusion patterns, include all if none exist
