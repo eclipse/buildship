@@ -18,6 +18,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
 import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
@@ -68,6 +69,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
 
     // the pages to display in the wizard
     private NewGradleProjectWizardPage newGradleProjectPage;
+    private GradleOptionsWizardPage gradleOptionsPage;
     private ProjectPreviewWizardPage projectPreviewPage;
 
     // the controllers that contain the wizard logic
@@ -75,13 +77,16 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
     private final ProjectCreationWizardController creationController;
     private final IPageChangedListener pageChangeListener;
 
+    private PublishedGradleVersionsWrapper publishedGradleVersions;
+
     /**
      * Creates a new instance and uses the {@link org.eclipse.jface.dialogs.DialogSettings} from
      * {@link org.eclipse.buildship.ui.UiPlugin}.
      */
     @SuppressWarnings("UnusedDeclaration")
     public ProjectCreationWizard() {
-        this(getOrCreateDialogSection(UiPlugin.getInstance().getDialogSettings()));
+        this(getOrCreateDialogSection(UiPlugin.getInstance().getDialogSettings()),
+                CorePlugin.publishedGradleVersions());
     }
 
     /**
@@ -89,7 +94,9 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
      *
      * @param dialogSettings the dialog settings to store/retrieve dialog preferences
      */
-    public ProjectCreationWizard(IDialogSettings dialogSettings) {
+    public ProjectCreationWizard(IDialogSettings dialogSettings,
+            PublishedGradleVersionsWrapper publishedGradleVersions) {
+        this.publishedGradleVersions = publishedGradleVersions;
         // store the dialog settings on the wizard and use them to retrieve / persist the most
         // recent values entered by the user
         setDialogSettings(dialogSettings);
@@ -133,7 +140,8 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
         // assign wizard pages to this wizard
         this.newGradleProjectPage = new NewGradleProjectWizardPage(importConfiguration, creationConfiguration);
         addPage(this.newGradleProjectPage);
-
+        this.gradleOptionsPage = new GradleOptionsWizardPage(importConfiguration, this.publishedGradleVersions);
+        addPage(this.gradleOptionsPage);
         this.projectPreviewPage = new ProjectPreviewWizardPage(importConfiguration,
                 new ProjectPreviewWizardPage.ProjectPreviewLoader() {
                     @Override
