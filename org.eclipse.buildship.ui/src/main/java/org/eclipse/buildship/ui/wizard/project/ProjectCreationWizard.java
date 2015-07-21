@@ -11,19 +11,14 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.FutureCallback;
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingclient.LaunchableConfig;
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.util.Pair;
+import java.io.File;
+import java.util.List;
+
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
 import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
@@ -42,8 +37,15 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.gradle.tooling.ProgressListener;
 
-import java.io.File;
-import java.util.List;
+import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.FutureCallback;
+import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+import com.gradleware.tooling.toolingclient.LaunchableConfig;
+import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
+import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.util.Pair;
 
 /**
  * Page in the {@link ProjectCreationWizard} specifying the name of the Gradle project folder to
@@ -67,6 +69,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
 
     // the pages to display in the wizard
     private final NewGradleProjectWizardPage newGradleProjectPage;
+    private final GradleOptionsWizardPage gradleOptionsPage;
     private final ProjectPreviewWizardPage projectPreviewPage;
 
     // the controllers that contain the wizard logic
@@ -80,7 +83,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
      */
     @SuppressWarnings("UnusedDeclaration")
     public ProjectCreationWizard() {
-        this(getOrCreateDialogSection(UiPlugin.getInstance().getDialogSettings()));
+        this(getOrCreateDialogSection(UiPlugin.getInstance().getDialogSettings()), CorePlugin.publishedGradleVersions());
     }
 
     /**
@@ -88,7 +91,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
      *
      * @param dialogSettings the dialog settings to store/retrieve dialog preferences
      */
-    public ProjectCreationWizard(IDialogSettings dialogSettings) {
+    public ProjectCreationWizard(IDialogSettings dialogSettings, PublishedGradleVersionsWrapper publishedGradleVersions) {
         // store the dialog settings on the wizard and use them to retrieve / persist the most
         // recent values entered by the user
         setDialogSettings(dialogSettings);
@@ -103,6 +106,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
         final ProjectImportConfiguration importConfiguration = this.importController.getConfiguration();
         ProjectCreationConfiguration creationConfiguration = this.creationController.getConfiguration();
         this.newGradleProjectPage = new NewGradleProjectWizardPage(importConfiguration, creationConfiguration);
+        this.gradleOptionsPage = new GradleOptionsWizardPage(importConfiguration, publishedGradleVersions);
         this.projectPreviewPage = new ProjectPreviewWizardPage(importConfiguration, new ProjectPreviewWizardPage.ProjectPreviewLoader() {
             @Override
             public Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler, List<ProgressListener> listeners) {
@@ -140,6 +144,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
     public void addPages() {
         // assign wizard pages to this wizard
         addPage(this.newGradleProjectPage);
+        addPage(this.gradleOptionsPage);
         addPage(this.projectPreviewPage);
 
         // show progress bar when getContainer().run() is called
@@ -207,7 +212,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
 
         @Override
         public void pageChanged(PageChangedEvent event) {
-            if (this.projectCreationWizard.projectPreviewPage.equals(this.previousPage) && this.projectCreationWizard.newGradleProjectPage.equals(event.getSelectedPage())) {
+            if (this.projectCreationWizard.projectPreviewPage.equals(this.previousPage) && this.projectCreationWizard.gradleOptionsPage.equals(event.getSelectedPage())) {
                 // user moved back, so we need to delete the previously created Gradle project
                 File projectDir = this.projectCreationWizard.importController.getConfiguration().getProjectDir().getValue();
                 if (projectDir != null) {
