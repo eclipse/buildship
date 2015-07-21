@@ -22,6 +22,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.ISelectionService;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.swt.widgets.Display;
 
@@ -128,31 +129,36 @@ public final class UiPlugin extends AbstractUIPlugin {
         CorePlugin.listenerRegistry().addEventListener(this.workingSetsAddingProjectCreatedListener);
 
         this.contextActivatingSelectionListener = new ContextActivatingSelectionListener(UiPluginConstants.GRADLE_NATURE_CONTEXT_ID, Predicates.hasGradleNature(), getWorkbench());
-        Display.getDefault().asyncExec(new Runnable() {
+        Display display = PlatformUI.getWorkbench().getDisplay();
+        if (display != null && !display.isDisposed()) {
+            display.asyncExec(new Runnable() {
 
-            @Override
-            public void run() {
-                ((ISelectionService) getWorkbench().getActiveWorkbenchWindow().getService(ISelectionService.class))
-                .addSelectionListener(UiPlugin.this.contextActivatingSelectionListener);
-            
-            }
-        });
+                @Override
+                public void run() {
+                    ((ISelectionService) getWorkbench().getActiveWorkbenchWindow().getService(ISelectionService.class))
+                    .addSelectionListener(UiPlugin.this.contextActivatingSelectionListener);
+                }
+            });
+        }
     }
 
     @SuppressWarnings({"cast", "RedundantCast"})
     private void unregisterListeners() {
-        Display.getDefault().asyncExec(new Runnable() {
+        Display display = PlatformUI.getWorkbench().getDisplay();
+        if (display != null && !display.isDisposed()) {
+            display.asyncExec(new Runnable() {
 
-            @Override
-            public void run() {
-                // if the selection service is disposed, then the listeners are already removed
-                // (see the javadoc on ISelectionService.addSelectionListener(ISelectionListener listener))
-                ISelectionService selectionService = ((ISelectionService) getWorkbench().getService(ISelectionService.class));
-                if (selectionService != null) {
-                    selectionService.removeSelectionListener(UiPlugin.this.contextActivatingSelectionListener);
+                @Override
+                public void run() {
+                     // if the selection service is disposed, then the listeners are already removed
+                    // (see the javadoc on ISelectionService.addSelectionListener(ISelectionListener listener))
+                    ISelectionService selectionService = ((ISelectionService) getWorkbench().getService(ISelectionService.class));
+                    if (selectionService != null) {
+                        selectionService.removeSelectionListener(UiPlugin.this.contextActivatingSelectionListener);
+                    }
                 }
-            }
-        });
+            });
+        }
         CorePlugin.listenerRegistry().removeEventListener(this.workingSetsAddingProjectCreatedListener);
         CorePlugin.listenerRegistry().removeEventListener(this.executionShowingBuildLaunchRequestListener);
         DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(this.consoleShowingLaunchListener);
