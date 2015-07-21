@@ -14,7 +14,6 @@ package org.eclipse.buildship.core.util.gradle;
 import java.util.List;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.Logger;
 
 import org.gradle.util.GradleVersion;
 
@@ -40,10 +39,7 @@ public final class PublishedGradleVersionsWrapper {
         try {
             return Optional.of(PublishedGradleVersions.create(true));
         } catch (Exception e) {
-            Logger logger = CorePlugin.logger();
-            if (logger != null) {
-                logger.warn("Cannot retrieve published Gradle version.", e);
-            }
+            CorePlugin.logger().warn("Cannot retrieve published Gradle version.", e);
             return  Optional.absent();
         }
     }
