@@ -77,15 +77,13 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
     private final ProjectCreationWizardController creationController;
     private final IPageChangedListener pageChangeListener;
 
-
     /**
      * Creates a new instance and uses the {@link org.eclipse.jface.dialogs.DialogSettings} from
      * {@link org.eclipse.buildship.ui.UiPlugin}.
      */
     @SuppressWarnings("UnusedDeclaration")
     public ProjectCreationWizard() {
-        this(getOrCreateDialogSection(UiPlugin.getInstance().getDialogSettings()),
-                CorePlugin.publishedGradleVersions());
+        this(getOrCreateDialogSection(UiPlugin.getInstance().getDialogSettings()), CorePlugin.publishedGradleVersions());
     }
 
     /**
@@ -93,8 +91,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
      *
      * @param dialogSettings the dialog settings to store/retrieve dialog preferences
      */
-    public ProjectCreationWizard(IDialogSettings dialogSettings,
-            PublishedGradleVersionsWrapper publishedGradleVersions) {
+    public ProjectCreationWizard(IDialogSettings dialogSettings, PublishedGradleVersionsWrapper publishedGradleVersions) {
         // store the dialog settings on the wizard and use them to retrieve / persist the most
         // recent values entered by the user
         setDialogSettings(dialogSettings);
@@ -215,8 +212,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
 
         @Override
         public void pageChanged(PageChangedEvent event) {
-            if (this.projectCreationWizard.projectPreviewPage.equals(this.previousPage)
-                    && this.projectCreationWizard.gradleOptionsPage.equals(event.getSelectedPage())) {
+            if (this.projectCreationWizard.projectPreviewPage.equals(this.previousPage) && this.projectCreationWizard.gradleOptionsPage.equals(event.getSelectedPage())) {
                 // user moved back, so we need to delete the previously created Gradle project
                 File projectDir = this.projectCreationWizard.importController.getConfiguration().getProjectDir().getValue();
                 if (projectDir != null) {
@@ -226,8 +222,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
                     // project location validator is triggered before the location directory is
                     // deleted. to clear the error and re-enable the wizard finish button, the page
                     // page completion is re-calculated and set here
-                    this.projectCreationWizard.gradleOptionsPage
-                            .setPageComplete(this.projectCreationWizard.gradleOptionsPage.isPageComplete());
+                    this.projectCreationWizard.newGradleProjectPage.setPageComplete(this.projectCreationWizard.newGradleProjectPage.isPageComplete());
                 }
             }
             this.previousPage = (IWizardPage) event.getSelectedPage();
