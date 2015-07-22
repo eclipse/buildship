@@ -7,40 +7,13 @@
  *
  * Contributors:
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
+ *     Simon Scholz <simon.scholz@vogella.com> - Bug 472223
  */
 
 package org.eclipse.buildship.core.projectimport;
 
 import java.io.File;
 import java.util.List;
-
-import org.gradle.tooling.ProgressListener;
-
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-
-import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.OmniGradleProject;
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
-import com.gradleware.tooling.toolingmodel.util.Maybe;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.core.runtime.jobs.IJobManager;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jdt.launching.JavaRuntime;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
@@ -51,7 +24,35 @@ import org.eclipse.buildship.core.projectimport.internal.DefaultProjectCreatedEv
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
+import org.eclipse.buildship.core.util.workspace.WorkspaceUtils;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.jobs.IJobManager;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jdt.launching.JavaRuntime;
+import org.gradle.tooling.ProgressListener;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
+import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
+import com.gradleware.tooling.toolingmodel.OmniGradleProject;
+import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
+import com.gradleware.tooling.toolingmodel.util.Maybe;
 
 /**
  * Imports a Gradle project into Eclipse using the project import coordinates given by a
@@ -59,7 +60,7 @@ import org.eclipse.buildship.core.workspace.WorkspaceOperations;
  */
 public final class ProjectImportJob extends ToolingApiWorkspaceJob {
 
-    private final FixedRequestAttributes fixedAttributes;
+    private FixedRequestAttributes fixedAttributes;
     private final ImmutableList<String> workingSets;
     private final AsyncHandler initializer;
 
@@ -89,6 +90,13 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         manager.beginRule(workspaceRoot, monitor);
         try {
+            // in case the project dir is in the workspace folder the root
+            // folder name has to be change to the "rootProject.name", which is
+            // defined in the settings.gradle file. See Bug 472223
+            if (WorkspaceUtils.isInWorkspaceFolder(this.fixedAttributes.getProjectDir())) {
+                changeProjectRootFolderName(monitor);
+            }
+
             OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(new SubProgressMonitor(monitor, 50));
             OmniEclipseProject rootProject = eclipseGradleBuild.getRootEclipseProject();
             List<OmniEclipseProject> allProjects = rootProject.getAll();
@@ -102,6 +110,21 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         // monitor is closed by caller in super class
     }
 
+    public void changeProjectRootFolderName(IProgressMonitor monitor) {
+        File projectDir = this.fixedAttributes.getProjectDir();
+            OmniGradleBuildStructure gradleBuildStructure = fetchGradleBuildStructure(monitor);
+            OmniGradleProjectStructure rootProject = gradleBuildStructure.getRootProject();
+            if (!(projectDir.getName().equals(rootProject.getName()))) {
+                File newProjectDir = new File(projectDir.getParentFile(), rootProject.getName());
+                projectDir.renameTo(newProjectDir);
+                // override fixedAttributes with newProjectDir
+                this.fixedAttributes = new FixedRequestAttributes(newProjectDir,
+                        this.fixedAttributes.getGradleUserHome(),
+                        this.fixedAttributes.getGradleDistribution(), this.fixedAttributes.getJavaHome(),
+                        this.fixedAttributes.getJvmArguments(), this.fixedAttributes.getArguments());
+            }
+    }
+
     private OmniEclipseGradleBuild fetchEclipseGradleBuild(IProgressMonitor monitor) {
         monitor.beginTask("Load Eclipse Gradle project", IProgressMonitor.UNKNOWN);
         try {
@@ -111,6 +134,20 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
                     ImmutableList.<org.gradle.tooling.events.ProgressListener> of(), getToken());
             ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(this.fixedAttributes);
             return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FORCE_RELOAD);
+        } finally {
+            monitor.done();
+        }
+    }
+
+    private OmniGradleBuildStructure fetchGradleBuildStructure(IProgressMonitor monitor) {
+        monitor.beginTask("Load Gradle Project Structure", IProgressMonitor.UNKNOWN);
+        try {
+            ProcessStreams stream = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
+            TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, stream.getOutput(),
+                    stream.getError(), null, ImmutableList.<ProgressListener> of(),
+                    ImmutableList.<org.gradle.tooling.events.ProgressListener> of(), getToken());
+            ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(this.fixedAttributes);
+            return repository.fetchGradleBuildStructure(transientAttributes, FetchStrategy.FORCE_RELOAD);
         } finally {
             monitor.done();
         }
