@@ -11,18 +11,11 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.FutureCallback;
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
-import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
-import com.gradleware.tooling.toolingmodel.util.Pair;
-import com.gradleware.tooling.toolingutils.binding.Property;
+import java.io.File;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.gradle.Limitations;
 import org.eclipse.buildship.core.i18n.CoreMessages;
@@ -30,6 +23,7 @@ import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
+import org.eclipse.buildship.core.util.workspace.WorkspaceUtils;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.layout.LayoutUtils;
@@ -47,16 +41,28 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.util.GradleVersion;
 
-import java.io.File;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.FutureCallback;
+import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
+import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
+import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
+import com.gradleware.tooling.toolingmodel.util.Pair;
+import com.gradleware.tooling.toolingutils.binding.Property;
 
 /**
  * Page in the {@link ProjectImportWizard} showing a preview about the project about to be
@@ -336,8 +342,29 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
             // the job has already taken care of logging the success
             this.latch.countDown();
 
+            OmniGradleBuildStructure gradleBuildStructure = result.getSecond();
             updateSummary(result.getFirst());
-            populateTree(result.getSecond());
+            populateTree(gradleBuildStructure);
+            
+            showProjectRootNameChangeWarning(gradleBuildStructure);
+        }
+
+        private void showProjectRootNameChangeWarning(OmniGradleBuildStructure gradleBuildStructure) {
+
+            final Property<File> projectDir = getConfiguration().getProjectDir();
+            final String rootProjectName = gradleBuildStructure.getRootProject().getName();
+            if (WorkspaceUtils.isInWorkspaceFolder(projectDir.getValue())
+                    && !(projectDir.getValue().getName().equals(rootProjectName))) {
+                PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        setMessage("The root project folder will be renamed to " + rootProjectName, WARNING);
+                        ProjectPreviewWizardPage.this.projectDirLabel.setText(
+                                new File(projectDir.getValue().getParentFile(), rootProjectName).getAbsolutePath());
+                    }
+                });
+            }
         }
 
         @Override
