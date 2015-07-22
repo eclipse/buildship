@@ -14,8 +14,16 @@ package org.eclipse.buildship.ui.wizard.project;
 import java.io.File;
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
-
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.core.util.workspace.WorkspaceUtils;
+import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.UiPluginConstants;
+import org.eclipse.buildship.ui.i18n.UiMessages;
+import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
+import org.eclipse.buildship.ui.util.layout.LayoutUtils;
+import org.eclipse.buildship.ui.util.widget.UiBuilder;
+import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -29,15 +37,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkingSet;
 
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.UiPluginConstants;
-import org.eclipse.buildship.ui.i18n.UiMessages;
-import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
-import org.eclipse.buildship.ui.util.layout.LayoutUtils;
-import org.eclipse.buildship.ui.util.widget.UiBuilder;
-import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Page in the {@link ProjectImportWizard} specifying the Gradle root project folder to import.
@@ -99,6 +99,19 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
             public void modifyText(ModifyEvent e) {
                 File projectDir = FileUtils.getAbsoluteFile(GradleProjectWizardPage.this.projectDirText.getText()).orNull();
                 getConfiguration().setProjectDir(projectDir);
+                // TODO currently a
+                // com.gradleware.tooling.toolingutils.binding.ValidationListener
+                // only receives error messages, therefore the warning message
+                // is implemented here, but it should also be done by a
+                // com.gradleware.tooling.toolingutils.binding.Validator<T>
+                if (NONE == getMessageType()) {
+                    // in case the current message type is NONE, a warning may
+                    // be shown
+                    if (WorkspaceUtils.isInWorkspaceFolder(projectDir)) {
+                        setMessage("It is recommended to locate your Gradle projects outside the workspace location",
+                                WARNING);
+                    }
+                }
             }
         });
         this.workingSetConfigurationWidget.addWorkingSetChangeListener(new WorkingSetChangedListener() {
