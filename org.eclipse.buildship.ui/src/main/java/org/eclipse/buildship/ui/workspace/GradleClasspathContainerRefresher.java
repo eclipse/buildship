@@ -8,119 +8,35 @@
  * Contributors:
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  *     Ian Stewart-Binks (Red Hat Inc.) - Bug 473862 - F5 key shortcut doesn't refresh project folder contents
+ *     Donát Csikós (Gradle Inc.) - Bug 471786
  */
 
 package org.eclipse.buildship.ui.workspace;
 
 import java.util.List;
-import java.util.Set;
 
-import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.ProgressListener;
-
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
-import com.google.common.collect.ImmutableSet;
-
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
-import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdapterManager;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.console.ProcessStreams;
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
-import org.eclipse.buildship.ui.util.predicate.Predicates;
+import org.eclipse.buildship.core.workspace.RefreshGradleClasspathContainerJob;
 
 /**
- * Requests an update on all {@link GradleClasspathContainer} related to the current selection.
- *
- * todo (donat) this class should be deleted after the project refresh improvement PR is merged
+ * Collects all selected {@link IProject} instances and schedules a
+ * {@link RefreshGradleClasspathContainerJob} on them.
  */
 public final class GradleClasspathContainerRefresher {
 
-    public static void refresh(final ExecutionEvent event) {
-        Set<OmniGradleProjectStructure> rootProjects = collectSelectedRootGradleProjects(event);
-        for (IJavaProject javaProject : collectAllRelatedWorkspaceProjects(rootProjects)) {
-            GradleClasspathContainer.requestUpdateOf(javaProject);
-        }
-    }
-
-    private static List<IJavaProject> collectAllRelatedWorkspaceProjects(Set<OmniGradleProjectStructure> rootProjects) {
-        final ImmutableSet<String> allProjectNames = getAllProjectNames(rootProjects);
-        return getExistingJavaProjects(allProjectNames);
-    }
-
-    private static ImmutableSet<String> getAllProjectNames(Set<OmniGradleProjectStructure> rootProjects) {
-        ImmutableSet.Builder<String> relatedProjects = ImmutableSet.builder();
-        for (OmniGradleProjectStructure rootProject : rootProjects) {
-            relatedProjects.addAll(getAllProjectNamesInGradleRootProject(rootProject));
-        }
-
-        return relatedProjects.build();
-    }
-
-    private static List<String> getAllProjectNamesInGradleRootProject(OmniGradleProjectStructure root) {
-        Builder<String> result = ImmutableList.builder();
-        result.add(root.getName());
-        for (OmniGradleProjectStructure child : root.getChildren()) {
-            result.add(child.getName());
-        }
-        return result.build();
-    }
-
-    private static List<IJavaProject> getExistingJavaProjects(final ImmutableSet<String> projectNames) {
-        return FluentIterable.from(CorePlugin.workspaceOperations().getAllProjects()).filter(new Predicate<IProject>() {
-
-            @Override
-            public boolean apply(IProject project) {
-                try {
-                    return project.isAccessible() && projectNames.contains(project.getName()) && project.hasNature(JavaCore.NATURE_ID);
-                } catch (CoreException e) {
-                    throw new GradlePluginsRuntimeException(e);
-                }
-            }
-        }).transform(new Function<IProject, IJavaProject>() {
-
-            @Override
-            public IJavaProject apply(IProject project) {
-                return JavaCore.create(project);
-            }
-        }).toList();
-    }
-
-    private static Set<OmniGradleProjectStructure> collectSelectedRootGradleProjects(ExecutionEvent event) {
-        return FluentIterable.from(collectSelectedProjects(event)).filter(Predicates.hasGradleNature()).transform(new Function<IProject, OmniGradleProjectStructure>() {
-
-            @Override
-            public OmniGradleProjectStructure apply(IProject javaProject) {
-                FixedRequestAttributes requestAttributes = CorePlugin.projectConfigurationManager().readProjectConfiguration(javaProject.getProject()).getRequestAttributes();
-                ProcessStreams stream = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-
-                OmniGradleBuildStructure structure = CorePlugin.modelRepositoryProvider().getModelRepository(requestAttributes)
-                        .fetchGradleBuildStructure(new TransientRequestAttributes(false, stream.getOutput(), stream.getError(), stream.getInput(),
-                                ImmutableList.<ProgressListener> of(), ImmutableList.<org.gradle.tooling.events.ProgressListener> of(),
-                                GradleConnector.newCancellationTokenSource().token()), FetchStrategy.LOAD_IF_NOT_CACHED);
-                return structure.getRootProject();
-            }
-        }).toSet();
+    public static void execute(final ExecutionEvent event) {
+        new RefreshGradleClasspathContainerJob(collectSelectedProjects(event)).schedule();
     }
 
     private static List<IProject> collectSelectedProjects(ExecutionEvent event) {
