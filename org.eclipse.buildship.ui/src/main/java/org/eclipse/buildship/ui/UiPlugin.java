@@ -7,22 +7,13 @@
  *
  * Contributors:
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
+ *     Simon Scholz <simon.scholz@vogella.com> - Bug 473389
  */
 
 package org.eclipse.buildship.ui;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
-
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
-
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.jface.resource.ImageRegistry;
-import org.eclipse.ui.ISelectionService;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.Logger;
@@ -34,8 +25,18 @@ import org.eclipse.buildship.ui.launch.ConsoleShowingLaunchListener;
 import org.eclipse.buildship.ui.notification.DialogUserNotification;
 import org.eclipse.buildship.ui.util.predicate.Predicates;
 import org.eclipse.buildship.ui.util.selection.ContextActivatingSelectionListener;
+import org.eclipse.buildship.ui.util.selection.ContextActivatingWindowListener;
 import org.eclipse.buildship.ui.view.execution.ExecutionShowingBuildLaunchRequestListener;
 import org.eclipse.buildship.ui.wizard.project.WorkingSetsAddingProjectCreatedListener;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.ui.ISelectionService;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * The plug-in runtime class for the Gradle integration plug-in containing the UI-related elements.
@@ -60,6 +61,7 @@ public final class UiPlugin extends AbstractUIPlugin {
     private ExecutionShowingBuildLaunchRequestListener executionShowingBuildLaunchRequestListener;
     private WorkingSetsAddingProjectCreatedListener workingSetsAddingProjectCreatedListener;
     private ContextActivatingSelectionListener contextActivatingSelectionListener;
+    private ContextActivatingWindowListener contextActivatingWindowListener;
 
     @Override
     public void start(BundleContext context) throws Exception {
@@ -127,16 +129,27 @@ public final class UiPlugin extends AbstractUIPlugin {
         CorePlugin.listenerRegistry().addEventListener(this.workingSetsAddingProjectCreatedListener);
 
         this.contextActivatingSelectionListener = new ContextActivatingSelectionListener(UiPluginConstants.GRADLE_NATURE_CONTEXT_ID, Predicates.hasGradleNature(), getWorkbench());
-        ((ISelectionService) getWorkbench().getActiveWorkbenchWindow().getService(ISelectionService.class)).addSelectionListener(this.contextActivatingSelectionListener);
+        IWorkbenchWindow[] workbenchWindows = getWorkbench().getWorkbenchWindows();
+        for (IWorkbenchWindow workbenchWindow : workbenchWindows) {
+            ISelectionService selectionService = workbenchWindow.getSelectionService();
+            if (selectionService != null) {
+                selectionService.addSelectionListener(this.contextActivatingSelectionListener);
+            }
+        }
+
+        this.contextActivatingWindowListener = new ContextActivatingWindowListener(this.contextActivatingSelectionListener);
+        getWorkbench().addWindowListener(this.contextActivatingWindowListener);
     }
 
     @SuppressWarnings({"cast", "RedundantCast"})
     private void unregisterListeners() {
-        // if the selection service is disposed, then the listeners are already removed
-        // (see the javadoc on ISelectionService.addSelectionListener(ISelectionListener listener))
-        ISelectionService selectionService = ((ISelectionService) getWorkbench().getService(ISelectionService.class));
-        if (selectionService != null) {
-            selectionService.removeSelectionListener(this.contextActivatingSelectionListener);
+        getWorkbench().removeWindowListener(this.contextActivatingWindowListener);
+        IWorkbenchWindow[] workbenchWindows = getWorkbench().getWorkbenchWindows();
+        for (IWorkbenchWindow workbenchWindow : workbenchWindows) {
+            ISelectionService selectionService = workbenchWindow.getSelectionService();
+            if (selectionService != null) {
+                selectionService.removeSelectionListener(this.contextActivatingSelectionListener);
+            }
         }
         CorePlugin.listenerRegistry().removeEventListener(this.workingSetsAddingProjectCreatedListener);
         CorePlugin.listenerRegistry().removeEventListener(this.executionShowingBuildLaunchRequestListener);
