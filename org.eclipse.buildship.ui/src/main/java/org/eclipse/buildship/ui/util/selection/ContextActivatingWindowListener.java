@@ -9,19 +9,17 @@
  *     Simon Scholz <simon.scholz@vogella.com> - Bug 473389
  */
 
-package org.eclipse.buildship.ui.util.window;
+package org.eclipse.buildship.ui.util.selection;
 
-import org.eclipse.buildship.ui.util.selection.ContextActivatingSelectionListener;
 import org.eclipse.ui.IWindowListener;
 import org.eclipse.ui.IWorkbenchWindow;
 
 /**
- * {@link IWindowListener}, which adds
- * {@link ContextActivatingSelectionListener} to a newly opened window.
+ * Dynamically adds a given {@link ContextActivatingSelectionListener} when the window is opened.
  */
-public class ContextActivatingWindowListener implements IWindowListener {
+public final class ContextActivatingWindowListener implements IWindowListener {
 
-    private ContextActivatingSelectionListener contextActivatingSelectionListener;
+    private final ContextActivatingSelectionListener contextActivatingSelectionListener;
 
     public ContextActivatingWindowListener(ContextActivatingSelectionListener contextActivatingSelectionListener) {
         this.contextActivatingSelectionListener = contextActivatingSelectionListener;
@@ -36,12 +34,13 @@ public class ContextActivatingWindowListener implements IWindowListener {
     }
 
     @Override
-    public void windowClosed(IWorkbenchWindow window) {
+    public void windowOpened(IWorkbenchWindow window) {
+        window.getSelectionService().addSelectionListener(this.contextActivatingSelectionListener);
     }
 
     @Override
-    public void windowOpened(IWorkbenchWindow window) {
-        window.getSelectionService().addSelectionListener(this.contextActivatingSelectionListener);
+    public void windowClosed(IWorkbenchWindow window) {
+        window.getSelectionService().removeSelectionListener(this.contextActivatingSelectionListener);
     }
 
 }

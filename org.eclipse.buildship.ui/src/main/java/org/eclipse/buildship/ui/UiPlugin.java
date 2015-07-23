@@ -25,7 +25,7 @@ import org.eclipse.buildship.ui.launch.ConsoleShowingLaunchListener;
 import org.eclipse.buildship.ui.notification.DialogUserNotification;
 import org.eclipse.buildship.ui.util.predicate.Predicates;
 import org.eclipse.buildship.ui.util.selection.ContextActivatingSelectionListener;
-import org.eclipse.buildship.ui.util.window.ContextActivatingWindowListener;
+import org.eclipse.buildship.ui.util.selection.ContextActivatingWindowListener;
 import org.eclipse.buildship.ui.view.execution.ExecutionShowingBuildLaunchRequestListener;
 import org.eclipse.buildship.ui.wizard.project.WorkingSetsAddingProjectCreatedListener;
 import org.eclipse.debug.core.DebugPlugin;
@@ -61,7 +61,6 @@ public final class UiPlugin extends AbstractUIPlugin {
     private ExecutionShowingBuildLaunchRequestListener executionShowingBuildLaunchRequestListener;
     private WorkingSetsAddingProjectCreatedListener workingSetsAddingProjectCreatedListener;
     private ContextActivatingSelectionListener contextActivatingSelectionListener;
-
     private ContextActivatingWindowListener contextActivatingWindowListener;
 
     @Override
@@ -138,17 +137,13 @@ public final class UiPlugin extends AbstractUIPlugin {
             }
         }
 
-        this.contextActivatingWindowListener = new ContextActivatingWindowListener(
-                this.contextActivatingSelectionListener);
-
+        this.contextActivatingWindowListener = new ContextActivatingWindowListener(this.contextActivatingSelectionListener);
         getWorkbench().addWindowListener(this.contextActivatingWindowListener);
     }
 
     @SuppressWarnings({"cast", "RedundantCast"})
     private void unregisterListeners() {
         getWorkbench().removeWindowListener(this.contextActivatingWindowListener);
-        // if the selection service is disposed, then the listeners are already removed
-        // (see the javadoc on ISelectionService.addSelectionListener(ISelectionListener listener))
         IWorkbenchWindow[] workbenchWindows = getWorkbench().getWorkbenchWindows();
         for (IWorkbenchWindow workbenchWindow : workbenchWindows) {
             ISelectionService selectionService = workbenchWindow.getSelectionService();
