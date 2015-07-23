@@ -40,15 +40,18 @@ import org.eclipse.buildship.core.util.file.FileUtils;
 /**
  * Updates the source folders of the target project.
  * <p/>
- * The update is triggered via {@link #update(IJavaProject, List, IProgressMonitor)}.
- * The method executes synchronously and unprotected, without thread synchronization or job scheduling.
+ * The update is triggered via {@link #update(IJavaProject, List, IProgressMonitor)}. The method
+ * executes synchronously and unprotected, without thread synchronization or job scheduling.
  * <p/>
  * The update logic applies the following rules on all source folders:
  * <ul>
- * <li>If it is defined in the Gradle model and it doesn't exist in the project, then it will be created.</li>
+ * <li>If it is defined in the Gradle model and it doesn't exist in the project, then it will be
+ * created.</li>
  * <li>If it was, but is no longer part of the Gradle model, then it will be deleted.</li>
- * <li>If it was created manually and is not part of the Gradle model, then it will remain untouched.</li>
- * <li>If it was created manually and is also part of the Gradle model, then it will be transformed such that subsequent updates will consider it coming from the Gradle model.
+ * <li>If it was created manually and is not part of the Gradle model, then it will remain
+ * untouched.</li>
+ * <li>If it was created manually and is also part of the Gradle model, then it will be transformed
+ * such that subsequent updates will consider it coming from the Gradle model.
  * </ul>
  */
 public final class SourceFolderUpdater {
@@ -80,9 +83,8 @@ public final class SourceFolderUpdater {
                 final IPackageFragmentRoot root = SourceFolderUpdater.this.project.getPackageFragmentRoot(sourceDirectory);
                 IClasspathAttribute fromGradleModel = JavaCore.newClasspathAttribute(CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL, "true");
 
-                // preserve the includes/excludes defined by the user.
-                // this should eventually be provided by the Tooling API,
-                // see Bug 470071
+                // preserve the includes/excludes defined by the user. this should eventually be
+                // provided by the Tooling API, see Bug 470071
                 Optional<IClasspathEntry> userDefinedClasspathEntry = FluentIterable.from(rawClasspath).firstMatch(new Predicate<IClasspathEntry>() {
 
                     @Override
@@ -161,10 +163,10 @@ public final class SourceFolderUpdater {
     /**
      * Updates the source folders on the target project.
      *
-     * @param project       the target project to update the source folders on
+     * @param project the target project to update the source folders on
      * @param sourceFolders the list of source folders from the Gradle model to assign to the
-     *                      project
-     * @param monitor       the monitor to report progress on
+     *            project
+     * @param monitor the monitor to report progress on
      * @throws JavaModelException if the classpath modification fails
      */
     public static void update(IJavaProject project, List<OmniEclipseSourceDirectory> sourceFolders, IProgressMonitor monitor) throws JavaModelException {
