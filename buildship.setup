@@ -80,6 +80,13 @@
         <description>Align workspace Groovy compiler level to referenced libs</description>
       </setupTask>
       <setupTask
+          xsi:type="setup:PreferenceTask"
+          id="buildship.preferences.compiler.unhandledwarning"
+          key="instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.unhandledWarningToken"
+          value="ignore">
+        <description>Don't show warnings on unused suppress warnings annotation arguments</description>
+      </setupTask>
+      <setupTask
           xsi:type="jdt:JRETask"
           id="buildship.preferences.compiler.jre"
           version="JavaSE-1.6"
