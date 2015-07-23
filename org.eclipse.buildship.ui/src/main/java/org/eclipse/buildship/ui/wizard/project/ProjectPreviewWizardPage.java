@@ -23,6 +23,8 @@ import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
 import com.gradleware.tooling.toolingmodel.util.Pair;
 import com.gradleware.tooling.toolingutils.binding.Property;
+
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.gradle.Limitations;
 import org.eclipse.buildship.core.i18n.CoreMessages;
@@ -42,6 +44,7 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Font;
@@ -353,20 +356,32 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
                 @Override
                 public void run() {
-                    // update Gradle user home
-                    if (buildEnvironment.getGradle().getGradleUserHome().isPresent()) {
-                        String gradleUserHome = buildEnvironment.getGradle().getGradleUserHome().get().getAbsolutePath();
-                        ProjectPreviewWizardPage.this.gradleUserHomeLabel.setText(gradleUserHome);
+                    try {
+                        if (!ProjectPreviewWizardPage.this.gradleUserHomeLabel.isDisposed()) {
+                            // update Gradle user home
+                            if (buildEnvironment.getGradle().getGradleUserHome().isPresent()) {
+                                String gradleUserHome = buildEnvironment.getGradle().getGradleUserHome().get().getAbsolutePath();
+                                ProjectPreviewWizardPage.this.gradleUserHomeLabel.setText(gradleUserHome);
+                            }
+                        }
+
+                        if (!ProjectPreviewWizardPage.this.gradleVersionLabel.isDisposed()) {
+                            // update Gradle version
+                            String gradleVersion = buildEnvironment.getGradle().getGradleVersion();
+                            ProjectPreviewWizardPage.this.gradleVersionLabel.setText(gradleVersion);
+                            updateGradleVersionWarningLabel();
+                        }
+
+
+                        if (!ProjectPreviewWizardPage.this.javaHomeLabel.isDisposed()) {
+                            // update Java home
+                            String javaHome = buildEnvironment.getJava().getJavaHome().getAbsolutePath();
+                            ProjectPreviewWizardPage.this.javaHomeLabel.setText(javaHome);
+                        }
+                    } catch (SWTException e) {
+                        String message = String.format("Failed to properly close ProjectPreviewWizardPage.");
+                        CorePlugin.logger().error(message, e);
                     }
-
-                    // update Gradle version
-                    String gradleVersion = buildEnvironment.getGradle().getGradleVersion();
-                    ProjectPreviewWizardPage.this.gradleVersionLabel.setText(gradleVersion);
-                    updateGradleVersionWarningLabel();
-
-                    // update Java home
-                    String javaHome = buildEnvironment.getJava().getJavaHome().getAbsolutePath();
-                    ProjectPreviewWizardPage.this.javaHomeLabel.setText(javaHome);
                 }
             });
         }
@@ -376,14 +391,21 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
                 @Override
                 public void run() {
-                    ProjectPreviewWizardPage.this.projectPreviewTree.removeAll();
+                    try {
+                        if (!ProjectPreviewWizardPage.this.projectPreviewTree.isDisposed()) {
+                              ProjectPreviewWizardPage.this.projectPreviewTree.removeAll();
 
-                    // populate the tree from the build structure
-                    OmniGradleProjectStructure rootProject = buildStructure.getRootProject();
-                    TreeItem rootTreeItem = new TreeItem(ProjectPreviewWizardPage.this.projectPreviewTree, SWT.NONE);
-                    rootTreeItem.setExpanded(true);
-                    rootTreeItem.setText(rootProject.getName());
-                    populateRecursively(rootProject, rootTreeItem);
+                              // populate the tree from the build structure
+                              OmniGradleProjectStructure rootProject = buildStructure.getRootProject();
+                              TreeItem rootTreeItem = new TreeItem(ProjectPreviewWizardPage.this.projectPreviewTree, SWT.NONE);
+                              rootTreeItem.setExpanded(true);
+                              rootTreeItem.setText(rootProject.getName());
+                              populateRecursively(rootProject, rootTreeItem);
+                        }
+                    } catch (SWTException e) {
+                        String message = String.format("Failed to properly close ProjectPreviewWizardPage.");
+                        CorePlugin.logger().error(message, e);
+                    }
                 }
             });
         }
@@ -393,7 +415,14 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
                 @Override
                 public void run() {
-                    ProjectPreviewWizardPage.this.projectPreviewTree.removeAll();
+                    try {
+                        if (!ProjectPreviewWizardPage.this.projectPreviewTree.isDisposed()) {
+                            ProjectPreviewWizardPage.this.projectPreviewTree.removeAll();
+                        }
+                    } catch (SWTException e) {
+                        String message = String.format("Failed to properly close ProjectPreviewWizardPage.");
+                        CorePlugin.logger().error(message, e);
+                    }
                 }
             });
         }
