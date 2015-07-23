@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
@@ -68,19 +69,35 @@ public final class SourceFolderUpdater {
         updateClasspath(newClasspathEntries, monitor);
     }
 
-    private List<IClasspathEntry> collectGradleSourceFolders() {
+    private List<IClasspathEntry> collectGradleSourceFolders() throws JavaModelException {
+        final List<IClasspathEntry> rawClasspath = ImmutableList.copyOf(this.project.getRawClasspath());
         List<IClasspathEntry> sourceFolders = FluentIterable.from(this.sourceFolders).transform(new Function<OmniEclipseSourceDirectory, IClasspathEntry>() {
 
             @Override
             public IClasspathEntry apply(OmniEclipseSourceDirectory directory) {
                 IFolder sourceDirectory = SourceFolderUpdater.this.project.getProject().getFolder(Path.fromOSString(directory.getPath()));
                 FileUtils.ensureFolderHierarchyExists(sourceDirectory);
-                IPackageFragmentRoot root = SourceFolderUpdater.this.project.getPackageFragmentRoot(sourceDirectory);
+                final IPackageFragmentRoot root = SourceFolderUpdater.this.project.getPackageFragmentRoot(sourceDirectory);
                 IClasspathAttribute fromGradleModel = JavaCore.newClasspathAttribute(CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL, "true");
+
+                // preserve the includes/excludes defined by the user.
+                // this should eventually be provided by the Tooling API,
+                // see Bug 470071
+                Optional<IClasspathEntry> userDefinedClasspathEntry = FluentIterable.from(rawClasspath).firstMatch(new Predicate<IClasspathEntry>() {
+
+                    @Override
+                    public boolean apply(IClasspathEntry entry) {
+                        return root.getPath().equals(entry.getPath());
+                    }
+                });
+
+                IPath[] includes = userDefinedClasspathEntry.isPresent() ? userDefinedClasspathEntry.get().getInclusionPatterns() : new IPath[] {};
+                IPath[] excludes = userDefinedClasspathEntry.isPresent() ? userDefinedClasspathEntry.get().getExclusionPatterns() : new IPath[] {};
+
                 // @formatter:off
                 return JavaCore.newSourceEntry(root.getPath(),
-                        new IPath[]{},                               // include all files
-                        new IPath[]{},                               // don't exclude anything
+                        includes,                                    // use manually defined inclusion patterns, include all if none exist
+                        excludes,                                    // use manually defined exclusion patterns, exclude none if none exist
                         null,                                        // use the same output folder as defined on the project
                         new IClasspathAttribute[]{fromGradleModel}   // the source folder is loaded from the current Gradle model
                 );
