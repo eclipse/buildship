@@ -108,7 +108,7 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
                     // in case the current message type is NONE, a warning may
                     // be shown
                     if (WorkspaceUtils.isInWorkspaceFolder(projectDir)) {
-                        setMessage("It is recommended to locate your Gradle projects outside the workspace location",
+                        setMessage(ProjectWizardMessages.GradleProjectWizardPage_project_workspace_location_warning,
                                 WARNING);
                     }
                 }

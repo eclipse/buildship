@@ -345,7 +345,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
             OmniGradleBuildStructure gradleBuildStructure = result.getSecond();
             updateSummary(result.getFirst());
             populateTree(gradleBuildStructure);
-            
+
             showProjectRootNameChangeWarning(gradleBuildStructure);
         }
 

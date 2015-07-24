@@ -63,12 +63,13 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
     private FixedRequestAttributes fixedAttributes;
     private final ImmutableList<String> workingSets;
     private final AsyncHandler initializer;
+    private ProjectImportConfiguration configuration;
 
     public ProjectImportJob(ProjectImportConfiguration configuration, AsyncHandler initializer) {
         super("Importing Gradle project");
+        this.configuration = configuration;
 
         // extract the required data from the mutable configuration object
-        this.fixedAttributes = configuration.toFixedAttributes();
         this.workingSets = configuration.getApplyWorkingSets().getValue() ? ImmutableList.copyOf(configuration.getWorkingSets().getValue()) : ImmutableList.<String>of();
         this.initializer = Preconditions.checkNotNull(initializer);
 
@@ -93,10 +94,12 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
             // in case the project dir is in the workspace folder the root
             // folder name has to be change to the "rootProject.name", which is
             // defined in the settings.gradle file. See Bug 472223
-            if (WorkspaceUtils.isInWorkspaceFolder(this.fixedAttributes.getProjectDir())) {
+            if (WorkspaceUtils.isInWorkspaceFolder(this.configuration.getProjectDir().getValue())) {
                 changeProjectRootFolderName(monitor);
             }
-
+            // create the fixedAttributes after the project dir might have
+            // changed
+            this.fixedAttributes = this.configuration.toFixedAttributes();
             OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(new SubProgressMonitor(monitor, 50));
             OmniEclipseProject rootProject = eclipseGradleBuild.getRootEclipseProject();
             List<OmniEclipseProject> allProjects = rootProject.getAll();
@@ -110,18 +113,15 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         // monitor is closed by caller in super class
     }
 
-    public void changeProjectRootFolderName(IProgressMonitor monitor) {
+    private void changeProjectRootFolderName(IProgressMonitor monitor) {
         File projectDir = this.fixedAttributes.getProjectDir();
             OmniGradleBuildStructure gradleBuildStructure = fetchGradleBuildStructure(monitor);
             OmniGradleProjectStructure rootProject = gradleBuildStructure.getRootProject();
             if (!(projectDir.getName().equals(rootProject.getName()))) {
                 File newProjectDir = new File(projectDir.getParentFile(), rootProject.getName());
                 projectDir.renameTo(newProjectDir);
-                // override fixedAttributes with newProjectDir
-                this.fixedAttributes = new FixedRequestAttributes(newProjectDir,
-                        this.fixedAttributes.getGradleUserHome(),
-                        this.fixedAttributes.getGradleDistribution(), this.fixedAttributes.getJavaHome(),
-                        this.fixedAttributes.getJvmArguments(), this.fixedAttributes.getArguments());
+            // set newProjectDir in the config
+            this.configuration.setProjectDir(newProjectDir);
             }
     }
 
