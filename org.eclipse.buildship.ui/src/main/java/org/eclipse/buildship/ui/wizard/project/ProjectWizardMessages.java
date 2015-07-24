@@ -42,11 +42,14 @@ public final class ProjectWizardMessages extends NLS {
     public static String Label_ProjectName;
     public static String Group_Label_ProjectLocation;
     public static String Button_UseDefaultLocation;
+
+    public static String CheckButton_Show_Welcomepage_Next_Time;
     public static String Label_CustomLocation;
     public static String Group_Label_WorkingSets;
     public static String Message_TargetProjectDirectory;
 
-    public static String InfoMessage_GradleWelcomeWizardPageDefault;
+    public static String InfoMessage_GradleWelcomeWizardPageImport;
+    public static String InfoMessage_GradleWelcomeWizardPageCreation;
     public static String InfoMessage_GradleProjectWizardPageDefault;
     public static String InfoMessage_GradleOptionsWizardPageDefault;
     public static String InfoMessage_PreviewImportWizardPageDefault;
@@ -54,7 +57,8 @@ public final class ProjectWizardMessages extends NLS {
     public static String InfoMessage_NewGradleProjectWizardPageDefault;
     public static String InfoMessage_NewGradleProjectPreviewWizardPageDefault;
 
-    public static String InfoMessage_GradleWelcomeWizardPageContext;
+    public static String InfoMessage_GradleWelcomeWizardPageImportContext;
+    public static String InfoMessage_GradleWelcomeWizardPageCreationContext;
     public static String InfoMessage_GradleProjectWizardPageContext;
     public static String InfoMessage_GradleOptionsWizardPageContext;
     public static String InfoMessage_GradlePreviewWizardPageContext;
@@ -65,6 +69,24 @@ public final class ProjectWizardMessages extends NLS {
     public static String Title_Dialog_Limitations;
     public static String Limitations_Tooltip;
     public static String Limitations_Details_0_1;
+
+    public static String Import_Wizard_Welcome_Page_Name;
+    public static String Import_Wizard_Paragraph_Main_Title;
+    public static String Import_Wizard_Paragraph_Title_Smart_Project_Import;
+    public static String Import_Wizard_Paragraph_Content_Smart_Project_Import;
+    public static String Import_Wizard_Paragraph_Title_Gradle_Wrapper;
+    public static String Import_Wizard_Paragraph_Content_Gradle_Wrapper;
+    public static String Import_Wizard_Paragraph_Title_Advanced_Options;
+    public static String Import_Wizard_Paragraph_Content_Advanced_Options;
+
+    public static String Creation_Wizard_Welcome_Page_Name;
+    public static String Creation_Wizard_Paragraph_Main_Title;
+    public static String Creation_Wizard_Paragraph_Title_Smart_Project_Creation;
+    public static String Creation_Wizard_Paragraph_Content_Smart_Project_Creation;
+    public static String Creation_Wizard_Paragraph_Title_Gradle_Wrapper;
+    public static String Creation_Wizard_Paragraph_Content_Gradle_Wrapper;
+    public static String Creation_Wizard_Paragraph_Title_Advanced_Options;
+    public static String Creation_Wizard_Paragraph_Content_Advanced_Options;
 
     static {
         // initialize resource bundle
