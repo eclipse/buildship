@@ -14,6 +14,17 @@ on the provided connector parameters. When the tooling client is closed, it must
 that the tooling client had created. Currently, it is only possible to close all connectors, regardless of who created them.
 
 
+## Provide API for source folder includes / excludes
+
+### Requested Change
+
+For each source folder of a given Eclipse project, also provide its includes/excludes patterns.
+
+### Motivation
+
+The source folders and their include/exclude patterns should be fully in-sync between Gradle and the IDE.
+
+
 ## Add new API JavaEnvironment#getAllJvmArguments
 
 ### Requested Change
