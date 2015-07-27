@@ -56,7 +56,7 @@ public final class DelegatingProgressListener implements ProgressListener {
     public void setMonitor(IProgressMonitor monitor) {
         synchronized (this.LOCK) {
             this.monitor = monitor;
-            if (this.monitor != null) {
+            if (this.monitor != null && !this.monitor.isCanceled()) {
                 this.monitor.subTask(this.lastMessage);
             }
         }
@@ -70,7 +70,7 @@ public final class DelegatingProgressListener implements ProgressListener {
     @Override
     public void statusChanged(ProgressEvent event) {
         synchronized (this.LOCK) {
-            if (this.monitor != null) {
+            if (this.monitor != null && !this.monitor.isCanceled()) {
                 // if the monitor is present, then create a sub task for each progress event
                 this.monitor.subTask(event.getDescription());
             } else {
