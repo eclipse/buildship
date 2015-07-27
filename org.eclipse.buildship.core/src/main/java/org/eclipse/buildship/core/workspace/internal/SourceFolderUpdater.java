@@ -73,7 +73,10 @@ public final class SourceFolderUpdater {
     }
 
     private List<IClasspathEntry> collectGradleSourceFolders() throws JavaModelException {
+        // collect all sources currently configured on the project
         final List<IClasspathEntry> rawClasspath = ImmutableList.copyOf(this.project.getRawClasspath());
+
+        // collect the paths of all source folders of the new Gradle model and keep any user-defined filters
         List<IClasspathEntry> sourceFolders = FluentIterable.from(this.sourceFolders).transform(new Function<OmniEclipseSourceDirectory, IClasspathEntry>() {
 
             @Override
@@ -81,11 +84,9 @@ public final class SourceFolderUpdater {
                 IFolder sourceDirectory = SourceFolderUpdater.this.project.getProject().getFolder(Path.fromOSString(directory.getPath()));
                 FileUtils.ensureFolderHierarchyExists(sourceDirectory);
                 final IPackageFragmentRoot root = SourceFolderUpdater.this.project.getPackageFragmentRoot(sourceDirectory);
-                IClasspathAttribute fromGradleModel = JavaCore.newClasspathAttribute(CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL, "true");
 
-                // preserve the includes/excludes defined by the user. this should eventually be
-                // provided by the Tooling API, see Bug 470071
-                Optional<IClasspathEntry> userDefinedClasspathEntry = FluentIterable.from(rawClasspath).firstMatch(new Predicate<IClasspathEntry>() {
+                // find the source folder among the sources currently configured on the project
+                Optional<IClasspathEntry> currentClasspathEntry = FluentIterable.from(rawClasspath).firstMatch(new Predicate<IClasspathEntry>() {
 
                     @Override
                     public boolean apply(IClasspathEntry entry) {
@@ -93,10 +94,12 @@ public final class SourceFolderUpdater {
                     }
                 });
 
-                IPath[] includes = userDefinedClasspathEntry.isPresent() ? userDefinedClasspathEntry.get().getInclusionPatterns() : new IPath[] {};
-                IPath[] excludes = userDefinedClasspathEntry.isPresent() ? userDefinedClasspathEntry.get().getExclusionPatterns() : new IPath[] {};
+                // preserve the includes/excludes defined by the user
+                IPath[] includes = currentClasspathEntry.isPresent() ? currentClasspathEntry.get().getInclusionPatterns() : new IPath[] {};
+                IPath[] excludes = currentClasspathEntry.isPresent() ? currentClasspathEntry.get().getExclusionPatterns() : new IPath[] {};
 
                 // @formatter:off
+                IClasspathAttribute fromGradleModel = JavaCore.newClasspathAttribute(CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL, "true");
                 return JavaCore.newSourceEntry(root.getPath(),
                         includes,                                    // use manually defined inclusion patterns, include all if none exist
                         excludes,                                    // use manually defined exclusion patterns, exclude none if none exist
@@ -114,11 +117,11 @@ public final class SourceFolderUpdater {
 
     private List<IClasspathEntry> calculateNewClasspath(List<IClasspathEntry> gradleSourceFolders) throws JavaModelException {
         // collect the paths of all source folders of the new Gradle model
-        final Set<String> gradleModelSourcePaths = FluentIterable.from(gradleSourceFolders).transform(new Function<IClasspathEntry, String>() {
+        final Set<IPath> gradleModelSourcePaths = FluentIterable.from(gradleSourceFolders).transform(new Function<IClasspathEntry, IPath>() {
 
             @Override
-            public String apply(IClasspathEntry entry) {
-                return entry.getPath().toString();
+            public IPath apply(IClasspathEntry entry) {
+                return entry.getPath();
             }
         }).toSet();
 
@@ -133,7 +136,7 @@ public final class SourceFolderUpdater {
             public boolean apply(IClasspathEntry entry) {
                 // if a source folder is part of the new Gradle model, always treat it as a Gradle
                 // source folder
-                if (gradleModelSourcePaths.contains(entry.getPath().toString())) {
+                if (gradleModelSourcePaths.contains(entry.getPath())) {
                     return false;
                 }
 
