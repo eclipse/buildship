@@ -122,9 +122,21 @@ class SourceFolderUpdaterTest extends Specification {
         project.rawClasspath[0].extraAttributes[0].name == SourceFolderUpdater.CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL
     }
 
-    def "Classpath inclusion/exclusion patterns on Gradle source folders are preserved"() {
+    def "Classpath inclusion/exclusion patterns on model source folders are preserved"() {
         given:
-        def project = javaProject('name': 'project-name', 'model-source-folders': ['src'], 'manual-source-folders': [], 'inclusion-pattern': (IPath[])[new Path("manual-inclusion-pattern")], 'exclusion-pattern': (IPath[])[new Path("manual-exclusion-pattern")])
+        def project = javaProject('name': 'project-name', 'model-source-folders': ['src'], 'manual-source-folders': [], 'model-inclusion-pattern': (IPath[])[new Path("manual-inclusion-pattern")], 'model-exclusion-pattern': (IPath[])[new Path("manual-exclusion-pattern")])
+        def newModelSourceFolders = gradleSourceFolders(['src'])
+
+        when:
+        SourceFolderUpdater.update(project, newModelSourceFolders, null)
+
+        then:
+        project.rawClasspath[0].getInclusionPatterns()[0].toString() == "manual-inclusion-pattern"
+        project.rawClasspath[0].getExclusionPatterns()[0].toString() == "manual-exclusion-pattern"
+    }
+    def "Classpath inclusion/exclusion patterns on non-model source folders are preserved when becoming model source folders"() {
+        given:
+        def project = javaProject('name': 'project-name', 'model-source-folders': [], 'manual-source-folders': ['src'], 'manual-inclusion-pattern': (IPath[])[new Path("manual-inclusion-pattern")], 'manual-exclusion-pattern': (IPath[])[new Path("manual-exclusion-pattern")])
         def newModelSourceFolders = gradleSourceFolders(['src'])
 
         when:
@@ -147,8 +159,10 @@ class SourceFolderUpdaterTest extends Specification {
         def projectName = arguments['name']
         def modelSourceFolders = arguments['model-source-folders']
         def manualSourceFolders = arguments['manual-source-folders']
-        def inclusionPattern = arguments['inclusion-pattern']?:new IPath[0]
-        def exclusionPattern = arguments['exclusion-pattern']?:new IPath[0]
+        def modelInclusionPattern = arguments['model-inclusion-pattern']?:new IPath[0]
+        def modelExclusionPattern = arguments['model-exclusion-pattern']?:new IPath[0]
+        def manualInclusionPattern = arguments['manual-inclusion-pattern']?:new IPath[0]
+        def manualExclusionPattern = arguments['manual-exclusion-pattern']?:new IPath[0]
 
         // create project folder
         def location = tempFolder.newFolder(projectName)
@@ -170,14 +184,14 @@ class SourceFolderUpdaterTest extends Specification {
             def folder = javaProject.project.getFolder(path)
             FileUtils.ensureFolderHierarchyExists(folder)
             def root = javaProject.getPackageFragmentRoot(folder)
-            JavaCore.newSourceEntry(root.path)
+            JavaCore.newSourceEntry(root.path, manualInclusionPattern, manualExclusionPattern, null, [] as IClasspathAttribute[])
         }
         def modelSourceEntries = modelSourceFolders.collect { String path ->
             def folder = javaProject.project.getFolder(path)
             FileUtils.ensureFolderHierarchyExists(folder)
             def root = javaProject.getPackageFragmentRoot(folder)
             def attribute = JavaCore.newClasspathAttribute(SourceFolderUpdater.CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL, "true")
-            JavaCore.newSourceEntry(root.path, inclusionPattern, exclusionPattern, null, [attribute] as IClasspathAttribute[])
+            JavaCore.newSourceEntry(root.path, modelInclusionPattern, modelExclusionPattern, null, [attribute] as IClasspathAttribute[])
         }
         javaProject.setRawClasspath(manualSourceEntries + modelSourceEntries as IClasspathEntry[], new NullProgressMonitor())
 
