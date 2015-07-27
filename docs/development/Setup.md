@@ -126,6 +126,9 @@ To run the complete set of ui tests from inside Eclipse, right-click
 on the package _org.eclipse.buildship.ui.test_ and choose _Run As >> JUnit Plug-In-Test_
 (not as a _JUnit Test_!). Individual tests can be run the same way.
 
+## Enabling Tracing
+
+Tracing can be enabled in the _Tracing_ tab of the _Run Configurations..._ dialog.
 
 ## Running the Build
 
@@ -175,3 +178,4 @@ The following workflow is applied to all Buildship issues tracked in Bugzilla:
 
 * [Eclipse Testing](http://wiki.eclipse.org/Eclipse/Testing)
 * [PDE Test Automation](http://www.eclipse.org/articles/article.php?file=Article-PDEJUnitAntAutomation/index.html)
+* [Enabling Tracing](http://help.eclipse.org/luna/index.jsp?topic=%2Forg.eclipse.pde.doc.user%2Fguide%2Ftools%2Flaunchers%2Ftracing.htm)
