@@ -130,6 +130,7 @@ on the package _org.eclipse.buildship.ui.test_ and choose _Run As >> JUnit Plug-
 
 Tracing can be enabled in the _Tracing_ tab of the _Run Configurations..._ dialog.
 
+
 ## Running the Build
 
 To run the full build, execute

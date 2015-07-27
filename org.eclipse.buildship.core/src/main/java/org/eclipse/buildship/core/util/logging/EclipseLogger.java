@@ -17,8 +17,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 /**
- * Logs to the Eclipse logging infrastructure. The EclipseLogger only logs information if tracing is
- * enabled.
+ * Logs to the Eclipse logging infrastructure. Only logs information if tracing is enabled.
  *
  * Tracing can be enabled in Eclipse's 'Tracing' tab in the 'Run Configurations...' dialog.
  */
