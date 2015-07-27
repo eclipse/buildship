@@ -17,26 +17,34 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 /**
- * Logs to the Eclipse logging infrastructure.
+ * Logs to the Eclipse logging infrastructure. Only logs information if tracing is enabled.
+ *
+ * Tracing can be enabled in Eclipse's 'Tracing' tab in the 'Run Configurations...' dialog.
  */
 public final class EclipseLogger implements Logger {
 
     private final ILog log;
     private final String pluginId;
+    private final boolean isDebugging;
 
-    public EclipseLogger(ILog log, String pluginId) {
+    public EclipseLogger(ILog log, String pluginId, boolean isDebugging) {
         this.log = log;
         this.pluginId = pluginId;
+        this.isDebugging = isDebugging;
     }
 
     @Override
     public void info(String message) {
-        this.log.log(new Status(IStatus.INFO, this.pluginId, message));
+        if (this.isDebugging) {
+            this.log.log(new Status(IStatus.INFO, this.pluginId, message));
+        }
     }
 
     @Override
     public void info(String message, Throwable t) {
-        this.log.log(new Status(IStatus.INFO, this.pluginId, message, t));
+        if (this.isDebugging) {
+            this.log.log(new Status(IStatus.INFO, this.pluginId, message, t));
+        }
     }
 
     @Override
