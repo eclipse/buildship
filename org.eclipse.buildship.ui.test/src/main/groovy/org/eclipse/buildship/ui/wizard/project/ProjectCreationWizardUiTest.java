@@ -11,17 +11,26 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Test;
+import java.io.File;
 
+import org.eclipse.buildship.ui.BaseSWTBotTest;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
+import org.junit.Test;
 
-import org.eclipse.buildship.ui.BaseSWTBotTest;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 
 public class ProjectCreationWizardUiTest extends BaseSWTBotTest {
+
+    private static final String TEST_PROJECT_NAME = "TestProject";
 
     @Test
     public void canOpenNewWizardFromMenuBar() throws Exception {
@@ -47,6 +56,51 @@ public class ProjectCreationWizardUiTest extends BaseSWTBotTest {
         bot.button("Cancel").click();
     }
 
+    @Test
+    public void creationPreviewFilesAreCreatedAndDeleted() {
+        openGradleNewWizard();
+
+        bot.waitUntil(Conditions.shellIsActive("New Gradle Project"));
+        bot.textWithLabel("Project name").setText(TEST_PROJECT_NAME);
+
+        bot.waitUntil(Conditions.shellIsActive("New Gradle Project"));
+        bot.button("Next >").click();
+
+        bot.waitUntil(Conditions.shellIsActive("New Gradle Project"));
+        bot.button("Next >").click();
+
+        // wait at the project preview page until the "< Back" button is enabled
+        bot.waitUntil(Conditions.widgetIsEnabled(bot.button("< Back")));
+
+        File workspaceRootDir = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile();
+
+        assertTrue(workspaceRootDir.isDirectory());
+
+        File[] workspaceRootFiles = workspaceRootDir.listFiles();
+        Optional<File> firstMatch = FluentIterable.of(workspaceRootFiles)
+                .firstMatch(new FileNamePredicate(TEST_PROJECT_NAME));
+
+        // check if the "TestProject" has been created
+        assertTrue(firstMatch.isPresent());
+        File testProjectDir = firstMatch.get();
+        assertTrue(testProjectDir.isDirectory());
+        File[] testProjectFiles = testProjectDir.listFiles();
+
+        // also check for at least the "build.gradle" and "settings.gradle"
+        // files
+        assertTrue(FluentIterable.of(testProjectFiles).anyMatch(new FileNamePredicate("build.gradle")));
+        assertTrue(FluentIterable.of(testProjectFiles).anyMatch(new FileNamePredicate("settings.gradle")));
+
+        bot.button("< Back").click();
+
+        // make sure that the "TestProject" is deleted in case of clicking back
+        // in the wizard
+        assertFalse(testProjectDir.exists());
+
+        // cancel the wizard
+        bot.button("Cancel").click();
+    }
+
     private void openGradleNewWizard() {
         bot.menu("File").menu("New").menu("Other...").click();
         SWTBotShell shell = bot.shell("New");
@@ -56,4 +110,18 @@ public class ProjectCreationWizardUiTest extends BaseSWTBotTest {
         bot.button("Next >").click();
     }
 
+    public static class FileNamePredicate implements Predicate<File> {
+
+        private String fileName;
+
+        public FileNamePredicate(String fileName) {
+            this.fileName = Preconditions.checkNotNull(fileName);
+        }
+
+        @Override
+        public boolean apply(File file) {
+            return this.fileName.equals(file.getName());
+        }
+
+    }
 }
