@@ -123,11 +123,12 @@ on the package _org.eclipse.buildship.core.test_ and choose _Run As >> JUnit Plu
 (not as a _JUnit Test_!). Individual tests can be run the same way.
 
 To run the complete set of ui tests from inside Eclipse, right-click
-on the package _org.eclipse.buildship.ui.test_ and choose _Run As >> Run Configurations_. Choose _JUnit Plug-In-Test_. 
-In the _Test_ tab, ensure that the _Run in UI thread_ checkbox is unchecked, and click _Run_. Buildship uses 
-SWTBot tests, which must be run in a non-UI thread. When running the UI tests in the future, click on the 
-package _org.eclipse.buildship.ui.test_ and choose _Run As >> JUnit Plug-In-Test_ (not as a _JUnit Test_!). The run 
-configurations should be saved. Individual tests can be run the same way.
+on the package _org.eclipse.buildship.ui.test_ and choose _Run As >> Run Configurations..._. In the
+shown dialog, create a new _JUnit Plug-In-Test_ run configuration. Select the _Test_ tab and ensure
+that the _Run in UI thread_ checkbox is unchecked, then click _Run_ (Buildship uses SWTBot tests, which
+must be run in a non-UI thread). When running the UI tests in the future, click on the package
+_org.eclipse.buildship.ui.test_ and choose _Run As >> JUnit Plug-In-Test_ (not as a _JUnit Test_!) since
+the run configurations are saved. Individual tests can be run the same way.
 
 ## Enabling Tracing
 
