@@ -1,21 +1,19 @@
 package org.eclipse.buildship.core.projectimport
 
-import com.gradleware.tooling.toolingclient.GradleDistribution
-
-import com.google.common.collect.ImmutableList
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectBuilder
 import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper;
+import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.core.runtime.NullProgressMonitor
-import org.eclipse.core.resources.IWorkspaceRoot
-import org.eclipse.core.resources.ResourcesPlugin
-
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+
 import spock.lang.Specification
+
+import com.google.common.collect.ImmutableList
+import com.gradleware.tooling.toolingclient.GradleDistribution
 
 class ProjectImportJobTest extends Specification {
 
@@ -24,6 +22,31 @@ class ProjectImportJobTest extends Specification {
 
     def cleanup() {
         CorePlugin.workspaceOperations().deleteAllProjects(null)
+    }
+
+    def "Project import from gradle project, which is located in the workspace location"(boolean projectDescriptorExists) {
+        given:
+        def rootPath = LegacyEclipseSpockTestHelper.getWorkspace().getRoot().getLocation();
+        def applyJavaPlugin = false
+        def rootFile = new File(rootPath.toFile(), "workspace-spock-project")
+        rootFile.mkdir()
+        File projectLocation = newProjectWithDifferentRootName(rootFile, projectDescriptorExists, applyJavaPlugin)
+        ProjectImportJob job = newProjectImportJob(projectLocation)
+
+        when:
+        job.schedule()
+        job.join()
+
+        then:
+        CorePlugin.workspaceOperations().findProjectByName('my-project-name-is-different-than-the-folder').present
+
+        CorePlugin.workspaceOperations().findProjectByName(rootFile.name).absent()
+
+        cleanup:
+        rootFile.deleteDir()
+
+        where:
+        projectDescriptorExists << [false, true]
     }
 
     def "Project import job creates a new project in the workspace"(boolean projectDescriptorExists) {
@@ -168,6 +191,32 @@ class ProjectImportJobTest extends Specification {
         root
     }
 
+    def newProjectWithDifferentRootName(File rootFile, boolean projectDescriptorExists, boolean applyJavaPlugin) {
+        new File(rootFile, 'build.gradle') << (applyJavaPlugin ? 'apply plugin: "java"' : '')
+        new File(rootFile, 'settings.gradle') << 'rootProject.name = \'my-project-name-is-different-than-the-folder\''
+        new File(rootFile, 'src/main/java').mkdirs()
+
+        if (projectDescriptorExists) {
+            new File(rootFile, '.project') << '''<?xml version="1.0" encoding="UTF-8"?>
+                    <projectDescription>
+                    <name>simple-project</name>
+                    <comment>original</comment>
+                    <projects></projects>
+                    <buildSpec></buildSpec>
+                    <natures></natures>
+                    </projectDescription>'''
+            if (applyJavaPlugin) {
+                new File(rootFile, '.classpath') << '''<?xml version="1.0" encoding="UTF-8"?>
+                        <classpath>
+                        <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+                        <classpathentry kind="src" path="src/main/java"/>
+                        <classpathentry kind="output" path="bin"/>
+                        </classpath>'''
+            }
+        }
+        rootFile
+    }
+
     def newMultiProject() {
         def rootProject = tempFolder.newFolder('multi-project')
         new File(rootProject, 'build.gradle') << ''
@@ -186,5 +235,4 @@ class ProjectImportJobTest extends Specification {
         configuration.workingSets = []
         new ProjectImportJob(configuration, AsyncHandler.NO_OP)
     }
-
 }
