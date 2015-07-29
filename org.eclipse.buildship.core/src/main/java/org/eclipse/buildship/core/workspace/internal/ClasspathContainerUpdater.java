@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
+ *     Simon Scholz <simon.scholz@vogella.com> - Bug 473348
  */
 
 package org.eclipse.buildship.core.workspace.internal;
@@ -99,8 +100,8 @@ public final class ClasspathContainerUpdater {
             }
         }).toList();
 
-        // return all dependencies as a joined list
-        return ImmutableList.<IClasspathEntry>builder().addAll(projectDependencies).addAll(externalDependencies).build();
+        // return all dependencies as a joined list - The order of the dependencies is important see Bug 473348
+        return ImmutableList.<IClasspathEntry>builder().addAll(externalDependencies).addAll(projectDependencies).build();
     }
 
     private void setClasspathContainer(List<IClasspathEntry> classpathEntries, IProgressMonitor monitor) throws JavaModelException {
