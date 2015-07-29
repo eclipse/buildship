@@ -17,11 +17,21 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 
 import org.eclipse.buildship.ui.BaseSWTBotTest;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
+import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
+import org.eclipse.ui.IWorkingSet;
+import org.eclipse.ui.IWorkingSetManager;
+import org.eclipse.ui.PlatformUI;
+import org.junit.After;
 import org.junit.Test;
 
 import com.google.common.base.Optional;
@@ -38,7 +48,8 @@ public class ProjectCreationWizardUiTest extends BaseSWTBotTest {
     public void canOpenNewWizardFromMenuBar() throws Exception {
         openGradleNewWizard();
 
-        // if the wizard was opened the label is available, otherwise a WidgetNotFoundException is
+        // if the wizard was opened the label is available, otherwise a
+        // WidgetNotFoundException is
         // thrown
         bot.text(ProjectWizardMessages.InfoMessage_NewGradleProjectWizardPageDefault);
 
@@ -63,9 +74,10 @@ public class ProjectCreationWizardUiTest extends BaseSWTBotTest {
         openGradleNewWizard();
 
         bot.waitUntil(Conditions.shellIsActive(NEW_GRADLE_PROJECT_WIZARD_TITLE));
-        bot.textWithLabel("Project name").setText(TEST_PROJECT_NAME);
+        bot.textWithLabel(ProjectWizardMessages.Label_ProjectName).setText(TEST_PROJECT_NAME);
 
-        bot.waitUntil(Conditions.shellIsActive(NEW_GRADLE_PROJECT_WIZARD_TITLE));
+        SWTBotButton nextButton = bot.button(IDialogConstants.NEXT_LABEL);
+        bot.waitUntil(Conditions.widgetIsEnabled(nextButton));
         bot.button(IDialogConstants.NEXT_LABEL).click();
 
         bot.waitUntil(Conditions.shellIsActive(NEW_GRADLE_PROJECT_WIZARD_TITLE));
@@ -79,6 +91,7 @@ public class ProjectCreationWizardUiTest extends BaseSWTBotTest {
         assertTrue(workspaceRootDir.isDirectory());
 
         File[] workspaceRootFiles = workspaceRootDir.listFiles();
+        assertTrue(workspaceRootFiles.length > 0);
         Optional<File> firstMatch = FluentIterable.of(workspaceRootFiles)
                 .firstMatch(new FileNamePredicate(TEST_PROJECT_NAME));
 
@@ -87,6 +100,7 @@ public class ProjectCreationWizardUiTest extends BaseSWTBotTest {
         File testProjectDir = firstMatch.get();
         assertTrue(testProjectDir.isDirectory());
         File[] testProjectFiles = testProjectDir.listFiles();
+        assertTrue(testProjectFiles.length > 0);
 
         // also check for at least the "build.gradle" and "settings.gradle"
         // files
@@ -108,10 +122,11 @@ public class ProjectCreationWizardUiTest extends BaseSWTBotTest {
         openGradleNewWizard();
 
         bot.waitUntil(Conditions.shellIsActive(NEW_GRADLE_PROJECT_WIZARD_TITLE));
-        bot.textWithLabel("Project name").setText(TEST_PROJECT_NAME);
+        bot.textWithLabel(ProjectWizardMessages.Label_ProjectName).setText(TEST_PROJECT_NAME);
 
-        bot.waitUntil(Conditions.shellIsActive(NEW_GRADLE_PROJECT_WIZARD_TITLE));
-        bot.button(IDialogConstants.NEXT_LABEL).click();
+        SWTBotButton nextButton = bot.button(IDialogConstants.NEXT_LABEL);
+        bot.waitUntil(Conditions.widgetIsEnabled(nextButton));
+        nextButton.click();
 
         bot.waitUntil(Conditions.shellIsActive(NEW_GRADLE_PROJECT_WIZARD_TITLE));
         bot.button(IDialogConstants.NEXT_LABEL).click();
@@ -124,6 +139,7 @@ public class ProjectCreationWizardUiTest extends BaseSWTBotTest {
         assertTrue(workspaceRootDir.isDirectory());
 
         File[] workspaceRootFiles = workspaceRootDir.listFiles();
+        assertTrue(workspaceRootFiles.length > 0);
         Optional<File> firstMatch = FluentIterable.of(workspaceRootFiles)
                 .firstMatch(new FileNamePredicate(TEST_PROJECT_NAME));
 
@@ -131,7 +147,6 @@ public class ProjectCreationWizardUiTest extends BaseSWTBotTest {
         assertTrue(firstMatch.isPresent());
         File testProjectDir = firstMatch.get();
         assertTrue(testProjectDir.isDirectory());
-
 
         // cancel the wizard
         bot.button(IDialogConstants.CANCEL_LABEL).click();
@@ -141,6 +156,81 @@ public class ProjectCreationWizardUiTest extends BaseSWTBotTest {
         assertFalse(testProjectDir.exists());
     }
 
+    @Test
+    public void checkProjectHasBeenAddedToWorkingSet() {
+        openGradleNewWizard();
+
+        bot.waitUntil(Conditions.shellIsActive(NEW_GRADLE_PROJECT_WIZARD_TITLE));
+        bot.textWithLabel(ProjectWizardMessages.Label_ProjectName).setText(TEST_PROJECT_NAME);
+
+        // enable working set selection
+        SWTBotCheckBox enableWorkingSetsBtn = bot.checkBox("Add project to working sets");
+        enableWorkingSetsBtn.select();
+
+        bot.button("Select...").click();
+        bot.waitUntil(Conditions.shellIsActive("Select Working Sets"));
+
+        if (!(bot.table().containsItem("Gradle"))) {
+            bot.button("New...").click();
+            bot.waitUntil(Conditions.shellIsActive("New Working Set"));
+
+            bot.button(IDialogConstants.NEXT_LABEL).click();
+            bot.textWithLabel("Working set name:").setText("Gradle");
+            bot.button(IDialogConstants.FINISH_LABEL).click();
+            bot.waitUntil(Conditions.shellIsActive("Select Working Sets"));
+        }
+
+        // deselect All workingsets and select the Gradle workingset
+        bot.button("Deselect All").click();
+        bot.table().getTableItem("Gradle").check();
+
+        bot.button(IDialogConstants.OK_LABEL).click();
+
+        bot.waitUntil(Conditions.shellIsActive(NEW_GRADLE_PROJECT_WIZARD_TITLE));
+
+        String selection = bot.comboBoxWithLabel("Working sets").selection();
+        // check if the workingset is properly selected
+        assertTrue("Gradle".equals(selection));
+
+        bot.button(IDialogConstants.FINISH_LABEL).click();
+
+        waitForJobsToFinish();
+        // it seems that after clicking finish the new elements for the
+        // workingset are not applied already after clicking finish
+        waitUntilWorkingSetIsAdded();
+
+        IWorkingSetManager workingSetManager = PlatformUI.getWorkbench().getWorkingSetManager();
+        IWorkingSet gradleWorkingSet = workingSetManager.getWorkingSet("Gradle");
+        IAdaptable[] elements = gradleWorkingSet.getElements();
+
+        // check if the gradleWorkingSet contains the new test project
+        assertTrue(FluentIterable.of(elements).anyMatch(new ProjectNameInProjectAdaptablePredicate(TEST_PROJECT_NAME)));
+    }
+
+    @After
+    public void deleteTestProjectAfterwards() throws CoreException {
+        IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(TEST_PROJECT_NAME);
+        if (project != null) {
+            project.delete(true, true, new NullProgressMonitor());
+        }
+    }
+
+    private void waitUntilWorkingSetIsAdded() {
+        bot.waitUntil(new DefaultCondition() {
+
+            @Override
+            public boolean test() throws Exception {
+                IWorkingSetManager workingSetManager = PlatformUI.getWorkbench().getWorkingSetManager();
+                IWorkingSet gradleWorkingSet = workingSetManager.getWorkingSet("Gradle");
+                return gradleWorkingSet.getElements().length > 0;
+            }
+
+            @Override
+            public String getFailureMessage() {
+                return "The Gradle workingset has not been added to the IWorkingSetManager, yet.";
+            }
+        }, 1000);
+    }
 
     private void openGradleNewWizard() {
         bot.menu("File").menu("New").menu("Other...").click();
@@ -163,6 +253,24 @@ public class ProjectCreationWizardUiTest extends BaseSWTBotTest {
         public boolean apply(File file) {
             return this.fileName.equals(file.getName());
         }
+    }
 
+    public static class ProjectNameInProjectAdaptablePredicate implements Predicate<IAdaptable> {
+
+        private String projectName;
+
+        public ProjectNameInProjectAdaptablePredicate(String projectName) {
+            this.projectName = Preconditions.checkNotNull(projectName);
+        }
+
+        @Override
+        public boolean apply(IAdaptable adaptable) {
+            IProject project = (IProject) adaptable.getAdapter(IProject.class);
+            if (null == project) {
+                return false;
+            }
+
+            return this.projectName.equals(project.getName());
+        }
     }
 }
