@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
+ *     Simon Scholz <simon.scholz@vogella.com> - Bug 473348
  */
 
 package org.eclipse.buildship.core.workspace;
@@ -60,7 +61,7 @@ public abstract class GradleClasspathContainer implements IClasspathContainer {
     public static IClasspathEntry newClasspathEntry() throws JavaModelException {
         // http://www-01.ibm.com/support/knowledgecenter/SSZND2_6.0.0/org.eclipse.jdt.doc.isv/guide/jdt_api_classpath.htm?cp=SSZND2_6.0.0%2F3-1-1-0-0-2
         Path containerPath = new Path(CONTAINER_ID);
-        return JavaCore.newContainerEntry(containerPath, true);
+        return JavaCore.newContainerEntry(containerPath);
     }
 
     /**
