@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.io.File;
 import java.util.List;
 import java.util.Set;
 
@@ -25,6 +26,8 @@ import com.google.common.collect.ImmutableSet;
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
 
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -35,6 +38,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.file.FileUtils;
 
 /**
@@ -76,43 +80,70 @@ public final class SourceFolderUpdater {
         // collect all sources currently configured on the project
         final List<IClasspathEntry> rawClasspath = ImmutableList.copyOf(this.project.getRawClasspath());
 
-        // collect the paths of all source folders of the new Gradle model and keep any user-defined filters
-        List<IClasspathEntry> sourceFolders = FluentIterable.from(this.sourceFolders).transform(new Function<OmniEclipseSourceDirectory, IClasspathEntry>() {
-
-            @Override
-            public IClasspathEntry apply(OmniEclipseSourceDirectory directory) {
-                IFolder sourceDirectory = SourceFolderUpdater.this.project.getProject().getFolder(Path.fromOSString(directory.getPath()));
-                FileUtils.ensureFolderHierarchyExists(sourceDirectory);
-                final IPackageFragmentRoot root = SourceFolderUpdater.this.project.getPackageFragmentRoot(sourceDirectory);
-
-                // find the source folder among the sources currently configured on the project
-                Optional<IClasspathEntry> currentClasspathEntry = FluentIterable.from(rawClasspath).firstMatch(new Predicate<IClasspathEntry>() {
-
-                    @Override
-                    public boolean apply(IClasspathEntry entry) {
-                        return root.getPath().equals(entry.getPath());
-                    }
-                });
-
-                // preserve the includes/excludes defined by the user
-                IPath[] includes = currentClasspathEntry.isPresent() ? currentClasspathEntry.get().getInclusionPatterns() : new IPath[] {};
-                IPath[] excludes = currentClasspathEntry.isPresent() ? currentClasspathEntry.get().getExclusionPatterns() : new IPath[] {};
-
-                // @formatter:off
-                IClasspathAttribute fromGradleModel = JavaCore.newClasspathAttribute(CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL, "true");
-                return JavaCore.newSourceEntry(root.getPath(),
-                        includes,                                    // use manually defined inclusion patterns, include all if none exist
-                        excludes,                                    // use manually defined exclusion patterns, exclude none if none exist
-                        null,                                        // use the same output folder as defined on the project
-                        new IClasspathAttribute[]{fromGradleModel}   // the source folder is loaded from the current Gradle model
-                );
-                // @formatter:on
+        // collect the paths of all source folders of the new Gradle model and keep any user-defined
+        // filters
+        ImmutableList.Builder<IClasspathEntry> sourceFolderEntries = ImmutableList.<IClasspathEntry>builder();
+        for (OmniEclipseSourceDirectory sourceFolder : this.sourceFolders) {
+            try {
+                sourceFolderEntries.add(createSourceFolderEntry(sourceFolder, rawClasspath));
+            } catch (Exception e) {
+                CorePlugin.logger().warn("Failed to create source entry", e);
             }
-        }).toList();
+        }
 
         // remove duplicate source folders since JDT (IJavaProject#setRawClasspath) does not allow
         // duplicate source folders
-        return ImmutableSet.copyOf(sourceFolders).asList();
+        return ImmutableSet.copyOf(sourceFolderEntries.build()).asList();
+    }
+
+    private IClasspathEntry createSourceFolderEntry(OmniEclipseSourceDirectory directory, List<IClasspathEntry> rawClasspath) throws CoreException {
+        // TODO (donat) the creation of the linked folder has to be created before the code
+        // below is executed. should we do something about it?
+        Optional<IFolder> linkedFolder = getLinkedFolderIfExists(directory.getDirectory());
+        IFolder sourceDirectory;
+        if (linkedFolder.isPresent()) {
+            sourceDirectory = linkedFolder.get();
+        } else {
+            sourceDirectory = SourceFolderUpdater.this.project.getProject().getFolder(Path.fromOSString(directory.getPath()));
+        }
+
+        FileUtils.ensureFolderHierarchyExists(sourceDirectory);
+        final IPackageFragmentRoot root = SourceFolderUpdater.this.project.getPackageFragmentRoot(sourceDirectory);
+
+        // find the source folder among the sources currently configured on the project
+        Optional<IClasspathEntry> currentClasspathEntry = FluentIterable.from(rawClasspath).firstMatch(new Predicate<IClasspathEntry>() {
+
+            @Override
+            public boolean apply(IClasspathEntry entry) {
+                return root.getPath().equals(entry.getPath());
+            }
+        });
+
+        // preserve the includes/excludes defined by the user
+        IPath[] includes = currentClasspathEntry.isPresent() ? currentClasspathEntry.get().getInclusionPatterns() : new IPath[] {};
+        IPath[] excludes = currentClasspathEntry.isPresent() ? currentClasspathEntry.get().getExclusionPatterns() : new IPath[] {};
+
+        // @formatter:off
+        IClasspathAttribute fromGradleModel = JavaCore.newClasspathAttribute(CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL, "true");
+        return JavaCore.newSourceEntry(root.getPath(),
+                includes,                                    // use manually defined inclusion patterns, include all if none exist
+                excludes,                                    // use manually defined exclusion patterns, exclude none if none exist
+                null,                                        // use the same output folder as defined on the project
+                new IClasspathAttribute[]{fromGradleModel}   // the source folder is loaded from the current Gradle model
+        );
+        // @formatter:on
+    }
+
+    private Optional<IFolder> getLinkedFolderIfExists(final File directory) throws CoreException {
+        // TODO (donat) refactor this to a clearer pattern
+        IResource[] children = this.project.getProject().members();
+        return FluentIterable.of(children).filter(IFolder.class).firstMatch(new Predicate<IFolder>() {
+
+            @Override
+            public boolean apply(IFolder folder) {
+                return folder.isLinked() && folder.getLocation().toFile().equals(directory);
+            }
+        });
     }
 
     private List<IClasspathEntry> calculateNewClasspath(List<IClasspathEntry> gradleSourceFolders) throws JavaModelException {
@@ -155,7 +186,7 @@ public final class SourceFolderUpdater {
 
         // new classpath = current source folders from the Gradle model + the previous ones defined
         // manually
-        return ImmutableList.<IClasspathEntry>builder().addAll(gradleSourceFolders).addAll(manuallyAddedSourceFolders).build();
+        return ImmutableList.<IClasspathEntry> builder().addAll(gradleSourceFolders).addAll(manuallyAddedSourceFolders).build();
     }
 
     private void updateClasspath(List<IClasspathEntry> newClasspathEntries, IProgressMonitor monitor) throws JavaModelException {
