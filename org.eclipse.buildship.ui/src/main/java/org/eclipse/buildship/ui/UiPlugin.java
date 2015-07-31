@@ -28,10 +28,12 @@ import org.eclipse.buildship.ui.util.selection.ContextActivatingSelectionListene
 import org.eclipse.buildship.ui.util.selection.ContextActivatingWindowListener;
 import org.eclipse.buildship.ui.view.execution.ExecutionShowingBuildLaunchRequestListener;
 import org.eclipse.buildship.ui.wizard.project.WorkingSetsAddingProjectCreatedListener;
+import org.eclipse.buildship.ui.workspace.RefreshListener;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -62,7 +64,8 @@ public final class UiPlugin extends AbstractUIPlugin {
     private WorkingSetsAddingProjectCreatedListener workingSetsAddingProjectCreatedListener;
     private ContextActivatingSelectionListener contextActivatingSelectionListener;
     private ContextActivatingWindowListener contextActivatingWindowListener;
-
+    private RefreshListener refreshListener;
+    
     @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
@@ -139,6 +142,9 @@ public final class UiPlugin extends AbstractUIPlugin {
 
         this.contextActivatingWindowListener = new ContextActivatingWindowListener(this.contextActivatingSelectionListener);
         getWorkbench().addWindowListener(this.contextActivatingWindowListener);
+        
+        refreshListener = new RefreshListener();
+        getWorkbench().getService(ICommandService.class).addExecutionListener(refreshListener);
     }
 
     @SuppressWarnings({"cast", "RedundantCast"})
@@ -154,6 +160,7 @@ public final class UiPlugin extends AbstractUIPlugin {
         CorePlugin.listenerRegistry().removeEventListener(this.workingSetsAddingProjectCreatedListener);
         CorePlugin.listenerRegistry().removeEventListener(this.executionShowingBuildLaunchRequestListener);
         DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(this.consoleShowingLaunchListener);
+        getWorkbench().getService(ICommandService.class).removeExecutionListener(refreshListener);
     }
 
     public static UiPlugin getInstance() {
