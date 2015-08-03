@@ -13,8 +13,6 @@ package org.eclipse.buildship.ui.view.task;
 
 import java.util.List;
 
-import com.google.common.util.concurrent.FutureCallback;
-import org.eclipse.ui.PlatformUI;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
@@ -24,6 +22,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.FutureCallback;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
@@ -40,11 +39,12 @@ import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
-import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.gradle.LoadEclipseGradleBuildsJob;
+import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 /**
@@ -130,10 +130,8 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         Path gradleProjectPath = eclipseProject.getPath();
         OmniGradleProject gradleProject = gradleRootProject.tryFind(Specs.gradleProjectMatchesProjectPath(gradleProjectPath)).get();
 
-        // find the native Eclipse project in the Eclipse workspace
-        // (search by the name defined on the OmniEclipseProject since this is
-        // the name we use to create a native Eclipse project)
-        Optional<IProject> workspaceProject = TaskViewContentProvider.this.workspaceOperations.findProjectByName(eclipseProject.getName());
+        // find the corresponding Eclipse project in the workspace
+        Optional<IProject> workspaceProject = TaskViewContentProvider.this.workspaceOperations.findProjectByLocation(eclipseProject.getProjectDirectory());
 
         // create a new node for the given Eclipse project and then recurse into the children
         ProjectNode projectNode = new ProjectNode(parentProjectNode, eclipseProject, gradleProject, workspaceProject);

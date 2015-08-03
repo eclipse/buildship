@@ -64,6 +64,18 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
+    public Optional<IProject> findProjectByLocation(final File directory) {
+        return FluentIterable.from(getAllProjects()).firstMatch(new Predicate<IProject>() {
+
+            @Override
+            public boolean apply(IProject project) {
+                IPath location = project.getLocation();
+                return location == null ? false : location.toFile().equals(directory);
+            }
+        });
+    }
+
+    @Override
     public Optional<IProjectDescription> findProjectInFolder(File location, IProgressMonitor monitor) {
         if (location == null || !location.exists()) {
             return Optional.absent();
@@ -75,10 +87,10 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         }
 
         try {
-            IWorkspace workspace = ResourcesPlugin.getWorkspace();
             FileInputStream dotProjectStream = new FileInputStream(dotProjectFile);
             IProjectDescription description = ResourcesPlugin.getWorkspace().loadProjectDescription(dotProjectStream);
-            setProjectDescriptionLocationURI(location, description, workspace);
+            IPath projectLocation = projectLocation(location);
+            description.setLocation(projectLocation);
             return Optional.of(description);
         } catch (Exception e) {
             String message = String.format("Cannot open existing Eclipse project from %s.", dotProjectFile.getAbsolutePath());
@@ -107,7 +119,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         }
     }
 
-
     @Override
     public IProject createProject(String name, File location, List<File> filteredSubFolders, List<String> natureIds, IProgressMonitor monitor) {
         // validate arguments
@@ -125,12 +136,16 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             Preconditions.checkState(!findProjectByName(name).isPresent(), String.format("Workspace already contains project with name %s.", name));
             monitor.worked(1);
 
+            // calculate the name and the project location
+            String projectName = projectName(name, location);
+            IPath projectLocation = projectLocation(location);
+
             // get an IProject instance and create the project
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
-            IProjectDescription projectDescription = workspace.newProjectDescription(name);
-            setProjectDescriptionLocationURI(location, projectDescription, workspace);
-            projectDescription.setComment(String.format("Project %s created by Buildship.", name));
-            IProject project = workspace.getRoot().getProject(name);
+            IProjectDescription projectDescription = workspace.newProjectDescription(projectName);
+            projectDescription.setLocation(projectLocation);
+            projectDescription.setComment(String.format("Project %s created by Buildship.", projectName));
+            IProject project = workspace.getRoot().getProject(projectName);
             project.create(projectDescription, new SubProgressMonitor(monitor, 1));
 
             // attach filters to the project
@@ -315,16 +330,25 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         }
     }
 
-    private void setProjectDescriptionLocationURI(File location, IProjectDescription projectDescription, IWorkspace workspace) {
-        IPath locationPath = Path.fromOSString(location.getPath());
-        IPath rootLocationPath = workspace.getRoot().getLocation();
-        if (rootLocationPath.equals(locationPath) || rootLocationPath.equals(locationPath.removeLastSegments(1))) {
-            // in Eclipse <4.4, the LocationValidator throws an exception in some scenarios
-            // see also an in-depth explanation in https://github.com/eclipse/buildship/pull/130
-            locationPath = null;
-        }
+    private String projectName(String nameInGradleModel, File location) {
+        // if an Eclipse project is imported from the workspace folder it has to have the same name
+        // as folder name. (even when the project is renamed the underlying folder is also renamed)
+        // consequently in this use-case we have to ignore name from the model and use the folder
+        // name instead.
+        return isDirectChildOfWorkspaceRootFolder(location) ? location.getName() : nameInGradleModel;
+    }
 
-        projectDescription.setLocation(locationPath);
+    private IPath projectLocation(File location) {
+        // in Eclipse <4.4, the LocationValidator throws an exception in some scenarios
+        // see also an in-depth explanation in https://github.com/eclipse/buildship/pull/130
+        return isDirectChildOfWorkspaceRootFolder(location) ? null : Path.fromOSString(location.getPath());
+    }
+
+    private boolean isDirectChildOfWorkspaceRootFolder(File location) {
+        IPath locationPath = Path.fromOSString(location.getPath());
+        IWorkspace workspace = ResourcesPlugin.getWorkspace();
+        IPath rootLocationPath = workspace.getRoot().getLocation();
+        return rootLocationPath.equals(locationPath) || rootLocationPath.equals(locationPath.removeLastSegments(1));
     }
 
 }

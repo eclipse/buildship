@@ -46,6 +46,14 @@ public interface WorkspaceOperations {
     Optional<IProject> findProjectByName(String name);
 
     /**
+     * Returns the workspace's project with the given location, if it exists. Open and closed projects
+     * are included.
+     * @param location the location of the project to find
+     * @return the matching project, otherwise {@link Optional#absent()}
+     */
+    Optional<IProject> findProjectByLocation(File location);
+
+    /**
      * Returns the Eclipse project at the given physical location, if it exists. Looks for a <i>.project</i>
      * file in the given folder.
      *
