@@ -28,6 +28,8 @@ public final class ProjectWizardMessages extends NLS {
     public static String Title_NewGradleProjectWizardPage;
     public static String Title_NewGradleProjectPreviewWizardPage;
 
+    public static String CheckButton_ShowWelcomePageNextTime;
+
     public static String Label_ProjectRootDirectory;
     public static String Label_GradleUserHome;
     public static String Label_JavaHome;
@@ -49,8 +51,9 @@ public final class ProjectWizardMessages extends NLS {
     public static String InfoMessage_GradleWelcomeWizardPageDefault;
     public static String InfoMessage_GradleProjectWizardPageDefault;
     public static String InfoMessage_GradleOptionsWizardPageDefault;
-    public static String InfoMessage_PreviewImportWizardPageDefault;
+    public static String InfoMessage_GradlePreviewWizardPageDefault;
 
+    public static String InfoMessage_NewGradleProjectWelcomeWizardPageDefault;
     public static String InfoMessage_NewGradleProjectWizardPageDefault;
     public static String InfoMessage_NewGradleProjectPreviewWizardPageDefault;
 
@@ -59,12 +62,31 @@ public final class ProjectWizardMessages extends NLS {
     public static String InfoMessage_GradleOptionsWizardPageContext;
     public static String InfoMessage_GradlePreviewWizardPageContext;
 
+    public static String InfoMessage_NewGradleProjectWelcomeWizardPageContext;
     public static String InfoMessage_NewGradleProjectWizardPageContext;
     public static String InfoMessage_NewGradleProjectPreviewWizardPageContext;
 
     public static String Title_Dialog_Limitations;
     public static String Limitations_Tooltip;
     public static String Limitations_Details_0_1;
+
+    public static String Import_Wizard_Welcome_Page_Name;
+    public static String Import_Wizard_Paragraph_Main_Title;
+    public static String Import_Wizard_Paragraph_Title_Smart_Project_Import;
+    public static String Import_Wizard_Paragraph_Content_Smart_Project_Import;
+    public static String Import_Wizard_Paragraph_Title_Gradle_Wrapper;
+    public static String Import_Wizard_Paragraph_Content_Gradle_Wrapper;
+    public static String Import_Wizard_Paragraph_Title_Advanced_Options;
+    public static String Import_Wizard_Paragraph_Content_Advanced_Options;
+
+    public static String Creation_Wizard_Welcome_Page_Name;
+    public static String Creation_Wizard_Paragraph_Main_Title;
+    public static String Creation_Wizard_Paragraph_Title_Smart_Project_Creation;
+    public static String Creation_Wizard_Paragraph_Content_Smart_Project_Creation;
+    public static String Creation_Wizard_Paragraph_Title_Gradle_Wrapper;
+    public static String Creation_Wizard_Paragraph_Content_Gradle_Wrapper;
+    public static String Creation_Wizard_Paragraph_Title_Advanced_Options;
+    public static String Creation_Wizard_Paragraph_Content_Advanced_Options;
 
     static {
         // initialize resource bundle
