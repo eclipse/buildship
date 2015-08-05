@@ -32,7 +32,6 @@ import org.eclipse.jface.dialogs.PageChangedEvent;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.IWizardPage;
-import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.gradle.tooling.ProgressListener;
@@ -51,7 +50,7 @@ import com.gradleware.tooling.toolingmodel.util.Pair;
  * Page in the {@link ProjectCreationWizard} specifying the name of the Gradle project folder to
  * create.
  */
-public final class ProjectCreationWizard extends Wizard implements INewWizard, HelpContextIdProvider {
+public final class ProjectCreationWizard extends AbstractProjectWizard implements INewWizard, HelpContextIdProvider {
 
     /**
      * The section name declaration for {@link org.eclipse.jface.dialogs.DialogSettings} where the
@@ -67,7 +66,14 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
      */
     private static final ImmutableList<String> GRADLE_INIT_TASK_CMD_LINE = ImmutableList.of("init", "--type", "java-library");
 
+    /**
+     * Preference key that flags whether the welcome page should be shown as
+     * part of the import wizard.
+     */
+    private static final String PREF_SHOW_WELCOME_PAGE = "org.eclipse.buildship.ui.wizard.project.creation.showWelcomePage"; //$NON-NLS-1$
+
     // the pages to display in the wizard
+    private final GradleWelcomeWizardPage welcomeWizardPage;
     private final NewGradleProjectWizardPage newGradleProjectPage;
     private final GradleOptionsWizardPage gradleOptionsPage;
     private final ProjectPreviewWizardPage projectPreviewPage;
@@ -76,6 +82,7 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
     private final ProjectImportWizardController importController;
     private final ProjectCreationWizardController creationController;
     private final IPageChangedListener pageChangeListener;
+
 
     /**
      * Creates a new instance and uses the {@link org.eclipse.jface.dialogs.DialogSettings} from
@@ -92,6 +99,8 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
      * @param dialogSettings the dialog settings to store/retrieve dialog preferences
      */
     public ProjectCreationWizard(IDialogSettings dialogSettings, PublishedGradleVersionsWrapper publishedGradleVersions) {
+        super(PREF_SHOW_WELCOME_PAGE);
+
         // store the dialog settings on the wizard and use them to retrieve / persist the most
         // recent values entered by the user
         setDialogSettings(dialogSettings);
@@ -105,6 +114,9 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
         // the data models of the wizard
         final ProjectImportConfiguration importConfiguration = this.importController.getConfiguration();
         ProjectCreationConfiguration creationConfiguration = this.creationController.getConfiguration();
+        WelcomePageContent welcomePageConfiguratorImpl = WelcomePageContentFactory
+                .createCreationWizardWelcomePageConfigurator();
+        this.welcomeWizardPage = new GradleWelcomeWizardPage(importConfiguration, welcomePageConfiguratorImpl);
         this.newGradleProjectPage = new NewGradleProjectWizardPage(importConfiguration, creationConfiguration);
         this.gradleOptionsPage = new GradleOptionsWizardPage(importConfiguration, publishedGradleVersions);
         this.projectPreviewPage = new ProjectPreviewWizardPage(importConfiguration, new ProjectPreviewWizardPage.ProjectPreviewLoader() {
@@ -143,6 +155,9 @@ public final class ProjectCreationWizard extends Wizard implements INewWizard, H
     @Override
     public void addPages() {
         // assign wizard pages to this wizard
+        if (isShowWelcomePage()) {
+            addPage(this.welcomeWizardPage);
+        }
         addPage(this.newGradleProjectPage);
         addPage(this.gradleOptionsPage);
         addPage(this.projectPreviewPage);

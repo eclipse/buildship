@@ -26,7 +26,7 @@ public class ProjectImportWizardUiTest extends BaseSWTBotTest {
 
         // if the wizard was opened the label is available, otherwise a WidgetNotFoundException is
         // thrown
-        bot.styledText(ProjectWizardMessages.InfoMessage_GradleWelcomeWizardPageContext);
+        bot.styledText(ProjectWizardMessages.InfoMessage_GradleWelcomeWizardPageImportContext);
 
         // cancel the wizard
         bot.button("Cancel").click();

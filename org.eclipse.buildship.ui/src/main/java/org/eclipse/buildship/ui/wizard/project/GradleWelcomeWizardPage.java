@@ -11,10 +11,10 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 
-import com.gradleware.tooling.toolingutils.binding.Property;
-
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.ui.wizard.project.WelcomePageContent.WelcomePageParagraph;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
@@ -29,18 +29,25 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.gradleware.tooling.toolingutils.binding.Property;
 
 /**
- * First page in the {@link ProjectImportWizard} displaying a welcome message.
+ * Abstract Welcome Page for displaying a welcome message.
  */
-public final class GradleWelcomeWizardPage extends AbstractWizardPage {
+public class GradleWelcomeWizardPage extends AbstractWizardPage {
+
+    private static final String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
 
     private final Font headerFont;
+    private WelcomePageContent welcomePageConfigurator;
 
-    public GradleWelcomeWizardPage(ProjectImportConfiguration configuration) {
-        super("GradleWelcome", ProjectWizardMessages.Title_GradleWelcomeWizardPage, ProjectWizardMessages.InfoMessage_GradleWelcomeWizardPageDefault, //$NON-NLS-1$
-                configuration, ImmutableList.<Property<?>> of());
+    public GradleWelcomeWizardPage(ProjectImportConfiguration configuration,
+            WelcomePageContent welcomePageConfigurator) {
+        super(welcomePageConfigurator.getName(), welcomePageConfigurator.getTitle(),
+                welcomePageConfigurator.getMessage(), configuration, ImmutableList.<Property<?>> of());
+        this.welcomePageConfigurator = Preconditions.checkNotNull(welcomePageConfigurator);
         this.headerFont = createHeaderFont();
     }
 
@@ -66,67 +73,66 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
         fillWelcomeText(welcomeText);
 
         final Button showWelcomePageCheckbox = new Button(root, SWT.CHECK);
-        showWelcomePageCheckbox.setText("Show welcome page next time the wizard appears");
+        showWelcomePageCheckbox.setText(ProjectWizardMessages.CheckButton_Show_Welcomepage_Next_Time);
         GridData showWelcomePageCheckboxLayoutData = new GridData(SWT.CENTER, SWT.BOTTOM, false, false, 1, 1);
         showWelcomePageCheckboxLayoutData.widthHint = welcomeTextLayoutData.widthHint;
         showWelcomePageCheckboxLayoutData.verticalIndent = 15;
         showWelcomePageCheckbox.setLayoutData(showWelcomePageCheckboxLayoutData);
-        showWelcomePageCheckbox.setSelection(((ProjectImportWizard)getWizard()).isShowWelcomePage());
+        showWelcomePageCheckbox.setSelection(((AbstractProjectWizard) getWizard()).isShowWelcomePage());
         showWelcomePageCheckbox.addSelectionListener(new SelectionAdapter() {
 
             @Override
-            public void widgetSelected(SelectionEvent e) {
-                ((ProjectImportWizard) getWizard()).setWelcomePageEnabled(showWelcomePageCheckbox.getSelection());
+            public void widgetSelected(SelectionEvent event) {
+
+                if (getWizard() instanceof AbstractProjectWizard) {
+
+                }
             }
         });
     }
 
     private void fillWelcomeText(StyledText welcomeText) {
-        String title = "How to experience the best Gradle integration";
+        StringBuilder welcomeContent = new StringBuilder();
+        welcomeContent.append(this.welcomePageConfigurator.getWelcomePageParagraphTitle());
 
-        String paragraph1Title = "Smart project import";
-        String paragraph2Title = "Gradle Wrapper";
-        String paragraph3Title = "Advanced options";
+        List<WelcomePageParagraph> welcomePageParagraphs = this.welcomePageConfigurator
+                .getWelcomePageParagraphs();
 
-        String paragraph1 = paragraph1Title + "\nPoint the wizard to the root location of the Gradle project to import. Buildship will take care of importing all the "
-                + "belonging projects. All imported projects that already contain an Eclipse .project file will be left alone, aside from being added the Gradle nature.";
-        String paragraph2 = paragraph2Title + "\nYou will experience the best Gradle integration if you make use of the Gradle wrapper in your Gradle build and configure it "
-                + "to use the latest released version of Gradle. Using the Gradle wrapper also makes the build most sharable between multiple users.";
-        String paragraph3 = paragraph3Title + "\nUnless you have a very specific reason, leave the advanced options at their default values. The advanced options can be useful "
-                + "to quickly try different settings and see their impact on the import.";
-        String welcome = title + "\n\n" + paragraph1 + "\n\n" + paragraph2 + "\n\n" + paragraph3;
+        for (WelcomePageParagraph welcomePageParagraph : welcomePageParagraphs) {
+            String title = welcomePageParagraph.getTitle();
+            String content = welcomePageParagraph.getContent();
+
+            welcomeContent.append(LINE_SEPARATOR);
+            welcomeContent.append(LINE_SEPARATOR);
+            welcomeContent.append(title);
+            welcomeContent.append(content);
+        }
+
 
         // justify paragraph text
-        welcomeText.setText(welcome);
+        welcomeText.setText(welcomeContent.toString());
         welcomeText.setLineJustify(1, welcomeText.getLineCount() - 1, true);
 
-        // format title text
+        // make titles bold
+        setBoldTitle(welcomeText, this.welcomePageConfigurator.getWelcomePageParagraphTitle(), this.headerFont);
+
+        for (WelcomePageParagraph welcomePageParagraph : welcomePageParagraphs) {
+            setBoldTitle(welcomeText, welcomePageParagraph.getTitle(), null);
+        }
+    }
+
+    private void setBoldTitle(StyledText welcomeText, String title, Font font) {
         StyleRange titleStyle = new StyleRange();
-        titleStyle.start = 0;
+        titleStyle.start = welcomeText.getText().indexOf(title);
         titleStyle.length = title.length();
-        titleStyle.font = this.headerFont;
+        titleStyle.font = font;
         titleStyle.fontStyle = SWT.BOLD;
         welcomeText.setStyleRange(titleStyle);
-
-        // format paragraph names
-        StyleRange paragraphStyle = new StyleRange();
-        paragraphStyle.start = welcome.indexOf(paragraph1);
-        paragraphStyle.length = paragraph1Title.length();
-        paragraphStyle.fontStyle = SWT.BOLD;
-        welcomeText.setStyleRange(paragraphStyle);
-
-        paragraphStyle.start = welcome.indexOf(paragraph2);
-        paragraphStyle.length = paragraph2Title.length();
-        welcomeText.setStyleRange(paragraphStyle);
-
-        paragraphStyle.start = welcome.indexOf(paragraph3);
-        paragraphStyle.length = paragraph3Title.length();
-        welcomeText.setStyleRange(paragraphStyle);
     }
 
     @Override
     protected String getPageContextInformation() {
-        return ProjectWizardMessages.InfoMessage_GradleWelcomeWizardPageContext;
+        return this.welcomePageConfigurator.getPageContextInformation();
     }
 
     @Override
@@ -140,7 +146,7 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
         super.setVisible(visible);
 
         // if the welcome page is visible, disable the Finish button
-        ((ProjectImportWizard) getWizard()).setFinishGloballyEnabled(!visible);
+        ((AbstractProjectWizard) getWizard()).setFinishGloballyEnabled(!visible);
     }
 
 }
