@@ -77,7 +77,7 @@ abstract class SWTBotTestHelper {
                 })
     }
 
-    protected static void waitForJobsToFinish() {
+    public static void waitForJobsToFinish() {
         while (!Job.getJobManager().isIdle()) {
             delay(500)
         }
