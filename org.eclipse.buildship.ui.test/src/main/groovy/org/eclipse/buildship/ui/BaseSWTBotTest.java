@@ -96,7 +96,7 @@ public abstract class BaseSWTBotTest {
         }
     }
 
-    protected void delay(long waitTimeMillis) {
+    private void delay(long waitTimeMillis) {
         Display display = Display.getCurrent();
         if (display != null) {
             long endTimeMillis = System.currentTimeMillis() + waitTimeMillis;
