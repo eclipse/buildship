@@ -62,9 +62,7 @@ public final class LinkedResourcesUpdater {
         monitor.beginTask("Update linked resources", IProgressMonitor.UNKNOWN);
         try {
             removeLinkedResourcesNoLongerInModel();
-            Set<File> currentLinkedResourcesLocations = collectLinkedResourcesLocations();
-            List<OmniEclipseLinkedResource> newLinkedResources = collectNewLinkedResources(currentLinkedResourcesLocations);
-            createLinkedResources(newLinkedResources);
+            createNewLinkedSourcesFromModel();
         } finally {
             monitor.done();
         }
@@ -73,6 +71,11 @@ public final class LinkedResourcesUpdater {
     private void removeLinkedResourcesNoLongerInModel() throws CoreException {
        List<IFolder> folders = collectFoldersNoLongerInModel();
        deleteFolders(folders);
+    }
+
+    private void createNewLinkedSourcesFromModel() throws CoreException {
+        List<OmniEclipseLinkedResource> newLinkedResources = collectNewLinkedResources();
+        createLinkedResources(newLinkedResources);
     }
 
     private List<IFolder> collectFoldersNoLongerInModel() throws CoreException {
@@ -126,7 +129,8 @@ public final class LinkedResourcesUpdater {
         }).toSet();
     }
 
-    private List<OmniEclipseLinkedResource> collectNewLinkedResources(final Set<File> existingLocations) {
+    private List<OmniEclipseLinkedResource> collectNewLinkedResources() throws CoreException {
+        final Set<File> existingLocations = collectLinkedResourcesLocations();
         return FluentIterable.from(this.linkedResources).filter(new Predicate<OmniEclipseLinkedResource>() {
 
             @Override
