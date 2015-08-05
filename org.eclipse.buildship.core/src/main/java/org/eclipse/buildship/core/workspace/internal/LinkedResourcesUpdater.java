@@ -84,7 +84,7 @@ public final class LinkedResourcesUpdater {
                     return folder.isLinked()
                             && Optional.fromNullable(folder.getPersistentProperty(RESOURCE_PROPERTY_FROM_GRADLE_MODEL)).or("false").equals("true")
                             && folder.getLocation() != null
-                            && isDefinedInModel(folder.getLocation().toFile());
+                            && !isDefinedInModel(folder.getLocation().toFile());
                 } catch (CoreException e) {
                     return false;
                 }
