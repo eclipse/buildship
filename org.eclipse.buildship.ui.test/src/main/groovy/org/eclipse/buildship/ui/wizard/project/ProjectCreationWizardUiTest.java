@@ -54,6 +54,8 @@ public class ProjectCreationWizardUiTest extends BaseSWTBotTest {
         bot.waitUntil(Conditions.shellIsActive("New"));
         bot.tree().expandNode("Gradle").select("Gradle Project");
         bot.button("Next >").click();
+        bot.waitUntil(Conditions.shellIsActive(ProjectWizardMessages.Title_NewGradleProjectWizardPage));
+        bot.button("Next >").click();
     }
 
 }
