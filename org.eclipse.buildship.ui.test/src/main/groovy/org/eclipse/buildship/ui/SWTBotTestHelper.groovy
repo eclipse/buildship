@@ -22,7 +22,7 @@ import org.eclipse.ui.PlatformUI
 import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.swt.widgets.Display
 
-class SWTBotTestHelper {
+abstract class SWTBotTestHelper {
     static SWTWorkbenchBot swtBot;
 
     public static SWTWorkbenchBot getBot() {
