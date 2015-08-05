@@ -61,19 +61,21 @@ public final class LinkedResourcesUpdater {
     private void updateLinkedResources(IProgressMonitor monitor) throws CoreException {
         monitor.beginTask("Update linked resources", IProgressMonitor.UNKNOWN);
         try {
-            removeLinkedResourcesNoLongerInModel();
-            createNewLinkedSourcesFromModel();
+            removeOldLinedResouces();
+            createNewLinkedSources();
         } finally {
             monitor.done();
         }
     }
 
-    private void removeLinkedResourcesNoLongerInModel() throws CoreException {
-       List<IFolder> folders = collectFoldersNoLongerInModel();
-       deleteFolders(folders);
+    private void removeOldLinedResouces() throws CoreException {
+        // check all potential folders which might have been created by this class and delete the
+        // ones which are no longer part of the Gradle model
+        List<IFolder> folders = collectFoldersNoLongerInModel();
+        deleteFolders(folders);
     }
 
-    private void createNewLinkedSourcesFromModel() throws CoreException {
+    private void createNewLinkedSources() throws CoreException {
         List<OmniEclipseLinkedResource> newLinkedResources = collectNewLinkedResources();
         createLinkedResources(newLinkedResources);
     }
@@ -84,10 +86,8 @@ public final class LinkedResourcesUpdater {
             @Override
             public boolean apply(IFolder folder) {
                 try {
-                    return folder.isLinked()
-                            && Optional.fromNullable(folder.getPersistentProperty(RESOURCE_PROPERTY_FROM_GRADLE_MODEL)).or("false").equals("true")
-                            && folder.getLocation() != null
-                            && !isDefinedInModel(folder.getLocation().toFile());
+                    return folder.isLinked() && Optional.fromNullable(folder.getPersistentProperty(RESOURCE_PROPERTY_FROM_GRADLE_MODEL)).or("false").equals("true")
+                            && folder.getLocation() != null && !isLocationDefinedInModel(folder.getLocation().toFile());
                 } catch (CoreException e) {
                     return false;
                 }
@@ -96,13 +96,13 @@ public final class LinkedResourcesUpdater {
         }).toList();
     }
 
-    private boolean isDefinedInModel(final File location) {
+    private boolean isLocationDefinedInModel(final File location) {
         return FluentIterable.from(this.linkedResources).firstMatch(new Predicate<OmniEclipseLinkedResource>() {
 
             @Override
-            public boolean apply(OmniEclipseLinkedResource modelResource) {
-                String modelLocation = modelResource.getLocation();
-                return modelLocation != null && new File(modelLocation).equals(location);
+            public boolean apply(OmniEclipseLinkedResource linkedResource) {
+                String linkedResourceLocation = linkedResource.getLocation();
+                return linkedResourceLocation != null && new File(linkedResourceLocation).equals(location);
             }
         }).isPresent();
     }
@@ -113,7 +113,7 @@ public final class LinkedResourcesUpdater {
         }
     }
 
-    private Set<File> collectLinkedResourcesLocations() throws CoreException {
+    private Set<File> collectExistingLinkedLocations() throws CoreException {
         return FluentIterable.of(this.project.members()).filter(new Predicate<IResource>() {
 
             @Override
@@ -130,13 +130,15 @@ public final class LinkedResourcesUpdater {
     }
 
     private List<OmniEclipseLinkedResource> collectNewLinkedResources() throws CoreException {
-        final Set<File> existingLocations = collectLinkedResourcesLocations();
+        final Set<File> existingLocations = collectExistingLinkedLocations();
         return FluentIterable.from(this.linkedResources).filter(new Predicate<OmniEclipseLinkedResource>() {
 
             @Override
-            public boolean apply(OmniEclipseLinkedResource resource) {
+            public boolean apply(OmniEclipseLinkedResource linkedResource) {
                 // currently, we only include linked resources that are folders
-                return resource.getLocation() != null && resource.getType().equals(LINKED_RESOURCE_TYPE_FOLDER) && !existingLocations.contains(new File(resource.getLocation()));
+                return linkedResource.getLocation() != null
+                        && linkedResource.getType().equals(LINKED_RESOURCE_TYPE_FOLDER)
+                        && !existingLocations.contains(new File(linkedResource.getLocation()));
             }
         }).toList();
     }
