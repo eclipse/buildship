@@ -53,6 +53,7 @@ import org.eclipse.buildship.ui.util.widget.UiBuilder;
 public final class GradleOptionsWizardPage extends AbstractWizardPage {
 
     private final PublishedGradleVersionsWrapper publishedGradleVersions;
+    private final String pageContextInformation;
 
     // widgets in the Gradle distribution group
     private Text localInstallationDirText;
@@ -70,9 +71,14 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
     private Text programArgumentsText;
 
     public GradleOptionsWizardPage(ProjectImportConfiguration configuration, PublishedGradleVersionsWrapper publishedGradleVersions) {
-        super("GradleOptions", ProjectWizardMessages.Title_GradleOptionsWizardPage, ProjectWizardMessages.InfoMessage_GradleOptionsWizardPageDefault, //$NON-NLS-1$
-                configuration, ImmutableList.of(configuration.getGradleDistribution(), configuration.getJavaHome(), configuration.getGradleUserHome(), configuration.getJvmArguments(), configuration.getArguments()));
+        this(configuration, publishedGradleVersions, ProjectWizardMessages.Title_GradleOptionsWizardPage, ProjectWizardMessages.InfoMessage_GradleOptionsWizardPageDefault,
+                ProjectWizardMessages.InfoMessage_GradleOptionsWizardPageContext);
+    }
+
+    public GradleOptionsWizardPage(ProjectImportConfiguration configuration, PublishedGradleVersionsWrapper publishedGradleVersions, String title, String defaultMessage, String pageContextInformation) {
+        super("GradleOptions", title, defaultMessage, configuration, ImmutableList.of(configuration.getGradleDistribution(), configuration.getJavaHome(), configuration.getGradleUserHome(), configuration.getJvmArguments(), configuration.getArguments()));
         this.publishedGradleVersions = publishedGradleVersions;
+        this.pageContextInformation = pageContextInformation;
     }
 
     @Override
@@ -357,7 +363,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
 
     @Override
     protected String getPageContextInformation() {
-        return ProjectWizardMessages.InfoMessage_GradleOptionsWizardPageContext;
+        return this.pageContextInformation;
     }
 
 }

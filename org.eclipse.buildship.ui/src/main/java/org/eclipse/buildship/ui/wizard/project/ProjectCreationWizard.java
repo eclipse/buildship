@@ -117,7 +117,8 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
         WelcomePageContent welcomePageContent = WelcomePageContentFactory.createCreationWizardWelcomePageContent();
         this.welcomeWizardPage = new GradleWelcomeWizardPage(importConfiguration, welcomePageContent);
         this.newGradleProjectPage = new NewGradleProjectWizardPage(importConfiguration, creationConfiguration);
-        this.gradleOptionsPage = new GradleOptionsWizardPage(importConfiguration, publishedGradleVersions);
+        this.gradleOptionsPage = new GradleOptionsWizardPage(importConfiguration, publishedGradleVersions,
+                ProjectWizardMessages.Title_NewGradleProjectOptionsWizardPage, ProjectWizardMessages.InfoMessage_NewGradleProjectOptionsWizardPageDefault, ProjectWizardMessages.InfoMessage_NewGradleProjectOptionsWizardPageContext);
         this.projectPreviewPage = new ProjectPreviewWizardPage(importConfiguration, new ProjectPreviewWizardPage.ProjectPreviewLoader() {
             @Override
             public Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler, List<ProgressListener> listeners) {

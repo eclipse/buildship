@@ -26,6 +26,7 @@ public final class ProjectWizardMessages extends NLS {
     public static String Title_PreviewImportWizardPage;
 
     public static String Title_NewGradleProjectWizardPage;
+    public static String Title_NewGradleProjectOptionsWizardPage;
     public static String Title_NewGradleProjectPreviewWizardPage;
 
     public static String CheckButton_ShowWelcomePageNextTime;
@@ -55,6 +56,7 @@ public final class ProjectWizardMessages extends NLS {
 
     public static String InfoMessage_NewGradleProjectWelcomeWizardPageDefault;
     public static String InfoMessage_NewGradleProjectWizardPageDefault;
+    public static String InfoMessage_NewGradleProjectOptionsWizardPageDefault;
     public static String InfoMessage_NewGradleProjectPreviewWizardPageDefault;
 
     public static String InfoMessage_GradleWelcomeWizardPageContext;
@@ -64,6 +66,7 @@ public final class ProjectWizardMessages extends NLS {
 
     public static String InfoMessage_NewGradleProjectWelcomeWizardPageContext;
     public static String InfoMessage_NewGradleProjectWizardPageContext;
+    public static String InfoMessage_NewGradleProjectOptionsWizardPageContext;
     public static String InfoMessage_NewGradleProjectPreviewWizardPageContext;
 
     public static String Title_Dialog_Limitations;
