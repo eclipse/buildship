@@ -38,7 +38,6 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.file.FileUtils;
 
 /**
@@ -70,25 +69,20 @@ public final class SourceFolderUpdater {
         this.sourceFolders = Preconditions.checkNotNull(sourceFolders);
     }
 
-    private void updateClasspath(IProgressMonitor monitor) throws JavaModelException {
+    private void updateClasspath(IProgressMonitor monitor) throws CoreException {
         List<IClasspathEntry> gradleSourceFolders = collectGradleSourceFolders();
         List<IClasspathEntry> newClasspathEntries = calculateNewClasspath(gradleSourceFolders);
         updateClasspath(newClasspathEntries, monitor);
     }
 
-    private List<IClasspathEntry> collectGradleSourceFolders() throws JavaModelException {
+    private ImmutableList<IClasspathEntry> collectGradleSourceFolders() throws CoreException {
         // collect all sources currently configured on the project
         final List<IClasspathEntry> rawClasspath = ImmutableList.copyOf(this.project.getRawClasspath());
 
-        // collect the paths of all source folders of the new Gradle model and keep any user-defined
-        // filters
-        ImmutableList.Builder<IClasspathEntry> sourceFolderEntries = ImmutableList.<IClasspathEntry>builder();
+        // collect the paths of all source folders of the new Gradle model and keep any user-defined filters
+        ImmutableList.Builder<IClasspathEntry> sourceFolderEntries = ImmutableList.builder();
         for (OmniEclipseSourceDirectory sourceFolder : this.sourceFolders) {
-            try {
-                sourceFolderEntries.add(createSourceFolderEntry(sourceFolder, rawClasspath));
-            } catch (Exception e) {
-                CorePlugin.logger().warn("Failed to create source entry", e);
-            }
+            sourceFolderEntries.add(createSourceFolderEntry(sourceFolder, rawClasspath));
         }
 
         // remove duplicate source folders since JDT (IJavaProject#setRawClasspath) does not allow
@@ -97,16 +91,9 @@ public final class SourceFolderUpdater {
     }
 
     private IClasspathEntry createSourceFolderEntry(OmniEclipseSourceDirectory directory, List<IClasspathEntry> rawClasspath) throws CoreException {
-        // TODO (donat) the creation of the linked folder has to be created before the code
-        // below is executed. should we do something about it?
+        // pre-condition: in case of linked resources, the linked folder must have been created already
         Optional<IFolder> linkedFolder = getLinkedFolderIfExists(directory.getDirectory());
-        IFolder sourceDirectory;
-        if (linkedFolder.isPresent()) {
-            sourceDirectory = linkedFolder.get();
-        } else {
-            sourceDirectory = SourceFolderUpdater.this.project.getProject().getFolder(Path.fromOSString(directory.getPath()));
-        }
-
+        IFolder sourceDirectory = linkedFolder.isPresent() ? linkedFolder.get() : SourceFolderUpdater.this.project.getProject().getFolder(Path.fromOSString(directory.getPath()));
         FileUtils.ensureFolderHierarchyExists(sourceDirectory);
         final IPackageFragmentRoot root = SourceFolderUpdater.this.project.getPackageFragmentRoot(sourceDirectory);
 
@@ -135,7 +122,6 @@ public final class SourceFolderUpdater {
     }
 
     private Optional<IFolder> getLinkedFolderIfExists(final File directory) throws CoreException {
-        // TODO (donat) refactor this to a clearer pattern
         IResource[] children = this.project.getProject().members();
         return FluentIterable.of(children).filter(IFolder.class).firstMatch(new Predicate<IFolder>() {
 
@@ -203,7 +189,7 @@ public final class SourceFolderUpdater {
      * @param monitor the monitor to report progress on
      * @throws JavaModelException if the classpath modification fails
      */
-    public static void update(IJavaProject project, List<OmniEclipseSourceDirectory> sourceFolders, IProgressMonitor monitor) throws JavaModelException {
+    public static void update(IJavaProject project, List<OmniEclipseSourceDirectory> sourceFolders, IProgressMonitor monitor) throws CoreException {
         SourceFolderUpdater updater = new SourceFolderUpdater(project, sourceFolders);
         updater.updateClasspath(monitor);
     }

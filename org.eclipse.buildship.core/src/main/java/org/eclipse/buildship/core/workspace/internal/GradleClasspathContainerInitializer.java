@@ -49,11 +49,11 @@ import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 
 /**
  * Initializes the classpath of each Eclipse workspace project that has a Gradle nature with the
- * source/project/external dependencies of the underlying Gradle project.
+ * linked resources/sources/project and external dependencies of the underlying Gradle project.
  * <p/>
  * When this initializer is invoked, it looks up the {@link OmniEclipseProject} for the given
- * Eclipse workspace project, takes all the found sources, project dependencies and external
- * dependencies, and assigns them to the
+ * Eclipse workspace project, applies all the found linked resources and the sources, reads the
+ * project dependencies and external dependencies and adds the dependencies to the
  * {@link org.eclipse.buildship.core.workspace.GradleClasspathContainer#CONTAINER_ID} classpath
  * container.
  * <p/>

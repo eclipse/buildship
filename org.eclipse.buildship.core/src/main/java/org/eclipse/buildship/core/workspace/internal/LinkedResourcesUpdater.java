@@ -41,30 +41,30 @@ import org.eclipse.core.runtime.Path;
  */
 public final class LinkedResourcesUpdater {
 
-    // string enum constant to select folders when checking OmniEclipseLinkedResource#getType()
+    // magic number to select folders when checking OmniEclipseLinkedResource#getType()
     private static final String LINKED_RESOURCE_TYPE_FOLDER = "2";
 
     private final IProject project;
     private final List<OmniEclipseLinkedResource> linkedResources;
 
-    private LinkedResourcesUpdater(IProject project, List<OmniEclipseLinkedResource> sourceFolders) {
+    private LinkedResourcesUpdater(IProject project, List<OmniEclipseLinkedResource> linkedResources) {
         this.project = Preconditions.checkNotNull(project);
-        this.linkedResources = Preconditions.checkNotNull(sourceFolders);
+        this.linkedResources = Preconditions.checkNotNull(linkedResources);
     }
 
     private void updateLinkedResources(IProgressMonitor monitor) throws CoreException {
         monitor.beginTask("Update linked resources", IProgressMonitor.UNKNOWN);
         try {
-            // TODO (donat) delete linked resources which were but are no longer part of the model
-            Set<File> existingLinkedLocations = findLinkedLocationsUnderProject();
-            List<OmniEclipseLinkedResource> newLinkedResources = filterNewLinkedResources(existingLinkedLocations);
+            // todo (donat) delete linked resources which were but are no longer part of the model
+            Set<File> currentLinkedResourcesLocations = collectLinkedResourcesLocations();
+            List<OmniEclipseLinkedResource> newLinkedResources = collectNewLinkedResources(currentLinkedResourcesLocations);
             createLinkedResources(newLinkedResources);
         } finally {
             monitor.done();
         }
     }
 
-    private Set<File> findLinkedLocationsUnderProject() throws CoreException {
+    private Set<File> collectLinkedResourcesLocations() throws CoreException {
         return FluentIterable.of(this.project.members()).filter(new Predicate<IResource>() {
 
             @Override
@@ -74,18 +74,18 @@ public final class LinkedResourcesUpdater {
         }).transform(new Function<IResource, File>() {
 
             @Override
-            public File apply(IResource folder) {
-                return folder.getLocation().toFile();
+            public File apply(IResource resource) {
+                return resource.getLocation().toFile();
             }
         }).toSet();
     }
 
-    private List<OmniEclipseLinkedResource> filterNewLinkedResources(final Set<File> existingLocations) {
+    private List<OmniEclipseLinkedResource> collectNewLinkedResources(final Set<File> existingLocations) {
         return FluentIterable.from(this.linkedResources).filter(new Predicate<OmniEclipseLinkedResource>() {
 
             @Override
             public boolean apply(OmniEclipseLinkedResource resource) {
-                // TODO (donat) deal with files and virtual resources (~urls)
+                // currently, we only include linked resources that are folders
                 return resource.getLocation() != null && resource.getType().equals(LINKED_RESOURCE_TYPE_FOLDER) && !existingLocations.contains(new File(resource.getLocation()));
             }
         }).toList();
@@ -94,17 +94,17 @@ public final class LinkedResourcesUpdater {
     private void createLinkedResources(List<OmniEclipseLinkedResource> linkedResources) throws CoreException {
         for (OmniEclipseLinkedResource linkedResource : linkedResources) {
             IPath resourcePath = new Path(linkedResource.getLocation());
-            IFolder folder = getNewProjectFolder(new File(linkedResource.getLocation()).getName());
+            IFolder folder = toNewFolder(linkedResource.getName());
             folder.createLink(resourcePath, IResource.NONE, null);
         }
     }
 
-    private IFolder getNewProjectFolder(String baseName) throws CoreException {
+    private IFolder toNewFolder(String folderName) throws CoreException {
         // if a folder with the same name already exists then create the location with a '_'
         // appended to the name
-        IFolder folder = this.project.getFolder(baseName);
+        IFolder folder = this.project.getFolder(folderName);
         if (folder.exists()) {
-            return getNewProjectFolder(baseName + "_");
+            return toNewFolder(folderName + "_");
         } else {
             return folder;
         }
