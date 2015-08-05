@@ -29,6 +29,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.QualifiedName;
+
+import org.eclipse.buildship.core.CorePlugin;
 
 /**
  * Updates the linked sources the target project.
@@ -43,6 +46,8 @@ public final class LinkedResourcesUpdater {
 
     // magic number to select folders when checking OmniEclipseLinkedResource#getType()
     private static final String LINKED_RESOURCE_TYPE_FOLDER = "2";
+    // value to assign to a linked folder if it comes from the Gradle model
+    private static final QualifiedName RESOURCE_PROPERTY_FROM_GRADLE_MODEL = new QualifiedName(CorePlugin.PLUGIN_ID, "FROM_GRADLE_MODEL");
 
     private final IProject project;
     private final List<OmniEclipseLinkedResource> linkedResources;
@@ -96,6 +101,7 @@ public final class LinkedResourcesUpdater {
             IPath resourcePath = new Path(linkedResource.getLocation());
             IFolder folder = toNewFolder(linkedResource.getName());
             folder.createLink(resourcePath, IResource.NONE, null);
+            folder.setPersistentProperty(RESOURCE_PROPERTY_FROM_GRADLE_MODEL, "true");
         }
     }
 
