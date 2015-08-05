@@ -13,7 +13,6 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.List;
 
-import org.eclipse.core.runtime.SubProgressMonitor;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
@@ -31,14 +30,15 @@ import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
@@ -49,11 +49,12 @@ import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 
 /**
  * Initializes the classpath of each Eclipse workspace project that has a Gradle nature with the
- * source/project/external dependencies of the underlying Gradle project.
+ * linked resources/sources/project and external dependencies of the underlying Gradle project.
  * <p/>
  * When this initializer is invoked, it looks up the {@link OmniEclipseProject} for the given
- * Eclipse workspace project, takes all the found sources, project dependencies and external
- * dependencies, and assigns them to the {@link org.eclipse.buildship.core.workspace.GradleClasspathContainer#CONTAINER_ID} classpath
+ * Eclipse workspace project, applies all the found linked resources and the sources, reads the
+ * project dependencies and external dependencies and adds the dependencies to the
+ * {@link org.eclipse.buildship.core.workspace.GradleClasspathContainer#CONTAINER_ID} classpath
  * container.
  * <p/>
  * This initializer is assigned to the projects via the
@@ -78,7 +79,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
             @Override
             protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
-                monitor.beginTask("Initializing classpath", 100);
+                monitor.beginTask("Initializing classpath", 150);
 
                 // use the same rule as the ProjectImportJob to do the initialization
                 IJobManager manager = Job.getJobManager();
@@ -93,9 +94,12 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         }.schedule();
     }
 
-    private void internalInitialize(IPath containerPath, IJavaProject project, FetchStrategy fetchStrategy, IProgressMonitor monitor) throws JavaModelException {
+    private void internalInitialize(IPath containerPath, IJavaProject project, FetchStrategy fetchStrategy, IProgressMonitor monitor) throws CoreException {
         Optional<OmniEclipseProject> eclipseProject = findEclipseProject(project.getProject(), fetchStrategy);
         if (eclipseProject.isPresent()) {
+            // update linked resources
+            LinkedResourcesUpdater.update(project.getProject(), eclipseProject.get().getLinkedResources(), new SubProgressMonitor(monitor, 50));
+
             // update source folders
             SourceFolderUpdater.update(project, eclipseProject.get().getSourceDirectories(), new SubProgressMonitor(monitor, 50));
 

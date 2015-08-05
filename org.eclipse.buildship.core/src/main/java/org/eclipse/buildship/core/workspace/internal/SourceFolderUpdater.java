@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.io.File;
 import java.util.List;
 import java.util.Set;
 
@@ -25,6 +26,8 @@ import com.google.common.collect.ImmutableSet;
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
 
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -66,53 +69,67 @@ public final class SourceFolderUpdater {
         this.sourceFolders = Preconditions.checkNotNull(sourceFolders);
     }
 
-    private void updateClasspath(IProgressMonitor monitor) throws JavaModelException {
+    private void updateClasspath(IProgressMonitor monitor) throws CoreException {
         List<IClasspathEntry> gradleSourceFolders = collectGradleSourceFolders();
         List<IClasspathEntry> newClasspathEntries = calculateNewClasspath(gradleSourceFolders);
         updateClasspath(newClasspathEntries, monitor);
     }
 
-    private List<IClasspathEntry> collectGradleSourceFolders() throws JavaModelException {
+    private ImmutableList<IClasspathEntry> collectGradleSourceFolders() throws CoreException {
         // collect all sources currently configured on the project
         final List<IClasspathEntry> rawClasspath = ImmutableList.copyOf(this.project.getRawClasspath());
 
         // collect the paths of all source folders of the new Gradle model and keep any user-defined filters
-        List<IClasspathEntry> sourceFolders = FluentIterable.from(this.sourceFolders).transform(new Function<OmniEclipseSourceDirectory, IClasspathEntry>() {
-
-            @Override
-            public IClasspathEntry apply(OmniEclipseSourceDirectory directory) {
-                IFolder sourceDirectory = SourceFolderUpdater.this.project.getProject().getFolder(Path.fromOSString(directory.getPath()));
-                FileUtils.ensureFolderHierarchyExists(sourceDirectory);
-                final IPackageFragmentRoot root = SourceFolderUpdater.this.project.getPackageFragmentRoot(sourceDirectory);
-
-                // find the source folder among the sources currently configured on the project
-                Optional<IClasspathEntry> currentClasspathEntry = FluentIterable.from(rawClasspath).firstMatch(new Predicate<IClasspathEntry>() {
-
-                    @Override
-                    public boolean apply(IClasspathEntry entry) {
-                        return root.getPath().equals(entry.getPath());
-                    }
-                });
-
-                // preserve the includes/excludes defined by the user
-                IPath[] includes = currentClasspathEntry.isPresent() ? currentClasspathEntry.get().getInclusionPatterns() : new IPath[] {};
-                IPath[] excludes = currentClasspathEntry.isPresent() ? currentClasspathEntry.get().getExclusionPatterns() : new IPath[] {};
-
-                // @formatter:off
-                IClasspathAttribute fromGradleModel = JavaCore.newClasspathAttribute(CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL, "true");
-                return JavaCore.newSourceEntry(root.getPath(),
-                        includes,                                    // use manually defined inclusion patterns, include all if none exist
-                        excludes,                                    // use manually defined exclusion patterns, exclude none if none exist
-                        null,                                        // use the same output folder as defined on the project
-                        new IClasspathAttribute[]{fromGradleModel}   // the source folder is loaded from the current Gradle model
-                );
-                // @formatter:on
-            }
-        }).toList();
+        ImmutableList.Builder<IClasspathEntry> sourceFolderEntries = ImmutableList.builder();
+        for (OmniEclipseSourceDirectory sourceFolder : this.sourceFolders) {
+            sourceFolderEntries.add(createSourceFolderEntry(sourceFolder, rawClasspath));
+        }
 
         // remove duplicate source folders since JDT (IJavaProject#setRawClasspath) does not allow
         // duplicate source folders
-        return ImmutableSet.copyOf(sourceFolders).asList();
+        return ImmutableSet.copyOf(sourceFolderEntries.build()).asList();
+    }
+
+    private IClasspathEntry createSourceFolderEntry(OmniEclipseSourceDirectory directory, List<IClasspathEntry> rawClasspath) throws CoreException {
+        // pre-condition: in case of linked resources, the linked folder must have been created already
+        Optional<IFolder> linkedFolder = getLinkedFolderIfExists(directory.getDirectory());
+        IFolder sourceDirectory = linkedFolder.isPresent() ? linkedFolder.get() : SourceFolderUpdater.this.project.getProject().getFolder(Path.fromOSString(directory.getPath()));
+        FileUtils.ensureFolderHierarchyExists(sourceDirectory);
+        final IPackageFragmentRoot root = SourceFolderUpdater.this.project.getPackageFragmentRoot(sourceDirectory);
+
+        // find the source folder among the sources currently configured on the project
+        Optional<IClasspathEntry> currentClasspathEntry = FluentIterable.from(rawClasspath).firstMatch(new Predicate<IClasspathEntry>() {
+
+            @Override
+            public boolean apply(IClasspathEntry entry) {
+                return root.getPath().equals(entry.getPath());
+            }
+        });
+
+        // preserve the includes/excludes defined by the user
+        IPath[] includes = currentClasspathEntry.isPresent() ? currentClasspathEntry.get().getInclusionPatterns() : new IPath[] {};
+        IPath[] excludes = currentClasspathEntry.isPresent() ? currentClasspathEntry.get().getExclusionPatterns() : new IPath[] {};
+
+        // @formatter:off
+        IClasspathAttribute fromGradleModel = JavaCore.newClasspathAttribute(CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL, "true");
+        return JavaCore.newSourceEntry(root.getPath(),
+                includes,                                    // use manually defined inclusion patterns, include all if none exist
+                excludes,                                    // use manually defined exclusion patterns, exclude none if none exist
+                null,                                        // use the same output folder as defined on the project
+                new IClasspathAttribute[]{fromGradleModel}   // the source folder is loaded from the current Gradle model
+        );
+        // @formatter:on
+    }
+
+    private Optional<IFolder> getLinkedFolderIfExists(final File directory) throws CoreException {
+        IResource[] children = this.project.getProject().members();
+        return FluentIterable.of(children).filter(IFolder.class).firstMatch(new Predicate<IFolder>() {
+
+            @Override
+            public boolean apply(IFolder folder) {
+                return folder.isLinked() && folder.getLocation().toFile().equals(directory);
+            }
+        });
     }
 
     private List<IClasspathEntry> calculateNewClasspath(List<IClasspathEntry> gradleSourceFolders) throws JavaModelException {
@@ -155,7 +172,7 @@ public final class SourceFolderUpdater {
 
         // new classpath = current source folders from the Gradle model + the previous ones defined
         // manually
-        return ImmutableList.<IClasspathEntry>builder().addAll(gradleSourceFolders).addAll(manuallyAddedSourceFolders).build();
+        return ImmutableList.<IClasspathEntry> builder().addAll(gradleSourceFolders).addAll(manuallyAddedSourceFolders).build();
     }
 
     private void updateClasspath(List<IClasspathEntry> newClasspathEntries, IProgressMonitor monitor) throws JavaModelException {
@@ -172,7 +189,7 @@ public final class SourceFolderUpdater {
      * @param monitor the monitor to report progress on
      * @throws JavaModelException if the classpath modification fails
      */
-    public static void update(IJavaProject project, List<OmniEclipseSourceDirectory> sourceFolders, IProgressMonitor monitor) throws JavaModelException {
+    public static void update(IJavaProject project, List<OmniEclipseSourceDirectory> sourceFolders, IProgressMonitor monitor) throws CoreException {
         SourceFolderUpdater updater = new SourceFolderUpdater(project, sourceFolders);
         updater.updateClasspath(monitor);
     }
