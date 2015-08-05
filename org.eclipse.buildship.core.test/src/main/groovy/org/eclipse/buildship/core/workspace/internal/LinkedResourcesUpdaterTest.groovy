@@ -6,7 +6,7 @@ import spock.lang.Specification
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseLinkedResource
 
-import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 
@@ -34,7 +34,7 @@ class LinkedResourcesUpdaterTest extends Specification {
         then:
         project.members().findAll { it.isLinked() }.size() == 1
         IFolder eclipseFolder = project.getFolder('another')
-        eclipseFolder != null
+        eclipseFolder.exists()
         eclipseFolder.isLinked() == true
         eclipseFolder.location.toFile().equals(externalDir)
     }
@@ -91,6 +91,27 @@ class LinkedResourcesUpdaterTest extends Specification {
         !linkedFolder.getName().equals('foldername')
     }
 
+    def "A linked resource is deleted if no longer part of the Gradle model"() {
+        given:
+        File projectDir = tempFolder.newFolder('root', 'project-name').getCanonicalFile()
+        File externalDirA = tempFolder.newFolder('root', 'another1').getCanonicalFile()
+        File externalDirB = tempFolder.newFolder('root', 'another2').getCanonicalFile()
+        IProject project = CorePlugin.workspaceOperations().createProject('project-name', projectDir, [], [], null)
+        OmniEclipseLinkedResource linkedResourceA =  newFolderLinkedResource(externalDirB.name, externalDirB)
+        OmniEclipseLinkedResource linkedResourceB =  newFolderLinkedResource(externalDirB.name, externalDirB)
+
+        when:
+        LinkedResourcesUpdater.update(project, [linkedResourceA], new NullProgressMonitor())
+        LinkedResourcesUpdater.update(project, [linkedResourceB], new NullProgressMonitor())
+
+        then:
+        project.members().findAll { it.isLinked() }.size() == 1
+        !project.getFolder('another1').exists()
+        IFolder eclipseFolder = project.getFolder('another2')
+        eclipseFolder.exists()
+        eclipseFolder.isLinked() == true
+        eclipseFolder.location.toFile().equals(externalDirB)
+    }
 
     private def newFolderLinkedResource(String name, File location) {
         OmniEclipseLinkedResource linkedResource = Mock()
