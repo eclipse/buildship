@@ -127,7 +127,7 @@ public final class SourceFolderUpdater {
 
             @Override
             public boolean apply(IFolder folder) {
-                return folder.isLinked() && folder.getLocation().toFile().equals(directory);
+                return folder.isLinked() && folder.getLocation() != null && folder.getLocation().toFile().equals(directory);
             }
         });
     }
