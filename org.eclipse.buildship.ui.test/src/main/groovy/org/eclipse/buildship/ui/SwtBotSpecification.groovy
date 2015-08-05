@@ -6,35 +6,39 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     Ian Stewart-Binks (Red Hat, Inc.) - Bug 471095
+ *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
 package org.eclipse.buildship.ui
 
+import spock.lang.Specification
+
+import org.eclipse.core.runtime.jobs.Job
+import org.eclipse.swt.widgets.Display
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
 import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable
 import org.eclipse.swtbot.swt.finder.results.VoidResult
 import org.eclipse.swtbot.swt.finder.results.BoolResult
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
 import org.eclipse.ui.PlatformUI
-import org.eclipse.core.runtime.jobs.Job
-import org.eclipse.swt.widgets.Display
 
-abstract class SWTBotTestHelper {
-    static SWTWorkbenchBot swtBot;
+abstract class SwtBotSpecification extends Specification {
 
-    public static SWTWorkbenchBot getBot() {
-        if (swtBot == null) {
-            return new SWTWorkbenchBot()
-        }
-        return swtBot
+    protected static SWTWorkbenchBot bot = new SWTWorkbenchBot()
+
+    def setupSpec() {
+        closeWelcomePageIfAny()
+    }
+
+    def setup() {
+        closeAllShellsExceptTheApplicationShellAndForceShellActivation()
     }
 
     private static void closeWelcomePageIfAny() throws Exception {
         try {
-            SWTBotView view = getBot().activeView()
+            SWTBotView view = bot.activeView()
             if (view.getTitle().equals("Welcome")) {
                 view.close()
             }
@@ -43,9 +47,7 @@ abstract class SWTBotTestHelper {
         }
     }
 
-    public static void closeAllShellsExceptTheApplicationShellAndForceShellActivation() {
-        SWTWorkbenchBot bot = getBot()
-
+    private static void closeAllShellsExceptTheApplicationShellAndForceShellActivation() {
         // in case a UI test fails some shells might not be closed properly, therefore we close
         // these here and log it
         SWTBotShell[] shells = bot.shells()
@@ -59,31 +61,29 @@ abstract class SWTBotTestHelper {
 
         // http://wiki.eclipse.org/SWTBot/Troubleshooting#No_active_Shell_when_running_SWTBot_tests_in_Xvfb
         UIThreadRunnable.syncExec(new VoidResult() {
-
-                    @Override
-                    public void run() {
-                        PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().forceActive()
-                    }
-                })
+            @Override
+            public void run() {
+                PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().forceActive()
+            }
+        })
     }
 
-    public static boolean isEclipseApplicationShell(final SWTBotShell swtBotShell) {
+    protected static boolean isEclipseApplicationShell(final SWTBotShell swtBotShell) {
         return UIThreadRunnable.syncExec(new BoolResult() {
-
-                    @Override
-                    public Boolean run() {
-                        return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().equals(swtBotShell.widget)
-                    }
-                })
+            @Override
+            public Boolean run() {
+                return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().equals(swtBotShell.widget)
+            }
+        })
     }
 
-    public static void waitForJobsToFinish() {
+    protected static void waitForJobsToFinish() {
         while (!Job.getJobManager().isIdle()) {
             delay(500)
         }
     }
 
-    private static void delay(long waitTimeMillis) {
+    protected static void delay(long waitTimeMillis) {
         Display display = Display.getCurrent()
         if (display != null) {
             long endTimeMillis = System.currentTimeMillis() + waitTimeMillis

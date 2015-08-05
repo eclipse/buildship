@@ -14,46 +14,39 @@ package org.eclipse.buildship.ui.wizard.project
 
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions
 import org.eclipse.core.runtime.ILogListener
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.IStatus
 import org.eclipse.core.runtime.NullProgressMonitor
-import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Platform
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.Logger
-import org.eclipse.buildship.ui.SWTBotTestHelper
-import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.SwtBotSpecification
+import org.eclipse.buildship.ui.UiPlugin
 
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-import org.osgi.service.log.LogEntry;
-import org.osgi.service.log.LogListener;
+import org.osgi.service.log.LogEntry
+import org.osgi.service.log.LogListener
 import spock.lang.Specification
 import org.eclipse.buildship.ui.test.fixtures.TestEnvironment
 import org.eclipse.core.runtime.jobs.Job
 
 
-class ProjectPreviewWizardPageUiTest extends Specification {
-    SWTWorkbenchBot bot = SWTBotTestHelper.getBot()
-
+class ProjectPreviewWizardPageUiTest extends SwtBotSpecification {
     @Rule
     TemporaryFolder tempFolder
 
     ILogListener logListener
 
     def setup() {
-        SWTBotTestHelper.closeAllShellsExceptTheApplicationShellAndForceShellActivation()
         logListener = Mock(ILogListener)
         UiPlugin.getInstance().getLog().addLogListener(logListener)
     }
 
     def cleanup() {
         UiPlugin.getInstance().getLog().removeLogListener(logListener)
-    }
-
-    def setupSpec() {
-        SWTBotTestHelper.closeWelcomePageIfAny()
     }
 
     def "Stop preview and close import wizard before import job finishes"() {
@@ -73,7 +66,7 @@ class ProjectPreviewWizardPageUiTest extends Specification {
 
         when:
         startImportPreviewAndCancelWizard(location)
-        SWTBotTestHelper.waitForJobsToFinish()
+        waitForJobsToFinish()
 
         then:
         1 * logListener.logging(*_) >> { arguments ->
