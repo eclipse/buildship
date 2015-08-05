@@ -89,8 +89,8 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
 
         // instantiate the pages and pass the configuration object that serves as the data model of the wizard
         final ProjectImportConfiguration configuration = this.controller.getConfiguration();
-        WelcomePageContent welcomePageConfiguration = WelcomePageContentFactory.createImportWizardWelcomePageConfigurator();
-        this.welcomeWizardPage = new GradleWelcomeWizardPage(configuration, welcomePageConfiguration);
+        WelcomePageContent welcomePageContent = WelcomePageContentFactory.createImportWizardWelcomePageContent();
+        this.welcomeWizardPage = new GradleWelcomeWizardPage(configuration, welcomePageContent);
         this.gradleProjectPage = new GradleProjectWizardPage(configuration);
         this.gradleOptionsPage = new GradleOptionsWizardPage(configuration, publishedGradleVersions);
         this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller.getConfiguration(),
