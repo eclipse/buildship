@@ -69,7 +69,7 @@ public final class LinkedResourcesUpdater {
 
             @Override
             public boolean apply(IResource folder) {
-                return folder.isLinked();
+                return folder.isLinked() && folder.getLocation() != null;
             }
         }).transform(new Function<IResource, File>() {
 
