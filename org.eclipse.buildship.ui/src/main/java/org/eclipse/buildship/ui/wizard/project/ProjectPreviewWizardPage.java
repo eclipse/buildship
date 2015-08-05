@@ -82,7 +82,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     public ProjectPreviewWizardPage(ProjectImportConfiguration configuration, ProjectPreviewLoader previewLoader) {
         this(configuration, previewLoader,
                 ProjectWizardMessages.Title_PreviewImportWizardPage,
-                ProjectWizardMessages.InfoMessage_PreviewImportWizardPageDefault,
+                ProjectWizardMessages.InfoMessage_GradlePreviewWizardPageDefault,
                 ProjectWizardMessages.InfoMessage_GradlePreviewWizardPageContext);
     }
 
