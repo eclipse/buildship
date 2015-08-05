@@ -65,7 +65,7 @@ public final class UiPlugin extends AbstractUIPlugin {
     private ContextActivatingSelectionListener contextActivatingSelectionListener;
     private ContextActivatingWindowListener contextActivatingWindowListener;
     private RefreshListener refreshListener;
-    
+
     @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
@@ -142,9 +142,9 @@ public final class UiPlugin extends AbstractUIPlugin {
 
         this.contextActivatingWindowListener = new ContextActivatingWindowListener(this.contextActivatingSelectionListener);
         getWorkbench().addWindowListener(this.contextActivatingWindowListener);
-        
-        refreshListener = new RefreshListener();
-        getWorkbench().getService(ICommandService.class).addExecutionListener(refreshListener);
+
+        this.refreshListener = new RefreshListener();
+        ((ICommandService) getWorkbench().getService(ICommandService.class)).addExecutionListener(this.refreshListener);
     }
 
     @SuppressWarnings({"cast", "RedundantCast"})
@@ -160,7 +160,7 @@ public final class UiPlugin extends AbstractUIPlugin {
         CorePlugin.listenerRegistry().removeEventListener(this.workingSetsAddingProjectCreatedListener);
         CorePlugin.listenerRegistry().removeEventListener(this.executionShowingBuildLaunchRequestListener);
         DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(this.consoleShowingLaunchListener);
-        getWorkbench().getService(ICommandService.class).removeExecutionListener(refreshListener);
+        ((ICommandService) getWorkbench().getService(ICommandService.class)).removeExecutionListener(this.refreshListener);
     }
 
     public static UiPlugin getInstance() {

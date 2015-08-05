@@ -33,13 +33,12 @@ public class RefreshListener implements IExecutionListener {
 
     @Override
     public void postExecuteSuccess(String commandId, Object returnValue) {
-        
     }
 
     @Override
     public void preExecute(String commandId, ExecutionEvent event) {
         if (commandId.equals("org.eclipse.ui.file.refresh")
-                && PlatformUI.getWorkbench().getService(IContextService.class).getActiveContextIds().contains(UiPluginConstants.GRADLE_NATURE_CONTEXT_ID)) {
+                && ((IContextService) PlatformUI.getWorkbench().getService(IContextService.class)).getActiveContextIds().contains(UiPluginConstants.GRADLE_NATURE_CONTEXT_ID)) {
             GradleClasspathContainerRefresher.refresh(event);
         }
     }
