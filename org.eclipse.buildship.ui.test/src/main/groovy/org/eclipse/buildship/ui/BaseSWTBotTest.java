@@ -25,6 +25,7 @@ import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.results.BoolResult;
 import org.eclipse.swtbot.swt.finder.results.VoidResult;
+import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.ui.PlatformUI;
 
@@ -32,6 +33,11 @@ import org.eclipse.ui.PlatformUI;
 public abstract class BaseSWTBotTest {
 
     protected static SWTWorkbenchBot bot;
+
+    @BeforeClass
+    public static void setKeyboardPreferences() {
+        SWTBotPreferences.KEYBOARD_LAYOUT = "EN_US";
+    }
 
     @BeforeClass
     public static void closeWelcomePageIfAny() throws Exception {
@@ -85,7 +91,7 @@ public abstract class BaseSWTBotTest {
     }
 
     protected void waitForJobsToFinish() {
-        while (Job.getJobManager().currentJob() != null) {
+        while (!Job.getJobManager().isIdle()) {
             delay(500);
         }
     }

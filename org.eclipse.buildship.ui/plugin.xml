@@ -196,12 +196,6 @@
              schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
              sequence="F5">
        </key>
-       <key
-             commandId="org.eclipse.buildship.ui.commands.refreshproject"
-             contextId="org.eclipse.buildship.ui.contexts.gradlenature"
-             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-             sequence="F5">
-       </key>
    </extension>
 
     <!-- integration of Gradle command images -->
