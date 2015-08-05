@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
@@ -60,12 +61,52 @@ public final class LinkedResourcesUpdater {
     private void updateLinkedResources(IProgressMonitor monitor) throws CoreException {
         monitor.beginTask("Update linked resources", IProgressMonitor.UNKNOWN);
         try {
-            // todo (donat) delete linked resources which were but are no longer part of the model
+            removeLinkedResourcesNoLongerInModel();
             Set<File> currentLinkedResourcesLocations = collectLinkedResourcesLocations();
             List<OmniEclipseLinkedResource> newLinkedResources = collectNewLinkedResources(currentLinkedResourcesLocations);
             createLinkedResources(newLinkedResources);
         } finally {
             monitor.done();
+        }
+    }
+
+    private void removeLinkedResourcesNoLongerInModel() throws CoreException {
+       List<IFolder> folders = collectFoldersNoLongerInModel();
+       deleteFolders(folders);
+    }
+
+    private List<IFolder> collectFoldersNoLongerInModel() throws CoreException {
+        return FluentIterable.of(this.project.members()).filter(IFolder.class).filter(new Predicate<IFolder>() {
+
+            @Override
+            public boolean apply(IFolder folder) {
+                try {
+                    return folder.isLinked()
+                            && Optional.fromNullable(folder.getPersistentProperty(RESOURCE_PROPERTY_FROM_GRADLE_MODEL)).or("false").equals("true")
+                            && folder.getLocation() != null
+                            && isDefinedInModel(folder.getLocation().toFile());
+                } catch (CoreException e) {
+                    return false;
+                }
+            }
+
+        }).toList();
+    }
+
+    private boolean isDefinedInModel(final File location) {
+        return FluentIterable.from(this.linkedResources).firstMatch(new Predicate<OmniEclipseLinkedResource>() {
+
+            @Override
+            public boolean apply(OmniEclipseLinkedResource modelResource) {
+                String modelLocation = modelResource.getLocation();
+                return modelLocation != null && new File(modelLocation).equals(location);
+            }
+        }).isPresent();
+    }
+
+    private void deleteFolders(List<IFolder> folders) throws CoreException {
+        for (IFolder folder : folders) {
+            folder.delete(false, null);
         }
     }
 
