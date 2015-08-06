@@ -9,10 +9,11 @@ import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
-import org.eclipse.core.runtime.NullProgressMonitor
-import org.eclipse.core.resources.IWorkspaceRoot
-import org.eclipse.core.resources.ResourcesPlugin
+import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.core.resources.IWorkspace
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
@@ -109,6 +110,7 @@ class ProjectImportJobTest extends Specification {
         ProjectImportJob job = newProjectImportJob(rootProject)
         job.schedule()
         job.join()
+
         workspaceOperations.deleteAllProjects(null)
 
         job = newProjectImportJob(rootProject)
@@ -126,10 +128,11 @@ class ProjectImportJobTest extends Specification {
     def "Can import deleted project located in default location"() {
         setup:
         def workspaceOperations = CorePlugin.workspaceOperations()
-        def workspaceRootLocation = LegacyEclipseSpockTestHelper.workspace.root.location.toString()
-        def root = new File(workspaceRootLocation)
+        def workspaceRootLocation = LegacyEclipseSpockTestHelper.workspace.root.location.toFile()
+        def location = new File('projectname', workspaceRootLocation)
+        location.mkdirs()
 
-        def project = workspaceOperations.createProject("projectname", root, ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
+        def project = workspaceOperations.createProject("projectname", location, ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
         project.delete(false, true, new NullProgressMonitor())
 
         when:
@@ -139,6 +142,26 @@ class ProjectImportJobTest extends Specification {
 
         then:
         workspaceOperations.allProjects.size() == 1
+    }
+
+    def "Can import project located in workspace folder and with custom root name"() {
+        setup:
+        File rootProject = newProjectWithCustomNameInWorkspaceFolder()
+        ProjectImportJob job = newProjectImportJob(rootProject)
+
+        when:
+        job.schedule()
+        job.join()
+
+        then:
+        LegacyEclipseSpockTestHelper.workspace.root.projects.length == 1
+        def project = LegacyEclipseSpockTestHelper.workspace.root.projects[0]
+        def locationExpression = ExpressionUtils.encodeWorkspaceLocation(project)
+        def decodedLocation = ExpressionUtils.decode(locationExpression)
+        rootProject.equals(new File(decodedLocation))
+
+        cleanup:
+        rootProject.deleteDir()
     }
 
     def newProject(boolean projectDescriptorExists, boolean applyJavaPlugin) {
@@ -176,6 +199,16 @@ class ProjectImportJobTest extends Specification {
         subProject.mkdirs()
         new File(subProject, 'build.gradle') << ''
         rootProject
+    }
+
+    def newProjectWithCustomNameInWorkspaceFolder() {
+        IWorkspace workspace = LegacyEclipseSpockTestHelper.workspace
+        IPath rootLocation = workspace.root.location
+        def root = new File(rootLocation.toFile(), 'Bug472223')
+        root.mkdirs()
+        new File(root, 'build.gradle') << ''
+        new File(root, 'settings.gradle') << "rootProject.name = 'my-project-name-is-different-than-the-folder'"
+        root
     }
 
     def newProjectImportJob(File location) {
