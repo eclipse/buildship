@@ -144,7 +144,7 @@ class ProjectImportJobTest extends Specification {
         workspaceOperations.allProjects.size() == 1
     }
 
-    def "Can import project with custom root name"() {
+    def "Can import project located in workspace folder and with custom root name"() {
         setup:
         File rootProject = newProjectWithCustomNameInWorkspaceFolder()
         ProjectImportJob job = newProjectImportJob(rootProject)
