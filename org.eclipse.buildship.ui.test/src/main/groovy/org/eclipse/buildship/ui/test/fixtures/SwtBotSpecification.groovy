@@ -40,9 +40,13 @@ abstract class SwtBotSpecification extends Specification {
     }
 
     private static void closeWelcomePageIfAny() {
-        SWTBotView view = bot.activeView()
-        if (view.getTitle().equals("Welcome")) {
-            view.close()
+        try {
+            SWTBotView view = bot.activeView()
+            if (view.getTitle().equals("Welcome")) {
+                view.close()
+            }
+        } catch (WidgetNotFoundException e) {
+            UiPlugin.logger().info('No active view', e)
         }
     }
 
