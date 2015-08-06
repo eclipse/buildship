@@ -64,7 +64,7 @@ public final class UiPlugin extends AbstractUIPlugin {
     private WorkingSetsAddingProjectCreatedListener workingSetsAddingProjectCreatedListener;
     private ContextActivatingSelectionListener contextActivatingSelectionListener;
     private ContextActivatingWindowListener contextActivatingWindowListener;
-    private RefreshProjectCommandExecutionListener refreshCommandListener;
+    private RefreshProjectCommandExecutionListener refreshCommandExecutionListener;
 
     @Override
     public void start(BundleContext context) throws Exception {
@@ -143,17 +143,18 @@ public final class UiPlugin extends AbstractUIPlugin {
         this.contextActivatingWindowListener = new ContextActivatingWindowListener(this.contextActivatingSelectionListener);
         getWorkbench().addWindowListener(this.contextActivatingWindowListener);
 
-        this.refreshCommandListener = new RefreshProjectCommandExecutionListener();
+        this.refreshCommandExecutionListener = new RefreshProjectCommandExecutionListener();
         ICommandService commandService = (ICommandService) getWorkbench().getService(ICommandService.class);
-        commandService.addExecutionListener(this.refreshCommandListener);
+        commandService.addExecutionListener(this.refreshCommandExecutionListener);
     }
 
     @SuppressWarnings({"cast", "RedundantCast"})
     private void unregisterListeners() {
         ICommandService commandService = (ICommandService) getWorkbench().getService(ICommandService.class);
-        commandService.removeExecutionListener(this.refreshCommandListener);
+        commandService.removeExecutionListener(this.refreshCommandExecutionListener);
 
         getWorkbench().removeWindowListener(this.contextActivatingWindowListener);
+
         IWorkbenchWindow[] workbenchWindows = getWorkbench().getWorkbenchWindows();
         for (IWorkbenchWindow workbenchWindow : workbenchWindows) {
             ISelectionService selectionService = workbenchWindow.getSelectionService();
@@ -161,6 +162,7 @@ public final class UiPlugin extends AbstractUIPlugin {
                 selectionService.removeSelectionListener(this.contextActivatingSelectionListener);
             }
         }
+
         CorePlugin.listenerRegistry().removeEventListener(this.workingSetsAddingProjectCreatedListener);
         CorePlugin.listenerRegistry().removeEventListener(this.executionShowingBuildLaunchRequestListener);
         DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(this.consoleShowingLaunchListener);
