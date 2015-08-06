@@ -10,7 +10,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - Bug 471095
  */
 
-package org.eclipse.buildship.ui
+package org.eclipse.buildship.ui.test.fixtures
 
 import spock.lang.Specification
 
@@ -24,6 +24,8 @@ import org.eclipse.swtbot.swt.finder.results.VoidResult
 import org.eclipse.swtbot.swt.finder.results.BoolResult
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
 import org.eclipse.ui.PlatformUI
+
+import org.eclipse.buildship.ui.UiPlugin;
 
 abstract class SwtBotSpecification extends Specification {
 
