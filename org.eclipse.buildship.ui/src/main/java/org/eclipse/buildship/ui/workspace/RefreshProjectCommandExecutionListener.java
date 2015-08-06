@@ -34,26 +34,31 @@ public final class RefreshProjectCommandExecutionListener implements IExecutionL
     }
 
     @Override
-    public void postExecuteFailure(String commandId, ExecutionException exception) {
-        // if applicable, call project refresh even if the file refresh failed
+    public void postExecuteSuccess(String commandId, Object returnValue) {
+        // if applicable, call the Gradle project refresh after file refresh
         if (isFileRefreshCommand(commandId) && isGradleNatureContextEnabled()) {
             refreshGradleProject(this.event);
         }
     }
 
     @Override
-    public void postExecuteSuccess(String commandId, Object returnValue) {
-        // if applicable, call the gradle refresh after file refresh
+    public void postExecuteFailure(String commandId, ExecutionException exception) {
+        // if applicable, call the Gradle project refresh even if the file refresh failed
         if (isFileRefreshCommand(commandId) && isGradleNatureContextEnabled()) {
             refreshGradleProject(this.event);
         }
+    }
+
+    @Override
+    public void notHandled(String commandId, NotHandledException exception) {
+        // do nothing
     }
 
     private boolean isFileRefreshCommand(String commandId) {
         return commandId.equals(IWorkbenchCommandConstants.FILE_REFRESH);
     }
 
-    @SuppressWarnings("cast")
+    @SuppressWarnings({"cast", "RedundantCast"})
     private boolean isGradleNatureContextEnabled() {
         IContextService contextService = (IContextService) PlatformUI.getWorkbench().getService(IContextService.class);
         return contextService.getActiveContextIds().contains(UiPluginConstants.GRADLE_NATURE_CONTEXT_ID);
@@ -63,8 +68,4 @@ public final class RefreshProjectCommandExecutionListener implements IExecutionL
         GradleClasspathContainerRefresher.refresh(event);
     }
 
-    @Override
-    public void notHandled(String commandId, NotHandledException exception) {
-        // do nothing
-    }
 }
