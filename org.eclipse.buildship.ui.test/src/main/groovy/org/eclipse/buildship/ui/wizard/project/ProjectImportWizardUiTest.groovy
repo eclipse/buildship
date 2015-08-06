@@ -16,7 +16,6 @@ import org.junit.Test
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
 
-import org.eclipse.buildship.ui.BaseSwtBotTest
 import org.eclipse.buildship.ui.SwtBotSpecification
 
 class ProjectImportWizardUiTest extends SwtBotSpecification {
