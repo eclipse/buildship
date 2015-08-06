@@ -58,8 +58,14 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
     protected void createWidgets(Composite root) {
         root.setLayout(new GridLayout(1, false));
 
-        StyledText welcomeText = new StyledText(root, SWT.WRAP | SWT.MULTI | SWT.CENTER);
-        GridData welcomeTextLayoutData = new GridData(SWT.CENTER, SWT.TOP, false, false, 1, 1);
+        Composite container = new Composite(root, SWT.NONE);
+        container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        GridLayout containerLayout = new GridLayout(1, false);
+        containerLayout.marginLeft = containerLayout.marginRight = 50;
+        container.setLayout(containerLayout);
+
+        StyledText welcomeText = new StyledText(container, SWT.WRAP | SWT.MULTI | SWT.CENTER);
+        GridData welcomeTextLayoutData = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
         welcomeTextLayoutData.widthHint = 500;
         welcomeText.setLayoutData(welcomeTextLayoutData);
         welcomeText.setBackground(welcomeText.getParent().getBackground());
@@ -67,9 +73,9 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
         welcomeText.setEditable(false);
         fillWelcomeText(welcomeText);
 
-        final Button showWelcomePageCheckbox = new Button(root, SWT.CHECK);
+        final Button showWelcomePageCheckbox = new Button(container, SWT.CHECK);
         showWelcomePageCheckbox.setText(ProjectWizardMessages.CheckButton_ShowWelcomePageNextTime);
-        GridData showWelcomePageCheckboxLayoutData = new GridData(SWT.CENTER, SWT.BOTTOM, false, false, 1, 1);
+        GridData showWelcomePageCheckboxLayoutData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
         showWelcomePageCheckboxLayoutData.widthHint = welcomeTextLayoutData.widthHint;
         showWelcomePageCheckboxLayoutData.verticalIndent = 15;
         showWelcomePageCheckbox.setLayoutData(showWelcomePageCheckboxLayoutData);
