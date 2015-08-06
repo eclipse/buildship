@@ -48,6 +48,7 @@ public interface WorkspaceOperations {
     /**
      * Returns the workspace's project with the given location, if it exists. Open and closed projects
      * are included.
+     *
      * @param location the location of the project to find
      * @return the matching project, otherwise {@link Optional#absent()}
      */
