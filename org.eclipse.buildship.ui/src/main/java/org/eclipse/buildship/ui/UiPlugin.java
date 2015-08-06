@@ -28,10 +28,12 @@ import org.eclipse.buildship.ui.util.selection.ContextActivatingSelectionListene
 import org.eclipse.buildship.ui.util.selection.ContextActivatingWindowListener;
 import org.eclipse.buildship.ui.view.execution.ExecutionShowingBuildLaunchRequestListener;
 import org.eclipse.buildship.ui.wizard.project.WorkingSetsAddingProjectCreatedListener;
+import org.eclipse.buildship.ui.workspace.RefreshProjectCommandExecutionListener;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -62,6 +64,7 @@ public final class UiPlugin extends AbstractUIPlugin {
     private WorkingSetsAddingProjectCreatedListener workingSetsAddingProjectCreatedListener;
     private ContextActivatingSelectionListener contextActivatingSelectionListener;
     private ContextActivatingWindowListener contextActivatingWindowListener;
+    private RefreshProjectCommandExecutionListener refreshCommandExecutionListener;
 
     @Override
     public void start(BundleContext context) throws Exception {
@@ -139,11 +142,19 @@ public final class UiPlugin extends AbstractUIPlugin {
 
         this.contextActivatingWindowListener = new ContextActivatingWindowListener(this.contextActivatingSelectionListener);
         getWorkbench().addWindowListener(this.contextActivatingWindowListener);
+
+        this.refreshCommandExecutionListener = new RefreshProjectCommandExecutionListener();
+        ICommandService commandService = (ICommandService) getWorkbench().getService(ICommandService.class);
+        commandService.addExecutionListener(this.refreshCommandExecutionListener);
     }
 
     @SuppressWarnings({"cast", "RedundantCast"})
     private void unregisterListeners() {
+        ICommandService commandService = (ICommandService) getWorkbench().getService(ICommandService.class);
+        commandService.removeExecutionListener(this.refreshCommandExecutionListener);
+
         getWorkbench().removeWindowListener(this.contextActivatingWindowListener);
+
         IWorkbenchWindow[] workbenchWindows = getWorkbench().getWorkbenchWindows();
         for (IWorkbenchWindow workbenchWindow : workbenchWindows) {
             ISelectionService selectionService = workbenchWindow.getSelectionService();
@@ -151,6 +162,7 @@ public final class UiPlugin extends AbstractUIPlugin {
                 selectionService.removeSelectionListener(this.contextActivatingSelectionListener);
             }
         }
+
         CorePlugin.listenerRegistry().removeEventListener(this.workingSetsAddingProjectCreatedListener);
         CorePlugin.listenerRegistry().removeEventListener(this.executionShowingBuildLaunchRequestListener);
         DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(this.consoleShowingLaunchListener);

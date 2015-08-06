@@ -170,7 +170,7 @@
       </handler>
       <handler
             commandId="org.eclipse.buildship.ui.commands.refreshproject"
-            class="org.eclipse.buildship.ui.workspace.RefreshGradleClasspathContainerHandler">
+            class="org.eclipse.buildship.ui.workspace.RefreshProjectHandler">
       </handler>
     </extension>
 
@@ -193,12 +193,6 @@
        <key
              commandId="org.eclipse.buildship.ui.commands.refreshtaskview"
              contextId="org.eclipse.buildship.ui.contexts.taskview"
-             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-             sequence="F5">
-       </key>
-       <key
-             commandId="org.eclipse.buildship.ui.commands.refreshproject"
-             contextId="org.eclipse.buildship.ui.contexts.gradlenature"
              schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
              sequence="F5">
        </key>
