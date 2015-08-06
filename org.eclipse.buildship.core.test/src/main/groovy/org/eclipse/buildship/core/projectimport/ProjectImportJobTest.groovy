@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectBuilder
 import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
@@ -14,13 +13,9 @@ import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRoot
-import org.eclipse.core.resources.ResourcesPlugin
-
+import org.eclipse.core.resources.IWorkspace
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-import spock.lang.Ignore;
 import spock.lang.Specification
 
 class ProjectImportJobTest extends Specification {
@@ -150,10 +145,10 @@ class ProjectImportJobTest extends Specification {
 
     def "Can import project with custom root name"() {
         setup:
-        File projectLocation = newProjectWithCustomNameInWorkspaceFolder()
-        ProjectImportJob job = newProjectImportJob(projectLocation)
+        File rootProject = newProjectWithCustomNameInWorkspaceFolder()
 
         when:
+        ProjectImportJob job = newProjectImportJob(rootProject)
         job.schedule()
         job.join()
 
@@ -162,10 +157,10 @@ class ProjectImportJobTest extends Specification {
         def project = LegacyEclipseSpockTestHelper.workspace.root.projects[0]
         def locationExpression = ExpressionUtils.encodeWorkspaceLocation(project)
         def decodedLocation = ExpressionUtils.decode(locationExpression)
-        projectLocation.equals(new File(decodedLocation))
+        rootProject.equals(new File(decodedLocation))
 
         cleanup:
-        projectLocation.deleteDir()
+        rootProject.deleteDir()
     }
 
     def newProject(boolean projectDescriptorExists, boolean applyJavaPlugin) {
