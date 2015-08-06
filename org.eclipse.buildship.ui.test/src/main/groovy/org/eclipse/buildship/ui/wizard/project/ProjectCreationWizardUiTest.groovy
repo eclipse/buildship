@@ -60,5 +60,6 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
         bot.waitUntil(Conditions.shellIsActive("New"))
         bot.tree().expandNode("Gradle").select("Gradle Project")
         bot.button("Next >").click()
+        bot.button("Next >").click()
     }
 }
