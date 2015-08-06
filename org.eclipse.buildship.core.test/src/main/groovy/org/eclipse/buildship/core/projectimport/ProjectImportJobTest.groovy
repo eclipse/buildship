@@ -129,7 +129,7 @@ class ProjectImportJobTest extends Specification {
         setup:
         def workspaceOperations = CorePlugin.workspaceOperations()
         def workspaceRootLocation = LegacyEclipseSpockTestHelper.workspace.root.location.toFile()
-        def location = new File('projectname', workspaceRootLocation)
+        def location = new File(workspaceRootLocation, 'projectname')
         location.mkdirs()
 
         def project = workspaceOperations.createProject("projectname", location, ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
