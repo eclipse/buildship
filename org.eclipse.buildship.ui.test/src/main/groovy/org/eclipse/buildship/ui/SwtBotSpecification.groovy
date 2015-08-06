@@ -6,7 +6,8 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
+ *     Ian Stewart-Binks (Red Hat, Inc.) - Bug 471095
+ *     Etienne Studer & Donát Csikós (Gradle Inc.) - Bug 471095
  */
 
 package org.eclipse.buildship.ui
@@ -36,14 +37,10 @@ abstract class SwtBotSpecification extends Specification {
         closeAllShellsExceptTheApplicationShellAndForceShellActivation()
     }
 
-    private static void closeWelcomePageIfAny() throws Exception {
-        try {
-            SWTBotView view = bot.activeView()
-            if (view.getTitle().equals("Welcome")) {
-                view.close()
-            }
-        } catch (WidgetNotFoundException e) {
-            UiPlugin.logger().error("Failed to initialize SWTBot test.", e)
+    private static void closeWelcomePageIfAny() {
+        SWTBotView view = bot.activeView()
+        if (view.getTitle().equals("Welcome")) {
+            view.close()
         }
     }
 
@@ -79,7 +76,7 @@ abstract class SwtBotSpecification extends Specification {
 
     protected static void waitForJobsToFinish() {
         while (!Job.getJobManager().isIdle()) {
-            delay(500)
+            delay(100)
         }
     }
 
