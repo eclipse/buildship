@@ -42,7 +42,7 @@ abstract class SwtBotSpecification extends Specification {
     private static void closeWelcomePageIfAny() {
         try {
             SWTBotView view = bot.activeView()
-            if (view.getTitle().equals("Welcome")) {
+            if (view.title.equals("Welcome")) {
                 view.close()
             }
         } catch (WidgetNotFoundException e) {
@@ -53,20 +53,17 @@ abstract class SwtBotSpecification extends Specification {
     private static void closeAllShellsExceptTheApplicationShellAndForceShellActivation() {
         // in case a UI test fails some shells might not be closed properly, therefore we close
         // these here and log it
-        SWTBotShell[] shells = bot.shells()
-        for (SWTBotShell swtBotShell : shells) {
-            if (swtBotShell.isOpen() && !isEclipseApplicationShell(swtBotShell)) {
-                bot.captureScreenshot(swtBotShell.getText() + " NotClosed.jpg")
-                UiPlugin.logger().warn(swtBotShell.getText() + " was not closed properly.")
-                swtBotShell.close()
-            }
+        bot.shells().findAll{ it.isOpen() && !isEclipseApplicationShell(it) }.each {
+            bot.captureScreenshot(it.text + " NotClosed.jpg")
+            UiPlugin.logger().warn(it.text + " was not closed properly.")
+            it.close()
         }
 
         // http://wiki.eclipse.org/SWTBot/Troubleshooting#No_active_Shell_when_running_SWTBot_tests_in_Xvfb
         UIThreadRunnable.syncExec(new VoidResult() {
             @Override
             public void run() {
-                PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().forceActive()
+                PlatformUI.workbench.activeWorkbenchWindow.shell.forceActive()
             }
         })
     }
@@ -75,19 +72,19 @@ abstract class SwtBotSpecification extends Specification {
         return UIThreadRunnable.syncExec(new BoolResult() {
             @Override
             public Boolean run() {
-                return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().equals(swtBotShell.widget)
+                PlatformUI.workbench.activeWorkbenchWindow.shell.equals(swtBotShell.widget)
             }
         })
     }
 
     protected static void waitForJobsToFinish() {
-        while (!Job.getJobManager().isIdle()) {
+        while (!Job.jobManager.isIdle()) {
             delay(100)
         }
     }
 
     protected static void delay(long waitTimeMillis) {
-        Display display = Display.getCurrent()
+        Display display = Display.current
         if (display != null) {
             long endTimeMillis = System.currentTimeMillis() + waitTimeMillis
             while (System.currentTimeMillis() < endTimeMillis) {
