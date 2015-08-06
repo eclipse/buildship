@@ -17,9 +17,9 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
 /**
- * Refreshes the classpath for all Gradle projects that belong to the same builds as the currently selected Gradle projects.
+ * Refreshes the project configuration of all Gradle projects that belong to the same build as the currently selected Gradle projects.
  */
-public final class RefreshGradleClasspathContainerHandler extends AbstractHandler {
+public final class RefreshProjectHandler extends AbstractHandler {
 
     @Override
     public Object execute(final ExecutionEvent event) throws ExecutionException {

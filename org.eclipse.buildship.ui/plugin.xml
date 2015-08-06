@@ -170,7 +170,7 @@
       </handler>
       <handler
             commandId="org.eclipse.buildship.ui.commands.refreshproject"
-            class="org.eclipse.buildship.ui.workspace.RefreshGradleClasspathContainerHandler">
+            class="org.eclipse.buildship.ui.workspace.RefreshProjectHandler">
       </handler>
     </extension>
 
