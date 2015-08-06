@@ -25,7 +25,7 @@ import org.eclipse.swt.SWTException
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
 
-import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification;
+import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification
 
 class ProjectPreviewWizardPageUiTest extends SwtBotSpecification {
 
@@ -61,7 +61,6 @@ class ProjectPreviewWizardPageUiTest extends SwtBotSpecification {
         waitForJobsToFinish()
 
         then:
-        true
         logEntries.findAll {it.exception?.cause instanceof SWTException && it.exception?.cause?.message.contains('disposed') }.size() == 0
 
         cleanup:

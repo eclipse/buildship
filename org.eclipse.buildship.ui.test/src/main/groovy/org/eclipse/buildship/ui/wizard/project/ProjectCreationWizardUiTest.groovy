@@ -19,7 +19,7 @@ import org.eclipse.swtbot.eclipse.finder.waits.Conditions
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
 
-import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification;
+import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification
 
 class ProjectCreationWizardUiTest extends SwtBotSpecification {
 

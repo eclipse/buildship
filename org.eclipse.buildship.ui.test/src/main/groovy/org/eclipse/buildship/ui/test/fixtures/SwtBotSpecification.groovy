@@ -25,7 +25,7 @@ import org.eclipse.swtbot.swt.finder.results.BoolResult
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
 import org.eclipse.ui.PlatformUI
 
-import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.UiPlugin
 
 abstract class SwtBotSpecification extends Specification {
 
