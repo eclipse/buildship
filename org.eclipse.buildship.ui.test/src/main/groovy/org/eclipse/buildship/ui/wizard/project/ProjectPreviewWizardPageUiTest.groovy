@@ -12,45 +12,38 @@
 
 package org.eclipse.buildship.ui.wizard.project
 
-import org.eclipse.swtbot.eclipse.finder.waits.Conditions
-import org.eclipse.core.runtime.ILogListener
-import org.eclipse.core.runtime.IStatus
-import org.eclipse.core.runtime.NullProgressMonitor
-import org.eclipse.core.runtime.Platform
-
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.Logger
-import org.eclipse.buildship.ui.SwtBotSpecification
-import org.eclipse.buildship.ui.UiPlugin
-
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
-import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-import org.osgi.service.log.LogEntry
-import org.osgi.service.log.LogListener
-import spock.lang.Specification
-import org.eclipse.buildship.ui.test.fixtures.TestEnvironment
-import org.eclipse.core.runtime.jobs.Job
 
+import org.eclipse.core.runtime.ILog
+import org.eclipse.core.runtime.ILogListener
+import org.eclipse.core.runtime.IStatus
+import org.eclipse.core.runtime.Platform
+
+import org.eclipse.swt.SWTException
+
+import org.eclipse.swtbot.eclipse.finder.waits.Conditions
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
+
+import org.eclipse.buildship.ui.SwtBotSpecification
 
 class ProjectPreviewWizardPageUiTest extends SwtBotSpecification {
+
     @Rule
     TemporaryFolder tempFolder
 
-    ILogListener logListener
-
-    def setup() {
-        logListener = Mock(ILogListener)
-        UiPlugin.getInstance().getLog().addLogListener(logListener)
-    }
-
-    def cleanup() {
-        UiPlugin.getInstance().getLog().removeLogListener(logListener)
-    }
-
     def "Stop preview and close import wizard before import job finishes"() {
-        given:
+        setup:
+        // a log listener to collect logged entries
+        def logEntries = []
+        def logListener = new ILogListener() {
+            void logging(IStatus status, String plugin) {
+                logEntries.add(status)
+            }
+        }
+        Platform.addLogListener(logListener)
+
+        // a project taking a long time to load its model
         File location = tempFolder.newFolder("new-folder")
 
         new File(location, "build.gradle") << """
@@ -62,17 +55,16 @@ class ProjectPreviewWizardPageUiTest extends SwtBotSpecification {
                 }
             }"""
 
-        CorePlugin.workspaceOperations().createProject('project-name', location, [], [], new NullProgressMonitor())
-
         when:
         startImportPreviewAndCancelWizard(location)
         waitForJobsToFinish()
 
         then:
-        1 * logListener.logging(*_) >> { arguments ->
-            IStatus status = arguments[0]
-            assert status.getException() instanceof InterruptedException
-        }
+        true
+        logEntries.findAll {it.exception?.cause instanceof SWTException && it.exception?.cause?.message.contains('disposed') }.size() == 0
+
+        cleanup:
+        Platform.removeLogListener(logListener)
     }
 
     private def startImportPreviewAndCancelWizard(File location) {
