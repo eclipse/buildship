@@ -11,6 +11,14 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
+import java.io.File;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import org.gradle.tooling.ProgressListener;
+import org.gradle.util.GradleVersion;
+
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -18,22 +26,13 @@ import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
+
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
 import com.gradleware.tooling.toolingmodel.util.Pair;
 import com.gradleware.tooling.toolingutils.binding.Property;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.gradle.Limitations;
-import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
-import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
-import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.util.font.FontUtils;
-import org.eclipse.buildship.ui.util.layout.LayoutUtils;
-import org.eclipse.buildship.ui.util.widget.UiBuilder;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -47,20 +46,28 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
-import org.gradle.tooling.ProgressListener;
-import org.gradle.util.GradleVersion;
 
-import java.io.File;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.gradle.Limitations;
+import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
+import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
+import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.util.font.FontUtils;
+import org.eclipse.buildship.ui.util.layout.LayoutUtils;
+import org.eclipse.buildship.ui.util.widget.UiBuilder;
 
 /**
- * Page in the {@link ProjectImportWizard} showing a preview about the project about to be
- * imported.
+ * Page in the {@link ProjectImportWizard} showing a preview about the project about to be imported.
  */
 public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
@@ -86,8 +93,9 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
                 ProjectWizardMessages.InfoMessage_GradlePreviewWizardPageContext);
     }
 
-    public ProjectPreviewWizardPage(ProjectImportConfiguration configuration, ProjectPreviewLoader previewLoader, String title, String defaultMessage, String pageContextInformation) {
-        super("ProjectPreview", title, defaultMessage, configuration, ImmutableList.<Property<?>>of()); //$NON-NLS-1$
+    public ProjectPreviewWizardPage(ProjectImportConfiguration configuration, ProjectPreviewLoader previewLoader, String title, String defaultMessage,
+            String pageContextInformation) {
+        super("ProjectPreview", title, defaultMessage, configuration, ImmutableList.<Property<?>> of()); //$NON-NLS-1$
         this.projectPreviewLoader = Preconditions.checkNotNull(previewLoader);
         this.keyFont = FontUtils.getCustomDialogFont(SWT.BOLD);
         this.valueFont = FontUtils.getCustomDialogFont(SWT.NONE);
@@ -276,7 +284,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     private void scheduleProjectPreviewJob() {
         final CountDownLatch latch = new CountDownLatch(1);
         final DelegatingProgressListener listener = new DelegatingProgressListener();
-        final Job job = this.projectPreviewLoader.loadPreview(new ProjectPreviewJobResultHandler(latch), ImmutableList.<ProgressListener>of(listener));
+        final Job job = this.projectPreviewLoader.loadPreview(new ProjectPreviewJobResultHandler(latch), ImmutableList.<ProgressListener> of(listener));
 
         try {
             // once cancellation has been requested by the user, do not block any longer
@@ -304,16 +312,18 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     }
 
     /**
-     * Loads the Gradle project data required to populate the preview page. Having the logic to load the data outside of the actual project preview wizard page
-     * allows the wizard that is using the preview page to do additional things in preparation of showing the preview.
+     * Loads the Gradle project data required to populate the preview page. Having the logic to load
+     * the data outside of the actual project preview wizard page allows the wizard that is using
+     * the preview page to do additional things in preparation of showing the preview.
      */
     public interface ProjectPreviewLoader {
 
         /**
          * Loads the Gradle project data required to populate the preview page.
          *
-         * @param resultHandler the handler that is called once the project data has been loaded or a failure occurred
-         * @param listeners     the progress listeners to register when calling Gradle
+         * @param resultHandler the handler that is called once the project data has been loaded or
+         *            a failure occurred
+         * @param listeners the progress listeners to register when calling Gradle
          * @return the job in which the Gradle project data is loaded
          */
         Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler, List<ProgressListener> listeners);
@@ -353,20 +363,22 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
                 @Override
                 public void run() {
-                    // update Gradle user home
-                    if (buildEnvironment.getGradle().getGradleUserHome().isPresent()) {
-                        String gradleUserHome = buildEnvironment.getGradle().getGradleUserHome().get().getAbsolutePath();
-                        ProjectPreviewWizardPage.this.gradleUserHomeLabel.setText(gradleUserHome);
+                    if (!getControl().isDisposed()) {
+                        // update Gradle user home
+                        if (buildEnvironment.getGradle().getGradleUserHome().isPresent()) {
+                            String gradleUserHome = buildEnvironment.getGradle().getGradleUserHome().get().getAbsolutePath();
+                            ProjectPreviewWizardPage.this.gradleUserHomeLabel.setText(gradleUserHome);
+                        }
+
+                        // update Gradle version
+                        String gradleVersion = buildEnvironment.getGradle().getGradleVersion();
+                        ProjectPreviewWizardPage.this.gradleVersionLabel.setText(gradleVersion);
+                        updateGradleVersionWarningLabel();
+
+                        // update Java home
+                        String javaHome = buildEnvironment.getJava().getJavaHome().getAbsolutePath();
+                        ProjectPreviewWizardPage.this.javaHomeLabel.setText(javaHome);
                     }
-
-                    // update Gradle version
-                    String gradleVersion = buildEnvironment.getGradle().getGradleVersion();
-                    ProjectPreviewWizardPage.this.gradleVersionLabel.setText(gradleVersion);
-                    updateGradleVersionWarningLabel();
-
-                    // update Java home
-                    String javaHome = buildEnvironment.getJava().getJavaHome().getAbsolutePath();
-                    ProjectPreviewWizardPage.this.javaHomeLabel.setText(javaHome);
                 }
             });
         }
@@ -376,14 +388,16 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
                 @Override
                 public void run() {
-                    ProjectPreviewWizardPage.this.projectPreviewTree.removeAll();
+                    if (!getControl().isDisposed()) {
+                        ProjectPreviewWizardPage.this.projectPreviewTree.removeAll();
 
-                    // populate the tree from the build structure
-                    OmniGradleProjectStructure rootProject = buildStructure.getRootProject();
-                    TreeItem rootTreeItem = new TreeItem(ProjectPreviewWizardPage.this.projectPreviewTree, SWT.NONE);
-                    rootTreeItem.setExpanded(true);
-                    rootTreeItem.setText(rootProject.getName());
-                    populateRecursively(rootProject, rootTreeItem);
+                        // populate the tree from the build structure
+                        OmniGradleProjectStructure rootProject = buildStructure.getRootProject();
+                        TreeItem rootTreeItem = new TreeItem(ProjectPreviewWizardPage.this.projectPreviewTree, SWT.NONE);
+                        rootTreeItem.setExpanded(true);
+                        rootTreeItem.setText(rootProject.getName());
+                        populateRecursively(rootProject, rootTreeItem);
+                    }
                 }
             });
         }
@@ -393,7 +407,9 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
                 @Override
                 public void run() {
-                    ProjectPreviewWizardPage.this.projectPreviewTree.removeAll();
+                    if (!getControl().isDisposed()) {
+                        ProjectPreviewWizardPage.this.projectPreviewTree.removeAll();
+                    }
                 }
             });
         }
@@ -405,7 +421,6 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
                 populateRecursively(childProject, treeItem);
             }
         }
-
     }
 
     @Override
