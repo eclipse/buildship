@@ -54,6 +54,7 @@ class ProjectPreviewWizardPageUiTest extends SwtBotSpecification {
                     Thread.sleep(5000)
                 }
             }"""
+        new File(location, 'settings.gradle') << ''
 
         when:
         startImportPreviewAndCancelWizard(location)
