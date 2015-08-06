@@ -110,6 +110,7 @@ class ProjectImportJobTest extends Specification {
         ProjectImportJob job = newProjectImportJob(rootProject)
         job.schedule()
         job.join()
+
         workspaceOperations.deleteAllProjects(null)
 
         job = newProjectImportJob(rootProject)
@@ -146,9 +147,9 @@ class ProjectImportJobTest extends Specification {
     def "Can import project with custom root name"() {
         setup:
         File rootProject = newProjectWithCustomNameInWorkspaceFolder()
+        ProjectImportJob job = newProjectImportJob(rootProject)
 
         when:
-        ProjectImportJob job = newProjectImportJob(rootProject)
         job.schedule()
         job.join()
 
