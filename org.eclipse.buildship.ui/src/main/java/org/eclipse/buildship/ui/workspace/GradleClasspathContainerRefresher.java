@@ -52,7 +52,7 @@ import org.eclipse.buildship.ui.util.predicate.Predicates;
 /**
  * Requests an update on all {@link GradleClasspathContainer} related to the current selection.
  *
- * TODO (donat) this class should be deleted after the project refresh improvement PR is merged
+ * todo (donat) this class should be deleted after the project refresh improvement PR is merged
  */
 public final class GradleClasspathContainerRefresher {
 
