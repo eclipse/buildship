@@ -70,6 +70,9 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             @Override
             public boolean apply(IProject project) {
                 IPath location = project.getLocation();
+                // since Eclipse 3.4 projects can be non-local and they could return null locations
+                // for Buildship this is not the case, Gradle projects are always available on the
+                // local file system
                 return location != null && location.toFile().equals(directory);
             }
         });
