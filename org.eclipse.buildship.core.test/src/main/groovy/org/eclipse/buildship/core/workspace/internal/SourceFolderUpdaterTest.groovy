@@ -155,13 +155,6 @@ class SourceFolderUpdaterTest extends Specification {
         }
     }
 
-    private OmniEclipseSourceDirectory getLinkedSourceFolder(String path, File directory) {
-        OmniEclipseSourceDirectory sourceDirectory = Mock()
-        sourceDirectory.getPath() >> path
-        sourceDirectory.getDirectory() >> directory
-        sourceDirectory
-    }
-
     private IJavaProject javaProject(HashMap arguments) {
         def projectName = arguments['name']
         def modelSourceFolders = arguments['model-source-folders']
