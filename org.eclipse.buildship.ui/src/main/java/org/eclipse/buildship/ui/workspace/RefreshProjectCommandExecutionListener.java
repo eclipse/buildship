@@ -22,7 +22,8 @@ import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.buildship.ui.UiPluginConstants;
 
 /**
- * Listens for the default Eclipse refresh command.
+ * Listens for the default Eclipse Refresh command, and triggers a refresh of the project configuration in case
+ * the command is triggered in the context of a Gradle project.
  */
 public final class RefreshProjectCommandExecutionListener implements IExecutionListener {
 
