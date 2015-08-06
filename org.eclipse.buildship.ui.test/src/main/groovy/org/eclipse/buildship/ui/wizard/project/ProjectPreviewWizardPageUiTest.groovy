@@ -47,7 +47,7 @@ class ProjectPreviewWizardPageUiTest extends SwtBotSpecification {
         File location = tempFolder.newFolder("new-folder")
 
         new File(location, "build.gradle") << """
-            Thread.sleep(5000)"
+            Thread.sleep(5000)
             task takesLongTimeToLoad {
                 Thread.sleep(5000)
                 doLast {
