@@ -131,6 +131,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         OmniGradleProject gradleProject = gradleRootProject.tryFind(Specs.gradleProjectMatchesProjectPath(gradleProjectPath)).get();
 
         // find the corresponding Eclipse project in the workspace
+        // (find by location rather than by name since the Eclipse project name does not always correspond to the Gradle project name)
         Optional<IProject> workspaceProject = TaskViewContentProvider.this.workspaceOperations.findProjectByLocation(eclipseProject.getProjectDirectory());
 
         // create a new node for the given Eclipse project and then recurse into the children
