@@ -182,11 +182,6 @@
                 name="In Gradle Tasks View"
                 parentId="org.eclipse.ui.contexts.window">
         </context>
-        <context
-              id="org.eclipse.buildship.ui.contexts.gradlenature"
-              name="Gradle Context"
-              parentId="org.eclipse.ui.contexts.window">
-        </context>
     </extension>
     <extension
           point="org.eclipse.ui.bindings">
