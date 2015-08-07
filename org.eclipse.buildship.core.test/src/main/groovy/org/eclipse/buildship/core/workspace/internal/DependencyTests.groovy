@@ -1,10 +1,14 @@
-package org.eclipse.buildship.core.dependencies
+package org.eclipse.buildship.core.workspace.internal
 
+import com.google.common.base.Predicate
+import com.google.common.collect.FluentIterable
+import com.gradleware.tooling.toolingclient.GradleDistribution
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
 import org.eclipse.buildship.core.projectimport.ProjectImportJob
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
+import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import org.eclipse.core.resources.IMarker
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
@@ -12,29 +16,25 @@ import org.eclipse.core.resources.IWorkspaceDescription
 import org.eclipse.core.resources.IncrementalProjectBuilder
 import org.eclipse.core.resources.ResourcesPlugin
 import org.eclipse.core.runtime.CoreException
+import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.OperationCanceledException
 import org.eclipse.core.runtime.jobs.Job
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-
+import spock.lang.Shared
 import spock.lang.Specification
 
-import com.google.common.base.Predicate
-import com.google.common.collect.FluentIterable
-import com.gradleware.tooling.toolingclient.GradleDistribution
-
 class DependencyTests extends Specification {
+
+    @Shared
+    WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations()
 
     @Rule
     TemporaryFolder tempFolder
 
     def cleanup() {
-        CorePlugin.workspaceOperations().deleteAllProjects(null)
+        workspaceOperations.deleteAllProjects(new NullProgressMonitor())
     }
-
-    /////////////////////////////////////
-    // tests for dependency resolution //
-    /////////////////////////////////////
 
     def "Exported transitive dependencies from project dependency are included"() {
         setup:
@@ -90,7 +90,7 @@ class DependencyTests extends Specification {
     }
 
     def newMultiProjectWithGuavaDependency(boolean excludeGuavaProjectDependency) {
-        // >>> create multiproject root
+        // >>> create multi-project root
         def rootProject = tempFolder.newFolder('multi-project-withguava')
         new File(rootProject, 'build.gradle') << ''
         new File(rootProject, 'settings.gradle') << '''include "guava-project"
