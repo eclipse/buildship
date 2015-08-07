@@ -11,10 +11,6 @@
 
 package org.eclipse.buildship.ui.wizard.project
 
-import static org.junit.Assert.assertTrue
-
-import org.junit.Test
-
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
@@ -25,7 +21,7 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
 
     def "can open new wizard from menu bar"() {
         setup:
-        openGradleNewWizard()
+        openGradleCreationWizard()
 
         when:
         bot.text(ProjectWizardMessages.InfoMessage_NewGradleProjectWizardPageDefault)
@@ -41,7 +37,7 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
 
     def "default location button initially checked"() {
         setup:
-        openGradleNewWizard()
+        openGradleCreationWizard()
 
         expect:
         // check whether the checkbox is initially checked
@@ -53,7 +49,7 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
         bot.button("Cancel").click()
     }
 
-    private def openGradleNewWizard() {
+    private static def openGradleCreationWizard() {
         bot.menu("File").menu("New").menu("Other...").click()
         SWTBotShell shell = bot.shell("New")
         shell.activate()

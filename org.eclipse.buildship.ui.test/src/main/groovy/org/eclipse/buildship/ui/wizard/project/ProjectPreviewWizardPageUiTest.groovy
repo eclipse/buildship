@@ -61,13 +61,13 @@ class ProjectPreviewWizardPageUiTest extends SwtBotSpecification {
         waitForJobsToFinish()
 
         then:
-        logEntries.findAll {it.exception?.cause instanceof SWTException && it.exception?.cause?.message.contains('disposed') }.size() == 0
+        logEntries.findAll {it.exception?.cause instanceof SWTException && it.exception?.cause?.message?.contains('disposed') }.size() == 0
 
         cleanup:
         Platform.removeLogListener(logListener)
     }
 
-    private def startImportPreviewAndCancelWizard(File location) {
+    private static def startImportPreviewAndCancelWizard(File location) {
         bot.menu("File").menu("Import...").click()
         SWTBotShell shell = bot.shell("Import")
         shell.activate()

@@ -11,8 +11,6 @@
 
 package org.eclipse.buildship.ui.wizard.project
 
-import org.junit.Test
-
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
 
@@ -36,7 +34,7 @@ class ProjectImportWizardUiTest extends SwtBotSpecification {
         bot.button("Cancel").click()
     }
 
-    private def openGradleImportWizard() {
+    private static def openGradleImportWizard() {
         bot.menu("File").menu("Import...").click()
         SWTBotShell shell = bot.shell("Import")
         shell.activate()
