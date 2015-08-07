@@ -24,7 +24,7 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Shared
 import spock.lang.Specification
 
-class DependencyTests extends Specification {
+class DependencyExportTest extends Specification {
 
     @Shared
     WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations()
@@ -46,15 +46,9 @@ class DependencyTests extends Specification {
         job.join()
 
         then:
-        CorePlugin.workspaceOperations().findProjectByName('dependent-project').present
-
-        when:
-        def dependentProject = CorePlugin.workspaceOperations().findProjectByName('dependent-project')
-
-        IMarker[] problemMarkers = getProblemMarker(dependentProject.get())
-
-        then:
-        problemMarkers.length == 0
+        def project = workspaceOperations.findProjectByName('dependent-project')
+        project.present
+        getProblemMarkers(project.get()).length == 0
     }
 
     def "Excluded transitive dependencies from project dependency with exclusion are not resolved"() {
@@ -67,12 +61,11 @@ class DependencyTests extends Specification {
         job.join()
 
         then:
-        CorePlugin.workspaceOperations().findProjectByName('dependent-project').present
+        def project = workspaceOperations.findProjectByName('dependent-project')
+        project.present
 
-        when:
-        def dependentProject = CorePlugin.workspaceOperations().findProjectByName('dependent-project')
-
-        IMarker[] problemMarkers = getProblemMarker(dependentProject.get())
+        def problemMarkers = getProblemMarkers(project.get())
+        problemMarkers.length == 2 // todo (etst) maybe checking for size >0 is more robust?
 
         boolean foundCompileError = FluentIterable.of(problemMarkers).anyMatch(new Predicate<IMarker>() {
 
@@ -82,10 +75,6 @@ class DependencyTests extends Specification {
                         return message.contains("The type com.google.common.collect.ImmutableList cannot be resolved");
                     }
                 });
-
-        then:
-        problemMarkers.length == 2
-
         foundCompileError
     }
 
@@ -193,7 +182,7 @@ public class DependentSample
         new ProjectImportJob(configuration, AsyncHandler.NO_OP)
     }
 
-    IMarker[] getProblemMarker(IProject project) throws CoreException, InterruptedException {
+    IMarker[] getProblemMarkers(IProject project) throws CoreException, InterruptedException {
         setAutoBuilding(false);
         ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.CLEAN_BUILD, null);
         ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
