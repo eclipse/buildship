@@ -39,6 +39,7 @@ public final class CoreMessages extends NLS {
     public static String RunConfiguration_Label_WorkingDirectory;
     public static String RunConfiguration_Label_GradleDistribution;
     public static String RunConfiguration_Label_GradleUserHome;
+    public static String RunConfiguration_Label_GradleVersion;
     public static String RunConfiguration_Label_JavaHome;
     public static String RunConfiguration_Label_JvmArguments;
     public static String RunConfiguration_Label_Arguments;
