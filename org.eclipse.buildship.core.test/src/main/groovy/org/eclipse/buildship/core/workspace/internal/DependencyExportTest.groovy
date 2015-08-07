@@ -6,6 +6,7 @@ import com.gradleware.tooling.toolingclient.GradleDistribution
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
 import org.eclipse.buildship.core.projectimport.ProjectImportJob
+import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
@@ -184,8 +185,8 @@ public class DependentSample
 
     IMarker[] getProblemMarkers(IProject project) throws CoreException, InterruptedException {
         setAutoBuilding(false);
-        ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.CLEAN_BUILD, null);
-        ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+        LegacyEclipseSpockTestHelper.workspace.build(IncrementalProjectBuilder.CLEAN_BUILD, null);
+        LegacyEclipseSpockTestHelper.workspace.build(IncrementalProjectBuilder.FULL_BUILD, null);
         waitForJobFamily(ResourcesPlugin.FAMILY_MANUAL_BUILD)
         waitForJobFamily(ResourcesPlugin.FAMILY_AUTO_BUILD)
 
@@ -209,10 +210,10 @@ public class DependentSample
     }
 
     void setAutoBuilding(boolean enabled) throws CoreException {
-        IWorkspaceDescription wsd = ResourcesPlugin.getWorkspace().getDescription();
+        IWorkspaceDescription wsd = LegacyEclipseSpockTestHelper.workspace.description;
         if (!wsd.isAutoBuilding() == enabled) {
             wsd.setAutoBuilding(enabled);
-            ResourcesPlugin.getWorkspace().setDescription(wsd);
+            LegacyEclipseSpockTestHelper.workspace.setDescription(wsd);
         }
     }
 
