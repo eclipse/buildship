@@ -187,8 +187,8 @@ public class DependentSample
         setAutoBuilding(false);
         LegacyEclipseSpockTestHelper.workspace.build(IncrementalProjectBuilder.CLEAN_BUILD, null);
         LegacyEclipseSpockTestHelper.workspace.build(IncrementalProjectBuilder.FULL_BUILD, null);
-        waitForJobFamily(ResourcesPlugin.FAMILY_MANUAL_BUILD)
-        waitForJobFamily(ResourcesPlugin.FAMILY_AUTO_BUILD)
+        waitForJobFamily(LegacyEclipseSpockTestHelper.resourcePluginFamilyManualBuildField())
+        waitForJobFamily(LegacyEclipseSpockTestHelper.resourcePluginFamilyAutoBuildField())
 
         IMarker[] findMarkers = waitForMarkers(project, 3000, 300);
 
