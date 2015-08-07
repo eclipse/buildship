@@ -70,13 +70,13 @@ public final class LinkedResourcesUpdater {
     }
 
     private void removeOldLinkedResources() throws CoreException {
-        // check all potential folders which might have been created by this class and delete the
-        // ones which are no longer part of the Gradle model
-        List<IFolder> folders = collectFoldersNoLongerInModel();
+        // check all potential linked folders which might have been created by this class and
+        // delete the ones which are no longer part of the Gradle model
+        List<IFolder> folders = collectLinkedFoldersNoLongerInGradleModel();
         deleteFolders(folders);
     }
 
-    private List<IFolder> collectFoldersNoLongerInModel() throws CoreException {
+    private List<IFolder> collectLinkedFoldersNoLongerInGradleModel() throws CoreException {
         return FluentIterable.of(this.project.members()).filter(IFolder.class).filter(new Predicate<IFolder>() {
 
             @Override
@@ -97,8 +97,7 @@ public final class LinkedResourcesUpdater {
 
             @Override
             public boolean apply(OmniEclipseLinkedResource linkedResource) {
-                return linkedResource.getLocation() != null && linkedResource.getType().equals(LINKED_RESOURCE_TYPE_FOLDER) &&
-                        new File(linkedResource.getLocation()).equals(location);
+                return isLinkedResourceFolder(linkedResource) && location.equals(new File(linkedResource.getLocation()));
             }
         }).isPresent();
     }
@@ -121,9 +120,7 @@ public final class LinkedResourcesUpdater {
             @Override
             public boolean apply(OmniEclipseLinkedResource linkedResource) {
                 // currently, we only include linked resources that are folders
-                return linkedResource.getLocation() != null
-                        && linkedResource.getType().equals(LINKED_RESOURCE_TYPE_FOLDER)
-                        && !existingLocations.contains(new File(linkedResource.getLocation()));
+                return isLinkedResourceFolder(linkedResource) && !existingLocations.contains(new File(linkedResource.getLocation()));
             }
         }).toList();
     }
@@ -162,6 +159,10 @@ public final class LinkedResourcesUpdater {
         } else {
             return folder;
         }
+    }
+
+    private boolean isLinkedResourceFolder(OmniEclipseLinkedResource linkedResource) {
+        return linkedResource.getLocation() != null && linkedResource.getType().equals(LINKED_RESOURCE_TYPE_FOLDER);
     }
 
     public static void update(IProject project, List<OmniEclipseLinkedResource> linkedResources, IProgressMonitor monitor) throws CoreException {
