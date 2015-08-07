@@ -151,7 +151,9 @@ public final class UiPlugin extends AbstractUIPlugin {
     @SuppressWarnings({"cast", "RedundantCast"})
     private void unregisterListeners() {
         ICommandService commandService = (ICommandService) getWorkbench().getService(ICommandService.class);
-        commandService.removeExecutionListener(this.refreshCommandExecutionListener);
+        if (commandService != null) {
+            commandService.removeExecutionListener(this.refreshCommandExecutionListener);
+        }
 
         getWorkbench().removeWindowListener(this.contextActivatingWindowListener);
 
