@@ -61,7 +61,7 @@ class ProjectPreviewWizardPageUiTest extends SwtBotSpecification {
         waitForJobsToFinish()
 
         then:
-        logEntries.findAll {it.exception?.cause instanceof SWTException && it.exception?.cause?.message?.contains('disposed') }.size() == 0
+        logEntries.any {it.exception?.cause instanceof SWTException && it.exception?.cause?.message?.contains('disposed') }
 
         cleanup:
         Platform.removeLogListener(logListener)
