@@ -90,6 +90,7 @@ include "dependent-project"'''
         def guavaDependentProjectRoot = new File(rootProject, 'guava-project')
         guavaDependentProjectRoot.mkdir()
 
+        new File(guavaDependentProjectRoot, 'settings.gradle') << ''
         new File(guavaDependentProjectRoot, 'build.gradle') << '''apply plugin: 'java'
 
 version = '1.0'
