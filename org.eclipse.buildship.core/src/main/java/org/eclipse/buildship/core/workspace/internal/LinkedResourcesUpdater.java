@@ -58,6 +58,7 @@ public final class LinkedResourcesUpdater {
         monitor.beginTask("Update linked resources", IProgressMonitor.UNKNOWN);
         try {
             removeOldLinkedResources();
+            updateExistingLinkedResources();
             createNewLinkedResources();
         } finally {
             monitor.done();
@@ -71,6 +72,11 @@ public final class LinkedResourcesUpdater {
         deleteFolders(folders);
     }
 
+    private void updateExistingLinkedResources() throws CoreException {
+        List<IFolder> folders = collectLinkedFoldersDefinedManuallyAndAlsoInGradleModel();
+        markFoldersFromGradleModel(folders);
+    }
+
     private List<IFolder> collectLinkedFoldersNoLongerInGradleModel() throws CoreException {
         return FluentIterable.of(this.project.members()).filter(IFolder.class).filter(new Predicate<IFolder>() {
 
@@ -81,6 +87,18 @@ public final class LinkedResourcesUpdater {
 
         }).toList();
     }
+
+    private List<IFolder> collectLinkedFoldersDefinedManuallyAndAlsoInGradleModel() throws CoreException {
+        return FluentIterable.of(this.project.members()).filter(IFolder.class).filter(new Predicate<IFolder>() {
+
+            @Override
+            public boolean apply(IFolder folder) {
+                return folder.isLinked() && folder.getLocation() != null && isLocationPartOfCurrentGradleModel(folder.getLocation().toFile());
+            }
+
+        }).toList();
+    }
+
 
     private boolean isLocationPartOfCurrentGradleModel(final File location) {
         return FluentIterable.from(this.linkedResources).firstMatch(new Predicate<OmniEclipseLinkedResource>() {
@@ -104,6 +122,16 @@ public final class LinkedResourcesUpdater {
         for (IFolder folder : folders) {
             folder.delete(false, null);
         }
+    }
+
+    private void markFoldersFromGradleModel(List<IFolder> folders) throws CoreException {
+        for (IFolder folder : folders) {
+            markFolderFromGradleModel(folder);
+        }
+    }
+
+    private void markFolderFromGradleModel(IFolder folder) throws CoreException {
+        folder.setPersistentProperty(RESOURCE_PROPERTY_FROM_GRADLE_MODEL, "true");
     }
 
     private void createNewLinkedResources() throws CoreException {
@@ -143,7 +171,7 @@ public final class LinkedResourcesUpdater {
             IPath resourcePath = new Path(linkedResource.getLocation());
             IFolder folder = toNewFolder(linkedResource.getName());
             folder.createLink(resourcePath, IResource.NONE, null);
-            folder.setPersistentProperty(RESOURCE_PROPERTY_FROM_GRADLE_MODEL, "true");
+            markFolderFromGradleModel(folder);
         }
     }
 

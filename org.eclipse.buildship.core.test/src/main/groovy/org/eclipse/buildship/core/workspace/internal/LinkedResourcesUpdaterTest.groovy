@@ -8,7 +8,10 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseLinkedResource
 
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IResource
+import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.core.runtime.Path
 
 import org.eclipse.buildship.core.CorePlugin
 
@@ -111,6 +114,30 @@ class LinkedResourcesUpdaterTest extends Specification {
         eclipseFolder.exists()
         eclipseFolder.isLinked() == true
         eclipseFolder.location.toFile().equals(externalDirB)
+    }
+
+    def "Model linked resources that were previously defined manually are transformed to model linked resources"() {
+        given:
+        File projectDir = tempFolder.newFolder('root', 'project-name').getCanonicalFile()
+        File externalDir = tempFolder.newFolder('root', 'another').getCanonicalFile()
+        IProject project = CorePlugin.workspaceOperations().createProject('project-name', projectDir, [], [], null)
+        IPath linkedFolderPath = new Path(externalDir.absolutePath)
+
+        when:
+        IFolder manuallyDefinedLinkedFolder = project.getFolder(externalDir.name)
+        manuallyDefinedLinkedFolder.createLink(linkedFolderPath, IResource.NONE, null);
+
+        then:
+        project.getFolder('another').isLinked()
+        project.getFolder('another').getPersistentProperty(LinkedResourcesUpdater.RESOURCE_PROPERTY_FROM_GRADLE_MODEL) == null
+
+        when:
+        OmniEclipseLinkedResource linkedResource = newFolderLinkedResource(externalDir.name, externalDir)
+        LinkedResourcesUpdater.update(project, [linkedResource], new NullProgressMonitor())
+
+        then:
+        project.getFolder('another').isLinked()
+        project.getFolder('another').getPersistentProperty(LinkedResourcesUpdater.RESOURCE_PROPERTY_FROM_GRADLE_MODEL) == 'true'
     }
 
     private def newFolderLinkedResource(String name, File location) {
