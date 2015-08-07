@@ -22,9 +22,12 @@ import org.eclipse.core.runtime.OperationCanceledException
 import org.eclipse.core.runtime.jobs.Job
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 
+
+@Ignore
 class DependencyExportTest extends Specification {
 
     @Shared
