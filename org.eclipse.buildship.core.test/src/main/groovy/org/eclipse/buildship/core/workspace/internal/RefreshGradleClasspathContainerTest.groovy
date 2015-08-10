@@ -29,7 +29,7 @@ import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
-import org.eclipse.buildship.core.workspace.RefreshGradleClasspathContainerJob
+import org.eclipse.buildship.core.workspace.RefreshGradleProjectJob
 
 class RefreshGradleClasspathContainerTest extends ProjectImportSpecification {
 
@@ -133,7 +133,7 @@ class RefreshGradleClasspathContainerTest extends ProjectImportSpecification {
 
     private def executeRefreshGradleClasspathContainerJobAndWait(IJavaProject... javaProjects) {
         def projects = javaProjects.collect { it.project }
-        RefreshGradleClasspathContainerJob refreshJob = new RefreshGradleClasspathContainerJob(projects)
+        RefreshGradleProjectJob refreshJob = new RefreshGradleProjectJob(projects)
         refreshJob.schedule()
         refreshJob.join()
         waitForJobsToFinish()
