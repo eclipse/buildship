@@ -4,7 +4,6 @@ import com.gradleware.tooling.toolingclient.GradleDistribution
 
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-import spock.lang.Specification
 
 import com.google.common.collect.ImmutableList
 
@@ -26,19 +25,13 @@ import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
 import org.eclipse.buildship.core.projectimport.ProjectImportJob
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
+import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 import org.eclipse.buildship.core.workspace.RefreshGradleClasspathContainerJob
 
-class RefreshGradleClasspathContainerTest extends Specification {
-
-    @Rule
-    TemporaryFolder tempFolder
-
-    def cleanup() {
-        CorePlugin.workspaceOperations().deleteAllProjects(null)
-    }
+class RefreshGradleClasspathContainerTest extends ProjectImportSpecification {
 
     def "Update the project classpath"() {
         setup:
@@ -106,51 +99,32 @@ class RefreshGradleClasspathContainerTest extends Specification {
         hasLocalGroovyDependencyDefinedInClasspathContainer(secondProject)
     }
 
-    // -- helper methods --
-
     private def importNewSimpleProject(String projectName) {
         def location = newProject(projectName)
-        ProjectImportJob importJob = newProjectImportJob(location)
-        importJob.schedule()
-        importJob.join()
+        executeProjectImportAndWait(location)
         location
     }
 
     private def importNewMultiProject(String rootName, String subName) {
         def location = newMultiProject(rootName, subName)
-        ProjectImportJob importJob = newProjectImportJob(location)
-        importJob.schedule()
-        importJob.join()
+        executeProjectImportAndWait(location)
         location
     }
 
     private def newProject(String projectName) {
-        def location = tempFolder.newFolder(projectName)
-        new File(location, 'build.gradle') << 'apply plugin: "java"'
-        new File(location, 'settings.gradle') << ''
-        new File(location, 'src/main/java').mkdirs()
-        location
+        file(projectName, 'build.gradle') << 'apply plugin: "java"'
+        file(projectName, 'settings.gradle') << ''
+        folder(projectName, 'src', 'main', 'java')
+        folder(projectName)
     }
 
     private def newMultiProject(String rootProjectName, String subProjectName) {
-        def location = tempFolder.newFolder(rootProjectName)
-        new File(location, 'build.gradle') << 'apply plugin: "java"'
-        new File(location, 'src/main/java').mkdirs()
-        new File(location, 'settings.gradle') << 'include "' + subProjectName + '"'
-        def subProject = new File(location, "subproject")
-        subProject.mkdirs()
-        new File(subProject, 'src/main/java').mkdirs()
-        new File(subProject, 'build.gradle') << 'apply plugin: "java"'
-        location
-    }
-
-    private def newProjectImportJob(File location) {
-        ProjectImportConfiguration configuration = new ProjectImportConfiguration()
-        configuration.gradleDistribution = GradleDistributionWrapper.from(GradleDistribution.fromBuild())
-        configuration.projectDir = location
-        configuration.applyWorkingSets = true
-        configuration.workingSets = []
-        new ProjectImportJob(configuration, AsyncHandler.NO_OP)
+        file(rootProjectName, 'build.gradle') << 'apply plugin: "java"'
+        folder(rootProjectName, 'src', 'main', 'java')
+        file(rootProjectName, 'settings.gradle') << "include '$subProjectName'"
+        folder(rootProjectName, 'subproject', 'src', 'main', 'java')
+        file(rootProjectName, 'subproject', 'build.gradle') << 'apply plugin: "java"'
+        folder(rootProjectName)
     }
 
     private def findJavaProject(String name) {
@@ -162,7 +136,7 @@ class RefreshGradleClasspathContainerTest extends Specification {
         RefreshGradleClasspathContainerJob refreshJob = new RefreshGradleClasspathContainerJob(projects)
         refreshJob.schedule()
         refreshJob.join()
-        waitForJobs()
+        waitForJobsToFinish()
     }
 
     private def defineLocalGroovyDependency(File buildScript) {
@@ -174,9 +148,4 @@ class RefreshGradleClasspathContainerTest extends Specification {
         rootContainer.classpathEntries.find  { it.path.toPortableString().contains('groovy-all') } != null
     }
 
-    private static def waitForJobs() {
-        while (!Job.getJobManager().isIdle()) {
-            Thread.sleep(200)
-        }
-    }
 }
