@@ -27,16 +27,16 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import org.eclipse.buildship.core.workspace.RefreshGradleClasspathContainerJob;
+import org.eclipse.buildship.core.workspace.RefreshGradleProjectJob;
 
 /**
  * Collects all selected {@link IProject} instances and schedules a
- * {@link RefreshGradleClasspathContainerJob} on them.
+ * {@link RefreshGradleProjectJob} on them.
  */
 public final class GradleClasspathContainerRefresher {
 
     public static void execute(final ExecutionEvent event) {
-        new RefreshGradleClasspathContainerJob(collectSelectedProjects(event)).schedule();
+        new RefreshGradleProjectJob(collectSelectedProjects(event)).schedule();
     }
 
     private static List<IProject> collectSelectedProjects(ExecutionEvent event) {
