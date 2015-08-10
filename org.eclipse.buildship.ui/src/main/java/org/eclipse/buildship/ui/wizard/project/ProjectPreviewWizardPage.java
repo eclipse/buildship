@@ -185,6 +185,18 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         // create an empty row and then a label
         uiBuilderFactory.newLabel(container).text(ProjectWizardMessages.Label_ProjectStructure + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
 
+        // create an info icon explaining that the preview can deviate from actual values
+        Label previewStructureInfoLabel = uiBuilderFactory.newLabel(container).alignLeft().control();
+        previewStructureInfoLabel.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_INFO_TSK));
+        previewStructureInfoLabel.setToolTipText(ProjectWizardMessages.PreviewStructureInfo_Tooltip);
+        previewStructureInfoLabel.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseUp(MouseEvent e) {
+                MessageDialog.openInformation(getShell(), ProjectWizardMessages.Title_Dialog_PreviewStructureInfo, ProjectWizardMessages.PreviewStructureInfo_Details);
+            }
+        });
+
         // add the preview tree
         this.projectPreviewTree = uiBuilderFactory.newTree(container).alignFillBoth(2).control();
     }

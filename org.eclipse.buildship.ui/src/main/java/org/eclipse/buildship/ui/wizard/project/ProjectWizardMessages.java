@@ -73,6 +73,10 @@ public final class ProjectWizardMessages extends NLS {
     public static String Limitations_Tooltip;
     public static String Limitations_Details_0_1;
 
+    public static String Title_Dialog_PreviewStructureInfo;
+    public static String PreviewStructureInfo_Tooltip;
+    public static String PreviewStructureInfo_Details;
+
     public static String Import_Wizard_Welcome_Page_Name;
     public static String Import_Wizard_Paragraph_Main_Title;
     public static String Import_Wizard_Paragraph_Title_Smart_Project_Import;
