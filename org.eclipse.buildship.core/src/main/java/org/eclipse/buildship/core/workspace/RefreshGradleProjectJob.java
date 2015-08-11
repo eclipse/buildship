@@ -29,7 +29,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
-import org.eclipse.buildship.core.workspace.internal.EclipseModelReloader;
+import org.eclipse.buildship.core.workspace.internal.EclipseGradleBuildModelReloader;
 import org.eclipse.buildship.core.workspace.internal.GradleProjectUpdater;
 
 /**
@@ -50,7 +50,7 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
         monitor.beginTask("Refresh selected Gradle projects", 100);
         try {
             // find the root projects related to the selection and reload their model
-            ImmutableSet<OmniEclipseGradleBuild> gradleBuilds = EclipseModelReloader.from(this.projects, getToken()).reloadRootEclipseModels(new SubProgressMonitor(monitor, 50));
+            ImmutableSet<OmniEclipseGradleBuild> gradleBuilds = EclipseGradleBuildModelReloader.from(this.projects, getToken()).reloadRootEclipseModels(new SubProgressMonitor(monitor, 50));
             // update all
             updateAllProjects(gradleBuilds, countProjects(gradleBuilds), new SubProgressMonitor(monitor, 50));
         } finally {

@@ -38,12 +38,12 @@ import org.eclipse.buildship.core.console.ProcessStreams;
  * Finds the root workspace project for the target projects and reloads their corresponding
  * {@link OmniEclipseGradleBuild} model.
  */
-public final class EclipseModelReloader {
+public final class EclipseGradleBuildModelReloader {
 
     private final List<IProject> projects;
     private final CancellationToken token;
 
-    private EclipseModelReloader(List<IProject> projects, CancellationToken token) {
+    private EclipseGradleBuildModelReloader(List<IProject> projects, CancellationToken token) {
         this.projects = Preconditions.checkNotNull(projects);
         this.token = Preconditions.checkNotNull(token);
     }
@@ -89,7 +89,7 @@ public final class EclipseModelReloader {
                 stream.getError(), stream.getInput(), ImmutableList.<ProgressListener>of(), ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), this.token), strategy);
     }
 
-    public static EclipseModelReloader from(List<IProject> projects, CancellationToken token) {
-        return new EclipseModelReloader(projects, token);
+    public static EclipseGradleBuildModelReloader from(List<IProject> projects, CancellationToken token) {
+        return new EclipseGradleBuildModelReloader(projects, token);
     }
 }
