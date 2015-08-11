@@ -18,7 +18,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
@@ -27,8 +26,8 @@ import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 /**
  * Updates a Gradle project.
  * <p/>
- * The update happens synchronously and unprotected, meaning it should be called from {@link Job}
- * instance guarded by proper rules.
+ * The update happens synchronously and unprotected, meaning it should be called from
+ * {@link org.eclipse.core.runtime.jobs.Job} instance guarded by proper rules.
  */
 public final class GradleProjectUpdater {
 
