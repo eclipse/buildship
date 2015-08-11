@@ -23,6 +23,7 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
 import org.eclipse.buildship.core.CorePlugin;
@@ -94,7 +95,7 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
 
     private void update(OmniEclipseProject modelProject, IProject workspaceProject) {
         try {
-            GradleProjectUpdater.update(modelProject, workspaceProject);
+            GradleProjectUpdater.update(modelProject, workspaceProject, new NullProgressMonitor());
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(e);
         }

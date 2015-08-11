@@ -79,7 +79,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
             @Override
             protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
-                monitor.beginTask("Initializing classpath", 150);
+                monitor.beginTask("Initializing classpath", 2);
 
                 // use the same rule as the ProjectImportJob to do the initialization
                 IJobManager manager = Job.getJobManager();
@@ -96,15 +96,9 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
     private void internalInitialize(IPath containerPath, IJavaProject project, IProgressMonitor monitor) throws CoreException {
         Optional<OmniEclipseProject> eclipseProject = findEclipseProject(project.getProject());
+        monitor.worked(1);
         if (eclipseProject.isPresent()) {
-            // update linked resources
-            LinkedResourcesUpdater.update(project.getProject(), eclipseProject.get().getLinkedResources(), new SubProgressMonitor(monitor, 50));
-
-            // update source folders
-            SourceFolderUpdater.update(project, eclipseProject.get().getSourceDirectories(), new SubProgressMonitor(monitor, 50));
-
-            // update project/external dependencies
-            ClasspathContainerUpdater.update(project, eclipseProject.get(), containerPath, new SubProgressMonitor(monitor, 50));
+            GradleProjectUpdater.update(eclipseProject.get(), project.getProject(), new SubProgressMonitor(monitor, 1));
         } else {
             throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", project.getProject()));
         }
