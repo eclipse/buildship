@@ -11,27 +11,15 @@
 
 package eclipsebuild.testing;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
+import eclipsebuild.Constants;
+import eclipsebuild.TestBundlePlugin;
 import org.eclipse.jdt.internal.junit.model.ITestRunListener2;
 import org.eclipse.jdt.internal.junit.model.RemoteTestRunnerClient;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.internal.file.FileResolver;
-import org.gradle.api.internal.tasks.testing.TestClassProcessor;
-import org.gradle.api.internal.tasks.testing.TestClassRunInfo;
-import org.gradle.api.internal.tasks.testing.TestCompleteEvent;
-import org.gradle.api.internal.tasks.testing.TestDescriptorInternal;
-import org.gradle.api.internal.tasks.testing.TestResultProcessor;
-import org.gradle.api.internal.tasks.testing.TestStartEvent;
+import org.gradle.api.internal.tasks.testing.*;
 import org.gradle.api.internal.tasks.testing.detection.TestExecuter;
 import org.gradle.api.internal.tasks.testing.detection.TestFrameworkDetector;
 import org.gradle.api.internal.tasks.testing.processors.TestMainAction;
@@ -40,12 +28,15 @@ import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.api.tasks.testing.TestOutputEvent;
 import org.gradle.internal.TrueTimeProvider;
+import org.gradle.internal.progress.OperationIdGenerator;
 import org.gradle.process.ExecResult;
 import org.gradle.process.internal.DefaultJavaExecAction;
 import org.gradle.process.internal.JavaExecAction;
 
-import eclipsebuild.Constants;
-import eclipsebuild.TestBundlePlugin;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
 
 public final class EclipseTestExecuter implements TestExecuter {
 
@@ -231,7 +222,9 @@ public final class EclipseTestExecuter implements TestExecuter {
         } else {
             detector = new EclipsePluginTestClassScanner(testClassFiles, processor);
         }
-        new TestMainAction(detector, processor, new NoOpTestResultProcessor(), new TrueTimeProvider()).run();
+
+        final Object testTaskOperationId = OperationIdGenerator.generateId(testTask);
+        new TestMainAction(detector, processor, new NoOpTestResultProcessor(), new TrueTimeProvider(), testTaskOperationId, testTask.getPath(), String.format("Gradle Eclipse Test Run %s", testTask.getPath())).run();
         LOGGER.info("collected test class names: {}", processor.classNames);
         return processor.classNames;
     }
