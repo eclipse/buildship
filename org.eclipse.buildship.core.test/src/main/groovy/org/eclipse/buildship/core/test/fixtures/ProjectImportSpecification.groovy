@@ -78,19 +78,19 @@ abstract class ProjectImportSpecification extends Specification {
         file
     }
 
-    protected def executeProjectImportAndWait(File location) {
+    protected static def executeProjectImportAndWait(File location) {
         def job = newProjectImportJob(location, GradleDistribution.fromBuild())
         job.schedule()
         job.join()
     }
 
-    protected def executeProjectPreviewAndWait(File location, FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler) {
+    protected static def executeProjectPreviewAndWait(File location, FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler) {
         def job = newProjectPreviewJob(location, GradleDistribution.fromBuild(), resultHandler)
         job.schedule()
         job.join()
     }
 
-    private def newProjectImportJob(File location, GradleDistribution distribution) {
+    private static def newProjectImportJob(File location, GradleDistribution distribution) {
         ProjectImportConfiguration configuration = new ProjectImportConfiguration()
         configuration.gradleDistribution = GradleDistributionWrapper.from(distribution)
         configuration.projectDir = location
@@ -99,7 +99,7 @@ abstract class ProjectImportSpecification extends Specification {
         new ProjectImportJob(configuration, AsyncHandler.NO_OP)
     }
 
-    private def newProjectPreviewJob(File location, GradleDistribution distribution, FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler) {
+    private static def newProjectPreviewJob(File location, GradleDistribution distribution, FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler) {
         ProjectImportConfiguration configuration = new ProjectImportConfiguration()
         configuration.gradleDistribution = GradleDistributionWrapper.from(distribution)
         configuration.projectDir = location
@@ -108,11 +108,11 @@ abstract class ProjectImportSpecification extends Specification {
         new ProjectPreviewJob(configuration, [], AsyncHandler.NO_OP, resultHandler)
     }
 
-    protected def allProjects() {
+    protected static def allProjects() {
         workspace.root.projects
     }
 
-    protected def findProject(String name) {
+    protected static def findProject(String name) {
         def result  = CorePlugin.workspaceOperations().findProjectByName(name).orNull()
         result?.open(null)
         result
@@ -135,4 +135,5 @@ abstract class ProjectImportSpecification extends Specification {
     protected static def delay(long waitTimeMillis) {
         Thread.sleep(waitTimeMillis)
     }
+
 }
