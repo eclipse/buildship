@@ -11,8 +11,6 @@
 
 package org.eclipse.buildship.core.projectimport
 
-import spock.lang.Ignore
-
 import com.google.common.util.concurrent.FutureCallback
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
@@ -93,8 +91,7 @@ class ImportProjectsWithCustomNamesTest extends ProjectImportSpecification {
         findProject('custom-sub')
     }
 
-    @Ignore
-    def "Custom project naming is in sync with the result of the preview"() {
+    def "Custom project naming is not honored in the preview"() {
         setup:
         def location = folder('app')
         file('app', 'settings.gradle') << ''
@@ -112,7 +109,7 @@ class ImportProjectsWithCustomNamesTest extends ProjectImportSpecification {
         executeProjectPreviewAndWait(location, previewResultHandler)
 
         then:
-        1 * previewResultHandler.onSuccess { it.second.rootProject.name == 'custom-app' }
+        1 * previewResultHandler.onSuccess { it.second.rootProject.name == 'app' }
     }
 
 }
