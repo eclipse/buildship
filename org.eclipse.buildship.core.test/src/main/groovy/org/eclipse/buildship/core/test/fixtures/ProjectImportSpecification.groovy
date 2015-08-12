@@ -78,14 +78,6 @@ abstract class ProjectImportSpecification extends Specification {
         file
     }
 
-    protected def getWorkspace() {
-        LegacyEclipseSpockTestHelper.workspace
-    }
-
-    protected def getWorkspaceLocation() {
-        workspace.root.location.toFile()
-    }
-
     protected def executeProjectImportAndWait(File location) {
         def job = newProjectImportJob(location, GradleDistribution.fromBuild())
         job.schedule()
@@ -122,8 +114,16 @@ abstract class ProjectImportSpecification extends Specification {
 
     protected def findProject(String name) {
         def result  = CorePlugin.workspaceOperations().findProjectByName(name).orNull()
-        result.open(null)
+        result?.open(null)
         result
+    }
+
+    protected static def getWorkspace() {
+        LegacyEclipseSpockTestHelper.workspace
+    }
+
+    protected static def getWorkspaceLocation() {
+        workspace.root.location.toFile()
     }
 
     protected static def waitForJobsToFinish() {
