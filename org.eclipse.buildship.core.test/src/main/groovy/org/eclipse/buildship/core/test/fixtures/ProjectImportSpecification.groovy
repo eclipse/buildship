@@ -127,7 +127,9 @@ abstract class ProjectImportSpecification extends Specification {
     }
 
     protected def findProject(String name) {
-        CorePlugin.workspaceOperations().findProjectByName(name).orNull()
+        def result  = CorePlugin.workspaceOperations().findProjectByName(name).orNull()
+        result.open(null)
+        result
     }
 
     protected static def waitForJobsToFinish() {

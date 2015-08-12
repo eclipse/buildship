@@ -29,10 +29,4 @@ public abstract class LegacyEclipseSpockTestHelper {
         return ResourcesPlugin.getWorkspace();
     }
 
-    public static Object resourcePluginFamilyManualBuildField() {
-        return ResourcesPlugin.FAMILY_MANUAL_BUILD;
-    }
-    public static Object resourcePluginFamilyAutoBuildField() {
-        return ResourcesPlugin.FAMILY_AUTO_BUILD;
-    }
 }
