@@ -98,12 +98,6 @@ abstract class ProjectImportSpecification extends Specification {
         job.join()
     }
 
-    protected def executeProjectImportAndWait(File location, GradleDistribution distribution) {
-        ProjectImportJob importJob = newProjectImportJob(location, distribution)
-        importJob.schedule()
-        job.join()
-    }
-
     private def newProjectImportJob(File location, GradleDistribution distribution) {
         ProjectImportConfiguration configuration = new ProjectImportConfiguration()
         configuration.gradleDistribution = GradleDistributionWrapper.from(distribution)
