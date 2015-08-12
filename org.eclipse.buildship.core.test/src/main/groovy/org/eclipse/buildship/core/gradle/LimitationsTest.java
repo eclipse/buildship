@@ -32,7 +32,7 @@ import com.gradleware.tooling.toolingmodel.util.Pair;
 public class LimitationsTest {
 
     @Test
-    public void noLimitationsWhenusingTheCurrentVersionUsedByBuildship() {
+    public void noLimitationsWhenUsingTheCurrentVersionUsedByBuildship() {
         Limitations limitations = new Limitations(GradleVersion.current());
         List<Pair<GradleVersion, String>> limitationDetails = limitations.getLimitations();
         assertTrue(limitationDetails.isEmpty());
