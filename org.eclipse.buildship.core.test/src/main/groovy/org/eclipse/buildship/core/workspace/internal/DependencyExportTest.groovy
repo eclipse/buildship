@@ -1,17 +1,21 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import spock.lang.Ignore
+
 import org.eclipse.core.resources.IMarker
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IWorkspaceDescription
 import org.eclipse.core.resources.IncrementalProjectBuilder
-import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
 
+
+@Ignore
 class DependencyExportTest extends ProjectImportSpecification {
 
     def "Exported transitive dependencies from project dependency are included"() {
