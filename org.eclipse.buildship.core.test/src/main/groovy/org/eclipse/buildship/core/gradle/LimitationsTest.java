@@ -52,6 +52,7 @@ public class LimitationsTest {
         assertEquals(limitationDetails.size(), 1);
     }
 
+    @Test
     public void singleLimitationWhenUsingSnapshotVersionOf24() {
         Limitations limitations = new Limitations(GradleVersion.version("2.4-20150101053008+0000"));
         List<Pair<GradleVersion, String>> limitationDetails = limitations.getLimitations();
