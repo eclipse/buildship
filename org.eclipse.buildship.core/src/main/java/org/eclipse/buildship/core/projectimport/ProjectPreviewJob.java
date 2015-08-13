@@ -14,6 +14,8 @@ package org.eclipse.buildship.core.projectimport;
 import java.util.List;
 
 import com.google.common.base.Preconditions;
+
+import org.eclipse.buildship.core.util.gradle.GradleBuildFetcher;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.gradle.tooling.ProgressListener;
 
@@ -79,31 +81,11 @@ public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
 
         this.initializer.run(new SubProgressMonitor(monitor, 10));
 
-        OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(new SubProgressMonitor(monitor, 2));
-        OmniGradleBuildStructure gradleBuildStructure = fetchGradleBuildStructure(new SubProgressMonitor(monitor, 8));
+        OmniBuildEnvironment buildEnvironment = GradleBuildFetcher.fetchBuildEnvironment(new SubProgressMonitor(monitor, 2), this.transientAttributes, this.fixedAttributes);
+        OmniGradleBuildStructure gradleBuildStructure = GradleBuildFetcher.fetchGradleBuildStructure(new SubProgressMonitor(monitor, 8),  this.transientAttributes, this.fixedAttributes);
         this.result = new Pair<OmniBuildEnvironment, OmniGradleBuildStructure>(buildEnvironment, gradleBuildStructure);
 
         // monitor is closed by caller in super class
-    }
-
-    private OmniBuildEnvironment fetchBuildEnvironment(IProgressMonitor monitor) {
-        monitor.beginTask("Load Gradle Build Environment", IProgressMonitor.UNKNOWN);
-        try {
-            ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(this.fixedAttributes);
-            return repository.fetchBuildEnvironment(this.transientAttributes, FetchStrategy.FORCE_RELOAD);
-        } finally {
-            monitor.done();
-        }
-    }
-
-    private OmniGradleBuildStructure fetchGradleBuildStructure(IProgressMonitor monitor) {
-        monitor.beginTask("Load Gradle Project Structure", IProgressMonitor.UNKNOWN);
-        try {
-            ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(this.fixedAttributes);
-            return repository.fetchGradleBuildStructure(this.transientAttributes, FetchStrategy.FORCE_RELOAD);
-        } finally {
-            monitor.done();
-        }
     }
 
 }
