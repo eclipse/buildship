@@ -118,12 +118,6 @@ public final class LinkedResourcesUpdater {
         }
     }
 
-    private void deleteFolders(List<IFolder> folders) throws CoreException {
-        for (IFolder folder : folders) {
-            folder.delete(false, null);
-        }
-    }
-
     private void markFoldersFromGradleModel(List<IFolder> folders) throws CoreException {
         for (IFolder folder : folders) {
             markFolderFromGradleModel(folder);
@@ -187,6 +181,12 @@ public final class LinkedResourcesUpdater {
 
     private boolean isLinkedResourceFolder(OmniEclipseLinkedResource linkedResource) {
         return linkedResource.getLocation() != null && linkedResource.getType().equals(LINKED_RESOURCE_TYPE_FOLDER);
+    }
+
+    private static void deleteFolders(List<IFolder> folders) throws CoreException {
+        for (IFolder folder : folders) {
+            folder.delete(false, null);
+        }
     }
 
     public static void update(IProject project, List<OmniEclipseLinkedResource> linkedResources, IProgressMonitor monitor) throws CoreException {

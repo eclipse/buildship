@@ -298,5 +298,3 @@ String getVersion(def baseVersion) {
         baseVersion + '.v' + new Date().format('yyyyMMdd', TimeZone.getTimeZone('GMT')) + suffix
     }
 }
-
-wrapper.gradleVersion = '2.4-20150209230027+0000'
