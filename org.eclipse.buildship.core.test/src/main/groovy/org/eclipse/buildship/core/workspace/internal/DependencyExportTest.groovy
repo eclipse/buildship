@@ -15,7 +15,6 @@ import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
 
 
-@Ignore
 class DependencyExportTest extends ProjectImportSpecification {
 
     def "Exported transitive dependencies from project dependency are included"() {
