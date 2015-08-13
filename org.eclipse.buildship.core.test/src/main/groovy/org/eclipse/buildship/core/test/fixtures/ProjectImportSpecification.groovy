@@ -84,6 +84,12 @@ abstract class ProjectImportSpecification extends Specification {
         job.join()
     }
 
+    protected static def executeProjectImportAndWait(File location, GradleDistribution distribution) {
+        def job = newProjectImportJob(location, distribution)
+        job.schedule()
+        job.join()
+    }
+
     protected static def executeProjectPreviewAndWait(File location, FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler) {
         def job = newProjectPreviewJob(location, GradleDistribution.fromBuild(), resultHandler)
         job.schedule()
