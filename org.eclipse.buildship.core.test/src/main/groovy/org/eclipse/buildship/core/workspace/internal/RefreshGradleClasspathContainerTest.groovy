@@ -1,35 +1,14 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import com.gradleware.tooling.toolingclient.GradleDistribution
-
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-
-import com.google.common.collect.ImmutableList
-
-import org.eclipse.core.resources.IProject
-import org.eclipse.core.resources.IWorkspaceRoot
-import org.eclipse.core.resources.ResourcesPlugin
-import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
-import org.eclipse.core.runtime.Status
-import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.jdt.core.IClasspathContainer
-import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.configuration.GradleProjectBuilder
-import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
-import org.eclipse.buildship.core.projectimport.ProjectImportJob
-import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
-import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
-import org.eclipse.buildship.core.workspace.RefreshGradleProjectJob
+import org.eclipse.buildship.core.workspace.RefreshGradleProjectsJob
 
 class RefreshGradleClasspathContainerTest extends ProjectImportSpecification {
 
@@ -133,7 +112,7 @@ class RefreshGradleClasspathContainerTest extends ProjectImportSpecification {
 
     private def executeRefreshGradleClasspathContainerJobAndWait(IJavaProject... javaProjects) {
         def projects = javaProjects.collect { it.project }
-        RefreshGradleProjectJob refreshJob = new RefreshGradleProjectJob(projects)
+        RefreshGradleProjectsJob refreshJob = new RefreshGradleProjectsJob(projects)
         refreshJob.schedule()
         refreshJob.join()
         waitForJobsToFinish()
