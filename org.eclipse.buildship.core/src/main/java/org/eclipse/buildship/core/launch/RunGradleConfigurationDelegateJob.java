@@ -79,8 +79,8 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         GradleRunConfigurationAttributes configurationAttributes = GradleRunConfigurationAttributes.from(this.launchConfiguration);
         List<String> tasks = configurationAttributes.getTasks();
         File workingDir = configurationAttributes.getWorkingDir();
-        GradleDistribution gradleDistribution = configurationAttributes.getGradleDistribution();
         File gradleUserHome = configurationAttributes.getGradleUserHome();
+        GradleDistribution gradleDistribution = configurationAttributes.getGradleDistribution();
         File javaHome = configurationAttributes.getJavaHome();
         ImmutableList<String> jvmArguments = configurationAttributes.getJvmArguments();
         ImmutableList<String> arguments = configurationAttributes.getArguments();
@@ -100,22 +100,21 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
 
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(fixedAttributes, transientAttributes, monitor);
 
-        // configure the request with the build launch settings derived from the launch
-        // configuration
+        // configure the request's fixed attributes with the build launch settings derived from the launch configuration
         BuildLaunchRequest request = CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(tasks));
         request.projectDir(workingDir);
-        request.gradleDistribution(gradleDistribution);
         request.gradleUserHomeDir(gradleUserHome);
+        request.gradleDistribution(gradleDistribution);
         request.javaHomeDir(javaHome);
         request.jvmArguments(jvmArguments.toArray(new String[jvmArguments.size()]));
         request.arguments(arguments.toArray(new String[arguments.size()]));
 
-        // configure the request with the transient request attributes
-        request.standardOutput(transientAttributes.getStandardOutput());
-        request.standardError(transientAttributes.getStandardError());
-        request.standardInput(transientAttributes.getStandardInput());
-        request.progressListeners(transientAttributes.getProgressListeners().toArray(new ProgressListener[transientAttributes.getProgressListeners().size()]));
-        request.cancellationToken(transientAttributes.getCancellationToken());
+        // configure the request's transient attributes
+        request.standardOutput(processStreams.getOutput());
+        request.standardError(processStreams.getError());
+        request.standardInput(processStreams.getInput());
+        request.progressListeners(listeners.toArray(new ProgressListener[listeners.size()]));
+        request.cancellationToken(getToken());
 
         // print the applied run configuration settings at the beginning of the console output
         writeRunConfigurationDescription(configurationAttributes, buildEnvironment, processStreams.getConfiguration());
