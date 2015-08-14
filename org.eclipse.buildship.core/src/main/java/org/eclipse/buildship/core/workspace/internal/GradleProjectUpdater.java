@@ -34,21 +34,23 @@ public final class GradleProjectUpdater {
     private GradleProjectUpdater() {
     }
 
-    public static void update(OmniEclipseProject modelProject, IProject workspaceProject, IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask("Update project " + workspaceProject.getName(), 3);
+    public static void update(OmniEclipseProject gradleProject, IProject project, IProgressMonitor monitor) throws CoreException {
+        monitor.beginTask("Update project " + project.getName(), 3);
         try {
-            if (workspaceProject.isAccessible()) {
-
+            if (project.isAccessible()) {
                 // update linked resources
-                LinkedResourcesUpdater.update(workspaceProject, modelProject.getLinkedResources(), new SubProgressMonitor(monitor, 1));
-                if (workspaceProject.hasNature(JavaCore.NATURE_ID)) {
-                    IJavaProject javaProject = JavaCore.create(workspaceProject);
+                LinkedResourcesUpdater.update(project, gradleProject.getLinkedResources(), new SubProgressMonitor(monitor, 1));
 
-                    // the classpath container also updates the linked resources
-                    SourceFolderUpdater.update(javaProject, modelProject.getSourceDirectories(), new SubProgressMonitor(monitor, 1));
+                // update Java-specific aspects
+                if (project.hasNature(JavaCore.NATURE_ID)) {
+                    // adapt to Java project
+                    IJavaProject javaProject = JavaCore.create(project);
+
+                    // update the sources
+                    SourceFolderUpdater.update(javaProject, gradleProject.getSourceDirectories(), new SubProgressMonitor(monitor, 1));
 
                     // update project/external dependencies
-                    ClasspathContainerUpdater.update(javaProject, modelProject, new Path(GradleClasspathContainer.CONTAINER_ID), new SubProgressMonitor(monitor, 1));
+                    ClasspathContainerUpdater.update(javaProject, gradleProject, new Path(GradleClasspathContainer.CONTAINER_ID), new SubProgressMonitor(monitor, 1));
                 }
             }
         } finally {
