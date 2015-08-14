@@ -36,11 +36,11 @@ import org.eclipse.buildship.core.workspace.internal.GradleProjectUpdater;
  * Finds the root projects for the selection and issues a classpath update on each related workspace
  * project.
  */
-public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
+public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
 
     private final List<IProject> projects;
 
-    public RefreshGradleProjectJob(List<IProject> projects) {
+    public RefreshGradleProjectsJob(List<IProject> projects) {
         super("Refresh classpath", true);
         this.projects = Preconditions.checkNotNull(projects);
     }
