@@ -19,8 +19,6 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.gradle.tooling.CancellationTokenSource;
-import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Joiner;
@@ -32,12 +30,9 @@ import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
