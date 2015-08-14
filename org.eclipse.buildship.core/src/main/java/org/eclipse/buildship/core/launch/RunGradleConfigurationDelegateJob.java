@@ -19,6 +19,8 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Joiner;
@@ -46,7 +48,6 @@ import org.eclipse.buildship.core.launch.internal.BuildExecutionParticipants;
 import org.eclipse.buildship.core.launch.internal.DefaultExecuteBuildLaunchRequestEvent;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.core.util.gradle.GradleBuildFetcher;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
@@ -97,7 +98,7 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, processStreams.getOutput(), processStreams.getError(), processStreams.getInput(), listeners,
                 ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
 
-        OmniBuildEnvironment buildEnvironment = GradleBuildFetcher.fetchBuildEnvironment(monitor, transientAttributes, fixedAttributes);
+        OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(fixedAttributes, transientAttributes, monitor);
 
         // configure the request with the build launch settings derived from the launch
         // configuration
@@ -174,6 +175,16 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
     private String toNonEmpty(List<String> stringValues, String defaultMessage) {
         String string = Strings.emptyToNull(CollectionsUtils.joinWithSpace(stringValues));
         return string != null ? string : defaultMessage;
+    }
+
+    private OmniBuildEnvironment fetchBuildEnvironment(FixedRequestAttributes fixedRequestAttributes, TransientRequestAttributes transientRequestAttributes, IProgressMonitor monitor) {
+        monitor.beginTask("Load Gradle Build Environment", IProgressMonitor.UNKNOWN);
+        try {
+            ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(fixedRequestAttributes);
+            return repository.fetchBuildEnvironment(transientRequestAttributes, FetchStrategy.FORCE_RELOAD);
+        } finally {
+            monitor.done();
+        }
     }
 
 }
