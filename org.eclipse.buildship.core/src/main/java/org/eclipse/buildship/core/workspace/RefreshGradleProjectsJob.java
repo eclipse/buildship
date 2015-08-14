@@ -51,7 +51,6 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
         try {
             // find the root projects related to the selection and reload their model
             ImmutableSet<OmniEclipseGradleBuild> gradleBuilds = EclipseGradleBuildModelReloader.from(this.projects, getToken()).reloadRootEclipseModels(new SubProgressMonitor(monitor, 50));
-            // update all
             updateAllProjects(gradleBuilds, countProjects(gradleBuilds), new SubProgressMonitor(monitor, 50));
         } finally {
             monitor.done();
