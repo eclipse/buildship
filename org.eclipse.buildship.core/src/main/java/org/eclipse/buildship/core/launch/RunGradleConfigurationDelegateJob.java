@@ -139,25 +139,28 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
 
     private void writeRunConfigurationDescription(GradleRunConfigurationAttributes runConfiguration, OmniBuildEnvironment buildEnvironment, OutputStream output) {
         OutputStreamWriter writer = new OutputStreamWriter(output);
-        String gradleUserHome = null;
 
         // should the user not specify values for the gradleUserHome and javaHome, their default
         // values will not be specified in the launch configurations
         // as such, these attributes are retrieved separately from the build environment
-        if (buildEnvironment.getGradle().getGradleUserHome().isPresent()) {
-            gradleUserHome = buildEnvironment.getGradle().getGradleUserHome().get().getAbsolutePath();
+        File gradleUserHome = runConfiguration.getGradleUserHome();
+        if (gradleUserHome == null) {
+            gradleUserHome = buildEnvironment.getGradle().getGradleUserHome().or(null);
+        }
+        File javaHome = runConfiguration.getJavaHome();
+        if (javaHome == null) {
+            javaHome = buildEnvironment.getJava().getJavaHome();
         }
         String gradleVersion = buildEnvironment.getGradle().getGradleVersion();
-        String javaHome = buildEnvironment.getJava().getJavaHome().getAbsolutePath();
 
         try {
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleTasks, toNonEmpty(runConfiguration.getTasks(), CoreMessages.RunConfiguration_Value_RunDefaultTasks)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_WorkingDirectory, FileUtils.getAbsolutePath(runConfiguration.getWorkingDir()).get()));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_WorkingDirectory, runConfiguration.getWorkingDir().getAbsolutePath()));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleUserHome, toNonEmpty(gradleUserHome, CoreMessages.Value_UseGradleDefault)));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleDistribution, GradleDistributionFormatter.toString(runConfiguration.getGradleDistribution())));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleUserHome, toNonEmpty(runConfiguration.getGradleUserHome(), String.format("%s (%s)", CoreMessages.Value_UseGradleDefault, gradleUserHome))));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleVersion, gradleVersion));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JavaHome, toNonEmpty(runConfiguration.getJavaHome(), String.format("%s (%s)", CoreMessages.Value_UseGradleDefault, javaHome))));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JvmArguments, toNonEmpty(runConfiguration.getJvmArguments(), CoreMessages.Value_UseGradleDefault)));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JavaHome, toNonEmpty(javaHome, CoreMessages.Value_UseGradleDefault)));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JvmArguments, toNonEmpty(runConfiguration.getJvmArguments(), CoreMessages.Value_None)));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Arguments, toNonEmpty(runConfiguration.getArguments(), CoreMessages.Value_None)));
             writer.write('\n');
             writer.flush();
