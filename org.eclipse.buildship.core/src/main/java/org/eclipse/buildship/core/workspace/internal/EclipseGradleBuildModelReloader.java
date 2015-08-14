@@ -44,7 +44,7 @@ public final class EclipseGradleBuildModelReloader {
     private final CancellationToken token;
 
     private EclipseGradleBuildModelReloader(List<IProject> projects, CancellationToken token) {
-        this.projects = Preconditions.checkNotNull(projects);
+        this.projects = ImmutableList.copyOf(projects);
         this.token = Preconditions.checkNotNull(token);
     }
 
