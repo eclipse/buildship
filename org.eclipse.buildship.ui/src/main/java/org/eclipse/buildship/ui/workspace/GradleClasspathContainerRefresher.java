@@ -31,12 +31,13 @@ import org.eclipse.buildship.core.workspace.RefreshGradleProjectJob;
 
 /**
  * Collects all selected {@link IProject} instances and schedules a
- * {@link RefreshGradleProjectJob} on them.
+ * {@link RefreshGradleProjectJob} to refresh these projects.
  */
 public final class GradleClasspathContainerRefresher {
 
     public static void execute(final ExecutionEvent event) {
-        new RefreshGradleProjectJob(collectSelectedProjects(event)).schedule();
+        List<IProject> selectedProjects = collectSelectedProjects(event);
+        new RefreshGradleProjectJob(selectedProjects).schedule();
     }
 
     private static List<IProject> collectSelectedProjects(ExecutionEvent event) {
@@ -50,7 +51,9 @@ public final class GradleClasspathContainerRefresher {
                 IResource resource = (IResource) adapterManager.getAdapter(selectionItem, IResource.class);
                 if (resource != null) {
                     IProject project = resource.getProject();
-                    result.add(project);
+                    if (project != null) {
+                        result.add(project);
+                    }
                 }
             }
         }
