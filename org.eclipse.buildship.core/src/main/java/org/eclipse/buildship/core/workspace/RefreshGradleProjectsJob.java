@@ -14,7 +14,7 @@ package org.eclipse.buildship.core.workspace;
 import java.util.List;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
@@ -42,7 +42,7 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
 
     public RefreshGradleProjectsJob(List<IProject> projects) {
         super("Refresh classpath", true);
-        this.projects = Preconditions.checkNotNull(projects);
+        this.projects = ImmutableList.copyOf(projects);
     }
 
     @Override
