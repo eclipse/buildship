@@ -79,7 +79,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
     public void runToolingApiJobInWorkspace(IProgressMonitor monitor) {
         monitor.beginTask("Import Gradle project", 100);
 
-        this.initializer.run(new SubProgressMonitor(monitor, 10));
+        this.initializer.run(new SubProgressMonitor(monitor, 10), getToken());
 
         // all Java operations use the workspace root as a scheduling rule
         // see org.eclipse.jdt.internal.core.JavaModelOperation#getSchedulingRule()
@@ -89,7 +89,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         manager.beginRule(workspaceRoot, monitor);
         try {
-            OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(new SubProgressMonitor(monitor, 50));
+            OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(new SubProgressMonitor(monitor, 40));
             OmniEclipseProject rootProject = eclipseGradleBuild.getRootEclipseProject();
             List<OmniEclipseProject> allProjects = rootProject.getAll();
             for (OmniEclipseProject project : allProjects) {

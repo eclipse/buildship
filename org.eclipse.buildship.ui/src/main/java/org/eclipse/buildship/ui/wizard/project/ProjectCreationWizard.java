@@ -36,6 +36,7 @@ import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
+import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.collect.ImmutableList;
@@ -266,7 +267,7 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
         }
 
         @Override
-        public void run(IProgressMonitor monitor) {
+        public void run(IProgressMonitor monitor, CancellationToken token) {
             monitor.beginTask("Init Gradle project", IProgressMonitor.UNKNOWN);
             try {
                 File projectDir = this.fixedAttributes.getProjectDir().getAbsoluteFile();
@@ -291,6 +292,7 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
                         request.jvmArguments(jvmArguments.toArray(new String[jvmArguments.size()]));
                         request.arguments(arguments.toArray(new String[arguments.size()]));
                         request.progressListeners(progressListeners);
+                        request.cancellationToken(token);
 
                         // launch the build
                         request.executeAndWait();

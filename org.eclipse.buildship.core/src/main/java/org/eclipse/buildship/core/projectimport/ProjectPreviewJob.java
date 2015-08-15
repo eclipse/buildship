@@ -77,7 +77,7 @@ public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
     public void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
         monitor.beginTask("Load Gradle project preview", 20);
 
-        this.initializer.run(new SubProgressMonitor(monitor, 10));
+        this.initializer.run(new SubProgressMonitor(monitor, 10), getToken());
 
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(new SubProgressMonitor(monitor, 2));
         OmniGradleBuildStructure gradleBuildStructure = fetchGradleBuildStructure(new SubProgressMonitor(monitor, 8));
