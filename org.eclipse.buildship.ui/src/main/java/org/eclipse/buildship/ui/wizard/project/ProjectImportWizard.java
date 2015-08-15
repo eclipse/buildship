@@ -96,11 +96,8 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
         this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller.getConfiguration(),
                 new ProjectPreviewWizardPage.ProjectPreviewLoader() {
                     @Override
-                    public Job loadPreview(
-                            FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler,
-                            List<ProgressListener> listeners) {
-                        ProjectPreviewJob projectPreviewJob = new ProjectPreviewJob(configuration, listeners,
-                                AsyncHandler.NO_OP, resultHandler);
+                    public Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler, List<ProgressListener> listeners) {
+                        ProjectPreviewJob projectPreviewJob = new ProjectPreviewJob(configuration, listeners, AsyncHandler.NO_OP, resultHandler);
                         projectPreviewJob.schedule();
                         return projectPreviewJob;
                     }
