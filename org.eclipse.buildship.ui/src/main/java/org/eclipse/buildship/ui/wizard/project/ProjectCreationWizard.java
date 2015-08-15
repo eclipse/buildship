@@ -14,12 +14,14 @@ package org.eclipse.buildship.ui.wizard.project;
 import java.io.File;
 import java.util.List;
 
+import com.google.common.base.Optional;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
+import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
@@ -122,7 +124,7 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
         this.projectPreviewPage = new ProjectPreviewWizardPage(importConfiguration, new ProjectPreviewWizardPage.ProjectPreviewLoader() {
             @Override
             public Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler, List<ProgressListener> listeners) {
-                ProjectPreviewJob projectPreviewJob = new ProjectPreviewJob(importConfiguration, listeners, new NewGradleProjectInitializer(importConfiguration), resultHandler);
+                ProjectPreviewJob projectPreviewJob = new ProjectPreviewJob(importConfiguration, listeners, new NewGradleProjectInitializer(importConfiguration, listeners), resultHandler);
                 projectPreviewJob.schedule();
                 return projectPreviewJob;
             }
@@ -251,9 +253,16 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
     private static final class NewGradleProjectInitializer implements AsyncHandler {
 
         private final FixedRequestAttributes fixedAttributes;
+        private final Optional<List<ProgressListener>> listeners;
 
         private NewGradleProjectInitializer(ProjectImportConfiguration configuration) {
             this.fixedAttributes = configuration.toFixedAttributes();
+            this.listeners = Optional.absent();
+        }
+
+        private NewGradleProjectInitializer(ProjectImportConfiguration configuration, List<ProgressListener> listeners) {
+            this.fixedAttributes = configuration.toFixedAttributes();
+            this.listeners = Optional.of((List<ProgressListener>) ImmutableList.copyOf(listeners));
         }
 
         @Override
@@ -270,6 +279,8 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
                         File javaHome = FileUtils.getAbsoluteFile(this.fixedAttributes.getJavaHome()).orNull();
                         List<String> jvmArguments = this.fixedAttributes.getJvmArguments();
                         List<String> arguments = this.fixedAttributes.getArguments();
+                        ProgressListener[] progressListeners = this.listeners.isPresent() ? this.listeners.get().toArray(new ProgressListener[this.listeners.get().size()]) :
+                                new ProgressListener[]{new DelegatingProgressListener(monitor)};
 
                         // configure the request
                         BuildLaunchRequest request = CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(tasks));
@@ -279,6 +290,7 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
                         request.javaHomeDir(javaHome);
                         request.jvmArguments(jvmArguments.toArray(new String[jvmArguments.size()]));
                         request.arguments(arguments.toArray(new String[arguments.size()]));
+                        request.progressListeners(progressListeners);
 
                         // launch the build
                         request.executeAndWait();
