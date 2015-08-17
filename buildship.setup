@@ -284,9 +284,9 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging/latest"/>
         <repository
-            url="http://download.eclipse.org/buildship/orbit-staging"/>
+            url="http://download.eclipse.org/buildship/orbit-staging/latest"/>
       </repositoryList>
       <repositoryList
           name="Luna">
@@ -295,9 +295,9 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging/latest"/>
         <repository
-            url="http://download.eclipse.org/buildship/orbit-staging"/>
+            url="http://download.eclipse.org/buildship/orbit-staging/latest"/>
       </repositoryList>
       <repositoryList
           name="Kepler">
@@ -306,9 +306,9 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging/latest"/>
         <repository
-            url="http://download.eclipse.org/buildship/orbit-staging"/>
+            url="http://download.eclipse.org/buildship/orbit-staging/latest"/>
       </repositoryList>
       <repositoryList
           name="Juno">
@@ -317,9 +317,9 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging/latest"/>
         <repository
-            url="http://download.eclipse.org/buildship/orbit-staging"/>
+            url="http://download.eclipse.org/buildship/orbit-staging/latest"/>
       </repositoryList>
       <repositoryList
           name="Indigo">
@@ -328,9 +328,9 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging/latest"/>
         <repository
-            url="http://download.eclipse.org/buildship/orbit-staging"/>
+            url="http://download.eclipse.org/buildship/orbit-staging/latest"/>
       </repositoryList>
       <repositoryList
           name="Helios">
@@ -339,9 +339,9 @@
         <repository
             url="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
         <repository
-            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging"/>
+            url="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging/latest"/>
         <repository
-            url="http://download.eclipse.org/buildship/orbit-staging"/>
+            url="http://download.eclipse.org/buildship/orbit-staging/latest"/>
       </repositoryList>
     </targlet>
     <targlet
