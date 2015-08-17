@@ -118,7 +118,7 @@ public final class EclipseTestExecuter implements TestExecuter {
         programArgs.add("-product org.eclipse.platform.ide");
         // alternatively can use URI for -data and -configuration (file:///path/to/dir/)
         programArgs.add("-data");
-        programArgs.add(runDir.getAbsolutePath());
+        programArgs.add(runDir.getAbsolutePath() + File.separator + "workspace");
         programArgs.add("-configuration");
         programArgs.add(configIniFile.getParentFile().getAbsolutePath());
 
