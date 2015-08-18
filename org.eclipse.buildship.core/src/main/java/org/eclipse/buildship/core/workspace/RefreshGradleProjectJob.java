@@ -1,0 +1,103 @@
+/*
+ * Copyright (c) 2015 the original author or authors.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
+ */
+
+package org.eclipse.buildship.core.workspace;
+
+import java.util.List;
+
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
+
+import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
+
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
+import org.eclipse.buildship.core.workspace.internal.EclipseGradleBuildModelReloader;
+import org.eclipse.buildship.core.workspace.internal.GradleProjectUpdater;
+
+/**
+ * Finds the root projects for the selection and issues a classpath update on each related workspace
+ * project.
+ */
+public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
+
+    private final List<IProject> projects;
+
+    public RefreshGradleProjectJob(List<IProject> projects) {
+        super("Refresh classpath", true);
+        this.projects = Preconditions.checkNotNull(projects);
+    }
+
+    @Override
+    protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
+        monitor.beginTask("Refresh selected Gradle projects", 100);
+        try {
+            // find the root projects related to the selection and reload their model
+            ImmutableSet<OmniEclipseGradleBuild> gradleBuilds = EclipseGradleBuildModelReloader.from(this.projects, getToken()).reloadRootEclipseModels(new SubProgressMonitor(monitor, 50));
+            // update all
+            updateAllProjects(gradleBuilds, countProjects(gradleBuilds), new SubProgressMonitor(monitor, 50));
+        } finally {
+            monitor.done();
+        }
+    }
+
+    private int countProjects(ImmutableSet<OmniEclipseGradleBuild> gradleBuilds) {
+        int result = 0;
+        for (OmniEclipseGradleBuild gradleBuild : gradleBuilds) {
+            result += gradleBuild.getRootProject().getAll().size();
+        }
+        return result;
+    }
+
+    private void updateAllProjects(ImmutableSet<OmniEclipseGradleBuild> gradleBuilds, int numberOfAllProjects, IProgressMonitor monitor) {
+        monitor.beginTask("Refresh projects", numberOfAllProjects);
+        try {
+            for (OmniEclipseGradleBuild gradleBuild : gradleBuilds) {
+                updateProjectsRecursively(gradleBuild.getRootEclipseProject(), monitor);
+            }
+        } finally {
+            monitor.done();
+        }
+    }
+
+    private void updateProjectsRecursively(OmniEclipseProject project, IProgressMonitor monitor) {
+        monitor.subTask(project.getName());
+        update(project);
+        monitor.worked(1);
+        for (OmniEclipseProject child : project.getChildren()) {
+            updateProjectsRecursively(child, monitor);
+        }
+    }
+
+    private void update(OmniEclipseProject modelProject) {
+        Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(modelProject.getProjectDirectory());
+        if (workspaceProject.isPresent()) {
+            update(modelProject, workspaceProject.get());
+        }
+    }
+
+    private void update(OmniEclipseProject modelProject, IProject workspaceProject) {
+        try {
+            GradleProjectUpdater.update(modelProject, workspaceProject, new NullProgressMonitor());
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(e);
+        }
+    }
+}
