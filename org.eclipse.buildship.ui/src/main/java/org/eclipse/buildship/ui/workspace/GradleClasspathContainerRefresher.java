@@ -37,6 +37,10 @@ public final class GradleClasspathContainerRefresher {
 
     public static void execute(final ExecutionEvent event) {
         List<IProject> selectedProjects = collectSelectedProjects(event);
+        if (selectedProjects.isEmpty()) {
+            return;
+        }
+
         RefreshGradleProjectsJob refreshJob = new RefreshGradleProjectsJob(selectedProjects);
         refreshJob.schedule();
     }
