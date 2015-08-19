@@ -13,10 +13,11 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.List;
 
+import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
+import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
@@ -45,7 +46,6 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.gradle.Specs;
-import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
@@ -67,81 +67,68 @@ import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 public final class GradleClasspathContainerInitializer extends ClasspathContainerInitializer {
 
     @Override
-    public void initialize(IPath containerPath, IJavaProject project) {
-        scheduleClasspathInitialization(containerPath, project);
+    public void initialize(IPath containerPath, IJavaProject javaProject) {
+        scheduleClasspathInitialization(javaProject);
     }
 
     @Override
-    public void requestClasspathContainerUpdate(IPath containerPath, IJavaProject project, IClasspathContainer containerSuggestion) {
-        scheduleClasspathInitialization(containerPath, project);
+    public void requestClasspathContainerUpdate(IPath containerPath, IJavaProject javaProject, IClasspathContainer containerSuggestion) {
+        scheduleClasspathInitialization(javaProject);
     }
 
-    private void scheduleClasspathInitialization(final IPath containerPath, final IJavaProject project) {
-        new GradleClasspathContainerInitializerJob(containerPath, project).schedule();
-    }
+    private void scheduleClasspathInitialization(final IJavaProject project) {
+        new ToolingApiWorkspaceJob("Initialize Gradle classpath for project '" + project.getElementName() + "'") {
 
-    private static final class GradleClasspathContainerInitializerJob extends ToolingApiWorkspaceJob {
+            @Override
+            protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
+                monitor.beginTask("Initializing classpath", 100);
 
-        private final IPath containerPath;
-        private final IJavaProject project;
-
-        public GradleClasspathContainerInitializerJob(final IPath containerPath, final IJavaProject project) {
-            super("Initialize Gradle classpath for project '" +  Preconditions.checkNotNull(project).getElementName() + "'");
-            this.containerPath = Preconditions.checkNotNull(containerPath);
-            this.project = project;
-        }
-
-        @Override
-        protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
-            monitor.beginTask("Initializing classpath", 100);
-
-            // use the same rule as the ProjectImportJob to do the initialization
-            IJobManager manager = Job.getJobManager();
-            IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-            manager.beginRule(workspaceRoot, monitor);
-            try {
-                internalInitialize(this.containerPath, this.project, monitor);
-            } finally {
-                manager.endRule(workspaceRoot);
-            }
-        }
-
-        private void internalInitialize(IPath containerPath, IJavaProject workspaceJavaProject, IProgressMonitor monitor) throws CoreException {
-            Optional<OmniEclipseProject> gradleProject = findEclipseProject(workspaceJavaProject.getProject(), monitor);
-            monitor.worked(70);
-            if (gradleProject.isPresent()) {
-                IProject workspaceProject = workspaceJavaProject.getProject();
-                if (workspaceProject.isAccessible()) {
-                    // update linked resources
-                    LinkedResourcesUpdater.update(workspaceProject, gradleProject.get().getLinkedResources(), new SubProgressMonitor(monitor, 10));
-
-                    // update the sources
-                    SourceFolderUpdater.update(workspaceJavaProject, gradleProject.get().getSourceDirectories(), new SubProgressMonitor(monitor, 10));
-
-                    // update project/external dependencies
-                    ClasspathContainerUpdater.update(workspaceJavaProject, gradleProject.get(), new Path(GradleClasspathContainer.CONTAINER_ID), new SubProgressMonitor(monitor, 10));
+                // use the same rule as the ProjectImportJob to do the initialization
+                IJobManager manager = Job.getJobManager();
+                IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+                manager.beginRule(workspaceRoot, monitor);
+                try {
+                    internalInitialize(project, monitor, getToken());
+                } finally {
+                    manager.endRule(workspaceRoot);
                 }
-            } else {
-                throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", workspaceJavaProject.getProject()));
             }
-        }
+        }.schedule();
+    }
 
-        private Optional<OmniEclipseProject> findEclipseProject(IProject project, IProgressMonitor monitor) {
-            ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
-            OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(configuration.getRequestAttributes(), monitor);
-            return eclipseGradleBuild.getRootEclipseProject().tryFind(Specs.eclipseProjectMatchesProjectPath(configuration.getProjectPath()));
-        }
+    private void internalInitialize(IJavaProject javaProject, IProgressMonitor monitor, CancellationToken token) throws CoreException {
+        IProject project = javaProject.getProject();
+        Optional<OmniEclipseProject> gradleProject = findEclipseProject(project, monitor, token);
+        monitor.worked(70);
+        if (gradleProject.isPresent()) {
+            if (project.isAccessible()) {
+                // update linked resources
+                LinkedResourcesUpdater.update(project, gradleProject.get().getLinkedResources(), new SubProgressMonitor(monitor, 10));
 
-        private OmniEclipseGradleBuild fetchEclipseGradleBuild(FixedRequestAttributes fixedRequestAttributes, IProgressMonitor monitor) {
-            ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-            DelegatingProgressListener listener = new  DelegatingProgressListener(monitor);
-            List<ProgressListener> progressListeners = ImmutableList.<ProgressListener>of(listener);
-            List<org.gradle.tooling.events.ProgressListener> noTypedProgressListeners = ImmutableList.of();
-            TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), null, progressListeners,
-                    noTypedProgressListeners, getToken());
-            ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(fixedRequestAttributes);
-            return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
+                // update the sources
+                SourceFolderUpdater.update(javaProject, gradleProject.get().getSourceDirectories(), new SubProgressMonitor(monitor, 10));
+
+                // update project/external dependencies
+                ClasspathContainerUpdater.update(javaProject, gradleProject.get(), new Path(GradleClasspathContainer.CONTAINER_ID), new SubProgressMonitor(monitor, 10));
+            }
+        } else {
+            throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", project));
         }
+    }
+
+    private Optional<OmniEclipseProject> findEclipseProject(IProject project, IProgressMonitor monitor, CancellationToken token) {
+        ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
+        OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(configuration.getRequestAttributes(),monitor, token);
+        return eclipseGradleBuild.getRootEclipseProject().tryFind(Specs.eclipseProjectMatchesProjectPath(configuration.getProjectPath()));
+    }
+
+    private OmniEclipseGradleBuild fetchEclipseGradleBuild(FixedRequestAttributes fixedRequestAttributes, IProgressMonitor monitor, CancellationToken token) {
+        ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
+        List<ProgressListener> progressListeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
+        List<org.gradle.tooling.events.ProgressListener> noTypedProgressListeners = ImmutableList.of();
+        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), null, progressListeners, noTypedProgressListeners, token);
+        ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(fixedRequestAttributes);
+        return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
     }
 
 }
