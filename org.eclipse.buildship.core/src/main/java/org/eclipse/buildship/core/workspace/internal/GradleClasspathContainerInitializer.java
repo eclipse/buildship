@@ -68,15 +68,15 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
     @Override
     public void initialize(IPath containerPath, IJavaProject project) {
-        scheduleClasspathInitialization(containerPath, project);
+        scheduleClasspathInitialization(project);
     }
 
     @Override
     public void requestClasspathContainerUpdate(IPath containerPath, IJavaProject project, IClasspathContainer containerSuggestion) {
-        scheduleClasspathInitialization(containerPath, project);
+        scheduleClasspathInitialization(project);
     }
 
-    private void scheduleClasspathInitialization(final IPath containerPath, final IJavaProject project) {
+    private void scheduleClasspathInitialization(final IJavaProject project) {
         new ToolingApiWorkspaceJob("Initialize Gradle classpath for project '" + project.getElementName() + "'") {
 
             @Override
@@ -88,7 +88,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
                 IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
                 manager.beginRule(workspaceRoot, monitor);
                 try {
-                    internalInitialize(containerPath, project, monitor);
+                    internalInitialize(project, monitor);
                 } finally {
                     manager.endRule(workspaceRoot);
                 }
@@ -96,23 +96,23 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         }.schedule();
     }
 
-    private void internalInitialize(IPath containerPath, IJavaProject workspaceJavaProject, IProgressMonitor monitor) throws CoreException {
-        Optional<OmniEclipseProject> gradleProject = findEclipseProject(workspaceJavaProject.getProject());
+    private void internalInitialize(IJavaProject javaProject, IProgressMonitor monitor) throws CoreException {
+        IProject project = javaProject.getProject();
+        Optional<OmniEclipseProject> gradleProject = findEclipseProject(project);
         monitor.worked(1);
         if (gradleProject.isPresent()) {
-            IProject workspaceProject = workspaceJavaProject.getProject();
-            if (workspaceProject.isAccessible()) {
+            if (project.isAccessible()) {
                 // update linked resources
-                LinkedResourcesUpdater.update(workspaceProject, gradleProject.get().getLinkedResources(), new SubProgressMonitor(monitor, 1));
+                LinkedResourcesUpdater.update(project, gradleProject.get().getLinkedResources(), new SubProgressMonitor(monitor, 1));
 
                 // update the sources
-                SourceFolderUpdater.update(workspaceJavaProject, gradleProject.get().getSourceDirectories(), new SubProgressMonitor(monitor, 1));
+                SourceFolderUpdater.update(javaProject, gradleProject.get().getSourceDirectories(), new SubProgressMonitor(monitor, 1));
 
                 // update project/external dependencies
-                ClasspathContainerUpdater.update(workspaceJavaProject, gradleProject.get(), new Path(GradleClasspathContainer.CONTAINER_ID), new SubProgressMonitor(monitor, 1));
+                ClasspathContainerUpdater.update(javaProject, gradleProject.get(), new Path(GradleClasspathContainer.CONTAINER_ID), new SubProgressMonitor(monitor, 1));
             }
         } else {
-            throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", workspaceJavaProject.getProject()));
+            throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", project));
         }
     }
 
