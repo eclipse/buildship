@@ -13,8 +13,8 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.List;
 
+import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.gradle.tooling.CancellationToken;
-import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Optional;
@@ -33,6 +33,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
@@ -46,6 +47,7 @@ import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
+import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
 /**
  * Initializes the classpath of each Eclipse workspace project that has a Gradle nature with the
@@ -66,27 +68,27 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
     @Override
     public void initialize(IPath containerPath, IJavaProject javaProject) {
-        scheduleClasspathInitialization(containerPath, javaProject, FetchStrategy.LOAD_IF_NOT_CACHED);
+        scheduleClasspathInitialization(javaProject);
     }
 
     @Override
-    public void requestClasspathContainerUpdate(IPath containerPath, IJavaProject project, IClasspathContainer containerSuggestion) {
-        scheduleClasspathInitialization(containerPath, project, FetchStrategy.FORCE_RELOAD);
+    public void requestClasspathContainerUpdate(IPath containerPath, IJavaProject javaProject, IClasspathContainer containerSuggestion) {
+        scheduleClasspathInitialization(javaProject);
     }
 
-    private void scheduleClasspathInitialization(final IPath containerPath, final IJavaProject javaProject, final FetchStrategy fetchStrategy) {
-        new ToolingApiWorkspaceJob("Initialize Gradle classpath for project '" + javaProject.getElementName() + "'") {
+    private void scheduleClasspathInitialization(final IJavaProject project) {
+        new ToolingApiWorkspaceJob("Initialize Gradle classpath for project '" + project.getElementName() + "'") {
 
             @Override
             protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
-                monitor.beginTask("Initializing classpath", 150);
+                monitor.beginTask("Initializing classpath", 100);
 
                 // use the same rule as the ProjectImportJob to do the initialization
                 IJobManager manager = Job.getJobManager();
                 IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
                 manager.beginRule(workspaceRoot, monitor);
                 try {
-                    internalInitialize(containerPath, javaProject, fetchStrategy, monitor);
+                    internalInitialize(project, monitor, getToken());
                 } finally {
                     manager.endRule(workspaceRoot);
                 }
@@ -94,37 +96,39 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         }.schedule();
     }
 
-    private void internalInitialize(IPath containerPath, IJavaProject project, FetchStrategy fetchStrategy, IProgressMonitor monitor) throws CoreException {
-        Optional<OmniEclipseProject> eclipseProject = findEclipseProject(project.getProject(), fetchStrategy);
-        if (eclipseProject.isPresent()) {
-            // update linked resources
-            LinkedResourcesUpdater.update(project.getProject(), eclipseProject.get().getLinkedResources(), new SubProgressMonitor(monitor, 50));
+    private void internalInitialize(IJavaProject javaProject, IProgressMonitor monitor, CancellationToken token) throws CoreException {
+        IProject project = javaProject.getProject();
+        Optional<OmniEclipseProject> gradleProject = findEclipseProject(project, monitor, token);
+        monitor.worked(70);
+        if (gradleProject.isPresent()) {
+            if (project.isAccessible()) {
+                // update linked resources
+                LinkedResourcesUpdater.update(project, gradleProject.get().getLinkedResources(), new SubProgressMonitor(monitor, 10));
 
-            // update source folders
-            SourceFolderUpdater.update(project, eclipseProject.get().getSourceDirectories(), new SubProgressMonitor(monitor, 50));
+                // update the sources
+                SourceFolderUpdater.update(javaProject, gradleProject.get().getSourceDirectories(), new SubProgressMonitor(monitor, 10));
 
-            // update project/external dependencies
-            ClasspathContainerUpdater.update(project, eclipseProject.get(), containerPath, new SubProgressMonitor(monitor, 50));
+                // update project/external dependencies
+                ClasspathContainerUpdater.update(javaProject, gradleProject.get(), new Path(GradleClasspathContainer.CONTAINER_ID), new SubProgressMonitor(monitor, 10));
+            }
         } else {
-            throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", project.getProject()));
+            throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", project));
         }
     }
 
-    private Optional<OmniEclipseProject> findEclipseProject(IProject project, FetchStrategy fetchStrategy) {
+    private Optional<OmniEclipseProject> findEclipseProject(IProject project, IProgressMonitor monitor, CancellationToken token) {
         ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
-        OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(configuration.getRequestAttributes(), fetchStrategy);
+        OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(configuration.getRequestAttributes(),monitor, token);
         return eclipseGradleBuild.getRootEclipseProject().tryFind(Specs.eclipseProjectMatchesProjectPath(configuration.getProjectPath()));
     }
 
-    private OmniEclipseGradleBuild fetchEclipseGradleBuild(FixedRequestAttributes fixedRequestAttributes, FetchStrategy fetchStrategy) {
+    private OmniEclipseGradleBuild fetchEclipseGradleBuild(FixedRequestAttributes fixedRequestAttributes, IProgressMonitor monitor, CancellationToken token) {
         ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-        List<ProgressListener> noProgressListeners = ImmutableList.of();
-        List<org.gradle.tooling.events.ProgressListener> noTypedProgressListeners = ImmutableList.of();
-        CancellationToken cancellationToken = GradleConnector.newCancellationTokenSource().token();
-        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), null, noProgressListeners,
-                noTypedProgressListeners, cancellationToken);
+        List<ProgressListener> progressListeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
+        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), null, progressListeners,
+                 ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), token);
         ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(fixedRequestAttributes);
-        return repository.fetchEclipseGradleBuild(transientAttributes, fetchStrategy);
+        return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.LOAD_IF_NOT_CACHED);
     }
 
 }

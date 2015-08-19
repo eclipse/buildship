@@ -66,7 +66,7 @@ public final class RefreshProjectCommandExecutionListener implements IExecutionL
     }
 
     private void refreshGradleProject(ExecutionEvent event) {
-        GradleClasspathContainerRefresher.refresh(event);
+        GradleClasspathContainerRefresher.execute(event);
     }
 
 }

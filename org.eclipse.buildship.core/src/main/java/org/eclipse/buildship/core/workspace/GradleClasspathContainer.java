@@ -15,6 +15,7 @@ package org.eclipse.buildship.core.workspace;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
 import org.eclipse.jdt.core.IClasspathContainer;
@@ -76,7 +77,7 @@ public abstract class GradleClasspathContainer implements IClasspathContainer {
     public static void requestUpdateOf(IJavaProject project) {
         ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(CONTAINER_ID);
         try {
-            Path containerPath = new Path(CONTAINER_ID);
+            IPath containerPath = new Path(CONTAINER_ID);
             initializer.requestClasspathContainerUpdate(containerPath, project, null);
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(e);

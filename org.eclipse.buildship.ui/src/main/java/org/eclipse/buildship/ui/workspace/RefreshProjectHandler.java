@@ -22,8 +22,8 @@ import org.eclipse.core.commands.ExecutionException;
 public final class RefreshProjectHandler extends AbstractHandler {
 
     @Override
-    public Object execute(final ExecutionEvent event) throws ExecutionException {
-        GradleClasspathContainerRefresher.refresh(event);
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+        GradleClasspathContainerRefresher.execute(event);
         return null;
     }
 
