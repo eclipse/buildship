@@ -20,6 +20,7 @@ import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
@@ -38,6 +39,7 @@ import org.eclipse.jdt.core.JavaCore;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
@@ -47,6 +49,18 @@ import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
  * project.
  */
 public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
+
+    private static final Predicate<IProject> ACCESSIBLE_GRADLE_JAVA_PROJECT = new Predicate<IProject>() {
+
+        @Override
+        public boolean apply(IProject project) {
+            try {
+                return project.isAccessible() && project.hasNature(JavaCore.NATURE_ID) && project.hasNature(GradleProjectNature.ID);
+            } catch (CoreException e) {
+                throw new GradlePluginsRuntimeException(e);
+            }
+        }
+    };
 
     private final List<IProject> projects;
 
@@ -112,21 +126,15 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
         // todo (donat) the update mechanism should be extended to non-java projects too
         Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(gradleProject.getProjectDirectory());
         if (workspaceProject.isPresent()) {
-            try {
-                // todo (etst) check for _open_ projects with _java_ and _gradle_ nature
-                if (workspaceProject.get().hasNature(JavaCore.NATURE_ID)) {
-                    IJavaProject javaProject = JavaCore.create(workspaceProject.get());
-                    GradleClasspathContainer.requestUpdateOf(javaProject);
-                }
-            } catch (CoreException e) {
-                throw new GradlePluginsRuntimeException(e);
+            if (ACCESSIBLE_GRADLE_JAVA_PROJECT.apply(workspaceProject.get())) {
+                IJavaProject javaProject = JavaCore.create(workspaceProject.get());
+                GradleClasspathContainer.requestUpdateOf(javaProject);
             }
         }
     }
 
     private static Set<FixedRequestAttributes> getUniqueRootProjectConfigurations(List<IProject> projects) {
-        // todo (etst) filter for _open_ projects with _java_ and _gradle_ nature
-        return FluentIterable.from(projects).transform(new Function<IProject, FixedRequestAttributes>() {
+        return FluentIterable.from(projects).filter(ACCESSIBLE_GRADLE_JAVA_PROJECT).transform(new Function<IProject, FixedRequestAttributes>() {
 
             @Override
             public FixedRequestAttributes apply(IProject project) {
