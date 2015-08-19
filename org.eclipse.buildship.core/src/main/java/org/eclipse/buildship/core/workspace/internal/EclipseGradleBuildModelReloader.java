@@ -17,8 +17,9 @@ import java.util.Set;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
 
-import com.google.common.base.Optional;
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
@@ -28,10 +29,8 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.console.ProcessStreams;
 
 /**
@@ -48,45 +47,32 @@ public final class EclipseGradleBuildModelReloader {
         this.token = Preconditions.checkNotNull(token);
     }
 
-    public ImmutableSet<OmniEclipseGradleBuild> reloadRootEclipseModels(IProgressMonitor monitor) {
-        monitor.beginTask("Reload Eclipse Gradle projects", IProgressMonitor.UNKNOWN);
-        try {
-            ImmutableSet.Builder<OmniEclipseGradleBuild> result = ImmutableSet.builder();
-            for (IProject project : rootProjectsOf(this.projects)) {
-                result.add(loadEclipseGradleBuild(project, FetchStrategy.FORCE_RELOAD));
+    public ImmutableSet<OmniEclipseGradleBuild> reloadRootEclipseModels() {
+        Set<FixedRequestAttributes> attributesFromConfiguration = readRequestAttributesFromProjectConfiguration(this.projects);
+        return FluentIterable.from(attributesFromConfiguration).transform(new Function<FixedRequestAttributes, OmniEclipseGradleBuild>() {
+
+            @Override
+            public OmniEclipseGradleBuild apply(FixedRequestAttributes attributes) {
+                return foreceReloadEclipseGradleBuild(attributes);
             }
-            return result.build();
-        } finally {
-            monitor.done();
-        }
+        }).toSet();
     }
 
-    private Set<IProject> rootProjectsOf(List<IProject> projects) {
-        ImmutableSet.Builder<IProject> result = ImmutableSet.builder();
-        for (OmniEclipseGradleBuild gradleBuild : findRootModelProjectsOf(projects)) {
-            Optional<IProject> project = CorePlugin.workspaceOperations().findProjectByLocation(gradleBuild.getRootEclipseProject().getProjectDirectory());
-            if (project.isPresent()) {
-                result.add(project.get());
+    private Set<FixedRequestAttributes> readRequestAttributesFromProjectConfiguration(List<IProject> projects) {
+        return FluentIterable.from(projects).transform(new Function<IProject, FixedRequestAttributes>() {
+
+            @Override
+            public FixedRequestAttributes apply(IProject project) {
+                return CorePlugin.projectConfigurationManager().readProjectConfiguration(project).getRequestAttributes();
             }
-        }
-        return result.build();
+        }).toSet();
     }
 
-    private Set<OmniEclipseGradleBuild> findRootModelProjectsOf(List<IProject> projects) {
-        ImmutableSet.Builder<OmniEclipseGradleBuild> result = ImmutableSet.builder();
-        for (IProject project : projects) {
-            if (project.isAccessible() && GradleProjectNature.INSTANCE.isPresentOn(project)) {
-                result.add(loadEclipseGradleBuild(project, FetchStrategy.LOAD_IF_NOT_CACHED));
-            }
-        }
-        return result.build();
-    }
-
-    private OmniEclipseGradleBuild loadEclipseGradleBuild(IProject project, FetchStrategy strategy) {
-        FixedRequestAttributes requestAttributes = CorePlugin.projectConfigurationManager().readProjectConfiguration(project).getRequestAttributes();
+    private OmniEclipseGradleBuild foreceReloadEclipseGradleBuild(FixedRequestAttributes requestAttributes) {
         ProcessStreams stream = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-        return CorePlugin.modelRepositoryProvider().getModelRepository(requestAttributes).fetchEclipseGradleBuild(new TransientRequestAttributes(false, stream.getOutput(),
-                stream.getError(), stream.getInput(), ImmutableList.<ProgressListener>of(), ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), this.token), strategy);
+        return CorePlugin.modelRepositoryProvider().getModelRepository(requestAttributes)
+                .fetchEclipseGradleBuild(new TransientRequestAttributes(false, stream.getOutput(), stream.getError(), stream.getInput(), ImmutableList.<ProgressListener>of(),
+                        ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), this.token), FetchStrategy.FORCE_RELOAD);
     }
 
     public static EclipseGradleBuildModelReloader from(List<IProject> projects, CancellationToken token) {

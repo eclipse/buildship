@@ -47,11 +47,12 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
 
     @Override
     protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
-        monitor.beginTask("Refresh selected Gradle projects", 100);
+        monitor.beginTask("Refresh selected Gradle projects", 2);
         try {
             // find the root projects related to the selection and reload their model
-            ImmutableSet<OmniEclipseGradleBuild> gradleBuilds = EclipseGradleBuildModelReloader.from(this.projects, getToken()).reloadRootEclipseModels(new SubProgressMonitor(monitor, 50));
-            updateAllProjects(gradleBuilds, countProjects(gradleBuilds), new SubProgressMonitor(monitor, 50));
+            ImmutableSet<OmniEclipseGradleBuild> gradleBuilds = EclipseGradleBuildModelReloader.from(this.projects, getToken()).reloadRootEclipseModels();
+            monitor.worked(1);
+            updateAllProjects(gradleBuilds, countProjects(gradleBuilds), new SubProgressMonitor(monitor, 1));
         } finally {
             monitor.done();
         }
