@@ -108,10 +108,12 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
 
 
     private void updateWorkspaceProject(OmniEclipseProject gradleProject) {
-        // TODO (donat) the update mechanism should be extended to non-java projects too
+        // todo (etst) do not abort if one of the projects throws an exception but continue
+        // todo (donat) the update mechanism should be extended to non-java projects too
         Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(gradleProject.getProjectDirectory());
         if (workspaceProject.isPresent()) {
             try {
+                // todo (etst) check for _open_ projects with _java_ and _gradle_ nature
                 if (workspaceProject.get().hasNature(JavaCore.NATURE_ID)) {
                     IJavaProject javaProject = JavaCore.create(workspaceProject.get());
                     GradleClasspathContainer.requestUpdateOf(javaProject);
@@ -123,7 +125,7 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
     }
 
     private static Set<FixedRequestAttributes> getUniqueRootProjectConfigurations(List<IProject> projects) {
-        // todo (etst) filter for projects with java and gradle nature
+        // todo (etst) filter for _open_ projects with _java_ and _gradle_ nature
         return FluentIterable.from(projects).transform(new Function<IProject, FixedRequestAttributes>() {
 
             @Override
