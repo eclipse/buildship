@@ -23,14 +23,14 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 import org.eclipse.buildship.core.workspace.internal.EclipseGradleBuildModelReloader;
-import org.eclipse.buildship.core.workspace.internal.GradleProjectUpdater;
 
 /**
  * Finds the root projects for the selection and issues a classpath update on each related workspace
@@ -94,7 +94,11 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
 
     private void update(OmniEclipseProject modelProject, IProject workspaceProject) {
         try {
-            GradleProjectUpdater.update(modelProject, workspaceProject, new NullProgressMonitor());
+            if (workspaceProject.hasNature(JavaCore.NATURE_ID)) {
+                IJavaProject workspacejavaProject = JavaCore.create(workspaceProject);
+                GradleClasspathContainer.requestUpdateOf(workspacejavaProject);
+            }
+            // TODO (donat) the update mechanism should be extended to non-java projects too
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(e);
         }

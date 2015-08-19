@@ -33,6 +33,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
@@ -46,6 +47,7 @@ import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
+import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
 /**
  * Initializes the classpath of each Eclipse workspace project that has a Gradle nature with the
@@ -94,13 +96,23 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         }.schedule();
     }
 
-    private void internalInitialize(IPath containerPath, IJavaProject project, IProgressMonitor monitor) throws CoreException {
-        Optional<OmniEclipseProject> eclipseProject = findEclipseProject(project.getProject());
+    private void internalInitialize(IPath containerPath, IJavaProject workspaceJavaProject, IProgressMonitor monitor) throws CoreException {
+        Optional<OmniEclipseProject> gradleProject = findEclipseProject(workspaceJavaProject.getProject());
         monitor.worked(1);
-        if (eclipseProject.isPresent()) {
-            GradleProjectUpdater.update(eclipseProject.get(), project.getProject(), new SubProgressMonitor(monitor, 1));
+        if (gradleProject.isPresent()) {
+            IProject workspaceProject = workspaceJavaProject.getProject();
+            if (workspaceProject.isAccessible()) {
+                // update linked resources
+                LinkedResourcesUpdater.update(workspaceProject, gradleProject.get().getLinkedResources(), new SubProgressMonitor(monitor, 1));
+
+                // update the sources
+                SourceFolderUpdater.update(workspaceJavaProject, gradleProject.get().getSourceDirectories(), new SubProgressMonitor(monitor, 1));
+
+                // update project/external dependencies
+                ClasspathContainerUpdater.update(workspaceJavaProject, gradleProject.get(), new Path(GradleClasspathContainer.CONTAINER_ID), new SubProgressMonitor(monitor, 1));
+            }
         } else {
-            throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", project.getProject()));
+            throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", workspaceJavaProject.getProject()));
         }
     }
 
