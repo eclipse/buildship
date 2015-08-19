@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Function;
@@ -88,17 +89,17 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
     }
 
     private Set<OmniEclipseGradleBuild> forceReloadGradleBuildModels(final IProgressMonitor monitor) {
-        Set<FixedRequestAttributes> attributesFromConfiguration = readRequestAttributesFromProjectConfiguration(this.projects);
-        return FluentIterable.from(attributesFromConfiguration).transform(new Function<FixedRequestAttributes, OmniEclipseGradleBuild>() {
+        Set<FixedRequestAttributes> rootProjectConfigurations = getUniqueRootProjectConfigurations(this.projects);
+        return FluentIterable.from(rootProjectConfigurations).transform(new Function<FixedRequestAttributes, OmniEclipseGradleBuild>() {
 
             @Override
             public OmniEclipseGradleBuild apply(final FixedRequestAttributes requestAttributes) {
-                ProcessStreams stream = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-                DelegatingProgressListener listener = new DelegatingProgressListener(monitor);
-                return CorePlugin.modelRepositoryProvider().getModelRepository(requestAttributes)
-                        .fetchEclipseGradleBuild(new TransientRequestAttributes(false, stream.getOutput(), stream.getError(), stream.getInput(),
-                                ImmutableList.<ProgressListener>of(listener), ImmutableList.<org.gradle.tooling.events.ProgressListener>of(),
-                                getToken()), FetchStrategy.FORCE_RELOAD);
+                ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
+                ImmutableList<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
+                TransientRequestAttributes transientRequestAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), listeners,
+                        ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
+                ModelRepositoryProvider repository = CorePlugin.modelRepositoryProvider();
+                return repository.getModelRepository(requestAttributes).fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.FORCE_RELOAD);
             }
         }).toSet();
     }
@@ -118,7 +119,7 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
         }
     }
 
-    private static Set<FixedRequestAttributes> readRequestAttributesFromProjectConfiguration(List<IProject> projects) {
+    private static Set<FixedRequestAttributes> getUniqueRootProjectConfigurations(List<IProject> projects) {
         return FluentIterable.from(projects).transform(new Function<IProject, FixedRequestAttributes>() {
 
             @Override
