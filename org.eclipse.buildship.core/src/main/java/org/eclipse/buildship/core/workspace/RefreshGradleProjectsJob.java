@@ -49,7 +49,7 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
     private final List<IProject> projects;
 
     public RefreshGradleProjectsJob(List<IProject> projects) {
-        super("Refresh classpath", true);
+        super("Refresh Gradle projects", true);
         this.projects = ImmutableList.copyOf(projects);
     }
 
@@ -58,27 +58,27 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
         monitor.beginTask("Refresh selected Gradle projects", 2);
         try {
             // find the root projects related to the selection and reload their model
-            Set<OmniEclipseGradleBuild> gradleBuilds = reloadRootEclipseModels(new SubProgressMonitor(monitor, 1));
-            updateAllProjects(collectAllGradleProjectsFromAllBuilds(gradleBuilds), new SubProgressMonitor(monitor, 1));
+            Set<OmniEclipseGradleBuild> gradleBuilds = reloadGradleBuildModels(new SubProgressMonitor(monitor, 1));
+            updateWorkspaceProjects(collectAllGradleProjectsFromAllBuilds(gradleBuilds), new SubProgressMonitor(monitor, 1));
         } finally {
             monitor.done();
         }
     }
 
-    private Set<OmniEclipseGradleBuild> reloadRootEclipseModels(IProgressMonitor monitor) {
+    private Set<OmniEclipseGradleBuild> reloadGradleBuildModels(IProgressMonitor monitor) {
         monitor.beginTask("Reload Eclipse Gradle projects", IProgressMonitor.UNKNOWN);
         try {
-            return reloadEclipseModels();
+            return forceReloadGradleBuildModels();
         } finally {
             monitor.done();
         }
     }
 
-    private void updateAllProjects(List<OmniEclipseProject> gradleProjects, IProgressMonitor monitor) {
+    private void updateWorkspaceProjects(List<OmniEclipseProject> gradleProjects, IProgressMonitor monitor) {
         monitor.beginTask("Update projects", gradleProjects.size());
         try {
             for (OmniEclipseProject gradleProject : gradleProjects) {
-                update(gradleProject);
+                updateWorkspaceProject(gradleProject);
                 monitor.worked(1);
             }
         } finally {
@@ -86,7 +86,7 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
         }
     }
 
-    private Set<OmniEclipseGradleBuild> reloadEclipseModels() {
+    private Set<OmniEclipseGradleBuild> forceReloadGradleBuildModels() {
         Set<FixedRequestAttributes> attributesFromConfiguration = readRequestAttributesFromProjectConfiguration(this.projects);
         return FluentIterable.from(attributesFromConfiguration).transform(new Function<FixedRequestAttributes, OmniEclipseGradleBuild>() {
 
@@ -100,8 +100,8 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
         }).toSet();
     }
 
-    private void update(OmniEclipseProject modelProject) {
-        Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(modelProject.getProjectDirectory());
+    private void updateWorkspaceProject(OmniEclipseProject gradleProject) {
+        Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(gradleProject.getProjectDirectory());
         if (workspaceProject.isPresent()) {
             try {
                 if (workspaceProject.get().hasNature(JavaCore.NATURE_ID)) {
