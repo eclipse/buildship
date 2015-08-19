@@ -96,10 +96,10 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
             public OmniEclipseGradleBuild apply(final FixedRequestAttributes requestAttributes) {
                 ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
                 ImmutableList<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
-                TransientRequestAttributes transientRequestAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), listeners,
+                TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), listeners,
                         ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
                 ModelRepositoryProvider repository = CorePlugin.modelRepositoryProvider();
-                return repository.getModelRepository(requestAttributes).fetchEclipseGradleBuild(transientRequestAttributes, FetchStrategy.FORCE_RELOAD);
+                return repository.getModelRepository(requestAttributes).fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FORCE_RELOAD);
             }
         }).toSet();
     }
