@@ -38,6 +38,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 
 /**
@@ -68,7 +69,7 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
     private Set<OmniEclipseGradleBuild> reloadGradleBuildModels(IProgressMonitor monitor) {
         monitor.beginTask("Reload Eclipse Gradle projects", IProgressMonitor.UNKNOWN);
         try {
-            return forceReloadGradleBuildModels();
+            return forceReloadGradleBuildModels(monitor);
         } finally {
             monitor.done();
         }
@@ -86,16 +87,18 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
         }
     }
 
-    private Set<OmniEclipseGradleBuild> forceReloadGradleBuildModels() {
+    private Set<OmniEclipseGradleBuild> forceReloadGradleBuildModels(final IProgressMonitor monitor) {
         Set<FixedRequestAttributes> attributesFromConfiguration = readRequestAttributesFromProjectConfiguration(this.projects);
         return FluentIterable.from(attributesFromConfiguration).transform(new Function<FixedRequestAttributes, OmniEclipseGradleBuild>() {
 
             @Override
             public OmniEclipseGradleBuild apply(final FixedRequestAttributes requestAttributes) {
                 ProcessStreams stream = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
+                DelegatingProgressListener listener = new DelegatingProgressListener(monitor);
                 return CorePlugin.modelRepositoryProvider().getModelRepository(requestAttributes)
                         .fetchEclipseGradleBuild(new TransientRequestAttributes(false, stream.getOutput(), stream.getError(), stream.getInput(),
-                                ImmutableList.<ProgressListener>of(), ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken()), FetchStrategy.FORCE_RELOAD);
+                                ImmutableList.<ProgressListener>of(listener), ImmutableList.<org.gradle.tooling.events.ProgressListener>of(),
+                                getToken()), FetchStrategy.FORCE_RELOAD);
             }
         }).toSet();
     }
