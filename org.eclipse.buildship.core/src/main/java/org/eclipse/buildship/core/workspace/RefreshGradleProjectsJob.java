@@ -89,6 +89,7 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
     }
 
     private Set<OmniEclipseGradleBuild> forceReloadGradleBuildModels(final IProgressMonitor monitor) {
+        // todo (etst) can happen in parallel
         Set<FixedRequestAttributes> rootProjectConfigurations = getUniqueRootProjectConfigurations(this.projects);
         return FluentIterable.from(rootProjectConfigurations).transform(new Function<FixedRequestAttributes, OmniEclipseGradleBuild>() {
 
@@ -120,6 +121,7 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
     }
 
     private static Set<FixedRequestAttributes> getUniqueRootProjectConfigurations(List<IProject> projects) {
+        // todo (etst) filter for projects with java and gradle nature
         return FluentIterable.from(projects).transform(new Function<IProject, FixedRequestAttributes>() {
 
             @Override
