@@ -57,7 +57,7 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
 
     @Override
     protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
-        monitor.beginTask("Refresh selected Gradle projects", 2);
+        monitor.beginTask("Refresh selected Gradle projects in workspace", 2);
         try {
             // find the root projects related to the selection and reload their model
             Set<OmniEclipseGradleBuild> eclipseGradleBuilds = reloadEclipseGradleBuilds(new SubProgressMonitor(monitor, 1));
@@ -69,7 +69,7 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
     }
 
     private Set<OmniEclipseGradleBuild> reloadEclipseGradleBuilds(IProgressMonitor monitor) {
-        monitor.beginTask("Reload Eclipse Gradle projects", IProgressMonitor.UNKNOWN);
+        monitor.beginTask("Reload selected Gradle projects from Gradle", IProgressMonitor.UNKNOWN);
         try {
             return forceReloadEclipseGradleBuilds(monitor);
         } finally {
@@ -78,7 +78,7 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
     }
 
     private void updateWorkspaceProjects(List<OmniEclipseProject> gradleProjects, IProgressMonitor monitor) {
-        monitor.beginTask("Update projects", gradleProjects.size());
+        monitor.beginTask("Update selected Gradle projects in workspace", gradleProjects.size());
         try {
             for (OmniEclipseProject gradleProject : gradleProjects) {
                 updateWorkspaceProject(gradleProject);
