@@ -98,7 +98,9 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
         monitor.beginTask("Update selected Gradle projects in workspace", gradleProjects.size());
         try {
             for (OmniEclipseProject gradleProject : gradleProjects) {
-                updateWorkspaceProject(gradleProject);
+                // todo (etst) do not abort if one of the projects throws an exception but continue, throw all exceptions at the end
+                // todo (etst) enhance ToolingApiInvoker.invoke() to deal with multi-exception
+                updateProjectInWorkspace(gradleProject);
                 monitor.worked(1);
             }
         } finally {
@@ -106,8 +108,7 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
         }
     }
 
-    private void updateWorkspaceProject(OmniEclipseProject gradleProject) {
-        // todo (etst) do not abort if one of the projects throws an exception but continue
+    private void updateProjectInWorkspace(OmniEclipseProject gradleProject) {
         // todo (donat) the update mechanism should be extended to non-java projects too
         Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(gradleProject.getProjectDirectory());
         if (workspaceProject.isPresent()) {
