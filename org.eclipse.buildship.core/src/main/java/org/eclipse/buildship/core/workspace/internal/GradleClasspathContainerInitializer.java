@@ -81,7 +81,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
             @Override
             protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
-                monitor.beginTask("Initializing classpath", 2);
+                monitor.beginTask("Initializing classpath", 100);
 
                 // use the same rule as the ProjectImportJob to do the initialization
                 IJobManager manager = Job.getJobManager();
@@ -99,17 +99,17 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
     private void internalInitialize(IJavaProject javaProject, IProgressMonitor monitor) throws CoreException {
         IProject project = javaProject.getProject();
         Optional<OmniEclipseProject> gradleProject = findEclipseProject(project);
-        monitor.worked(1);
+        monitor.worked(70);
         if (gradleProject.isPresent()) {
             if (project.isAccessible()) {
                 // update linked resources
-                LinkedResourcesUpdater.update(project, gradleProject.get().getLinkedResources(), new SubProgressMonitor(monitor, 1));
+                LinkedResourcesUpdater.update(project, gradleProject.get().getLinkedResources(), new SubProgressMonitor(monitor, 10));
 
                 // update the sources
-                SourceFolderUpdater.update(javaProject, gradleProject.get().getSourceDirectories(), new SubProgressMonitor(monitor, 1));
+                SourceFolderUpdater.update(javaProject, gradleProject.get().getSourceDirectories(), new SubProgressMonitor(monitor, 10));
 
                 // update project/external dependencies
-                ClasspathContainerUpdater.update(javaProject, gradleProject.get(), new Path(GradleClasspathContainer.CONTAINER_ID), new SubProgressMonitor(monitor, 1));
+                ClasspathContainerUpdater.update(javaProject, gradleProject.get(), new Path(GradleClasspathContainer.CONTAINER_ID), new SubProgressMonitor(monitor, 10));
             }
         } else {
             throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", project));
