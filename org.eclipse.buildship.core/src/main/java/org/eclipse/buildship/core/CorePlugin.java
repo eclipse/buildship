@@ -15,8 +15,10 @@ package org.eclipse.buildship.core;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -26,6 +28,8 @@ import com.gradleware.tooling.toolingmodel.repository.Environment;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProviderFactory;
 
+import org.eclipse.core.net.proxy.IProxyService;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 
 import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
@@ -75,6 +79,7 @@ public final class CorePlugin extends Plugin {
     private ServiceRegistration gradleLaunchConfigurationService;
     private ServiceRegistration listenerRegistryService;
     private ServiceRegistration userNotificationService;
+    private ServiceRegistration proxyService;
 
     // service tracker for each service to allow to register other service implementations of the
     // same type but with higher prioritization, useful for testing
@@ -88,6 +93,7 @@ public final class CorePlugin extends Plugin {
     private ServiceTracker gradleLaunchConfigurationServiceTracker;
     private ServiceTracker listenerRegistryServiceTracker;
     private ServiceTracker userNotificationServiceTracker;
+    private ServiceTracker proxyServiceTracker;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
@@ -121,6 +127,7 @@ public final class CorePlugin extends Plugin {
         this.gradleLaunchConfigurationServiceTracker = createServiceTracker(context, GradleLaunchConfigurationManager.class);
         this.listenerRegistryServiceTracker = createServiceTracker(context, ListenerRegistry.class);
         this.userNotificationServiceTracker = createServiceTracker(context, UserNotification.class);
+        this.proxyServiceTracker = createServiceTracker(context, IProxyService.class);
 
         // register all services
         this.loggerService = registerService(context, Logger.class, createLogger(), preferences);
@@ -133,6 +140,7 @@ public final class CorePlugin extends Plugin {
         this.gradleLaunchConfigurationService = registerService(context, GradleLaunchConfigurationManager.class, createGradleLaunchConfigurationManager(), preferences);
         this.listenerRegistryService = registerService(context, ListenerRegistry.class, createListenerRegistry(), preferences);
         this.userNotificationService = registerService(context, UserNotification.class, createUserNotification(), preferences);
+        this.proxyService = registerService(context, IProxyService.class, retrieveProxyService(), preferences);
     }
 
     private ServiceTracker createServiceTracker(BundleContext context, Class<?> clazz) {
@@ -187,7 +195,24 @@ public final class CorePlugin extends Plugin {
         return new ConsoleUserNotification();
     }
 
+    private IProxyService retrieveProxyService() {
+        // https://resheim.net/2008/10/connecting-through-proxy.html
+        final String CORE_NET_BUNDLE = "org.eclipse.core.net";
+        Bundle bundle = Platform.getBundle(CORE_NET_BUNDLE);
+        ServiceReference ref = bundle.getBundleContext().getServiceReference(IProxyService.class.getName());
+
+        if (ref != null) {
+           IProxyService proxyService = (IProxyService) bundle.getBundleContext().getService(ref);
+           proxyService.setProxiesEnabled(true);
+           proxyService.setSystemProxiesEnabled(false);
+           return proxyService;
+        }
+
+        return null;
+    }
+
     private void unregisterServices() {
+        this.proxyService.unregister();
         this.userNotificationService.unregister();
         this.listenerRegistryService.unregister();
         this.gradleLaunchConfigurationService.unregister();
@@ -199,6 +224,7 @@ public final class CorePlugin extends Plugin {
         this.publishedGradleVersionsService.unregister();
         this.loggerService.unregister();
 
+        this.proxyServiceTracker.close();
         this.userNotificationServiceTracker.close();
         this.listenerRegistryServiceTracker.close();
         this.gradleLaunchConfigurationServiceTracker.close();
@@ -253,6 +279,10 @@ public final class CorePlugin extends Plugin {
 
     public static UserNotification userNotification() {
         return (UserNotification) getInstance().userNotificationServiceTracker.getService();
+    }
+
+    public static IProxyService getProxyService() {
+        return (IProxyService) getInstance().proxyServiceTracker.getService();
     }
 
 }

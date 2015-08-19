@@ -10,6 +10,7 @@ Comment: junit has to be a required bundle, otherwise the tests won't launch for
 Require-Bundle: org.eclipse.swtbot.eclipse.finder,
  org.eclipse.swtbot.junit4_x,
  org.junit,
+ org.eclipse.core.net,
  org.apache.log4j
 Bundle-ClassPath: .,
  lib/cglib-nodep-3.1.jar,
