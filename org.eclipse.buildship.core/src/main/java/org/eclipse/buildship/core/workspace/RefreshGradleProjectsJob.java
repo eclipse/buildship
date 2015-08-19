@@ -60,7 +60,7 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
         monitor.beginTask("Refresh selected Gradle projects", 2);
         try {
             // find the root projects related to the selection and reload their model
-            Set<OmniEclipseGradleBuild> eclipseGradleBuilds = reloadGradleBuildModels(new SubProgressMonitor(monitor, 1));
+            Set<OmniEclipseGradleBuild> eclipseGradleBuilds = reloadEclipseGradleBuilds(new SubProgressMonitor(monitor, 1));
             List<OmniEclipseProject> gradleProjectsToUpdate = collectAllGradleProjectsFromAllBuilds(eclipseGradleBuilds);
             updateWorkspaceProjects(gradleProjectsToUpdate, new SubProgressMonitor(monitor, 1));
         } finally {
@@ -68,10 +68,10 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
         }
     }
 
-    private Set<OmniEclipseGradleBuild> reloadGradleBuildModels(IProgressMonitor monitor) {
+    private Set<OmniEclipseGradleBuild> reloadEclipseGradleBuilds(IProgressMonitor monitor) {
         monitor.beginTask("Reload Eclipse Gradle projects", IProgressMonitor.UNKNOWN);
         try {
-            return forceReloadGradleBuildModels(monitor);
+            return forceReloadEclipseGradleBuilds(monitor);
         } finally {
             monitor.done();
         }
@@ -89,7 +89,7 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
         }
     }
 
-    private Set<OmniEclipseGradleBuild> forceReloadGradleBuildModels(final IProgressMonitor monitor) {
+    private Set<OmniEclipseGradleBuild> forceReloadEclipseGradleBuilds(final IProgressMonitor monitor) {
         // todo (etst) can happen in parallel
         Set<FixedRequestAttributes> rootProjectConfigurations = getUniqueRootProjectConfigurations(this.projects);
         return FluentIterable.from(rootProjectConfigurations).transform(new Function<FixedRequestAttributes, OmniEclipseGradleBuild>() {
