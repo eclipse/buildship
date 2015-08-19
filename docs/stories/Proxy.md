@@ -23,22 +23,15 @@ Gradle defines hard-coded places where it loads the proxy settings from (in asce
 - In the system properties
 If we get the proxy settings from these locations, we can configure Buildship before accessing the tooling API.
 
-Buildship should consider having mixed preferences from Eclipse and Gradle. For example if the password is defined in Eclipse but not in Gradle it should be combined. Upon overlapping preferences Eclipse should win.
+Buildship should set the proxy setting if anything defined in the Eclipse preferences and ignore the settings from Gradle.
 
 #### Implementation plan
 1. Collect preferences from Eclipse
-2. Collect preferences from Gradle
-3. Add logic to combine Eclipse and Gradle preferences
-4. Set the proxy setting as system properties before a `ToolingApiJob` or `ToolingApiWorkspaceJob` instance is scheduled and the revert them when finished
-5. Specify the proxy settings as default JVM arguments for all `ToolingApiJob` and `ToolingApiWorkspaceJob` instances
+2. Set the proxy setting as system properties before a `ToolingApiJob` or `ToolingApiWorkspaceJob` instance is scheduled and the revert them when finished
+3. Specify the proxy settings as default JVM arguments for all `ToolingApiJob` and `ToolingApiWorkspaceJob` instances
 
 #### Test Cases
 - Simple tests for collecting preferences
-- Preference combination
-  - Grade: no properties, Eclipse: no properties
-  - Gradle: http, Eclipse: https (and vica versa)
-  - Gradle: http(s) with no password specified, Eclipse: same http(s) server with password specified (and vica versa)
-  - Gradle and Eclipse specifies a different host/port/exclusion list for a protocol
 - Test if the system properties are temporary changed when the jobs are running
 - Test if the JVM arguments are automatically set when proxy settings are available
 - Verify that subsequent build can have different proxy settings (~the daemon could cache the settings by reading the system properties only at startup)
