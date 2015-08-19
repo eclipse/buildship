@@ -78,7 +78,7 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
     }
 
     private Set<OmniEclipseGradleBuild> forceReloadEclipseGradleBuilds(final IProgressMonitor monitor) {
-        // todo (etst) can happen in parallel
+        // todo (etst) call in parallel and update workspace right away for each reloaded gradle build
         Set<FixedRequestAttributes> rootProjectConfigurations = getUniqueRootProjectConfigurations(this.projects);
         return FluentIterable.from(rootProjectConfigurations).transform(new Function<FixedRequestAttributes, OmniEclipseGradleBuild>() {
 
@@ -105,7 +105,6 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
             monitor.done();
         }
     }
-
 
     private void updateWorkspaceProject(OmniEclipseProject gradleProject) {
         // todo (etst) do not abort if one of the projects throws an exception but continue
