@@ -77,18 +77,6 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
         }
     }
 
-    private void updateWorkspaceProjects(List<OmniEclipseProject> gradleProjects, IProgressMonitor monitor) {
-        monitor.beginTask("Update selected Gradle projects in workspace", gradleProjects.size());
-        try {
-            for (OmniEclipseProject gradleProject : gradleProjects) {
-                updateWorkspaceProject(gradleProject);
-                monitor.worked(1);
-            }
-        } finally {
-            monitor.done();
-        }
-    }
-
     private Set<OmniEclipseGradleBuild> forceReloadEclipseGradleBuilds(final IProgressMonitor monitor) {
         // todo (etst) can happen in parallel
         Set<FixedRequestAttributes> rootProjectConfigurations = getUniqueRootProjectConfigurations(this.projects);
@@ -106,15 +94,28 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
         }).toSet();
     }
 
+    private void updateWorkspaceProjects(List<OmniEclipseProject> gradleProjects, IProgressMonitor monitor) {
+        monitor.beginTask("Update selected Gradle projects in workspace", gradleProjects.size());
+        try {
+            for (OmniEclipseProject gradleProject : gradleProjects) {
+                updateWorkspaceProject(gradleProject);
+                monitor.worked(1);
+            }
+        } finally {
+            monitor.done();
+        }
+    }
+
+
     private void updateWorkspaceProject(OmniEclipseProject gradleProject) {
+        // TODO (donat) the update mechanism should be extended to non-java projects too
         Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(gradleProject.getProjectDirectory());
         if (workspaceProject.isPresent()) {
             try {
                 if (workspaceProject.get().hasNature(JavaCore.NATURE_ID)) {
-                    IJavaProject workspacejavaProject = JavaCore.create(workspaceProject.get());
-                    GradleClasspathContainer.requestUpdateOf(workspacejavaProject);
+                    IJavaProject javaProject = JavaCore.create(workspaceProject.get());
+                    GradleClasspathContainer.requestUpdateOf(javaProject);
                 }
-                // TODO (donat) the update mechanism should be extended to non-java projects too
             } catch (CoreException e) {
                 throw new GradlePluginsRuntimeException(e);
             }
