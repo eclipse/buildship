@@ -11,14 +11,22 @@
 
 package org.eclipse.buildship.core.workspace;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
+import org.gradle.tooling.ProgressListener;
+
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -29,8 +37,8 @@ import org.eclipse.jdt.core.JavaCore;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
-import org.eclipse.buildship.core.workspace.internal.EclipseGradleBuildModelReloader;
 
 /**
  * Finds the root projects for the selection and issues a classpath update on each related workspace
@@ -50,58 +58,88 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
         monitor.beginTask("Refresh selected Gradle projects", 2);
         try {
             // find the root projects related to the selection and reload their model
-            ImmutableSet<OmniEclipseGradleBuild> gradleBuilds = EclipseGradleBuildModelReloader.from(this.projects, getToken()).reloadRootEclipseModels();
-            monitor.worked(1);
-            updateAllProjects(gradleBuilds, countProjects(gradleBuilds), new SubProgressMonitor(monitor, 1));
+            Set<OmniEclipseGradleBuild> gradleBuilds = reloadRootEclipseModels(new SubProgressMonitor(monitor, 1));
+            updateAllProjects(collectAllGradleProjectsFromAllBuilds(gradleBuilds), new SubProgressMonitor(monitor, 1));
         } finally {
             monitor.done();
         }
     }
 
-    private int countProjects(ImmutableSet<OmniEclipseGradleBuild> gradleBuilds) {
-        int result = 0;
-        for (OmniEclipseGradleBuild gradleBuild : gradleBuilds) {
-            result += gradleBuild.getRootProject().getAll().size();
+    private Set<OmniEclipseGradleBuild> reloadRootEclipseModels(IProgressMonitor monitor) {
+        monitor.beginTask("Reload Eclipse Gradle projects", IProgressMonitor.UNKNOWN);
+        try {
+            return reloadEclipseModels();
+        } finally {
+            monitor.done();
         }
-        return result;
     }
 
-    private void updateAllProjects(ImmutableSet<OmniEclipseGradleBuild> gradleBuilds, int numberOfAllProjects, IProgressMonitor monitor) {
-        monitor.beginTask("Refresh projects", numberOfAllProjects);
+    private void updateAllProjects(List<OmniEclipseProject> gradleProjects, IProgressMonitor monitor) {
+        monitor.beginTask("Update projects", gradleProjects.size());
         try {
-            for (OmniEclipseGradleBuild gradleBuild : gradleBuilds) {
-                updateProjectsRecursively(gradleBuild.getRootEclipseProject(), monitor);
+            for (OmniEclipseProject gradleProject : gradleProjects) {
+                update(gradleProject);
+                monitor.worked(1);
             }
         } finally {
             monitor.done();
         }
     }
 
-    private void updateProjectsRecursively(OmniEclipseProject project, IProgressMonitor monitor) {
-        monitor.subTask(project.getName());
-        update(project);
-        monitor.worked(1);
-        for (OmniEclipseProject child : project.getChildren()) {
-            updateProjectsRecursively(child, monitor);
-        }
+    private Set<OmniEclipseGradleBuild> reloadEclipseModels() {
+        Set<FixedRequestAttributes> attributesFromConfiguration = readRequestAttributesFromProjectConfiguration(this.projects);
+        return FluentIterable.from(attributesFromConfiguration).transform(new Function<FixedRequestAttributes, OmniEclipseGradleBuild>() {
+
+            @Override
+            public OmniEclipseGradleBuild apply(final FixedRequestAttributes requestAttributes) {
+                ProcessStreams stream = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
+                return CorePlugin.modelRepositoryProvider().getModelRepository(requestAttributes)
+                        .fetchEclipseGradleBuild(new TransientRequestAttributes(false, stream.getOutput(), stream.getError(), stream.getInput(),
+                                ImmutableList.<ProgressListener>of(), ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken()), FetchStrategy.FORCE_RELOAD);
+            }
+        }).toSet();
     }
 
     private void update(OmniEclipseProject modelProject) {
         Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(modelProject.getProjectDirectory());
         if (workspaceProject.isPresent()) {
-            update(modelProject, workspaceProject.get());
+            try {
+                if (workspaceProject.get().hasNature(JavaCore.NATURE_ID)) {
+                    IJavaProject workspacejavaProject = JavaCore.create(workspaceProject.get());
+                    GradleClasspathContainer.requestUpdateOf(workspacejavaProject);
+                }
+                // TODO (donat) the update mechanism should be extended to non-java projects too
+            } catch (CoreException e) {
+                throw new GradlePluginsRuntimeException(e);
+            }
         }
     }
 
-    private void update(OmniEclipseProject modelProject, IProject workspaceProject) {
-        try {
-            if (workspaceProject.hasNature(JavaCore.NATURE_ID)) {
-                IJavaProject workspacejavaProject = JavaCore.create(workspaceProject);
-                GradleClasspathContainer.requestUpdateOf(workspacejavaProject);
+    private static Set<FixedRequestAttributes> readRequestAttributesFromProjectConfiguration(List<IProject> projects) {
+        return FluentIterable.from(projects).transform(new Function<IProject, FixedRequestAttributes>() {
+
+            @Override
+            public FixedRequestAttributes apply(IProject project) {
+                return CorePlugin.projectConfigurationManager().readProjectConfiguration(project).getRequestAttributes();
             }
-            // TODO (donat) the update mechanism should be extended to non-java projects too
-        } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(e);
+        }).toSet();
+    }
+
+    private static List<OmniEclipseProject> collectAllGradleProjectsFromAllBuilds(Collection<OmniEclipseGradleBuild> builds) {
+        ImmutableList.Builder<OmniEclipseProject> result = new ImmutableList.Builder<OmniEclipseProject>();
+
+        for (OmniEclipseGradleBuild build : builds) {
+            result.addAll(collectAllGradleProjectsRecursively(build.getRootEclipseProject()));
         }
+        return result.build();
+    }
+
+    private static List<OmniEclipseProject> collectAllGradleProjectsRecursively(OmniEclipseProject project) {
+        ImmutableList.Builder<OmniEclipseProject> result = new ImmutableList.Builder<OmniEclipseProject>();
+        result.add(project);
+        for (OmniEclipseProject child : project.getChildren()) {
+            result.addAll(collectAllGradleProjectsRecursively(child));
+        }
+        return result.build();
     }
 }
