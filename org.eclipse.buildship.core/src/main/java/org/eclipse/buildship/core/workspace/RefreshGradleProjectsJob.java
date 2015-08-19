@@ -60,8 +60,9 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
         monitor.beginTask("Refresh selected Gradle projects", 2);
         try {
             // find the root projects related to the selection and reload their model
-            Set<OmniEclipseGradleBuild> gradleBuilds = reloadGradleBuildModels(new SubProgressMonitor(monitor, 1));
-            updateWorkspaceProjects(collectAllGradleProjectsFromAllBuilds(gradleBuilds), new SubProgressMonitor(monitor, 1));
+            Set<OmniEclipseGradleBuild> eclipseGradleBuilds = reloadGradleBuildModels(new SubProgressMonitor(monitor, 1));
+            List<OmniEclipseProject> gradleProjectsToUpdate = collectAllGradleProjectsFromAllBuilds(eclipseGradleBuilds);
+            updateWorkspaceProjects(gradleProjectsToUpdate, new SubProgressMonitor(monitor, 1));
         } finally {
             monitor.done();
         }
@@ -131,21 +132,12 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
         }).toSet();
     }
 
-    private static List<OmniEclipseProject> collectAllGradleProjectsFromAllBuilds(Collection<OmniEclipseGradleBuild> builds) {
+    private static List<OmniEclipseProject> collectAllGradleProjectsFromAllBuilds(Collection<OmniEclipseGradleBuild> eclipseGradleBuilds) {
         ImmutableList.Builder<OmniEclipseProject> result = new ImmutableList.Builder<OmniEclipseProject>();
-
-        for (OmniEclipseGradleBuild build : builds) {
-            result.addAll(collectAllGradleProjectsRecursively(build.getRootEclipseProject()));
+        for (OmniEclipseGradleBuild build : eclipseGradleBuilds) {
+            result.addAll(build.getRootEclipseProject().getAll());
         }
         return result.build();
     }
 
-    private static List<OmniEclipseProject> collectAllGradleProjectsRecursively(OmniEclipseProject project) {
-        ImmutableList.Builder<OmniEclipseProject> result = new ImmutableList.Builder<OmniEclipseProject>();
-        result.add(project);
-        for (OmniEclipseProject child : project.getChildren()) {
-            result.addAll(collectAllGradleProjectsRecursively(child));
-        }
-        return result.build();
-    }
 }
