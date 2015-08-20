@@ -50,6 +50,8 @@ import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
  */
 public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
 
+    // todo (etst) we should also support removing and adding projects during the refresh
+
     private static final Predicate<IProject> ACCESSIBLE_GRADLE_JAVA_PROJECT = new Predicate<IProject>() {
 
         @Override
