@@ -276,7 +276,7 @@
           name="com.google.gson"
           versionRange="2.2.4"/>
       <requirement
-          name="org.eclipse.buildship.orbit.stagining.feature.group"/>
+          name="org.eclipse.buildship.orbit.staging.feature.group"/>
       <repositoryList
           name="Mars">
         <repository
