@@ -11,11 +11,11 @@
 
 package org.eclipse.buildship.core.workspace;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Function;
@@ -23,11 +23,13 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
@@ -39,6 +41,7 @@ import org.eclipse.jdt.core.JavaCore;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.MultiRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
@@ -86,41 +89,59 @@ public final class RefreshGradleProjectsJob extends ToolingApiWorkspaceJob {
 
     private Set<OmniEclipseGradleBuild> reloadEclipseGradleBuilds(IProgressMonitor monitor) {
         monitor.beginTask("Reload selected Gradle projects from Gradle", IProgressMonitor.UNKNOWN);
+        List<RuntimeException> exceptions = new ArrayList<RuntimeException>();
         try {
-            return forceReloadEclipseGradleBuilds(monitor);
+            // todo (etst) call in parallel and update workspace right away for each reloaded gradle build
+            ImmutableSet.Builder<OmniEclipseGradleBuild> result = ImmutableSet.builder();
+            for (FixedRequestAttributes requestAttributes : getUniqueRootProjectConfigurations(this.projects)) {
+                try {
+                    result.add(forceReloadEclipseGradleBuild(requestAttributes, monitor));
+                } catch (RuntimeException e) {
+                    exceptions.add(e);
+                }
+            }
+            return result.build();
         } finally {
             monitor.done();
+            rethrowExceptionsIfAny(exceptions);
         }
     }
 
-    private Set<OmniEclipseGradleBuild> forceReloadEclipseGradleBuilds(final IProgressMonitor monitor) {
-        // todo (etst) call in parallel and update workspace right away for each reloaded gradle build
-        Set<FixedRequestAttributes> rootProjectConfigurations = getUniqueRootProjectConfigurations(this.projects);
-        return FluentIterable.from(rootProjectConfigurations).transform(new Function<FixedRequestAttributes, OmniEclipseGradleBuild>() {
+    private OmniEclipseGradleBuild forceReloadEclipseGradleBuild(FixedRequestAttributes requestAttributes, final IProgressMonitor monitor) {
+        ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
+        ImmutableList<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
+        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), listeners,
+                ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
+        ModelRepositoryProvider repository = CorePlugin.modelRepositoryProvider();
+        return repository.getModelRepository(requestAttributes).fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FORCE_RELOAD);
+    }
 
-            @Override
-            public OmniEclipseGradleBuild apply(final FixedRequestAttributes requestAttributes) {
-                ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-                ImmutableList<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
-                TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), listeners,
-                        ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
-                ModelRepositoryProvider repository = CorePlugin.modelRepositoryProvider();
-                return repository.getModelRepository(requestAttributes).fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FORCE_RELOAD);
-            }
-        }).toSet();
+    private void rethrowExceptionsIfAny(List<RuntimeException> exceptions) {
+        if (exceptions.size() == 1) {
+            throw exceptions.get(0);
+        } else if (exceptions.size() > 1) {
+            throw new MultiRuntimeException(exceptions);
+        }
     }
 
     private void updateWorkspaceProjects(List<OmniEclipseProject> gradleProjects, IProgressMonitor monitor) {
         monitor.beginTask("Update selected Gradle projects in workspace", gradleProjects.size());
+        List<RuntimeException> exceptions = new ArrayList<RuntimeException>();
         try {
             for (OmniEclipseProject gradleProject : gradleProjects) {
                 // todo (etst) do not abort if one of the projects throws an exception but continue, throw all exceptions at the end
                 // todo (etst) enhance ToolingApiInvoker.invoke() to deal with multi-exception
-                updateProjectInWorkspace(gradleProject);
-                monitor.worked(1);
+                try {
+                    updateProjectInWorkspace(gradleProject);
+                } catch (GradlePluginsRuntimeException e) {
+                    exceptions.add(e);
+                } finally {
+                    monitor.worked(1);
+                }
             }
         } finally {
             monitor.done();
+            rethrowExceptionsIfAny(exceptions);
         }
     }
 

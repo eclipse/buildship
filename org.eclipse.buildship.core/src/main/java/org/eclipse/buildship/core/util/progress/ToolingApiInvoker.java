@@ -11,22 +11,27 @@
 
 package org.eclipse.buildship.core.util.progress;
 
+import java.util.List;
+
+import org.gradle.tooling.BuildCancelledException;
+import org.gradle.tooling.BuildException;
+import org.gradle.tooling.GradleConnectionException;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.util.string.StringUtils;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
-import org.gradle.tooling.BuildCancelledException;
-import org.gradle.tooling.BuildException;
-import org.gradle.tooling.GradleConnectionException;
 
-import java.util.List;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.MultiRuntimeException;
+import org.eclipse.buildship.core.util.string.StringUtils;
 
 /**
  * Invokes the Tooling API and handles any thrown exceptions as specifically as possible.
@@ -61,6 +66,8 @@ public final class ToolingApiInvoker {
             return handleGradleConnectionFailed(e);
         } catch (GradlePluginsRuntimeException e) {
             return handlePluginFailed(e);
+        } catch (MultiRuntimeException e) {
+            return handleMultiException(e);
         } catch (Throwable t) {
             return handleUnknownFailed(t);
         } finally {
@@ -109,6 +116,15 @@ public final class ToolingApiInvoker {
         return createInfoStatus(message, e);
     }
 
+    private IStatus handleMultiException(MultiRuntimeException e) {
+        // if the exception was thrown by Buildship it should be shown and logged
+        String message = String.format("%s failed due to an error configuring Eclipse.", this.workName);
+        CorePlugin.logger().error(message, e);
+        // TODO (donat) we should display a summary for all exceptions
+        CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(e.getExceptions().get(0)), IStatus.ERROR, e);
+        return createMultiInfoStatus(message, e);
+    }
+
     private IStatus handleUnknownFailed(Throwable t) {
         // if an unexpected exception was thrown it should be shown and logged
         String message = String.format("%s failed due to an unexpected error.", this.workName);
@@ -140,6 +156,14 @@ public final class ToolingApiInvoker {
 
     private static Status createInfoStatus(String message, Throwable t) {
         return new Status(IStatus.INFO, CorePlugin.PLUGIN_ID, message, t);
+    }
+
+    private static Status createMultiInfoStatus(String message, MultiRuntimeException e) {
+         MultiStatus result = new MultiStatus(CorePlugin.PLUGIN_ID, IStatus.INFO, message, null);
+         for (RuntimeException exception : e.getExceptions()) {
+             result.add(createInfoStatus(exception.getMessage(), exception));
+         }
+         return result;
     }
 
     private static Status createCancelStatus(String message, BuildCancelledException e) {
