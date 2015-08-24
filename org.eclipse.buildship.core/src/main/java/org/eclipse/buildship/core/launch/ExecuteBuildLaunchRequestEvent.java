@@ -12,11 +12,11 @@
 
 package org.eclipse.buildship.core.launch;
 
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-
+import org.eclipse.buildship.core.event.Event;
 import org.eclipse.core.runtime.jobs.Job;
 
-import org.eclipse.buildship.core.event.Event;
+import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
+import com.gradleware.tooling.toolingclient.Request;
 
 /**
  * Event informing that a {@link BuildLaunchRequest} is about to be executed. The
@@ -26,7 +26,7 @@ public interface ExecuteBuildLaunchRequestEvent extends Event {
 
     Job getBuildJob();
 
-    BuildLaunchRequest getBuildLaunchRequest();
+    Request<?> getRequest();
 
     GradleRunConfigurationAttributes getRunConfigurationAttributes();
 
