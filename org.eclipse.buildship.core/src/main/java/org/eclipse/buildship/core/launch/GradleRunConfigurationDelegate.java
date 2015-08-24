@@ -14,6 +14,7 @@ package org.eclipse.buildship.core.launch;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -21,8 +22,6 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
-
-import org.eclipse.buildship.core.CorePlugin;
 
 /**
  * Execute Gradle tasks from the run configurations.
@@ -41,7 +40,8 @@ public final class GradleRunConfigurationDelegate extends LaunchConfigurationDel
         try {
             // schedule the task
             final CountDownLatch latch = new CountDownLatch(1);
-            RunGradleConfigurationDelegateJob job = new RunGradleConfigurationDelegateJob(launch, configuration);
+            RunGradleConfigurationDelegateJob job = RunGradleConfigurationDelegateJob
+                    .createDefaultGradleConfigurationDelegateJob(launch, configuration);
             job.addJobChangeListener(new JobChangeAdapter() {
 
                 @Override
