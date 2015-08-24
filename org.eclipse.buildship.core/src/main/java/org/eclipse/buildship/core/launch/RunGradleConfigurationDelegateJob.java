@@ -220,4 +220,8 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         }
     }
 
+    public ILaunch getLaunch() {
+        return launch;
+    }
+
 }

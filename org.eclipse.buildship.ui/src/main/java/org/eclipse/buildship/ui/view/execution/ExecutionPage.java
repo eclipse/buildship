@@ -221,12 +221,14 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     }
 
     private ActionShowingContextMenuListener createContextMenuListener(TreeViewer treeViewer) {
+        RerunTestAction rerunTestAction = new RerunTestAction(this);
         ShowFailureAction showFailureAction = new ShowFailureAction(this);
         OpenTestSourceFileAction openTestSourceFileAction = new OpenTestSourceFileAction(this);
         ExpandTreeNodesAction expandNodesAction = new ExpandTreeNodesAction(treeViewer);
         CollapseTreeNodesAction collapseNodesAction = new CollapseTreeNodesAction(treeViewer);
 
-        List<SelectionSpecificAction> contextMenuActions = ImmutableList.<SelectionSpecificAction>of(showFailureAction, openTestSourceFileAction, expandNodesAction, collapseNodesAction);
+        List<SelectionSpecificAction> contextMenuActions = ImmutableList.<SelectionSpecificAction> of(rerunTestAction,
+                showFailureAction, openTestSourceFileAction, expandNodesAction, collapseNodesAction);
         List<SelectionSpecificAction> contextMenuActionsPrecededBySeparator = ImmutableList.<SelectionSpecificAction>of(openTestSourceFileAction, expandNodesAction);
         ImmutableList<SelectionSpecificAction> contextMenuActionsSucceededBySeparator = ImmutableList.of();
 
