@@ -12,9 +12,9 @@
 package org.eclipse.buildship.core.proxy
 
 import com.google.common.util.concurrent.FutureCallback
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
-import org.eclipse.core.runtime.jobs.Job;
+import java.lang.management.ManagementFactory
+import java.lang.management.RuntimeMXBean
+import org.eclipse.core.runtime.jobs.Job
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure
@@ -27,8 +27,8 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob
 import org.eclipse.buildship.core.util.progress.ToolingApiJob
 import org.eclipse.debug.core.ILaunchConfiguration
-import org.eclipse.buildship.core.launch.RunGradleConfigurationDelegateJob;
-import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager;
+import org.eclipse.buildship.core.launch.RunGradleConfigurationDelegateJob
+import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes
 
 import org.junit.Rule
@@ -42,7 +42,7 @@ import org.eclipse.buildship.core.console.ProcessStreamsProvider
 import org.eclipse.buildship.core.test.fixtures.TestEnvironment
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest
 import com.gradleware.tooling.toolingclient.ToolingClient
-import org.hamcrest.*;
+import org.hamcrest.*
 
 import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
 
@@ -114,12 +114,12 @@ class ProxySettingsTest extends ProjectImportSpecification {
                     @Override
                     protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) {
                         tempHost = System.getProperty("http.proxyHost")
-                    };
+                    }
                 }
 
         when:
         job.schedule()
-        job.join();
+        job.join()
 
         then:
         tempHost == "test-host"
@@ -137,12 +137,12 @@ class ProxySettingsTest extends ProjectImportSpecification {
                     @Override
                     protected void runToolingApiJob(IProgressMonitor monitor) {
                         tempHost = System.getProperty("http.proxyHost")
-                    };
+                    }
                 }
 
         when:
         job.schedule()
-        job.join();
+        job.join()
 
         then:
         tempHost == "test-host"
@@ -154,14 +154,14 @@ class ProxySettingsTest extends ProjectImportSpecification {
 //
 //        System.out.flush()
 //        setupTestProxyData()
-//        List<String> arguments;
+//        List<String> arguments
 //        // RunGradleConfigurationDelegateJob job = new RunGradleConfigurationDelegateJob(createLaunchMock(), createLaunchConfigurationMock())
 //        def job = new ToolingApiJob("Test") {
 //                    @Override
 //                    protected void runToolingApiJob(IProgressMonitor monitor) {
-//                        RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
-//                        arguments = runtimeMxBean.getInputArguments();
-//                    };
+//                        RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean()
+//                        arguments = runtimeMxBean.getInputArguments()
+//                    }
 //                }
 //        when:
 //        job.schedule()
@@ -182,14 +182,14 @@ class ProxySettingsTest extends ProjectImportSpecification {
     //        def firstJob = new ToolingApiJob("Test") {
     //                    @Override
     //                    protected void runToolingApiJob(IProgressMonitor monitor) {
-    //                    };
+    //                    }
     //                }
     //
     //        def secondJob = new ToolingApiJob("Test") {
     //                    @Override
     //                    protected void runToolingApiJob(IProgressMonitor monitor) {
     //                        secondTempHost = System.getProperty("http.proxyHost")
-    //                    };
+    //                    }
     //                }
     //
     //        when:
@@ -275,6 +275,6 @@ class ProxySettingsTest extends ProjectImportSpecification {
     }
 
     public static Matcher matchesNameAndVersion(String applicationName, String version) {
-        return new UserAgentMatcher(applicationName, version);
+        return new UserAgentMatcher(applicationName, version)
     }
 }
