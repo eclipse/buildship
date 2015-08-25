@@ -101,7 +101,7 @@ class DependencyExportTest extends ProjectImportSpecification {
         File location = springExampleProjectFromBug473348()
 
         when:
-        executeProjectImportAndWait(location, GradleDistribution.forVersion('2.5'))
+        executeProjectImportAndWait(location, distribution)
         waitForJobsToFinish() // wait for the compilation to be finished
 
         rebuildWorkspaceAndIndividualProjects('moduleA', 'moduleB')
