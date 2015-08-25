@@ -149,27 +149,26 @@ class ProxySettingsTest extends ProjectImportSpecification {
         System.getProperty("http.proxyHost") == permHost
     }
 
-//    def "JVM arguments are automatically set when Eclipse proxy settings are available"() {
-//        setup:
-//
-//        System.out.flush()
-//        setupTestProxyData()
-//        List<String> arguments
-//        // RunGradleConfigurationDelegateJob job = new RunGradleConfigurationDelegateJob(createLaunchMock(), createLaunchConfigurationMock())
-//        def job = new ToolingApiJob("Test") {
-//                    @Override
-//                    protected void runToolingApiJob(IProgressMonitor monitor) {
-//                        RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean()
-//                        arguments = runtimeMxBean.getInputArguments()
-//                    }
-//                }
-//        when:
-//        job.schedule()
-//        job.join()
-//
-//        then:
-//        System.out.println(">> : " + arguments)
-//    }
+    def "JVM arguments are automatically set when Eclipse proxy settings are available"() {
+        setup:
+
+        System.out.flush()
+        setupTestProxyData()
+        List<String> arguments
+        // RunGradleConfigurationDelegateJob job = new RunGradleConfigurationDelegateJob(createLaunchMock(), createLaunchConfigurationMock())
+        def job = new ToolingApiJob("Test") {
+                    @Override
+                    protected void runToolingApiJob(IProgressMonitor monitor) {
+                        System.getProperty("http.proxyHost")
+                    }
+                }
+        when:
+        job.schedule()
+        job.join()
+
+        then:
+        System.out.println(">> : " + arguments)
+    }
 
     //    def "Different proxy settings can be used by subsequent builds"() {
     //        String permHost, secondTempHost
