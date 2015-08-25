@@ -63,7 +63,6 @@ class ProxySettingsTest extends ProjectImportSpecification {
         OutputStream configurationStream = Mock(OutputStream)
         ProcessStreams processStreams = Mock(ProcessStreams)
         processStreams.getConfiguration() >> configurationStream
-
         processStreamsProvider = Mock(ProcessStreamsProvider)
         processStreamsProvider.createProcessStreams(_) >> processStreams
         processStreamsProvider.getBackgroundJobProcessStreams() >> processStreams
@@ -72,9 +71,8 @@ class ProxySettingsTest extends ProjectImportSpecification {
         TestEnvironment.registerService(ProcessStreamsProvider, processStreamsProvider)
 
         // From AbstractHttpDependencyResolutionTest
-//        server.expectUserAgent(matchesNameAndVersion("Gradle", GradleVersion.current().getVersion()))
+        // server.expectUserAgent(matchesNameAndVersion("Gradle", GradleVersion.current().getVersion()))
         server.start()
-        proxyServer.start()
     }
 
     def cleanup() {
@@ -82,11 +80,12 @@ class ProxySettingsTest extends ProjectImportSpecification {
     }
 
     def "Eclipse proxy settings are properly collected"() {
+        def proxyConfigurator = new EclipseProxySettingsSupporter()
+
         setup:
         setupTestProxyData()
 
         when:
-        def proxyConfigurator = new EclipseProxySettingsSupporter()
         proxyConfigurator.configureEclipseProxySettings()
 
         then:
@@ -99,75 +98,78 @@ class ProxySettingsTest extends ProjectImportSpecification {
         System.getProperty("https.proxyPort") == "8081"
         System.getProperty("https.proxyUser") == "test-id-https"
         System.getProperty("https.proxyPassword") == "test-password-https"
+
+        cleanup:
+        proxyConfigurator.restoreSystemProxySettings()
     }
-    //
-    //    def "System properties temporarily changed when ToolingApiWorkspaceJob is run"() {
-    //        String permHost, tempHost
-    //
-    //        setup:
-    //        permHost = "permHost"
-    //        System.setProperty("http.proxyHost", permHost)
-    //        setupTestProxyData()
-    //        def job = new ToolingApiWorkspaceJob("Test") {
-    //                    @Override
-    //                    protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) {
-    //                        tempHost = System.getProperty("http.proxyHost")
-    //                    };
-    //                }
-    //
-    //        when:
-    //        job.schedule()
-    //        job.join();
-    //
-    //        then:
-    //        tempHost == "test-host"
-    //        System.getProperty("http.proxyHost") == permHost
-    //    }
-    //
-    //    def "System properties temporarily changed when ToolingApiJob is run"() {
-    //        String permHost, tempHost
-    //
-    //        setup:
-    //        permHost = "permHost"
-    //        System.setProperty("http.proxyHost", permHost)
-    //        setupTestProxyData()
-    //        def job = new ToolingApiJob("Test") {
-    //                    @Override
-    //                    protected void runToolingApiJob(IProgressMonitor monitor) {
-    //                        tempHost = System.getProperty("http.proxyHost")
-    //                    };
-    //                }
-    //
-    //        when:
-    //        job.schedule()
-    //        job.join();
-    //
-    //        then:
-    //        tempHost == "test-host"
-    //        System.getProperty("http.proxyHost") == permHost
-    //    }
 
-    def "JVM arguments are automatically set when Eclipse proxy settings are available"() {
+    def "System properties temporarily changed when ToolingApiWorkspaceJob is run"() {
+        String permHost, tempHost
+
         setup:
-
-        System.out.flush()
+        permHost = "permHost"
+        System.setProperty("http.proxyHost", permHost)
         setupTestProxyData()
-        List<String> arguments;
-        //        RunGradleConfigurationDelegateJob job = new RunGradleConfigurationDelegateJob(createLaunchMock(), createLaunchConfigurationMock())
+        def job = new ToolingApiWorkspaceJob("Test") {
+                    @Override
+                    protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) {
+                        tempHost = System.getProperty("http.proxyHost")
+                    };
+                }
+
+        when:
+        job.schedule()
+        job.join();
+
+        then:
+        tempHost == "test-host"
+        System.getProperty("http.proxyHost") == permHost
+    }
+
+    def "System properties temporarily changed when ToolingApiJob is run"() {
+        String permHost, tempHost
+
+        setup:
+        permHost = "permHost"
+        System.setProperty("http.proxyHost", permHost)
+        setupTestProxyData()
         def job = new ToolingApiJob("Test") {
                     @Override
                     protected void runToolingApiJob(IProgressMonitor monitor) {
-                        RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
-                        arguments = runtimeMxBean.getInputArguments();
+                        tempHost = System.getProperty("http.proxyHost")
                     };
                 }
+
         when:
         job.schedule()
-        job.join()
+        job.join();
 
         then:
-        System.out.println(">> : " + arguments)
+        tempHost == "test-host"
+        System.getProperty("http.proxyHost") == permHost
     }
+
+//    def "JVM arguments are automatically set when Eclipse proxy settings are available"() {
+//        setup:
+//
+//        System.out.flush()
+//        setupTestProxyData()
+//        List<String> arguments;
+//        // RunGradleConfigurationDelegateJob job = new RunGradleConfigurationDelegateJob(createLaunchMock(), createLaunchConfigurationMock())
+//        def job = new ToolingApiJob("Test") {
+//                    @Override
+//                    protected void runToolingApiJob(IProgressMonitor monitor) {
+//                        RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
+//                        arguments = runtimeMxBean.getInputArguments();
+//                    };
+//                }
+//        when:
+//        job.schedule()
+//        job.join()
+//
+//        then:
+//        System.out.println(">> : " + arguments)
+//    }
 
     //    def "Different proxy settings can be used by subsequent builds"() {
     //        String permHost, secondTempHost
@@ -200,7 +202,17 @@ class ProxySettingsTest extends ProjectImportSpecification {
     //        secondTempHost == "test-host2"
     //        System.getProperty("http.proxyHost") == permHost
     //    }
-    //
+
+    def "Proxies are accessed upon Gradle distribution download"() {
+        setup:
+        proxyServer.start()
+
+        when:
+        proxyServer.requireAuthentication('proxyUser', 'proxyPassword')
+
+        then:
+        System.out.println proxyServer.port
+    }
 
     def "Proxies are accessed upon task exectution"() {
 
@@ -248,7 +260,6 @@ class ProxySettingsTest extends ProjectImportSpecification {
         ])
     }
 
-
     private ILaunch createLaunchMock() {
         Mock(ILaunch)
     }
@@ -263,9 +274,7 @@ class ProxySettingsTest extends ProjectImportSpecification {
         launchConfiguration
     }
 
-
     public static Matcher matchesNameAndVersion(String applicationName, String version) {
         return new UserAgentMatcher(applicationName, version);
     }
-
 }
