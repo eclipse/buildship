@@ -20,25 +20,25 @@ import com.google.common.collect.ImmutableList;
 /**
  * Describes one or more unchecked exceptions rallied in one task.
  */
-public final class MultiRuntimeException extends RuntimeException {
+public final class AggregateException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    private final List<RuntimeException> exceptions;
+    private final List<Exception> exceptions;
 
-    public MultiRuntimeException(List<? extends RuntimeException> exceptions) {
+    public AggregateException(List<? extends Exception> exceptions) {
         Preconditions.checkNotNull(exceptions);
         Preconditions.checkState(!exceptions.isEmpty());
         this.exceptions = ImmutableList.copyOf(exceptions);
     }
 
-    public List<RuntimeException> getExceptions() {
+    public List<Exception> getExceptions() {
         return this.exceptions;
     }
 
     @Override
     public void printStackTrace(PrintWriter printWriter) {
-        for (RuntimeException exception : this.exceptions) {
+        for (Exception exception : this.exceptions) {
             exception.printStackTrace(printWriter);
         }
     }
