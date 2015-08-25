@@ -18,19 +18,21 @@ import org.gradle.tooling.BuildException;
 import org.gradle.tooling.GradleConnectionException;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
 
+import org.eclipse.buildship.core.AggregateException;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.MultiRuntimeException;
 import org.eclipse.buildship.core.util.string.StringUtils;
 
 /**
@@ -66,7 +68,7 @@ public final class ToolingApiInvoker {
             return handleGradleConnectionFailed(e);
         } catch (GradlePluginsRuntimeException e) {
             return handlePluginFailed(e);
-        } catch (MultiRuntimeException e) {
+        } catch (AggregateException e) {
             return handleMultiException(e);
         } catch (Throwable t) {
             return handleUnknownFailed(t);
@@ -93,7 +95,7 @@ public final class ToolingApiInvoker {
         // put it in the error log (log as a warning instead)
         String message = String.format("%s failed due to an error in the referenced Gradle build.", this.workName);
         CorePlugin.logger().warn(message, e);
-        if (this.notifyUserAboutBuildFailures) {
+        if (shouldSendUserNotification(e)) {
             CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(e), IStatus.WARNING, e);
         }
         return createInfoStatus(message, e);
@@ -104,7 +106,9 @@ public final class ToolingApiInvoker {
         // put it in the error log (log as a warning instead)
         String message = String.format("%s failed due to an error connecting to the Gradle build.", this.workName);
         CorePlugin.logger().warn(message, e);
-        CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(e), IStatus.WARNING, e);
+        if (shouldSendUserNotification(e)) {
+            CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(e), IStatus.WARNING, e);
+        }
         return createInfoStatus(message, e);
     }
 
@@ -112,17 +116,30 @@ public final class ToolingApiInvoker {
         // if the exception was thrown by Buildship it should be shown and logged
         String message = String.format("%s failed due to an error configuring Eclipse.", this.workName);
         CorePlugin.logger().error(message, e);
-        CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(e), IStatus.ERROR, e);
+        if (shouldSendUserNotification(e)) {
+            CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(e), IStatus.ERROR, e);
+        }
         return createInfoStatus(message, e);
     }
 
-    private IStatus handleMultiException(MultiRuntimeException e) {
-        // if the exception was thrown by Buildship it should be shown and logged
-        String message = String.format("%s failed due to an error configuring Eclipse.", this.workName);
-        CorePlugin.logger().error(message, e);
-        // TODO (donat) we should display a summary for all exceptions
-        CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(e.getExceptions().get(0)), IStatus.ERROR, e);
-        return createMultiInfoStatus(message, e);
+    private IStatus handleMultiException(AggregateException e) {
+        // log all exceptions and notify the user about the first one
+        String message = String.format("%s failed due to multiple exceptions.", this.workName);
+        for (Exception exception : e.getExceptions()) {
+            CorePlugin.logger().error(message, exception);
+        }
+
+        Optional<Exception> firstException = FluentIterable.from(e.getExceptions()).firstMatch(new Predicate<Exception>() {
+
+            @Override
+            public boolean apply(Exception exception) {
+                return shouldSendUserNotification(exception);
+            }
+        });
+        if (firstException.isPresent()) {
+            CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(firstException.get()), IStatus.ERROR, e);
+        }
+        return createInfoStatus(message, e);
     }
 
     private IStatus handleUnknownFailed(Throwable t) {
@@ -131,6 +148,16 @@ public final class ToolingApiInvoker {
         CorePlugin.logger().error(message, t);
         CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(t), IStatus.ERROR, t);
         return createInfoStatus(message, t);
+    }
+
+    private boolean shouldSendUserNotification(Exception exception) {
+        if (exception instanceof BuildCancelledException) {
+            return false;
+        } else if (exception instanceof BuildException && !this.notifyUserAboutBuildFailures) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     private String collectErrorMessages(Throwable t) {
@@ -156,14 +183,6 @@ public final class ToolingApiInvoker {
 
     private static Status createInfoStatus(String message, Throwable t) {
         return new Status(IStatus.INFO, CorePlugin.PLUGIN_ID, message, t);
-    }
-
-    private static Status createMultiInfoStatus(String message, MultiRuntimeException e) {
-         MultiStatus result = new MultiStatus(CorePlugin.PLUGIN_ID, IStatus.INFO, message, null);
-         for (RuntimeException exception : e.getExceptions()) {
-             result.add(createInfoStatus(exception.getMessage(), exception));
-         }
-         return result;
     }
 
     private static Status createCancelStatus(String message, BuildCancelledException e) {
