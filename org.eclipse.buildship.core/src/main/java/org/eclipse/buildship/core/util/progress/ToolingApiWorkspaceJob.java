@@ -20,6 +20,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 
+import org.eclipse.buildship.core.proxy.EclipseProxySettingsSupporter;
+
 /**
  * Base class for cancellable workspace jobs that invoke the Gradle Tooling API.
  *
@@ -33,6 +35,7 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
     private final CancellationTokenSource tokenSource;
     private final String workName;
     private final boolean notifyUserAboutBuildFailures;
+    private final EclipseProxySettingsSupporter proxySettingsSupporter;
 
     /**
      * Creates a new job with the specified name. The job name is a human-readable value that is
@@ -59,6 +62,7 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
         this.tokenSource = GradleConnector.newCancellationTokenSource();
         this.workName = name;
         this.notifyUserAboutBuildFailures = notifyUserAboutBuildFailures;
+        this.proxySettingsSupporter = new EclipseProxySettingsSupporter();
     }
 
     protected CancellationToken getToken() {
@@ -68,10 +72,15 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
     @Override
     public final IStatus runInWorkspace(final IProgressMonitor monitor) throws CoreException {
         ToolingApiInvoker invoker = new ToolingApiInvoker(this.workName, this.notifyUserAboutBuildFailures);
+
+        this.proxySettingsSupporter.storeSystemProxySettings();
+        this.proxySettingsSupporter.configureEclipseProxySettings();
+
         return invoker.invoke(new ToolingApiCommand() {
             @Override
             public void run() throws Exception {
                 runToolingApiJobInWorkspace(monitor);
+                ToolingApiWorkspaceJob.this.proxySettingsSupporter.restoreSystemProxySettings();
             }
         }, monitor);
     }
