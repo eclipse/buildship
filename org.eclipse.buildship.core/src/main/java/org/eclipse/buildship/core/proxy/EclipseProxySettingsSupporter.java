@@ -17,10 +17,10 @@ import org.eclipse.core.net.proxy.IProxyData;
 
 import org.eclipse.buildship.core.CorePlugin;
 
-public class EclipseProxySettingsConfigurator {
+public class EclipseProxySettingsSupporter {
 
-    String currentHTTPProxyHost, currentHTTPProxyPort, currentHTTPProxyUser, currentHTTPProxyPassword;
-    String currentHTTPSProxyHost, currentHTTPSProxyPort, currentHTTPSProxyUser, currentHTTPSProxyPassword;
+    String savedHTTPProxyHost, savedHTTPProxyPort, savedHTTPProxyUser, savedHTTPProxyPassword;
+    String savedHTTPSProxyHost, savedHTTPSProxyPort, savedHTTPSProxyUser, savedHTTPSProxyPassword;
 
     public void configureEclipseProxySettings() {
         configureHTTPProxySettings();
@@ -28,28 +28,28 @@ public class EclipseProxySettingsConfigurator {
     }
 
     public void storeSystemProxySettings() {
-        this.currentHTTPProxyHost = System.getProperty("http.proxyHost");
-        this.currentHTTPProxyPort = System.getProperty("http.proxyPort");
-        this.currentHTTPProxyUser = System.getProperty("http.proxyUser");
-        this.currentHTTPProxyPassword = System.getProperty("http.proxyPassword");
+        this.savedHTTPProxyHost = System.getProperty("http.proxyHost");
+        this.savedHTTPProxyPort = System.getProperty("http.proxyPort");
+        this.savedHTTPProxyUser = System.getProperty("http.proxyUser");
+        this.savedHTTPProxyPassword = System.getProperty("http.proxyPassword");
 
-        this.currentHTTPSProxyHost = System.getProperty("https.proxyHost");
-        this.currentHTTPSProxyPort = System.getProperty("https.proxyPort");
-        this.currentHTTPSProxyUser = System.getProperty("https.proxyUser");
-        this.currentHTTPSProxyPassword = System.getProperty("https.proxyPassword");
+        this.savedHTTPSProxyHost = System.getProperty("https.proxyHost");
+        this.savedHTTPSProxyPort = System.getProperty("https.proxyPort");
+        this.savedHTTPSProxyUser = System.getProperty("https.proxyUser");
+        this.savedHTTPSProxyPassword = System.getProperty("https.proxyPassword");
     }
 
 
     public void restoreSystemProxySettings() {
-        System.setProperty("http.proxyHost", this.currentHTTPProxyHost);
-        System.setProperty("http.proxyPort", this.currentHTTPProxyPort);
-        System.setProperty("http.proxyUser", this.currentHTTPProxyUser);
-        System.setProperty("http.proxyPassword", this.currentHTTPProxyPassword);
+        resetOrClearSystemProperty("http.proxyHost", this.savedHTTPProxyHost);
+        resetOrClearSystemProperty("http.proxyPort", this.savedHTTPProxyPort);
+        resetOrClearSystemProperty("http.proxyUser", this.savedHTTPProxyUser);
+        resetOrClearSystemProperty("http.proxyPassword", this.savedHTTPProxyPassword);
 
-        System.setProperty("https.proxyHost", this.currentHTTPSProxyHost);
-        System.setProperty("https.proxyPort", this.currentHTTPSProxyPort);
-        System.setProperty("https.proxyUser", this.currentHTTPSProxyUser);
-        System.setProperty("https.proxyPassword", this.currentHTTPSProxyPassword);
+        resetOrClearSystemProperty("https.proxyHost", this.savedHTTPSProxyHost);
+        resetOrClearSystemProperty("https.proxyPort", this.savedHTTPSProxyPort);
+        resetOrClearSystemProperty("https.proxyUser", this.savedHTTPSProxyUser);
+        resetOrClearSystemProperty("https.proxyPassword", this.savedHTTPSProxyPassword);
     }
 
     private void configureHTTPProxySettings() {
@@ -57,6 +57,8 @@ public class EclipseProxySettingsConfigurator {
         if (httpProxyData.isPresent()) {
             if (httpProxyData.get().getHost() != null) {
                 System.setProperty("http.proxyHost", httpProxyData.get().getHost());
+            } else {
+                System.setProperty("http.proxyHost", "value");
             }
             if (httpProxyData.get().getPort() != -1) {
                 System.setProperty("http.proxyPort", Integer.toString(httpProxyData.get().getPort()));
@@ -67,7 +69,7 @@ public class EclipseProxySettingsConfigurator {
             if (httpProxyData.get().getPassword() != null) {
                 System.setProperty("http.proxyPassword", httpProxyData.get().getPassword());
             }
-//            System.setProperty("http.nonProxyHosts", CorePlugin.getProxyService().getNonProxiedHosts());
+            // System.setProperty("http.nonProxyHosts", CorePlugin.getProxyService().getNonProxiedHosts());
         }
     }
 
@@ -86,7 +88,15 @@ public class EclipseProxySettingsConfigurator {
             if (httpsProxyData.get().getPassword() != null) {
                 System.setProperty("https.proxyPassword", httpsProxyData.get().getPassword());
             }
-//            System.setProperty("http.nonProxyHosts", CorePlugin.getProxyService().getNonProxiedHosts());
+            // System.setProperty("http.nonProxyHosts", CorePlugin.getProxyService().getNonProxiedHosts());
+        }
+    }
+
+    private void resetOrClearSystemProperty(String property, String savedValue) {
+        if (savedValue == null) {
+            System.clearProperty(property);
+        } else {
+            System.setProperty(property, savedValue);
         }
     }
 
