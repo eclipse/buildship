@@ -113,32 +113,11 @@ class DependencyExportTest extends ProjectImportSpecification {
         distribution << [ GradleDistribution.forVersion('2.1'), GradleDistribution.forVersion('2.6') ]
     }
 
-    private boolean projectContainsErrorMarkers(String... projectNames) {
-        final StringBuilder sb = new StringBuilder();
-        return FluentIterable.of(projectNames).anyMatch(new Predicate<String>() {
-            @Override
-            public boolean apply(String projectName) {
-                IProject project = findProject(projectName);
-                try {
-                    IMarker[] markers = project.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
-                    if(markers.length <= 0) {
-                        return false;
-                    }
-                    FluentIterable.of(markers).anyMatch(new Predicate<IMarker>() {
-                                @Override
-                                public boolean apply(IMarker marker) {
-                                    try {
-                                        Object attribute = marker.getAttribute(IMarker.SEVERITY);
-                                        return attribute.equals(IMarker.SEVERITY_ERROR);
-                                    } catch (CoreException e) {
-                                    }
-                                    return false;
-                                }
-                            });
-                } catch (CoreException e) {
-                }
-            }
-        });
+    private def projectContainsErrorMarkers(String... projectNames) {
+        projectNames.find { projectName ->
+            IMarker[] markers = findProject(projectName).findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)
+            markers.length >= 0 && markers.find { it.getAttribute(IMarker.SEVERITY) == IMarker.SEVERITY_ERROR }
+        }
     }
 
     private def rebuildWorkspaceAndIndividualProjects(String... projectNames) {
