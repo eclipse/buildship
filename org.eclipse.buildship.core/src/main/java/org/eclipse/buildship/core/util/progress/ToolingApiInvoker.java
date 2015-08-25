@@ -136,7 +136,7 @@ public final class ToolingApiInvoker {
             }
         });
         if (firstException.isPresent()) {
-            CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(firstException.get()), IStatus.ERROR, e);
+            CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(firstException.get()), IStatus.ERROR, firstException.get());
         }
         return createInfoStatus(message, e);
     }
