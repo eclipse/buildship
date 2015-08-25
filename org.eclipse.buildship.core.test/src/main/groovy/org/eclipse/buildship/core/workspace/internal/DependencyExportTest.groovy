@@ -1,17 +1,19 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import spock.lang.Ignore
+import com.google.common.base.Predicate
+import com.google.common.collect.FluentIterable
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
 import org.eclipse.core.resources.IMarker
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
+import org.eclipse.core.resources.IncrementalProjectBuilder
+import org.eclipse.core.runtime.CoreException
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
-
 
 class DependencyExportTest extends ProjectImportSpecification {
 
@@ -94,32 +96,43 @@ class DependencyExportTest extends ProjectImportSpecification {
         distribution << [ GradleDistribution.forVersion('2.5'), GradleDistribution.forVersion('2.6') ]
     }
 
-    @Ignore // this test fails randomly and should be improved
-    def "Sample should not compile when imported with Gradle version 2.4"() {
+    def "Sample with transitive dependency exclusion should compile when imported by Buildship"(GradleDistribution distribution) {
         setup:
         File location = springExampleProjectFromBug473348()
 
         when:
-        executeProjectImportAndWait(location, GradleDistribution.forVersion('2.4'))
+        executeProjectImportAndWait(location, distribution)
         waitForJobsToFinish() // wait for the compilation to be finished
 
+        rebuildWorkspaceAndIndividualProjects('moduleA', 'moduleB')
+
         then:
-        findProject('moduleA').findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE).length > 0;
-        findProject('moduleB').findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE).length > 0;
+        !projectContainsErrorMarkers('moduleA', 'moduleB');
+
+        where:
+        distribution << [ GradleDistribution.forVersion('2.1'), GradleDistribution.forVersion('2.6') ]
     }
 
-    @Ignore // this test fails randomly and should be improved
-    def "Sample should compile when imported with Gradle version 2.5"() {
-        setup:
-        File location = springExampleProjectFromBug473348()
+    private def projectContainsErrorMarkers(String... projectNames) {
+        projectNames.find { projectName ->
+            IMarker[] markers = findProject(projectName).findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)
+            markers.length >= 0 && markers.find { it.getAttribute(IMarker.SEVERITY) == IMarker.SEVERITY_ERROR }
+        }
+    }
 
-        when:
-        executeProjectImportAndWait(location, GradleDistribution.forVersion('2.5'))
-        waitForJobsToFinish() // wait for the compilation to be finished
-
-        then:
-        findProject('moduleA').findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE).length == 0;
-        findProject('moduleB').findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE).length == 0;
+    private def rebuildWorkspaceAndIndividualProjects(String... projectNames) {
+        // rebuild all and then the projects like it is done for the BuilderTests in JDT
+        int previous = org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE
+        workspace.build(IncrementalProjectBuilder.FULL_BUILD, null)
+        org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = 1 // reduce the lot size
+        workspace.build(IncrementalProjectBuilder.CLEAN_BUILD, null)
+        workspace.build(IncrementalProjectBuilder.FULL_BUILD, null)
+        projectNames.each { projectName ->
+            def project = findProject(projectName)
+            project.build(IncrementalProjectBuilder.CLEAN_BUILD, null)
+            project.build(IncrementalProjectBuilder.FULL_BUILD, null)
+        }
+        org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = previous
     }
 
     private def multiProjectWithSpringTransitiveDependency() {
@@ -183,7 +196,7 @@ class DependencyExportTest extends ProjectImportSpecification {
                @Override
                public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
                    try {
-                       Class classA = Class.forName("any");
+                       Class<?> classA = Class.forName("any");
                        beanFactory.registerCustomEditor(classA, classA.asSubclass(PropertyEditor.class));
                    } catch (ClassNotFoundException e) {
                        e.printStackTrace();
