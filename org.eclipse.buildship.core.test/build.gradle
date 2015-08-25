@@ -3,11 +3,17 @@ apply plugin: 'groovy'
 
 dependencies {
     compile project(':org.eclipse.buildship.core')
-
+    
     bundled "org.spockframework:spock-core:$spockLibVersion"
     bundled "cglib:cglib-nodep:$cglibLibVersion"
     bundled "com.gradleware.tooling:testing-junit:$commonsLibVersion"
     bundled "org.slf4j:slf4j-simple:$slf4jLibVersion"
+    bundled "org.littleshoot:littleproxy:0.4"
+    bundled "org.jboss.netty:netty:3.2.4.Final"
+    bundled "javax.servlet:servlet-api:2.5"
+    bundled "org.jmock:jmock:2.5.1"
+    bundled "org.mortbay.jetty:jetty:6.1.25"
+    bundled "org.mortbay.jetty:jetty-util:6.1.25"
 }
 
 eclipseTest {
@@ -18,9 +24,7 @@ eclipseTest {
 
 // append the sources of each first-level dependency and its transitive dependencies of
 // the 'bundled' configuration to the 'bundledSource' configuration
-configurations.bundled.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
-    addSourcesRecursively(dep)
-}
+configurations.bundled.resolvedConfiguration.firstLevelModuleDependencies.each { dep -> addSourcesRecursively(dep) }
 
 def addSourcesRecursively(dep) {
     dependencies {
