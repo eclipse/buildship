@@ -11,7 +11,6 @@
 
 package org.eclipse.buildship.core;
 
-import java.io.PrintWriter;
 import java.util.List;
 
 import com.google.common.base.Preconditions;
@@ -34,13 +33,6 @@ public final class AggregateException extends RuntimeException {
 
     public List<Exception> getExceptions() {
         return this.exceptions;
-    }
-
-    @Override
-    public void printStackTrace(PrintWriter printWriter) {
-        for (Exception exception : this.exceptions) {
-            exception.printStackTrace(printWriter);
-        }
     }
 
 }
