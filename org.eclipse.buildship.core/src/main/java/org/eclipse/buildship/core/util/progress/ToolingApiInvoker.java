@@ -128,7 +128,6 @@ public final class ToolingApiInvoker {
         for (Exception exception : e.getExceptions()) {
             CorePlugin.logger().error(message, exception);
         }
-
         Optional<Exception> firstException = FluentIterable.from(e.getExceptions()).firstMatch(new Predicate<Exception>() {
 
             @Override
