@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 
 import org.eclipse.buildship.core.proxy.EclipseProxySettingsSupporter;
+import org.eclipse.buildship.core.proxy.ProxySettingsStorage;
 
 /**
  * Base class for cancellable workspace jobs that invoke the Gradle Tooling API.
@@ -72,8 +73,6 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
     @Override
     public final IStatus runInWorkspace(final IProgressMonitor monitor) throws CoreException {
         ToolingApiInvoker invoker = new ToolingApiInvoker(this.workName, this.notifyUserAboutBuildFailures);
-
-        this.proxySettingsSupporter.storeSystemProxySettings();
         this.proxySettingsSupporter.configureEclipseProxySettings();
 
         return invoker.invoke(new ToolingApiCommand() {

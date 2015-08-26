@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.proxy.EclipseProxySettingsSupporter;
+import org.eclipse.buildship.core.proxy.ProxySettingsStorage;
 
 /**
  * Base class for cancellable jobs that invoke the Gradle Tooling API.
@@ -29,7 +30,6 @@ public abstract class ToolingApiJob extends Job {
     private final CancellationTokenSource tokenSource;
     private final String workName;
     private final boolean notifyUserAboutBuildFailures;
-    private final EclipseProxySettingsSupporter proxySettingsSupporter;
 
     /**
      * Creates a new job with the specified name. The job name is a human-readable value that is
@@ -55,8 +55,6 @@ public abstract class ToolingApiJob extends Job {
         this.tokenSource = GradleConnector.newCancellationTokenSource();
         this.workName = name;
         this.notifyUserAboutBuildFailures = notifyUserAboutBuildFailures;
-        this.proxySettingsSupporter = new EclipseProxySettingsSupporter();
-
     }
 
     protected CancellationToken getToken() {
@@ -66,17 +64,14 @@ public abstract class ToolingApiJob extends Job {
     @Override
     public final IStatus run(final IProgressMonitor monitor) {
         ToolingApiInvoker invoker = new ToolingApiInvoker(this.workName, this.notifyUserAboutBuildFailures);
-
-        this.proxySettingsSupporter.storeSystemProxySettings();
-        this.proxySettingsSupporter.configureEclipseProxySettings();
+        final EclipseProxySettingsSupporter proxySettingsSupporter = new EclipseProxySettingsSupporter();
+        proxySettingsSupporter.configureEclipseProxySettings();
 
         return invoker.invoke(new ToolingApiCommand() {
             @Override
             public void run() throws Exception {
                 runToolingApiJob(monitor);
-
-                // Ian-Todo: put in finally clause.
-                ToolingApiJob.this.proxySettingsSupporter.restoreSystemProxySettings();
+                proxySettingsSupporter.restoreSystemProxySettings();
             }
         }, monitor);
     }
