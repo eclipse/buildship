@@ -15,6 +15,7 @@ dependencies {
     bundled "org.mortbay.jetty:jetty:6.1.25"
     bundled "org.mortbay.jetty:jetty-util:6.1.25"
     bundled "commons-lang:commons-lang:2.6"
+    bundled "commons-codec:commons-codec:1.6"
 }
 
 eclipseTest {
