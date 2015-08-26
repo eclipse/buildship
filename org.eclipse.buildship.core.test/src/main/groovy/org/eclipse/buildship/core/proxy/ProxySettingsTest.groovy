@@ -135,28 +135,28 @@ class ProxySettingsTest extends ProjectImportSpecification {
 //        tempHost == proxyHost
 //        System.getProperty("http.proxyHost") == permHost
 //    }
-//
-//    def "System properties temporarily changed when ToolingApiJob is run"() {
-//        String tempHost
-//
-//        setup:
-//        System.setProperty("http.proxyHost", permHost)
-//        setupTestProxyData()
-//        def job = new ToolingApiJob("Test") {
-//                    @Override
-//                    protected void runToolingApiJob(IProgressMonitor monitor) {
-//                        tempHost = System.getProperty("http.proxyHost")
-//                    }
-//                }
-//
-//        when:
-//        job.schedule()
-//        job.join()
-//
-//        then:
-//        tempHost == "test-host"
-//        System.getProperty("http.proxyHost") == permHost
-//    }
+
+    def "System properties temporarily changed when ToolingApiJob is run"() {
+        String retrievedHost, abc
+
+        setup:
+        setupTestProxyData(tempHost, 0000)
+        System.setProperty("http.proxyHost", permHost)
+        def job = new ToolingApiJob("Test") {
+                    @Override
+                    protected void runToolingApiJob(IProgressMonitor monitor) {
+                        retrievedHost = System.getProperty("http.proxyHost")
+                    }
+                }
+
+        when:
+        job.schedule()
+        job.join()
+
+        then:
+        retrievedHost == tempHost
+        System.getProperty("http.proxyHost") == permHost
+    }
 
 //    def "JVM arguments are automatically set when Eclipse proxy settings are available"() {
 //        setup:
