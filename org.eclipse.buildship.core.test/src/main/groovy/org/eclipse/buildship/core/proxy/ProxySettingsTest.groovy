@@ -55,7 +55,6 @@ class ProxySettingsTest extends ProjectImportSpecification {
 
     @Rule
     TemporaryFolder tempFolder
-    ToolingClient toolingClient
     ProcessStreamsProvider processStreamsProvider
     @Rule public final HttpServer server = new HttpServer()
     @Rule TestProxyServer proxyServer = new TestProxyServer(server)
@@ -67,27 +66,9 @@ class ProxySettingsTest extends ProjectImportSpecification {
     def password = 'test-password'
 
     def setup() {
-        BuildLaunchRequest request = Mock(BuildLaunchRequest)
-        toolingClient = Mock(ToolingClient)
-        toolingClient.newBuildLaunchRequest(_) >> request
-
-        OutputStream configurationStream = Mock(OutputStream)
-        ProcessStreams processStreams = Mock(ProcessStreams)
-        processStreams.getConfiguration() >> configurationStream
-        processStreamsProvider = Mock(ProcessStreamsProvider)
-        processStreamsProvider.createProcessStreams(_) >> processStreams
-        processStreamsProvider.getBackgroundJobProcessStreams() >> processStreams
-
-        TestEnvironment.registerService(ToolingClient, toolingClient)
-        TestEnvironment.registerService(ProcessStreamsProvider, processStreamsProvider)
-
         // From AbstractHttpDependencyResolutionTest
         // server.expectUserAgent(matchesNameAndVersion("Gradle", GradleVersion.current().getVersion()))
         server.start()
-    }
-
-    def cleanup() {
-        TestEnvironment.cleanup()
     }
 
 //    def "Eclipse proxy settings are properly collected"() {
