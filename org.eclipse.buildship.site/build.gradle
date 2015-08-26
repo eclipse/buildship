@@ -40,12 +40,12 @@ dependencies {
     localFeature project(':org.eclipse.buildship.feature')
 
     // include 3rd party dependencies in the update site
-    externalPlugin withEclipseBundle('org.slf4j.api')
     externalPlugin withEclipseBundle('org.slf4j.simple')
     externalPlugin withEclipseBundle('com.gradleware.tooling.model')
 
     // official 3rd party dependencies from Orbit which are already signed and normalized with pack200
     signedExternalPlugin withEclipseBundle('com.google.gson')
+    signedExternalPlugin withEclipseBundle('org.slf4j.api')
 }
 
 task uploadUpdateSite(dependsOn : createP2Repository) {
