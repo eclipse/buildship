@@ -30,6 +30,8 @@ public final class ExecutionViewMessages extends NLS {
 
     public static String Action_ShowFailure_Text;
     public static String Action_OpenTestSourceFile_Text;
+    public static String Action_Rerun_Failed_Tests_Text;
+
     public static String Action_RerunTest_Text;
 
     public static String Action_SwitchExecutionPage_Tooltip;
