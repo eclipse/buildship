@@ -20,5 +20,6 @@
 	<classpathentry kind="lib" path="lib/jetty-util-6.1.25.jar"/>
 	<classpathentry kind="lib" path="lib/hamcrest-library-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang-2.6.jar"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
