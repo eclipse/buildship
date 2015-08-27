@@ -7,7 +7,8 @@ Bundle-Vendor: Eclipse Buildship
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Fragment-Host: org.eclipse.buildship.core
 Comment: junit has to be a required bundle, otherwise the tests won't launch for headless builds
-Require-Bundle: org.junit
+Require-Bundle: org.junit,
+ org.eclipse.ui
 Bundle-ClassPath: .,
  lib/cglib-nodep-3.1.jar,
  lib/commons-lang-2.6.jar,

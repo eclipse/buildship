@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 
 import org.eclipse.buildship.core.proxy.EclipseProxySettingsSupporter;
-import org.eclipse.buildship.core.proxy.ProxySettingsStorage;
 
 /**
  * Base class for cancellable workspace jobs that invoke the Gradle Tooling API.

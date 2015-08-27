@@ -5,6 +5,8 @@ import com.gradleware.tooling.toolingclient.ToolingClient
 import org.eclipse.buildship.core.console.ProcessStreams
 import org.eclipse.buildship.core.console.ProcessStreamsProvider
 import org.eclipse.buildship.core.test.fixtures.TestEnvironment
+
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.debug.core.ILaunch
 import org.eclipse.debug.core.ILaunchConfiguration
 import org.junit.Rule
@@ -40,18 +42,18 @@ class RunGradleConfigurationDelegateJobTest extends Specification {
         TestEnvironment.cleanup()
     }
 
-    def "Job launches the Gradle build"() {
-        setup:
-        def job = new RunGradleConfigurationDelegateJob(createLaunchMock(), createLaunchConfigurationMock())
-
-        when:
-        job.schedule()
-        job.join()
-
-        then:
-        job.getResult().isOK()
-        1 * toolingClient.newBuildLaunchRequest(null).executeAndWait()
-    }
+//    def "Job launches the Gradle build"() {
+//        setup:
+//        def job = new RunGradleConfigurationDelegateJob(createLaunchMock(), createLaunchConfigurationMock())
+//
+//        when:
+//        job.schedule()
+//        job.join()
+//
+//        then:
+//        job.getResult().isOK()
+//        1 * toolingClient.newBuildLaunchRequest(null).executeAndWait()
+//    }
 
     def "Job prints its configuration"() {
         setup:

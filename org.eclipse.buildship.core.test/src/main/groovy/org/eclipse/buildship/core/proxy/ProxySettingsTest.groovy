@@ -21,6 +21,7 @@ import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure
 import com.gradleware.tooling.toolingmodel.util.Pair
 import org.eclipse.debug.core.ILaunch
 import org.eclipse.core.net.proxy.IProxyService
+import org.eclipse.core.internal.jobs.ThreadJob;
 import org.eclipse.core.net.proxy.IProxyData
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.buildship.core.CorePlugin
@@ -33,9 +34,11 @@ import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
 import org.eclipse.core.resources.ResourcesPlugin
+//import org.eclipse.swt.widgets.Display
 
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+//import org.eclipse.ui.PlatformUI
 
 import org.eclipse.buildship.core.proxy.support.*
 import org.eclipse.buildship.core.test.fixtures.*
@@ -66,56 +69,51 @@ class ProxySettingsTest extends ProjectImportSpecification {
     def password = 'test-password'
 
     def setup() {
-        // From AbstractHttpDependencyResolutionTest
-        // server.expectUserAgent(matchesNameAndVersion("Gradle", GradleVersion.current().getVersion()))
         server.start()
     }
 
-//    def "Eclipse proxy settings are properly collected"() {
-//        def proxyConfigurator = new EclipseProxySettingsSupporter()
-//
-//        setup:
-//        setupTestProxyData(proxyHost, proxyServer.port)
-//
-//        when:
-//        proxyConfigurator.configureEclipseProxySettings()
-//
-//        then:
-//        System.getProperty("http.proxyHost") == proxyHost
-//        System.getProperty("http.proxyPort") == proxyPort
-//        System.getProperty("http.proxyUser") == "test-id"
-//        System.getProperty("http.proxyPassword") == "test-password"
-//
-//        System.getProperty("https.proxyHost") == "test-host-https"
-//        System.getProperty("https.proxyPort") == "8081"
-//        System.getProperty("https.proxyUser") == "test-id-https"
-//        System.getProperty("https.proxyPassword") == "test-password-https"
-//
-//        cleanup:
-//        proxyConfigurator.restoreSystemProxySettings()
-//    }
-//
-//    def "System properties temporarily changed when ToolingApiWorkspaceJob is run"() {
-//        String tempHost
-//
-//        setup:
-//        System.setProperty("http.proxyHost", permHost)
-//        setupTestProxyData(proxyHost, 8080)
-//        def job = new ToolingApiWorkspaceJob("Test") {
-//                    @Override
-//                    protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) {
-//                        tempHost = System.getProperty("http.proxyHost")
-//                    }
-//                }
-//
-//        when:
-//        job.schedule()
-//        job.join()
-//
-//        then:
-//        tempHost == proxyHost
-//        System.getProperty("http.proxyHost") == permHost
-//    }
+    def "Eclipse proxy settings are properly collected"() {
+        def proxyConfigurator = new EclipseProxySettingsSupporter()
+
+        setup:
+        setupTestProxyData(proxyHost, proxyServer.port)
+
+        when:
+        proxyConfigurator.configureEclipseProxySettings()
+
+        then:
+        System.getProperty("http.proxyHost") == proxyHost
+        System.getProperty("http.proxyPort") == proxyServer.port.toString()
+        System.getProperty("http.proxyUser") == userId
+        System.getProperty("http.proxyPassword") == password
+
+        //        System.getProperty("https.proxyHost") == "test-host-https"
+        //        System.getProperty("https.proxyPort") == "8081"
+        //        System.getProperty("https.proxyUser") == "test-id-https"
+        //        System.getProperty("https.proxyPassword") == "test-password-https"
+    }
+
+    def "System properties temporarily changed when ToolingApiWorkspaceJob is run"() {
+        String retrievedHost
+
+        setup:
+        setupTestProxyData(tempHost, 8080)
+        System.setProperty("http.proxyHost", permHost)
+        def job = new ToolingApiWorkspaceJob("Test") {
+                    @Override
+                    protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) {
+                        retrievedHost = System.getProperty("http.proxyHost")
+                    }
+                }
+
+        when:
+        job.schedule()
+        job.join()
+
+        then:
+        retrievedHost == tempHost
+        System.getProperty("http.proxyHost") == permHost
+    }
 
     def "System properties temporarily changed when ToolingApiJob is run"() {
         String retrievedHost, abc
@@ -139,23 +137,23 @@ class ProxySettingsTest extends ProjectImportSpecification {
         System.getProperty("http.proxyHost") == permHost
     }
 
-//    def "JVM arguments are automatically set when Eclipse proxy settings are available"() {
-//        setup:
-//        setupTestProxyData()
-//        List<String> arguments
-//        def job = new ToolingApiJob("Test") {
-//                    @Override
-//                    protected void runToolingApiJob(IProgressMonitor monitor) {
-//                        System.getProperty("http.proxyHost")
-//                    }
-//                }
-//        when:
-//        job.schedule()
-//        job.join()
-//
-//        then:
-//        System.out.println(">> " + arguments)
-//    }
+    //    def "JVM arguments are automatically set when Eclipse proxy settings are available"() {
+    //        setup:
+    //        setupTestProxyData()
+    //        List<String> arguments
+    //        def job = new ToolingApiJob("Test") {
+    //                    @Override
+    //                    protected void runToolingApiJob(IProgressMonitor monitor) {
+    //                        System.getProperty("http.proxyHost")
+    //                    }
+    //                }
+    //        when:
+    //        job.schedule()
+    //        job.join()
+    //
+    //        then:
+    //        System.out.println(">> " + arguments)
+    //    }
 
     //    def "Different proxy settings can be used by subsequent builds"() {
     //        String permHost, secondTempHost
@@ -189,36 +187,44 @@ class ProxySettingsTest extends ProjectImportSpecification {
     //        System.getProperty("http.proxyHost") == permHost
     //    }
 
-//    def () {
+//    def "Proxies are accessed upon Gradle distribution download"() {
 //        setup:
 //        proxyServer.start()
+//        proxyServer.requireAuthentication(userId, password)
+//        setupTestProxyData("localhost", proxyServer.port)
+//        File rootProject = newProject(true, true)
+//        server.expectGet("/gradlew/dist", new File("resources/gradle-distribution/gradle-2.6-bin.zip"))
+//        Job job = newProjectImportJob(rootProject)
 //
 //        when:
-//        proxyServer.requireAuthentication('proxyUser', 'proxyPassword')
+//        job.schedule()
+//        job.join()
 //
 //        then:
-//        System.out.println proxyServer.port
-//    }
-//
-//    def "Proxies are accessed upon task exectution"() {
-//
+//        proxyServer.requestCount == 1
 //    }
 
-    def "Proxies are accessed upon Gradle distribution download"() {
+    def "Proxies are accessed upon task exectution"() {
         setup:
+        println Thread.currentThread().getId()
         proxyServer.start()
-        proxyServer.requireAuthentication(userId, password)
+//        proxyServer.requireAuthentication(userId, password)
         setupTestProxyData("localhost", proxyServer.port)
         File rootProject = newProject(false, true)
-        server.expectGet("/gradlew/dist", new File("resources/gradle-distribution/gradle-2.6-bin.zip"))
-        Job job = newProjectImportJob(rootProject)
+        server.expectHead("/fake-group/not-a-real-dependency/0.0/not-a-real-dependency-0.0.pom", new File("resources/proxy-test/not-a-real-dependency-0.0.pom"))
+        server.expectGet ("/fake-group/not-a-real-dependency/0.0/not-a-real-dependency-0.0.pom", new File("resources/proxy-test/not-a-real-dependency-0.0.pom"))
+        server.expectHead("/fake-group/not-a-real-dependency/0.0/not-a-real-dependency-0.0.jar", new File("resources/proxy-test/not-a-real-dependency-0.0.jar"))
+        server.expectGet ("/fake-group/not-a-real-dependency/0.0/not-a-real-dependency-0.0.jar", new File("resources/proxy-test/not-a-real-dependency-0.0.jar"))
+        server.expectHead("/fake-group/not-a-real-dependency/0.0/not-a-real-dependency-0.0.pom.sha1", new File("resources/proxy-test/not-a-real-dependency-0.0.pom.sha1"))
+        server.expectGet ("/fake-group/not-a-real-dependency/0.0/not-a-real-dependency-0.0.pom.sha1", new File("resources/proxy-test/not-a-real-dependency-0.0.pom.sha1"))
+        def job = new RunGradleConfigurationDelegateJob(createLaunchMock(), createLaunchConfigurationMock(rootProject.absolutePath))
 
         when:
         job.schedule()
         job.join()
 
         then:
-        proxyServer.requestCount == 1
+        proxyServer.requestCount == 3
     }
 
     def setupTestProxyData(String host, int port) {
@@ -263,11 +269,13 @@ class ProxySettingsTest extends ProjectImportSpecification {
     // Ian-todo: Extend this to include remote dependencies
     def newProject(boolean projectDescriptorExists, boolean applyJavaPlugin) {
         def root = tempFolder.newFolder('simple-project')
-        new File(root, 'build.gradle') << (applyJavaPlugin ? 'apply plugin: "java"' : '')
+        new File(root, 'build.gradle') << (applyJavaPlugin ? '''apply plugin: "java"
+repositories { maven { url "http://not.a.real.domain" } }
+dependencies { compile "fake-group:not-a-real-dependency:0.0" }''' : '')
         new File(root, 'settings.gradle') << ''
         new File(root, 'src/main/java').mkdirs()
 
-        if (projectDescriptorExists) {
+        if (!projectDescriptorExists) {
             new File(root, '.project') << '''<?xml version="1.0" encoding="UTF-8"?>
                 <projectDescription>
                   <name>simple-project</name>
@@ -286,6 +294,20 @@ class ProxySettingsTest extends ProjectImportSpecification {
             }
         }
         root
+    }
+
+    private ILaunch createLaunchMock() {
+        Mock(ILaunch)
+    }
+
+    private def createLaunchConfigurationMock(String path) {
+        ILaunchConfiguration launchConfiguration = Mock(ILaunchConfiguration)
+        launchConfiguration.getAttribute('tasks', _) >> ['clean', 'dependencies']
+        launchConfiguration.getAttribute('gradle_distribution', _) >> 'GRADLE_DISTRIBUTION(WRAPPER)'
+        launchConfiguration.getAttribute('working_dir', _) >> path
+        launchConfiguration.getAttribute('arguments', _) >> ['--refresh-dependencies', '--info', '-S']
+        launchConfiguration.getAttribute('jvm_arguments', _) >> []
+        launchConfiguration
     }
 
 }

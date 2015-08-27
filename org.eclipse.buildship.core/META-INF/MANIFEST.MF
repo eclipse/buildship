@@ -38,3 +38,4 @@ Export-Package: org.eclipse.buildship.core,
  org.eclipse.buildship.core.util.string,
  org.eclipse.buildship.core.util.variable,
  org.eclipse.buildship.core.workspace
+ 
