@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.*;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -78,7 +79,7 @@ public final class LinkedResourcesUpdater {
     }
 
     private List<IFolder> collectLinkedFoldersNoLongerInGradleModel() throws CoreException {
-        return FluentIterable.of(this.project.members()).filter(IFolder.class).filter(new Predicate<IFolder>() {
+        return FluentIterable.from(Arrays.asList(this.project.members())).filter(IFolder.class).filter(new Predicate<IFolder>() {
 
             @Override
             public boolean apply(IFolder folder) {
@@ -89,7 +90,7 @@ public final class LinkedResourcesUpdater {
     }
 
     private List<IFolder> collectLinkedFoldersDefinedManuallyAndAlsoInGradleModel() throws CoreException {
-        return FluentIterable.of(this.project.members()).filter(IFolder.class).filter(new Predicate<IFolder>() {
+        return FluentIterable.from(Arrays.asList(this.project.members())).filter(IFolder.class).filter(new Predicate<IFolder>() {
 
             @Override
             public boolean apply(IFolder folder) {
@@ -135,7 +136,7 @@ public final class LinkedResourcesUpdater {
     }
 
     private Set<File> collectCurrentLinkedFolders() throws CoreException {
-        return FluentIterable.of(this.project.members()).filter(IFolder.class).filter(new Predicate<IFolder>() {
+        return FluentIterable.from(Arrays.asList(this.project.members())).filter(IFolder.class).filter(new Predicate<IFolder>() {
 
             @Override
             public boolean apply(IFolder folder) {

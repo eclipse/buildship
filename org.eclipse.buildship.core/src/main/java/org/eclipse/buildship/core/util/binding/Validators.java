@@ -12,6 +12,7 @@
 package org.eclipse.buildship.core.util.binding;
 
 import java.io.File;
+import java.util.Arrays;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -103,7 +104,7 @@ public final class Validators {
 
             private boolean projectNameAlreadyExistsInWorkspace(final String projectName) {
                 IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-                return FluentIterable.of(projects).anyMatch(new Predicate<IProject>() {
+                return FluentIterable.from(Arrays.asList(projects)).anyMatch(new Predicate<IProject>() {
 
                     @Override
                     public boolean apply(IProject project) {

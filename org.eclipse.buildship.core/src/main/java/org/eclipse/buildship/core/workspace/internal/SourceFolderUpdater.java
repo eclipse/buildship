@@ -12,6 +12,7 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -123,7 +124,7 @@ public final class SourceFolderUpdater {
 
     private Optional<IFolder> getLinkedFolderIfExists(final File directory) throws CoreException {
         IResource[] children = this.project.getProject().members();
-        return FluentIterable.of(children).filter(IFolder.class).firstMatch(new Predicate<IFolder>() {
+        return FluentIterable.from(Arrays.asList(children)).filter(IFolder.class).firstMatch(new Predicate<IFolder>() {
 
             @Override
             public boolean apply(IFolder folder) {

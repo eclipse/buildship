@@ -11,6 +11,8 @@
 
 package org.eclipse.buildship.ui.console;
 
+import java.util.Arrays;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
@@ -52,7 +54,7 @@ public final class RemoveAllTerminatedGradleConsolesAction extends Action implem
 
     private ImmutableList<GradleConsole> getTerminatedConsoles() {
         IConsoleManager consoleManager = ConsolePlugin.getDefault().getConsoleManager();
-        return FluentIterable.of(consoleManager.getConsoles()).filter(GradleConsole.class).filter(new Predicate<GradleConsole>() {
+        return FluentIterable.from(Arrays.asList(consoleManager.getConsoles())).filter(GradleConsole.class).filter(new Predicate<GradleConsole>() {
 
             @Override
             public boolean apply(GradleConsole console) {

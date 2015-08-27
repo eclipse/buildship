@@ -14,7 +14,6 @@ package org.eclipse.buildship.core.workspace.internal;
 import java.io.File;
 import java.util.List;
 
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
@@ -30,6 +29,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.util.object.MoreObjects;
 
 /**
  * Provides resource filtering on {@link IProject} instances.
