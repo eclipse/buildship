@@ -12,17 +12,18 @@
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.google.gson" version="2.2.4.v201311231704"/>
+<unit id="com.google.guava" version="15.0.0.v201403281430"/>
 <unit id="org.junit" version="4.12.0.v201504281640"/>
 <unit id="org.slf4j.api" version="1.7.2.v20121108-1250"/>
 <repository location="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.buildship.orbit.staging.feature.group" version="1.0.26"/>
-<repository location="http://download.eclipse.org/buildship/orbit-staging/site1026"/>
+<unit id="org.eclipse.buildship.orbit.staging.feature.group" version="1.0.27"/>
+<repository location="http://download.eclipse.org/buildship/orbit-staging/site1027"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.buildship.orbit.staging.feature.group" version="1.0.26"/>
-<repository location="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging/site1026"/>
+<unit id="org.eclipse.buildship.orbit.staging.feature.group" version="1.0.27"/>
+<repository location="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging/site1027"/>
 </location>
 </locations>
 <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
