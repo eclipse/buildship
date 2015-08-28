@@ -35,6 +35,7 @@ import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
 import org.eclipse.core.resources.ResourcesPlugin
 //import org.eclipse.swt.widgets.Display
+import org.eclipse.core.runtime.IPath
 
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -56,11 +57,11 @@ import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
 
 class ProxySettingsTest extends ProjectImportSpecification {
 
-    @Rule
-    TemporaryFolder tempFolder
+    @Rule TemporaryFolder tempFolder
     ProcessStreamsProvider processStreamsProvider
     @Rule public final HttpServer server = new HttpServer()
     @Rule TestProxyServer proxyServer = new TestProxyServer(server)
+    IPath workspaceRoot = ResourcesPlugin.getWorkspace().getRoot().rawLocation
 
     def proxyHost = 'localhost'
     def permHost = 'permHost'
@@ -206,17 +207,15 @@ class ProxySettingsTest extends ProjectImportSpecification {
 
     def "Proxies are accessed upon task exectution"() {
         setup:
-        println Thread.currentThread().getId()
+        createTestProxyFiles()
         proxyServer.start()
 //        proxyServer.requireAuthentication(userId, password)
         setupTestProxyData("localhost", proxyServer.port)
         File rootProject = newProject(false, true)
-        server.expectHead("/fake-group/not-a-real-dependency/0.0/not-a-real-dependency-0.0.pom", new File("resources/proxy-test/not-a-real-dependency-0.0.pom"))
-        server.expectGet ("/fake-group/not-a-real-dependency/0.0/not-a-real-dependency-0.0.pom", new File("resources/proxy-test/not-a-real-dependency-0.0.pom"))
-        server.expectHead("/fake-group/not-a-real-dependency/0.0/not-a-real-dependency-0.0.jar", new File("resources/proxy-test/not-a-real-dependency-0.0.jar"))
-        server.expectGet ("/fake-group/not-a-real-dependency/0.0/not-a-real-dependency-0.0.jar", new File("resources/proxy-test/not-a-real-dependency-0.0.jar"))
-        server.expectHead("/fake-group/not-a-real-dependency/0.0/not-a-real-dependency-0.0.pom.sha1", new File("resources/proxy-test/not-a-real-dependency-0.0.pom.sha1"))
-        server.expectGet ("/fake-group/not-a-real-dependency/0.0/not-a-real-dependency-0.0.pom.sha1", new File("resources/proxy-test/not-a-real-dependency-0.0.pom.sha1"))
+//        server.expectHead("/not-a-real-group/not-a-real-dependency/0.0/not-a-real-dependency-0.0.pom", new File(workspaceRoot.toString(), 'not-a-real-dependency-0.0.pom'))
+        server.expectGet ("/not-a-real-group/not-a-real-dependency/0.0/not-a-real-dependency-0.0.pom", new File(workspaceRoot.toString(), 'not-a-real-dependency-0.0.pom'))
+//        server.expectHead("/not-a-real-group/not-a-real-dependency/0.0/not-a-real-dependency-0.0.jar", new File(workspaceRoot.toString(), 'not-a-real-dependency-0.0.jar'))
+//        server.expectGet ("/not-a-real-group/not-a-real-dependency3/0.0/not-a-real-dependency3-0.0.jar", new File(workspaceRoot.toString(), 'not-a-real-dependency-0.0.jar'))
         def job = new RunGradleConfigurationDelegateJob(createLaunchMock(), createLaunchConfigurationMock(rootProject.absolutePath))
 
         when:
@@ -224,7 +223,7 @@ class ProxySettingsTest extends ProjectImportSpecification {
         job.join()
 
         then:
-        proxyServer.requestCount == 3
+        proxyServer.requestCount == 1
     }
 
     def setupTestProxyData(String host, int port) {
@@ -271,7 +270,7 @@ class ProxySettingsTest extends ProjectImportSpecification {
         def root = tempFolder.newFolder('simple-project')
         new File(root, 'build.gradle') << (applyJavaPlugin ? '''apply plugin: "java"
 repositories { maven { url "http://not.a.real.domain" } }
-dependencies { compile "fake-group:not-a-real-dependency:0.0" }''' : '')
+dependencies { compile "not-a-real-group:not-a-real-dependency:0.0" }''' : '')
         new File(root, 'settings.gradle') << ''
         new File(root, 'src/main/java').mkdirs()
 
@@ -296,6 +295,20 @@ dependencies { compile "fake-group:not-a-real-dependency:0.0" }''' : '')
         root
     }
 
+    private def createTestProxyFiles() {
+        println '>> ' + workspaceRoot
+        new File(workspaceRoot.toString(), 'not-a-real-dependency-0.0.jar') << ''
+        new File(workspaceRoot.toString(), 'not-a-real-dependency-0.0.pom') << '''<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>not-a-real-group</groupId>
+  <artifactId>not-a-real-dependency</artifactId>
+  <version>0.0</version>
+  <packaging>jar</packaging>
+</project>'''
+    }
+
     private ILaunch createLaunchMock() {
         Mock(ILaunch)
     }
@@ -305,7 +318,7 @@ dependencies { compile "fake-group:not-a-real-dependency:0.0" }''' : '')
         launchConfiguration.getAttribute('tasks', _) >> ['clean', 'dependencies']
         launchConfiguration.getAttribute('gradle_distribution', _) >> 'GRADLE_DISTRIBUTION(WRAPPER)'
         launchConfiguration.getAttribute('working_dir', _) >> path
-        launchConfiguration.getAttribute('arguments', _) >> ['--refresh-dependencies', '--info', '-S']
+        launchConfiguration.getAttribute('arguments', _) >> ['--refresh-dependencies', '--info']
         launchConfiguration.getAttribute('jvm_arguments', _) >> []
         launchConfiguration
     }
