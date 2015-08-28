@@ -92,7 +92,7 @@ public final class RefreshGradleProjectsJob extends ToolingApiJob {
     }
 
     private static Set<FixedRequestAttributes> getUniqueRootAttributes(List<IProject> projects) {
-        return FluentIterable.from(projects).filter(Predicates.accessibleGradleJavaProject()).transform(new Function<IProject, FixedRequestAttributes>() {
+        return FluentIterable.from(projects).filter(Predicates.accessibleGradleProject()).transform(new Function<IProject, FixedRequestAttributes>() {
 
             @Override
             public FixedRequestAttributes apply(IProject project) {

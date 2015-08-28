@@ -28,6 +28,20 @@ public final class Predicates {
     private Predicates() {
     }
 
+    public static Predicate<IProject> accessibleGradleProject() {
+        return new Predicate<IProject>() {
+
+            @Override
+            public boolean apply(IProject project) {
+                try {
+                    return project.isAccessible() && project.hasNature(GradleProjectNature.ID);
+                } catch (CoreException e) {
+                    throw new GradlePluginsRuntimeException(e);
+                }
+            }
+        };
+    }
+
     public static Predicate<IProject> accessibleGradleJavaProject() {
         return new Predicate<IProject>() {
 
@@ -41,4 +55,5 @@ public final class Predicates {
             }
         };
     }
+
 }
