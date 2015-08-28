@@ -58,6 +58,8 @@ import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
 class ProxySettingsTest extends ProjectImportSpecification {
 
     @Rule TemporaryFolder tempFolder
+    @Rule TemporaryFolder dependencyTempFolder
+    @Rule TemporaryFolder gradleHomeTempFolder
     ProcessStreamsProvider processStreamsProvider
     @Rule public final HttpServer server = new HttpServer()
     @Rule TestProxyServer proxyServer = new TestProxyServer(server)
@@ -211,7 +213,7 @@ class ProxySettingsTest extends ProjectImportSpecification {
 //        proxyServer.requireAuthentication(userId, password)
         setupTestProxyData("localhost", proxyServer.port)
         File rootProject = newProject(false, true)
-        server.expectGet ("/not-a-real-group/not-a-real-dependency/0.0/not-a-real-dependency-0.0.pom", new File(tempFolder.root, 'not-a-real-dependency-0.0.pom'))
+        server.expectGet ("/not-a-real-group/not-a-real-dependency/0.0/not-a-real-dependency-0.0.pom", new File(dependencyTempFolder.root, 'not-a-real-dependency-0.0.pom'))
         def job = new RunGradleConfigurationDelegateJob(createLaunchMock(), createLaunchConfigurationMock(rootProject.absolutePath))
 
         when:
@@ -219,6 +221,7 @@ class ProxySettingsTest extends ProjectImportSpecification {
         job.join()
 
         then:
+        println gradleHomeTempFolder.root
         proxyServer.requestCount == 1
     }
 
@@ -293,7 +296,7 @@ dependencies { compile "not-a-real-group:not-a-real-dependency:0.0" }''' : '')
 
     private def createTestProxyFiles() {
 //        new File(tempFolder.toString(), 'not-a-real-dependency-0.0.jar') << ''
-        new File(tempFolder.root, 'not-a-real-dependency-0.0.pom') << '''<?xml version="1.0" encoding="UTF-8"?>
+        new File(dependencyTempFolder.root, 'not-a-real-dependency-0.0.pom') << '''<?xml version="1.0" encoding="UTF-8"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
@@ -313,7 +316,7 @@ dependencies { compile "not-a-real-group:not-a-real-dependency:0.0" }''' : '')
         launchConfiguration.getAttribute('tasks', _) >> ['clean', 'dependencies']
         launchConfiguration.getAttribute('gradle_distribution', _) >> 'GRADLE_DISTRIBUTION(WRAPPER)'
         launchConfiguration.getAttribute('working_dir', _) >> path
-        launchConfiguration.getAttribute('arguments', _) >> ['--refresh-dependencies', '--info', '-Dgradle.user.home=' + tempFolder.root]
+        launchConfiguration.getAttribute('arguments', _) >> ['--refresh-dependencies', '--info', '-Dgradle.user.home=' + gradleHomeTempFolder.root]
         launchConfiguration.getAttribute('jvm_arguments', _) >> []
         launchConfiguration
     }
