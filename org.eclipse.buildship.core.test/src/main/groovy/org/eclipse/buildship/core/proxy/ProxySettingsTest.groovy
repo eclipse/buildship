@@ -74,32 +74,32 @@ class ProxySettingsTest extends ProjectImportSpecification {
         server.start()
     }
 
-    def "Eclipse proxy settings are properly collected"() {
-        def proxyConfigurator = new EclipseProxySettingsSupporter()
-
-        setup:
-        setupTestProxyData(proxyHost, proxyServer.port)
-
-        when:
-        proxyConfigurator.configureEclipseProxySettings()
-
-        then:
-        System.getProperty("http.proxyHost") == proxyHost
-        System.getProperty("http.proxyPort") == proxyServer.port.toString()
-        System.getProperty("http.proxyUser") == userId
-        System.getProperty("http.proxyPassword") == password
-
-        //        System.getProperty("https.proxyHost") == "test-host-https"
-        //        System.getProperty("https.proxyPort") == "8081"
-        //        System.getProperty("https.proxyUser") == "test-id-https"
-        //        System.getProperty("https.proxyPassword") == "test-password-https"
-    }
+//    def "Eclipse proxy settings are properly collected"() {
+//        def proxyConfigurator = new EclipseProxySettingsSupporter()
+//
+//        setup:
+//        setupTestProxyData(proxyHost, proxyServer.port, userId, password)
+//
+//        when:
+//        proxyConfigurator.configureEclipseProxySettings()
+//
+//        then:
+//        System.getProperty("http.proxyHost") == proxyHost
+//        System.getProperty("http.proxyPort") == proxyServer.port.toString()
+//        System.getProperty("http.proxyUser") == userId
+//        System.getProperty("http.proxyPassword") == password
+//
+//        //        System.getProperty("https.proxyHost") == "test-host-https"
+//        //        System.getProperty("https.proxyPort") == "8081"
+//        //        System.getProperty("https.proxyUser") == "test-id-https"
+//        //        System.getProperty("https.proxyPassword") == "test-password-https"
+//    }
 
     def "System properties temporarily changed when ToolingApiWorkspaceJob is run"() {
         String retrievedHost
 
         setup:
-        setupTestProxyData(tempHost, 8080)
+        setupTestProxyData(tempHost, 8080, userId, password)
         System.setProperty("http.proxyHost", permHost)
         def job = new ToolingApiWorkspaceJob("Test") {
                     @Override
@@ -121,7 +121,7 @@ class ProxySettingsTest extends ProjectImportSpecification {
         String retrievedHost, abc
 
         setup:
-        setupTestProxyData(tempHost, 0000)
+        setupTestProxyData(tempHost, 0000, userId, password)
         System.setProperty("http.proxyHost", permHost)
         def job = new ToolingApiJob("Test") {
                     @Override
@@ -210,10 +210,10 @@ class ProxySettingsTest extends ProjectImportSpecification {
         setup:
         createTestProxyFiles()
         proxyServer.start()
-//        proxyServer.requireAuthentication(userId, password)
-        setupTestProxyData("localhost", proxyServer.port)
+        proxyServer.requireAuthentication(userId, password)
+        setupTestProxyData("localhost", proxyServer.port, userId, password)
         File rootProject = newProject(false, true)
-        server.expectGet ("/not-a-real-group/not-a-real-dependency/0.0/not-a-real-dependency-0.0.pom", new File(dependencyTempFolder.root, 'not-a-real-dependency-0.0.pom'))
+        server.expectGet("/not-a-real-group2/not-a-real-dependency/0.0/not-a-real-dependency-0.0.pom", new File(dependencyTempFolder.root, 'not-a-real-dependency-0.0.pom'))
         def job = new RunGradleConfigurationDelegateJob(createLaunchMock(), createLaunchConfigurationMock(rootProject.absolutePath))
 
         when:
@@ -221,11 +221,27 @@ class ProxySettingsTest extends ProjectImportSpecification {
         job.join()
 
         then:
-        println gradleHomeTempFolder.root
         proxyServer.requestCount == 1
     }
 
-    def setupTestProxyData(String host, int port) {
+    def "Proxies are not accessed from Gradle build VM with incorrect proxy settings"() {
+        setup:
+        createTestProxyFiles()
+        proxyServer.start()
+        proxyServer.requireAuthentication(userId, password)
+        setupTestProxyData("localhost", proxyServer.port, userId, password + '-incorrect-password')
+        File rootProject = newProject(false, true)
+        def job = new RunGradleConfigurationDelegateJob(createLaunchMock(), createLaunchConfigurationMock(rootProject.absolutePath))
+
+        when:
+        job.schedule()
+        job.join()
+
+        then:
+        proxyServer.requestCount == 0
+    }
+
+    def setupTestProxyData(String host, int port, String userId, String password) {
         IProxyService proxyService = CorePlugin.getProxyService()
 
         //Ian-todo: Check to make sure that these are necessary
@@ -241,7 +257,7 @@ class ProxySettingsTest extends ProjectImportSpecification {
         httpProxyData.setPassword(password)
 
         // Ian-todo: Check to see if https needs to be tested, as well
-        httpsProxyData.setHost(host + 'https')
+        httpsProxyData.setHost(host)
         httpsProxyData.setPort(port)
         httpsProxyData.setUserid(userId)
         httpsProxyData.setPassword(password)
@@ -269,7 +285,7 @@ class ProxySettingsTest extends ProjectImportSpecification {
         def root = tempFolder.newFolder('simple-project')
         new File(root, 'build.gradle') << (applyJavaPlugin ? '''apply plugin: "java"
 repositories { maven { url "http://not.a.real.domain" } }
-dependencies { compile "not-a-real-group:not-a-real-dependency:0.0" }''' : '')
+dependencies { compile "not-a-real-group2:not-a-real-dependency:0.0" }''' : '')
         new File(root, 'settings.gradle') << ''
         new File(root, 'src/main/java').mkdirs()
 
@@ -316,7 +332,7 @@ dependencies { compile "not-a-real-group:not-a-real-dependency:0.0" }''' : '')
         launchConfiguration.getAttribute('tasks', _) >> ['clean', 'dependencies']
         launchConfiguration.getAttribute('gradle_distribution', _) >> 'GRADLE_DISTRIBUTION(WRAPPER)'
         launchConfiguration.getAttribute('working_dir', _) >> path
-        launchConfiguration.getAttribute('arguments', _) >> ['--refresh-dependencies', '--info', '-Dgradle.user.home=' + gradleHomeTempFolder.root]
+        launchConfiguration.getAttribute('arguments', _) >> ['--refresh-dependencies', '-Dgradle.user.home=' + gradleHomeTempFolder.root]
         launchConfiguration.getAttribute('jvm_arguments', _) >> []
         launchConfiguration
     }
