@@ -206,7 +206,7 @@ class ProxySettingsTest extends ProjectImportSpecification {
 //        proxyServer.requestCount == 1
 //    }
 
-    def "Proxies are accessed upon task exectution"() {
+    def "Proxies are accessed from Gradle build VM"() {
         setup:
         createTestProxyFiles()
         proxyServer.start()
