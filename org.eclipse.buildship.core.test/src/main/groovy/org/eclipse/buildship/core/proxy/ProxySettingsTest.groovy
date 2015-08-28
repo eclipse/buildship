@@ -61,7 +61,6 @@ class ProxySettingsTest extends ProjectImportSpecification {
     ProcessStreamsProvider processStreamsProvider
     @Rule public final HttpServer server = new HttpServer()
     @Rule TestProxyServer proxyServer = new TestProxyServer(server)
-    IPath workspaceRoot = ResourcesPlugin.getWorkspace().getRoot().rawLocation
 
     def proxyHost = 'localhost'
     def permHost = 'permHost'
@@ -212,7 +211,7 @@ class ProxySettingsTest extends ProjectImportSpecification {
 //        proxyServer.requireAuthentication(userId, password)
         setupTestProxyData("localhost", proxyServer.port)
         File rootProject = newProject(false, true)
-        server.expectGet ("/not-a-real-group/not-a-real-dependency/0.0/not-a-real-dependency-0.0.pom", new File(workspaceRoot.toString(), 'not-a-real-dependency-0.0.pom'))
+        server.expectGet ("/not-a-real-group/not-a-real-dependency/0.0/not-a-real-dependency-0.0.pom", new File(tempFolder.root, 'not-a-real-dependency-0.0.pom'))
         def job = new RunGradleConfigurationDelegateJob(createLaunchMock(), createLaunchConfigurationMock(rootProject.absolutePath))
 
         when:
@@ -267,7 +266,7 @@ class ProxySettingsTest extends ProjectImportSpecification {
         def root = tempFolder.newFolder('simple-project')
         new File(root, 'build.gradle') << (applyJavaPlugin ? '''apply plugin: "java"
 repositories { maven { url "http://not.a.real.domain" } }
-dependencies { compile "not-a-real-group:not-a-real-dependency:0.0@jar" }''' : '')
+dependencies { compile "not-a-real-group:not-a-real-dependency:0.0" }''' : '')
         new File(root, 'settings.gradle') << ''
         new File(root, 'src/main/java').mkdirs()
 
@@ -293,9 +292,8 @@ dependencies { compile "not-a-real-group:not-a-real-dependency:0.0@jar" }''' : '
     }
 
     private def createTestProxyFiles() {
-        println '>> ' + workspaceRoot
-//        new File(workspaceRoot.toString(), 'not-a-real-dependency-0.0.jar') << ''
-        new File(workspaceRoot.toString(), 'not-a-real-dependency-0.0.pom') << '''<?xml version="1.0" encoding="UTF-8"?>
+//        new File(tempFolder.toString(), 'not-a-real-dependency-0.0.jar') << ''
+        new File(tempFolder.root, 'not-a-real-dependency-0.0.pom') << '''<?xml version="1.0" encoding="UTF-8"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
@@ -315,7 +313,7 @@ dependencies { compile "not-a-real-group:not-a-real-dependency:0.0@jar" }''' : '
         launchConfiguration.getAttribute('tasks', _) >> ['clean', 'dependencies']
         launchConfiguration.getAttribute('gradle_distribution', _) >> 'GRADLE_DISTRIBUTION(WRAPPER)'
         launchConfiguration.getAttribute('working_dir', _) >> path
-        launchConfiguration.getAttribute('arguments', _) >> ['--refresh-dependencies', '--info', '-Dgradle.user.home=' + workspaceRoot]
+        launchConfiguration.getAttribute('arguments', _) >> ['--refresh-dependencies', '--info', '-Dgradle.user.home=' + tempFolder.root]
         launchConfiguration.getAttribute('jvm_arguments', _) >> []
         launchConfiguration
     }
