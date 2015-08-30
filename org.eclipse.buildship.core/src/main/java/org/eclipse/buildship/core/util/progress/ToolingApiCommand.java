@@ -21,6 +21,6 @@ public interface ToolingApiCommand {
      *
      * @throws Exception thrown if running the operation fails
      */
-    void run() throws Exception;
+    void run() throws Throwable;
 
 }
