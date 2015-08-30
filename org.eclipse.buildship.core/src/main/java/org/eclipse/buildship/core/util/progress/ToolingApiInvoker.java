@@ -149,11 +149,12 @@ public final class ToolingApiInvoker {
         return createInfoStatus(message, t);
     }
 
+    @SuppressWarnings("SimplifiableIfStatement")
     private boolean shouldSendUserNotification(Exception exception) {
         if (exception instanceof BuildCancelledException) {
             return false;
-        } else if (exception instanceof BuildException && !this.notifyUserAboutBuildFailures) {
-            return false;
+        } else if (exception instanceof BuildException) {
+            return this.notifyUserAboutBuildFailures;
         } else {
             return true;
         }
