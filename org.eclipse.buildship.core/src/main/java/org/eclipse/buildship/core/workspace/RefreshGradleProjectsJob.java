@@ -56,7 +56,7 @@ public final class RefreshGradleProjectsJob extends Job {
         }, monitor);
     }
 
-    protected void scheduleRefreshJobs(final IProgressMonitor monitor) throws Exception {
+    private void scheduleRefreshJobs(final IProgressMonitor monitor) throws Exception {
         // find all the unique root projects for the given list of projects and
         // reload the workspace project configuration for each of them (incl. their respective child projects)
         Set<FixedRequestAttributes> rootRequestAttributes = getUniqueRootAttributes(this.projects);
@@ -90,21 +90,7 @@ public final class RefreshGradleProjectsJob extends Job {
         }
     }
 
-    @Override
-    protected void canceling() {
-        // cancel all running RefreshGradleProjectJob instances
-        Job.getJobManager().cancel(RefreshGradleProjectJob.class.getName());
-    }
-
-    private static void rethrowExceptionsIfAny(List<Throwable> errors) throws Exception {
-        if (errors.size() == 1) {
-            throw errors.get(0);
-        } else if (errors.size() > 1) {
-            throw new AggregateException(errors);
-        }
-    }
-
-    private static Set<FixedRequestAttributes> getUniqueRootAttributes(List<IProject> projects) {
+    private Set<FixedRequestAttributes> getUniqueRootAttributes(List<IProject> projects) {
         return FluentIterable.from(projects).filter(Predicates.accessibleGradleProject()).transform(new Function<IProject, FixedRequestAttributes>() {
 
             @Override
@@ -112,6 +98,20 @@ public final class RefreshGradleProjectsJob extends Job {
                 return CorePlugin.projectConfigurationManager().readProjectConfiguration(project).getRequestAttributes();
             }
         }).toSet();
+    }
+
+    private void rethrowExceptionsIfAny(List<Throwable> errors) throws Exception {
+        if (errors.size() == 1) {
+            throw errors.get(0);
+        } else if (errors.size() > 1) {
+            throw new AggregateException(errors);
+        }
+    }
+
+    @Override
+    protected void canceling() {
+        // cancel all running RefreshGradleProjectJob instances
+        Job.getJobManager().cancel(RefreshGradleProjectJob.class.getName());
     }
 
 }
