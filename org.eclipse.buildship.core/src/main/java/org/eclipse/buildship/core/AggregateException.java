@@ -23,16 +23,16 @@ public final class AggregateException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    private final List<Exception> exceptions;
+    private final List<Throwable> causes;
 
-    public AggregateException(List<? extends Exception> exceptions) {
-        Preconditions.checkNotNull(exceptions);
-        Preconditions.checkState(!exceptions.isEmpty());
-        this.exceptions = ImmutableList.copyOf(exceptions);
+    public AggregateException(List<? extends Throwable> causes) {
+        Preconditions.checkNotNull(causes);
+        Preconditions.checkState(!causes.isEmpty());
+        this.causes = ImmutableList.copyOf(causes);
     }
 
-    public List<Exception> getExceptions() {
-        return this.exceptions;
+    public List<Throwable> getCauses() {
+        return this.causes;
     }
 
 }

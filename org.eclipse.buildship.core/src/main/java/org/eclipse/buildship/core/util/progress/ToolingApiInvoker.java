@@ -124,19 +124,19 @@ public final class ToolingApiInvoker {
 
     private IStatus handleMultiException(AggregateException e) {
         // log all exceptions and notify the user about the first one
-        String message = String.format("%s failed due to multiple exceptions.", this.workName);
-        for (Exception exception : e.getExceptions()) {
-            CorePlugin.logger().error(message, exception);
+        String message = String.format("%s failed due to multiple errors.", this.workName);
+        for (Throwable t : e.getCauses()) {
+            CorePlugin.logger().error(message, t);
         }
-        Optional<Exception> firstException = FluentIterable.from(e.getExceptions()).firstMatch(new Predicate<Exception>() {
+        Optional<Throwable> firstError = FluentIterable.from(e.getCauses()).firstMatch(new Predicate<Throwable>() {
 
             @Override
-            public boolean apply(Exception exception) {
-                return shouldSendUserNotification(exception);
+            public boolean apply(Throwable t) {
+                return shouldSendUserNotification(t);
             }
         });
-        if (firstException.isPresent()) {
-            CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(firstException.get()), IStatus.ERROR, firstException.get());
+        if (firstError.isPresent()) {
+            CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(firstError.get()), IStatus.ERROR, firstError.get());
         }
         return createInfoStatus(message, e);
     }
@@ -150,10 +150,10 @@ public final class ToolingApiInvoker {
     }
 
     @SuppressWarnings("SimplifiableIfStatement")
-    private boolean shouldSendUserNotification(Exception exception) {
-        if (exception instanceof BuildCancelledException) {
+    private boolean shouldSendUserNotification(Throwable t) {
+        if (t instanceof BuildCancelledException) {
             return false;
-        } else if (exception instanceof BuildException) {
+        } else if (t instanceof BuildException) {
             return this.notifyUserAboutBuildFailures;
         } else {
             return true;
