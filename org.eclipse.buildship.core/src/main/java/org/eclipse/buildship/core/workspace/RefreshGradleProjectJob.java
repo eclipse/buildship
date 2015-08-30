@@ -42,17 +42,17 @@ import org.eclipse.buildship.core.util.predicate.Predicates;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 
 /**
- * Job forcing Gradle model reload for a Gradle project and requests a refresh for all contained
- * workspace projects.
+ * Forces the reload of the given Gradle root project and requests the {@link GradleClasspathContainer} to refresh
+ * all workspace projects that are part of the given Gradle root project.
  */
 public final class RefreshGradleProjectJob extends Job {
 
-    private final FixedRequestAttributes attributes;
+    private final FixedRequestAttributes rootRequestAttributes;
     private final CancellationTokenSource tokenSource;
 
-    public RefreshGradleProjectJob(FixedRequestAttributes attributes) {
-        super("Reload project from " + Preconditions.checkNotNull(attributes).getProjectDir().getAbsolutePath());
-        this.attributes = attributes;
+    public RefreshGradleProjectJob(FixedRequestAttributes rootRequestAttributes) {
+        super("Reload root project at " + Preconditions.checkNotNull(rootRequestAttributes).getProjectDir().getAbsolutePath());
+        this.rootRequestAttributes = rootRequestAttributes;
         this.tokenSource = GradleConnector.newCancellationTokenSource();
     }
 
@@ -60,7 +60,7 @@ public final class RefreshGradleProjectJob extends Job {
     protected IStatus run(IProgressMonitor monitor) {
         monitor.beginTask("Reload projects and request project update", IProgressMonitor.UNKNOWN);
         try {
-            OmniEclipseGradleBuild result = forceReloadEclipseGradleBuild(this.attributes, monitor);
+            OmniEclipseGradleBuild result = forceReloadEclipseGradleBuild(this.rootRequestAttributes, monitor);
             requestUpdateOnAllWorkspaceProject(result.getRootEclipseProject().getAll());
             return Status.OK_STATUS;
         } catch (Exception e) {
