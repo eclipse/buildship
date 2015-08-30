@@ -122,6 +122,16 @@ public final class ToolingApiInvoker {
         return createInfoStatus(message, e);
     }
 
+    private IStatus handleUnknownFailed(Throwable t) {
+        // if an unexpected exception was thrown it should be shown and logged
+        String message = String.format("%s failed due to an unexpected error.", this.workName);
+        CorePlugin.logger().error(message, t);
+        if (shouldSendUserNotification(t)) {
+            CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(t), IStatus.ERROR, t);
+        }
+        return createInfoStatus(message, t);
+    }
+
     private IStatus handleMultiException(AggregateException e) {
         // log all exceptions and notify the user about the first one
         String message = String.format("%s failed due to multiple errors.", this.workName);
@@ -139,14 +149,6 @@ public final class ToolingApiInvoker {
             CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(firstError.get()), IStatus.ERROR, firstError.get());
         }
         return createInfoStatus(message, e);
-    }
-
-    private IStatus handleUnknownFailed(Throwable t) {
-        // if an unexpected exception was thrown it should be shown and logged
-        String message = String.format("%s failed due to an unexpected error.", this.workName);
-        CorePlugin.logger().error(message, t);
-        CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(t), IStatus.ERROR, t);
-        return createInfoStatus(message, t);
     }
 
     @SuppressWarnings("SimplifiableIfStatement")
