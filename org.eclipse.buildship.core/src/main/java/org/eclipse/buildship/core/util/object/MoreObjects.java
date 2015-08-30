@@ -23,16 +23,11 @@ public class MoreObjects {
 
     /**
      * Note: this method has been taken from
-     * {@code com.google.common.base.MoreObject.firstNonNull()} method. which is available in
+     * {@code com.google.common.base.MoreObject.firstNonNull()} method, which is available in
      * library {@code com.google.guava:18.0}.
-     *
+     * <p/>
      * Returns the first of two given parameters that is not {@code null}, if either is, or
      * otherwise throws a {@link NullPointerException}.
-     *
-     * <p>
-     * <b>Note:</b> if {@code first} is represented as an {@link Optional}, this can be accomplished
-     * with {@link Optional#or(Object) first.or(second)}. That approach also allows for lazy
-     * evaluation of the fallback instance, using {@link Optional#or(Supplier) first.or(supplier)}.
      *
      * @return {@code first} if it is non-null; otherwise {@code second} if it is non-null
      * @throws NullPointerException if both {@code first} and {@code second} are null
@@ -41,4 +36,5 @@ public class MoreObjects {
     public static <T> T firstNonNull(T first, T second) {
         return first != null ? first : checkNotNull(second);
     }
+
 }

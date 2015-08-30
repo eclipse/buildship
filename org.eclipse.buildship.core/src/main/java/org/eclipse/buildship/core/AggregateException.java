@@ -17,7 +17,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 /**
- * Describes one or more unchecked exceptions rallied in one task.
+ * Exception that aggregates multiple cause exceptions.
  */
 public final class AggregateException extends RuntimeException {
 
