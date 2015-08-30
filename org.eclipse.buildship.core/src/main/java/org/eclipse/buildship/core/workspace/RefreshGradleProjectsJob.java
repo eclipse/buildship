@@ -18,9 +18,11 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import org.eclipse.buildship.core.AggregateException;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.predicate.Predicates;
-import org.eclipse.buildship.core.util.progress.ToolingApiJob;
+import org.eclipse.buildship.core.util.progress.ToolingApiCommand;
+import org.eclipse.buildship.core.util.progress.ToolingApiInvoker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -31,24 +33,30 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Finds the root projects for the selection and starts a {@link RefreshGradleProjectJob} on each of
- * them.
- * <p/>
- * Note: this job does not directly call the Tooling API. Instead, it launches a set of jobs that call
- * the Tooling API. We still extend (@code ToolingApiJob} since conceptually this job does interact with
- * the Tooling API, and also in order to get all the Tooling API related exception processing for free.
+ * Finds the Gradle root projects for the given Eclipse projects and
+ * starts a {@link RefreshGradleProjectJob} for each one of them.
  */
-public final class RefreshGradleProjectsJob extends ToolingApiJob {
+public final class RefreshGradleProjectsJob extends Job {
 
     private final List<IProject> projects;
 
     public RefreshGradleProjectsJob(List<IProject> projects) {
-        super("Refresh Gradle projects", true);
+        super("Refresh Gradle projects");
         this.projects = ImmutableList.copyOf(projects);
     }
 
     @Override
-    protected void runToolingApiJob(final IProgressMonitor monitor) throws Exception {
+    protected IStatus run(final IProgressMonitor monitor) {
+        ToolingApiInvoker invoker = new ToolingApiInvoker(getName(), true);
+        return invoker.invoke(new ToolingApiCommand() {
+            @Override
+            public void run() throws Exception {
+                scheduleRefreshJobs(monitor);
+            }
+        }, monitor);
+    }
+
+    protected void scheduleRefreshJobs(final IProgressMonitor monitor) throws Exception {
         // find all the unique root projects for the given list of projects and
         // reload the workspace project configuration for each of them (incl. their respective child projects)
         Set<FixedRequestAttributes> rootRequestAttributes = getUniqueRootAttributes(this.projects);
