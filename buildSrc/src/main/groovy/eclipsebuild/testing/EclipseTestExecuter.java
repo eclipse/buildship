@@ -134,7 +134,7 @@ public final class EclipseTestExecuter implements TestExecuter {
         javaExecHandleBuilder.setSystemProperties(testTask.getSystemProperties());
         javaExecHandleBuilder.setEnvironment(testTask.getEnvironment());
 
-        // TODO this should be specified when creating the task (to allow overrid in build script)
+        // TODO this should be specified when creating the task (to allow override in build script)
         List<String> jvmArgs = new ArrayList<String>();
         jvmArgs.add("-XX:MaxPermSize=256m");
         jvmArgs.add("-Xms40m");
