@@ -11,35 +11,34 @@
 
 package org.eclipse.buildship.core.workspace;
 
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
-
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-
+import org.eclipse.buildship.core.AggregateException;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.util.predicate.Predicates;
+import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
-import org.eclipse.buildship.core.AggregateException;
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.util.predicate.Predicates;
-import org.eclipse.buildship.core.util.progress.ToolingApiJob;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Finds the root projects for the selection and starts a {@link RefreshGradleProjectJob} on each of
  * them.
+ * <p/>
+ * Note: this job does not directly call the Tooling API. Instead, it launches a set of jobs that call
+ * the Tooling API. We still extend (@code ToolingApiJob} since conceptually this job does interact with
+ * the Tooling API, and also in order to get all the Tooling API related exception processing for free.
  */
 public final class RefreshGradleProjectsJob extends ToolingApiJob {
-
-    // todo (etst) we should also support removing and adding projects during the refresh
 
     private final List<IProject> projects;
 
@@ -50,30 +49,36 @@ public final class RefreshGradleProjectsJob extends ToolingApiJob {
 
     @Override
     protected void runToolingApiJob(final IProgressMonitor monitor) throws Exception {
-        Set<FixedRequestAttributes> requestAttributes = getUniqueRootAttributes(this.projects);
-        monitor.beginTask("Refresh selected Gradle projects in workspace", requestAttributes.size());
-        final List<Exception> exceptions = new CopyOnWriteArrayList<Exception>();
+        // find all the unique root projects for the given list of projects and
+        // reload the workspace project configuration for each of them (incl. their respective child projects)
+        Set<FixedRequestAttributes> rootRequestAttributes = getUniqueRootAttributes(this.projects);
+        monitor.beginTask("Refresh selected Gradle projects in workspace", rootRequestAttributes.size());
+        final List<Throwable> errors = new CopyOnWriteArrayList<Throwable>();
         try {
-            final CountDownLatch latch = new CountDownLatch(requestAttributes.size());
-            for (final FixedRequestAttributes attributes : requestAttributes) {
-                Job refreshjob = new RefreshGradleProjectJob(attributes);
-                refreshjob.addJobChangeListener(new JobChangeAdapter() {
+            final CountDownLatch latch = new CountDownLatch(rootRequestAttributes.size());
+            for (final FixedRequestAttributes requestAttributes : rootRequestAttributes) {
+                Job refreshJob = new RefreshGradleProjectJob(requestAttributes);
+                refreshJob.addJobChangeListener(new JobChangeAdapter() {
 
+                    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
                     @Override
                     public void done(IJobChangeEvent event) {
-                        if (event.getResult().getException() != null && event.getResult().getException() instanceof Exception) {
-                            exceptions.add((Exception) event.getResult().getException());
+                        if (!event.getResult().isOK()) {
+                            Throwable error = event.getResult().getException();
+                            if (error != null) {
+                                errors.add(error);
+                            }
                         }
                         monitor.worked(1);
                         latch.countDown();
-                    };
+                    }
                 });
-                refreshjob.schedule();
+                refreshJob.schedule();
             }
             latch.await();
         } finally {
             monitor.done();
-            rethrowExceptionsIfAny(exceptions);
+            rethrowExceptionsIfAny(errors);
         }
     }
 
@@ -83,11 +88,11 @@ public final class RefreshGradleProjectsJob extends ToolingApiJob {
         Job.getJobManager().cancel(RefreshGradleProjectJob.class.getName());
     }
 
-    private static void rethrowExceptionsIfAny(List<Exception> exceptions) throws Exception {
-        if (exceptions.size() == 1) {
-            throw exceptions.get(0);
-        } else if (exceptions.size() > 1) {
-            throw new AggregateException(exceptions);
+    private static void rethrowExceptionsIfAny(List<Throwable> errors) throws Exception {
+        if (errors.size() == 1) {
+            throw errors.get(0);
+        } else if (errors.size() > 1) {
+            throw new AggregateException(errors);
         }
     }
 
