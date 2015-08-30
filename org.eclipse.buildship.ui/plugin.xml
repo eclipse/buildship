@@ -183,10 +183,10 @@
                 parentId="org.eclipse.ui.contexts.window">
         </context>
         <context
-              description="This context is activated, when the selection contain an IProject with the Gradle nature"
               id="org.eclipse.buildship.ui.contexts.gradlenature"
               name="Context for selected IProjects with Gradle nature"
-              parentId="org.eclipse.ui.contexts.window">
+              parentId="org.eclipse.ui.contexts.window"
+              description="This context is activated, when the selection contain an IProject with the Gradle nature">
         </context>
     </extension>
     <extension

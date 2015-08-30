@@ -44,8 +44,8 @@ dependencies {
     externalPlugin withEclipseBundle('com.gradleware.tooling.model')
 
     // official 3rd party dependencies from Orbit which are already signed and normalized with pack200
-    signedExternalPlugin withEclipseBundle('com.google.gson')
     signedExternalPlugin withEclipseBundle('org.slf4j.api')
+    signedExternalPlugin withEclipseBundle('com.google.gson')
 }
 
 task uploadUpdateSite(dependsOn : createP2Repository) {
