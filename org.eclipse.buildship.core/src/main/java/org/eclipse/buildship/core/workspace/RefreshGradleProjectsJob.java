@@ -50,13 +50,13 @@ public final class RefreshGradleProjectsJob extends Job {
         ToolingApiInvoker invoker = new ToolingApiInvoker(getName(), true);
         return invoker.invoke(new ToolingApiCommand() {
             @Override
-            public void run() throws Exception {
+            public void run() throws Throwable {
                 scheduleRefreshJobs(monitor);
             }
         }, monitor);
     }
 
-    private void scheduleRefreshJobs(final IProgressMonitor monitor) throws Exception {
+    private void scheduleRefreshJobs(final IProgressMonitor monitor) throws Throwable {
         // find all the unique root projects for the given list of projects and
         // reload the workspace project configuration for each of them (incl. their respective child projects)
         Set<FixedRequestAttributes> rootRequestAttributes = getUniqueRootAttributes(this.projects);
@@ -100,7 +100,7 @@ public final class RefreshGradleProjectsJob extends Job {
         }).toSet();
     }
 
-    private void rethrowExceptionsIfAny(List<Throwable> errors) throws Exception {
+    private void rethrowExceptionsIfAny(List<Throwable> errors) throws Throwable {
         if (errors.size() == 1) {
             throw errors.get(0);
         } else if (errors.size() > 1) {
