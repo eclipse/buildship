@@ -21,6 +21,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 
 import com.gradleware.tooling.toolingclient.ToolingClient;
+import com.gradleware.tooling.toolingclient.ToolingClient.CleanUpStrategy;
 import com.gradleware.tooling.toolingmodel.repository.Environment;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProviderFactory;
@@ -97,6 +98,7 @@ public final class CorePlugin extends Plugin {
 
     @Override
     public void stop(BundleContext context) throws Exception {
+        toolingClient().stop(CleanUpStrategy.GRACEFULLY);
         unregisterServices();
         plugin = null;
         super.stop(context);
