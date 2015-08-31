@@ -64,6 +64,7 @@ public final class RefreshGradleProjectJob extends Job {
             requestUpdateOnAllWorkspaceProject(result.getRootEclipseProject().getAll());
             return Status.OK_STATUS;
         } catch (Exception e) {
+            // todo (etst) should be error, handle exception like in ToolingApiInvoker
             return new Status(IStatus.WARNING, CorePlugin.PLUGIN_ID, "refresh failed", e);
         } finally {
             monitor.done();
