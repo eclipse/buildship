@@ -171,6 +171,19 @@
       <handler
             commandId="org.eclipse.buildship.ui.commands.refreshproject"
             class="org.eclipse.buildship.ui.workspace.RefreshProjectHandler">
+         <activeWhen>
+            <and>
+               <with
+                     variable="activeContexts">
+                  <iterate
+                        operator="or">
+                     <equals
+                           value="org.eclipse.buildship.ui.contexts.gradlenature">
+                     </equals>
+                  </iterate>
+               </with>
+            </and>
+         </activeWhen>
       </handler>
     </extension>
 

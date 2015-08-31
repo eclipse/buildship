@@ -15,19 +15,18 @@ package org.eclipse.buildship.ui.workspace;
 
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
-
+import org.eclipse.buildship.core.util.collections.AdapterFunction;
+import org.eclipse.buildship.core.workspace.RefreshGradleProjectsJob;
+import org.eclipse.buildship.ui.util.predicate.Predicates;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IAdapterManager;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import org.eclipse.buildship.core.workspace.RefreshGradleProjectsJob;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Collects all selected {@link IProject} instances and schedules a
@@ -47,22 +46,17 @@ public final class GradleClasspathContainerRefresher {
 
     private static List<IProject> collectSelectedProjects(ExecutionEvent event) {
         ISelection currentSelection = HandlerUtil.getCurrentSelection(event);
-        Builder<IProject> result = ImmutableList.builder();
         if (currentSelection instanceof IStructuredSelection) {
             IStructuredSelection selection = (IStructuredSelection) currentSelection;
-            IAdapterManager adapterManager = Platform.getAdapterManager();
-            for (Object selectionItem : selection.toList()) {
-                @SuppressWarnings({ "cast", "RedundantCast" })
-                IResource resource = (IResource) adapterManager.getAdapter(selectionItem, IResource.class);
-                if (resource != null) {
-                    IProject project = resource.getProject();
-                    if (project != null) {
-                        result.add(project);
-                    }
-                }
-            }
+            @SuppressWarnings("unchecked")
+            ImmutableList<IProject> selectedProjects = FluentIterable.from(selection.toList())
+                    .transform(new AdapterFunction<IProject>(IProject.class, Platform.getAdapterManager()))
+                    .filter(Predicates.hasGradleNature()).toList();
+
+            return selectedProjects;
+        } else {
+            return ImmutableList.of();
         }
-        return result.build();
     }
 
 }
