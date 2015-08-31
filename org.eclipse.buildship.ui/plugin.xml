@@ -194,13 +194,13 @@
                 id="org.eclipse.buildship.ui.contexts.taskview"
                 name="In Gradle Tasks View"
                 parentId="org.eclipse.ui.contexts.window"
-                description="This context is activated, when the Gradle Tasks view is in focus">
+                description="This context is activated when the Gradle Tasks view is in focus">
         </context>
         <context
               id="org.eclipse.buildship.ui.contexts.gradlenature"
               name="Context for selected IProjects with Gradle nature"
               parentId="org.eclipse.ui.contexts.window"
-              description="This context is activated, when the selection contain an IProject with the Gradle nature">
+              description="This context is activated when the selection contains an IProject with the Gradle nature">
         </context>
     </extension>
     <extension
