@@ -52,6 +52,7 @@ public final class GradleClasspathContainerRefresher {
             @SuppressWarnings("unchecked")
             ImmutableList<IProject> selectedProjects = FluentIterable.from(selection.toList())
                     .transform(new AdapterFunction<IProject>(IProject.class, Platform.getAdapterManager()))
+                    .filter(com.google.common.base.Predicates.notNull())
                     .filter(Predicates.hasGradleNature()).toList();
 
             return selectedProjects;
