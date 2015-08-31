@@ -193,7 +193,8 @@
         <context
                 id="org.eclipse.buildship.ui.contexts.taskview"
                 name="In Gradle Tasks View"
-                parentId="org.eclipse.ui.contexts.window">
+                parentId="org.eclipse.ui.contexts.window"
+                description="This context is activated, when the Gradle Tasks view is in focus">
         </context>
         <context
               id="org.eclipse.buildship.ui.contexts.gradlenature"
