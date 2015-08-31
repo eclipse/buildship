@@ -11,9 +11,9 @@
 
 package org.eclipse.buildship.core.util.collections;
 
-import org.eclipse.core.runtime.IAdapterManager;
-
 import com.google.common.base.Function;
+
+import org.eclipse.core.runtime.IAdapterManager;
 
 /**
  * {@link Function} which is used to get a certain adapter from an input object.
