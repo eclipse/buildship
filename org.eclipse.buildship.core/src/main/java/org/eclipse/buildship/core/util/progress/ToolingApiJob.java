@@ -70,9 +70,8 @@ public abstract class ToolingApiJob extends Job {
             @Override
             public void run() throws Exception {
                 try {
-
-                } finally {
                     runToolingApiJob(monitor);
+                } finally {
                     proxySettingsSupporter.restoreSystemProxySettings();
                 }
             }
