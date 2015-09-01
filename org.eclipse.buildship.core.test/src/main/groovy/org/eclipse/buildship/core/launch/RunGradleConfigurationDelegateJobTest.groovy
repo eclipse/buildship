@@ -42,18 +42,18 @@ class RunGradleConfigurationDelegateJobTest extends Specification {
         TestEnvironment.cleanup()
     }
 
-//    def "Job launches the Gradle build"() {
-//        setup:
-//        def job = new RunGradleConfigurationDelegateJob(createLaunchMock(), createLaunchConfigurationMock())
-//
-//        when:
-//        job.schedule()
-//        job.join()
-//
-//        then:
-//        job.getResult().isOK()
-//        1 * toolingClient.newBuildLaunchRequest(null).executeAndWait()
-//    }
+    def "Job launches the Gradle build"() {
+        setup:
+        def job = new RunGradleConfigurationDelegateJob(createLaunchMock(), createLaunchConfigurationMock())
+
+        when:
+        job.schedule()
+        job.join()
+
+        then:
+        job.getResult().isOK()
+        1 * toolingClient.newBuildLaunchRequest(null).executeAndWait()
+    }
 
     def "Job prints its configuration"() {
         setup:
