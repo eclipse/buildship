@@ -69,8 +69,12 @@ public abstract class ToolingApiJob extends Job {
         return invoker.invoke(new ToolingApiCommand() {
             @Override
             public void run() throws Exception {
-                runToolingApiJob(monitor);
-                proxySettingsSupporter.restoreSystemProxySettings();
+                try {
+
+                } finally {
+                    runToolingApiJob(monitor);
+                    proxySettingsSupporter.restoreSystemProxySettings();
+                }
             }
         }, monitor);
     }
@@ -96,10 +100,5 @@ public abstract class ToolingApiJob extends Job {
     protected void canceling() {
         this.tokenSource.cancel();
     }
-
-    public void getProxySettings() {
-
-    }
-
 
 }

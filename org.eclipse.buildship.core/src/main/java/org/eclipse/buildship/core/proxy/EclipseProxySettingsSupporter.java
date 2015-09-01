@@ -19,12 +19,19 @@ import org.eclipse.buildship.core.CorePlugin;
 
 public class EclipseProxySettingsSupporter {
 
-    String savedHTTPProxyHost, savedHTTPProxyPort, savedHTTPProxyUser, savedHTTPProxyPassword;
+    private String savedHTTPProxyHost, savedHTTPProxyPort, savedHTTPProxyUser, savedHTTPProxyPassword;
 
+    /**
+     * Configures the System properties proxy settings based on the Eclipse proxy settings.
+     */
     public void configureEclipseProxySettings() {
         configureHTTPProxySettings();
     }
 
+    /**
+     * Restores the proxy settings in the system properties to what they were before
+     * the EclipseProxySettingsSupporter changed them.
+     */
     public void restoreSystemProxySettings() {
         resetOrClearSystemProperty("http.proxyHost", this.savedHTTPProxyHost);
         resetOrClearSystemProperty("http.proxyPort", this.savedHTTPProxyPort);

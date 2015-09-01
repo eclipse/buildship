@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     Ian Stewart-Binks (Red Hat, Inc.) - Story: Integrate Eclipse proxy settings into Buildship model loading and task execution
+ *     Ian Stewart-Binks (Red Hat, Inc.), René Groeschke (Gradle, Inc.) - Story: Integrate Eclipse proxy settings into Buildship model loading and task execution
  */
 
 package org.eclipse.buildship.core.proxy
@@ -23,7 +23,6 @@ import com.gradleware.tooling.toolingmodel.util.Pair
 import org.eclipse.debug.core.ILaunch
 import org.eclipse.core.net.proxy.IProxyService
 import org.gradle.tooling.GradleConnector;
-import org.eclipse.core.internal.jobs.ThreadJob;
 import org.eclipse.core.net.proxy.IProxyData
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.buildship.core.CorePlugin
@@ -77,23 +76,26 @@ class ProxySettingsTest extends ProjectImportSpecification {
         createTestProxyFiles()
         server.start()
         proxyService = CorePlugin.getProxyService()
+        //Ian-todo: Provide explanation in PR if possible on these two lines
+        proxyService.setProxiesEnabled(true)
+        proxyService.setSystemProxiesEnabled(false)
     }
 
-        def "Eclipse proxy settings are properly collected"() {
-            def proxyConfigurator = new EclipseProxySettingsSupporter()
+    def "Eclipse proxy settings are properly collected"() {
+        def proxyConfigurator = new EclipseProxySettingsSupporter()
 
-            setup:
-            setupTestProxyData(proxyHost, proxyServer.port, userId, password)
+        setup:
+        setupTestProxyData(proxyHost, proxyServer.port, userId, password)
 
-            when:
-            proxyConfigurator.configureEclipseProxySettings()
+        when:
+        proxyConfigurator.configureEclipseProxySettings()
 
-            then:
-            System.getProperty("http.proxyHost") == proxyHost
-            System.getProperty("http.proxyPort") == proxyServer.port.toString()
-            System.getProperty("http.proxyUser") == userId
-            System.getProperty("http.proxyPassword") == password
-        }
+        then:
+        System.getProperty("http.proxyHost") == proxyHost
+        System.getProperty("http.proxyPort") == proxyServer.port.toString()
+        System.getProperty("http.proxyUser") == userId
+        System.getProperty("http.proxyPassword") == password
+    }
 
     def "System properties temporarily changed when ToolingApiWorkspaceJob is run"() {
         String retrievedHost
@@ -157,39 +159,37 @@ class ProxySettingsTest extends ProjectImportSpecification {
     //        System.out.println(">> " + arguments)
     //    }
 
-        def "Different proxy settings can be used by subsequent builds"() {
-            String retrievedHost
-            String secondTempHost = 'tempHost2'
+    def "Different proxy settings can be used by subsequent builds"() {
+        String retrievedHost
+        String secondTempHost = 'tempHost2'
 
-            setup:
-            System.setProperty("http.proxyHost", permHost)
-            setupTestProxyData(tempHost, 0000, userId, password)
-
-            def firstJob = new ToolingApiJob("Test") {
-                        @Override
-                        protected void runToolingApiJob(IProgressMonitor monitor) {
-                        }
+        setup:
+        setupTestProxyData(tempHost, 8080, userId, password)
+        System.setProperty("http.proxyHost", permHost)
+        def firstJob = new ToolingApiJob("Test") {
+                    @Override
+                    protected void runToolingApiJob(IProgressMonitor monitor) {
                     }
+                }
 
-            def secondJob = new ToolingApiJob("Test") {
-                        @Override
-                        protected void runToolingApiJob(IProgressMonitor monitor) {
-                            retrievedHost = System.getProperty("http.proxyHost")
-                        }
+        def secondJob = new ToolingApiJob("SecondTest") {
+                    @Override
+                    protected void runToolingApiJob(IProgressMonitor monitor) {
+                        retrievedHost = System.getProperty("http.proxyHost")
                     }
+                }
 
-            when:
-            firstJob.schedule()
-            firstJob.join()
-            println '>> ' + System.getProperty("http.proxyHost")
-            setupTestProxyData(secondTempHost, 0000, userId, password)
-            secondJob.schedule()
-            secondJob.join()
+        when:
+        firstJob.schedule()
+        firstJob.join()
+        setupTestProxyData(secondTempHost, 8080, userId, password)
+        secondJob.schedule()
+        secondJob.join()
 
-            then:
-            retrievedHost == secondTempHost
-            System.getProperty("http.proxyHost") == permHost
-        }
+        then:
+        System.getProperty("http.proxyHost") == permHost
+        retrievedHost == secondTempHost
+    }
 
     def "Proxies are accessed upon Gradle distribution download"() {
         setup:
@@ -242,29 +242,36 @@ class ProxySettingsTest extends ProjectImportSpecification {
     }
 
     def setupTestProxyData(String host, int port, String userId, String password) {
+        String proxyHostMemory = System.getProperty("http.proxyHost")
+        String proxyPortMemory = System.getProperty("http.proxyPort")
+        String proxyUserMemory = System.getProperty("http.proxyUser")
+        String proxyPassMemory = System.getProperty("http.proxyPassword")
 
-        //Ian-todo: Check to make sure that these are necessary
-//        proxyService.setProxiesEnabled(true)
-//        proxyService.setSystemProxiesEnabled(true)
 
-        IProxyData httpProxyData = proxyService.getProxyData(IProxyData.HTTP_PROXY_TYPE)
-        IProxyData httpsProxyData = proxyService.getProxyData(IProxyData.HTTPS_PROXY_TYPE)
+        // Gets rid of The HTTP proxy is enabled in the preferences but disabled in the system settings
+        final IProxyData httpProxyData = proxyService.getProxyData(IProxyData.HTTP_PROXY_TYPE)
 
         httpProxyData.setHost(host)
         httpProxyData.setPort(port)
         httpProxyData.setUserid(userId)
         httpProxyData.setPassword(password)
-
-        // Ian-todo: Check to see if https needs to be tested, as well
-        httpsProxyData.setHost(host)
-        httpsProxyData.setPort(port)
-        httpsProxyData.setUserid(userId)
-        httpsProxyData.setPassword(password)
-
         proxyService.setProxyData((IProxyData[]) [
-            httpProxyData,
-            httpsProxyData
+            httpProxyData
         ])
+
+        if (proxyHostMemory != null) {
+            System.setProperty("http.proxyHost", proxyHostMemory)
+        }
+        if (proxyPortMemory != null) {
+            System.setProperty("http.proxyPort", proxyPortMemory)
+        }
+        if (proxyUserMemory != null) {
+            System.setProperty("http.proxyUser", proxyUserMemory)
+        }
+        if (proxyPassMemory != null) {
+            System.setProperty("http.proxyPassword", proxyPassMemory)
+        }
+
     }
 
     def newProjectImportJob(File location) {
