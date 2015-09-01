@@ -82,10 +82,8 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         File gradleUserHome = configurationAttributes.getGradleUserHome();
         GradleDistribution gradleDistribution = configurationAttributes.getGradleDistribution();
         File javaHome = configurationAttributes.getJavaHome();
-        ImmutableList<String> l = configurationAttributes.getJvmArguments();
+        ImmutableList<String> jvmArguments = configurationAttributes.getJvmArguments();
         ImmutableList<String> arguments = configurationAttributes.getArguments();
-
-        ImmutableList<String> jvmArguments = addProxySettingsToJvmArguments(l);
 
         // start tracking progress
         monitor.beginTask(String.format("Launch Gradle tasks %s", tasks), IProgressMonitor.UNKNOWN);
@@ -186,12 +184,6 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         } finally {
             monitor.done();
         }
-    }
-
-    private ImmutableList<String> addProxySettingsToJvmArguments(ImmutableList<String> jvmArgs) {
-        ImmutableList.Builder<String> builder = new ImmutableList.Builder<String>();
-        builder.add("-Dhttp.proxyHost=localHost", "-Dhttp.proxyPort=0", "-Dhttp.proxyUser=test-user", "-Dhttp.proxyPassword=test-password").addAll(jvmArgs);
-        return builder.build();
     }
 
 }
