@@ -6,7 +6,6 @@ import org.eclipse.buildship.core.console.ProcessStreams
 import org.eclipse.buildship.core.console.ProcessStreamsProvider
 import org.eclipse.buildship.core.test.fixtures.TestEnvironment
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.debug.core.ILaunch
 import org.eclipse.debug.core.ILaunchConfiguration
 import org.junit.Rule
