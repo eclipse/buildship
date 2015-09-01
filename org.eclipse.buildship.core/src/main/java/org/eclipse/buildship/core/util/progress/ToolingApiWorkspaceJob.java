@@ -76,8 +76,11 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
         return invoker.invoke(new ToolingApiCommand() {
             @Override
             public void run() throws Exception {
-                runToolingApiJobInWorkspace(monitor);
-                proxySettingsSupporter.restoreSystemProxySettings();
+                try {
+                    runToolingApiJobInWorkspace(monitor);
+                } finally {
+                    proxySettingsSupporter.restoreSystemProxySettings();
+                }
             }
         }, monitor);
     }
