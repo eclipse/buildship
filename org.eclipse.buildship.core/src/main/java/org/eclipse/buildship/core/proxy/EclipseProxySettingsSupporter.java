@@ -20,6 +20,10 @@ import org.eclipse.core.net.proxy.IProxyData;
 
 import org.eclipse.buildship.core.CorePlugin;
 
+/**
+ * This class propagates Eclipse's proxy settings to System settings, and ensures that the existing System proxy settings
+ * are persisted.
+ */
 public class EclipseProxySettingsSupporter {
 
     private static String savedHTTPProxyHost, savedHTTPProxyPort, savedHTTPProxyUser, savedHTTPProxyPassword;
@@ -51,7 +55,13 @@ public class EclipseProxySettingsSupporter {
         }
     }
 
+    /**
+     * Must be called in conjunction with the {@link #restoreSystemProxySettings() restoreSystemProxySettings}
+     * restoreSystemProxySettings method.
+     */
     private static synchronized void storeSystemProperties() {
+        // The thread that owns the lock is the thread that is responsible for ensuring that the System
+        // proxy settings persist. If a thread does not/cannot hold the lock, it does not have the responsibility.
         if (EclipseProxySettingsSupporter.lock.tryLock()) {
             EclipseProxySettingsSupporter.savedHTTPProxyHost = System.getProperty("http.proxyHost");
             EclipseProxySettingsSupporter.savedHTTPProxyPort = System.getProperty("http.proxyPort");
