@@ -291,12 +291,15 @@ void killAllGradleDaemons() {
             standardOutput = output
         }
     } else {
-        queryString = "^([0-9]+).*(?:-cp|-classpath).*gradle-launcher.*.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon.* "
+        queryString = "([0-9]+).*(?:-cp|-classpath).*gradle-launcher.*.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon.* "
         exec {
             commandLine('ps', 'x')
             standardOutput = output
         }
     }
+
+    String outputString = output.toString()
+    System.err.println(outputString)
 
     output.toString().readLines().each { String process ->
         def processMatcher = process =~ queryString
