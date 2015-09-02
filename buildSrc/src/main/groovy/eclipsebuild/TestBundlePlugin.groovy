@@ -232,7 +232,7 @@ class TestBundlePlugin implements Plugin<Project> {
         def output = new ByteArrayOutputStream()
         def queryString
         if (org.gradle.internal.os.OperatingSystem.current().windows) {
-            queryString = ".*(?:-cp|-classpath).*gradle-launcher.*.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon.*([0-9]+) +\$"
+            queryString = ".*(?:-cp|-classpath).*gradle-launcher.*.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon.* ([0-9]+) +\$"
             project.exec {
                 commandLine('wmic', 'process', 'get', 'processid,commandline')
                 standardOutput = output
@@ -250,7 +250,7 @@ class TestBundlePlugin implements Plugin<Project> {
             if (processMatcher.find()) {
                 def pid = processMatcher.group(1)
                 project.logger.info ("Killing Gradle daemon process: pid=$pid, cmd=$process")
-                println "Killing Gradle daemon process: pid=$pid, cmd=$process" // todo delete this line
+                System.err.prinln("Killing Gradle daemon process: pid=$pid, cmd=$process") // todo delete this line
                 pkill(project, pid)
             }
         }
