@@ -232,13 +232,13 @@ class TestBundlePlugin implements Plugin<Project> {
         def output = new ByteArrayOutputStream()
         def queryString
         if (org.gradle.internal.os.OperatingSystem.current().windows) {
-            queryString = ".*(-cp|-classpath).*gradle-launcher.*.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon.*([0-9]+) +\$"
+            queryString = ".*(?:-cp|-classpath).*gradle-launcher.*.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon.*([0-9]+) +\$"
             project.exec {
                 commandLine('wmic', 'process', 'get', 'processid,commandline')
                 standardOutput = output
             }
         } else {
-            queryString = "^([0-9]+).*(-cp|-classpath).*gradle-launcher.*.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon.* "
+            queryString = "^([0-9]+).*(?:-cp|-classpath).*gradle-launcher.*.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon.* "
             project.exec {
                 commandLine('ps', 'x')
                 standardOutput = output
