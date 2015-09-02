@@ -11,9 +11,6 @@
 
 package org.eclipse.buildship.core.proxy
 
-import com.google.common.util.concurrent.FutureCallback
-import java.lang.management.ManagementFactory
-import java.lang.management.RuntimeMXBean
 import org.gradle.tooling.internal.consumer.*
 import org.eclipse.core.runtime.jobs.Job
 
@@ -22,25 +19,23 @@ import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure
 import com.gradleware.tooling.toolingmodel.util.Pair
 import org.eclipse.debug.core.ILaunch
 import org.eclipse.core.net.proxy.IProxyService
-import org.gradle.tooling.GradleConnector;
 import org.eclipse.core.net.proxy.IProxyData
+import org.gradle.tooling.GradleConnector;
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob
 import org.eclipse.buildship.core.util.progress.ToolingApiJob
-import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.buildship.core.launch.RunGradleConfigurationDelegateJob
 import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
 import org.eclipse.core.resources.ResourcesPlugin
-//import org.eclipse.swt.widgets.Display
 import org.eclipse.core.runtime.IPath
+import org.eclipse.debug.core.ILaunchConfiguration
 
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-//import org.eclipse.ui.PlatformUI
 
 import org.eclipse.buildship.core.proxy.support.*
 import org.eclipse.buildship.core.test.fixtures.*
@@ -53,10 +48,9 @@ import com.gradleware.tooling.toolingclient.ToolingClient
 import org.hamcrest.*
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import com.gradleware.tooling.toolingclient.GradleDistribution
+import spock.lang.Specification
 
-import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
-
-class ProxySettingsTest extends ProjectImportSpecification {
+class ProxySettingsTest extends Specification {
 
     @Rule TemporaryFolder tempFolder
     @Rule TemporaryFolder dependencyTempFolder
@@ -70,7 +64,7 @@ class ProxySettingsTest extends ProjectImportSpecification {
     def permHost = 'permHost'
     def tempHost = 'tempHost'
     def userId = 'test-user'
-    def password = 'test-password'
+    def password = 'test-password2'
 
     def setup() {
         createTestProxyFiles()
