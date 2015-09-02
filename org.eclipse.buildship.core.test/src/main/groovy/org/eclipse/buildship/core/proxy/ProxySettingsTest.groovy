@@ -26,8 +26,6 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob
 import org.eclipse.buildship.core.util.progress.ToolingApiJob
 import org.eclipse.buildship.core.launch.RunGradleConfigurationDelegateJob
-import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
 import org.eclipse.core.resources.ResourcesPlugin
@@ -43,8 +41,6 @@ import org.eclipse.buildship.core.test.fixtures.*
 import org.eclipse.buildship.core.console.ProcessStreams
 import org.eclipse.buildship.core.console.ProcessStreamsProvider
 import org.eclipse.buildship.core.test.fixtures.TestEnvironment
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest
-import com.gradleware.tooling.toolingclient.ToolingClient
 import org.hamcrest.*
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import com.gradleware.tooling.toolingclient.GradleDistribution
@@ -89,6 +85,9 @@ class ProxySettingsTest extends Specification {
         System.getProperty("http.proxyPort") == proxyServer.port.toString()
         System.getProperty("http.proxyUser") == userId
         System.getProperty("http.proxyPassword") == password
+
+        cleanup:
+        proxyConfigurator.restoreSystemProxySettings()
     }
 
     def "System properties temporarily changed when ToolingApiWorkspaceJob is run"() {
@@ -114,7 +113,7 @@ class ProxySettingsTest extends Specification {
     }
 
     def "System properties temporarily changed when ToolingApiJob is run"() {
-        String retrievedHost, abc
+        String retrievedHost
 
         setup:
         setupTestProxyData(tempHost, 0000, userId, password)
@@ -176,7 +175,9 @@ class ProxySettingsTest extends Specification {
         when:
         firstJob.schedule()
         firstJob.join()
+
         setupTestProxyData(secondTempHost, 8080, userId, password)
+
         secondJob.schedule()
         secondJob.join()
 
@@ -271,9 +272,7 @@ class ProxySettingsTest extends Specification {
     def newProjectImportJob(File location) {
         ProjectImportConfiguration configuration = new ProjectImportConfiguration()
         configuration.gradleDistribution = GradleDistributionWrapper.from(GradleDistribution.forRemoteDistribution("http://not.a.real.domain/gradlew/dist".toURI()))
-
-        // Ian-todo: In PR, emphasize that gradleUserHome has been changed. Perhaps also test to see if gradle distribution exists in workspace.
-        configuration.gradleUserHome = new File(ResourcesPlugin.getWorkspace().root.rawLocation.toString())
+        configuration.gradleUserHome = gradleHomeTempFolder.root
         configuration.projectDir = location
         configuration.applyWorkingSets = true
         configuration.workingSets = []
