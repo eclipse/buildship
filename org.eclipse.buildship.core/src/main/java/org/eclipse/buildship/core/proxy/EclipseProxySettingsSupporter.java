@@ -65,11 +65,13 @@ public class EclipseProxySettingsSupporter {
      * the EclipseProxySettingsSupporter changed them.
      */
     public void restoreSystemProxySettings() {
-        resetOrClearSystemProperty("http.proxyHost", this.savedHTTPProxyHost);
-        resetOrClearSystemProperty("http.proxyPort", this.savedHTTPProxyPort);
-        resetOrClearSystemProperty("http.proxyUser", this.savedHTTPProxyUser);
-        resetOrClearSystemProperty("http.proxyPassword", this.savedHTTPProxyPassword);
-        EclipseProxySettingsSupporter.lock.unlock();
+        if (((ReentrantLock) EclipseProxySettingsSupporter.lock).isHeldByCurrentThread()) {
+            resetOrClearSystemProperty("http.proxyHost", this.savedHTTPProxyHost);
+            resetOrClearSystemProperty("http.proxyPort", this.savedHTTPProxyPort);
+            resetOrClearSystemProperty("http.proxyUser", this.savedHTTPProxyUser);
+            resetOrClearSystemProperty("http.proxyPassword", this.savedHTTPProxyPassword);
+            EclipseProxySettingsSupporter.lock.unlock();
+        }
     }
 
     private void resetOrClearSystemProperty(String property, String savedValue) {
