@@ -250,7 +250,6 @@ class TestBundlePlugin implements Plugin<Project> {
             if (processMatcher.find()) {
                 def pid = processMatcher.group(1)
                 project.logger.info ("Killing Gradle daemon process: pid=$pid, cmd=$process")
-                System.err.prinln("Killing Gradle daemon process: pid=$pid, cmd=$process") // todo delete this line
                 pkill(project, pid)
             }
         }
