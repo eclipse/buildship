@@ -11,6 +11,8 @@
 
 package org.eclipse.buildship.core.test.fixtures
 
+import java.io.File;
+
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
@@ -112,6 +114,10 @@ abstract class ProjectImportSpecification extends Specification {
         configuration.applyWorkingSets = true
         configuration.workingSets = []
         new ProjectPreviewJob(configuration, [], AsyncHandler.NO_OP, resultHandler)
+    }
+
+    protected static def newProjectImportJobWithConfiguration(ProjectImportConfiguration configuration) {
+        new org.eclipse.buildship.core.projectimport.ProjectImportJob(configuration, AsyncHandler.NO_OP)
     }
 
     protected static def allProjects() {
