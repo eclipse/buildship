@@ -302,7 +302,7 @@ void killAllGradleDaemons() {
         def processMatcher = process =~ queryString
         if (processMatcher.find()) {
             def pid = processMatcher.group(1)
-            logger.info ("Killing Gradle daemon process: pid=$pid, cmd=$process")
+            logger.warn ("Killing Gradle daemon process: pid=$pid, cmd=$process")
             killProcess(pid)
         }
     }
