@@ -118,6 +118,11 @@ class TestBundlePlugin implements Plugin<Project> {
             }
 
             doFirst { beforeEclipseTest(project, config, testDistributionDir, additionalPluginsDir) }
+            doLast  {
+                if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
+                    killAllGradleDaemons(project)
+                }
+            }
         }
 
         // Make sure that every time the testing is running the 'eclipseTest' task is also gets executed.
@@ -222,4 +227,52 @@ class TestBundlePlugin implements Plugin<Project> {
                     '-nosplash')
         }
     }
+
+    static void killAllGradleDaemons(Project project) {
+        def output = new ByteArrayOutputStream()
+        def queryString
+        if (org.gradle.internal.os.OperatingSystem.current().windows) {
+            queryString = ".*(-cp|-classpath).*gradle-launcher.*.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon.*([0-9]+) +\$"
+            project.exec {
+                commandLine('wmic', 'process', 'get', 'processid,commandline')
+                standardOutput = output
+            }
+        } else {
+            queryString = "^([0-9]+).*(-cp|-classpath).*gradle-launcher.*.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon.* "
+            project.exec {
+                commandLine('ps', 'x')
+                standardOutput = output
+            }
+        }
+
+        output.toString().readLines().each { String process ->
+            def processMatcher = process =~ queryString
+            if (processMatcher.find()) {
+                def pid = processMatcher.group(1)
+                project.logger.info ("Killing Gradle daemon process: pid=$pid, cmd=$process")
+                pkill(project, pid)
+            }
+        }
+    }
+
+    static void pkill(Project project, String pid) {
+        def killOutput = new ByteArrayOutputStream()
+        def result = project.exec {
+            if (org.gradle.internal.os.OperatingSystem.current().windows) {
+                commandLine = ["taskkill.exe", "/F", "/T", "/PID", pid]
+            } else {
+                commandLine = ["kill", pid]
+            }
+            standardOutput = killOutput
+            errorOutput = killOutput
+            ignoreExitValue = true
+        }
+        if (result.exitValue != 0) {
+            String out = killOutput.toString()
+            if (!out.contains('No such process')) {
+                project.logger.warn("""Failed to kill daemon process $pid. Maybe already killed? Output: ${killOutput}""")
+            }
+        }
+    }
+
 }
