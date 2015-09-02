@@ -298,14 +298,12 @@ void killAllGradleDaemons() {
         }
     }
 
-    String outputString = output.toString()
-    System.err.println(outputString)
-
     output.toString().readLines().each { String process ->
+        logger.debug("[PSTABLE]$process")
         def processMatcher = process =~ queryString
         if (processMatcher.find()) {
             def pid = processMatcher.group(1)
-            logger.warn ("Killing Gradle daemon process: pid=$pid, cmd=$process")
+            logger.warn("Killing Gradle daemon process: pid=$pid, cmd=$process")
             killProcess(pid)
         }
     }
