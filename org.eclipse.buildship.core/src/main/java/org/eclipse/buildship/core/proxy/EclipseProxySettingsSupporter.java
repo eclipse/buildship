@@ -22,7 +22,7 @@ import org.eclipse.buildship.core.CorePlugin;
 
 public class EclipseProxySettingsSupporter {
 
-    private String savedHTTPProxyHost, savedHTTPProxyPort, savedHTTPProxyUser, savedHTTPProxyPassword;
+    private static String savedHTTPProxyHost, savedHTTPProxyPort, savedHTTPProxyUser, savedHTTPProxyPassword;
     private static final Lock lock = new ReentrantLock();
 
     /**
@@ -51,12 +51,12 @@ public class EclipseProxySettingsSupporter {
         }
     }
 
-    private void storeSystemProperties() {
+    private static synchronized void storeSystemProperties() {
         if (EclipseProxySettingsSupporter.lock.tryLock()) {
-            this.savedHTTPProxyHost = System.getProperty("http.proxyHost");
-            this.savedHTTPProxyPort = System.getProperty("http.proxyPort");
-            this.savedHTTPProxyUser = System.getProperty("http.proxyUser");
-            this.savedHTTPProxyPassword = System.getProperty("http.proxyPassword");
+            EclipseProxySettingsSupporter.savedHTTPProxyHost = System.getProperty("http.proxyHost");
+            EclipseProxySettingsSupporter.savedHTTPProxyPort = System.getProperty("http.proxyPort");
+            EclipseProxySettingsSupporter.savedHTTPProxyUser = System.getProperty("http.proxyUser");
+            EclipseProxySettingsSupporter.savedHTTPProxyPassword = System.getProperty("http.proxyPassword");
         }
     }
 
@@ -66,10 +66,10 @@ public class EclipseProxySettingsSupporter {
      */
     public void restoreSystemProxySettings() {
         if (((ReentrantLock) EclipseProxySettingsSupporter.lock).isHeldByCurrentThread()) {
-            resetOrClearSystemProperty("http.proxyHost", this.savedHTTPProxyHost);
-            resetOrClearSystemProperty("http.proxyPort", this.savedHTTPProxyPort);
-            resetOrClearSystemProperty("http.proxyUser", this.savedHTTPProxyUser);
-            resetOrClearSystemProperty("http.proxyPassword", this.savedHTTPProxyPassword);
+            resetOrClearSystemProperty("http.proxyHost", EclipseProxySettingsSupporter.savedHTTPProxyHost);
+            resetOrClearSystemProperty("http.proxyPort", EclipseProxySettingsSupporter.savedHTTPProxyPort);
+            resetOrClearSystemProperty("http.proxyUser", EclipseProxySettingsSupporter.savedHTTPProxyUser);
+            resetOrClearSystemProperty("http.proxyPassword", EclipseProxySettingsSupporter.savedHTTPProxyPassword);
             EclipseProxySettingsSupporter.lock.unlock();
         }
     }
