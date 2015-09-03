@@ -246,18 +246,10 @@ class ProxySettingsTest extends ProjectImportSpecification {
             httpProxyData
         ])
 
-        if (proxyHostMemory != null) {
-            System.setProperty("http.proxyHost", proxyHostMemory)
-        }
-        if (proxyPortMemory != null) {
-            System.setProperty("http.proxyPort", proxyPortMemory)
-        }
-        if (proxyUserMemory != null) {
-            System.setProperty("http.proxyUser", proxyUserMemory)
-        }
-        if (proxyPassMemory != null) {
-            System.setProperty("http.proxyPassword", proxyPassMemory)
-        }
+        resetOrClearSystemProperty("http.proxyHost", proxyHostMemory)
+        resetOrClearSystemProperty("http.proxyPort", proxyPortMemory)
+        resetOrClearSystemProperty("http.proxyUser", proxyUserMemory)
+        resetOrClearSystemProperty("http.proxyPassword", proxyPassMemory)
 
     }
 
@@ -328,6 +320,14 @@ dependencies { compile "not-a-real-group:not-a-real-dependency:0.0" }''' : '')
         configuration.applyWorkingSets = true
         configuration.workingSets = []
         configuration
+    }
+
+    private def resetOrClearSystemProperty(String property, String value) {
+        if (value == null) {
+            System.clearProperty(property);
+        } else {
+            System.setProperty(property, value);
+        }
     }
 
 }
