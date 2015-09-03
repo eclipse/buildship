@@ -63,8 +63,7 @@ public abstract class ToolingApiJob extends Job {
     @Override
     public final IStatus run(final IProgressMonitor monitor) {
         ToolingApiInvoker invoker = new ToolingApiInvoker(this.workName, this.notifyUserAboutBuildFailures);
-        final EclipseProxySettingsSupporter proxySettingsSupporter = new EclipseProxySettingsSupporter();
-        proxySettingsSupporter.configureEclipseProxySettings();
+        EclipseProxySettingsSupporter.configureEclipseProxySettings();
 
         return invoker.invoke(new ToolingApiCommand() {
             @Override
@@ -72,7 +71,7 @@ public abstract class ToolingApiJob extends Job {
                 try {
                     runToolingApiJob(monitor);
                 } finally {
-                    proxySettingsSupporter.restoreSystemProxySettings();
+                    EclipseProxySettingsSupporter.restoreSystemProxySettings();
                 }
             }
         }, monitor);

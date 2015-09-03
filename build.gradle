@@ -275,6 +275,62 @@ subprojects {
     }
 }
 
+gradle.buildFinished {
+    if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
+        killAllGradleDaemons()
+    }
+}
+
+void killAllGradleDaemons() {
+    def output = new ByteArrayOutputStream()
+    def queryString
+    if (org.gradle.internal.os.OperatingSystem.current().windows) {
+        queryString = ".*(?:-cp|-classpath).*gradle-launcher.*.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon.* ([0-9]+) +\$"
+        exec {
+            commandLine('wmic', 'process', 'get', 'processid,commandline')
+            standardOutput = output
+        }
+    } else {
+        queryString = "([0-9]+).*(?:-cp|-classpath).*gradle-launcher.*.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon.* "
+        exec {
+            commandLine('ps', 'x')
+            standardOutput = output
+        }
+    }
+
+    String outputString = output.toString()
+    System.err.println(outputString)
+
+    output.toString().readLines().each { String process ->
+        def processMatcher = process =~ queryString
+        if (processMatcher.find()) {
+            def pid = processMatcher.group(1)
+            logger.warn ("Killing Gradle daemon process: pid=$pid, cmd=$process")
+            killProcess(pid)
+        }
+    }
+}
+
+void killProcess(String pid) {
+    def killOutput = new ByteArrayOutputStream()
+    def result = exec {
+        if (org.gradle.internal.os.OperatingSystem.current().windows) {
+            commandLine = ["taskkill.exe", "/F", "/T", "/PID", pid]
+        } else {
+            commandLine = ["kill", pid]
+        }
+        standardOutput = killOutput
+        errorOutput = killOutput
+        ignoreExitValue = true
+    }
+    if (result.exitValue != 0) {
+        String out = killOutput.toString()
+        if (!out.contains('No such process')) {
+            logger.warn("""Failed to kill daemon process $pid. Maybe already killed? Output: ${killOutput}""")
+        }
+    }
+}
+
 String getVersion(def baseVersion) {
     def config = BuildshipConfig.on(project)
 

@@ -6,18 +6,14 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     Ian Stewart-Binks (Red Hat, Inc.) - Story: Integrate Eclipse proxy settings into Buildship model loading and task execution
+ *     Ian Stewart-Binks (Red Hat, Inc.) - Bug 471943 - Make Buildship work behind the firewall
  */
 
 package org.eclipse.buildship.core.proxy;
-
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
 import com.google.common.base.Optional;
-
 import org.eclipse.core.net.proxy.IProxyData;
-
 import org.eclipse.buildship.core.CorePlugin;
 
 /**
@@ -32,13 +28,16 @@ public class EclipseProxySettingsSupporter {
     /**
      * Configures the System properties proxy settings based on the Eclipse proxy settings.
      */
-    public void configureEclipseProxySettings() {
-        storeSystemProperties();
-        configureHTTPProxySettings();
+    public static void configureEclipseProxySettings() {
+        synchronized(EclipseProxySettingsSupporter.class) {
+            storeSystemProxySettings();
+            configureHTTPProxySettings();
+        }
     }
 
-    private void configureHTTPProxySettings() {
+    private static void configureHTTPProxySettings() {
         Optional<IProxyData> httpProxyData = Optional.of(CorePlugin.getProxyService().getProxyData(IProxyData.HTTP_PROXY_TYPE));
+
         if (httpProxyData.isPresent()) {
             if (httpProxyData.get().getHost() != null) {
                 System.setProperty("http.proxyHost", httpProxyData.get().getHost());
@@ -59,7 +58,7 @@ public class EclipseProxySettingsSupporter {
      * Must be called in conjunction with the {@link #restoreSystemProxySettings() restoreSystemProxySettings}
      * restoreSystemProxySettings method.
      */
-    private static synchronized void storeSystemProperties() {
+    private static void storeSystemProxySettings() {
         // The thread that owns the lock is the thread that is responsible for ensuring that the System
         // proxy settings persist. If a thread does not/cannot hold the lock, it does not have the responsibility.
         if (EclipseProxySettingsSupporter.lock.tryLock()) {
@@ -74,7 +73,7 @@ public class EclipseProxySettingsSupporter {
      * Restores the proxy settings in the system properties to what they were before
      * the EclipseProxySettingsSupporter changed them.
      */
-    public void restoreSystemProxySettings() {
+    public static void restoreSystemProxySettings() {
         if (((ReentrantLock) EclipseProxySettingsSupporter.lock).isHeldByCurrentThread()) {
             resetOrClearSystemProperty("http.proxyHost", EclipseProxySettingsSupporter.savedHTTPProxyHost);
             resetOrClearSystemProperty("http.proxyPort", EclipseProxySettingsSupporter.savedHTTPProxyPort);
@@ -84,7 +83,7 @@ public class EclipseProxySettingsSupporter {
         }
     }
 
-    private void resetOrClearSystemProperty(String property, String savedValue) {
+    private static void resetOrClearSystemProperty(String property, String savedValue) {
         if (savedValue == null) {
             System.clearProperty(property);
         } else {

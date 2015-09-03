@@ -70,8 +70,7 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
     @Override
     public final IStatus runInWorkspace(final IProgressMonitor monitor) throws CoreException {
         ToolingApiInvoker invoker = new ToolingApiInvoker(this.workName, this.notifyUserAboutBuildFailures);
-        final EclipseProxySettingsSupporter proxySettingsSupporter = new EclipseProxySettingsSupporter();
-        proxySettingsSupporter.configureEclipseProxySettings();
+        EclipseProxySettingsSupporter.configureEclipseProxySettings();
 
         return invoker.invoke(new ToolingApiCommand() {
             @Override
@@ -79,7 +78,7 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
                 try {
                     runToolingApiJobInWorkspace(monitor);
                 } finally {
-                    proxySettingsSupporter.restoreSystemProxySettings();
+                    EclipseProxySettingsSupporter.restoreSystemProxySettings();
                 }
             }
         }, monitor);

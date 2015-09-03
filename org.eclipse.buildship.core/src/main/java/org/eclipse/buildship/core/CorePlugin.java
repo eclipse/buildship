@@ -195,23 +195,17 @@ public final class CorePlugin extends Plugin {
         return new ConsoleUserNotification();
     }
 
-    /*
-     * https://resheim.net/2008/10/connecting-through-proxy.html
-     */
     private IProxyService retrieveProxyService() {
+        // https://resheim.net/2008/10/connecting-through-proxy.html
         final String CORE_NET_BUNDLE = "org.eclipse.core.net";
         Bundle bundle = Platform.getBundle(CORE_NET_BUNDLE);
-        while (bundle.getState() != Bundle.ACTIVE) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
         ServiceReference ref = bundle.getBundleContext().getServiceReference(IProxyService.class.getName());
 
         if (ref != null) {
-           return (IProxyService) bundle.getBundleContext().getService(ref);
+           IProxyService proxyService = (IProxyService) bundle.getBundleContext().getService(ref);
+           proxyService.setProxiesEnabled(true);
+           proxyService.setSystemProxiesEnabled(false);
+           return proxyService;
         }
 
         return null;
@@ -230,6 +224,7 @@ public final class CorePlugin extends Plugin {
         this.publishedGradleVersionsService.unregister();
         this.loggerService.unregister();
 
+        this.proxyServiceTracker.close();
         this.userNotificationServiceTracker.close();
         this.listenerRegistryServiceTracker.close();
         this.gradleLaunchConfigurationServiceTracker.close();
