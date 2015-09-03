@@ -11,13 +11,15 @@
 
 package org.eclipse.buildship.core.util.progress;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.GradleConnector;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.Job;
+
+import org.eclipse.buildship.core.proxy.EclipseProxySettingsSupporter;
 
 /**
  * Base class for cancellable jobs that invoke the Gradle Tooling API.
@@ -61,10 +63,16 @@ public abstract class ToolingApiJob extends Job {
     @Override
     public final IStatus run(final IProgressMonitor monitor) {
         ToolingApiInvoker invoker = new ToolingApiInvoker(this.workName, this.notifyUserAboutBuildFailures);
+        EclipseProxySettingsSupporter.configureEclipseProxySettings();
+
         return invoker.invoke(new ToolingApiCommand() {
             @Override
             public void run() throws Exception {
-                runToolingApiJob(monitor);
+                try {
+                    runToolingApiJob(monitor);
+                } finally {
+                    EclipseProxySettingsSupporter.restoreSystemProxySettings();
+                }
             }
         }, monitor);
     }
