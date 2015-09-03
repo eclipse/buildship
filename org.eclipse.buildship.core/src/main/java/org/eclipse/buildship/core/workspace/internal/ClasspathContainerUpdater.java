@@ -123,4 +123,16 @@ public final class ClasspathContainerUpdater {
         updater.updateClasspathContainer(monitor);
     }
 
+    /**
+     * Resolves the classpath container to an empty list.
+     *
+     * @param eclipseProject      the target project to update the classpath container on
+     * @param monitor             the monitor to report progress on
+     * @throws JavaModelException if the container assignment fails
+     */
+    public static void clear(IJavaProject eclipseProject, IProgressMonitor monitor) throws JavaModelException {
+        IClasspathContainer classpathContainer = GradleClasspathContainer.newInstance(ImmutableList.<IClasspathEntry>of());
+        JavaCore.setClasspathContainer(new Path(GradleClasspathContainer.CONTAINER_ID), new IJavaProject[]{eclipseProject}, new IClasspathContainer[]{classpathContainer}, monitor);
+    }
+
 }

@@ -182,13 +182,15 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         // validate arguments
         Preconditions.checkNotNull(projectDescription);
         Preconditions.checkNotNull(extraNatureIds);
+        String projectName = projectDescription.getName();
+        Preconditions.checkState(!findProjectByName(projectName).isPresent(), String.format("Workspace already contains project with name %s.", projectName));
 
         monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
         monitor.beginTask(String.format("Include existing Eclipse project %s", projectDescription.getName()), 2 + extraNatureIds.size());
         try {
             // include the project in the workspace
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
-            IProject project = workspace.getRoot().getProject(projectDescription.getName());
+            IProject project = workspace.getRoot().getProject(projectName);
             project.create(projectDescription, new SubProgressMonitor(monitor, 1));
 
             // attach filters to the project
@@ -206,7 +208,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             // return the included, open project
             return project;
         } catch (Exception e) {
-            String message = String.format("Cannot include existing Eclipse project %s.", projectDescription.getName());
+            String message = String.format("Cannot include existing Eclipse project %s.", projectName);
             throw new GradlePluginsRuntimeException(message, e);
         } finally {
             monitor.done();

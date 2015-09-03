@@ -13,7 +13,6 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.List;
 
-import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
 
@@ -43,9 +42,11 @@ import org.eclipse.jdt.core.IJavaProject;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.gradle.Specs;
+import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
@@ -98,21 +99,27 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
     private void internalInitialize(IJavaProject javaProject, IProgressMonitor monitor, CancellationToken token) throws CoreException {
         IProject project = javaProject.getProject();
-        Optional<OmniEclipseProject> gradleProject = findEclipseProject(project, monitor, token);
-        monitor.worked(70);
-        if (gradleProject.isPresent()) {
-            if (project.isAccessible()) {
-                // update linked resources
-                LinkedResourcesUpdater.update(project, gradleProject.get().getLinkedResources(), new SubProgressMonitor(monitor, 10));
+        // update the source folders, classpath container, etc only if the Gradle nature is present on the project
+        if (GradleProjectNature.INSTANCE.isPresentOn(project)) {
+            Optional<OmniEclipseProject> gradleProject = findEclipseProject(project, monitor, token);
+            monitor.worked(70);
+            if (gradleProject.isPresent()) {
+                if (project.isAccessible()) {
+                    // update linked resources
+                    LinkedResourcesUpdater.update(project, gradleProject.get().getLinkedResources(), new SubProgressMonitor(monitor, 10));
 
-                // update the sources
-                SourceFolderUpdater.update(javaProject, gradleProject.get().getSourceDirectories(), new SubProgressMonitor(monitor, 10));
+                    // update the sources
+                    SourceFolderUpdater.update(javaProject, gradleProject.get().getSourceDirectories(), new SubProgressMonitor(monitor, 10));
 
-                // update project/external dependencies
-                ClasspathContainerUpdater.update(javaProject, gradleProject.get(), new Path(GradleClasspathContainer.CONTAINER_ID), new SubProgressMonitor(monitor, 10));
+                    // update project/external dependencies
+                    ClasspathContainerUpdater.update(javaProject, gradleProject.get(), new Path(GradleClasspathContainer.CONTAINER_ID), new SubProgressMonitor(monitor, 10));
+                }
+            } else {
+                throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", project));
             }
         } else {
-            throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", project));
+            // if the project doesn't have Gradle nature, then set the classpath container to be empty
+            ClasspathContainerUpdater.clear(javaProject, new SubProgressMonitor(monitor, 100));
         }
     }
 
