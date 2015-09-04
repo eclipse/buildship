@@ -1,7 +1,5 @@
 package org.eclipse.buildship.core.launch
 
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest
-import com.gradleware.tooling.toolingclient.ToolingClient
 import org.eclipse.buildship.core.console.ProcessStreams
 import org.eclipse.buildship.core.console.ProcessStreamsProvider
 import org.eclipse.buildship.core.test.fixtures.TestEnvironment
@@ -9,7 +7,11 @@ import org.eclipse.debug.core.ILaunch
 import org.eclipse.debug.core.ILaunchConfiguration
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+
 import spock.lang.Specification
+
+import com.gradleware.tooling.toolingclient.BuildLaunchRequest
+import com.gradleware.tooling.toolingclient.ToolingClient
 
 class RunGradleConfigurationDelegateJobTest extends Specification {
 
@@ -42,7 +44,7 @@ class RunGradleConfigurationDelegateJobTest extends Specification {
 
     def "Job launches the Gradle build"() {
         setup:
-        def job = new RunGradleConfigurationDelegateJob(createLaunchMock(), createLaunchConfigurationMock())
+        def job = RunGradleConfigurationDelegateJob.createDefaultGradleConfigurationDelegateJob(createLaunchMock(), createLaunchConfigurationMock())
 
         when:
         job.schedule()
@@ -55,7 +57,7 @@ class RunGradleConfigurationDelegateJobTest extends Specification {
 
     def "Job prints its configuration"() {
         setup:
-        def job = new RunGradleConfigurationDelegateJob(createLaunchMock(), createLaunchConfigurationMock())
+        def job = RunGradleConfigurationDelegateJob.createDefaultGradleConfigurationDelegateJob(createLaunchMock(), createLaunchConfigurationMock())
 
         when:
         job.schedule()
@@ -79,5 +81,4 @@ class RunGradleConfigurationDelegateJobTest extends Specification {
         launchConfiguration.getAttribute('jvm_arguments', _) >> []
         launchConfiguration
     }
-
 }

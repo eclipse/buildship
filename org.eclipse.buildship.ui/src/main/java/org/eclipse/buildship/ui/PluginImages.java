@@ -45,6 +45,7 @@ public enum PluginImages implements PluginImage {
     REMOVE_ALL_CONSOLES(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/remove_all_pages.png", ImageState.DISABLED, "icons/full/dlcl16/remove_all_pages.png")),
     CANCEL_BUILD_EXECUTION(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/cancel_build_execution.png", ImageState.DISABLED, "icons/full/dlcl16/cancel_build_execution.png")),
     RERUN_BUILD(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/run.png", ImageState.DISABLED, "icons/full/dlcl16/run.png")),
+    RERUN_FAILED_TESTS(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/relaunchf.gif", ImageState.DISABLED, "icons/full/dlcl16/relaunchf.gif")),
     EXPAND_NODE(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/expand_node.png")),
     COLLAPSE_NODE(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/collapse_node.png")),
     RUN_CONFIG_TASKS(ImmutableMap.of(ImageState.ENABLED, "icons/full/eview16/run_config_tasks.png")),

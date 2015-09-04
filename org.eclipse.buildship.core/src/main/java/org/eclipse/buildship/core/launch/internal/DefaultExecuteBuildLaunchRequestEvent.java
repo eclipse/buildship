@@ -12,14 +12,12 @@
 
 package org.eclipse.buildship.core.launch.internal;
 
-import com.google.common.base.Preconditions;
-
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-
-import org.eclipse.core.runtime.jobs.Job;
-
 import org.eclipse.buildship.core.launch.ExecuteBuildLaunchRequestEvent;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.core.runtime.jobs.Job;
+
+import com.google.common.base.Preconditions;
+import com.gradleware.tooling.toolingclient.Request;
 
 /**
  * Default implementation of {@link ExecuteBuildLaunchRequestEvent}.
@@ -27,13 +25,14 @@ import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 public final class DefaultExecuteBuildLaunchRequestEvent implements ExecuteBuildLaunchRequestEvent {
 
     private final Job buildJob;
-    private final BuildLaunchRequest buildLaunchRequest;
+    private final Request<?> request;
     private final GradleRunConfigurationAttributes runConfigurationAttributes;
     private final String processName;
 
-    public DefaultExecuteBuildLaunchRequestEvent(Job buildJob, BuildLaunchRequest buildLaunchRequest, GradleRunConfigurationAttributes runConfigurationAttributes, String processName) {
+    public DefaultExecuteBuildLaunchRequestEvent(Job buildJob, Request<?> request,
+            GradleRunConfigurationAttributes runConfigurationAttributes, String processName) {
         this.buildJob = buildJob;
-        this.buildLaunchRequest = Preconditions.checkNotNull(buildLaunchRequest);
+        this.request = Preconditions.checkNotNull(request);
         this.runConfigurationAttributes = Preconditions.checkNotNull(runConfigurationAttributes);
         this.processName = Preconditions.checkNotNull(processName);
     }
@@ -44,8 +43,8 @@ public final class DefaultExecuteBuildLaunchRequestEvent implements ExecuteBuild
     }
 
     @Override
-    public BuildLaunchRequest getBuildLaunchRequest() {
-        return this.buildLaunchRequest;
+    public Request<?> getRequest() {
+        return this.request;
     }
 
     @Override
