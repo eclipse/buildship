@@ -14,7 +14,6 @@ package org.eclipse.buildship.ui.wizard.project;
 import java.io.File;
 import java.util.List;
 
-import com.google.common.base.Optional;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
@@ -39,11 +38,12 @@ import org.eclipse.ui.IWorkbench;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
+import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
@@ -284,7 +284,8 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
                                 new ProgressListener[]{new DelegatingProgressListener(monitor)};
 
                         // configure the request
-                        BuildLaunchRequest request = CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(tasks));
+                        Request<?> request = CorePlugin.toolingClient()
+                                .newBuildLaunchRequest(LaunchableConfig.forTasks(tasks));
                         request.projectDir(projectDir);
                         request.gradleDistribution(gradleDistribution);
                         request.gradleUserHomeDir(gradleUserHome);
