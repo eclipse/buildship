@@ -33,11 +33,11 @@ public final class ExecutionShowingLaunchRequestListener implements EventListene
     @Override
     public void onEvent(Event event) {
         if (event instanceof ExecuteLaunchRequestEvent) {
-            handleBuildLaunchRequest((ExecuteLaunchRequestEvent) event);
+            handleLaunchRequest((ExecuteLaunchRequestEvent) event);
         }
     }
 
-    private void handleBuildLaunchRequest(final ExecuteLaunchRequestEvent event) {
+    private void handleLaunchRequest(final ExecuteLaunchRequestEvent event) {
         // call synchronously to make sure we do not miss any progress events
         PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 

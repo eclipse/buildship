@@ -60,7 +60,7 @@ public final class UiPlugin extends AbstractUIPlugin {
     private ServiceRegistration processStreamsProviderService;
     private ServiceRegistration dialogUserNotificationService;
     private ConsoleShowingLaunchListener consoleShowingLaunchListener;
-    private ExecutionShowingLaunchRequestListener executionShowingBuildLaunchRequestListener;
+    private ExecutionShowingLaunchRequestListener executionShowingLaunchRequestListener;
     private WorkingSetsAddingProjectCreatedListener workingSetsAddingProjectCreatedListener;
     private ContextActivatingSelectionListener contextActivatingSelectionListener;
     private ContextActivatingWindowListener contextActivatingWindowListener;
@@ -125,8 +125,8 @@ public final class UiPlugin extends AbstractUIPlugin {
         this.consoleShowingLaunchListener.handleAlreadyRunningLaunches();
         DebugPlugin.getDefault().getLaunchManager().addLaunchListener(this.consoleShowingLaunchListener);
 
-        this.executionShowingBuildLaunchRequestListener = new ExecutionShowingLaunchRequestListener();
-        CorePlugin.listenerRegistry().addEventListener(this.executionShowingBuildLaunchRequestListener);
+        this.executionShowingLaunchRequestListener = new ExecutionShowingLaunchRequestListener();
+        CorePlugin.listenerRegistry().addEventListener(this.executionShowingLaunchRequestListener);
 
         this.workingSetsAddingProjectCreatedListener = new WorkingSetsAddingProjectCreatedListener();
         CorePlugin.listenerRegistry().addEventListener(this.workingSetsAddingProjectCreatedListener);
@@ -166,7 +166,7 @@ public final class UiPlugin extends AbstractUIPlugin {
         }
 
         CorePlugin.listenerRegistry().removeEventListener(this.workingSetsAddingProjectCreatedListener);
-        CorePlugin.listenerRegistry().removeEventListener(this.executionShowingBuildLaunchRequestListener);
+        CorePlugin.listenerRegistry().removeEventListener(this.executionShowingLaunchRequestListener);
         DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(this.consoleShowingLaunchListener);
     }
 
