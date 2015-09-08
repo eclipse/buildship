@@ -20,12 +20,15 @@ import org.eclipse.buildship.core.launch.ExecuteLaunchRequestEvent;
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 
 /**
- * {@link EventListener} implementation showing/activating the Executions View when a new Gradle build is executed and the
- * {@link org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes#isShowExecutionView()} setting is enabled.
+ * {@link EventListener} implementation showing/activating the Executions View when a new Gradle
+ * build is executed and the
+ * {@link org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes#isShowExecutionView()}
+ * setting is enabled.
  * <p/>
- * The listener implementation is necessary since opening a view is a UI-related task and the execution is performed in the core component.
+ * The listener implementation is necessary since opening a view is a UI-related task and the
+ * execution is performed in the core component.
  */
-public final class ExecutionShowingBuildLaunchRequestListener implements EventListener {
+public final class ExecutionShowingLaunchRequestListener implements EventListener {
 
     @Override
     public void onEvent(Event event) {
