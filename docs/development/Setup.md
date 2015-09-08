@@ -130,6 +130,11 @@ must be run in a non-UI thread). When running the UI tests in the future, click 
 _org.eclipse.buildship.ui.test_ and choose _Run As >> JUnit Plug-In-Test_ (not as a _JUnit Test_!) since
 the run configurations are saved. Individual tests can be run the same way.
 
+If you encounter a problem with the UI plug-in when running isolated tests in Eclipse from _org.eclipse.buildship.core.test_,
+right click on the test you wish to run and choose _Run As >> Run Configurations..._. Next, select the _Plug-ins_ tab. Click
+on the drop-down box beside the text that says _'Launch with:'_ and select _'plug-ins selected below only'_. In the _Plug-ins_
+box, deselect the _org.eclipse.buildship.ui_ plugin. The test should now run.
+
 ## Enabling Tracing
 
 Tracing can be enabled in the _Tracing_ tab of the _Run Configurations..._ dialog.
