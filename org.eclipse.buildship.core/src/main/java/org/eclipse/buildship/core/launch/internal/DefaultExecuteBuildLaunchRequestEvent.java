@@ -25,11 +25,11 @@ import com.gradleware.tooling.toolingclient.Request;
 public final class DefaultExecuteBuildLaunchRequestEvent implements ExecuteBuildLaunchRequestEvent {
 
     private final Job buildJob;
-    private final Request<?> request;
+    private final Request<Void> request;
     private final GradleRunConfigurationAttributes runConfigurationAttributes;
     private final String processName;
 
-    public DefaultExecuteBuildLaunchRequestEvent(Job buildJob, Request<?> request,
+    public DefaultExecuteBuildLaunchRequestEvent(Job buildJob, Request<Void> request,
             GradleRunConfigurationAttributes runConfigurationAttributes, String processName) {
         this.buildJob = buildJob;
         this.request = Preconditions.checkNotNull(request);
@@ -43,7 +43,7 @@ public final class DefaultExecuteBuildLaunchRequestEvent implements ExecuteBuild
     }
 
     @Override
-    public Request<?> getRequest() {
+    public Request<Void> getRequest() {
         return this.request;
     }
 

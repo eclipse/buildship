@@ -25,7 +25,7 @@ public interface ExecuteBuildLaunchRequestEvent extends Event {
 
     Job getBuildJob();
 
-    Request<?> getRequest();
+    Request<Void> getRequest();
 
     GradleRunConfigurationAttributes getRunConfigurationAttributes();
 

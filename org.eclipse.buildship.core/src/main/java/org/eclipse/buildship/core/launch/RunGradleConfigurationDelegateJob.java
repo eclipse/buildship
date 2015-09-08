@@ -66,7 +66,6 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         this.launchConfiguration = Preconditions.checkNotNull(launchConfiguration);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void runToolingApiJob(IProgressMonitor monitor) {
         // activate all plugins which contribute to a build execution
@@ -98,7 +97,7 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(fixedAttributes, transientAttributes, monitor);
 
         // configure the request's fixed attributes with the build launch settings derived from the launch configuration
-        Request<?> request = CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(tasks));
+        Request<Void> request = CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(tasks));
         request.projectDir(workingDir);
         request.gradleUserHomeDir(gradleUserHome);
         request.gradleDistribution(gradleDistribution);
