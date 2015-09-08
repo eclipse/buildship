@@ -14,11 +14,11 @@ package org.eclipse.buildship.ui.view.execution;
 import java.util.List;
 import java.util.Map;
 
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
+import com.gradleware.tooling.toolingclient.Request;
 
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.beans.IBeanValueProperty;
@@ -70,7 +70,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
 
     private final Job buildJob;
     private final String displayName;
-    private final BuildLaunchRequest buildLaunchRequest;
+    private final Request<Void> request;
     private final GradleRunConfigurationAttributes configurationAttributes;
     private final ExecutionViewState state;
 
@@ -79,10 +79,10 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     private TreeViewerColumn nameColumn;
     private TreeViewerColumn durationColumn;
 
-    public ExecutionPage(Job buildJob, String displayName, BuildLaunchRequest buildLaunchRequest, GradleRunConfigurationAttributes configurationAttributes, ExecutionViewState state) {
+    public ExecutionPage(Job buildJob, String displayName, Request<Void> request, GradleRunConfigurationAttributes configurationAttributes, ExecutionViewState state) {
         this.buildJob = buildJob;
         this.displayName = displayName;
-        this.buildLaunchRequest = buildLaunchRequest;
+        this.request = request;
         this.configurationAttributes = configurationAttributes;
         this.state = state;
     }
@@ -163,7 +163,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         filteredTree.getViewer().setInput(root);
 
         // listen to progress events
-        this.buildLaunchRequest.addTypedProgressListeners(new ExecutionProgressListener(this, root));
+        this.request.addTypedProgressListeners(new ExecutionProgressListener(this, root));
 
         // return the tree as the outermost page control
         return filteredTree;

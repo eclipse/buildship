@@ -16,25 +16,28 @@ import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.event.EventListener;
-import org.eclipse.buildship.core.launch.ExecuteBuildLaunchRequestEvent;
+import org.eclipse.buildship.core.launch.ExecuteLaunchRequestEvent;
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 
 /**
- * {@link EventListener} implementation showing/activating the Executions View when a new Gradle build is executed and the
- * {@link org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes#isShowExecutionView()} setting is enabled.
+ * {@link EventListener} implementation showing/activating the Executions View when a new Gradle
+ * build is executed and the
+ * {@link org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes#isShowExecutionView()}
+ * setting is enabled.
  * <p/>
- * The listener implementation is necessary since opening a view is a UI-related task and the execution is performed in the core component.
+ * The listener implementation is necessary since opening a view is a UI-related task and the
+ * execution is performed in the core component.
  */
-public final class ExecutionShowingBuildLaunchRequestListener implements EventListener {
+public final class ExecutionShowingLaunchRequestListener implements EventListener {
 
     @Override
     public void onEvent(Event event) {
-        if (event instanceof ExecuteBuildLaunchRequestEvent) {
-            handleBuildLaunchRequest((ExecuteBuildLaunchRequestEvent) event);
+        if (event instanceof ExecuteLaunchRequestEvent) {
+            handleBuildLaunchRequest((ExecuteLaunchRequestEvent) event);
         }
     }
 
-    private void handleBuildLaunchRequest(final ExecuteBuildLaunchRequestEvent event) {
+    private void handleBuildLaunchRequest(final ExecuteLaunchRequestEvent event) {
         // call synchronously to make sure we do not miss any progress events
         PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 
@@ -45,7 +48,7 @@ public final class ExecutionShowingBuildLaunchRequestListener implements EventLi
                 ExecutionsView view = WorkbenchUtils.showView(ExecutionsView.ID, null, mode);
 
                 // show the launched build in a new page of the Executions View
-                view.addExecutionPage(event.getBuildJob(), event.getProcessName(), event.getBuildLaunchRequest(), event.getRunConfigurationAttributes());
+                view.addExecutionPage(event.getBuildJob(), event.getProcessName(), event.getRequest(), event.getRunConfigurationAttributes());
             }
         });
     }

@@ -26,7 +26,7 @@ import org.eclipse.buildship.ui.notification.DialogUserNotification;
 import org.eclipse.buildship.ui.util.predicate.Predicates;
 import org.eclipse.buildship.ui.util.selection.ContextActivatingSelectionListener;
 import org.eclipse.buildship.ui.util.selection.ContextActivatingWindowListener;
-import org.eclipse.buildship.ui.view.execution.ExecutionShowingBuildLaunchRequestListener;
+import org.eclipse.buildship.ui.view.execution.ExecutionShowingLaunchRequestListener;
 import org.eclipse.buildship.ui.wizard.project.WorkingSetsAddingProjectCreatedListener;
 import org.eclipse.buildship.ui.workspace.RefreshProjectCommandExecutionListener;
 import org.eclipse.debug.core.DebugPlugin;
@@ -60,7 +60,7 @@ public final class UiPlugin extends AbstractUIPlugin {
     private ServiceRegistration processStreamsProviderService;
     private ServiceRegistration dialogUserNotificationService;
     private ConsoleShowingLaunchListener consoleShowingLaunchListener;
-    private ExecutionShowingBuildLaunchRequestListener executionShowingBuildLaunchRequestListener;
+    private ExecutionShowingLaunchRequestListener executionShowingBuildLaunchRequestListener;
     private WorkingSetsAddingProjectCreatedListener workingSetsAddingProjectCreatedListener;
     private ContextActivatingSelectionListener contextActivatingSelectionListener;
     private ContextActivatingWindowListener contextActivatingWindowListener;
@@ -125,7 +125,7 @@ public final class UiPlugin extends AbstractUIPlugin {
         this.consoleShowingLaunchListener.handleAlreadyRunningLaunches();
         DebugPlugin.getDefault().getLaunchManager().addLaunchListener(this.consoleShowingLaunchListener);
 
-        this.executionShowingBuildLaunchRequestListener = new ExecutionShowingBuildLaunchRequestListener();
+        this.executionShowingBuildLaunchRequestListener = new ExecutionShowingLaunchRequestListener();
         CorePlugin.listenerRegistry().addEventListener(this.executionShowingBuildLaunchRequestListener);
 
         this.workingSetsAddingProjectCreatedListener = new WorkingSetsAddingProjectCreatedListener();

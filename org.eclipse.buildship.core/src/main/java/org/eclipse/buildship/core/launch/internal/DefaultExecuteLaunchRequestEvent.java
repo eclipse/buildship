@@ -14,26 +14,26 @@ package org.eclipse.buildship.core.launch.internal;
 
 import com.google.common.base.Preconditions;
 
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
+import com.gradleware.tooling.toolingclient.Request;
 
 import org.eclipse.core.runtime.jobs.Job;
 
-import org.eclipse.buildship.core.launch.ExecuteBuildLaunchRequestEvent;
+import org.eclipse.buildship.core.launch.ExecuteLaunchRequestEvent;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 
 /**
- * Default implementation of {@link ExecuteBuildLaunchRequestEvent}.
+ * Default implementation of {@link ExecuteLaunchRequestEvent}.
  */
-public final class DefaultExecuteBuildLaunchRequestEvent implements ExecuteBuildLaunchRequestEvent {
+public final class DefaultExecuteLaunchRequestEvent implements ExecuteLaunchRequestEvent {
 
     private final Job buildJob;
-    private final BuildLaunchRequest buildLaunchRequest;
+    private final Request<Void> request;
     private final GradleRunConfigurationAttributes runConfigurationAttributes;
     private final String processName;
 
-    public DefaultExecuteBuildLaunchRequestEvent(Job buildJob, BuildLaunchRequest buildLaunchRequest, GradleRunConfigurationAttributes runConfigurationAttributes, String processName) {
+    public DefaultExecuteLaunchRequestEvent(Job buildJob, Request<Void> request, GradleRunConfigurationAttributes runConfigurationAttributes, String processName) {
         this.buildJob = buildJob;
-        this.buildLaunchRequest = Preconditions.checkNotNull(buildLaunchRequest);
+        this.request = Preconditions.checkNotNull(request);
         this.runConfigurationAttributes = Preconditions.checkNotNull(runConfigurationAttributes);
         this.processName = Preconditions.checkNotNull(processName);
     }
@@ -44,8 +44,8 @@ public final class DefaultExecuteBuildLaunchRequestEvent implements ExecuteBuild
     }
 
     @Override
-    public BuildLaunchRequest getBuildLaunchRequest() {
-        return this.buildLaunchRequest;
+    public Request<Void> getRequest() {
+        return this.request;
     }
 
     @Override

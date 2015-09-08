@@ -19,8 +19,6 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Joiner;
@@ -31,8 +29,11 @@ import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
+import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -45,7 +46,7 @@ import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.internal.BuildExecutionParticipants;
-import org.eclipse.buildship.core.launch.internal.DefaultExecuteBuildLaunchRequestEvent;
+import org.eclipse.buildship.core.launch.internal.DefaultExecuteLaunchRequestEvent;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
@@ -69,7 +70,6 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         this.launchConfiguration = Preconditions.checkNotNull(launchConfiguration);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void runToolingApiJob(IProgressMonitor monitor) {
         // activate all plugins which contribute to a build execution
@@ -120,7 +120,7 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         writeRunConfigurationDescription(configurationAttributes, buildEnvironment, processStreams.getConfiguration());
 
         // notify the listeners before executing the build launch request
-        ExecuteBuildLaunchRequestEvent event = new DefaultExecuteBuildLaunchRequestEvent(this, request, configurationAttributes, processName);
+        ExecuteLaunchRequestEvent event = new DefaultExecuteLaunchRequestEvent(this, request, configurationAttributes, processName);
         CorePlugin.listenerRegistry().dispatch(event);
 
         // launch the build
