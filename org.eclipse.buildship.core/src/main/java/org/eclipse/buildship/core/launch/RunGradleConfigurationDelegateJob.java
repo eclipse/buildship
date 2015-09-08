@@ -25,7 +25,7 @@ import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.internal.BuildExecutionParticipants;
-import org.eclipse.buildship.core.launch.internal.DefaultExecuteBuildLaunchRequestEvent;
+import org.eclipse.buildship.core.launch.internal.DefaultExecuteLaunchRequestEvent;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
@@ -116,7 +116,7 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         writeRunConfigurationDescription(configurationAttributes, buildEnvironment, processStreams.getConfiguration());
 
         // notify the listeners before executing the build launch request
-        ExecuteBuildLaunchRequestEvent event = new DefaultExecuteBuildLaunchRequestEvent(this, request, configurationAttributes, processName);
+        ExecuteLaunchRequestEvent event = new DefaultExecuteLaunchRequestEvent(this, request, configurationAttributes, processName);
         CorePlugin.listenerRegistry().dispatch(event);
 
         // launch the build

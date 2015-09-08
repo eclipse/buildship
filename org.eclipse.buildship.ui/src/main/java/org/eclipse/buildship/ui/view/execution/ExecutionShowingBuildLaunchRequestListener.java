@@ -16,7 +16,7 @@ import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.event.EventListener;
-import org.eclipse.buildship.core.launch.ExecuteBuildLaunchRequestEvent;
+import org.eclipse.buildship.core.launch.ExecuteLaunchRequestEvent;
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 
 /**
@@ -29,12 +29,12 @@ public final class ExecutionShowingBuildLaunchRequestListener implements EventLi
 
     @Override
     public void onEvent(Event event) {
-        if (event instanceof ExecuteBuildLaunchRequestEvent) {
-            handleBuildLaunchRequest((ExecuteBuildLaunchRequestEvent) event);
+        if (event instanceof ExecuteLaunchRequestEvent) {
+            handleBuildLaunchRequest((ExecuteLaunchRequestEvent) event);
         }
     }
 
-    private void handleBuildLaunchRequest(final ExecuteBuildLaunchRequestEvent event) {
+    private void handleBuildLaunchRequest(final ExecuteLaunchRequestEvent event) {
         // call synchronously to make sure we do not miss any progress events
         PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 
