@@ -11,11 +11,8 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
-import org.eclipse.buildship.ui.view.MessagePage;
-import org.eclipse.buildship.ui.view.MultiPageView;
-import org.eclipse.buildship.ui.view.Page;
-import org.eclipse.buildship.ui.view.SwitchToNextPageAction;
+import com.gradleware.tooling.toolingclient.Request;
+
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IContributionItem;
@@ -24,7 +21,11 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 
-import com.gradleware.tooling.toolingclient.Request;
+import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.ui.view.MessagePage;
+import org.eclipse.buildship.ui.view.MultiPageView;
+import org.eclipse.buildship.ui.view.Page;
+import org.eclipse.buildship.ui.view.SwitchToNextPageAction;
 
 /**
  * A view displaying the Gradle executions.
@@ -69,8 +70,7 @@ public final class ExecutionsView extends MultiPageView {
         return new MessagePage(ExecutionViewMessages.Label_No_Execution);
     }
 
-    public void addExecutionPage(Job buildJob, String processName, Request<?> request,
-            GradleRunConfigurationAttributes configurationAttributes) {
+    public void addExecutionPage(Job buildJob, String processName, Request<Void> request, GradleRunConfigurationAttributes configurationAttributes) {
         ExecutionPage executionPage = new ExecutionPage(buildJob, processName, request, configurationAttributes, this.state);
         addPage(executionPage);
         switchToPage(executionPage);
