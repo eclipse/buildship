@@ -26,21 +26,21 @@ import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
  */
 public final class DefaultExecuteLaunchRequestEvent implements ExecuteLaunchRequestEvent {
 
-    private final Job buildJob;
+    private final Job job;
     private final Request<Void> request;
     private final GradleRunConfigurationAttributes runConfigurationAttributes;
     private final String processName;
 
-    public DefaultExecuteLaunchRequestEvent(Job buildJob, Request<Void> request, GradleRunConfigurationAttributes runConfigurationAttributes, String processName) {
-        this.buildJob = buildJob;
+    public DefaultExecuteLaunchRequestEvent(Job job, Request<Void> request, GradleRunConfigurationAttributes runConfigurationAttributes, String processName) {
+        this.job = job;
         this.request = Preconditions.checkNotNull(request);
         this.runConfigurationAttributes = Preconditions.checkNotNull(runConfigurationAttributes);
         this.processName = Preconditions.checkNotNull(processName);
     }
 
     @Override
-    public Job getBuildJob() {
-        return this.buildJob;
+    public Job getJob() {
+        return this.job;
     }
 
     @Override

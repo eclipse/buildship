@@ -24,7 +24,7 @@ import org.eclipse.buildship.core.event.Event;
  */
 public interface ExecuteLaunchRequestEvent extends Event {
 
-    Job getBuildJob();
+    Job getJob();
 
     Request<Void> getRequest();
 
