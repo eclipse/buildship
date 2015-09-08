@@ -342,7 +342,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         // as the folder name (even when the project is renamed the underlying folder is also renamed)
         // consequently, for this use case, we have to ignore the name provided by the Gradle model
         // and instead use the folder name
-        return isDirectChildOfWorkspaceRootFolder(location) ? location.getName() : nameInGradleModel.replace('/', '.');
+        return isDirectChildOfWorkspaceRootFolder(location) ? location.getName() : nameInGradleModel;
     }
 
     private IPath resolveProjectLocation(File location) {
