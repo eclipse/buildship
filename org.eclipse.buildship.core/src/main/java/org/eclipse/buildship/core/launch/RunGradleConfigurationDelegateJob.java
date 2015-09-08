@@ -19,26 +19,6 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
-import org.gradle.tooling.ProgressListener;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingclient.LaunchableConfig;
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.ILaunchConfiguration;
-
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.console.ProcessDescription;
@@ -51,6 +31,26 @@ import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
+import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.events.test.TestOperationDescriptor;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+import com.gradleware.tooling.toolingclient.LaunchableConfig;
+import com.gradleware.tooling.toolingclient.Request;
+import com.gradleware.tooling.toolingclient.TestConfig;
+import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 /**
  * Runs the given {@link ILaunch} instance.
@@ -60,30 +60,51 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
     // todo (etst) close streams when done
 
     private final ILaunch launch;
-    private final ILaunchConfiguration launchConfiguration;
+    private final GradleRunConfigurationAttributes configurationAttributes;
+    private final String launchName;
 
-    public RunGradleConfigurationDelegateJob(ILaunch launch, ILaunchConfiguration launchConfiguration) {
-        super("Launching Gradle tasks", false);
+    private Optional<List<TestOperationDescriptor>> testOperationDescriptors = Optional.absent();
 
-        this.launch = Preconditions.checkNotNull(launch);
-        this.launchConfiguration = Preconditions.checkNotNull(launchConfiguration);
+    public static final RunGradleConfigurationDelegateJob createDefaultGradleConfigurationDelegateJob(ILaunch launch,
+            ILaunchConfiguration launchConfiguration) {
+        GradleRunConfigurationAttributes gradleRunConfigurationAttributes = GradleRunConfigurationAttributes
+                .from(launchConfiguration);
+        return new RunGradleConfigurationDelegateJob(launchConfiguration.getName(), launch,
+                gradleRunConfigurationAttributes);
     }
 
-    @SuppressWarnings("unchecked")
+    public static final RunGradleConfigurationDelegateJob createTestReRunDelegateJob(ILaunch launch, String launchName,
+            List<TestOperationDescriptor> testOperationDescriptors,
+            GradleRunConfigurationAttributes configurationAttributes) {
+        RunGradleConfigurationDelegateJob configurationDelegateJob = new RunGradleConfigurationDelegateJob(launchName,
+                launch, configurationAttributes);
+        configurationDelegateJob.setTestDescriptors(testOperationDescriptors);
+
+        return configurationDelegateJob;
+    }
+
+    protected RunGradleConfigurationDelegateJob(String launchName, ILaunch launch,
+            GradleRunConfigurationAttributes gradleRunConfigurationAttributes) {
+        super("Launching Gradle tasks", false);
+
+        this.launchName = launchName;
+        this.launch = Preconditions.checkNotNull(launch);
+        this.configurationAttributes = Preconditions.checkNotNull(gradleRunConfigurationAttributes);
+    }
+
     @Override
     protected void runToolingApiJob(IProgressMonitor monitor) {
         // activate all plugins which contribute to a build execution
         BuildExecutionParticipants.activateParticipantPlugins();
 
         // derive all build launch settings from the launch configuration
-        GradleRunConfigurationAttributes configurationAttributes = GradleRunConfigurationAttributes.from(this.launchConfiguration);
-        List<String> tasks = configurationAttributes.getTasks();
-        File workingDir = configurationAttributes.getWorkingDir();
-        File gradleUserHome = configurationAttributes.getGradleUserHome();
-        GradleDistribution gradleDistribution = configurationAttributes.getGradleDistribution();
-        File javaHome = configurationAttributes.getJavaHome();
-        ImmutableList<String> jvmArguments = configurationAttributes.getJvmArguments();
-        ImmutableList<String> arguments = configurationAttributes.getArguments();
+        List<String> tasks = this.configurationAttributes.getTasks();
+        File workingDir = this.configurationAttributes.getWorkingDir();
+        File gradleUserHome = this.configurationAttributes.getGradleUserHome();
+        GradleDistribution gradleDistribution = this.configurationAttributes.getGradleDistribution();
+        File javaHome = this.configurationAttributes.getJavaHome();
+        ImmutableList<String> jvmArguments = this.configurationAttributes.getJvmArguments();
+        ImmutableList<String> arguments = this.configurationAttributes.getArguments();
 
         // start tracking progress
         monitor.beginTask(String.format("Launch Gradle tasks %s", tasks), IProgressMonitor.UNKNOWN);
@@ -101,7 +122,14 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(fixedAttributes, transientAttributes, monitor);
 
         // configure the request's fixed attributes with the build launch settings derived from the launch configuration
-        BuildLaunchRequest request = CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(tasks));
+        Request<?> request = null;
+        if(this.testOperationDescriptors.isPresent()) {
+            TestConfig testConfig = TestConfig.forTests(this.testOperationDescriptors.get()
+                    .toArray(new TestOperationDescriptor[this.testOperationDescriptors.get().size()]));
+            request = CorePlugin.toolingClient().newTestLaunchRequest(testConfig);
+        }else {
+            request = CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(tasks));
+        }
         request.projectDir(workingDir);
         request.gradleUserHomeDir(gradleUserHome);
         request.gradleDistribution(gradleDistribution);
@@ -117,18 +145,24 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         request.cancellationToken(getToken());
 
         // print the applied run configuration settings at the beginning of the console output
-        writeRunConfigurationDescription(configurationAttributes, buildEnvironment, processStreams.getConfiguration());
+        writeRunConfigurationDescription(this.configurationAttributes, buildEnvironment, processStreams.getConfiguration());
 
         // notify the listeners before executing the build launch request
-        ExecuteBuildLaunchRequestEvent event = new DefaultExecuteBuildLaunchRequestEvent(this, request, configurationAttributes, processName);
+        ExecuteBuildLaunchRequestEvent event = new DefaultExecuteBuildLaunchRequestEvent(this, request, this.configurationAttributes, processName);
         CorePlugin.listenerRegistry().dispatch(event);
 
         // launch the build
         request.executeAndWait();
     }
 
+    protected void setTestDescriptors(List<TestOperationDescriptor> testOperationDescriptors) {
+        this.testOperationDescriptors = Optional.of(testOperationDescriptors);
+    }
+
     private String createProcessName(List<String> tasks, File workingDir) {
-        return String.format("%s [Gradle Project] %s in %s (%s)", this.launchConfiguration.getName(), Joiner.on(' ').join(tasks), workingDir.getAbsolutePath(), DateFormat
+        return String.format("%s [Gradle Project] %s in %s (%s)", this.launchName,
+                Joiner.on(' ').join(tasks), workingDir.getAbsolutePath(),
+                DateFormat
                 .getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(new Date()));
     }
 
