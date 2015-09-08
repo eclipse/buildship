@@ -19,26 +19,6 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
-import org.gradle.tooling.ProgressListener;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingclient.LaunchableConfig;
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.ILaunchConfiguration;
-
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.console.ProcessDescription;
@@ -51,6 +31,23 @@ import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
+import org.gradle.tooling.ProgressListener;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+import com.gradleware.tooling.toolingclient.LaunchableConfig;
+import com.gradleware.tooling.toolingclient.Request;
+import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 /**
  * Runs the given {@link ILaunch} instance.
@@ -101,7 +98,7 @@ public final class RunGradleConfigurationDelegateJob extends ToolingApiJob {
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(fixedAttributes, transientAttributes, monitor);
 
         // configure the request's fixed attributes with the build launch settings derived from the launch configuration
-        BuildLaunchRequest request = CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(tasks));
+        Request<?> request = CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(tasks));
         request.projectDir(workingDir);
         request.gradleUserHomeDir(gradleUserHome);
         request.gradleDistribution(gradleDistribution);
