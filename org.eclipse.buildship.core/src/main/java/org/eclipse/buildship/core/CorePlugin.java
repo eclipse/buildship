@@ -26,6 +26,7 @@ import com.gradleware.tooling.toolingmodel.repository.Environment;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProviderFactory;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 
 import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
@@ -93,6 +94,7 @@ public final class CorePlugin extends Plugin {
     public void start(BundleContext bundleContext) throws Exception {
         super.start(bundleContext);
         plugin = this;
+        ensureProxySettingsApplied();
         registerServices(bundleContext);
     }
 
@@ -102,6 +104,11 @@ public final class CorePlugin extends Plugin {
         unregisterServices();
         plugin = null;
         super.stop(context);
+    }
+
+    private void ensureProxySettingsApplied() throws Exception {
+        // the proxy settings are set when the core.net plugin is starting
+        Platform.getBundle("org.eclipse.core.net").start();
     }
 
     private void registerServices(BundleContext context) {

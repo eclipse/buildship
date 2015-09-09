@@ -6,7 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Eclipse Buildship
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Activator: org.eclipse.buildship.core.CorePlugin
-Require-Bundle: org.eclipse.core.runtime,
+Require-Bundle: org.eclipse.core.net,
+ org.eclipse.core.runtime,
  org.eclipse.core.resources,
  org.eclipse.core.variables,
  org.eclipse.core.filesystem,
