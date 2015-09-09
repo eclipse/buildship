@@ -107,7 +107,7 @@ public final class CorePlugin extends Plugin {
     }
 
     private void ensureProxySettingsApplied() throws Exception {
-        // the proxy settings are set when the core.net plugin is starting
+        // the proxy settings are set when the core.net plugin is started
         Platform.getBundle("org.eclipse.core.net").start();
     }
 
