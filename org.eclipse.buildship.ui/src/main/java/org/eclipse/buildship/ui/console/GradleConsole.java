@@ -12,14 +12,13 @@
 package org.eclipse.buildship.ui.console;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunch;
+
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.internal.ui.DebugUIPlugin;
 import org.eclipse.debug.internal.ui.preferences.IDebugPreferenceConstants;
 import org.eclipse.swt.SWT;
@@ -83,18 +82,12 @@ public final class GradleConsole extends IOConsole implements ProcessStreams {
     }
 
     public boolean isTerminated() {
-        Optional<ILaunch> launch = this.processDescription.getLaunch();
-        return launch.isPresent() && launchFinished(launch.get());
-    }
-
-    private boolean launchFinished(ILaunch launch) {
-        // a launch is considered finished, if it is not registered anymore
-        // (all other ways to determine the state of the launch did not work for us)
-        return !ImmutableList.copyOf(DebugPlugin.getDefault().getLaunchManager().getLaunches()).contains(launch);
+        Optional<Job> job = this.processDescription.getJob();
+        return job.isPresent() && job.get().getState() == Job.NONE;
     }
 
     public boolean isCloseable() {
-        return this.processDescription.getLaunch().isPresent();
+        return this.processDescription.getJob().isPresent();
     }
 
     @Override
