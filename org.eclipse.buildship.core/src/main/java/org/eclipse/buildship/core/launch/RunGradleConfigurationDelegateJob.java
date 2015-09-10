@@ -23,7 +23,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import com.gradleware.tooling.toolingclient.Request;
@@ -39,8 +38,9 @@ import org.eclipse.buildship.core.launch.internal.DefaultExecuteLaunchRequestEve
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 
 /**
- * {@link BaseLaunchRequestJob} implementation executing a {@link BuildLaunchRequest}, configured
- * with {@link GradleRunConfigurationAttributes} run configuration.
+ * {@link BaseLaunchRequestJob} implementation executing a
+ * {@link com.gradleware.tooling.toolingclient.BuildLaunchRequest}, configured with
+ * {@link GradleRunConfigurationAttributes} run configuration.
  */
 public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJob {
 
