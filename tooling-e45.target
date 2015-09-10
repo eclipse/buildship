@@ -2,12 +2,12 @@
 <?pde version="3.8"?><target name="buildship-mars" sequenceNumber="47">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.buildship.orbit.staging.feature.group" version="1.0.29"/>
-<repository location="http://download.eclipse.org/buildship/orbit-staging/site1029"/>
+<unit id="org.eclipse.buildship.orbit.staging.feature.group" version="1.0.30"/>
+<repository location="http://download.eclipse.org/buildship/orbit-staging/site1030"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.buildship.orbit.staging.feature.group" version="1.0.29"/>
-<repository location="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging/site1029"/>
+<unit id="org.eclipse.buildship.orbit.staging.feature.group" version="1.0.30"/>
+<repository location="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging/site1030"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.google.gson" version="2.2.4.v201311231704"/>
