@@ -23,6 +23,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
+import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import com.gradleware.tooling.toolingclient.Request;
@@ -38,9 +39,10 @@ import org.eclipse.buildship.core.launch.internal.DefaultExecuteLaunchRequestEve
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 
 /**
- * Runs the given {@link ILaunch} instance.
+ * {@link BaseLaunchRequestJob} implementation executing a {@link BuildLaunchRequest}, configured
+ * with {@link GradleRunConfigurationAttributes} run configuration.
  */
-public final class RunGradleConfigurationDelegateJob extends BaseGradlelLaunchRequestJob {
+public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJob {
 
     private final ILaunch launch;
     private final FixedRequestAttributes fixedAttributes;
@@ -48,7 +50,7 @@ public final class RunGradleConfigurationDelegateJob extends BaseGradlelLaunchRe
     private final String displayName;
 
     public RunGradleConfigurationDelegateJob(ILaunch launch, ILaunchConfiguration launchConfiguration) {
-        super("Launching Gradle tasks", false);
+        super("Launching Gradle tasks");
         this.launch = Preconditions.checkNotNull(launch);
         this.configurationAttributes = GradleRunConfigurationAttributes.from(launchConfiguration);
         this.fixedAttributes = createFixedAttriubtes(this.configurationAttributes);
@@ -86,12 +88,12 @@ public final class RunGradleConfigurationDelegateJob extends BaseGradlelLaunchRe
     }
 
     @Override
-    protected Event eventBeforeExecutionStarts(Request<Void> request) {
-       return new DefaultExecuteLaunchRequestEvent(this, request, this.configurationAttributes, this.displayName);
+    protected Event createEventToFireBeforeExecution(Request<Void> request) {
+        return new DefaultExecuteLaunchRequestEvent(this, request, this.configurationAttributes, this.displayName);
     }
 
     @Override
-    protected String getJobMainTaskName() {
+    protected String getJobTaskName() {
         return String.format("Launch Gradle tasks %s", this.configurationAttributes.getTasks());
     }
 
@@ -101,7 +103,7 @@ public final class RunGradleConfigurationDelegateJob extends BaseGradlelLaunchRe
     }
 
     @Override
-    protected void writeAddAditionalConfigurationInfo(OutputStreamWriter writer) throws IOException {
+    protected void writeExtraConfigInfo(OutputStreamWriter writer) throws IOException {
         String taskNames = Strings.emptyToNull(CollectionsUtils.joinWithSpace(this.configurationAttributes.getTasks()));
         taskNames = taskNames != null ? taskNames : CoreMessages.RunConfiguration_Value_RunDefaultTasks;
         writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleTasks, taskNames));

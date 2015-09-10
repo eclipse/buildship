@@ -44,27 +44,71 @@ import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 
-public abstract class BaseGradlelLaunchRequestJob extends ToolingApiJob {
+/**
+ * Base class to execute {@link Request} instances in job.
+ */
+public abstract class BaseLaunchRequestJob extends ToolingApiJob {
 
     // todo (etst) close streams when done
 
+    /**
+     * returns the {@link FixedRequestAttributes} associated with the job.
+     *
+     * @return the request attributes for the job
+     */
     protected abstract FixedRequestAttributes getRequestAttributes();
 
+    /**
+     * Creates a new {@link Request} object to execute in the job.
+     *
+     * @return the new request object
+     */
     protected abstract Request<Void> createRequest();
 
-    protected abstract String getJobMainTaskName();
+    /**
+     * The name of the job to display in the progress view.
+     *
+     * @return the name of the job
+     */
+    protected abstract String getJobTaskName();
 
+    /**
+     * The name to display in the execution view's page selector.
+     *
+     * @return the display name
+     */
     protected abstract String getDisplayName();
 
-    protected abstract Event eventBeforeExecutionStarts(Request<Void> request);
+    /**
+     * Creates an event to be fired before the {@link Request} is executed.
+     *
+     * @param request the request which will be fired after the event
+     * @return the new event instance
+     */
+    protected abstract Event createEventToFireBeforeExecution(Request<Void> request);
 
+    /**
+     * The {@link ILaunch} instance associated with the job.
+     *
+     * @return the launch or {@code null} if none.
+     */
     protected abstract ILaunch getLaunch();
 
-    protected abstract void writeAddAditionalConfigurationInfo(OutputStreamWriter writer) throws IOException;
+    /**
+     * Writes extra information on the configuration console.
+     *
+     * @param writer the writer to print messages with
+     * @throws IOException if an exception happens when writing a message
+     */
+    protected abstract void writeExtraConfigInfo(OutputStreamWriter writer) throws IOException;
 
-
-    protected BaseGradlelLaunchRequestJob(String name, boolean notifyUserAboutBuildFailures) {
-        super(name, notifyUserAboutBuildFailures);
+    /**
+     * Constructor.
+     *
+     * @param name the name of the job
+     */
+    protected BaseLaunchRequestJob(String name) {
+        super(name);
     }
 
     @Override
@@ -72,11 +116,8 @@ public abstract class BaseGradlelLaunchRequestJob extends ToolingApiJob {
         // activate all plugins which contribute to a build execution
         BuildExecutionParticipants.activateParticipantPlugins();
 
-        // derive all build launch settings from the launch configuration
-        FixedRequestAttributes fixedAttributes = getRequestAttributes();
-
         // start tracking progress
-        monitor.beginTask(getJobMainTaskName(), IProgressMonitor.UNKNOWN);
+        monitor.beginTask(getJobTaskName(), IProgressMonitor.UNKNOWN);
 
         String processName = getDisplayName();
         ProcessDescription processDescription = ProcessDescription.with(processName, getLaunch(), this);
@@ -87,8 +128,8 @@ public abstract class BaseGradlelLaunchRequestJob extends ToolingApiJob {
         TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, processStreams.getOutput(), processStreams.getError(), processStreams.getInput(),
                 listeners, ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
 
-        // configure the request's fixed attributes with the build launch settings derived from the
-        // launch configuration
+        // apply the fixed attributes on the request o
+        FixedRequestAttributes fixedAttributes = getRequestAttributes();
         Request<Void> request = createRequest();
         fixedAttributes.apply(request);
 
@@ -101,19 +142,18 @@ public abstract class BaseGradlelLaunchRequestJob extends ToolingApiJob {
 
         // print the applied run configuration settings at the beginning of the console output
         OutputStreamWriter writer = new OutputStreamWriter(processStreams.getConfiguration());
-
-        writeFixedRequestAttributes(monitor, fixedAttributes, transientAttributes, writer);
+        writeFixedRequestAttributes(fixedAttributes, transientAttributes, writer, monitor);
 
         // notify the listeners before executing the build launch request
-        Event event = eventBeforeExecutionStarts(request);
+        Event event = createEventToFireBeforeExecution(request);
         CorePlugin.listenerRegistry().dispatch(event);
 
         // launch the build
         request.executeAndWait();
     }
 
-    private void writeFixedRequestAttributes(IProgressMonitor monitor, FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientAttributes,
-            OutputStreamWriter writer) {
+    private void writeFixedRequestAttributes(FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientAttributes, OutputStreamWriter writer,
+            IProgressMonitor monitor) {
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(fixedAttributes, transientAttributes, monitor);
         // should the user not specify values for the gradleUserHome and javaHome, their default
         // values will not be specified in the launch configurations
@@ -136,7 +176,7 @@ public abstract class BaseGradlelLaunchRequestJob extends ToolingApiJob {
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JavaHome, toNonEmpty(javaHome, CoreMessages.Value_UseGradleDefault)));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JvmArguments, toNonEmpty(fixedAttributes.getJvmArguments(), CoreMessages.Value_None)));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Arguments, toNonEmpty(fixedAttributes.getArguments(), CoreMessages.Value_None)));
-            writeAddAditionalConfigurationInfo(writer);
+            writeExtraConfigInfo(writer);
             writer.write('\n');
             writer.flush();
         } catch (IOException e) {
