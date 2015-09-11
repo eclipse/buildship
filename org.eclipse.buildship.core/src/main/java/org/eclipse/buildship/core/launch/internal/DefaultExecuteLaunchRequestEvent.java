@@ -29,7 +29,7 @@ public final class DefaultExecuteLaunchRequestEvent implements ExecuteLaunchRequ
 
     public DefaultExecuteLaunchRequestEvent(Request<Void> request, ProcessDescription processDescription) {
         this.request = Preconditions.checkNotNull(request);
-        this.processDescription = processDescription;
+        this.processDescription =  Preconditions.checkNotNull(processDescription);
     }
 
     @Override
