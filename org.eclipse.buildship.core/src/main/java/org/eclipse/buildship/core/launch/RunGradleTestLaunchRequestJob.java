@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingclient.TestConfig;
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.console.BaseProcessDescription;
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.task.TaskOperationDescriptor;
@@ -59,7 +60,13 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
     @Override
     protected ProcessDescription createProcessDescription() {
         String processName = createProcessName(this.configurationAttributes.getWorkingDir());
-        return ProcessDescription.with(processName, this, null, this.configurationAttributes);
+        return new BaseProcessDescription(processName, this, null, this.configurationAttributes){
+
+            @Override
+            public void rerun() {
+                new RunGradleTestLaunchRequestJob(RunGradleTestLaunchRequestJob.this.configurationAttributes, RunGradleTestLaunchRequestJob.this.testDescriptors).schedule();
+            }
+        };
     }
 
     private String createProcessName(File workingDir) {

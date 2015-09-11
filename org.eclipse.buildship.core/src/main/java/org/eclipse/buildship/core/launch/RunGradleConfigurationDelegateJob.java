@@ -17,6 +17,7 @@ import com.google.common.base.Strings;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import com.gradleware.tooling.toolingclient.Request;
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.console.BaseProcessDescription;
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
@@ -36,14 +37,19 @@ import java.util.List;
 public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJob {
 
     private final ILaunch launch;
-    private final ILaunchConfiguration launchConfiguration;
+    private final String launchConfigurationName;
     private final GradleRunConfigurationAttributes configurationAttributes;
 
     public RunGradleConfigurationDelegateJob(ILaunch launch, ILaunchConfiguration launchConfiguration) {
+        this(launch, launchConfiguration.getName(), GradleRunConfigurationAttributes.from(launchConfiguration));
+    }
+
+    private RunGradleConfigurationDelegateJob(ILaunch launch, String launchConfigurationName, GradleRunConfigurationAttributes configurationAttributes) {
+        // using this constructor works even when the ILaunchConfiguration is deleted
         super("Launching Gradle tasks");
         this.launch = Preconditions.checkNotNull(launch);
-        this.launchConfiguration = Preconditions.checkNotNull(launchConfiguration);
-        this.configurationAttributes = GradleRunConfigurationAttributes.from(launchConfiguration);
+        this.launchConfigurationName = Preconditions.checkNotNull(launchConfigurationName);
+        this.configurationAttributes = Preconditions.checkNotNull(configurationAttributes);
     }
 
     @Override
@@ -58,13 +64,20 @@ public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJo
 
     @Override
     protected ProcessDescription createProcessDescription() {
-        String processName = createProcessName(this.configurationAttributes.getTasks(), this.configurationAttributes.getWorkingDir(), this.launchConfiguration.getName());
-        return ProcessDescription.with(processName, this, this.launch, this.configurationAttributes);
+        String processName = createProcessName(this.configurationAttributes.getTasks(), this.configurationAttributes.getWorkingDir(), this.launchConfigurationName);
+        return new BaseProcessDescription(processName, this, this.launch, this.configurationAttributes) {
+
+            @Override
+            public void rerun() {
+                new RunGradleConfigurationDelegateJob(RunGradleConfigurationDelegateJob.this.launch, RunGradleConfigurationDelegateJob.this.launchConfigurationName,
+                        RunGradleConfigurationDelegateJob.this.configurationAttributes).schedule();
+            }
+        };
     }
 
     private String createProcessName(List<String> tasks, File workingDir, String launchConfigurationName) {
-        return String.format("%s [Gradle Project] %s in %s (%s)", launchConfigurationName, Joiner.on(' ').join(tasks), workingDir.getAbsolutePath(),
-                DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(new Date()));
+        return String.format("%s [Gradle Project] %s in %s (%s)", launchConfigurationName, Joiner.on(' ').join(tasks), workingDir.getAbsolutePath(), DateFormat
+                .getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(new Date()));
     }
 
     @Override
