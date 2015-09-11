@@ -34,7 +34,7 @@ public final class RunTestAction extends Action implements SelectionSpecificActi
     private NodeSelectionProvider selectionProvider;
 
     public RunTestAction(NodeSelectionProvider selectionProvider) {
-        super(ExecutionViewMessages.Action_ExecuteTest_Text);
+        super(ExecutionViewMessages.Action_RunTest_Text);
         this.selectionProvider = Preconditions.checkNotNull(selectionProvider);
     }
 
