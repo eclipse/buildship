@@ -46,40 +46,6 @@ import java.util.List;
  */
 public abstract class BaseLaunchRequestJob extends ToolingApiJob {
 
-    /**
-     * The name of the job to display in the progress view.
-     *
-     * @return the name of the job
-     */
-    protected abstract String getJobTaskName();
-
-    /**
-     * The run configuration attributes to apply when executing the request.
-     *
-     * @return the run configuration attributes
-     */
-    protected abstract GradleRunConfigurationAttributes getConfigurationAttributes();
-
-    /**
-     * Creates a new {@link Request} object to execute in the job.
-     *
-     * @return the new request object
-     */
-    protected abstract Request<Void> createRequest();
-
-    /**
-     * Writes extra information on the configuration console.
-     *
-     * @param writer the writer to print messages with
-     * @throws IOException if an exception happens when writing a message
-     */
-    protected abstract void writeExtraConfigInfo(OutputStreamWriter writer) throws IOException;
-
-    /**
-     * Creates a new instance.
-     *
-     * @param name the name of the job
-     */
     protected BaseLaunchRequestJob(String name) {
         super(name);
     }
@@ -125,8 +91,6 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
         // launch the build
         request.executeAndWait();
     }
-
-    protected abstract ProcessDescription createProcessDescription();
 
     private FixedRequestAttributes createFixedAttributes() {
         GradleRunConfigurationAttributes configurationAttributes = getConfigurationAttributes();
@@ -193,5 +157,41 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
         }
 
     }
+
+    /**
+     * The name of the job to display in the progress view.
+     *
+     * @return the name of the job
+     */
+    protected abstract String getJobTaskName();
+
+    /**
+     * The run configuration attributes to apply when executing the request.
+     *
+     * @return the run configuration attributes
+     */
+    protected abstract GradleRunConfigurationAttributes getConfigurationAttributes();
+
+    /**
+     * The process description.
+     *
+     * @return the process description
+     */
+    protected abstract ProcessDescription createProcessDescription();
+
+    /**
+     * Creates a new {@link Request} object to execute in the job.
+     *
+     * @return the new request object
+     */
+    protected abstract Request<Void> createRequest();
+
+    /**
+     * Writes extra information on the configuration console.
+     *
+     * @param writer the writer to print messages with
+     * @throws IOException if an exception happens when writing a message
+     */
+    protected abstract void writeExtraConfigInfo(OutputStreamWriter writer) throws IOException;
 
 }
