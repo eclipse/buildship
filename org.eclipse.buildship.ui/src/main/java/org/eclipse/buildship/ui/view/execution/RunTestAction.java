@@ -29,11 +29,11 @@ import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
 /**
  * Action to launch a new Gradle execution specified by {@link TestOperationDescriptor} instances.
  */
-public final class ExecuteTestAction extends Action implements SelectionSpecificAction {
+public final class RunTestAction extends Action implements SelectionSpecificAction {
 
     private NodeSelectionProvider selectionProvider;
 
-    public ExecuteTestAction(NodeSelectionProvider selectionProvider) {
+    public RunTestAction(NodeSelectionProvider selectionProvider) {
         super(ExecutionViewMessages.Action_ExecuteTest_Text);
         this.selectionProvider = Preconditions.checkNotNull(selectionProvider);
     }

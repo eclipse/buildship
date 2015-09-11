@@ -222,7 +222,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     }
 
     private ActionShowingContextMenuListener createContextMenuListener(TreeViewer treeViewer) {
-        ExecuteTestAction runTestAction = new ExecuteTestAction(this);
+        RunTestAction runTestAction = new RunTestAction(this);
         ShowFailureAction showFailureAction = new ShowFailureAction(this);
         OpenTestSourceFileAction openTestSourceFileAction = new OpenTestSourceFileAction(this);
         ExpandTreeNodesAction expandNodesAction = new ExpandTreeNodesAction(treeViewer);
