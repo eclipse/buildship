@@ -11,20 +11,17 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import java.util.List;
-
-import org.gradle.tooling.events.test.TestOperationDescriptor;
-
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
-
-import org.eclipse.jface.action.Action;
-
+import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
-import org.eclipse.buildship.ui.util.nodeselection.NodeSelectionProvider;
 import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
+import org.eclipse.jface.action.Action;
+import org.gradle.tooling.events.test.TestOperationDescriptor;
+
+import java.util.List;
 
 /**
  * Action to launch a new Gradle execution specified by {@link TestOperationDescriptor} instances.
@@ -33,17 +30,17 @@ public final class RunTestAction extends Action implements SelectionSpecificActi
 
     private static final TestOperationItemPredicate TEST_OPERATION_ITEM_PREDICATE = new TestOperationItemPredicate();
 
-    private final NodeSelectionProvider selectionProvider;
+    private final ExecutionPage executionPage;
 
-    public RunTestAction(NodeSelectionProvider selectionProvider) {
+    public RunTestAction(ExecutionPage executionPage) {
         super(ExecutionViewMessages.Action_RunTest_Text);
-        this.selectionProvider = Preconditions.checkNotNull(selectionProvider);
+        this.executionPage = Preconditions.checkNotNull(executionPage);
     }
 
     @Override
     public void run() {
-        List<TestOperationDescriptor> testDescriptors = collectSelectedTestOperationDescriptors(this.selectionProvider.getSelection());
-        // TODO (donat) implement test launch
+        List<TestOperationDescriptor> testDescriptors = collectSelectedTestOperationDescriptors(this.executionPage.getSelection());
+        GradleRunConfigurationAttributes configurationAttributes = this.executionPage.getConfigurationAttributes();
         System.out.println("ExecuteTestOperationAction fired. Tests to run:");
         for (TestOperationDescriptor testDescriptor : testDescriptors) {
             System.out.println("\tname=" + testDescriptor.getDisplayName());
