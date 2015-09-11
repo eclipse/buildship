@@ -28,14 +28,14 @@ import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 public final class ProcessDescription {
 
     private final String name;
-    private final Optional<ILaunch> launch;
     private final Job job;
+    private final Optional<ILaunch> launch;
     private final GradleRunConfigurationAttributes configurationAttributes;
 
-    private ProcessDescription(String name, Optional<ILaunch> launch, Job job, GradleRunConfigurationAttributes configurationAttributes) {
+    private ProcessDescription(String name, Job job, Optional<ILaunch> launch, GradleRunConfigurationAttributes configurationAttributes) {
         this.name = name;
-        this.launch = launch;
         this.job = job;
+        this.launch = launch;
         this.configurationAttributes = configurationAttributes;
     }
 
@@ -43,12 +43,12 @@ public final class ProcessDescription {
         return this.name;
     }
 
-    public Optional<ILaunch> getLaunch() {
-        return this.launch;
-    }
-
     public Job getJob() {
         return this.job;
+    }
+
+    public Optional<ILaunch> getLaunch() {
+        return this.launch;
     }
 
     public GradleRunConfigurationAttributes getConfigurationAttributes() {
@@ -58,14 +58,14 @@ public final class ProcessDescription {
     /**
      * Creates a new instance.
      *
-     * @param name a human-readable name of the process
-     * @param launch the {@code ILaunch} instance of this process
-     * @param job the {@code Job} instances in which the {@code ILaunch} instance is run
+     * @param name                    a human-readable name of the process
+     * @param job                     the {@code Job} instances in which the {@code ILaunch} instance is run
+     * @param launch                  the {@code ILaunch} instance of this process
+     * @param configurationAttributes the {@code GradleRunConfigurationAttributes} applied to execute the request
      * @return the new instance
      */
-    public static ProcessDescription with(String name, ILaunch launch, Job job, GradleRunConfigurationAttributes configurationAttributes) {
-        return new ProcessDescription(Preconditions.checkNotNull(name), Optional.fromNullable(launch), Preconditions.checkNotNull(job),
-                Preconditions.checkNotNull(configurationAttributes));
+    public static ProcessDescription with(String name, Job job, ILaunch launch, GradleRunConfigurationAttributes configurationAttributes) {
+        return new ProcessDescription(Preconditions.checkNotNull(name), Preconditions.checkNotNull(job), Optional.fromNullable(launch), Preconditions.checkNotNull(configurationAttributes));
     }
 
 }

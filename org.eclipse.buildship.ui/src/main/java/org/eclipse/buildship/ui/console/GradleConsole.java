@@ -85,23 +85,12 @@ public final class GradleConsole extends IOConsole implements ProcessStreams {
         });
     }
 
-    public ProcessDescription getProcessDescription() {
-        if (this.processDescription.isPresent()) {
-            return this.processDescription.get();
-        } else {
-            // the background console should be the only one which has no process description
-            throw new GradlePluginsRuntimeException("No process description is associated to the current console.");
-        }
-
+    public Optional<ProcessDescription> getProcessDescription() {
+        return this.processDescription;
     }
 
     public boolean isTerminated() {
-        if (!this.processDescription.isPresent()) {
-            return false;
-        } else {
-            Job job = this.processDescription.get().getJob();
-            return job.getState() == Job.NONE;
-        }
+        return this.processDescription.isPresent() && this.processDescription.get().getJob().getState() == Job.NONE;
     }
 
     public boolean isCloseable() {

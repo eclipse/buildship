@@ -68,24 +68,18 @@ import org.eclipse.buildship.ui.view.ShowFilterAction;
 @SuppressWarnings("unchecked")
 public final class ExecutionPage extends BasePage<FilteredTree> implements NodeSelectionProvider {
 
-    private final Request<Void> request;
     private final ProcessDescription processDescription;
+    private final Request<Void> request;
     private final ExecutionViewState state;
 
     private SelectionHistoryManager selectionHistoryManager;
-
     private TreeViewerColumn nameColumn;
     private TreeViewerColumn durationColumn;
 
-    public ExecutionPage(Request<Void> request, ProcessDescription processDescription, ExecutionViewState state) {
-        this.request = request;
+    public ExecutionPage(ProcessDescription processDescription, Request<Void> request, ExecutionViewState state) {
         this.processDescription = processDescription;
+        this.request = request;
         this.state = state;
-    }
-
-
-    public Request<Void> getRequest() {
-        return this.request;
     }
 
     public ProcessDescription getProcessDescription() {

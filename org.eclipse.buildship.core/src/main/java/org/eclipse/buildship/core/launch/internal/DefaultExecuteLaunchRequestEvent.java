@@ -24,22 +24,22 @@ import org.eclipse.buildship.core.launch.ExecuteLaunchRequestEvent;
  */
 public final class DefaultExecuteLaunchRequestEvent implements ExecuteLaunchRequestEvent {
 
+    private final ProcessDescription processDescription;
     private final Request<Void> request;
-    private ProcessDescription processDescription;
 
-    public DefaultExecuteLaunchRequestEvent(Request<Void> request, ProcessDescription processDescription) {
-        this.request = Preconditions.checkNotNull(request);
+    public DefaultExecuteLaunchRequestEvent(ProcessDescription processDescription, Request<Void> request) {
         this.processDescription =  Preconditions.checkNotNull(processDescription);
-    }
-
-    @Override
-    public Request<Void> getRequest() {
-        return this.request;
+        this.request = Preconditions.checkNotNull(request);
     }
 
     @Override
     public ProcessDescription getProcessDescription() {
         return this.processDescription;
+    }
+
+    @Override
+    public Request<Void> getRequest() {
+        return this.request;
     }
 
 }

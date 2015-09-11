@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
+import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
@@ -43,12 +44,14 @@ public final class ExecutionShowingLaunchRequestListener implements EventListene
 
             @Override
             public void run() {
+                ProcessDescription processDescription = event.getProcessDescription();
+
                 // activate the executions view
-                int mode = event.getProcessDescription().getConfigurationAttributes().isShowExecutionView() ? IWorkbenchPage.VIEW_ACTIVATE : IWorkbenchPage.VIEW_CREATE;
+                int mode = processDescription.getConfigurationAttributes().isShowExecutionView() ? IWorkbenchPage.VIEW_ACTIVATE : IWorkbenchPage.VIEW_CREATE;
                 ExecutionsView view = WorkbenchUtils.showView(ExecutionsView.ID, null, mode);
 
                 // show the launched build in a new page of the Executions View
-                view.addExecutionPage(event.getRequest(), event.getProcessDescription());
+                view.addExecutionPage(processDescription, event.getRequest());
             }
         });
     }

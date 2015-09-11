@@ -23,8 +23,8 @@ import org.eclipse.buildship.core.event.Event;
  */
 public interface ExecuteLaunchRequestEvent extends Event {
 
-    Request<Void> getRequest();
-
     ProcessDescription getProcessDescription();
+
+    Request<Void> getRequest();
 
 }

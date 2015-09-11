@@ -11,8 +11,10 @@
 
 package org.eclipse.buildship.ui.console;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
+import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -40,20 +42,26 @@ public final class CancelBuildExecutionAction extends Action {
     }
 
     private void registerJobChangeListener() {
-        Job job = this.gradleConsole.getProcessDescription().getJob();
-        job.addJobChangeListener(new JobChangeAdapter() {
+        Optional<ProcessDescription> processDescription = this.gradleConsole.getProcessDescription();
+        if (processDescription.isPresent()) {
+            Job job = processDescription.get().getJob();
+            job.addJobChangeListener(new JobChangeAdapter() {
 
-            @Override
-            public void done(IJobChangeEvent event) {
-                CancelBuildExecutionAction.this.setEnabled(event.getJob().getState() != Job.NONE);
-            }
-        });
-        setEnabled(job.getState() != Job.NONE);
+                @Override
+                public void done(IJobChangeEvent event) {
+                    CancelBuildExecutionAction.this.setEnabled(event.getJob().getState() != Job.NONE);
+                }
+            });
+            setEnabled(job.getState() != Job.NONE);
+        } else {
+            // if no job is associated with the console, never enable this action
+            setEnabled(false);
+        }
     }
 
     @Override
     public void run() {
-        this.gradleConsole.getProcessDescription().getJob().cancel();
+        this.gradleConsole.getProcessDescription().get().getJob().cancel();
     }
 
     public void dispose(){
