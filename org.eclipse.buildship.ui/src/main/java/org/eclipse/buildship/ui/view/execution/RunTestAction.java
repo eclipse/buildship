@@ -15,11 +15,13 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.launch.RunGradleTestLaunchRequestJob;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
 import org.eclipse.jface.action.Action;
+import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.test.TestOperationDescriptor;
 
 import java.util.List;
@@ -42,7 +44,8 @@ public final class RunTestAction extends Action implements SelectionSpecificActi
     public void run() {
         GradleRunConfigurationAttributes configurationAttributes = this.executionPage.getProcessDescription().getConfigurationAttributes();
         List<TestOperationDescriptor> testDescriptors = collectSelectedTestOperationDescriptors(this.executionPage.getSelection());
-        new RunGradleTestLaunchRequestJob(configurationAttributes, testDescriptors).schedule();
+        List<TestOperationDescriptor> filteredTestDescriptors = filterChildren(testDescriptors);
+        new RunGradleTestLaunchRequestJob(configurationAttributes, filteredTestDescriptors).schedule();
     }
 
     @Override
@@ -68,6 +71,26 @@ public final class RunTestAction extends Action implements SelectionSpecificActi
                 return (TestOperationDescriptor) operationItem.getStartEvent().getDescriptor();
             }
         }).toList();
+    }
+
+    private List<TestOperationDescriptor> filterChildren(List<TestOperationDescriptor> testDescriptors) {
+        ImmutableList.Builder<TestOperationDescriptor> withoutChildren = ImmutableList.builder();
+        for (TestOperationDescriptor testDescriptor : testDescriptors) {
+            if (!isParentSelected(testDescriptor, testDescriptors)) {
+                withoutChildren.add(testDescriptor);
+            }
+        }
+        return withoutChildren.build();
+    }
+
+    @SuppressWarnings("SimplifiableIfStatement")
+    private boolean isParentSelected(TestOperationDescriptor candidate, List<TestOperationDescriptor> selectedTestDescriptors) {
+        OperationDescriptor parent = candidate.getParent();
+        if (parent instanceof TestOperationDescriptor) {
+            return selectedTestDescriptors.contains(parent) || isParentSelected((TestOperationDescriptor) parent, selectedTestDescriptors);
+        } else {
+            return false;
+        }
     }
 
     /**
