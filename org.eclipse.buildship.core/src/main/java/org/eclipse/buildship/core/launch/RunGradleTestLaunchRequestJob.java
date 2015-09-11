@@ -11,6 +11,17 @@
 
 package org.eclipse.buildship.core.launch;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.gradleware.tooling.toolingclient.Request;
+import com.gradleware.tooling.toolingclient.TestConfig;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.console.ProcessDescription;
+import org.gradle.tooling.events.test.TestOperationDescriptor;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -18,22 +29,8 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.gradle.tooling.events.test.TestOperationDescriptor;
-
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.FluentIterable;
-
-import com.gradleware.tooling.toolingclient.Request;
-import com.gradleware.tooling.toolingclient.TestConfig;
-
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.console.ProcessDescription;
-
 /**
- * {@link BaseLaunchRequestJob} implementation executing a
- * {@link com.gradleware.tooling.toolingclient.BuildLaunchRequest}.
+ * Executes tests through Gradle based on a given list of {@code TestOperationDescriptor} instances and a given set of {@code GradleRunConfigurationAttributes}.
  */
 public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
 
@@ -43,7 +40,7 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
     public RunGradleTestLaunchRequestJob(GradleRunConfigurationAttributes configurationAttributes, List<TestOperationDescriptor> testDescriptors) {
         super("Launching Gradle tests");
         this.configurationAttributes = Preconditions.checkNotNull(configurationAttributes);
-        this.testDescriptors = Preconditions.checkNotNull(testDescriptors);
+        this.testDescriptors = ImmutableList.copyOf(testDescriptors);
     }
 
     @Override
@@ -62,9 +59,19 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
         return ProcessDescription.with(processName, null, this);
     }
 
-    private String createProcessName(File workingDir, String launchConfigurationName) {
-        return String.format("%s [Gradle Project] %s in %s (%s)", launchConfigurationName, Joiner.on(' ').join(collectTestNames(this.testDescriptors)), workingDir
-                .getAbsolutePath(), DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(new Date()));
+    private String createProcessName(File workingDir, String testTaskNames) {
+        return String.format("%s [Gradle Project] %s in %s (%s)", testTaskNames, Joiner.on(' ').join(collectTestNames(this.testDescriptors)),
+                workingDir.getAbsolutePath(), DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(new Date()));
+    }
+
+    private List<String> collectTestNames(List<TestOperationDescriptor> testDescriptors) {
+        return FluentIterable.from(testDescriptors).transform(new Function<TestOperationDescriptor, String>() {
+
+            @Override
+            public String apply(TestOperationDescriptor descriptor) {
+                return descriptor.getName();
+            }
+        }).toList();
     }
 
     @Override
@@ -77,17 +84,7 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
         writer.write(String.format("%s: %s%n", "Executed tests", collectTestDisplayNames(this.testDescriptors)));
     }
 
-    private static List<String> collectTestNames(List<TestOperationDescriptor> testDescriptors) {
-        return FluentIterable.from(testDescriptors).transform(new Function<TestOperationDescriptor, String>() {
-
-            @Override
-            public String apply(TestOperationDescriptor descriptor) {
-                return descriptor.getName();
-            }
-        }).toList();
-    }
-
-    private static List<String> collectTestDisplayNames(List<TestOperationDescriptor> testDescriptors) {
+    private List<String> collectTestDisplayNames(List<TestOperationDescriptor> testDescriptors) {
         return FluentIterable.from(testDescriptors).transform(new Function<TestOperationDescriptor, String>() {
 
             @Override
