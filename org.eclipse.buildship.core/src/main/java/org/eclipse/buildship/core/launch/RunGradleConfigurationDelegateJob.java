@@ -68,19 +68,9 @@ public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJo
         return new FixedRequestAttributes(workingDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments);
     }
 
-    @Override
-    protected FixedRequestAttributes getRequestAttributes() {
-        return this.fixedAttributes;
-    }
-
     private String createProcessName(List<String> tasks, File workingDir, String launchConfigurationName) {
         return String.format("%s [Gradle Project] %s in %s (%s)", launchConfigurationName, Joiner.on(' ').join(tasks), workingDir.getAbsolutePath(), DateFormat
                 .getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(new Date()));
-    }
-
-    @Override
-    protected Event createEventToFireBeforeExecution(Request<Void> request) {
-        return new DefaultExecuteLaunchRequestEvent(this, request, this.configurationAttributes, this.displayName);
     }
 
     @Override
@@ -89,8 +79,22 @@ public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJo
     }
 
     @Override
+    protected FixedRequestAttributes getRequestAttributes() {
+        return this.fixedAttributes;
+    }
+
+    protected ProcessDescription createProcessDescription() {
+        return ProcessDescription.with(this.displayName, this.launch, this);
+    }
+
+    @Override
     protected Request<Void> createRequest() {
         return CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(this.configurationAttributes.getTasks()));
+    }
+
+    @Override
+    protected Event createEventToFireBeforeExecution(Request<Void> request) {
+        return new DefaultExecuteLaunchRequestEvent(this, request, this.configurationAttributes, this.displayName);
     }
 
     @Override
@@ -98,10 +102,6 @@ public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJo
         String taskNames = Strings.emptyToNull(CollectionsUtils.joinWithSpace(this.configurationAttributes.getTasks()));
         taskNames = taskNames != null ? taskNames : CoreMessages.RunConfiguration_Value_RunDefaultTasks;
         writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleTasks, taskNames));
-    }
-
-    protected ProcessDescription createProcessDescription() {
-        return ProcessDescription.with(this.displayName, this.launch, this);
     }
 
 }
