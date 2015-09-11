@@ -18,9 +18,7 @@ import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import com.gradleware.tooling.toolingclient.Request;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.launch.internal.DefaultExecuteLaunchRequestEvent;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -73,11 +71,6 @@ public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJo
     @Override
     protected Request<Void> createRequest() {
         return CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(this.configurationAttributes.getTasks()));
-    }
-
-    @Override
-    protected Event createEventToFireBeforeExecution(Request<Void> request) {
-        return new DefaultExecuteLaunchRequestEvent(this, request, this.configurationAttributes, this.displayName);
     }
 
     @Override

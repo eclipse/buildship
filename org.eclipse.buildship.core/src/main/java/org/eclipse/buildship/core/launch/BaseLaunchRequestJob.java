@@ -27,6 +27,7 @@ import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.internal.BuildExecutionParticipants;
+import org.eclipse.buildship.core.launch.internal.DefaultExecuteLaunchRequestEvent;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
@@ -65,14 +66,6 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
      * @return the new request object
      */
     protected abstract Request<Void> createRequest();
-
-    /**
-     * Creates an event to be fired before the {@link Request} is executed.
-     *
-     * @param request the request which will be fired after the event
-     * @return the new event instance
-     */
-    protected abstract Event createEventToFireBeforeExecution(Request<Void> request);
 
     /**
      * Writes extra information on the configuration console.
@@ -126,7 +119,7 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
         writeFixedRequestAttributes(fixedAttributes, transientAttributes, writer, monitor);
 
         // notify the listeners before executing the build launch request
-        Event event = createEventToFireBeforeExecution(request);
+        Event event = new DefaultExecuteLaunchRequestEvent(this, request, getConfigurationAttributes(), processDescription.getName());
         CorePlugin.listenerRegistry().dispatch(event);
 
         // launch the build
