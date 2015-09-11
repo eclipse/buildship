@@ -53,11 +53,11 @@ public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJo
         super("Launching Gradle tasks");
         this.launch = Preconditions.checkNotNull(launch);
         this.configurationAttributes = GradleRunConfigurationAttributes.from(launchConfiguration);
-        this.fixedAttributes = createFixedAttriubtes(this.configurationAttributes);
+        this.fixedAttributes = createFixedAttributes(this.configurationAttributes);
         this.displayName = createProcessName(this.configurationAttributes.getTasks(), this.fixedAttributes.getProjectDir(), launchConfiguration.getName());
     }
 
-    private FixedRequestAttributes createFixedAttriubtes(GradleRunConfigurationAttributes configurationAttributes) {
+    private FixedRequestAttributes createFixedAttributes(GradleRunConfigurationAttributes configurationAttributes) {
         File workingDir = configurationAttributes.getWorkingDir();
         File gradleUserHome = configurationAttributes.getGradleUserHome();
         GradleDistribution gradleDistribution = configurationAttributes.getGradleDistribution();
