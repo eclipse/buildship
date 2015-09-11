@@ -31,7 +31,6 @@ public class MoreObjects {
      *
      * @return {@code first} if it is non-null; otherwise {@code second} if it is non-null
      * @throws NullPointerException if both {@code first} and {@code second} are null
-     * @since 18.0 (since 3.0 as {@code Objects.firstNonNull()}.
      */
     public static <T> T firstNonNull(T first, T second) {
         return first != null ? first : checkNotNull(second);
