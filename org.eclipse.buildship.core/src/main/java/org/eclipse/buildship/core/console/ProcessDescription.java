@@ -12,7 +12,6 @@
 package org.eclipse.buildship.core.console;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunch;
@@ -20,52 +19,35 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 
 /**
- * Describes a process.
- * <p>
- * Each process description has a name and optionally an {@link ILaunch} instance and a {@link Job}
- * instance which are performing the actual execution.
+ * Describes process associated with a Gradle launch.
  */
-public final class ProcessDescription {
+public interface ProcessDescription {
 
-    private final String name;
-    private final Job job;
-    private final Optional<ILaunch> launch;
-    private final GradleRunConfigurationAttributes configurationAttributes;
-
-    private ProcessDescription(String name, Job job, Optional<ILaunch> launch, GradleRunConfigurationAttributes configurationAttributes) {
-        this.name = name;
-        this.job = job;
-        this.launch = launch;
-        this.configurationAttributes = configurationAttributes;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public Job getJob() {
-        return this.job;
-    }
-
-    public Optional<ILaunch> getLaunch() {
-        return this.launch;
-    }
-
-    public GradleRunConfigurationAttributes getConfigurationAttributes() {
-        return this.configurationAttributes;
-    }
+    // TODO (donat) remove getLaunch()
 
     /**
-     * Creates a new instance.
-     *
-     * @param name                    a human-readable name of the process
-     * @param job                     the {@code Job} instances in which the {@code ILaunch} instance is run
-     * @param launch                  the {@code ILaunch} instance of this process
-     * @param configurationAttributes the {@code GradleRunConfigurationAttributes} applied to execute the request
-     * @return the new instance
+     * @return a human-readable name of the process
      */
-    public static ProcessDescription with(String name, Job job, ILaunch launch, GradleRunConfigurationAttributes configurationAttributes) {
-        return new ProcessDescription(Preconditions.checkNotNull(name), Preconditions.checkNotNull(job), Optional.fromNullable(launch), Preconditions.checkNotNull(configurationAttributes));
-    }
+    String getName();
+
+    /**
+     * @return the {@code Job} instances in which the {@code ILaunch} instance is run
+     */
+    Job getJob();
+
+    /**
+     * @return the {@code ILaunch} instance of this process
+     */
+    Optional<ILaunch> getLaunch();
+
+    /**
+     * @return the {@code GradleRunConfigurationAttributes} applied to execute the request
+     */
+    GradleRunConfigurationAttributes getConfigurationAttributes();
+
+    /**
+     * Executes the process once again with the same attributes
+     */
+    void rerun();
 
 }
