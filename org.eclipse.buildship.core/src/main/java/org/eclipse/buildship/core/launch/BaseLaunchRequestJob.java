@@ -11,26 +11,15 @@
 
 package org.eclipse.buildship.core.launch;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.util.List;
-
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-import org.gradle.tooling.ProgressListener;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-
+import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.console.ProcessDescription;
@@ -43,22 +32,18 @@ import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.gradle.tooling.ProgressListener;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.List;
 
 /**
  * Base class to execute {@link Request} instances in job.
  */
 public abstract class BaseLaunchRequestJob extends ToolingApiJob {
-
-    private final GradleRunConfigurationAttributes configurationAttributes;
-
-    // todo (etst) close streams when done
-
-    /**
-     * Creates a new {@link Request} object to execute in the job.
-     *
-     * @return the new request object
-     */
-    protected abstract Request<Void> createRequest();
 
     /**
      * The name of the job to display in the progress view.
@@ -66,6 +51,20 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
      * @return the name of the job
      */
     protected abstract String getJobTaskName();
+
+    /**
+     * The run configuration attributes to apply when executing the request.
+     *
+     * @return the run configuration attributes
+     */
+    protected abstract GradleRunConfigurationAttributes getConfigurationAttributes();
+
+    /**
+     * Creates a new {@link Request} object to execute in the job.
+     *
+     * @return the new request object
+     */
+    protected abstract Request<Void> createRequest();
 
     /**
      * Creates an event to be fired before the {@link Request} is executed.
@@ -84,18 +83,18 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
     protected abstract void writeExtraConfigInfo(OutputStreamWriter writer) throws IOException;
 
     /**
-     * Constructor.
+     * Creates a new instance.
      *
      * @param name the name of the job
-     * @param configurationAttributes the run configuration attributes
      */
-    protected BaseLaunchRequestJob(String name, GradleRunConfigurationAttributes configurationAttributes) {
+    protected BaseLaunchRequestJob(String name) {
         super(name);
-        this.configurationAttributes = configurationAttributes;
     }
 
     @Override
     protected final void runToolingApiJob(IProgressMonitor monitor) {
+        // todo (etst) close streams when done
+
         // activate all plugins which contribute to a build execution
         BuildExecutionParticipants.activateParticipantPlugins();
 
@@ -137,12 +136,13 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
     protected abstract ProcessDescription createProcessDescription();
 
     private FixedRequestAttributes createFixedAttributes() {
-        File workingDir = this.configurationAttributes.getWorkingDir();
-        File gradleUserHome = this.configurationAttributes.getGradleUserHome();
-        GradleDistribution gradleDistribution = this.configurationAttributes.getGradleDistribution();
-        File javaHome = this.configurationAttributes.getJavaHome();
-        ImmutableList<String> jvmArguments = this.configurationAttributes.getJvmArguments();
-        ImmutableList<String> arguments = this.configurationAttributes.getArguments();
+        GradleRunConfigurationAttributes configurationAttributes = getConfigurationAttributes();
+        File workingDir = configurationAttributes.getWorkingDir();
+        File gradleUserHome = configurationAttributes.getGradleUserHome();
+        GradleDistribution gradleDistribution = configurationAttributes.getGradleDistribution();
+        File javaHome = configurationAttributes.getJavaHome();
+        ImmutableList<String> jvmArguments = configurationAttributes.getJvmArguments();
+        ImmutableList<String> arguments = configurationAttributes.getArguments();
         return new FixedRequestAttributes(workingDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments);
     }
 
@@ -190,7 +190,7 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
     }
 
     private OmniBuildEnvironment fetchBuildEnvironment(FixedRequestAttributes fixedRequestAttributes, TransientRequestAttributes transientRequestAttributes,
-            IProgressMonitor monitor) {
+                                                       IProgressMonitor monitor) {
         monitor.beginTask("Load Gradle Build Environment", IProgressMonitor.UNKNOWN);
         try {
             ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(fixedRequestAttributes);

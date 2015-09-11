@@ -44,7 +44,7 @@ public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJo
     private final String displayName;
 
     public RunGradleConfigurationDelegateJob(ILaunch launch, ILaunchConfiguration launchConfiguration) {
-        super("Launching Gradle tasks", GradleRunConfigurationAttributes.from(launchConfiguration));
+        super("Launching Gradle tasks");
         this.launch = Preconditions.checkNotNull(launch);
         this.configurationAttributes = GradleRunConfigurationAttributes.from(launchConfiguration);
         this.displayName = createProcessName(this.configurationAttributes.getTasks(), this.configurationAttributes.getWorkingDir(), launchConfiguration.getName());
@@ -58,6 +58,11 @@ public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJo
     @Override
     protected String getJobTaskName() {
         return String.format("Launch Gradle tasks %s", this.configurationAttributes.getTasks());
+    }
+
+    @Override
+    protected GradleRunConfigurationAttributes getConfigurationAttributes() {
+        return this.configurationAttributes;
     }
 
     @Override
