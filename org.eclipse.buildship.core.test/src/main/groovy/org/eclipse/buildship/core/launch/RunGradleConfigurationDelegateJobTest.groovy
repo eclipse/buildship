@@ -72,6 +72,7 @@ class RunGradleConfigurationDelegateJobTest extends Specification {
 
     private def createLaunchConfigurationMock() {
         def launchConfiguration = Mock(ILaunchConfiguration)
+        launchConfiguration.getName() >> 'name'
         launchConfiguration.getAttribute('tasks', _) >> ['clean', 'build']
         launchConfiguration.getAttribute('gradle_distribution', _) >> 'GRADLE_DISTRIBUTION(WRAPPER)'
         launchConfiguration.getAttribute('working_dir', _) >> tempFolder.newFolder().absolutePath
