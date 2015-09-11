@@ -16,34 +16,20 @@ import com.google.common.base.Preconditions;
 
 import com.gradleware.tooling.toolingclient.Request;
 
-import org.eclipse.core.runtime.jobs.Job;
-
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.launch.ExecuteLaunchRequestEvent;
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 
 /**
  * Default implementation of {@link ExecuteLaunchRequestEvent}.
  */
 public final class DefaultExecuteLaunchRequestEvent implements ExecuteLaunchRequestEvent {
 
-    private final Job job;
     private final Request<Void> request;
-    private final GradleRunConfigurationAttributes runConfigurationAttributes;
-    private final String processName;
     private ProcessDescription processDescription;
 
-    public DefaultExecuteLaunchRequestEvent(Job job, Request<Void> request, GradleRunConfigurationAttributes runConfigurationAttributes, String processName, ProcessDescription processDescription) {
-        this.job = job;
+    public DefaultExecuteLaunchRequestEvent(Request<Void> request, ProcessDescription processDescription) {
         this.request = Preconditions.checkNotNull(request);
-        this.runConfigurationAttributes = Preconditions.checkNotNull(runConfigurationAttributes);
-        this.processName = Preconditions.checkNotNull(processName);
         this.processDescription = processDescription;
-    }
-
-    @Override
-    public Job getJob() {
-        return this.job;
     }
 
     @Override
@@ -52,17 +38,8 @@ public final class DefaultExecuteLaunchRequestEvent implements ExecuteLaunchRequ
     }
 
     @Override
-    public GradleRunConfigurationAttributes getRunConfigurationAttributes() {
-        return this.runConfigurationAttributes;
-    }
-
-    @Override
-    public String getProcessName() {
-        return this.processName;
-    }
-
-    @Override
     public ProcessDescription getProcessDescription() {
         return this.processDescription;
     }
+
 }
