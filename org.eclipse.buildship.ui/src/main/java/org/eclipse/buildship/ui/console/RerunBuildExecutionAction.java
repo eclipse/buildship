@@ -20,9 +20,6 @@ import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.jface.action.Action;
 
 /**
@@ -62,8 +59,7 @@ public final class RerunBuildExecutionAction extends Action {
 
     @Override
     public void run() {
-        ILaunchConfiguration launchConfiguration = this.gradleConsole.getProcessDescription().get().getLaunch().get().getLaunchConfiguration();
-        DebugUITools.launch(launchConfiguration, ILaunchManager.RUN_MODE);
+        this.gradleConsole.getProcessDescription().get().rerun();
     }
 
 }
