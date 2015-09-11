@@ -69,11 +69,6 @@ public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJo
     }
 
     @Override
-    protected ILaunch getLaunch() {
-        return this.launch;
-    }
-
-    @Override
     protected FixedRequestAttributes getRequestAttributes() {
         return this.fixedAttributes;
     }
@@ -106,7 +101,7 @@ public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJo
     }
 
     protected ProcessDescription createProcessDescription() {
-        return ProcessDescription.with(this.displayName, getLaunch(), this);
+        return ProcessDescription.with(this.displayName, this.launch, this);
     }
 
 }

@@ -81,13 +81,6 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
     protected abstract Event createEventToFireBeforeExecution(Request<Void> request);
 
     /**
-     * The {@link ILaunch} instance associated with the job.
-     *
-     * @return the launch or {@code null} if none.
-     */
-    protected abstract ILaunch getLaunch();
-
-    /**
      * Writes extra information on the configuration console.
      *
      * @param writer the writer to print messages with
