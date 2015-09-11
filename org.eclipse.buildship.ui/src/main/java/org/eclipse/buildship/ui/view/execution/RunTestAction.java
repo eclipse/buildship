@@ -31,6 +31,8 @@ import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
  */
 public final class RunTestAction extends Action implements SelectionSpecificAction {
 
+    private static final TestOperationItemPredicate TEST_OPERATION_ITEM_PREDICATE = new TestOperationItemPredicate();
+
     private final NodeSelectionProvider selectionProvider;
 
     public RunTestAction(NodeSelectionProvider selectionProvider) {
@@ -40,7 +42,7 @@ public final class RunTestAction extends Action implements SelectionSpecificActi
 
     @Override
     public void run() {
-        List<TestOperationDescriptor> testDescriptors = collectSelectedTestDescriptors(this.selectionProvider.getSelection());
+        List<TestOperationDescriptor> testDescriptors = collectSelectedTestOperationDescriptors(this.selectionProvider.getSelection());
         // TODO (donat) implement test launch
         System.out.println("ExecuteTestOperationAction fired. Tests to run:");
         for (TestOperationDescriptor testDescriptor : testDescriptors) {
@@ -50,33 +52,39 @@ public final class RunTestAction extends Action implements SelectionSpecificActi
 
     @Override
     public boolean isVisibleFor(NodeSelection selection) {
-        // the action is visible if at least one test operation descriptor is selected
-        return !collectSelectedTestDescriptors(selection).isEmpty();
+        return !selection.isEmpty() && FluentIterable.from(selection.getNodes(OperationItem.class)).anyMatch(TEST_OPERATION_ITEM_PREDICATE);
     }
 
     @Override
     public boolean isEnabledFor(NodeSelection selection) {
-        return true;
+        return !selection.isEmpty() && FluentIterable.from(selection.getNodes(OperationItem.class)).allMatch(TEST_OPERATION_ITEM_PREDICATE);
     }
 
     @Override
     public void setEnabledFor(NodeSelection selection) {
-        // do nothing: if the action is visible then it's always enabled
+        setEnabled(isEnabledFor(selection));
     }
 
-    private List<TestOperationDescriptor> collectSelectedTestDescriptors(NodeSelection nodeSelection) {
-        return FluentIterable.from(nodeSelection.getNodes(OperationItem.class)).filter(new Predicate<OperationItem>() {
-
-            @Override
-            public boolean apply(OperationItem operationItem) {
-                return operationItem.getStartEvent().getDescriptor() instanceof TestOperationDescriptor;
-            }
-        }).transform(new Function<OperationItem, TestOperationDescriptor>() {
+    private List<TestOperationDescriptor> collectSelectedTestOperationDescriptors(NodeSelection nodeSelection) {
+        return FluentIterable.from(nodeSelection.getNodes(OperationItem.class)).filter(TEST_OPERATION_ITEM_PREDICATE).transform(new Function<OperationItem, TestOperationDescriptor>() {
 
             @Override
             public TestOperationDescriptor apply(OperationItem operationItem) {
-                return (TestOperationDescriptor) operationItem.getFinishEvent().getDescriptor();
+                return (TestOperationDescriptor) operationItem.getStartEvent().getDescriptor();
             }
         }).toList();
     }
+
+    /**
+     * Predicate that matches {@code TestOperationDescriptor} instances.
+     */
+    private static final class TestOperationItemPredicate implements Predicate<OperationItem> {
+
+        @Override
+        public boolean apply(OperationItem operationItem) {
+            return operationItem.getStartEvent().getDescriptor() instanceof TestOperationDescriptor;
+        }
+
+    }
+
 }
