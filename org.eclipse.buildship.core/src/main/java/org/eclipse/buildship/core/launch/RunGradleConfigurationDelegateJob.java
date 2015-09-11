@@ -31,9 +31,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * {@link BaseLaunchRequestJob} implementation executing a
- * {@link com.gradleware.tooling.toolingclient.BuildLaunchRequest}, configured with
- * {@link GradleRunConfigurationAttributes} run configuration.
+ * Executes Gradle tasks based on a given {@code ILaunch} and {@code ILaunchConfiguration} instance.
  */
 public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJob {
 
