@@ -31,7 +31,7 @@ import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
  */
 public final class RunTestAction extends Action implements SelectionSpecificAction {
 
-    private NodeSelectionProvider selectionProvider;
+    private final NodeSelectionProvider selectionProvider;
 
     public RunTestAction(NodeSelectionProvider selectionProvider) {
         super(ExecutionViewMessages.Action_RunTest_Text);
