@@ -51,16 +51,6 @@ public final class ProcessDescription {
      * Creates a new instance.
      *
      * @param name a human-readable name of the process
-     * @return the new instance
-     */
-    public static ProcessDescription with(String name) {
-        return with(name, null, null);
-    }
-
-    /**
-     * Creates a new instance.
-     *
-     * @param name a human-readable name of the process
      * @param launch the {@code ILaunch} instance of this process
      * @param job the {@code Job} instances in which the {@code ILaunch} instance is run
      * @return the new instance

@@ -56,12 +56,19 @@ public final class ConsoleProcessStreamsProvider implements ProcessStreamsProvid
         return gradleConsole;
     }
 
+    private static GradleConsole createAndRegisterNewConsole(String name) {
+        // creates a new console without a process description and adds it to the Eclipse Console view
+        GradleConsole gradleConsole = new GradleConsole(name);
+        ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[] { gradleConsole });
+        return gradleConsole;
+    }
+
     /**
      * Holds a {@code GradleConsole} instance. The instance held by this inner class is not created until first accessed.
      */
     private static final class BackgroundJobProcessStream {
 
-        private static final GradleConsole INSTANCE = createAndRegisterNewConsole(ProcessDescription.with(ConsoleMessages.Background_Console_Title));
+        private static final GradleConsole INSTANCE = createAndRegisterNewConsole(ConsoleMessages.Background_Console_Title);
 
     }
 
