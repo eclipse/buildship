@@ -29,10 +29,10 @@ public final class ProcessDescription {
 
     private final String name;
     private final Optional<ILaunch> launch;
-    private final Optional<Job> job;
+    private final Job job;
     private final GradleRunConfigurationAttributes configurationAttributes;
 
-    private ProcessDescription(String name, Optional<ILaunch> launch, Optional<Job> job, GradleRunConfigurationAttributes configurationAttributes) {
+    private ProcessDescription(String name, Optional<ILaunch> launch, Job job, GradleRunConfigurationAttributes configurationAttributes) {
         this.name = name;
         this.launch = launch;
         this.job = job;
@@ -47,7 +47,7 @@ public final class ProcessDescription {
         return this.launch;
     }
 
-    public Optional<Job> getJob() {
+    public Job getJob() {
         return this.job;
     }
 
@@ -64,7 +64,7 @@ public final class ProcessDescription {
      * @return the new instance
      */
     public static ProcessDescription with(String name, ILaunch launch, Job job, GradleRunConfigurationAttributes configurationAttributes) {
-        return new ProcessDescription(Preconditions.checkNotNull(name), Optional.fromNullable(launch), Optional.fromNullable(job),
+        return new ProcessDescription(Preconditions.checkNotNull(name), Optional.fromNullable(launch), Preconditions.checkNotNull(job),
                 Preconditions.checkNotNull(configurationAttributes));
     }
 

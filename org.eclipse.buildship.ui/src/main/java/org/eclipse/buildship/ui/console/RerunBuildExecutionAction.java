@@ -11,7 +11,6 @@
 
 package org.eclipse.buildship.ui.console;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -44,21 +43,15 @@ public final class RerunBuildExecutionAction extends Action {
     }
 
     private void registerJobChangeListener() {
-        Optional<Job> job = this.gradleConsole.getProcessDescription().getJob();
-        if (job.isPresent()) {
-            job.get().addJobChangeListener(new JobChangeAdapter() {
+        Job job = this.gradleConsole.getProcessDescription().getJob();
+        job.addJobChangeListener(new JobChangeAdapter() {
 
-                @Override
-                public void done(IJobChangeEvent event) {
-                    RerunBuildExecutionAction.this.setEnabled(event.getJob().getState() == Job.NONE);
-                }
-            });
-        }
-        if (!job.isPresent()) {
-            setEnabled(false);
-        } else {
-            setEnabled(job.get().getState() == Job.NONE);
-        }
+            @Override
+            public void done(IJobChangeEvent event) {
+                RerunBuildExecutionAction.this.setEnabled(event.getJob().getState() == Job.NONE);
+            }
+        });
+        setEnabled(job.getState() == Job.NONE);
     }
 
     @Override

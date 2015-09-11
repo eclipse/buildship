@@ -99,13 +99,13 @@ public final class GradleConsole extends IOConsole implements ProcessStreams {
         if (!this.processDescription.isPresent()) {
             return false;
         } else {
-            Optional<Job> job = this.processDescription.get().getJob();
-            return job.isPresent() && job.get().getState() == Job.NONE;
+            Job job = this.processDescription.get().getJob();
+            return job.getState() == Job.NONE;
         }
     }
 
     public boolean isCloseable() {
-        return this.processDescription.isPresent() && this.processDescription.get().getJob().isPresent();
+        return this.processDescription.isPresent();
     }
 
     @Override
