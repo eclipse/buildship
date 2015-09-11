@@ -40,14 +40,22 @@ import java.io.OutputStream;
  */
 public final class GradleConsole extends IOConsole implements ProcessStreams {
 
-    private final ProcessDescription processDescription;
+    private final Optional<ProcessDescription> processDescription;
     private final IOConsoleOutputStream configurationStream;
     private final IOConsoleOutputStream outputStream;
     private final IOConsoleOutputStream errorStream;
     private final IOConsoleInputStream inputStream;
 
+    public GradleConsole(String name) {
+        this(name, Optional.<ProcessDescription>absent());
+    }
+
     public GradleConsole(ProcessDescription processDescription) {
-        super(processDescription.getName(), PluginImages.TASK.withState(PluginImages.ImageState.ENABLED).getImageDescriptor());
+        this(processDescription.getName(), Optional.of(processDescription));
+    }
+
+    private GradleConsole(String name, Optional<ProcessDescription> processDescription) {
+        super(name, PluginImages.TASK.withState(PluginImages.ImageState.ENABLED).getImageDescriptor());
 
         this.processDescription = processDescription;
         this.configurationStream = newOutputStream();
@@ -78,16 +86,26 @@ public final class GradleConsole extends IOConsole implements ProcessStreams {
     }
 
     public ProcessDescription getProcessDescription() {
-        return this.processDescription;
+        if (this.processDescription.isPresent()) {
+            return this.processDescription.get();
+        } else {
+            // the background console should be the only one which has no process description
+            throw new GradlePluginsRuntimeException("No process description is associated to the current console.");
+        }
+
     }
 
     public boolean isTerminated() {
-        Optional<Job> job = this.processDescription.getJob();
-        return job.isPresent() && job.get().getState() == Job.NONE;
+        if (!this.processDescription.isPresent()) {
+            return false;
+        } else {
+            Optional<Job> job = this.processDescription.get().getJob();
+            return job.isPresent() && job.get().getState() == Job.NONE;
+        }
     }
 
     public boolean isCloseable() {
-        return this.processDescription.getJob().isPresent();
+        return this.processDescription.isPresent() && this.processDescription.get().getJob().isPresent();
     }
 
     @Override
