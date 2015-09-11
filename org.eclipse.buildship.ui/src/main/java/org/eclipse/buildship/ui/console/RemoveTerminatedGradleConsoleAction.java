@@ -13,9 +13,9 @@ package org.eclipse.buildship.ui.console;
 
 import com.google.common.base.Preconditions;
 
-import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.ILaunchesListener2;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
@@ -30,7 +30,7 @@ import org.eclipse.buildship.ui.PluginImages;
  * Note: the implementation is somewhat along the lines of
  * {@code org.eclipse.debug.internal.ui.views.console.ConsoleRemoveLaunchAction}.
  */
-public final class RemoveTerminatedGradleConsoleAction extends Action implements ILaunchesListener2 {
+public final class RemoveTerminatedGradleConsoleAction extends Action  {
 
     private final GradleConsole gradleConsole;
 
@@ -41,39 +41,18 @@ public final class RemoveTerminatedGradleConsoleAction extends Action implements
         setImageDescriptor(PluginImages.REMOVE_CONSOLE.withState(PluginImage.ImageState.ENABLED).getImageDescriptor());
         setDisabledImageDescriptor(PluginImages.REMOVE_CONSOLE.withState(PluginImage.ImageState.DISABLED).getImageDescriptor());
 
-        DebugPlugin.getDefault().getLaunchManager().addLaunchListener(this);
-
-        update();
-    }
-
-    private void update() {
-        setEnabled(this.gradleConsole.isCloseable() && this.gradleConsole.isTerminated());
+        setEnabled(false);
+        gradleConsole.getProcessDescription().getJob().addJobChangeListener(new JobChangeAdapter() {
+            @Override
+            public void done(IJobChangeEvent event) {
+                setEnabled(true);
+            }
+        });
     }
 
     @Override
     public void run() {
         ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] { this.gradleConsole });
-    }
-
-    @Override
-    public void launchesAdded(ILaunch[] launches) {
-    }
-
-    @Override
-    public void launchesChanged(ILaunch[] launches) {
-    }
-
-    @Override
-    public void launchesTerminated(ILaunch[] launches) {
-    }
-
-    @Override
-    public void launchesRemoved(ILaunch[] launches) {
-        update();
-    }
-
-    public void dispose() {
-        DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(this);
     }
 
 }
