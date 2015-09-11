@@ -73,13 +73,6 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
     protected abstract String getJobTaskName();
 
     /**
-     * The name to display in the execution view's page selector.
-     *
-     * @return the display name
-     */
-    protected abstract String getDisplayName();
-
-    /**
      * Creates an event to be fired before the {@link Request} is executed.
      *
      * @param request the request which will be fired after the event
@@ -119,8 +112,7 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
         // start tracking progress
         monitor.beginTask(getJobTaskName(), IProgressMonitor.UNKNOWN);
 
-        String processName = getDisplayName();
-        ProcessDescription processDescription = ProcessDescription.with(processName, getLaunch(), this);
+        ProcessDescription processDescription = createProcessDescription();
         ProcessStreams processStreams = CorePlugin.processStreamsProvider().createProcessStreams(processDescription);
 
         // fetch build environment
@@ -152,8 +144,9 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
         request.executeAndWait();
     }
 
-    private void writeFixedRequestAttributes(FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientAttributes, OutputStreamWriter writer,
-            IProgressMonitor monitor) {
+    protected abstract ProcessDescription createProcessDescription();
+
+    private void writeFixedRequestAttributes(FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientAttributes, OutputStreamWriter writer, IProgressMonitor monitor) {
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(fixedAttributes, transientAttributes, monitor);
         // should the user not specify values for the gradleUserHome and javaHome, their default
         // values will not be specified in the launch configurations
@@ -205,5 +198,7 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
         } finally {
             monitor.done();
         }
+
     }
+
 }

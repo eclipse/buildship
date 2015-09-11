@@ -28,6 +28,7 @@ import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
+import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
@@ -77,11 +78,6 @@ public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJo
         return this.fixedAttributes;
     }
 
-    @Override
-    protected String getDisplayName() {
-        return this.displayName;
-    }
-
     private String createProcessName(List<String> tasks, File workingDir, String launchConfigurationName) {
         return String.format("%s [Gradle Project] %s in %s (%s)", launchConfigurationName, Joiner.on(' ').join(tasks), workingDir.getAbsolutePath(), DateFormat
                 .getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(new Date()));
@@ -107,6 +103,10 @@ public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJo
         String taskNames = Strings.emptyToNull(CollectionsUtils.joinWithSpace(this.configurationAttributes.getTasks()));
         taskNames = taskNames != null ? taskNames : CoreMessages.RunConfiguration_Value_RunDefaultTasks;
         writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleTasks, taskNames));
+    }
+
+    protected ProcessDescription createProcessDescription() {
+        return ProcessDescription.with(this.displayName, getLaunch(), this);
     }
 
 }
