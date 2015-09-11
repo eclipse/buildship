@@ -13,6 +13,7 @@ package org.eclipse.buildship.core.launch;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
@@ -20,6 +21,8 @@ import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingclient.TestConfig;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessDescription;
+import org.gradle.tooling.events.OperationDescriptor;
+import org.gradle.tooling.events.task.TaskOperationDescriptor;
 import org.gradle.tooling.events.test.TestOperationDescriptor;
 
 import java.io.File;
@@ -55,23 +58,44 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
 
     @Override
     protected ProcessDescription createProcessDescription() {
-        String processName = createProcessName(this.configurationAttributes.getWorkingDir(), "name");
+        String processName = createProcessName(this.configurationAttributes.getWorkingDir());
         return ProcessDescription.with(processName, null, this);
     }
 
-    private String createProcessName(File workingDir, String testTaskNames) {
-        return String.format("%s [Gradle Project] %s in %s (%s)", testTaskNames, Joiner.on(' ').join(collectTestNames(this.testDescriptors)),
+    private String createProcessName(File workingDir) {
+        return String.format("%s [Gradle Project] %s in %s (%s)", collectTestTaskNames(this.testDescriptors), collectTestNames(this.testDescriptors),
                 workingDir.getAbsolutePath(), DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(new Date()));
     }
 
-    private List<String> collectTestNames(List<TestOperationDescriptor> testDescriptors) {
-        return FluentIterable.from(testDescriptors).transform(new Function<TestOperationDescriptor, String>() {
+    private String collectTestTaskNames(List<TestOperationDescriptor> testDescriptors) {
+        ImmutableList.Builder<String> testTaskNames = ImmutableList.builder();
+        for (TestOperationDescriptor testDescriptor : testDescriptors) {
+            Optional<TaskOperationDescriptor> taskDescriptor = findParentTestTask(testDescriptor);
+            testTaskNames.add(taskDescriptor.isPresent() ? taskDescriptor.get().getTaskPath() : "Test");
+        }
+        return Joiner.on(' ').join(testTaskNames.build());
+    }
+
+    private Optional<TaskOperationDescriptor> findParentTestTask(OperationDescriptor testDescriptor) {
+        OperationDescriptor parent = testDescriptor.getParent();
+        if (parent instanceof TaskOperationDescriptor) {
+            return Optional.of((TaskOperationDescriptor) parent);
+        } else if (parent != null) {
+            return findParentTestTask(parent);
+        } else {
+            return Optional.absent();
+        }
+    }
+
+    private String collectTestNames(List<TestOperationDescriptor> testDescriptors) {
+        ImmutableList<String> testNames = FluentIterable.from(testDescriptors).transform(new Function<TestOperationDescriptor, String>() {
 
             @Override
             public String apply(TestOperationDescriptor descriptor) {
                 return descriptor.getName();
             }
         }).toList();
+        return Joiner.on(' ').join(testNames);
     }
 
     @Override
