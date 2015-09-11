@@ -59,7 +59,7 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
     @Override
     protected ProcessDescription createProcessDescription() {
         String processName = createProcessName(this.configurationAttributes.getWorkingDir());
-        return ProcessDescription.with(processName, null, this);
+        return ProcessDescription.with(processName, null, this, this.configurationAttributes);
     }
 
     private String createProcessName(File workingDir) {

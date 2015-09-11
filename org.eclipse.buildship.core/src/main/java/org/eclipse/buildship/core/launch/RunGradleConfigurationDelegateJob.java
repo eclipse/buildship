@@ -59,7 +59,7 @@ public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJo
     @Override
     protected ProcessDescription createProcessDescription() {
         String processName = createProcessName(this.configurationAttributes.getTasks(), this.configurationAttributes.getWorkingDir(), this.launchConfiguration.getName());
-        return ProcessDescription.with(processName, this.launch, this);
+        return ProcessDescription.with(processName, this.launch, this, this.configurationAttributes);
     }
 
     private String createProcessName(List<String> tasks, File workingDir, String launchConfigurationName) {

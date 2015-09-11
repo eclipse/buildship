@@ -17,6 +17,8 @@ import com.google.common.base.Preconditions;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunch;
 
+import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+
 /**
  * Describes a process.
  * <p>
@@ -28,11 +30,13 @@ public final class ProcessDescription {
     private final String name;
     private final Optional<ILaunch> launch;
     private final Optional<Job> job;
+    private final GradleRunConfigurationAttributes configurationAttributes;
 
-    private ProcessDescription(String name, Optional<ILaunch> launch, Optional<Job> job) {
+    private ProcessDescription(String name, Optional<ILaunch> launch, Optional<Job> job, GradleRunConfigurationAttributes configurationAttributes) {
         this.name = name;
         this.launch = launch;
         this.job = job;
+        this.configurationAttributes = configurationAttributes;
     }
 
     public String getName() {
@@ -47,6 +51,10 @@ public final class ProcessDescription {
         return this.job;
     }
 
+    public GradleRunConfigurationAttributes getConfigurationAttributes() {
+        return this.configurationAttributes;
+    }
+
     /**
      * Creates a new instance.
      *
@@ -55,8 +63,9 @@ public final class ProcessDescription {
      * @param job the {@code Job} instances in which the {@code ILaunch} instance is run
      * @return the new instance
      */
-    public static ProcessDescription with(String name, ILaunch launch, Job job) {
-        return new ProcessDescription(Preconditions.checkNotNull(name), Optional.fromNullable(launch), Optional.fromNullable(job));
+    public static ProcessDescription with(String name, ILaunch launch, Job job, GradleRunConfigurationAttributes configurationAttributes) {
+        return new ProcessDescription(Preconditions.checkNotNull(name), Optional.fromNullable(launch), Optional.fromNullable(job),
+                Preconditions.checkNotNull(configurationAttributes));
     }
 
 }
