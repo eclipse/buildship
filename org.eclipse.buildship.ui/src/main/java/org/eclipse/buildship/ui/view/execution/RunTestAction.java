@@ -16,6 +16,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.launch.RunGradleTestLaunchRequestJob;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
 import org.eclipse.jface.action.Action;
@@ -41,10 +42,7 @@ public final class RunTestAction extends Action implements SelectionSpecificActi
     public void run() {
         List<TestOperationDescriptor> testDescriptors = collectSelectedTestOperationDescriptors(this.executionPage.getSelection());
         GradleRunConfigurationAttributes configurationAttributes = this.executionPage.getConfigurationAttributes();
-        System.out.println("ExecuteTestOperationAction fired. Tests to run:");
-        for (TestOperationDescriptor testDescriptor : testDescriptors) {
-            System.out.println("\tname=" + testDescriptor.getDisplayName());
-        }
+        new RunGradleTestLaunchRequestJob(configurationAttributes, testDescriptors).schedule();
     }
 
     @Override
