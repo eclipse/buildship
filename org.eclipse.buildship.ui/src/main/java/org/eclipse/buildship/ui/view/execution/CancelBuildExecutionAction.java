@@ -40,7 +40,7 @@ public final class CancelBuildExecutionAction extends Action {
     }
 
     private void registerJobChangeListener() {
-        Job job = this.page.getBuildJob();
+        Job job = this.page.getProcessDescription().getJob();
         job.addJobChangeListener(new JobChangeAdapter() {
 
             @Override
@@ -53,7 +53,7 @@ public final class CancelBuildExecutionAction extends Action {
 
     @Override
     public void run() {
-        this.page.getBuildJob().cancel();
+        this.page.getProcessDescription().getJob().cancel();
     }
 
 }

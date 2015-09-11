@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.ui.external.viewer.FilteredTree;
 import org.eclipse.buildship.ui.external.viewer.PatternFilter;
 import org.eclipse.buildship.ui.util.color.ColorUtils;
@@ -68,10 +68,8 @@ import org.eclipse.buildship.ui.view.ShowFilterAction;
 @SuppressWarnings("unchecked")
 public final class ExecutionPage extends BasePage<FilteredTree> implements NodeSelectionProvider {
 
-    private final Job buildJob;
-    private final String displayName;
     private final Request<Void> request;
-    private final GradleRunConfigurationAttributes configurationAttributes;
+    private final ProcessDescription processDescription;
     private final ExecutionViewState state;
 
     private SelectionHistoryManager selectionHistoryManager;
@@ -79,25 +77,24 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     private TreeViewerColumn nameColumn;
     private TreeViewerColumn durationColumn;
 
-    public ExecutionPage(Job buildJob, String displayName, Request<Void> request, GradleRunConfigurationAttributes configurationAttributes, ExecutionViewState state) {
-        this.buildJob = buildJob;
-        this.displayName = displayName;
+    public ExecutionPage(Request<Void> request, ProcessDescription processDescription, ExecutionViewState state) {
         this.request = request;
-        this.configurationAttributes = configurationAttributes;
+        this.processDescription = processDescription;
         this.state = state;
     }
 
-    public Job getBuildJob() {
-        return this.buildJob;
+
+    public Request<Void> getRequest() {
+        return this.request;
     }
 
-    public GradleRunConfigurationAttributes getConfigurationAttributes() {
-        return this.configurationAttributes;
+    public ProcessDescription getProcessDescription() {
+        return this.processDescription;
     }
 
     @Override
     public String getDisplayName() {
-        return this.displayName;
+        return this.processDescription.getName();
     }
 
     @Override
@@ -261,7 +258,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
 
     @Override
     public boolean isCloseable() {
-        return this.buildJob.getState() == Job.NONE;
+        return this.processDescription.getJob().getState() == Job.NONE;
     }
 
     @Override

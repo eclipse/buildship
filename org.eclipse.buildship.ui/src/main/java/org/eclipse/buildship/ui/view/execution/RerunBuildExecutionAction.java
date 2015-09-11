@@ -43,7 +43,7 @@ public final class RerunBuildExecutionAction extends Action {
     }
 
     private void registerJobChangeListener() {
-        Job job = this.page.getBuildJob();
+        Job job = this.page.getProcessDescription().getJob();
         job.addJobChangeListener(new JobChangeAdapter() {
 
             @Override
@@ -56,7 +56,8 @@ public final class RerunBuildExecutionAction extends Action {
 
     @Override
     public void run() {
-        ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateRunConfiguration(this.page.getConfigurationAttributes());
+        // TODO (donat) call processdescription.rerun()
+        ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateRunConfiguration(this.page.getProcessDescription().getConfigurationAttributes());
         DebugUITools.launch(launchConfiguration, ILaunchManager.RUN_MODE);
     }
 
