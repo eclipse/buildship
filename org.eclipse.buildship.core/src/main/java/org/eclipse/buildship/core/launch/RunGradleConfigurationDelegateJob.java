@@ -38,19 +38,14 @@ import java.util.List;
 public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJob {
 
     private final ILaunch launch;
+    private final ILaunchConfiguration launchConfiguration;
     private final GradleRunConfigurationAttributes configurationAttributes;
-    private final String displayName;
 
     public RunGradleConfigurationDelegateJob(ILaunch launch, ILaunchConfiguration launchConfiguration) {
         super("Launching Gradle tasks");
         this.launch = Preconditions.checkNotNull(launch);
+        this.launchConfiguration = Preconditions.checkNotNull(launchConfiguration);
         this.configurationAttributes = GradleRunConfigurationAttributes.from(launchConfiguration);
-        this.displayName = createProcessName(this.configurationAttributes.getTasks(), this.configurationAttributes.getWorkingDir(), launchConfiguration.getName());
-    }
-
-    private String createProcessName(List<String> tasks, File workingDir, String launchConfigurationName) {
-        return String.format("%s [Gradle Project] %s in %s (%s)", launchConfigurationName, Joiner.on(' ').join(tasks), workingDir.getAbsolutePath(), DateFormat
-                .getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(new Date()));
     }
 
     @Override
@@ -65,7 +60,13 @@ public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJo
 
     @Override
     protected ProcessDescription createProcessDescription() {
-        return ProcessDescription.with(this.displayName, this.launch, this);
+        String processName = createProcessName(this.configurationAttributes.getTasks(), this.configurationAttributes.getWorkingDir(), this.launchConfiguration.getName());
+        return ProcessDescription.with(processName, this.launch, this);
+    }
+
+    private String createProcessName(List<String> tasks, File workingDir, String launchConfigurationName) {
+        return String.format("%s [Gradle Project] %s in %s (%s)", launchConfigurationName, Joiner.on(' ').join(tasks), workingDir.getAbsolutePath(), DateFormat
+                .getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(new Date()));
     }
 
     @Override
