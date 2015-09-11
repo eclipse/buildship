@@ -69,7 +69,7 @@ public final class RunTestAction extends Action implements SelectionSpecificActi
 
             @Override
             public boolean apply(OperationItem operationItem) {
-                return operationItem.getFinishEvent() != null && operationItem.getFinishEvent().getDescriptor() instanceof TestOperationDescriptor;
+                return operationItem.getStartEvent().getDescriptor() instanceof TestOperationDescriptor;
             }
         }).transform(new Function<OperationItem, TestOperationDescriptor>() {
 
