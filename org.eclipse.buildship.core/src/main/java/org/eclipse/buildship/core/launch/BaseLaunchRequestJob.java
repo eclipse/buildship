@@ -85,7 +85,7 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
         writeFixedRequestAttributes(fixedAttributes, transientAttributes, writer, monitor);
 
         // notify the listeners before executing the build launch request
-        Event event = new DefaultExecuteLaunchRequestEvent(this, request, getConfigurationAttributes(), processDescription.getName());
+        Event event = new DefaultExecuteLaunchRequestEvent(this, request, getConfigurationAttributes(), processDescription.getName(), processDescription);
         CorePlugin.listenerRegistry().dispatch(event);
 
         // launch the build

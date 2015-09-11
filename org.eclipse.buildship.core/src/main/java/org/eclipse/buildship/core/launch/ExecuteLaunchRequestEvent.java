@@ -16,6 +16,7 @@ import com.gradleware.tooling.toolingclient.Request;
 
 import org.eclipse.core.runtime.jobs.Job;
 
+import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.event.Event;
 
 /**
@@ -31,5 +32,8 @@ public interface ExecuteLaunchRequestEvent extends Event {
     GradleRunConfigurationAttributes getRunConfigurationAttributes();
 
     String getProcessName();
+
+    ProcessDescription getProcessDescription();
+    // TODO remove the redundant methods (all except getRequest)
 
 }
