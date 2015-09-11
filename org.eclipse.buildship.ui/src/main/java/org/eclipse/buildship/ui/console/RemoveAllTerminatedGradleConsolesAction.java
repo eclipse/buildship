@@ -43,7 +43,7 @@ public final class RemoveAllTerminatedGradleConsolesAction extends Action implem
         setImageDescriptor(PluginImages.REMOVE_ALL_CONSOLES.withState(ImageState.ENABLED).getImageDescriptor());
         setDisabledImageDescriptor(PluginImages.REMOVE_ALL_CONSOLES.withState(ImageState.DISABLED).getImageDescriptor());
 
-        gradleConsole.getProcessDescription().getJob().addJobChangeListener(this);
+        gradleConsole.getProcessDescription().get().getJob().addJobChangeListener(this);
         update();
     }
 
@@ -70,7 +70,7 @@ public final class RemoveAllTerminatedGradleConsolesAction extends Action implem
 
 
     public void dispose() {
-        this.gradleConsole.getProcessDescription().getJob().removeJobChangeListener(this);
+        this.gradleConsole.getProcessDescription().get().getJob().removeJobChangeListener(this);
     }
 
     @Override

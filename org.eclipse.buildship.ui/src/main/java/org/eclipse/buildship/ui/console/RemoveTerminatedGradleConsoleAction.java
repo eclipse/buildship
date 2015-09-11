@@ -42,7 +42,7 @@ public final class RemoveTerminatedGradleConsoleAction extends Action  {
         setDisabledImageDescriptor(PluginImages.REMOVE_CONSOLE.withState(PluginImage.ImageState.DISABLED).getImageDescriptor());
 
         setEnabled(false);
-        gradleConsole.getProcessDescription().getJob().addJobChangeListener(new JobChangeAdapter() {
+        gradleConsole.getProcessDescription().get().getJob().addJobChangeListener(new JobChangeAdapter() {
             @Override
             public void done(IJobChangeEvent event) {
                 setEnabled(true);
