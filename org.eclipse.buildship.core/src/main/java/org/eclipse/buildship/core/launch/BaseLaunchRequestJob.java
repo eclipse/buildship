@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.List;
 
+import com.gradleware.tooling.toolingclient.GradleDistribution;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Strings;
@@ -48,14 +49,9 @@ import org.eclipse.buildship.core.util.progress.ToolingApiJob;
  */
 public abstract class BaseLaunchRequestJob extends ToolingApiJob {
 
-    // todo (etst) close streams when done
+    private final GradleRunConfigurationAttributes configurationAttributes;
 
-    /**
-     * returns the {@link FixedRequestAttributes} associated with the job.
-     *
-     * @return the request attributes for the job
-     */
-    protected abstract FixedRequestAttributes getRequestAttributes();
+    // todo (etst) close streams when done
 
     /**
      * Creates a new {@link Request} object to execute in the job.
@@ -91,9 +87,11 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
      * Constructor.
      *
      * @param name the name of the job
+     * @param configurationAttributes the run configuration attributes
      */
-    protected BaseLaunchRequestJob(String name) {
+    protected BaseLaunchRequestJob(String name, GradleRunConfigurationAttributes configurationAttributes) {
         super(name);
+        this.configurationAttributes = configurationAttributes;
     }
 
     @Override
@@ -113,8 +111,8 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
                 listeners, ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
 
         // apply the fixed attributes on the request o
-        FixedRequestAttributes fixedAttributes = getRequestAttributes();
         Request<Void> request = createRequest();
+        FixedRequestAttributes fixedAttributes = createFixedAttributes();
         fixedAttributes.apply(request);
 
         // configure the request's transient attributes
@@ -137,6 +135,16 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
     }
 
     protected abstract ProcessDescription createProcessDescription();
+
+    private FixedRequestAttributes createFixedAttributes() {
+        File workingDir = this.configurationAttributes.getWorkingDir();
+        File gradleUserHome = this.configurationAttributes.getGradleUserHome();
+        GradleDistribution gradleDistribution = this.configurationAttributes.getGradleDistribution();
+        File javaHome = this.configurationAttributes.getJavaHome();
+        ImmutableList<String> jvmArguments = this.configurationAttributes.getJvmArguments();
+        ImmutableList<String> arguments = this.configurationAttributes.getArguments();
+        return new FixedRequestAttributes(workingDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments);
+    }
 
     private void writeFixedRequestAttributes(FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientAttributes, OutputStreamWriter writer, IProgressMonitor monitor) {
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(fixedAttributes, transientAttributes, monitor);

@@ -11,32 +11,26 @@
 
 package org.eclipse.buildship.core.launch;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.gradleware.tooling.toolingclient.LaunchableConfig;
+import com.gradleware.tooling.toolingclient.Request;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.core.event.Event;
+import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.launch.internal.DefaultExecuteLaunchRequestEvent;
+import org.eclipse.buildship.core.util.collections.CollectionsUtils;
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingclient.LaunchableConfig;
-import com.gradleware.tooling.toolingclient.Request;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.ILaunchConfiguration;
-
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.event.Event;
-import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.launch.internal.DefaultExecuteLaunchRequestEvent;
-import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 
 /**
  * {@link BaseLaunchRequestJob} implementation executing a
@@ -46,26 +40,14 @@ import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJob {
 
     private final ILaunch launch;
-    private final FixedRequestAttributes fixedAttributes;
     private final GradleRunConfigurationAttributes configurationAttributes;
     private final String displayName;
 
     public RunGradleConfigurationDelegateJob(ILaunch launch, ILaunchConfiguration launchConfiguration) {
-        super("Launching Gradle tasks");
+        super("Launching Gradle tasks", GradleRunConfigurationAttributes.from(launchConfiguration));
         this.launch = Preconditions.checkNotNull(launch);
         this.configurationAttributes = GradleRunConfigurationAttributes.from(launchConfiguration);
-        this.fixedAttributes = createFixedAttributes(this.configurationAttributes);
-        this.displayName = createProcessName(this.configurationAttributes.getTasks(), this.fixedAttributes.getProjectDir(), launchConfiguration.getName());
-    }
-
-    private FixedRequestAttributes createFixedAttributes(GradleRunConfigurationAttributes configurationAttributes) {
-        File workingDir = configurationAttributes.getWorkingDir();
-        File gradleUserHome = configurationAttributes.getGradleUserHome();
-        GradleDistribution gradleDistribution = configurationAttributes.getGradleDistribution();
-        File javaHome = configurationAttributes.getJavaHome();
-        ImmutableList<String> jvmArguments = configurationAttributes.getJvmArguments();
-        ImmutableList<String> arguments = configurationAttributes.getArguments();
-        return new FixedRequestAttributes(workingDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments);
+        this.displayName = createProcessName(this.configurationAttributes.getTasks(), this.configurationAttributes.getWorkingDir(), launchConfiguration.getName());
     }
 
     private String createProcessName(List<String> tasks, File workingDir, String launchConfigurationName) {
@@ -79,10 +61,6 @@ public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJo
     }
 
     @Override
-    protected FixedRequestAttributes getRequestAttributes() {
-        return this.fixedAttributes;
-    }
-
     protected ProcessDescription createProcessDescription() {
         return ProcessDescription.with(this.displayName, this.launch, this);
     }
