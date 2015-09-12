@@ -33,17 +33,17 @@ import java.util.List;
 /**
  * Executes Gradle tasks based on a given {@code ILaunch} and {@code ILaunchConfiguration} instance.
  */
-public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJob {
+public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob {
 
     private final ILaunch launch;
     private final String launchConfigurationName;
     private final GradleRunConfigurationAttributes configurationAttributes;
 
-    public RunGradleConfigurationDelegateJob(ILaunch launch, ILaunchConfiguration launchConfiguration) {
+    public RunGradleBuildLaunchRequestJob(ILaunch launch, ILaunchConfiguration launchConfiguration) {
         this(launch, launchConfiguration.getName(), GradleRunConfigurationAttributes.from(launchConfiguration));
     }
 
-    private RunGradleConfigurationDelegateJob(ILaunch launch, String launchConfigurationName, GradleRunConfigurationAttributes configurationAttributes) {
+    private RunGradleBuildLaunchRequestJob(ILaunch launch, String launchConfigurationName, GradleRunConfigurationAttributes configurationAttributes) {
         // using this constructor works even when the ILaunchConfiguration is deleted
         super("Launching Gradle tasks");
         this.launch = Preconditions.checkNotNull(launch);
@@ -68,8 +68,8 @@ public final class RunGradleConfigurationDelegateJob extends BaseLaunchRequestJo
 
             @Override
             public void rerun() {
-                new RunGradleConfigurationDelegateJob(RunGradleConfigurationDelegateJob.this.launch, RunGradleConfigurationDelegateJob.this.launchConfigurationName,
-                        RunGradleConfigurationDelegateJob.this.configurationAttributes).schedule();
+                new RunGradleBuildLaunchRequestJob(RunGradleBuildLaunchRequestJob.this.launch, RunGradleBuildLaunchRequestJob.this.launchConfigurationName,
+                        RunGradleBuildLaunchRequestJob.this.configurationAttributes).schedule();
             }
         };
     }

@@ -11,7 +11,7 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
-class RunGradleConfigurationDelegateJobTest extends Specification {
+class RunGradleBuildLaunchRequestJobTest extends Specification {
 
     @Rule
     TemporaryFolder tempFolder
@@ -42,7 +42,7 @@ class RunGradleConfigurationDelegateJobTest extends Specification {
 
     def "Job launches the Gradle build"() {
         setup:
-        def job = new RunGradleConfigurationDelegateJob(createLaunchMock(), createLaunchConfigurationMock())
+        def job = new RunGradleBuildLaunchRequestJob(createLaunchMock(), createLaunchConfigurationMock())
 
         when:
         job.schedule()
@@ -55,7 +55,7 @@ class RunGradleConfigurationDelegateJobTest extends Specification {
 
     def "Job prints its configuration"() {
         setup:
-        def job = new RunGradleConfigurationDelegateJob(createLaunchMock(), createLaunchConfigurationMock())
+        def job = new RunGradleBuildLaunchRequestJob(createLaunchMock(), createLaunchConfigurationMock())
 
         when:
         job.schedule()
