@@ -11,13 +11,9 @@
 
 package org.eclipse.buildship.core.console;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.debug.core.ILaunch;
-
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.core.runtime.jobs.Job;
 
 /**
  * Convenience implementation of the ProcessDescription interface.
@@ -26,13 +22,11 @@ public abstract class BaseProcessDescription implements ProcessDescription {
 
     private final String name;
     private final Job job;
-    private final Optional<ILaunch> launch;
     private final GradleRunConfigurationAttributes configurationAttributes;
 
-    protected BaseProcessDescription(String name, Job job, ILaunch launch, GradleRunConfigurationAttributes configurationAttributes) {
+    protected BaseProcessDescription(String name, Job job, GradleRunConfigurationAttributes configurationAttributes) {
         this.name = Preconditions.checkNotNull(name);
         this.job = Preconditions.checkNotNull(job);
-        this.launch = Optional.fromNullable(launch);
         this.configurationAttributes = Preconditions.checkNotNull(configurationAttributes);
     }
 
@@ -44,11 +38,6 @@ public abstract class BaseProcessDescription implements ProcessDescription {
     @Override
     public Job getJob() {
         return this.job;
-    }
-
-    @Override
-    public Optional<ILaunch> getLaunch() {
-        return this.launch;
     }
 
     @Override

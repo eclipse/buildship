@@ -11,17 +11,13 @@
 
 package org.eclipse.buildship.core.console;
 
-import com.google.common.base.Optional;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.debug.core.ILaunch;
 
 /**
  * Describes the process that runs a Gradle build.
  */
 public interface ProcessDescription {
-
-    // TODO (donat) remove getLaunch()
 
     /**
      * Returns the human-readable name of the process.
@@ -36,13 +32,6 @@ public interface ProcessDescription {
      * @return the {@code Job} instance of the process
      */
     Job getJob();
-
-    /**
-     * Returns more specifics about the running process, if available.
-     *
-     * @return the {@code ILaunch} instance of the process
-     */
-    Optional<ILaunch> getLaunch();
 
     /**
      * Returns the set of attributes that are applied to execute the Gradle build.
