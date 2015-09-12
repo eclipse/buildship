@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingclient.TestConfig;
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.console.BaseProcessDescription;
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.task.TaskOperationDescriptor;

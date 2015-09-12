@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.core.launch;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
@@ -34,6 +35,7 @@ import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.gradle.tooling.ProgressListener;
 
 import java.io.File;
@@ -194,4 +196,35 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
      */
     protected abstract void writeExtraConfigInfo(OutputStreamWriter writer) throws IOException;
 
+    /**
+     * Convenience implementation of the ProcessDescription interface.
+     */
+    protected abstract static class BaseProcessDescription implements ProcessDescription {
+
+        private final String name;
+        private final Job job;
+        private final GradleRunConfigurationAttributes configurationAttributes;
+
+        protected BaseProcessDescription(String name, Job job, GradleRunConfigurationAttributes configurationAttributes) {
+            this.name = Preconditions.checkNotNull(name);
+            this.job = Preconditions.checkNotNull(job);
+            this.configurationAttributes = Preconditions.checkNotNull(configurationAttributes);
+        }
+
+        @Override
+        public String getName() {
+            return this.name;
+        }
+
+        @Override
+        public Job getJob() {
+            return this.job;
+        }
+
+        @Override
+        public GradleRunConfigurationAttributes getConfigurationAttributes() {
+            return this.configurationAttributes;
+        }
+
+    }
 }

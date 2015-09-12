@@ -17,7 +17,6 @@ import com.google.common.base.Strings;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import com.gradleware.tooling.toolingclient.Request;
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.console.BaseProcessDescription;
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
