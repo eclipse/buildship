@@ -22,6 +22,7 @@ import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,11 +69,8 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob {
 
             @Override
             public void rerun() {
-                RunGradleBuildLaunchRequestJob job = new RunGradleBuildLaunchRequestJob(
-                        RunGradleBuildLaunchRequestJob.this.launch,
-                        RunGradleBuildLaunchRequestJob.this.launchConfigurationName,
-                        RunGradleBuildLaunchRequestJob.this.configurationAttributes);
-                job.schedule();
+                ILaunchConfiguration launchConfiguration = RunGradleBuildLaunchRequestJob.this.launch.getLaunchConfiguration();
+                CorePlugin.launchConfigurationTools().launch(launchConfiguration, ILaunchManager.RUN_MODE);
             }
         };
     }
