@@ -11,9 +11,12 @@
 
 package org.eclipse.buildship.ui.console;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
+import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.console.ConsolePlugin;
@@ -40,18 +43,37 @@ public final class RemoveTerminatedGradleConsoleAction extends Action  {
         setImageDescriptor(PluginImages.REMOVE_CONSOLE.withState(PluginImage.ImageState.ENABLED).getImageDescriptor());
         setDisabledImageDescriptor(PluginImages.REMOVE_CONSOLE.withState(PluginImage.ImageState.DISABLED).getImageDescriptor());
 
-        setEnabled(false);
-        gradleConsole.getProcessDescription().get().getJob().addJobChangeListener(new JobChangeAdapter() {
-            @Override
-            public void done(IJobChangeEvent event) {
-                setEnabled(true);
-            }
-        });
+        registerJobChangeListener();
+    }
+
+    private void registerJobChangeListener() {
+        Optional<ProcessDescription> processDescription = this.gradleConsole.getProcessDescription();
+        if (processDescription.isPresent()) {
+            Job job = processDescription.get().getJob();
+            job.addJobChangeListener(new JobChangeAdapter() {
+
+                @Override
+                public void done(IJobChangeEvent event) {
+                    update();
+                }
+            });
+            update();
+        } else {
+            // if no job is associated with the console, never enable this action
+            setEnabled(false);
+        }
+    }
+
+    private void update() {
+        setEnabled(this.gradleConsole.isCloseable() && this.gradleConsole.isTerminated());
     }
 
     @Override
     public void run() {
         ConsolePlugin.getDefault().getConsoleManager().removeConsoles(new IConsole[] { this.gradleConsole });
+    }
+
+    public void dispose() {
     }
 
 }

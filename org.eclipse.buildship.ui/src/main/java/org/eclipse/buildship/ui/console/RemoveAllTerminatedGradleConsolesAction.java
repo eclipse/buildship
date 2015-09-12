@@ -11,27 +11,28 @@
 
 package org.eclipse.buildship.ui.console;
 
-import java.util.Arrays;
-
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-
+import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.ui.PluginImage.ImageState;
+import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.IJobChangeListener;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsoleManager;
 
-import org.eclipse.buildship.ui.PluginImage.ImageState;
-import org.eclipse.buildship.ui.PluginImages;
+import java.util.Arrays;
 
 /**
  * Removes all finished {@link org.eclipse.debug.core.ILaunch} instances associated with a {@link GradleConsole} instance.
  * The action is only enabled if at least one console can be removed.
  */
-public final class RemoveAllTerminatedGradleConsolesAction extends Action implements IJobChangeListener  {
+public final class RemoveAllTerminatedGradleConsolesAction extends Action {
 
     private final GradleConsole gradleConsole;
 
@@ -42,12 +43,35 @@ public final class RemoveAllTerminatedGradleConsolesAction extends Action implem
         setImageDescriptor(PluginImages.REMOVE_ALL_CONSOLES.withState(ImageState.ENABLED).getImageDescriptor());
         setDisabledImageDescriptor(PluginImages.REMOVE_ALL_CONSOLES.withState(ImageState.DISABLED).getImageDescriptor());
 
-        gradleConsole.getProcessDescription().get().getJob().addJobChangeListener(this);
-        update();
+        registerJobChangeListener();
+    }
+
+    private void registerJobChangeListener() {
+        Optional<ProcessDescription> processDescription = this.gradleConsole.getProcessDescription();
+        if (processDescription.isPresent()) {
+            Job job = processDescription.get().getJob();
+            job.addJobChangeListener(new JobChangeAdapter() {
+
+                @Override
+                public void done(IJobChangeEvent event) {
+                    update();
+                }
+            });
+            update();
+        } else {
+            // if no job is associated with the console, never enable this action
+            setEnabled(false);
+        }
     }
 
     private void update() {
-        setEnabled(!getTerminatedConsoles().isEmpty());
+        setEnabled(this.gradleConsole.isCloseable() && this.gradleConsole.isTerminated());
+    }
+
+    @Override
+    public void run() {
+        ImmutableList<GradleConsole> terminatedConsoles = getTerminatedConsoles();
+        ConsolePlugin.getDefault().getConsoleManager().removeConsoles(terminatedConsoles.toArray(new GradleConsole[terminatedConsoles.size()]));
     }
 
     private ImmutableList<GradleConsole> getTerminatedConsoles() {
@@ -61,39 +85,7 @@ public final class RemoveAllTerminatedGradleConsolesAction extends Action implem
         }).toList();
     }
 
-    @Override
-    public void run() {
-        ImmutableList<GradleConsole> terminatedConsoles = getTerminatedConsoles();
-        ConsolePlugin.getDefault().getConsoleManager().removeConsoles(terminatedConsoles.toArray(new GradleConsole[terminatedConsoles.size()]));
-    }
-
     public void dispose() {
-        this.gradleConsole.getProcessDescription().get().getJob().removeJobChangeListener(this);
-    }
-
-    @Override
-    public void aboutToRun(IJobChangeEvent event) {
-    }
-
-    @Override
-    public void awake(IJobChangeEvent event) {
-    }
-
-    @Override
-    public void done(IJobChangeEvent event) {
-        update();
-    }
-
-    @Override
-    public void running(IJobChangeEvent event) {
-    }
-
-    @Override
-    public void scheduled(IJobChangeEvent event) {
-    }
-
-    @Override
-    public void sleeping(IJobChangeEvent event) {
     }
 
 }

@@ -77,7 +77,10 @@ public final class GradleConsolePageParticipant implements IConsolePageParticipa
             this.cancelBuildExecutionAction.dispose();
             this.cancelBuildExecutionAction = null;
         }
-        this.removeConsoleAction = null;
+        if (this.removeConsoleAction != null) {
+            this.removeConsoleAction.dispose();
+            this.removeConsoleAction = null;
+        }
         if (this.removeAllConsolesAction != null) {
             this.removeAllConsolesAction.dispose();
             this.removeAllConsolesAction = null;
