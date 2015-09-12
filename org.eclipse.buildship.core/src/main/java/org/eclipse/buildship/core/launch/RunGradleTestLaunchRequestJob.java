@@ -37,13 +37,13 @@ import java.util.List;
  */
 public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
 
+    private final ImmutableList<TestOperationDescriptor> testDescriptors;
     private final GradleRunConfigurationAttributes configurationAttributes;
-    private final List<TestOperationDescriptor> testDescriptors;
 
-    public RunGradleTestLaunchRequestJob(GradleRunConfigurationAttributes configurationAttributes, List<TestOperationDescriptor> testDescriptors) {
+    public RunGradleTestLaunchRequestJob(List<TestOperationDescriptor> testDescriptors, GradleRunConfigurationAttributes configurationAttributes) {
         super("Launching Gradle tests");
-        this.configurationAttributes = Preconditions.checkNotNull(configurationAttributes);
         this.testDescriptors = ImmutableList.copyOf(testDescriptors);
+        this.configurationAttributes = Preconditions.checkNotNull(configurationAttributes);
     }
 
     @Override
@@ -63,7 +63,11 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
 
             @Override
             public void rerun() {
-                new RunGradleTestLaunchRequestJob(RunGradleTestLaunchRequestJob.this.configurationAttributes, RunGradleTestLaunchRequestJob.this.testDescriptors).schedule();
+                RunGradleTestLaunchRequestJob job = new RunGradleTestLaunchRequestJob(
+                        RunGradleTestLaunchRequestJob.this.testDescriptors,
+                        RunGradleTestLaunchRequestJob.this.configurationAttributes
+                );
+                job.schedule();
             }
         };
     }

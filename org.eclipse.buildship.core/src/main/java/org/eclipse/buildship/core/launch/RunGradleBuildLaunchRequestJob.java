@@ -68,8 +68,11 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob {
 
             @Override
             public void rerun() {
-                new RunGradleBuildLaunchRequestJob(RunGradleBuildLaunchRequestJob.this.launch, RunGradleBuildLaunchRequestJob.this.launchConfigurationName,
-                        RunGradleBuildLaunchRequestJob.this.configurationAttributes).schedule();
+                RunGradleBuildLaunchRequestJob job = new RunGradleBuildLaunchRequestJob(
+                        RunGradleBuildLaunchRequestJob.this.launch,
+                        RunGradleBuildLaunchRequestJob.this.launchConfigurationName,
+                        RunGradleBuildLaunchRequestJob.this.configurationAttributes);
+                job.schedule();
             }
         };
     }

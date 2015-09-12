@@ -42,10 +42,10 @@ public final class RunTestAction extends Action implements SelectionSpecificActi
 
     @Override
     public void run() {
-        GradleRunConfigurationAttributes configurationAttributes = this.executionPage.getProcessDescription().getConfigurationAttributes();
         List<TestOperationDescriptor> testDescriptors = collectSelectedTestOperationDescriptors(this.executionPage.getSelection());
         List<TestOperationDescriptor> filteredTestDescriptors = filterChildren(testDescriptors);
-        new RunGradleTestLaunchRequestJob(configurationAttributes, filteredTestDescriptors).schedule();
+        GradleRunConfigurationAttributes configurationAttributes = this.executionPage.getProcessDescription().getConfigurationAttributes();
+        new RunGradleTestLaunchRequestJob(filteredTestDescriptors, configurationAttributes).schedule();
     }
 
     @Override
