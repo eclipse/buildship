@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.IJobChangeListener;
-import org.eclipse.debug.core.ILaunch;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsoleManager;
@@ -29,7 +28,7 @@ import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
 
 /**
- * Removes all finished {@link ILaunch} instances associated with a {@link GradleConsole} instance.
+ * Removes all finished {@link org.eclipse.debug.core.ILaunch} instances associated with a {@link GradleConsole} instance.
  * The action is only enabled if at least one console can be removed.
  */
 public final class RemoveAllTerminatedGradleConsolesAction extends Action implements IJobChangeListener  {
@@ -67,7 +66,6 @@ public final class RemoveAllTerminatedGradleConsolesAction extends Action implem
         ImmutableList<GradleConsole> terminatedConsoles = getTerminatedConsoles();
         ConsolePlugin.getDefault().getConsoleManager().removeConsoles(terminatedConsoles.toArray(new GradleConsole[terminatedConsoles.size()]));
     }
-
 
     public void dispose() {
         this.gradleConsole.getProcessDescription().get().getJob().removeJobChangeListener(this);

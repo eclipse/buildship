@@ -12,41 +12,47 @@
 package org.eclipse.buildship.core.console;
 
 import com.google.common.base.Optional;
-
+import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunch;
 
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
-
 /**
- * Describes process associated with a Gradle launch.
+ * Describes the process that runs a Gradle build.
  */
 public interface ProcessDescription {
 
     // TODO (donat) remove getLaunch()
 
     /**
-     * @return a human-readable name of the process
+     * Returns the human-readable name of the process.
+     *
+     * @return the human-readable name of the process
      */
     String getName();
 
     /**
-     * @return the {@code Job} instances in which the {@code ILaunch} instance is run
+     * Returns the job in which the Gradle build runs.
+     *
+     * @return the {@code Job} instance of the process
      */
     Job getJob();
 
     /**
-     * @return the {@code ILaunch} instance of this process
+     * Returns more specifics about the running process, if available.
+     *
+     * @return the {@code ILaunch} instance of the process
      */
     Optional<ILaunch> getLaunch();
 
     /**
-     * @return the {@code GradleRunConfigurationAttributes} applied to execute the request
+     * Returns the set of attributes that are applied to execute the Gradle build.
+     *
+     * @return the {@code GradleRunConfigurationAttributes} instance of the process
      */
     GradleRunConfigurationAttributes getConfigurationAttributes();
 
     /**
-     * Executes the process once again with the same attributes
+     * Reruns the process. A new {@code ProcessDescription} instance will be created as part of it.
      */
     void rerun();
 

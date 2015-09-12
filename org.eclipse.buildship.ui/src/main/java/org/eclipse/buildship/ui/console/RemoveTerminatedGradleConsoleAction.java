@@ -15,7 +15,6 @@ import com.google.common.base.Preconditions;
 
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.debug.core.ILaunch;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
@@ -24,7 +23,7 @@ import org.eclipse.buildship.ui.PluginImage;
 import org.eclipse.buildship.ui.PluginImages;
 
 /**
- * Removes the finished {@link ILaunch} instance associated with a given {@link GradleConsole}
+ * Removes the finished {@link org.eclipse.debug.core.ILaunch} instance associated with a given {@link GradleConsole}
  * instance. The action is only enabled if the launch instance has terminated.
  *
  * Note: the implementation is somewhat along the lines of

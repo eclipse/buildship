@@ -29,7 +29,7 @@ public abstract class BaseProcessDescription implements ProcessDescription {
     private final Optional<ILaunch> launch;
     private final GradleRunConfigurationAttributes configurationAttributes;
 
-    public BaseProcessDescription(String name, Job job, ILaunch launch, GradleRunConfigurationAttributes configurationAttributes) {
+    protected BaseProcessDescription(String name, Job job, ILaunch launch, GradleRunConfigurationAttributes configurationAttributes) {
         this.name = Preconditions.checkNotNull(name);
         this.job = Preconditions.checkNotNull(job);
         this.launch = Optional.fromNullable(launch);
