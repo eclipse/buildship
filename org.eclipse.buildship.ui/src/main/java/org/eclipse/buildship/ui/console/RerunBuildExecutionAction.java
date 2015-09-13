@@ -20,12 +20,15 @@ import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationListener;
 import org.eclipse.jface.action.Action;
 
 /**
  * Reruns the build associated to the target {@link GradleConsole}.
  */
-public final class RerunBuildExecutionAction extends Action {
+public final class RerunBuildExecutionAction extends Action implements ILaunchConfigurationListener {
 
     private final GradleConsole gradleConsole;
 
@@ -37,6 +40,7 @@ public final class RerunBuildExecutionAction extends Action {
         setDisabledImageDescriptor(PluginImages.RERUN_BUILD.withState(ImageState.DISABLED).getImageDescriptor());
 
         registerJobChangeListener();
+        registerLaunchConfigurationListener();
     }
 
     private void registerJobChangeListener() {
@@ -47,19 +51,42 @@ public final class RerunBuildExecutionAction extends Action {
 
                 @Override
                 public void done(IJobChangeEvent event) {
-                    RerunBuildExecutionAction.this.setEnabled(event.getJob().getState() == Job.NONE);
+                    update();
                 }
             });
-            setEnabled(job.getState() == Job.NONE);
-        } else {
-            // if no job is associated with the console, never enable this action
-            setEnabled(false);
         }
+        update();
+    }
+
+    private void registerLaunchConfigurationListener() {
+        DebugPlugin.getDefault().getLaunchManager().addLaunchConfigurationListener(this);
     }
 
     @Override
     public void run() {
         this.gradleConsole.getProcessDescription().get().rerun();
+    }
+
+    @Override
+    public void launchConfigurationAdded(ILaunchConfiguration configuration) {
+    }
+
+    @Override
+    public void launchConfigurationChanged(ILaunchConfiguration configuration) {
+    }
+
+    @Override
+    public void launchConfigurationRemoved(ILaunchConfiguration configuration) {
+        update();
+    }
+
+    private void update() {
+        Optional<ProcessDescription> processDescription = this.gradleConsole.getProcessDescription();
+        setEnabled(processDescription.isPresent() && processDescription.get().getJob().getState() == Job.NONE && processDescription.get().isRerunnable());
+    }
+
+    public void dispose() {
+        DebugPlugin.getDefault().getLaunchManager().removeLaunchConfigurationListener(this);
     }
 
 }
