@@ -59,21 +59,7 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
     @Override
     protected ProcessDescription createProcessDescription() {
         String processName = createProcessName(this.configurationAttributes.getWorkingDir());
-        return new BaseProcessDescription(processName, this, this.configurationAttributes){
-            @Override
-            public boolean isRerunnable() {
-                return true;
-            }
-
-            @Override
-            public void rerun() {
-                RunGradleTestLaunchRequestJob job = new RunGradleTestLaunchRequestJob(
-                        RunGradleTestLaunchRequestJob.this.testDescriptors,
-                        RunGradleTestLaunchRequestJob.this.configurationAttributes
-                );
-                job.schedule();
-            }
-        };
+        return new TestLaunchProcessDescription(processName);
     }
 
     private String createProcessName(File workingDir) {
@@ -130,6 +116,28 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
                 return descriptor.getDisplayName();
             }
         }).toList();
+    }
+
+    private final class TestLaunchProcessDescription extends BaseProcessDescription {
+
+        public TestLaunchProcessDescription(String processName) {
+            super(processName, RunGradleTestLaunchRequestJob.this, RunGradleTestLaunchRequestJob.this.configurationAttributes);
+        }
+
+        @Override
+        public boolean isRerunnable() {
+            return true;
+        }
+
+        @Override
+        public void rerun() {
+            RunGradleTestLaunchRequestJob job = new RunGradleTestLaunchRequestJob(
+                    RunGradleTestLaunchRequestJob.this.testDescriptors,
+                    RunGradleTestLaunchRequestJob.this.configurationAttributes
+            );
+            job.schedule();
+        }
+
     }
 
 }
