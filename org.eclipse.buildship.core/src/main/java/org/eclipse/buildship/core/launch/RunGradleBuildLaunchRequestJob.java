@@ -37,19 +37,12 @@ import java.util.List;
 public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob {
 
     private final ILaunch launch;
-    private final String launchConfigurationName;
     private final GradleRunConfigurationAttributes configurationAttributes;
 
-    public RunGradleBuildLaunchRequestJob(ILaunch launch, ILaunchConfiguration launchConfiguration) {
-        this(launch, launchConfiguration.getName(), GradleRunConfigurationAttributes.from(launchConfiguration));
-    }
-
-    private RunGradleBuildLaunchRequestJob(ILaunch launch, String launchConfigurationName, GradleRunConfigurationAttributes configurationAttributes) {
-        // using this constructor works even when the ILaunchConfiguration is deleted
+    public RunGradleBuildLaunchRequestJob(ILaunch launch) {
         super("Launching Gradle tasks");
         this.launch = Preconditions.checkNotNull(launch);
-        this.launchConfigurationName = Preconditions.checkNotNull(launchConfigurationName);
-        this.configurationAttributes = Preconditions.checkNotNull(configurationAttributes);
+        this.configurationAttributes = GradleRunConfigurationAttributes.from(launch.getLaunchConfiguration());
     }
 
     @Override
@@ -64,7 +57,7 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob {
 
     @Override
     protected ProcessDescription createProcessDescription() {
-        String processName = createProcessName(this.configurationAttributes.getTasks(), this.configurationAttributes.getWorkingDir(), this.launchConfigurationName);
+        String processName = createProcessName(this.configurationAttributes.getTasks(), this.configurationAttributes.getWorkingDir(), this.launch.getLaunchConfiguration().getName());
         return new BaseProcessDescription(processName, this, this.configurationAttributes) {
 
             @Override

@@ -41,7 +41,7 @@ public final class GradleRunConfigurationDelegate extends LaunchConfigurationDel
         try {
             // schedule the task
             final CountDownLatch latch = new CountDownLatch(1);
-            RunGradleBuildLaunchRequestJob job = new RunGradleBuildLaunchRequestJob(launch, configuration);
+            RunGradleBuildLaunchRequestJob job = new RunGradleBuildLaunchRequestJob(launch);
             job.addJobChangeListener(new JobChangeAdapter() {
 
                 @Override

@@ -23,7 +23,8 @@ public interface LaunchConfigurationTools {
      * Launches the target configuration.
      *
      * @param configuration the configuration
-     * @param mode the target mode
+     * @param mode          the target mode
      */
-    void launch(final ILaunchConfiguration configuration, final String mode);
+    void launch(ILaunchConfiguration configuration, String mode);
+
 }
