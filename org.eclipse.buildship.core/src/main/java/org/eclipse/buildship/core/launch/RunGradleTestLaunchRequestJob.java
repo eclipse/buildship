@@ -118,6 +118,9 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
         }).toList();
     }
 
+    /**
+     * Implementation of {@code ProcessDescription}.
+     */
     private final class TestLaunchProcessDescription extends BaseProcessDescription {
 
         public TestLaunchProcessDescription(String processName) {

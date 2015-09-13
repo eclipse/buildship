@@ -79,6 +79,9 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob {
         writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleTasks, taskNames));
     }
 
+    /**
+     * Implementation of {@code ProcessDescription}.
+     */
     private final class BuildLaunchProcessDescription extends BaseProcessDescription {
 
         public BuildLaunchProcessDescription(String processName) {
