@@ -253,7 +253,6 @@ public final class GradleRunConfigurationAttributes {
                 argumentExpressions, showExecutionView, showConsoleView);
     }
 
-    @SuppressWarnings("unchecked")
     public static GradleRunConfigurationAttributes from(ILaunchConfiguration launchConfiguration) {
         Preconditions.checkNotNull(launchConfiguration);
 
