@@ -255,9 +255,11 @@ public final class GradleRunConfigurationAttributes {
 
     @SuppressWarnings("unchecked")
     public static GradleRunConfigurationAttributes from(ILaunchConfiguration launchConfiguration) {
+        Preconditions.checkNotNull(launchConfiguration);
+
         List<String> tasks;
         try {
-            tasks = launchConfiguration.getAttribute(TASKS, ImmutableList.<String> of());
+            tasks = launchConfiguration.getAttribute(TASKS, ImmutableList.<String>of());
         } catch (CoreException e) {
             String message = String.format("Cannot read launch configuration attribute '%s'.", TASKS);
             CorePlugin.logger().error(message, e);
@@ -303,7 +305,7 @@ public final class GradleRunConfigurationAttributes {
 
         List<String> jvmArgumentExpressions;
         try {
-            jvmArgumentExpressions = launchConfiguration.getAttribute(JVM_ARGUMENTS, ImmutableList.<String> of());
+            jvmArgumentExpressions = launchConfiguration.getAttribute(JVM_ARGUMENTS, ImmutableList.<String>of());
         } catch (CoreException e) {
             String message = String.format("Cannot read launch configuration attribute '%s'.", JVM_ARGUMENTS);
             CorePlugin.logger().error(message, e);
@@ -312,7 +314,7 @@ public final class GradleRunConfigurationAttributes {
 
         List<String> argumentExpressions;
         try {
-            argumentExpressions = launchConfiguration.getAttribute(ARGUMENTS, ImmutableList.<String> of());
+            argumentExpressions = launchConfiguration.getAttribute(ARGUMENTS, ImmutableList.<String>of());
         } catch (CoreException e) {
             String message = String.format("Cannot read launch configuration attribute '%s'.", ARGUMENTS);
             CorePlugin.logger().error(message, e);

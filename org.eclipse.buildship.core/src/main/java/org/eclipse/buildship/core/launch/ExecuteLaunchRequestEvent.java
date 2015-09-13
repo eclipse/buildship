@@ -12,24 +12,19 @@
 
 package org.eclipse.buildship.core.launch;
 
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
+import com.gradleware.tooling.toolingclient.Request;
 
-import org.eclipse.core.runtime.jobs.Job;
-
+import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.event.Event;
 
 /**
- * Event informing that a {@link BuildLaunchRequest} is about to be executed. The
- * request can still be modified by the recipients of this event.
+ * Event informing that a {@link Request} is about to be executed. The request can still be modified
+ * by the recipients of this event.
  */
-public interface ExecuteBuildLaunchRequestEvent extends Event {
+public interface ExecuteLaunchRequestEvent extends Event {
 
-    Job getBuildJob();
+    ProcessDescription getProcessDescription();
 
-    BuildLaunchRequest getBuildLaunchRequest();
-
-    GradleRunConfigurationAttributes getRunConfigurationAttributes();
-
-    String getProcessName();
+    Request<Void> getRequest();
 
 }

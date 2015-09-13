@@ -28,9 +28,9 @@ public final class ExecutionViewMessages extends NLS {
     public static String Tree_Item_Operation_Running_For_0_Sec_Text;
     public static String Tree_Item_Operation_Finished_In_0_Sec_Text;
 
+    public static String Action_RunTest_Text;
     public static String Action_ShowFailure_Text;
     public static String Action_OpenTestSourceFile_Text;
-    public static String Action_RerunTest_Text;
 
     public static String Action_SwitchExecutionPage_Tooltip;
     public static String Action_RemoveExecutionPage_Tooltip;

@@ -40,7 +40,7 @@ public final class RemoveTerminatedExecutionPageAction extends RemovePageAction 
     }
 
     private void registerJobChangeListener() {
-        Job job = ((ExecutionPage) getPage()).getBuildJob();
+        Job job = ((ExecutionPage) getPage()).getProcessDescription().getJob();
         job.addJobChangeListener(new JobChangeAdapter() {
 
             @Override

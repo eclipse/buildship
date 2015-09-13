@@ -12,14 +12,13 @@
 package org.eclipse.buildship.ui.console;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunch;
+
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.internal.ui.DebugUIPlugin;
 import org.eclipse.debug.internal.ui.preferences.IDebugPreferenceConstants;
 import org.eclipse.swt.SWT;
@@ -41,14 +40,22 @@ import java.io.OutputStream;
  */
 public final class GradleConsole extends IOConsole implements ProcessStreams {
 
-    private final ProcessDescription processDescription;
+    private final Optional<ProcessDescription> processDescription;
     private final IOConsoleOutputStream configurationStream;
     private final IOConsoleOutputStream outputStream;
     private final IOConsoleOutputStream errorStream;
     private final IOConsoleInputStream inputStream;
 
+    public GradleConsole(String name) {
+        this(name, Optional.<ProcessDescription>absent());
+    }
+
     public GradleConsole(ProcessDescription processDescription) {
-        super(processDescription.getName(), PluginImages.TASK.withState(PluginImages.ImageState.ENABLED).getImageDescriptor());
+        this(processDescription.getName(), Optional.of(processDescription));
+    }
+
+    private GradleConsole(String name, Optional<ProcessDescription> processDescription) {
+        super(name, PluginImages.TASK.withState(PluginImages.ImageState.ENABLED).getImageDescriptor());
 
         this.processDescription = processDescription;
         this.configurationStream = newOutputStream();
@@ -78,23 +85,16 @@ public final class GradleConsole extends IOConsole implements ProcessStreams {
         });
     }
 
-    public ProcessDescription getProcessDescription() {
+    public Optional<ProcessDescription> getProcessDescription() {
         return this.processDescription;
     }
 
     public boolean isTerminated() {
-        Optional<ILaunch> launch = this.processDescription.getLaunch();
-        return launch.isPresent() && launchFinished(launch.get());
-    }
-
-    private boolean launchFinished(ILaunch launch) {
-        // a launch is considered finished, if it is not registered anymore
-        // (all other ways to determine the state of the launch did not work for us)
-        return !ImmutableList.copyOf(DebugPlugin.getDefault().getLaunchManager().getLaunches()).contains(launch);
+        return this.processDescription.isPresent() && this.processDescription.get().getJob().getState() == Job.NONE;
     }
 
     public boolean isCloseable() {
-        return this.processDescription.getLaunch().isPresent();
+        return this.processDescription.isPresent();
     }
 
     @Override

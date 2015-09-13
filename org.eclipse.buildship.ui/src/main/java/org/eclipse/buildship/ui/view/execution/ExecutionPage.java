@@ -11,18 +11,24 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-
+import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import com.gradleware.tooling.toolingclient.Request;
+
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.beans.IBeanValueProperty;
 import org.eclipse.core.databinding.observable.set.IObservableSet;
+import org.eclipse.core.databinding.observable.set.ISetChangeListener;
+import org.eclipse.core.databinding.observable.set.SetChangeEvent;
 import org.eclipse.core.databinding.property.list.IListProperty;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
@@ -32,12 +38,7 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.databinding.viewers.ObservableListTreeContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapCellLabelProvider;
 import org.eclipse.jface.resource.ColorDescriptor;
-import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.TreeViewerColumn;
-import org.eclipse.jface.viewers.ViewerColumn;
+import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -45,7 +46,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.ui.external.viewer.FilteredTree;
 import org.eclipse.buildship.ui.external.viewer.PatternFilter;
 import org.eclipse.buildship.ui.util.color.ColorUtils;
@@ -68,36 +69,29 @@ import org.eclipse.buildship.ui.view.ShowFilterAction;
 @SuppressWarnings("unchecked")
 public final class ExecutionPage extends BasePage<FilteredTree> implements NodeSelectionProvider {
 
-    private final Job buildJob;
-    private final String displayName;
-    private final BuildLaunchRequest buildLaunchRequest;
-    private final GradleRunConfigurationAttributes configurationAttributes;
+    private final ProcessDescription processDescription;
+    private final Request<Void> request;
     private final ExecutionViewState state;
 
     private SelectionHistoryManager selectionHistoryManager;
-
     private TreeViewerColumn nameColumn;
     private TreeViewerColumn durationColumn;
 
-    public ExecutionPage(Job buildJob, String displayName, BuildLaunchRequest buildLaunchRequest, GradleRunConfigurationAttributes configurationAttributes, ExecutionViewState state) {
-        this.buildJob = buildJob;
-        this.displayName = displayName;
-        this.buildLaunchRequest = buildLaunchRequest;
-        this.configurationAttributes = configurationAttributes;
+    private final AtomicReference<Collection<?>> pageContent = new AtomicReference<Collection<?>>(Collections.emptyList());
+
+    public ExecutionPage(ProcessDescription processDescription, Request<Void> request, ExecutionViewState state) {
+        this.processDescription = processDescription;
+        this.request = request;
         this.state = state;
     }
 
-    public Job getBuildJob() {
-        return this.buildJob;
-    }
-
-    public GradleRunConfigurationAttributes getConfigurationAttributes() {
-        return this.configurationAttributes;
+    public ProcessDescription getProcessDescription() {
+        return this.processDescription;
     }
 
     @Override
     public String getDisplayName() {
-        return this.displayName;
+        return this.processDescription.getName();
     }
 
     @Override
@@ -123,6 +117,18 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         IObservableSet knownElements = contentProvider.getKnownElements();
         attachLabelProvider(OperationItem.FIELD_NAME, OperationItem.FIELD_IMAGE, knownElements, this.nameColumn);
         attachLabelProvider(OperationItem.FIELD_DURATION, null, knownElements, this.durationColumn);
+
+        // keep track of the nodes in the tree
+        knownElements.addSetChangeListener(new ISetChangeListener() {
+
+            @Override
+            public void handleSetChange(SetChangeEvent event) {
+                Object source = event.getSource();
+                if (source instanceof Collection) {
+                    ExecutionPage.this.pageContent.set(ImmutableList.copyOf((Collection<?>) source));
+                }
+            }
+        });
 
         // keep header size synchronized between pages
         this.nameColumn.getColumn().addControlListener(new ControlAdapter() {
@@ -163,7 +169,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         filteredTree.getViewer().setInput(root);
 
         // listen to progress events
-        this.buildLaunchRequest.addTypedProgressListeners(new ExecutionProgressListener(this, root));
+        this.request.addTypedProgressListeners(new ExecutionProgressListener(this, root));
 
         // return the tree as the outermost page control
         return filteredTree;
@@ -204,6 +210,8 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new Separator());
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new SwitchToConsoleViewAction(this));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new Separator());
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RerunFailedTestsAction(this));
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new Separator());
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new CancelBuildExecutionAction(this));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RerunBuildExecutionAction(this));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RemoveTerminatedExecutionPageAction(this));
@@ -222,12 +230,13 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     }
 
     private ActionShowingContextMenuListener createContextMenuListener(TreeViewer treeViewer) {
+        RunTestAction runTestAction = new RunTestAction(this);
         ShowFailureAction showFailureAction = new ShowFailureAction(this);
         OpenTestSourceFileAction openTestSourceFileAction = new OpenTestSourceFileAction(this);
         ExpandTreeNodesAction expandNodesAction = new ExpandTreeNodesAction(treeViewer);
         CollapseTreeNodesAction collapseNodesAction = new CollapseTreeNodesAction(treeViewer);
 
-        List<SelectionSpecificAction> contextMenuActions = ImmutableList.<SelectionSpecificAction>of(showFailureAction, openTestSourceFileAction, expandNodesAction, collapseNodesAction);
+        List<SelectionSpecificAction> contextMenuActions = ImmutableList.<SelectionSpecificAction>of(runTestAction, showFailureAction, openTestSourceFileAction, expandNodesAction, collapseNodesAction);
         List<SelectionSpecificAction> contextMenuActionsPrecededBySeparator = ImmutableList.<SelectionSpecificAction>of(openTestSourceFileAction, expandNodesAction);
         ImmutableList<SelectionSpecificAction> contextMenuActionsSucceededBySeparator = ImmutableList.of();
 
@@ -246,6 +255,10 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         });
     }
 
+    public FluentIterable<OperationItem> filterTreeNodes(Predicate<OperationItem> predicate) {
+        return FluentIterable.from(this.pageContent.get()).filter(OperationItem.class).filter(predicate);
+    }
+
     @Override
     @SuppressWarnings("rawtypes")
     public Object getAdapter(Class adapter) {
@@ -260,7 +273,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
 
     @Override
     public boolean isCloseable() {
-        return this.buildJob.getState() == Job.NONE;
+        return this.processDescription.getJob().getState() == Job.NONE;
     }
 
     @Override

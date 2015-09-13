@@ -18,15 +18,17 @@ import java.util.Hashtable;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.Logger;
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
+import org.eclipse.buildship.core.launch.LaunchConfigurationTools;
 import org.eclipse.buildship.core.notification.UserNotification;
 import org.eclipse.buildship.core.util.logging.EclipseLogger;
 import org.eclipse.buildship.ui.console.ConsoleProcessStreamsProvider;
 import org.eclipse.buildship.ui.launch.ConsoleShowingLaunchListener;
+import org.eclipse.buildship.ui.launch.DebugUILaunchConfigurationTools;
 import org.eclipse.buildship.ui.notification.DialogUserNotification;
 import org.eclipse.buildship.ui.util.predicate.Predicates;
 import org.eclipse.buildship.ui.util.selection.ContextActivatingSelectionListener;
 import org.eclipse.buildship.ui.util.selection.ContextActivatingWindowListener;
-import org.eclipse.buildship.ui.view.execution.ExecutionShowingBuildLaunchRequestListener;
+import org.eclipse.buildship.ui.view.execution.ExecutionShowingLaunchRequestListener;
 import org.eclipse.buildship.ui.wizard.project.WorkingSetsAddingProjectCreatedListener;
 import org.eclipse.buildship.ui.workspace.RefreshProjectCommandExecutionListener;
 import org.eclipse.debug.core.DebugPlugin;
@@ -59,8 +61,9 @@ public final class UiPlugin extends AbstractUIPlugin {
     private ServiceRegistration loggerService;
     private ServiceRegistration processStreamsProviderService;
     private ServiceRegistration dialogUserNotificationService;
+    private ServiceRegistration launchConfigurationToolsService;
     private ConsoleShowingLaunchListener consoleShowingLaunchListener;
-    private ExecutionShowingBuildLaunchRequestListener executionShowingBuildLaunchRequestListener;
+    private ExecutionShowingLaunchRequestListener executionShowingLaunchRequestListener;
     private WorkingSetsAddingProjectCreatedListener workingSetsAddingProjectCreatedListener;
     private ContextActivatingSelectionListener contextActivatingSelectionListener;
     private ContextActivatingWindowListener contextActivatingWindowListener;
@@ -95,6 +98,7 @@ public final class UiPlugin extends AbstractUIPlugin {
         this.loggerService = registerService(context, Logger.class, createLogger(), preferences);
         this.processStreamsProviderService = registerService(context, ProcessStreamsProvider.class, createConsoleProcessStreamsProvider(), priorityPreferences);
         this.dialogUserNotificationService = registerService(context, UserNotification.class, createUserNotification(), priorityPreferences);
+        this.launchConfigurationToolsService = registerService(context, LaunchConfigurationTools.class, createLaunchConfigurationTools(), priorityPreferences);
     }
 
     private <T> ServiceRegistration registerService(BundleContext context, Class<T> clazz, T service, Dictionary<String, Object> properties) {
@@ -113,7 +117,12 @@ public final class UiPlugin extends AbstractUIPlugin {
         return new DialogUserNotification();
     }
 
+    private LaunchConfigurationTools createLaunchConfigurationTools() {
+        return new DebugUILaunchConfigurationTools();
+    }
+
     private void unregisterServices() {
+        this.launchConfigurationToolsService.unregister();
         this.dialogUserNotificationService.unregister();
         this.processStreamsProviderService.unregister();
         this.loggerService.unregister();
@@ -125,8 +134,8 @@ public final class UiPlugin extends AbstractUIPlugin {
         this.consoleShowingLaunchListener.handleAlreadyRunningLaunches();
         DebugPlugin.getDefault().getLaunchManager().addLaunchListener(this.consoleShowingLaunchListener);
 
-        this.executionShowingBuildLaunchRequestListener = new ExecutionShowingBuildLaunchRequestListener();
-        CorePlugin.listenerRegistry().addEventListener(this.executionShowingBuildLaunchRequestListener);
+        this.executionShowingLaunchRequestListener = new ExecutionShowingLaunchRequestListener();
+        CorePlugin.listenerRegistry().addEventListener(this.executionShowingLaunchRequestListener);
 
         this.workingSetsAddingProjectCreatedListener = new WorkingSetsAddingProjectCreatedListener();
         CorePlugin.listenerRegistry().addEventListener(this.workingSetsAddingProjectCreatedListener);
@@ -166,7 +175,7 @@ public final class UiPlugin extends AbstractUIPlugin {
         }
 
         CorePlugin.listenerRegistry().removeEventListener(this.workingSetsAddingProjectCreatedListener);
-        CorePlugin.listenerRegistry().removeEventListener(this.executionShowingBuildLaunchRequestListener);
+        CorePlugin.listenerRegistry().removeEventListener(this.executionShowingLaunchRequestListener);
         DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(this.consoleShowingLaunchListener);
     }
 

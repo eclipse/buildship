@@ -54,7 +54,6 @@ public final class GradleClasspathContainerRefresher {
                     .transform(new AdapterFunction<IProject>(IProject.class, Platform.getAdapterManager()))
                     .filter(com.google.common.base.Predicates.notNull())
                     .filter(Predicates.hasGradleNature()).toList();
-
             return selectedProjects;
         } else {
             return ImmutableList.of();

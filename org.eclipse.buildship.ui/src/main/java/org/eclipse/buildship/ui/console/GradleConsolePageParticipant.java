@@ -30,7 +30,7 @@ public final class GradleConsolePageParticipant implements IConsolePageParticipa
 
     /**
      * {@inheritDoc}
-     *
+     * <p/>
      * Adds custom toolbar items to {@link GradleConsole} instances.
      */
     @Override
@@ -76,6 +76,10 @@ public final class GradleConsolePageParticipant implements IConsolePageParticipa
         if (this.cancelBuildExecutionAction != null) {
             this.cancelBuildExecutionAction.dispose();
             this.cancelBuildExecutionAction = null;
+        }
+        if (this.rerunBuildExecutionAction != null) {
+            this.rerunBuildExecutionAction.dispose();
+            this.rerunBuildExecutionAction = null;
         }
         if (this.removeConsoleAction != null) {
             this.removeConsoleAction.dispose();

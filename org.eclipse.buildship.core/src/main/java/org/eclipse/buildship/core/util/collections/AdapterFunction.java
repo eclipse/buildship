@@ -16,9 +16,9 @@ import com.google.common.base.Function;
 import org.eclipse.core.runtime.IAdapterManager;
 
 /**
- * {@link Function} which is used to get a certain adapter from an input object.
+ * Turns a given input object to a specific adapter.
  *
- * @param <T>
+ * @param <T> the expected type of the adapter
  */
 public final class AdapterFunction<T> implements Function<Object, T> {
 

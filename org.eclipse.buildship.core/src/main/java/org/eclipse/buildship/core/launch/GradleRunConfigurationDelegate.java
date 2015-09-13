@@ -27,7 +27,7 @@ import org.eclipse.buildship.core.CorePlugin;
 /**
  * Execute Gradle tasks from the run configurations.
  * <p>
- * The delegate invokes the {@link RunGradleConfigurationDelegateJob} job to do the actual execution
+ * The delegate invokes the {@link RunGradleBuildLaunchRequestJob} job to do the actual execution
  * and waits until it finishes. It also propagates the cancellation to that job.
  */
 public final class GradleRunConfigurationDelegate extends LaunchConfigurationDelegate {
@@ -41,7 +41,7 @@ public final class GradleRunConfigurationDelegate extends LaunchConfigurationDel
         try {
             // schedule the task
             final CountDownLatch latch = new CountDownLatch(1);
-            RunGradleConfigurationDelegateJob job = new RunGradleConfigurationDelegateJob(launch, configuration);
+            RunGradleBuildLaunchRequestJob job = new RunGradleBuildLaunchRequestJob(launch);
             job.addJobChangeListener(new JobChangeAdapter() {
 
                 @Override
