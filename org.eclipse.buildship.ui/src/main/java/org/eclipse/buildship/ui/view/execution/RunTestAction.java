@@ -15,13 +15,12 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.launch.RunGradleTestLaunchRequestJob;
+import org.eclipse.buildship.ui.util.gradle.GradleUtils;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
 import org.eclipse.jface.action.Action;
-import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.test.TestOperationDescriptor;
 
 import java.util.List;
@@ -42,10 +41,10 @@ public final class RunTestAction extends Action implements SelectionSpecificActi
 
     @Override
     public void run() {
-        List<TestOperationDescriptor> testDescriptors = collectSelectedTestOperationDescriptors(this.executionPage.getSelection());
-        List<TestOperationDescriptor> filteredTestDescriptors = filterChildren(testDescriptors);
+        List<TestOperationDescriptor> tests = collectSelectedTests(this.executionPage.getSelection());
+        List<TestOperationDescriptor> filteredTests = GradleUtils.filterChildren(tests);
         GradleRunConfigurationAttributes configurationAttributes = this.executionPage.getProcessDescription().getConfigurationAttributes();
-        RunGradleTestLaunchRequestJob runTestsJob = new RunGradleTestLaunchRequestJob(filteredTestDescriptors, configurationAttributes);
+        RunGradleTestLaunchRequestJob runTestsJob = new RunGradleTestLaunchRequestJob(filteredTests, configurationAttributes);
         runTestsJob.schedule();
     }
 
@@ -64,7 +63,7 @@ public final class RunTestAction extends Action implements SelectionSpecificActi
         setEnabled(isEnabledFor(selection));
     }
 
-    private List<TestOperationDescriptor> collectSelectedTestOperationDescriptors(NodeSelection nodeSelection) {
+    private List<TestOperationDescriptor> collectSelectedTests(NodeSelection nodeSelection) {
         return FluentIterable.from(nodeSelection.getNodes(OperationItem.class)).filter(TEST_OPERATION_ITEM_PREDICATE).transform(new Function<OperationItem, TestOperationDescriptor>() {
 
             @Override
@@ -72,26 +71,6 @@ public final class RunTestAction extends Action implements SelectionSpecificActi
                 return (TestOperationDescriptor) operationItem.getStartEvent().getDescriptor();
             }
         }).toList();
-    }
-
-    private List<TestOperationDescriptor> filterChildren(List<TestOperationDescriptor> testDescriptors) {
-        ImmutableList.Builder<TestOperationDescriptor> withoutChildren = ImmutableList.builder();
-        for (TestOperationDescriptor testDescriptor : testDescriptors) {
-            if (!isParentSelected(testDescriptor, testDescriptors)) {
-                withoutChildren.add(testDescriptor);
-            }
-        }
-        return withoutChildren.build();
-    }
-
-    @SuppressWarnings("SimplifiableIfStatement")
-    private boolean isParentSelected(TestOperationDescriptor candidate, List<TestOperationDescriptor> selectedTestDescriptors) {
-        OperationDescriptor parent = candidate.getParent();
-        if (parent instanceof TestOperationDescriptor) {
-            return selectedTestDescriptors.contains(parent) || isParentSelected((TestOperationDescriptor) parent, selectedTestDescriptors);
-        } else {
-            return false;
-        }
     }
 
     /**
