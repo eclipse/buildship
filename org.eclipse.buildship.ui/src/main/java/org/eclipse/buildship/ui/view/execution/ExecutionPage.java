@@ -75,6 +75,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     private SelectionHistoryManager selectionHistoryManager;
     private TreeViewerColumn nameColumn;
     private TreeViewerColumn durationColumn;
+    private ObservableListTreeContentProvider contentProvider;
 
     public ExecutionPage(ProcessDescription processDescription, Request<Void> request, ExecutionViewState state) {
         this.processDescription = processDescription;
@@ -84,6 +85,10 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
 
     public ProcessDescription getProcessDescription() {
         return this.processDescription;
+    }
+
+    public ObservableListTreeContentProvider getContentProvider() {
+        return this.contentProvider;
     }
 
     @Override
@@ -108,10 +113,10 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
 
         // configure data binding
         IListProperty childrenProperty = new OperationItemChildrenListProperty();
-        ObservableListTreeContentProvider contentProvider = new ObservableListTreeContentProvider(childrenProperty.listFactory(), null);
-        filteredTree.getViewer().setContentProvider(contentProvider);
+        this.contentProvider = new ObservableListTreeContentProvider(childrenProperty.listFactory(), null);
+        filteredTree.getViewer().setContentProvider(this.contentProvider);
 
-        IObservableSet knownElements = contentProvider.getKnownElements();
+        IObservableSet knownElements = this.contentProvider.getKnownElements();
         attachLabelProvider(OperationItem.FIELD_NAME, OperationItem.FIELD_IMAGE, knownElements, this.nameColumn);
         attachLabelProvider(OperationItem.FIELD_DURATION, null, knownElements, this.durationColumn);
 
