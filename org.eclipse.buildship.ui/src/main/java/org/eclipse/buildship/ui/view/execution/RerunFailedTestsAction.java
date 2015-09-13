@@ -13,7 +13,6 @@ package org.eclipse.buildship.ui.view.execution;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.launch.RunGradleTestLaunchRequestJob;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
@@ -23,11 +22,11 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.action.Action;
-import org.gradle.tooling.events.test.TestOperationDescriptor;
+import org.gradle.tooling.events.test.*;
 
 /**
  * Reruns the build represented by the target {@link org.eclipse.buildship.ui.view.execution.ExecutionPage}.
- *
+ * <p/>
  * Note: we listen for removals of {@code ILaunchConfiguration} instances even though not every {@code ProcessDescription} implementation
  * is necessarily backed by a launch configuration. This means that in the worst case, {@code ProcessDescription#isRerunnable()} is invoked
  * unnecessarily (which does no harm).
@@ -59,22 +58,39 @@ public final class RerunFailedTestsAction extends Action {
     }
 
     private void update() {
-        ProcessDescription processDescription = this.page.getProcessDescription();
-        setEnabled(processDescription.getJob().getState() == Job.NONE);
+        setEnabled(this.page.getProcessDescription().getJob().getState() == Job.NONE && !collectFailedTests().isEmpty());
     }
 
     @Override
     public void run() {
+        ImmutableList<TestOperationDescriptor> failedTests = collectFailedTests();
         GradleRunConfigurationAttributes configurationAttributes = this.page.getProcessDescription().getConfigurationAttributes();
-        RunGradleTestLaunchRequestJob job = new RunGradleTestLaunchRequestJob(
-                ImmutableList.<TestOperationDescriptor>of(),
-                configurationAttributes
-        );
+        RunGradleTestLaunchRequestJob job = new RunGradleTestLaunchRequestJob(failedTests, configurationAttributes);
         job.schedule();
     }
 
-    public void dispose() {
+    private ImmutableList<TestOperationDescriptor> collectFailedTests() {
+        ImmutableList.Builder<TestOperationDescriptor> failedTests = ImmutableList.builder();
 
+        // todo (DONAT) instead of traversin the fake treeNodes List, travers the tree defined in the ExecutionPage and add each node that matches isFailedJvmTest() to the failedTests list
+        ImmutableList<OperationItem> treeNodes = ImmutableList.of(new OperationItem());
+        for (OperationItem treeNode : treeNodes) {
+            if (isFailedJvmTest(treeNode)) {
+                failedTests.add((JvmTestOperationDescriptor) treeNode.getFinishEvent().getDescriptor());
+            }
+        }
+
+        return failedTests.build();
+    }
+
+    private boolean isFailedJvmTest(OperationItem operationItem) {
+        if (operationItem.getFinishEvent() instanceof TestFinishEvent) {
+            TestFinishEvent testFinishEvent = (TestFinishEvent) operationItem.getFinishEvent();
+            if (testFinishEvent.getResult() instanceof TestFailureResult && testFinishEvent.getDescriptor() instanceof JvmTestOperationDescriptor) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
