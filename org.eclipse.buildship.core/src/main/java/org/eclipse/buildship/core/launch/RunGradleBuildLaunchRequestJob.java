@@ -20,7 +20,10 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,6 +60,23 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob {
     protected ProcessDescription createProcessDescription() {
         String processName = createProcessName(this.configurationAttributes.getTasks(), this.configurationAttributes.getWorkingDir(), this.launch.getLaunchConfiguration().getName());
         return new BaseProcessDescription(processName, this, this.configurationAttributes) {
+
+            @Override
+            public boolean isRerunnable() {
+                ILaunchConfiguration[] launchConfigurations = new ILaunchConfiguration[0];
+                try {
+                    launchConfigurations = DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurations();
+                } catch (CoreException e) {
+                    e.printStackTrace();
+                }
+
+                for (ILaunchConfiguration launchConfiguration : launchConfigurations) {
+                    if (launchConfiguration.equals(RunGradleBuildLaunchRequestJob.this.launch.getLaunchConfiguration())) {
+                        return true;
+                    }
+                }
+                return false;
+            }
 
             @Override
             public void rerun() {

@@ -12,20 +12,22 @@
 package org.eclipse.buildship.ui.view.execution;
 
 import com.google.common.base.Preconditions;
-
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.jface.action.Action;
-
+import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.i18n.UiMessages;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationListener;
+import org.eclipse.jface.action.Action;
 
 /**
  * Reruns the build represented by the target {@link ExecutionPage}.
  */
-public final class RerunBuildExecutionAction extends Action {
+public final class RerunBuildExecutionAction extends Action implements ILaunchConfigurationListener {
 
     private final ExecutionPage page;
 
@@ -37,6 +39,7 @@ public final class RerunBuildExecutionAction extends Action {
         setDisabledImageDescriptor(PluginImages.RERUN_BUILD.withState(ImageState.DISABLED).getImageDescriptor());
 
         registerJobChangeListener();
+        registerLaunchConfigurationListener();
     }
 
     private void registerJobChangeListener() {
@@ -45,15 +48,41 @@ public final class RerunBuildExecutionAction extends Action {
 
             @Override
             public void done(IJobChangeEvent event) {
-                RerunBuildExecutionAction.this.setEnabled(event.getJob().getState() == Job.NONE);
+                update();
             }
         });
-        setEnabled(job.getState() == Job.NONE);
+        update();
+    }
+
+    private void registerLaunchConfigurationListener() {
+        DebugPlugin.getDefault().getLaunchManager().addLaunchConfigurationListener(this);
     }
 
     @Override
     public void run() {
         this.page.getProcessDescription().rerun();
+    }
+
+    @Override
+    public void launchConfigurationAdded(ILaunchConfiguration configuration) {
+    }
+
+    @Override
+    public void launchConfigurationChanged(ILaunchConfiguration configuration) {
+    }
+
+    @Override
+    public void launchConfigurationRemoved(ILaunchConfiguration configuration) {
+        update();
+    }
+
+    private void update() {
+        ProcessDescription processDescription = this.page.getProcessDescription();
+        setEnabled(processDescription.getJob().getState() == Job.NONE && processDescription.isRerunnable());
+    }
+
+    public void dispose() {
+        DebugPlugin.getDefault().getLaunchManager().removeLaunchConfigurationListener(this);
     }
 
 }

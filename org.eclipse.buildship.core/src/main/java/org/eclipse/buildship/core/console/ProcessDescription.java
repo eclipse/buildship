@@ -41,6 +41,13 @@ public interface ProcessDescription {
     GradleRunConfigurationAttributes getConfigurationAttributes();
 
     /**
+     * Returns whether the process can be rerun.
+     *
+     * @return {@code true} if the process can be rerun
+     */
+    boolean isRerunnable();
+
+    /**
      * Reruns the process. A new {@code ProcessDescription} instance will be created as part of it.
      */
     void rerun();

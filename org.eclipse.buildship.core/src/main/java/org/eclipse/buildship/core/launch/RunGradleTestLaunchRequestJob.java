@@ -60,6 +60,10 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
     protected ProcessDescription createProcessDescription() {
         String processName = createProcessName(this.configurationAttributes.getWorkingDir());
         return new BaseProcessDescription(processName, this, this.configurationAttributes){
+            @Override
+            public boolean isRerunnable() {
+                return true;
+            }
 
             @Override
             public void rerun() {
