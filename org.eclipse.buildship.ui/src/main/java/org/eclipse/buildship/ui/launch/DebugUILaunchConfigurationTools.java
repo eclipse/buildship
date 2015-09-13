@@ -17,7 +17,7 @@ import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.buildship.core.launch.LaunchConfigurationTools;
 
 /**
- * Default implementation for the {@link LaunchConfigurationTools}.
+ * Default implementation of {@link LaunchConfigurationTools} that is backed by the {@code DebugUITools} class.
  */
 public final class DebugUILaunchConfigurationTools implements LaunchConfigurationTools {
 

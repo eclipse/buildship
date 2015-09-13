@@ -15,14 +15,14 @@ package org.eclipse.buildship.core.launch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
 /**
- * Launches an {@link ILaunchConfiguration} via DebugUITools class.
+ * Offers functionality related to {@link ILaunchConfiguration}s.
  */
 public interface LaunchConfigurationTools {
 
     /**
-     * Launches the target configuration.
+     * Launches the given target configuration.
      *
-     * @param configuration the configuration
+     * @param configuration the launch configuration to launch
      * @param mode          the target mode
      */
     void launch(ILaunchConfiguration configuration, String mode);
