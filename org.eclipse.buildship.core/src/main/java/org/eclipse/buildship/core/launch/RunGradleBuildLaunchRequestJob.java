@@ -59,31 +59,7 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob {
     @Override
     protected ProcessDescription createProcessDescription() {
         String processName = createProcessName(this.configurationAttributes.getTasks(), this.configurationAttributes.getWorkingDir(), this.launch.getLaunchConfiguration().getName());
-        return new BaseProcessDescription(processName, this, this.configurationAttributes) {
-
-            @Override
-            public boolean isRerunnable() {
-                ILaunchConfiguration[] launchConfigurations = new ILaunchConfiguration[0];
-                try {
-                    launchConfigurations = DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurations();
-                } catch (CoreException e) {
-                    e.printStackTrace();
-                }
-
-                for (ILaunchConfiguration launchConfiguration : launchConfigurations) {
-                    if (launchConfiguration.equals(RunGradleBuildLaunchRequestJob.this.launch.getLaunchConfiguration())) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-
-            @Override
-            public void rerun() {
-                ILaunch launch = RunGradleBuildLaunchRequestJob.this.launch;
-                CorePlugin.launchConfigurationTools().launch(launch.getLaunchConfiguration(), launch.getLaunchMode());
-            }
-        };
+        return new BuildLaunchProcessDescription(processName);
     }
 
     private String createProcessName(List<String> tasks, File workingDir, String launchConfigurationName) {
@@ -101,6 +77,38 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob {
         String taskNames = Strings.emptyToNull(CollectionsUtils.joinWithSpace(this.configurationAttributes.getTasks()));
         taskNames = taskNames != null ? taskNames : CoreMessages.RunConfiguration_Value_RunDefaultTasks;
         writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleTasks, taskNames));
+    }
+
+    private final class BuildLaunchProcessDescription extends BaseProcessDescription {
+
+        public BuildLaunchProcessDescription(String processName) {
+            super(processName, RunGradleBuildLaunchRequestJob.this, RunGradleBuildLaunchRequestJob.this.configurationAttributes);
+        }
+
+        @Override
+        public boolean isRerunnable() {
+            ILaunchConfiguration[] launchConfigurations;
+            try {
+                launchConfigurations = DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurations();
+            } catch (CoreException e) {
+                return false;
+            }
+
+            ILaunchConfiguration targetLaunchConfiguration = RunGradleBuildLaunchRequestJob.this.launch.getLaunchConfiguration();
+            for (ILaunchConfiguration launchConfiguration : launchConfigurations) {
+                if (launchConfiguration.equals(targetLaunchConfiguration)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public void rerun() {
+            ILaunch launch = RunGradleBuildLaunchRequestJob.this.launch;
+            CorePlugin.launchConfigurationTools().launch(launch.getLaunchConfiguration(), launch.getLaunchMode());
+        }
+
     }
 
 }
