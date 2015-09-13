@@ -28,7 +28,6 @@ import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProviderFac
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
-import org.eclipse.debug.core.ILaunchConfiguration;
 
 import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
 import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigurationManager;
@@ -39,6 +38,7 @@ import org.eclipse.buildship.core.event.internal.DefaultListenerRegistry;
 import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.launch.LaunchConfigurationTools;
 import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager;
+import org.eclipse.buildship.core.launch.internal.EmptyLaunchConfigurationTools;
 import org.eclipse.buildship.core.notification.UserNotification;
 import org.eclipse.buildship.core.notification.internal.ConsoleUserNotification;
 import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
@@ -201,13 +201,7 @@ public final class CorePlugin extends Plugin {
     }
 
     private LaunchConfigurationTools createLaunchConfigurationTools() {
-        return new LaunchConfigurationTools() {
-
-            @Override
-            public void launch(ILaunchConfiguration configuration, String mode) {
-                // do nothing; the real implementation is defined in the UI plugin
-            }
-        };
+        return new EmptyLaunchConfigurationTools();
     }
 
     private void unregisterServices() {
@@ -281,7 +275,7 @@ public final class CorePlugin extends Plugin {
     }
 
     public static LaunchConfigurationTools launchConfigurationTools() {
-        return (LaunchConfigurationTools)getInstance().launchConfigurationToolsServiceTracker.getService();
+        return (LaunchConfigurationTools) getInstance().launchConfigurationToolsServiceTracker.getService();
     }
 
 }
