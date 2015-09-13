@@ -34,6 +34,7 @@ public final class UiMessages extends NLS {
     public static String Action_ShowFilter_Tooltip;
     public static String Action_CancelExecution_Tooltip;
     public static String Action_RerunBuild_Tooltip;
+    public static String Action_RerunFailedTests_Tooltip;
 
     public static String Action_ShowTreeHeader_Text;
 
