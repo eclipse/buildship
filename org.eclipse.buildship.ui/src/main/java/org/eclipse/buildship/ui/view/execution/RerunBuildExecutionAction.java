@@ -26,6 +26,10 @@ import org.eclipse.jface.action.Action;
 
 /**
  * Reruns the build represented by the target {@link ExecutionPage}.
+ *
+ * Note: we listen for removals of {@code ILaunchConfiguration} instances even though not every {@code ProcessDescription} implementation
+ * is necessarily backed by a launch configuration. This means that in the worst case, {@code ProcessDescription#isRerunnable()} is invoked
+ * unnecessarily (which does no harm).
  */
 public final class RerunBuildExecutionAction extends Action implements ILaunchConfigurationListener {
 
