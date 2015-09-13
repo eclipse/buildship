@@ -62,8 +62,8 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob {
 
             @Override
             public void rerun() {
-                ILaunchConfiguration launchConfiguration = RunGradleBuildLaunchRequestJob.this.launch.getLaunchConfiguration();
-                CorePlugin.launchConfigurationTools().launch(launchConfiguration, ILaunchManager.RUN_MODE);
+                ILaunch launch = RunGradleBuildLaunchRequestJob.this.launch;
+                CorePlugin.launchConfigurationTools().launch(launch.getLaunchConfiguration(), launch.getLaunchMode());
             }
         };
     }
