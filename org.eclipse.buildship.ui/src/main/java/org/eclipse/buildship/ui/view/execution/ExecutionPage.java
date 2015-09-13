@@ -11,9 +11,13 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -23,6 +27,8 @@ import com.gradleware.tooling.toolingclient.Request;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.beans.IBeanValueProperty;
 import org.eclipse.core.databinding.observable.set.IObservableSet;
+import org.eclipse.core.databinding.observable.set.ISetChangeListener;
+import org.eclipse.core.databinding.observable.set.SetChangeEvent;
 import org.eclipse.core.databinding.property.list.IListProperty;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
@@ -32,12 +38,7 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.databinding.viewers.ObservableListTreeContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapCellLabelProvider;
 import org.eclipse.jface.resource.ColorDescriptor;
-import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.TreeViewerColumn;
-import org.eclipse.jface.viewers.ViewerColumn;
+import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -75,7 +76,8 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     private SelectionHistoryManager selectionHistoryManager;
     private TreeViewerColumn nameColumn;
     private TreeViewerColumn durationColumn;
-    private ObservableListTreeContentProvider contentProvider;
+
+    private final AtomicReference<Collection<?>> pageContent = new AtomicReference<Collection<?>>(Collections.emptyList());
 
     public ExecutionPage(ProcessDescription processDescription, Request<Void> request, ExecutionViewState state) {
         this.processDescription = processDescription;
@@ -85,10 +87,6 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
 
     public ProcessDescription getProcessDescription() {
         return this.processDescription;
-    }
-
-    public ObservableListTreeContentProvider getContentProvider() {
-        return this.contentProvider;
     }
 
     @Override
@@ -113,12 +111,24 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
 
         // configure data binding
         IListProperty childrenProperty = new OperationItemChildrenListProperty();
-        this.contentProvider = new ObservableListTreeContentProvider(childrenProperty.listFactory(), null);
-        filteredTree.getViewer().setContentProvider(this.contentProvider);
+        ObservableListTreeContentProvider contentProvider = new ObservableListTreeContentProvider(childrenProperty.listFactory(), null);
+        filteredTree.getViewer().setContentProvider(contentProvider);
 
-        IObservableSet knownElements = this.contentProvider.getKnownElements();
+        IObservableSet knownElements = contentProvider.getKnownElements();
         attachLabelProvider(OperationItem.FIELD_NAME, OperationItem.FIELD_IMAGE, knownElements, this.nameColumn);
         attachLabelProvider(OperationItem.FIELD_DURATION, null, knownElements, this.durationColumn);
+
+        // keep track of the nodes in the tree
+        knownElements.addSetChangeListener(new ISetChangeListener() {
+
+            @Override
+            public void handleSetChange(SetChangeEvent event) {
+                Object source = event.getSource();
+                if (source instanceof Collection) {
+                    ExecutionPage.this.pageContent.set(ImmutableList.copyOf((Collection<?>) source));
+                }
+            }
+        });
 
         // keep header size synchronized between pages
         this.nameColumn.getColumn().addControlListener(new ControlAdapter() {
@@ -243,6 +253,10 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
                 openTestSourceFileAction.run();
             }
         });
+    }
+
+    public FluentIterable<OperationItem> filterTreeNodes(Predicate<OperationItem> predicate) {
+        return FluentIterable.from(this.pageContent.get()).filter(OperationItem.class).filter(predicate);
     }
 
     @Override

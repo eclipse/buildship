@@ -11,8 +11,9 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.FluentIterable;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.launch.RunGradleTestLaunchRequestJob;
@@ -20,19 +21,13 @@ import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.buildship.ui.util.gradle.GradleUtils;
-
-import org.eclipse.core.databinding.observable.set.ISetChangeListener;
-import org.eclipse.core.databinding.observable.set.SetChangeEvent;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.action.Action;
 import org.gradle.tooling.events.test.*;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Reruns the build represented by the target {@link org.eclipse.buildship.ui.view.execution.ExecutionPage}.
@@ -45,8 +40,6 @@ public final class RerunFailedTestsAction extends Action {
 
     private final ExecutionPage page;
 
-    private AtomicReference<Collection<?>> pageContent = new AtomicReference<Collection<?>>(Collections.emptyList());
-
     public RerunFailedTestsAction(ExecutionPage executionPage) {
         this.page = Preconditions.checkNotNull(executionPage);
 
@@ -54,21 +47,7 @@ public final class RerunFailedTestsAction extends Action {
         setImageDescriptor(PluginImages.RERUN_FAILED_TESTS.withState(ImageState.ENABLED).getImageDescriptor());
         setDisabledImageDescriptor(PluginImages.RERUN_FAILED_TESTS.withState(ImageState.DISABLED).getImageDescriptor());
 
-        registerPageContentCollection();
         registerJobChangeListener();
-    }
-
-    private void registerPageContentCollection() {
-        this.page.getContentProvider().getKnownElements().addSetChangeListener(new ISetChangeListener() {
-
-            @Override
-            public void handleSetChange(SetChangeEvent event) {
-                Object source = event.getSource();
-                if (source instanceof Collection<?>) {
-                    RerunFailedTestsAction.this.pageContent.set(ImmutableList.copyOf((Collection<?>)source));
-                }
-            }
-        });
     }
 
     private void registerJobChangeListener() {
@@ -97,23 +76,27 @@ public final class RerunFailedTestsAction extends Action {
     }
 
     private ImmutableList<TestOperationDescriptor> collectFailedTests() {
-        ImmutableList.Builder<TestOperationDescriptor> failedTests = ImmutableList.builder();
-
-        ImmutableList<OperationItem> treeNodes = FluentIterable.from(this.pageContent.get()).filter(OperationItem.class).toList();
-        for (OperationItem treeNode : treeNodes) {
-            if (isFailedJvmTest(treeNode)) {
-                failedTests.add((JvmTestOperationDescriptor) treeNode.getFinishEvent().getDescriptor());
+        return this.page.filterTreeNodes(new Predicate<OperationItem>() {
+            @Override
+            public boolean apply(OperationItem operationItem) {
+                return isFailedJvmTest(operationItem);
             }
-        }
-
-        return failedTests.build();
+        }).transform(new Function<OperationItem, TestOperationDescriptor>() {
+            @Override
+            public TestOperationDescriptor apply(OperationItem operationItem) {
+                return (JvmTestOperationDescriptor) operationItem.getFinishEvent().getDescriptor();
+            }
+        }).toList();
     }
 
     private boolean isFailedJvmTest(OperationItem operationItem) {
         if (operationItem.getFinishEvent() instanceof TestFinishEvent) {
             TestFinishEvent testFinishEvent = (TestFinishEvent) operationItem.getFinishEvent();
             if (testFinishEvent.getResult() instanceof TestFailureResult && testFinishEvent.getDescriptor() instanceof JvmTestOperationDescriptor) {
-                return true;
+                JvmTestOperationDescriptor descriptor = (JvmTestOperationDescriptor) testFinishEvent.getDescriptor();
+                if (descriptor.getJvmTestKind() == JvmTestKind.ATOMIC) {
+                    return true;
+                }
             }
         }
         return false;
