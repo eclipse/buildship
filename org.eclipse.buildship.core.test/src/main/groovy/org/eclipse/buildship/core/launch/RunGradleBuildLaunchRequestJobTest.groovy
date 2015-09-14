@@ -9,9 +9,7 @@ import org.eclipse.debug.core.ILaunch
 import org.eclipse.debug.core.ILaunchConfiguration
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-import spock.lang.Ignore
 import spock.lang.Specification
-
 
 class RunGradleBuildLaunchRequestJobTest extends Specification {
 
