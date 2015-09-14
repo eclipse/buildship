@@ -92,9 +92,9 @@ public interface WorkspaceOperations {
     IProject createProject(String name, File location, List<File> filteredSubFolders, List<String> natureIds, IProgressMonitor monitor);
 
     /**
-     * Includes an existing {@link IProject} in the workspace. The project is also opened and the
-     * specified natures are added. The specified sub folders nested under the project's location
-     * are hidden through a resource filter.
+     * Includes an existing {@link IProject} in the workspace. The project must not yet exist in the workspace.
+     * The project is also opened and the specified natures are added. The specified sub folders nested under
+     * the project's location are hidden through a resource filter.
      *
      * @param description the project to include
      * @param filteredSubFolders the folders to filter from the project
