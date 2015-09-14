@@ -133,4 +133,13 @@ public interface WorkspaceOperations {
      */
     void addNature(IProject project, String natureId, IProgressMonitor monitor);
 
+    /**
+     * Remove the given nature from an existing {@link IProject}.
+     *
+     * @param project  the project from which to remove the nature
+     * @param natureId the nature to remove
+     * @param monitor  the monitor to report progress on
+     */
+    void removeNature(IProject project, String natureId, IProgressMonitor monitor);
+
 }

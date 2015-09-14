@@ -13,6 +13,7 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Optional;
@@ -355,6 +356,34 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             project.setDescription(description, new SubProgressMonitor(monitor, 1));
         } catch (CoreException e) {
             String message = String.format("Cannot add nature %s to Eclipse project %s.", natureId, project.getName());
+            throw new GradlePluginsRuntimeException(message, e);
+        } finally {
+            monitor.done();
+        }
+    }
+
+    @Override
+    public void removeNature(IProject project, String natureId, IProgressMonitor monitor) {
+        monitor.beginTask(String.format("Remove nature %s from Eclipse project %s", natureId, project.getName()), 1);
+        try {
+            // get the description
+            IProjectDescription description = project.getDescription();
+
+            // abort if the project currently does not have the nature applied
+            List<String> currentNatureIds = ImmutableList.copyOf(description.getNatureIds());
+            if (!currentNatureIds.contains(natureId)) {
+                return;
+            }
+
+            // remove the nature from the project
+            List<String> newIds = new ArrayList<String>(currentNatureIds);
+            newIds.remove(natureId);
+            description.setNatureIds(newIds.toArray(new String[newIds.size()]));
+
+            // save the updated description
+            project.setDescription(description, new SubProgressMonitor(monitor, 1));
+        } catch (CoreException e) {
+            String message = String.format("Cannot remove nature %s from Eclipse project %s.", natureId, project.getName());
             throw new GradlePluginsRuntimeException(message, e);
         } finally {
             monitor.done();

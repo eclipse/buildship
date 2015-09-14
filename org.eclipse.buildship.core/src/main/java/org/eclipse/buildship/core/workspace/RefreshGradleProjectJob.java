@@ -47,7 +47,6 @@ import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -105,7 +104,7 @@ public final class RefreshGradleProjectJob extends WorkspaceJob {
 
         // remove old, add new and refresh existing workspace projects
         for (IProject oldProject : oldWorkspaceProjects) {
-            removeProject(oldProject);
+            removeProject(oldProject, monitor);
         }
         for (OmniEclipseProject gradleProject : allGradleProjects) {
             if (newGradleProjects.contains(gradleProject)) {
@@ -158,9 +157,9 @@ public final class RefreshGradleProjectJob extends WorkspaceJob {
         importProject(gradleProject, eclipseGradleBuild, this.rootRequestAttributes, ImmutableList.<String>of(), new NullProgressMonitor());
     }
 
-    private void removeProject(IProject project) {
+    private void removeProject(IProject project, IProgressMonitor monitor) {
         try {
-            removeNature(project, GradleProjectNature.ID);
+            CorePlugin.workspaceOperations().removeNature(project, GradleProjectNature.ID, monitor);
             removeProjectConfiguration(project);
             if (project.hasNature(JavaCore.NATURE_ID)) {
                 IJavaProject javaProject = JavaCore.create(project);
@@ -222,24 +221,6 @@ public final class RefreshGradleProjectJob extends WorkspaceJob {
         if (settingsFolder.exists()) {
             settingsFolder.delete(true, false, null);
         }
-    }
-
-    private static void removeNature(IProject project, String natureId) throws CoreException {
-        // get the description
-        IProjectDescription description = project.getDescription();
-
-        // remove the requested nature id from the nature list
-        String[] natures = FluentIterable.from(Arrays.asList(description.getNatureIds())).filter(new Predicate<String>() {
-
-            @Override
-            public boolean apply(String natureId) {
-                return !natureId.equals(GradleProjectNature.ID);
-            }
-        }).toArray(String.class);
-
-        // set the filtered nature list for the project
-        description.setNatureIds(natures);
-        project.setDescription(description, null);
     }
 
     // the code below is copied from ProjectImportJob without changing anything
