@@ -23,7 +23,7 @@ import org.eclipse.buildship.core.notification.UserNotification;
 import org.eclipse.buildship.core.util.logging.EclipseLogger;
 import org.eclipse.buildship.ui.console.ConsoleProcessStreamsProvider;
 import org.eclipse.buildship.ui.launch.ConsoleShowingLaunchListener;
-import org.eclipse.buildship.ui.launch.internal.UiGradleLaunchConfigurationManager;
+import org.eclipse.buildship.ui.launch.UiGradleLaunchConfigurationManager;
 import org.eclipse.buildship.ui.notification.DialogUserNotification;
 import org.eclipse.buildship.ui.util.predicate.Predicates;
 import org.eclipse.buildship.ui.util.selection.ContextActivatingSelectionListener;
@@ -61,7 +61,7 @@ public final class UiPlugin extends AbstractUIPlugin {
     private ServiceRegistration loggerService;
     private ServiceRegistration processStreamsProviderService;
     private ServiceRegistration dialogUserNotificationService;
-    private ServiceRegistration launchConfigurationService;
+    private ServiceRegistration gradleLaunchConfigurationService;
     private ConsoleShowingLaunchListener consoleShowingLaunchListener;
     private ExecutionShowingLaunchRequestListener executionShowingLaunchRequestListener;
     private WorkingSetsAddingProjectCreatedListener workingSetsAddingProjectCreatedListener;
@@ -98,7 +98,7 @@ public final class UiPlugin extends AbstractUIPlugin {
         this.loggerService = registerService(context, Logger.class, createLogger(), preferences);
         this.processStreamsProviderService = registerService(context, ProcessStreamsProvider.class, createConsoleProcessStreamsProvider(), priorityPreferences);
         this.dialogUserNotificationService = registerService(context, UserNotification.class, createUserNotification(), priorityPreferences);
-        this.launchConfigurationService = registerService(context, GradleLaunchConfigurationManager.class, createLaunchConfigurationManager(), priorityPreferences);
+        this.gradleLaunchConfigurationService = registerService(context, GradleLaunchConfigurationManager.class, createLaunchConfigurationManager(), priorityPreferences);
     }
 
     private <T> ServiceRegistration registerService(BundleContext context, Class<T> clazz, T service, Dictionary<String, Object> properties) {
@@ -122,7 +122,7 @@ public final class UiPlugin extends AbstractUIPlugin {
     }
 
     private void unregisterServices() {
-        this.launchConfigurationService.unregister();
+        this.gradleLaunchConfigurationService.unregister();
         this.dialogUserNotificationService.unregister();
         this.processStreamsProviderService.unregister();
         this.loggerService.unregister();

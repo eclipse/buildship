@@ -107,7 +107,7 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
 
     @Override
     protected void writeExtraConfigInfo(OutputStreamWriter writer) throws IOException {
-        writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Executed_Tests, collectTestDisplayNames(this.testDescriptors)));
+        writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Tests, collectTestDisplayNames(this.testDescriptors)));
     }
 
     private List<String> collectTestDisplayNames(List<TestOperationDescriptor> testDescriptors) {
