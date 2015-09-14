@@ -27,20 +27,20 @@ import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
  */
 public final class UiGradleLaunchConfigurationManager implements GradleLaunchConfigurationManager {
 
-    private GradleLaunchConfigurationManager manager;
+    private final GradleLaunchConfigurationManager delegate;
 
-    public UiGradleLaunchConfigurationManager(GradleLaunchConfigurationManager manager) {
-        this.manager = Preconditions.checkNotNull(manager);
+    public UiGradleLaunchConfigurationManager(GradleLaunchConfigurationManager delegate) {
+        this.delegate = Preconditions.checkNotNull(delegate);
     }
 
     @Override
     public Optional<ILaunchConfiguration> getRunConfiguration(GradleRunConfigurationAttributes configurationAttributes) {
-        return this.manager.getRunConfiguration(configurationAttributes);
+        return this.delegate.getRunConfiguration(configurationAttributes);
     }
 
     @Override
     public ILaunchConfiguration getOrCreateRunConfiguration(GradleRunConfigurationAttributes configurationAttributes) {
-        return this.manager.getOrCreateRunConfiguration(configurationAttributes);
+        return this.delegate.getOrCreateRunConfiguration(configurationAttributes);
     }
 
     @Override
