@@ -118,7 +118,7 @@ public final class ClasspathContainerUpdater {
      * @throws JavaModelException if the container assignment fails
      */
     public static void update(IJavaProject eclipseProject, OmniEclipseProject gradleProject, IProgressMonitor monitor) throws JavaModelException {
-        ClasspathContainerUpdater updater = new ClasspathContainerUpdater(eclipseProject, gradleProject, new Path(GradleClasspathContainer.CONTAINER_ID));
+        ClasspathContainerUpdater updater = new ClasspathContainerUpdater(eclipseProject, gradleProject, createContainerPath());
         updater.updateClasspathContainer(monitor);
     }
 
@@ -131,7 +131,11 @@ public final class ClasspathContainerUpdater {
      */
     public static void clear(IJavaProject eclipseProject, IProgressMonitor monitor) throws JavaModelException {
         IClasspathContainer classpathContainer = GradleClasspathContainer.newInstance(ImmutableList.<IClasspathEntry>of());
-        JavaCore.setClasspathContainer(new Path(GradleClasspathContainer.CONTAINER_ID), new IJavaProject[]{eclipseProject}, new IClasspathContainer[]{classpathContainer}, monitor);
+        JavaCore.setClasspathContainer(createContainerPath(), new IJavaProject[]{eclipseProject}, new IClasspathContainer[]{classpathContainer}, monitor);
+    }
+
+    private static Path createContainerPath() {
+        return new Path(GradleClasspathContainer.CONTAINER_ID);
     }
 
 }
