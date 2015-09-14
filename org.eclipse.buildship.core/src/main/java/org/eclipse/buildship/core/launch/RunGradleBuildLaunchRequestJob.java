@@ -41,7 +41,7 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob {
     private final GradleRunConfigurationAttributes configurationAttributes;
 
     public RunGradleBuildLaunchRequestJob(ILaunch launch) {
-        super("Launching Gradle tasks");
+        super("Launching Gradle tasks", false);
         this.launch = Preconditions.checkNotNull(launch);
         this.configurationAttributes = GradleRunConfigurationAttributes.from(launch.getLaunchConfiguration());
     }

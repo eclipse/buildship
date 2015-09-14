@@ -48,8 +48,8 @@ import java.util.List;
  */
 public abstract class BaseLaunchRequestJob extends ToolingApiJob {
 
-    protected BaseLaunchRequestJob(String name) {
-        super(name);
+    protected BaseLaunchRequestJob(String name, boolean notifyUserAboutBuildFailures) {
+        super(name, notifyUserAboutBuildFailures);
     }
 
     @Override
