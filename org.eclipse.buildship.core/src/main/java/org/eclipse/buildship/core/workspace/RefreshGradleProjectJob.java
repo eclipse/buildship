@@ -61,15 +61,15 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
 
     @Override
     protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) {
-        monitor.beginTask("Reload projects and request project update", IProgressMonitor.UNKNOWN);
+        monitor.beginTask("Refresh Gradle project and Eclipse workspace", 100);
 
         // use the same rule as the ProjectImportJob to do the initialization
         IJobManager manager = Job.getJobManager();
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         manager.beginRule(workspaceRoot, monitor);
         try {
-            OmniEclipseGradleBuild result = forceReloadEclipseGradleBuild(this.rootRequestAttributes, monitor);
-            synchronizeGradleProjectsWithWorkspace(result, monitor);
+            OmniEclipseGradleBuild result = forceReloadEclipseGradleBuild(this.rootRequestAttributes, new SubProgressMonitor(monitor, 50));
+            synchronizeGradleProjectsWithWorkspace(result, new SubProgressMonitor(monitor, 50));
         } finally {
             manager.endRule(workspaceRoot);
         }
@@ -77,13 +77,18 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
         // monitor is closed by caller in super class
     }
 
-    private OmniEclipseGradleBuild forceReloadEclipseGradleBuild(FixedRequestAttributes requestAttributes, final IProgressMonitor monitor) {
-        ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-        ImmutableList<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
-        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), listeners,
-                ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
-        ModelRepositoryProvider repository = CorePlugin.modelRepositoryProvider();
-        return repository.getModelRepository(requestAttributes).fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FORCE_RELOAD);
+    private OmniEclipseGradleBuild forceReloadEclipseGradleBuild(FixedRequestAttributes requestAttributes, IProgressMonitor monitor) {
+        monitor.beginTask(String.format("Force reload of Gradle build located at %s", requestAttributes.getProjectDir().getAbsolutePath()), IProgressMonitor.UNKNOWN);
+        try {
+            ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
+            ImmutableList<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
+            TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), listeners,
+                    ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
+            ModelRepositoryProvider repository = CorePlugin.modelRepositoryProvider();
+            return repository.getModelRepository(requestAttributes).fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FORCE_RELOAD);
+        } finally {
+            monitor.done();
+        }
     }
 
     private void synchronizeGradleProjectsWithWorkspace(OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
@@ -92,16 +97,21 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
         List<IProject> oldWorkspaceProjects = collectWorkspaceProjectsRemovedFromGradleBuild(allGradleProjects);
         List<OmniEclipseProject> newGradleProjects = collectGradleProjectsNotPresentInWorkspace(allGradleProjects);
 
-        // remove old, add new and refresh existing workspace projects
-        for (IProject oldProject : oldWorkspaceProjects) {
-            removeProject(oldProject, monitor);
-        }
-        for (OmniEclipseProject gradleProject : allGradleProjects) {
-            if (newGradleProjects.contains(gradleProject)) {
-                addProject(gradleProject, gradleBuild);
-            } else {
-                updateProject(gradleProject, monitor);
+        monitor.beginTask("Synchronize Gradle projects with workspace", oldWorkspaceProjects.size() + allGradleProjects.size());
+        try {
+            // remove old, add new and refresh existing workspace projects
+            for (IProject oldProject : oldWorkspaceProjects) {
+                removeProject(oldProject, new SubProgressMonitor(monitor, 1));
             }
+            for (OmniEclipseProject gradleProject : allGradleProjects) {
+                if (newGradleProjects.contains(gradleProject)) {
+                    addProject(gradleProject, gradleBuild, new SubProgressMonitor(monitor, 1));
+                } else {
+                    updateProject(gradleProject, new SubProgressMonitor(monitor, 1));
+                }
+            }
+        } finally {
+            monitor.done();
         }
     }
 
@@ -143,8 +153,8 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
         }).toList();
     }
 
-    private void addProject(OmniEclipseProject gradleProject, OmniEclipseGradleBuild eclipseGradleBuild) {
-        ProjectImporter.importProject(gradleProject, eclipseGradleBuild, this.rootRequestAttributes, ImmutableList.<String>of(), new NullProgressMonitor());
+    private void addProject(OmniEclipseProject gradleProject, OmniEclipseGradleBuild eclipseGradleBuild, IProgressMonitor monitor) {
+        ProjectImporter.importProject(gradleProject, eclipseGradleBuild, this.rootRequestAttributes, ImmutableList.<String>of(), monitor);
     }
 
     private void removeProject(IProject project, IProgressMonitor monitor) {
