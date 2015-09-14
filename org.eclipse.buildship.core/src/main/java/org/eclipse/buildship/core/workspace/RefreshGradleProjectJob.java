@@ -60,7 +60,7 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
     }
 
     @Override
-    protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
+    protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) {
         monitor.beginTask("Reload projects and request project update", IProgressMonitor.UNKNOWN);
 
         // use the same rule as the ProjectImportJob to do the initialization
