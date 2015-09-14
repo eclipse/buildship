@@ -86,6 +86,8 @@ public final class RefreshGradleProjectJob extends WorkspaceJob {
     @Override
     public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
         monitor.beginTask("Reload projects and request project update", IProgressMonitor.UNKNOWN);
+
+        // use the same rule as the ProjectImportJob to do the initialization
         IJobManager manager = Job.getJobManager();
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         manager.beginRule(workspaceRoot, monitor);
