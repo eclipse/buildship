@@ -43,8 +43,20 @@ public final class ContextActivatingSelectionListener implements ISelectionListe
     @Override
     public void selectionChanged(IWorkbenchPart part, ISelection selection) {
         if (this.activationPredicate.apply(selection)) {
-            this.activation = this.contextService.activateContext(this.contextId);
+            activateContext();
         } else {
+            deactivateContext();
+        }
+    }
+
+    private void activateContext() {
+        if (this.contextId != null) {
+            this.activation = this.contextService.activateContext(this.contextId);
+        }
+    }
+
+    private void deactivateContext() {
+        if (this.activation != null) {
             this.contextService.deactivateContext(this.activation);
         }
     }

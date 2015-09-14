@@ -40,14 +40,14 @@ public final class ContextActivatingViewPartListener implements IPartListener2 {
 
     @Override
     public void partActivated(IWorkbenchPartReference partReference) {
-        if (SelectionUtils.belongsToViewPart(partReference, this.viewPart)) {
+        if (SelectionUtils.belongsToViewPart(partReference, this.viewPart) && this.contextId != null) {
             this.activation = this.contextService.activateContext(this.contextId);
         }
     }
 
     @Override
     public void partDeactivated(IWorkbenchPartReference partReference) {
-        if (SelectionUtils.belongsToViewPart(partReference, this.viewPart)) {
+        if (SelectionUtils.belongsToViewPart(partReference, this.viewPart) && this.activation != null) {
             this.contextService.deactivateContext(this.activation);
         }
     }
