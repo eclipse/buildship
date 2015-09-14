@@ -72,8 +72,9 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
             synchronizeGradleProjectsWithWorkspace(result, monitor);
         } finally {
             manager.endRule(workspaceRoot);
-            monitor.done();
         }
+
+        // monitor is closed by caller in super class
     }
 
     private OmniEclipseGradleBuild forceReloadEclipseGradleBuild(FixedRequestAttributes requestAttributes, final IProgressMonitor monitor) {
