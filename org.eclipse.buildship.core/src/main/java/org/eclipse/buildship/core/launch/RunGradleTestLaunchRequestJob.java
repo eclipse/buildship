@@ -21,6 +21,8 @@ import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingclient.TestConfig;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.core.i18n.CoreMessages;
+
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.task.TaskOperationDescriptor;
 import org.gradle.tooling.events.test.TestOperationDescriptor;
@@ -105,7 +107,7 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
 
     @Override
     protected void writeExtraConfigInfo(OutputStreamWriter writer) throws IOException {
-        writer.write(String.format("%s: %s%n", "Executed tests", collectTestDisplayNames(this.testDescriptors)));
+        writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Executed_Tests, collectTestDisplayNames(this.testDescriptors)));
     }
 
     private List<String> collectTestDisplayNames(List<TestOperationDescriptor> testDescriptors) {
