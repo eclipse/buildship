@@ -76,7 +76,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
     }
 
     private void scheduleClasspathInitialization(final IJavaProject project) {
-        new ToolingApiWorkspaceJob("Initialize Gradle classpath for project '" + project.getElementName() + "'") {
+        new ToolingApiWorkspaceJob("Initialize Gradle classpath for project '" + project.getElementName() + "'", false) {
 
             @Override
             protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
