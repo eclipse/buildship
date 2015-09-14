@@ -31,14 +31,14 @@ import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.projectimport.ProjectImporter;
 import org.eclipse.buildship.core.util.predicate.Predicates;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
+import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
+
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.gradle.tooling.CancellationTokenSource;
-import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
 
 import java.io.File;
@@ -50,19 +50,17 @@ import java.util.Set;
  * {@link GradleClasspathContainer} to refresh all workspace projects that are part of the given
  * Gradle root project.
  */
-public final class RefreshGradleProjectJob extends WorkspaceJob {
+public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
 
     private final FixedRequestAttributes rootRequestAttributes;
-    private final CancellationTokenSource tokenSource;
 
     public RefreshGradleProjectJob(FixedRequestAttributes rootRequestAttributes) {
-        super("Reload root project at " + Preconditions.checkNotNull(rootRequestAttributes).getProjectDir().getAbsolutePath());
+        super("Reload root project at " + Preconditions.checkNotNull(rootRequestAttributes).getProjectDir().getAbsolutePath(), false);
         this.rootRequestAttributes = rootRequestAttributes;
-        this.tokenSource = GradleConnector.newCancellationTokenSource();
     }
 
     @Override
-    public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
+    protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
         monitor.beginTask("Reload projects and request project update", IProgressMonitor.UNKNOWN);
 
         // use the same rule as the ProjectImportJob to do the initialization
@@ -72,10 +70,6 @@ public final class RefreshGradleProjectJob extends WorkspaceJob {
         try {
             OmniEclipseGradleBuild result = forceReloadEclipseGradleBuild(this.rootRequestAttributes, monitor);
             synchronizeGradleProjectsWithWorkspace(result, monitor);
-            return Status.OK_STATUS;
-        } catch (Exception e) {
-            // todo (etst) should be error, handle exception like in ToolingApiInvoker
-            return new Status(IStatus.WARNING, CorePlugin.PLUGIN_ID, "refresh failed", e);
         } finally {
             manager.endRule(workspaceRoot);
             monitor.done();
@@ -86,7 +80,7 @@ public final class RefreshGradleProjectJob extends WorkspaceJob {
         ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
         ImmutableList<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
         TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), listeners,
-                ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), this.tokenSource.token());
+                ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
         ModelRepositoryProvider repository = CorePlugin.modelRepositoryProvider();
         return repository.getModelRepository(requestAttributes).fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FORCE_RELOAD);
     }
@@ -199,11 +193,6 @@ public final class RefreshGradleProjectJob extends WorkspaceJob {
         // associate with a family so we can cancel all builds of
         // this type at once through the Eclipse progress manager
         return RefreshGradleProjectJob.class.getName().equals(family);
-    }
-
-    @Override
-    protected void canceling() {
-        this.tokenSource.cancel();
     }
 
     private static void addProjectConfiguration(FixedRequestAttributes requestAttributes, OmniEclipseProject gradleProject, IProject project) {

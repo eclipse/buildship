@@ -40,7 +40,7 @@ import org.eclipse.buildship.core.projectimport.internal.DefaultProjectCreatedEv
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 /**
- * Defines how to materialize an Eclipse project based on a Gradle model.
+ * Defines how to materialize Eclipse workspace projects based on Gradle models.
  */
 public final class ProjectImporter {
 
