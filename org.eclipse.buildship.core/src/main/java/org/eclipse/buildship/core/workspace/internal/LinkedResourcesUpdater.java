@@ -39,7 +39,7 @@ import java.util.Set;
  *
  * Note that currently, we only include linked resources that are folders.
  */
-public final class LinkedResourcesUpdater {
+final class LinkedResourcesUpdater {
 
     // magic number to select folders when checking OmniEclipseLinkedResource#getType()
     private static final String LINKED_RESOURCE_TYPE_FOLDER = "2";
