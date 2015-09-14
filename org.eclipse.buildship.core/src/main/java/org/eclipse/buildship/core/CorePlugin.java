@@ -36,9 +36,7 @@ import org.eclipse.buildship.core.console.internal.StdProcessStreamsProvider;
 import org.eclipse.buildship.core.event.ListenerRegistry;
 import org.eclipse.buildship.core.event.internal.DefaultListenerRegistry;
 import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
-import org.eclipse.buildship.core.launch.LaunchConfigurationTools;
 import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager;
-import org.eclipse.buildship.core.launch.internal.EmptyLaunchConfigurationTools;
 import org.eclipse.buildship.core.notification.UserNotification;
 import org.eclipse.buildship.core.notification.internal.ConsoleUserNotification;
 import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
@@ -78,7 +76,6 @@ public final class CorePlugin extends Plugin {
     private ServiceRegistration gradleLaunchConfigurationService;
     private ServiceRegistration listenerRegistryService;
     private ServiceRegistration userNotificationService;
-    private ServiceRegistration launchConfigurationToolsService;
 
     // service tracker for each service to allow to register other service implementations of the
     // same type but with higher prioritization, useful for testing
@@ -92,7 +89,6 @@ public final class CorePlugin extends Plugin {
     private ServiceTracker gradleLaunchConfigurationServiceTracker;
     private ServiceTracker listenerRegistryServiceTracker;
     private ServiceTracker userNotificationServiceTracker;
-    private ServiceTracker launchConfigurationToolsServiceTracker;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
@@ -132,7 +128,6 @@ public final class CorePlugin extends Plugin {
         this.gradleLaunchConfigurationServiceTracker = createServiceTracker(context, GradleLaunchConfigurationManager.class);
         this.listenerRegistryServiceTracker = createServiceTracker(context, ListenerRegistry.class);
         this.userNotificationServiceTracker = createServiceTracker(context, UserNotification.class);
-        this.launchConfigurationToolsServiceTracker = createServiceTracker(context, LaunchConfigurationTools.class);
 
         // register all services
         this.loggerService = registerService(context, Logger.class, createLogger(), preferences);
@@ -145,7 +140,6 @@ public final class CorePlugin extends Plugin {
         this.gradleLaunchConfigurationService = registerService(context, GradleLaunchConfigurationManager.class, createGradleLaunchConfigurationManager(), preferences);
         this.listenerRegistryService = registerService(context, ListenerRegistry.class, createListenerRegistry(), preferences);
         this.userNotificationService = registerService(context, UserNotification.class, createUserNotification(), preferences);
-        this.launchConfigurationToolsService = registerService(context, LaunchConfigurationTools.class, createLaunchConfigurationTools(), preferences);
     }
 
     private ServiceTracker createServiceTracker(BundleContext context, Class<?> clazz) {
@@ -200,12 +194,7 @@ public final class CorePlugin extends Plugin {
         return new ConsoleUserNotification();
     }
 
-    private LaunchConfigurationTools createLaunchConfigurationTools() {
-        return new EmptyLaunchConfigurationTools();
-    }
-
     private void unregisterServices() {
-        this.launchConfigurationToolsService.unregister();
         this.userNotificationService.unregister();
         this.listenerRegistryService.unregister();
         this.gradleLaunchConfigurationService.unregister();
@@ -217,7 +206,6 @@ public final class CorePlugin extends Plugin {
         this.publishedGradleVersionsService.unregister();
         this.loggerService.unregister();
 
-        this.launchConfigurationToolsServiceTracker.close();
         this.userNotificationServiceTracker.close();
         this.listenerRegistryServiceTracker.close();
         this.gradleLaunchConfigurationServiceTracker.close();
@@ -272,10 +260,6 @@ public final class CorePlugin extends Plugin {
 
     public static UserNotification userNotification() {
         return (UserNotification) getInstance().userNotificationServiceTracker.getService();
-    }
-
-    public static LaunchConfigurationTools launchConfigurationTools() {
-        return (LaunchConfigurationTools) getInstance().launchConfigurationToolsServiceTracker.getService();
     }
 
 }

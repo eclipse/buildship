@@ -109,7 +109,7 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob {
         @Override
         public void rerun() {
             ILaunch launch = RunGradleBuildLaunchRequestJob.this.launch;
-            CorePlugin.launchConfigurationTools().launch(launch.getLaunchConfiguration(), launch.getLaunchMode());
+            CorePlugin.gradleLaunchConfigurationManager().launch(launch.getLaunchConfiguration(), launch.getLaunchMode());
         }
 
     }

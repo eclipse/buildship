@@ -14,6 +14,8 @@ package org.eclipse.buildship.core.launch.internal;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
@@ -93,6 +95,18 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
             String message = "Cannot get Gradle launch configurations.";
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
+        }
+    }
+
+    @Override
+    public void launch(ILaunchConfiguration configuration, String mode) {
+        try {
+            // launch the run configuration in headless mode
+            // if the UI plugin is activated, this implementation is replaced by the
+            // DebugUITools.launch(ILaunchConfiguration,String)
+            configuration.launch(mode, new NullProgressMonitor());
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(e);
         }
     }
 

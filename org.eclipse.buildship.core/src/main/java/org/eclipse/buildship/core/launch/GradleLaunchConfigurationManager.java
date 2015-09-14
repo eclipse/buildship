@@ -40,4 +40,12 @@ public interface GradleLaunchConfigurationManager {
      */
     ILaunchConfiguration getOrCreateRunConfiguration(GradleRunConfigurationAttributes configurationAttributes);
 
+    /**
+     * Launches the given target configuration.
+     *
+     * @param configuration the launch configuration to launch
+     * @param mode the target mode
+     */
+    void launch(ILaunchConfiguration configuration, String mode);
+
 }
