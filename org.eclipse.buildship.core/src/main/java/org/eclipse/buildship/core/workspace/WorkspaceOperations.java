@@ -116,13 +116,13 @@ public interface WorkspaceOperations {
     IJavaProject createJavaProject(IProject project, IPath jrePath, IProgressMonitor monitor);
 
     /**
-     * Refreshes project content to get it in sync with the file system.
+     * Refreshes the content of an existing {@link IProject} to get it in sync with the file system.
      * <p>
      * Useful to avoid having out-of-sync warnings showing up in the IDE.
      *
      * @param project the project to be refreshed
      * @param monitor the monitor to report progress on
      */
-    void refresh(IProject project, IProgressMonitor monitor);
+    void refreshProject(IProject project, IProgressMonitor monitor);
 
 }

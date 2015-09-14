@@ -322,7 +322,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
-    public void refresh(IProject project, IProgressMonitor monitor) {
+    public void refreshProject(IProject project, IProgressMonitor monitor) {
         // validate arguments
         Preconditions.checkNotNull(project);
         Preconditions.checkArgument(project.isAccessible(), "Project must be open.");

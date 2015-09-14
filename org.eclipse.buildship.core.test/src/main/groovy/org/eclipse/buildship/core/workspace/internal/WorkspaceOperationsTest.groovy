@@ -181,7 +181,7 @@ class WorkspaceOperationsTest extends Specification {
         project.isAccessible() >> true
 
         when:
-        workspaceOperations.refresh(project, new NullProgressMonitor())
+        workspaceOperations.refreshProject(project, new NullProgressMonitor())
 
         then:
         1 * project.refreshLocal(_, _)
@@ -193,7 +193,7 @@ class WorkspaceOperationsTest extends Specification {
         project.isAccessible() >> false
 
         when:
-        workspaceOperations.refresh(project, new NullProgressMonitor())
+        workspaceOperations.refreshProject(project, new NullProgressMonitor())
 
         then:
         thrown(IllegalArgumentException)
@@ -201,7 +201,7 @@ class WorkspaceOperationsTest extends Specification {
 
     def "Null project can't be refreshed"() {
         when:
-        workspaceOperations.refresh(null, new NullProgressMonitor())
+        workspaceOperations.refreshProject(null, new NullProgressMonitor())
 
         then:
         thrown(NullPointerException)
