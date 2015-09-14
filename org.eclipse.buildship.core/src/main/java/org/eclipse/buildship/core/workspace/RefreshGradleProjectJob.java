@@ -123,7 +123,7 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
                 IPath location = project.getLocation();
                 if (location != null) {
                     return !projectDirectories.contains(location.toFile()) && CorePlugin.projectConfigurationManager().readProjectConfiguration(project).getRequestAttributes()
-                            .equals(RefreshGradleProjectJob.this.rootRequestAttributes);
+                            .getProjectDir().equals(RefreshGradleProjectJob.this.rootRequestAttributes.getProjectDir());
                 } else {
                     return false;
                 }
