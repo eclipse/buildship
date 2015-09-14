@@ -54,12 +54,10 @@ public final class ClasspathContainerUpdater {
 
     private final IJavaProject eclipseProject;
     private final OmniEclipseProject gradleProject;
-    private final IPath classpathContainerPath;
 
-    private ClasspathContainerUpdater(IJavaProject eclipseProject, OmniEclipseProject gradleProject, IPath classpathContainerPath) {
+    private ClasspathContainerUpdater(IJavaProject eclipseProject, OmniEclipseProject gradleProject) {
         this.eclipseProject = Preconditions.checkNotNull(eclipseProject);
         this.gradleProject = Preconditions.checkNotNull(gradleProject);
-        this.classpathContainerPath = Preconditions.checkNotNull(classpathContainerPath);
     }
 
     private void updateClasspathContainer(IProgressMonitor monitor) throws JavaModelException {
@@ -106,7 +104,7 @@ public final class ClasspathContainerUpdater {
 
     private void setClasspathContainer(List<IClasspathEntry> classpathEntries, IProgressMonitor monitor) throws JavaModelException {
         IClasspathContainer classpathContainer = GradleClasspathContainer.newInstance(classpathEntries);
-        JavaCore.setClasspathContainer(this.classpathContainerPath, new IJavaProject[]{this.eclipseProject}, new IClasspathContainer[]{classpathContainer}, monitor);
+        JavaCore.setClasspathContainer(createContainerPath(), new IJavaProject[]{this.eclipseProject}, new IClasspathContainer[]{classpathContainer}, monitor);
     }
 
     /**
@@ -118,7 +116,7 @@ public final class ClasspathContainerUpdater {
      * @throws JavaModelException if the container assignment fails
      */
     public static void update(IJavaProject eclipseProject, OmniEclipseProject gradleProject, IProgressMonitor monitor) throws JavaModelException {
-        ClasspathContainerUpdater updater = new ClasspathContainerUpdater(eclipseProject, gradleProject, createContainerPath());
+        ClasspathContainerUpdater updater = new ClasspathContainerUpdater(eclipseProject, gradleProject);
         updater.updateClasspathContainer(monitor);
     }
 
