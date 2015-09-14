@@ -97,7 +97,6 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
     private void internalInitialize(IJavaProject javaProject, IProgressMonitor monitor, CancellationToken token) throws CoreException {
         IProject project = javaProject.getProject();
-        // update the source folders, classpath container, etc only if the Gradle nature is present on the project
         if (GradleProjectNature.INSTANCE.isPresentOn(project)) {
             Optional<OmniEclipseProject> gradleProject = findEclipseProject(project, monitor, token);
             monitor.worked(70);
@@ -116,7 +115,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
                 throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", project));
             }
         } else {
-            // if the project doesn't have Gradle nature, then set the classpath container to be empty
+            // update project/external dependencies to be empty
             ClasspathContainerUpdater.clear(javaProject, new SubProgressMonitor(monitor, 100));
         }
     }
