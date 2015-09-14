@@ -17,6 +17,7 @@ import org.gradle.tooling.events.FinishEvent;
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.ProgressEvent;
 import org.gradle.tooling.events.StartEvent;
+import org.gradle.tooling.events.test.JvmTestKind;
 import org.gradle.tooling.events.test.JvmTestOperationDescriptor;
 
 import com.google.common.base.Preconditions;
@@ -71,7 +72,10 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
         } else {
             operationItem.setFinishEvent((FinishEvent) progressEvent);
             this.updateDurationJob.removeOperationItem(operationItem);
-            if (removeTestClassWithoutMethods(descriptor, operationItem)) {
+            if (isJvmTestSuite(descriptor) && operationItem.getChildren().isEmpty()) {
+                // do not display test suite nodes that have no children (unwanted artifacts from Gradle)
+                OperationItem parentOperationItem = this.executionItemMap.get(findFirstNonExcludedParent(descriptor));
+                parentOperationItem.removeChild(operationItem);
                 return;
             }
         }
@@ -114,12 +118,10 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
         return descriptor.getParent();
     }
 
-    private boolean removeTestClassWithoutMethods(OperationDescriptor descriptor, OperationItem operationItem) {
+    private boolean isJvmTestSuite(OperationDescriptor descriptor) {
         if (descriptor instanceof JvmTestOperationDescriptor) {
             JvmTestOperationDescriptor testOperationDescriptor = (JvmTestOperationDescriptor) descriptor;
-            if (null == testOperationDescriptor.getMethodName() && operationItem.getChildren().isEmpty()) {
-                OperationItem parentExecutionItem = this.executionItemMap.get(findFirstNonExcludedParent(descriptor));
-                parentExecutionItem.removeChild(operationItem);
+            if (testOperationDescriptor.getJvmTestKind() == JvmTestKind.SUITE ) {
                 return true;
             }
         }
