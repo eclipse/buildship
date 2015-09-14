@@ -12,7 +12,7 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Ignore
 import spock.lang.Specification
 
-@Ignore
+
 class RunGradleBuildLaunchRequestJobTest extends Specification {
 
     @Rule
