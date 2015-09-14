@@ -71,6 +71,9 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
         } else {
             operationItem.setFinishEvent((FinishEvent) progressEvent);
             this.updateDurationJob.removeOperationItem(operationItem);
+            if (removeTestClassWithoutMethods(descriptor, operationItem)) {
+                return;
+            }
         }
 
         // configure the operation item based on the event details
@@ -109,6 +112,18 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
             descriptor = descriptor.getParent();
         }
         return descriptor.getParent();
+    }
+
+    private boolean removeTestClassWithoutMethods(OperationDescriptor descriptor, OperationItem operationItem) {
+        if (descriptor instanceof JvmTestOperationDescriptor) {
+            JvmTestOperationDescriptor testOperationDescriptor = (JvmTestOperationDescriptor) descriptor;
+            if (null == testOperationDescriptor.getMethodName() && operationItem.getChildren().isEmpty()) {
+                OperationItem parentExecutionItem = this.executionItemMap.get(findFirstNonExcludedParent(descriptor));
+                parentExecutionItem.removeChild(operationItem);
+                return true;
+            }
+        }
+        return false;
     }
 
     private void makeNodeVisible(final OperationItem operationItem) {
