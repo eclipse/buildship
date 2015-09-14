@@ -241,14 +241,14 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     }
 
     public FluentIterable<OperationItem> filterTreeNodes(Predicate<OperationItem> predicate) {
-        OperationItem input = (OperationItem) getPageControl().getViewer().getInput();
+        OperationItem root = (OperationItem) getPageControl().getViewer().getInput();
         return new TreeTraverser<OperationItem>() {
 
             @Override
-            public Iterable<OperationItem> children(OperationItem root) {
-                return root.getChildren();
+            public Iterable<OperationItem> children(OperationItem operationItem) {
+                return operationItem.getChildren();
             }
-        }.breadthFirstTraversal(input).filter(OperationItem.class).filter(predicate);
+        }.breadthFirstTraversal(root).filter(predicate);
     }
 
     @Override
