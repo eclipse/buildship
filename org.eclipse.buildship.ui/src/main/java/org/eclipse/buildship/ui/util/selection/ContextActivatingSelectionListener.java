@@ -50,9 +50,7 @@ public final class ContextActivatingSelectionListener implements ISelectionListe
     }
 
     private void activateContext() {
-        if (this.contextId != null) {
-            this.activation = this.contextService.activateContext(this.contextId);
-        }
+        this.activation = this.contextService.activateContext(this.contextId);
     }
 
     private void deactivateContext() {
