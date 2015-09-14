@@ -89,8 +89,8 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
     private void synchronizeGradleProjectsWithWorkspace(OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
         // collect added and removed projects
         List<OmniEclipseProject> allGradleProjects = gradleBuild.getRootEclipseProject().getAll();
-        List<IProject> oldWorkspaceProjects = collectWorkspaceProjectsRemovedFromGradle(allGradleProjects);
-        List<OmniEclipseProject> newGradleProjects = collectGradleProjectsNotExistInWorkspace(allGradleProjects);
+        List<IProject> oldWorkspaceProjects = collectWorkspaceProjectsRemovedFromGradleBuild(allGradleProjects);
+        List<OmniEclipseProject> newGradleProjects = collectGradleProjectsNotPresentInWorkspace(allGradleProjects);
 
         // remove old, add new and refresh existing workspace projects
         for (IProject oldProject : oldWorkspaceProjects) {
@@ -105,7 +105,7 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
         }
     }
 
-    private List<IProject> collectWorkspaceProjectsRemovedFromGradle(List<OmniEclipseProject> gradleProjects) {
+    private List<IProject> collectWorkspaceProjectsRemovedFromGradleBuild(List<OmniEclipseProject> gradleProjects) {
         // find all projects in the workspace that belong to the same Gradle project (based on the
         // FixedRequestAttributes) but no module matches with its location
         final Set<File> projectDirectories = FluentIterable.from(gradleProjects).transform(new Function<OmniEclipseProject, File>() {
@@ -131,7 +131,7 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
         }).toList();
     }
 
-    private List<OmniEclipseProject> collectGradleProjectsNotExistInWorkspace(List<OmniEclipseProject> gradleProjects) {
+    private List<OmniEclipseProject> collectGradleProjectsNotPresentInWorkspace(List<OmniEclipseProject> gradleProjects) {
         // collect all Gradle project which doesn't have a corresponding workspace project with the
         // same location
         return FluentIterable.from(gradleProjects).filter(new Predicate<OmniEclipseProject>() {
