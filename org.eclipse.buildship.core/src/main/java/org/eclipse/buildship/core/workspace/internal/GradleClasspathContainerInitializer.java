@@ -32,7 +32,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
@@ -48,7 +47,6 @@ import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
 /**
  * Initializes the classpath of each Eclipse workspace project that has a Gradle nature with the
@@ -112,7 +110,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
                     SourceFolderUpdater.update(javaProject, gradleProject.get().getSourceDirectories(), new SubProgressMonitor(monitor, 10));
 
                     // update project/external dependencies
-                    ClasspathContainerUpdater.update(javaProject, gradleProject.get(), new Path(GradleClasspathContainer.CONTAINER_ID), new SubProgressMonitor(monitor, 10));
+                    ClasspathContainerUpdater.update(javaProject, gradleProject.get(), new SubProgressMonitor(monitor, 10));
                 }
             } else {
                 throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", project));

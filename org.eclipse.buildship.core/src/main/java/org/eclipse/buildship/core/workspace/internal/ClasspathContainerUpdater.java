@@ -39,7 +39,7 @@ import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 /**
  * Updates the classpath container of the target project.
  * <p/>
- * The update is triggered via {@link #update(IJavaProject, OmniEclipseProject, IPath, org.eclipse.core.runtime.IProgressMonitor)}.
+ * The update is triggered via {@link #update(IJavaProject, OmniEclipseProject, IProgressMonitor)}.
  * The method executes synchronously and unprotected, without thread synchronization or job scheduling.
  * <p/>
  * The update logic composes a new classpath container containing all project and external
@@ -114,12 +114,11 @@ public final class ClasspathContainerUpdater {
      *
      * @param eclipseProject         the target project to update the classpath container on
      * @param gradleProject          the Gradle model to read the dependencies from
-     * @param classpathContainerPath the container path where to assign the classpath container entry
      * @param monitor                the monitor to report progress on
      * @throws JavaModelException if the container assignment fails
      */
-    public static void update(IJavaProject eclipseProject, OmniEclipseProject gradleProject, IPath classpathContainerPath, IProgressMonitor monitor) throws JavaModelException {
-        ClasspathContainerUpdater updater = new ClasspathContainerUpdater(eclipseProject, gradleProject, classpathContainerPath);
+    public static void update(IJavaProject eclipseProject, OmniEclipseProject gradleProject, IProgressMonitor monitor) throws JavaModelException {
+        ClasspathContainerUpdater updater = new ClasspathContainerUpdater(eclipseProject, gradleProject, new Path(GradleClasspathContainer.CONTAINER_ID));
         updater.updateClasspathContainer(monitor);
     }
 
