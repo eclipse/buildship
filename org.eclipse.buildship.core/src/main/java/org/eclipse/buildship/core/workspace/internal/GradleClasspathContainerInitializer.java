@@ -91,6 +91,8 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
                 } finally {
                     manager.endRule(workspaceRoot);
                 }
+
+                // monitor is closed by caller in super class
             }
         }.schedule();
     }
