@@ -40,7 +40,7 @@ import org.eclipse.buildship.core.projectimport.internal.DefaultProjectCreatedEv
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 /**
- * Defines how to materialize Eclipse workspace projects based on Gradle models.
+ * Imports a Gradle project as an Eclipse project into the current workspace.
  */
 public final class ProjectImporter {
 
@@ -60,19 +60,19 @@ public final class ProjectImporter {
      * @param workingSets the working set to assign the imported projects to
      * @param monitor the monitor to report the progress on
      */
-    public static void importProject(OmniEclipseProject gradleProject, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes fixedAttributes, List<String> workingSets,
-            IProgressMonitor monitor) {
+    public static void importProject(OmniEclipseProject gradleProject, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes fixedAttributes, List<String> workingSets, IProgressMonitor monitor) {
         monitor.beginTask("Import project " + gradleProject.getName(), 3);
         try {
-            // check if an Eclipse project already exists at the location of the Gradle project to
-            // import
+            // check if an Eclipse project already exists at the location of the Gradle project to import
             WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations();
             File projectDirectory = gradleProject.getProjectDirectory();
             Optional<IProjectDescription> projectDescription = workspaceOperations.findProjectInFolder(projectDirectory, new SubProgressMonitor(monitor, 1));
 
             // collect all the sub folders to hide under the project
-            List<File> filteredSubFolders = ImmutableList.<File>builder().addAll(collectChildProjectLocations(gradleProject)).add(getBuildDirectory(gradleBuild, gradleProject))
-                    .add(getDotGradleDirectory(gradleProject)).build();
+            List<File> filteredSubFolders = ImmutableList.<File>builder().
+                    addAll(collectChildProjectLocations(gradleProject)).
+                    add(getBuildDirectory(gradleBuild, gradleProject)).
+                    add(getDotGradleDirectory(gradleProject)).build();
             ImmutableList<String> gradleNature = ImmutableList.of(GradleProjectNature.ID);
 
             IProject workspaceProject;
@@ -81,11 +81,9 @@ public final class ProjectImporter {
                 workspaceProject = workspaceOperations.includeProject(projectDescription.get(), filteredSubFolders, gradleNature, new SubProgressMonitor(monitor, 2));
             } else {
                 // create a new Eclipse project in the workspace for the current Gradle project
-                workspaceProject = workspaceOperations
-                        .createProject(gradleProject.getName(), gradleProject.getProjectDirectory(), filteredSubFolders, gradleNature, new SubProgressMonitor(monitor, 1));
+                workspaceProject = workspaceOperations.createProject(gradleProject.getName(), gradleProject.getProjectDirectory(), filteredSubFolders, gradleNature, new SubProgressMonitor(monitor, 1));
 
-                // if the current Gradle project is a Java project, configure the Java nature, the
-                // classpath, and the source paths
+                // if the current Gradle project is a Java project, configure the Java nature, the classpath, and the source paths
                 if (isJavaProject(gradleProject)) {
                     IPath jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath();
                     workspaceOperations.createJavaProject(workspaceProject, jrePath, new SubProgressMonitor(monitor, 1));
