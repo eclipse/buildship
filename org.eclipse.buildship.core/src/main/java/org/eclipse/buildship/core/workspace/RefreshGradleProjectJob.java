@@ -93,7 +93,7 @@ public final class RefreshGradleProjectJob extends WorkspaceJob {
         manager.beginRule(workspaceRoot, monitor);
         try {
             OmniEclipseGradleBuild result = forceReloadEclipseGradleBuild(this.rootRequestAttributes, monitor);
-            synchronizeGradleProjectsWithWorkspace(result);
+            synchronizeGradleProjectsWithWorkspace(result, monitor);
             return Status.OK_STATUS;
         } catch (Exception e) {
             // todo (etst) should be error, handle exception like in ToolingApiInvoker
@@ -113,7 +113,7 @@ public final class RefreshGradleProjectJob extends WorkspaceJob {
         return repository.getModelRepository(requestAttributes).fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FORCE_RELOAD);
     }
 
-    private void synchronizeGradleProjectsWithWorkspace(OmniEclipseGradleBuild gradleBuild) {
+    private void synchronizeGradleProjectsWithWorkspace(OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
         // collect added and removed projects
         List<OmniEclipseProject> allGradleProjects = gradleBuild.getRootEclipseProject().getAll();
         List<IProject> oldWorkspaceProjects = collectWorkspaceProjectsRemovedFromGradle(allGradleProjects);
@@ -127,7 +127,7 @@ public final class RefreshGradleProjectJob extends WorkspaceJob {
             if (newGradleProjects.contains(gradleProject)) {
                 addProject(gradleProject, gradleBuild);
             } else {
-                updateProject(gradleProject);
+                updateProject(gradleProject,monitor);
             }
         }
     }
@@ -194,7 +194,7 @@ public final class RefreshGradleProjectJob extends WorkspaceJob {
         javaProject.getProject().build(IncrementalProjectBuilder.CLEAN_BUILD, null);
     }
 
-    private void updateProject(OmniEclipseProject gradleProject) {
+    private void updateProject(OmniEclipseProject gradleProject, IProgressMonitor monitor) {
         // todo (donat) the update mechanism should be extended to non-java projects too
         try {
             Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(gradleProject.getProjectDirectory());
@@ -203,7 +203,7 @@ public final class RefreshGradleProjectJob extends WorkspaceJob {
 
                 if (project.isAccessible() && !GradleProjectNature.INSTANCE.isPresentOn(project)) {
                     addProjectConfiguration(this.rootRequestAttributes, gradleProject, project);
-                    addNature(project, GradleProjectNature.ID);
+                    addNature(project, GradleProjectNature.ID, monitor);
                 }
 
                 if (project.hasNature(JavaCore.NATURE_ID)) {
@@ -240,7 +240,7 @@ public final class RefreshGradleProjectJob extends WorkspaceJob {
         }
     }
 
-    private static void addNature(IProject project, String natureId) throws CoreException {
+    private static void addNature(IProject project, String natureId, IProgressMonitor monitor) throws CoreException {
         // get the description
         IProjectDescription description = project.getDescription();
 
