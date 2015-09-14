@@ -39,7 +39,7 @@ import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 /**
  * Updates the classpath container of the target project.
  * <p/>
- * The update is triggered via {@link #update(IJavaProject, OmniEclipseProject, IPath, org.eclipse.core.runtime.IProgressMonitor)}.
+ * The update is triggered via {@link #update(IJavaProject, OmniEclipseProject, IProgressMonitor)}.
  * The method executes synchronously and unprotected, without thread synchronization or job scheduling.
  * <p/>
  * The update logic composes a new classpath container containing all project and external
@@ -54,12 +54,10 @@ public final class ClasspathContainerUpdater {
 
     private final IJavaProject eclipseProject;
     private final OmniEclipseProject gradleProject;
-    private final IPath classpathContainerPath;
 
-    private ClasspathContainerUpdater(IJavaProject eclipseProject, OmniEclipseProject gradleProject, IPath classpathContainerPath) {
+    private ClasspathContainerUpdater(IJavaProject eclipseProject, OmniEclipseProject gradleProject) {
         this.eclipseProject = Preconditions.checkNotNull(eclipseProject);
         this.gradleProject = Preconditions.checkNotNull(gradleProject);
-        this.classpathContainerPath = Preconditions.checkNotNull(classpathContainerPath);
     }
 
     private void updateClasspathContainer(IProgressMonitor monitor) throws JavaModelException {
@@ -106,7 +104,7 @@ public final class ClasspathContainerUpdater {
 
     private void setClasspathContainer(List<IClasspathEntry> classpathEntries, IProgressMonitor monitor) throws JavaModelException {
         IClasspathContainer classpathContainer = GradleClasspathContainer.newInstance(classpathEntries);
-        JavaCore.setClasspathContainer(this.classpathContainerPath, new IJavaProject[]{this.eclipseProject}, new IClasspathContainer[]{classpathContainer}, monitor);
+        JavaCore.setClasspathContainer(createContainerPath(), new IJavaProject[]{this.eclipseProject}, new IClasspathContainer[]{classpathContainer}, monitor);
     }
 
     /**
@@ -114,13 +112,28 @@ public final class ClasspathContainerUpdater {
      *
      * @param eclipseProject         the target project to update the classpath container on
      * @param gradleProject          the Gradle model to read the dependencies from
-     * @param classpathContainerPath the container path where to assign the classpath container entry
      * @param monitor                the monitor to report progress on
      * @throws JavaModelException if the container assignment fails
      */
-    public static void update(IJavaProject eclipseProject, OmniEclipseProject gradleProject, IPath classpathContainerPath, IProgressMonitor monitor) throws JavaModelException {
-        ClasspathContainerUpdater updater = new ClasspathContainerUpdater(eclipseProject, gradleProject, classpathContainerPath);
+    public static void update(IJavaProject eclipseProject, OmniEclipseProject gradleProject, IProgressMonitor monitor) throws JavaModelException {
+        ClasspathContainerUpdater updater = new ClasspathContainerUpdater(eclipseProject, gradleProject);
         updater.updateClasspathContainer(monitor);
+    }
+
+    /**
+     * Resolves the classpath container to an empty list.
+     *
+     * @param eclipseProject      the target project to update the classpath container on
+     * @param monitor             the monitor to report progress on
+     * @throws JavaModelException if the container assignment fails
+     */
+    public static void clear(IJavaProject eclipseProject, IProgressMonitor monitor) throws JavaModelException {
+        IClasspathContainer classpathContainer = GradleClasspathContainer.newInstance(ImmutableList.<IClasspathEntry>of());
+        JavaCore.setClasspathContainer(createContainerPath(), new IJavaProject[]{eclipseProject}, new IClasspathContainer[]{classpathContainer}, monitor);
+    }
+
+    private static Path createContainerPath() {
+        return new Path(GradleClasspathContainer.CONTAINER_ID);
     }
 
 }
