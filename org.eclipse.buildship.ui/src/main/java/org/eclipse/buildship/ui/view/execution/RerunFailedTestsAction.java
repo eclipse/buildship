@@ -94,7 +94,7 @@ public final class RerunFailedTestsAction extends Action {
             TestFinishEvent testFinishEvent = (TestFinishEvent) operationItem.getFinishEvent();
             if (testFinishEvent.getResult() instanceof TestFailureResult && testFinishEvent.getDescriptor() instanceof JvmTestOperationDescriptor) {
                 JvmTestOperationDescriptor descriptor = (JvmTestOperationDescriptor) testFinishEvent.getDescriptor();
-                if (descriptor.getJvmTestKind() == JvmTestKind.ATOMIC) {
+                if (descriptor.getJvmTestKind() == JvmTestKind.ATOMIC || descriptor.getJvmTestKind() == JvmTestKind.UNKNOWN) {
                     return true;
                 }
             }
