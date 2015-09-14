@@ -92,7 +92,7 @@ public interface WorkspaceOperations {
     IProject createProject(String name, File location, List<File> filteredSubFolders, List<String> natureIds, IProgressMonitor monitor);
 
     /**
-     * Includes an existing Eclipse project in the workspace. The project is also opened and the
+     * Includes an existing {@link IProject} in the workspace. The project is also opened and the
      * specified natures are added. The specified sub folders nested under the project's location
      * are hidden through a resource filter.
      *
@@ -106,7 +106,7 @@ public interface WorkspaceOperations {
     IProject includeProject(IProjectDescription description, List<File> filteredSubFolders, List<String> extraNatureIds, IProgressMonitor monitor);
 
     /**
-     * Configures an existing {@link IProject} to be a {@link IJavaProject}.
+     * Configures an existing {@link IProject} to also be an {@link IJavaProject}.
      *
      * @param project the project to turn into a Java project
      * @param jrePath the path of the Java runtime which will be added to the project
@@ -124,5 +124,13 @@ public interface WorkspaceOperations {
      * @param monitor the monitor to report progress on
      */
     void refreshProject(IProject project, IProgressMonitor monitor);
+
+    /**
+     * Adds the given nature to an existing {@link IProject}.
+     * @param project the project to which to add the nature
+     * @param natureId the nature to add
+     * @param monitor the monitor to report progress on
+     */
+    void addNature(IProject project, String natureId, IProgressMonitor monitor);
 
 }

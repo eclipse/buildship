@@ -11,22 +11,12 @@
 
 package org.eclipse.buildship.core.workspace;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
-import org.gradle.tooling.CancellationTokenSource;
-import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.ProgressListener;
-
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
@@ -35,27 +25,6 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
-
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.resources.WorkspaceJob;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.core.runtime.jobs.IJobManager;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.launching.JavaRuntime;
-
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
@@ -66,6 +35,21 @@ import org.eclipse.buildship.core.projectimport.ProjectCreatedEvent;
 import org.eclipse.buildship.core.projectimport.internal.DefaultProjectCreatedEvent;
 import org.eclipse.buildship.core.util.predicate.Predicates;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
+import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.IJobManager;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.launching.JavaRuntime;
+import org.gradle.tooling.CancellationTokenSource;
+import org.gradle.tooling.GradleConnector;
+import org.gradle.tooling.ProgressListener;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Forces the reload of the given Gradle root project and requests the
@@ -127,7 +111,7 @@ public final class RefreshGradleProjectJob extends WorkspaceJob {
             if (newGradleProjects.contains(gradleProject)) {
                 addProject(gradleProject, gradleBuild);
             } else {
-                updateProject(gradleProject,monitor);
+                updateProject(gradleProject, monitor);
             }
         }
     }
@@ -203,7 +187,7 @@ public final class RefreshGradleProjectJob extends WorkspaceJob {
 
                 if (project.isAccessible() && !GradleProjectNature.INSTANCE.isPresentOn(project)) {
                     addProjectConfiguration(this.rootRequestAttributes, gradleProject, project);
-                    addNature(project, GradleProjectNature.ID, monitor);
+                    CorePlugin.workspaceOperations().addNature(project, GradleProjectNature.ID, monitor);
                 }
 
                 if (project.hasNature(JavaCore.NATURE_ID)) {
@@ -240,24 +224,6 @@ public final class RefreshGradleProjectJob extends WorkspaceJob {
         }
     }
 
-    private static void addNature(IProject project, String natureId, IProgressMonitor monitor) throws CoreException {
-        // get the description
-        IProjectDescription description = project.getDescription();
-
-        // abort if the project already has the nature applied
-        List<String> currentNatureIds = ImmutableList.copyOf(description.getNatureIds());
-        if (currentNatureIds.contains(natureId)) {
-            return;
-        }
-
-        // add the nature to the project
-        ImmutableList<String> newIds = ImmutableList.<String>builder().addAll(currentNatureIds).add(natureId).build();
-        description.setNatureIds(newIds.toArray(new String[newIds.size()]));
-
-        // save the updated description
-        project.setDescription(description, null);
-    }
-
     private static void removeNature(IProject project, String natureId) throws CoreException {
         // get the description
         IProjectDescription description = project.getDescription();
@@ -279,7 +245,7 @@ public final class RefreshGradleProjectJob extends WorkspaceJob {
     // the code below is copied from ProjectImportJob without changing anything
 
     private static void importProject(OmniEclipseProject gradleProject, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes fixedAttributes, List<String> workingSets,
-            IProgressMonitor monitor) {
+                                      IProgressMonitor monitor) {
         monitor.beginTask("Import project " + gradleProject.getName(), 3);
         try {
             // check if an Eclipse project already exists at the location of the Gradle project to

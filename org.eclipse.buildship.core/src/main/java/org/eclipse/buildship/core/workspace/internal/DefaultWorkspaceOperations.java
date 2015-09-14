@@ -252,32 +252,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         }
     }
 
-    private void addNature(IProject project, String natureId, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Add nature %s to Eclipse project %s", natureId, project.getName()), 1);
-        try {
-            // get the description
-            IProjectDescription description = project.getDescription();
-
-            // abort if the project already has the nature applied
-            List<String> currentNatureIds = ImmutableList.copyOf(description.getNatureIds());
-            if (currentNatureIds.contains(natureId)) {
-                return;
-            }
-
-            // add the nature to the project
-            ImmutableList<String> newIds = ImmutableList.<String>builder().addAll(currentNatureIds).add(natureId).build();
-            description.setNatureIds(newIds.toArray(new String[newIds.size()]));
-
-            // save the updated description
-            project.setDescription(description, new SubProgressMonitor(monitor, 1));
-        } catch (CoreException e) {
-            String message = String.format("Cannot add nature %s to Eclipse project %s.", natureId, project.getName());
-            throw new GradlePluginsRuntimeException(message, e);
-        } finally {
-            monitor.done();
-        }
-    }
-
     private IFolder createOutputFolder(IProject project, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Create output folder for Eclipse project %s", project.getName()), 1);
         try {
@@ -358,6 +332,33 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         IPath rootLocationPath = workspace.getRoot().getLocation();
         IPath locationPath = Path.fromOSString(location.getPath());
         return rootLocationPath.equals(locationPath) || rootLocationPath.equals(locationPath.removeLastSegments(1));
+    }
+
+    @Override
+    public void addNature(IProject project, String natureId, IProgressMonitor monitor) {
+        monitor.beginTask(String.format("Add nature %s to Eclipse project %s", natureId, project.getName()), 1);
+        try {
+            // get the description
+            IProjectDescription description = project.getDescription();
+
+            // abort if the project already has the nature applied
+            List<String> currentNatureIds = ImmutableList.copyOf(description.getNatureIds());
+            if (currentNatureIds.contains(natureId)) {
+                return;
+            }
+
+            // add the nature to the project
+            ImmutableList<String> newIds = ImmutableList.<String>builder().addAll(currentNatureIds).add(natureId).build();
+            description.setNatureIds(newIds.toArray(new String[newIds.size()]));
+
+            // save the updated description
+            project.setDescription(description, new SubProgressMonitor(monitor, 1));
+        } catch (CoreException e) {
+            String message = String.format("Cannot add nature %s to Eclipse project %s.", natureId, project.getName());
+            throw new GradlePluginsRuntimeException(message, e);
+        } finally {
+            monitor.done();
+        }
     }
 
 }
