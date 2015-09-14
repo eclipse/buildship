@@ -143,6 +143,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         this.gradleVersionLabel = uiBuilderFactory.newLabel(gradleVersionContainer).alignLeft().disabled().font(this.valueFont).control();
         this.gradleVersionWarningLabel = uiBuilderFactory.newLabel(gradleVersionContainer).alignLeft().control();
         this.gradleVersionWarningLabel.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK));
+        this.gradleVersionWarningLabel.setCursor(gradleVersionContainer.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
         this.gradleVersionWarningLabel.setToolTipText(ProjectWizardMessages.Limitations_Tooltip);
         this.gradleVersionWarningLabel.addMouseListener(new MouseAdapter() {
 
@@ -188,6 +189,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         // create an info icon explaining that the preview can deviate from actual values
         Label previewStructureInfoLabel = uiBuilderFactory.newLabel(container).alignLeft().control();
         previewStructureInfoLabel.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_INFO_TSK));
+        previewStructureInfoLabel.setCursor(container.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
         previewStructureInfoLabel.setToolTipText(ProjectWizardMessages.PreviewStructureInfo_Tooltip);
         previewStructureInfoLabel.addMouseListener(new MouseAdapter() {
 
