@@ -152,9 +152,10 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
     }
 
     private void removeProject(IProject project, IProgressMonitor monitor) {
+        CorePlugin.workspaceOperations().removeNature(project, GradleProjectNature.ID, monitor);
+        CorePlugin.projectConfigurationManager().deleteProjectConfiguration(project);
+
         try {
-            CorePlugin.workspaceOperations().removeNature(project, GradleProjectNature.ID, monitor);
-            removeProjectConfiguration(project);
             if (project.hasNature(JavaCore.NATURE_ID)) {
                 IJavaProject javaProject = JavaCore.create(project);
                 GradleClasspathContainer.requestUpdateOf(javaProject);
@@ -162,13 +163,6 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
             }
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(e);
-        }
-    }
-
-    private void removeProjectConfiguration(IProject project) throws CoreException {
-        IFolder settingsFolder = project.getFolder(".settings");
-        if (settingsFolder.exists()) {
-            settingsFolder.delete(true, false, null);
         }
     }
 

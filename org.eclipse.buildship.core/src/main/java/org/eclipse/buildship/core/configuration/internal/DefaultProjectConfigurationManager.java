@@ -101,4 +101,9 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
         return this.projectConfigurationPersistence.readProjectConfiguration(workspaceProject);
     }
 
+    @Override
+    public void deleteProjectConfiguration(IProject workspaceProject) {
+        this.projectConfigurationPersistence.deleteProjectConfiguration(workspaceProject);
+    }
+
 }

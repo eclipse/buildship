@@ -51,4 +51,11 @@ public interface ProjectConfigurationManager {
      */
     ProjectConfiguration readProjectConfiguration(IProject workspaceProject);
 
+    /**
+     * Deletes the Gradle project configuration from the Eclipse project's <i>.settings</i> folder.
+     *
+     * @param workspaceProject the Eclipse project from which to delete the Gradle configuration
+     */
+    void deleteProjectConfiguration(IProject workspaceProject);
+
 }

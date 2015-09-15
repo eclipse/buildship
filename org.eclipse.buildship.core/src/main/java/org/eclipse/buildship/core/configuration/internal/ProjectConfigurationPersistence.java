@@ -36,6 +36,7 @@ import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 /**
  * Manages reading and writing of the Gradle-specific configuration of an Eclipse project.
@@ -149,6 +150,19 @@ final class ProjectConfigurationPersistence {
     @SuppressWarnings("unchecked")
     private Map<String, String> getProjectConfigForVersion(Map<String, Object> config) {
         return (Map<String, String>) config.get("1.0");
+    }
+
+    public void deleteProjectConfiguration(IProject workspaceProject) {
+        try {
+            IFile configFile = getConfigFile(workspaceProject);
+            if (configFile.exists()) {
+                configFile.delete(true, false, new NullProgressMonitor());
+            }
+        } catch (CoreException e) {
+            String message = String.format("Cannot delete Gradle configuration for project %s.", workspaceProject.getName());
+            CorePlugin.logger().error(message, e);
+            throw new GradlePluginsRuntimeException(message, e);
+        }
     }
 
 }
