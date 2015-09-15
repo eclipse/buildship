@@ -20,8 +20,14 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.ProjectConfiguration
+import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
+
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IProjectDescription
+import org.eclipse.core.resources.IWorkspace
+import org.eclipse.core.resources.ResourcesPlugin
 import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.core.runtime.SubProgressMonitor
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.launching.JavaRuntime
@@ -261,6 +267,98 @@ class WorkspaceOperationsTest extends Specification {
 
         then:
         thrown(NullPointerException)
+    }
+
+    //////////////////////////////////////////////
+    // tests for addNature() and removeNature() //
+    //////////////////////////////////////////////
+
+    def "Can add a nature to a project"() {
+        setup:
+        IProject sampleProject = createSampleProject()
+
+        when:
+        workspaceOperations.addNature(sampleProject, GradleProjectNature.ID, new NullProgressMonitor())
+
+        then:
+        sampleProject.hasNature(GradleProjectNature.ID)
+    }
+
+    def "Assigning a nature to a non-accessible project results in a runtime exception"() {
+        setup:
+        IProject sampleProject = createSampleProject()
+        sampleProject.close()
+
+        when:
+        workspaceOperations.addNature(sampleProject, GradleProjectNature.ID, new NullProgressMonitor())
+
+        then:
+        thrown(GradlePluginsRuntimeException)
+    }
+
+    def "Adding a project nature is idempotent"() {
+        setup:
+        IProject sampleProject = createSampleProject()
+
+        when:
+        workspaceOperations.addNature(sampleProject, GradleProjectNature.ID, new NullProgressMonitor())
+        workspaceOperations.addNature(sampleProject, GradleProjectNature.ID, new NullProgressMonitor())
+
+        then:
+        sampleProject.description.natureIds.findAll{ it == GradleProjectNature.ID }.size() == 1
+    }
+
+    def "Removing a nature which was not present on a project changes nothing"() {
+        setup:
+        IProject sampleProject = createSampleProject()
+        def originalNatureIds = sampleProject.description.natureIds
+
+        when:
+        workspaceOperations.removeNature(sampleProject, GradleProjectNature.ID, new NullProgressMonitor())
+
+        then:
+        !sampleProject.description.natureIds.is(originalNatureIds)
+        sampleProject.description.natureIds == originalNatureIds
+    }
+
+    def "Can remove a nature from  a project"() {
+        setup:
+        IProject sampleProject = createSampleProject()
+        workspaceOperations.addNature(sampleProject, JavaCore.NATURE_ID, new NullProgressMonitor())
+        workspaceOperations.addNature(sampleProject, GradleProjectNature.ID, new NullProgressMonitor())
+
+        expect:
+        sampleProject.description.natureIds.length == 2
+
+        when:
+        workspaceOperations.removeNature(sampleProject, GradleProjectNature.ID, new NullProgressMonitor())
+
+        then:
+        sampleProject.description.natureIds.length == 1
+        sampleProject.description.natureIds[0] == JavaCore.NATURE_ID
+    }
+
+    def "Removing a nature from a non-accessible project results in a runtime exception"() {
+        setup:
+        IProject sampleProject = createSampleProject()
+        sampleProject.close()
+
+        when:
+        workspaceOperations.removeNature(sampleProject, GradleProjectNature.ID, new NullProgressMonitor())
+
+        then:
+        thrown(GradlePluginsRuntimeException)
+    }
+
+    private def createSampleProject() {
+        File projectLocation = tempFolder.newFolder('sample-project')
+        IProjectDescription projectDescription = LegacyEclipseSpockTestHelper.workspace.newProjectDescription('sample-project')
+        projectDescription.setLocation(new org.eclipse.core.runtime.Path(projectLocation.absolutePath))
+        projectDescription.setComment(String.format("Project %s created by Buildship.", 'sample-project'))
+        IProject project = LegacyEclipseSpockTestHelper.workspace.root.getProject('sample-project')
+        project.create(projectDescription, new NullProgressMonitor())
+        project.open(new NullProgressMonitor())
+        project
     }
 
 }
