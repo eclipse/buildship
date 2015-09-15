@@ -47,20 +47,19 @@ public final class WorkspaceProjectModifier {
     }
 
     /**
-     * Imports a project into the workspace.
-     * <p/>
-     * If a model defines a project location which already contains an Eclipse project then the
-     * project is imported unchanged, only the {@link GradleProjectNature} is assigned to it and some
-     * resources filters are applied. Otherwise the project is fully populated from the model.
+     * Either creates a new, Gradle-aware project and attaches it to the workspace or, if an Eclipse project already
+     * exists at the given location, attaches the found project to the workspace. An existing Eclipse project is
+     * attached unchanged, only the {@link GradleProjectNature} is assigned to it and some resources filters are
+     * applied. Otherwise the project is fully populated from the model.
      *
      * @param gradleProject the model defining the project to import
      * @param gradleBuild the container of the model
      * @param fixedAttributes the preferences used to query the models
      * @param workingSets the working set to assign the imported projects to
      * @param monitor the monitor to report the progress on
-     * @throws IllegalStateException thrown if the project already exists in the workspace
+     * @throws IllegalStateException thrown if there is a project at the given location that is already attached to the workspace
      */
-    public static void attachNewOrExistingProjectToWorkspace(OmniEclipseProject gradleProject, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes fixedAttributes, List<String> workingSets, IProgressMonitor monitor) {
+    public static void attachNewGradleAwareProjectOrExistingProjectToWorkspace(OmniEclipseProject gradleProject, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes fixedAttributes, List<String> workingSets, IProgressMonitor monitor) {
         monitor.beginTask("Import project " + gradleProject.getName(), 3);
         try {
             // check if an Eclipse project already exists at the location of the Gradle project to import
@@ -130,6 +129,18 @@ public final class WorkspaceProjectModifier {
 
     private static boolean isJavaProject(OmniEclipseProject modelProject) {
         return !modelProject.getSourceDirectories().isEmpty();
+    }
+
+
+    /**
+     * Remove all Gradle specific parts from the given project.
+     *
+     * @param project the project from which to remove all Gradle specific parts
+     * @param monitor the monitor to report the progress on
+     */
+    public static void makeProjectGradleUnaware(IProject project, IProgressMonitor monitor) {
+        CorePlugin.workspaceOperations().removeNature(project, GradleProjectNature.ID, monitor);
+        CorePlugin.projectConfigurationManager().deleteProjectConfiguration(project);
     }
 
 }

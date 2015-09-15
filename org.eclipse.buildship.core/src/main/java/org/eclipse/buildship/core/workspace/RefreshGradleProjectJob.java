@@ -150,12 +150,11 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
     }
 
     private void removeProject(IProject project, IProgressMonitor monitor) {
-        CorePlugin.workspaceOperations().removeNature(project, GradleProjectNature.ID, monitor);
-        CorePlugin.projectConfigurationManager().deleteProjectConfiguration(project);
+        WorkspaceProjectModifier.makeProjectGradleUnaware(project, monitor);
     }
 
     private void addProject(OmniEclipseProject gradleProject, OmniEclipseGradleBuild eclipseGradleBuild, IProgressMonitor monitor) {
-        WorkspaceProjectModifier.attachNewOrExistingProjectToWorkspace(gradleProject, eclipseGradleBuild, this.rootRequestAttributes, ImmutableList.<String>of(), monitor);
+        WorkspaceProjectModifier.attachNewGradleAwareProjectOrExistingProjectToWorkspace(gradleProject, eclipseGradleBuild, this.rootRequestAttributes, ImmutableList.<String>of(), monitor);
     }
 
     private void updateProject(OmniEclipseProject gradleProject, IProgressMonitor monitor) {
