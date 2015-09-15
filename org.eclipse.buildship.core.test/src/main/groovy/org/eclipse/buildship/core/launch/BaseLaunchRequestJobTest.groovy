@@ -1,7 +1,7 @@
 package org.eclipse.buildship.core.launch
 
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest
-import com.gradleware.tooling.toolingclient.TestLaunchRequest;
+import com.gradleware.tooling.toolingclient.TestLaunchRequest
 import com.gradleware.tooling.toolingclient.ToolingClient
 import org.eclipse.buildship.core.console.ProcessStreams
 import org.eclipse.buildship.core.console.ProcessStreamsProvider
@@ -9,24 +9,27 @@ import org.eclipse.buildship.core.test.fixtures.TestEnvironment
 import org.eclipse.debug.core.ILaunch
 import org.eclipse.debug.core.ILaunchConfiguration
 
-import org.gradle.tooling.events.test.TestOperationDescriptor;
+import org.gradle.tooling.events.test.TestOperationDescriptor
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Ignore
 import spock.lang.Specification
 
-class RunGradleTestLaunchRequestJobTest extends Specification {
+class BaseLaunchRequestJobTest extends Specification {
 
     @Rule
     TemporaryFolder tempFolder
 
-    ToolingClient toolingClient
+    BuildLaunchRequest buildRequest
+    TestLaunchRequest testRequest
     ProcessStreamsProvider processStreamsProvider
 
     def setup() {
-        TestLaunchRequest request = Mock(TestLaunchRequest)
-        toolingClient = Mock(ToolingClient)
-        toolingClient.newTestLaunchRequest(_) >> request
+        buildRequest = Mock(BuildLaunchRequest)
+        testRequest = Mock(TestLaunchRequest)
+        ToolingClient toolingClient = Mock(ToolingClient)
+        toolingClient.newBuildLaunchRequest(_) >> buildRequest
+        toolingClient.newTestLaunchRequest(_) >> testRequest
 
         OutputStream configurationStream = Mock(OutputStream)
         ProcessStreams processStreams = Mock(ProcessStreams)
@@ -44,7 +47,20 @@ class RunGradleTestLaunchRequestJobTest extends Specification {
         TestEnvironment.cleanup()
     }
 
-    def "Job launches the Gradle test"() {
+    def "Job launches a Gradle build"() {
+        setup:
+        def job = new RunGradleBuildLaunchRequestJob(createLaunchMock())
+
+        when:
+        job.schedule()
+        job.join()
+
+        then:
+        job.getResult().isOK()
+        1 * buildRequest.executeAndWait()
+    }
+
+    def "Job launches a Gradle test"() {
         setup:
         def job = new RunGradleTestLaunchRequestJob(createTestOperationDescriptorsMock(), createRunConfigurationAttribuetesMock())
 
@@ -54,7 +70,7 @@ class RunGradleTestLaunchRequestJobTest extends Specification {
 
         then:
         job.getResult().isOK()
-        1 * toolingClient.newTestLaunchRequest(null).executeAndWait()
+        1 * testRequest.executeAndWait()
     }
 
     def "Job prints its configuration"() {
@@ -70,6 +86,13 @@ class RunGradleTestLaunchRequestJobTest extends Specification {
         1 * processStreamsProvider.createProcessStreams(null).getConfiguration().flush()
     }
 
+    private def createLaunchMock() {
+        def launchConfiguration = createLaunchConfigurationMock()
+        ILaunch launch = Mock(ILaunch)
+        launch.getLaunchConfiguration() >> launchConfiguration
+        launch
+    }
+
     private def createTestOperationDescriptorsMock() {
         TestOperationDescriptor descriptor = Mock(TestOperationDescriptor)
         descriptor.getName() >> 'testName'
@@ -78,6 +101,11 @@ class RunGradleTestLaunchRequestJobTest extends Specification {
     }
 
     private GradleRunConfigurationAttributes createRunConfigurationAttribuetesMock() {
+        def launchConfiguration = createLaunchConfigurationMock()
+        GradleRunConfigurationAttributes.from(launchConfiguration)
+    }
+
+    private def createLaunchConfigurationMock() {
         def launchConfiguration = Mock(ILaunchConfiguration)
         launchConfiguration.getName() >> 'name'
         launchConfiguration.getAttribute('tasks', _) >> ['clean', 'build']
@@ -85,7 +113,7 @@ class RunGradleTestLaunchRequestJobTest extends Specification {
         launchConfiguration.getAttribute('working_dir', _) >> tempFolder.newFolder().absolutePath
         launchConfiguration.getAttribute('arguments', _) >> []
         launchConfiguration.getAttribute('jvm_arguments', _) >> []
-        GradleRunConfigurationAttributes.from(launchConfiguration)
+        launchConfiguration
     }
 
 }
