@@ -1,10 +1,11 @@
 package org.eclipse.buildship.core.launch
 
-class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
-    def "Job launches a Gradle test"() {
+class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
+
+    def "Job launches a Gradle build"() {
         setup:
-        def job = new RunGradleTestLaunchRequestJob(createTestOperationDescriptorsMock(), createRunConfigurationAttribuetesMock())
+        def job = new RunGradleBuildLaunchRequestJob(createLaunchMock())
 
         when:
         job.schedule()
@@ -12,7 +13,7 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
         then:
         job.getResult().isOK()
-        1 * testRequest.executeAndWait()
+        1 * buildRequest.executeAndWait()
     }
 
     def "Job prints its configuration"() {
