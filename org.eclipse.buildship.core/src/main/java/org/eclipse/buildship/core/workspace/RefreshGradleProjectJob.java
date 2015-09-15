@@ -44,9 +44,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Forces the reload of the given Gradle root project and requests the
- * {@link GradleClasspathContainer} to refresh all workspace projects that are part of the given
- * Gradle root project.
+ * Forces the reload of the given Gradle (multi-)project and refreshes all affected workspace projects accordingly.
  */
 public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
 
