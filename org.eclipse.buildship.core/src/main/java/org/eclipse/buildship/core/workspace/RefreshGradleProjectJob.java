@@ -193,16 +193,16 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
         }
     }
 
+    private void addProjectConfiguration(FixedRequestAttributes requestAttributes, OmniEclipseProject gradleProject, IProject project) {
+        ProjectConfiguration configuration = ProjectConfiguration.from(requestAttributes, gradleProject);
+        CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, project);
+    }
+
     @Override
     public boolean belongsTo(Object family) {
         // associate with a family so we can cancel all builds of
         // this type at once through the Eclipse progress manager
         return RefreshGradleProjectJob.class.getName().equals(family);
-    }
-
-    private static void addProjectConfiguration(FixedRequestAttributes requestAttributes, OmniEclipseProject gradleProject, IProject project) {
-        ProjectConfiguration configuration = ProjectConfiguration.from(requestAttributes, gradleProject);
-        CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, project);
     }
 
 }
