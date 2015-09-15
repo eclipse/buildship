@@ -37,7 +37,6 @@ import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
-import org.eclipse.buildship.core.workspace.WorkspaceProjectModifier;
 
 /**
  * Imports a Gradle project into Eclipse using the project import coordinates given by a
@@ -79,7 +78,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
             OmniEclipseProject rootProject = eclipseGradleBuild.getRootEclipseProject();
             List<OmniEclipseProject> allProjects = rootProject.getAll();
             for (OmniEclipseProject project : allProjects) {
-                WorkspaceProjectModifier.attachNewGradleAwareProjectOrExistingProjectToWorkspace(project, eclipseGradleBuild, this.fixedAttributes, this.workingSets, new SubProgressMonitor(monitor, 50 / allProjects.size()));
+                CorePlugin.workspaceGradleOperations().attachNewGradleAwareProjectOrExistingProjectToWorkspace(project, eclipseGradleBuild, this.fixedAttributes, this.workingSets, new SubProgressMonitor(monitor, 50 / allProjects.size()));
             }
         } finally {
             manager.endRule(workspaceRoot);

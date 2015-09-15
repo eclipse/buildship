@@ -67,7 +67,7 @@ public final class RefreshJavaWorkspaceProjectJob extends ToolingApiWorkspaceJob
             monitor.worked(70);
             if (gradleProject.isPresent()) {
                 if (project.isAccessible()) {
-                    WorkspaceProjectModifier.updateProjectInWorkspace(project, gradleProject.get(), monitor);
+                    CorePlugin.workspaceGradleOperations().updateProjectInWorkspace(project, gradleProject.get(), monitor);
                 }
             } else {
                 throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", project));
