@@ -64,7 +64,7 @@ public final class RefreshGradleProjectsJob extends Job {
         final List<Throwable> errors = new CopyOnWriteArrayList<Throwable>();
         try {
             final CountDownLatch latch = new CountDownLatch(rootRequestAttributes.size());
-            for (final FixedRequestAttributes requestAttributes : rootRequestAttributes) {
+            for (FixedRequestAttributes requestAttributes : rootRequestAttributes) {
                 Job refreshJob = new RefreshGradleProjectJob(requestAttributes);
                 refreshJob.addJobChangeListener(new JobChangeAdapter() {
 
