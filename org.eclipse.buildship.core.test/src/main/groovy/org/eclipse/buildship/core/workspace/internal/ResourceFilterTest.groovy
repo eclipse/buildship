@@ -3,13 +3,19 @@ package org.eclipse.buildship.core.workspace.internal
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.util.file.FileUtils
+import org.eclipse.buildship.core.workspace.ProjectCreatedEvent;
 
 import org.eclipse.core.filesystem.EFS
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IProjectDescription
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceFilterDescription;
 import org.eclipse.core.resources.IWorkspace
 import org.eclipse.core.runtime.NullProgressMonitor
+
+import java.io.File;
+import java.util.List;
 
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -133,6 +139,38 @@ class ResourceFilterTest extends Specification {
         then:
         project.getFilters().length == 1
         (project.getFilters()[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('alpha')
+    }
+
+    def "Can remove a filter"() {
+        given:
+        projectFolder('filtered')
+
+        expect:
+        project.getFolder('filtered').exists()
+        workspace().validateFiltered(project.getFolder('filtered')).isOK()
+
+        when:
+        ResourceFilter.attachFilters(project, [ toFile(project.getFolder('filtered')) ], null)
+        ResourceFilter.detachAllFilters(project, null)
+
+        then:
+        workspace().validateFiltered(project.getFolder('filtered')).isOK()
+    }
+
+    def "Removing filter don't modify manually created filters"() {
+        given:
+        projectFolder('filtered')
+        int type = IResourceFilterDescription.EXCLUDE_ALL | IResourceFilterDescription.FOLDERS | IResourceFilterDescription.INHERITABLE;
+        def matchers = ResourceFilter.createMatchers(project, [project.getFolder('manuallyfiltered').getLocation().toFile()] as List)
+        project.createFilter(type, matchers[0],IResource.BACKGROUND_REFRESH,  null)
+
+        when:
+        ResourceFilter.attachFilters(project, [ toFile(project.getFolder('filtered')) ], null)
+        ResourceFilter.detachAllFilters(project, null)
+
+        then:
+        !workspace().validateFiltered(project.getFolder('manuallyfiltered')).isOK()
+        workspace().validateFiltered(project.getFolder('filtered')).isOK()
     }
 
     private def projectFolder(String path) {
