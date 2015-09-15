@@ -12,26 +12,48 @@
 package org.eclipse.buildship.ui.notification;
 
 import org.eclipse.swt.widgets.Shell;
-
-import org.eclipse.buildship.core.notification.UserNotification;
 import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.buildship.core.notification.UserNotification;
+
 /**
- * Implementation of the {@link UserNotification} interface that displays all notifications in a dialog.
+ * Implementation of the {@link UserNotification} interface that displays all notifications in a
+ * dialog.
  */
 public final class DialogUserNotification implements UserNotification {
 
+    private ExceptionDetailsDialog dialog;
+
     @Override
     public void errorOccurred(final String headline, final String message, final String details, final int severity, final Throwable throwable) {
-        PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+        // since the dialog is always accessed from the UI thread there is no need for
+        // further synchronization
+        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
             @Override
             public void run() {
                 Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
-                ExceptionDetailsDialog dialog = new ExceptionDetailsDialog(shell, headline,  message, details, severity, throwable);
-                dialog.open();
+                if (noDialogVisible()) {
+                    createAndOpenDialog(shell, headline, message, details, severity, throwable);
+                } else {
+                    addExceptionToDialog(throwable);
+                }
             }
         });
+    }
+
+    private boolean noDialogVisible() {
+        return dialog == null || dialog.getShell() == null || dialog.getShell().isDisposed();
+    }
+
+    private void createAndOpenDialog(Shell shell, final String title, final String message, final String details, final int severity, final Throwable throwable) {
+        dialog = new ExceptionDetailsDialog(shell, title, message, details, severity, throwable);
+        dialog.setBlockOnOpen(false);
+        dialog.open();
+    }
+
+    private void addExceptionToDialog(Throwable throwable) {
+        this.dialog.addException(throwable);
     }
 
 }

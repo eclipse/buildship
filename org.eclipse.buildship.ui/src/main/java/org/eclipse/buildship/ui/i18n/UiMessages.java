@@ -40,6 +40,8 @@ public final class UiMessages extends NLS {
 
     public static String Button_CopyFailuresToClipboard_Tooltip;
 
+    public static String Dialog_Title_Multiple_Error;
+
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, UiMessages.class);
