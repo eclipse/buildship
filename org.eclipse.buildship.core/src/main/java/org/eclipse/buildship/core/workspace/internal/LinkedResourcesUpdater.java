@@ -29,17 +29,11 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Updates the linked sources the target project.
- * <p/>
- * TODO (donat) Right now this class is called only on Java projects. But the concept of linked
- * resources is defined on all projects (~ on the IProject interface). Therefore the project update
- * functionality should be refactored such that all this class is executed on all projects, not just
- * on Java projects. Needs PR#140 to be merged before because it contains a
- * RefreshGradleClasspathContainerJob class where this class should be called.
+ * Updates the linked sources of the target project.
  *
  * Note that currently, we only include linked resources that are folders.
  */
-final class LinkedResourcesUpdater {
+public final class LinkedResourcesUpdater {
 
     // magic number to select folders when checking OmniEclipseLinkedResource#getType()
     private static final String LINKED_RESOURCE_TYPE_FOLDER = "2";

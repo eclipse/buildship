@@ -30,13 +30,13 @@ import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.util.predicate.Predicates;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
-
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
 import org.gradle.tooling.ProgressListener;
 
 import java.io.File;
@@ -158,26 +158,14 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
     }
 
     private void updateProject(OmniEclipseProject gradleProject, IProgressMonitor monitor) {
-        // todo (donat) the update mechanism should be extended to non-java projects too
         IProject project = CorePlugin.workspaceOperations().findProjectByLocation(gradleProject.getProjectDirectory()).get();
-
-        if (project.isAccessible() && !GradleProjectNature.INSTANCE.isPresentOn(project)) {
-            ProjectConfiguration configuration = ProjectConfiguration.from(this.rootRequestAttributes, gradleProject);
-            CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, project);
-            CorePlugin.workspaceOperations().addNature(project, GradleProjectNature.ID, monitor);
-        }
-
-        if (hasJavaNature(project)) {
-            IJavaProject javaProject = JavaCore.create(project);
-            GradleClasspathContainer.requestUpdateOf(javaProject);
-        }
-    }
-
-    private boolean hasJavaNature(IProject project) {
-        try {
-            return project.hasNature(JavaCore.NATURE_ID);
-        } catch (CoreException e) {
-            return false;
+        if (project.isAccessible()) {
+            if (!GradleProjectNature.INSTANCE.isPresentOn(project)) {
+                ProjectConfiguration configuration = ProjectConfiguration.from(this.rootRequestAttributes, gradleProject);
+                CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, project);
+                CorePlugin.workspaceOperations().addNature(project, GradleProjectNature.ID, monitor);
+            }
+            WorkspaceProjectModifier.updateProjectInWorkspace(project, gradleProject, monitor);
         }
     }
 

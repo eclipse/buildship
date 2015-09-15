@@ -47,6 +47,7 @@ import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
+import org.eclipse.buildship.core.workspace.WorkspaceProjectModifier;
 
 /**
  * Initializes the classpath of each Eclipse workspace project that has a Gradle nature with the
@@ -104,14 +105,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
             monitor.worked(70);
             if (gradleProject.isPresent()) {
                 if (project.isAccessible()) {
-                    // update linked resources
-                    LinkedResourcesUpdater.update(project, gradleProject.get().getLinkedResources(), new SubProgressMonitor(monitor, 10));
-
-                    // update the sources
-                    SourceFolderUpdater.update(javaProject, gradleProject.get().getSourceDirectories(), new SubProgressMonitor(monitor, 10));
-
-                    // update project/external dependencies
-                    ClasspathContainerUpdater.update(javaProject, gradleProject.get(), new SubProgressMonitor(monitor, 10));
+                    WorkspaceProjectModifier.updateProjectInWorkspace(project, gradleProject.get(), monitor);
                 }
             } else {
                 throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", project));
@@ -124,7 +118,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
     private Optional<OmniEclipseProject> findEclipseProject(IProject project, IProgressMonitor monitor, CancellationToken token) {
         ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
-        OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(configuration.getRequestAttributes(),monitor, token);
+        OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(configuration.getRequestAttributes(), monitor, token);
         return eclipseGradleBuild.getRootEclipseProject().tryFind(Specs.eclipseProjectMatchesProjectPath(configuration.getProjectPath()));
     }
 
