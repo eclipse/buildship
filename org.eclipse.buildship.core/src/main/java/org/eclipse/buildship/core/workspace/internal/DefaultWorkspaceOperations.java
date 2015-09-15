@@ -187,7 +187,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         Preconditions.checkState(!findProjectByName(projectName).isPresent(), String.format("Workspace already contains project with name %s.", projectName));
 
         monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
-        monitor.beginTask(String.format("Include existing Eclipse project %s", projectDescription.getName()), 2 + extraNatureIds.size());
+        monitor.beginTask(String.format("Include existing non-workspace Eclipse project %s", projectName), 3 + extraNatureIds.size());
         try {
             // include the project in the workspace
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
