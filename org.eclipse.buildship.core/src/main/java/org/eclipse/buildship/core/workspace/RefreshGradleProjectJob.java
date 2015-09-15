@@ -155,7 +155,7 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
     }
 
     private void addProject(OmniEclipseProject gradleProject, OmniEclipseGradleBuild eclipseGradleBuild, IProgressMonitor monitor) {
-        ProjectImporter.importProject(gradleProject, eclipseGradleBuild, this.rootRequestAttributes, ImmutableList.<String>of(), monitor);
+        WorkspaceProjectModifier.attachNewOrExistingProjectToWorkspace(gradleProject, eclipseGradleBuild, this.rootRequestAttributes, ImmutableList.<String>of(), monitor);
     }
 
     private void updateProject(OmniEclipseProject gradleProject, IProgressMonitor monitor) {

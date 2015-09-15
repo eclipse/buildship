@@ -41,25 +41,26 @@ import org.eclipse.buildship.core.workspace.internal.DefaultProjectCreatedEvent;
 /**
  * Imports a Gradle project as an Eclipse project into the current workspace.
  */
-public final class ProjectImporter {
+public final class WorkspaceProjectModifier {
 
-    private ProjectImporter() {
+    private WorkspaceProjectModifier() {
     }
 
     /**
      * Imports a project into the workspace.
      * <p/>
      * If a model defines a project location which already contains an Eclipse project then the
-     * project is imported unchanged, only the {@link GradleProjectNature} is assigned to it.
-     * Otherwise a project is fully populated from the model.
+     * project is imported unchanged, only the {@link GradleProjectNature} is assigned to it and some
+     * resources filters are applied. Otherwise the project is fully populated from the model.
      *
      * @param gradleProject the model defining the project to import
      * @param gradleBuild the container of the model
      * @param fixedAttributes the preferences used to query the models
      * @param workingSets the working set to assign the imported projects to
      * @param monitor the monitor to report the progress on
+     * @throws IllegalStateException thrown if the project already exists in the workspace
      */
-    public static void importProject(OmniEclipseProject gradleProject, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes fixedAttributes, List<String> workingSets, IProgressMonitor monitor) {
+    public static void attachNewOrExistingProjectToWorkspace(OmniEclipseProject gradleProject, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes fixedAttributes, List<String> workingSets, IProgressMonitor monitor) {
         monitor.beginTask("Import project " + gradleProject.getName(), 3);
         try {
             // check if an Eclipse project already exists at the location of the Gradle project to import
