@@ -58,7 +58,7 @@ import org.eclipse.buildship.core.util.file.FileUtils;
  * such that subsequent updates will consider it coming from the Gradle model.
  * </ul>
  */
-public final class SourceFolderUpdater {
+final class SourceFolderUpdater {
 
     private static final String CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL = "FROM_GRADLE_MODEL";
 
