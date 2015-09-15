@@ -41,6 +41,7 @@ import org.eclipse.buildship.core.notification.UserNotification;
 import org.eclipse.buildship.core.notification.internal.ConsoleUserNotification;
 import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.util.logging.EclipseLogger;
+import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 import org.eclipse.buildship.core.workspace.internal.DefaultWorkspaceOperations;
 
@@ -76,6 +77,7 @@ public final class CorePlugin extends Plugin {
     private ServiceRegistration gradleLaunchConfigurationService;
     private ServiceRegistration listenerRegistryService;
     private ServiceRegistration userNotificationService;
+    private ServiceRegistration workspaceGradleOperationsService;
 
     // service tracker for each service to allow to register other service implementations of the
     // same type but with higher prioritization, useful for testing
@@ -89,6 +91,7 @@ public final class CorePlugin extends Plugin {
     private ServiceTracker gradleLaunchConfigurationServiceTracker;
     private ServiceTracker listenerRegistryServiceTracker;
     private ServiceTracker userNotificationServiceTracker;
+    private ServiceTracker workspaceGradleOperationsServiceTracker;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
@@ -128,6 +131,7 @@ public final class CorePlugin extends Plugin {
         this.gradleLaunchConfigurationServiceTracker = createServiceTracker(context, GradleLaunchConfigurationManager.class);
         this.listenerRegistryServiceTracker = createServiceTracker(context, ListenerRegistry.class);
         this.userNotificationServiceTracker = createServiceTracker(context, UserNotification.class);
+        this.workspaceGradleOperationsServiceTracker = createServiceTracker(context, WorkspaceGradleOperations.class);
 
         // register all services
         this.loggerService = registerService(context, Logger.class, createLogger(), preferences);
@@ -140,6 +144,7 @@ public final class CorePlugin extends Plugin {
         this.gradleLaunchConfigurationService = registerService(context, GradleLaunchConfigurationManager.class, createGradleLaunchConfigurationManager(), preferences);
         this.listenerRegistryService = registerService(context, ListenerRegistry.class, createListenerRegistry(), preferences);
         this.userNotificationService = registerService(context, UserNotification.class, createUserNotification(), preferences);
+        this.workspaceGradleOperationsService = registerService(context, WorkspaceGradleOperations.class, createWorkspaceGradleOperations(), preferences);
     }
 
     private ServiceTracker createServiceTracker(BundleContext context, Class<?> clazz) {
@@ -194,7 +199,13 @@ public final class CorePlugin extends Plugin {
         return new ConsoleUserNotification();
     }
 
+    private WorkspaceGradleOperations createWorkspaceGradleOperations() {
+        // TODO instantiate actual implementation
+        return new WorkspaceGradleOperations() { };
+    }
+
     private void unregisterServices() {
+        this.workspaceGradleOperationsService.unregister();
         this.userNotificationService.unregister();
         this.listenerRegistryService.unregister();
         this.gradleLaunchConfigurationService.unregister();
@@ -206,6 +217,7 @@ public final class CorePlugin extends Plugin {
         this.publishedGradleVersionsService.unregister();
         this.loggerService.unregister();
 
+        this.workspaceGradleOperationsServiceTracker.close();
         this.userNotificationServiceTracker.close();
         this.listenerRegistryServiceTracker.close();
         this.gradleLaunchConfigurationServiceTracker.close();
@@ -260,6 +272,10 @@ public final class CorePlugin extends Plugin {
 
     public static UserNotification userNotification() {
         return (UserNotification) getInstance().userNotificationServiceTracker.getService();
+    }
+
+    public static WorkspaceGradleOperations workspaceGradleOperations() {
+        return (WorkspaceGradleOperations) getInstance().workspaceGradleOperationsServiceTracker.getService();
     }
 
 }
