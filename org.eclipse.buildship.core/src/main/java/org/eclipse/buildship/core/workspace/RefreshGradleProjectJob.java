@@ -24,7 +24,6 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
@@ -162,29 +161,26 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
 
     private void updateProject(OmniEclipseProject gradleProject, IProgressMonitor monitor) {
         // todo (donat) the update mechanism should be extended to non-java projects too
-        try {
-            Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(gradleProject.getProjectDirectory());
-            if (workspaceProject.isPresent()) {
-                IProject project = workspaceProject.get();
+        IProject project = CorePlugin.workspaceOperations().findProjectByLocation(gradleProject.getProjectDirectory()).get();
 
-                if (project.isAccessible() && !GradleProjectNature.INSTANCE.isPresentOn(project)) {
-                    addProjectConfiguration(this.rootRequestAttributes, gradleProject, project);
-                    CorePlugin.workspaceOperations().addNature(project, GradleProjectNature.ID, monitor);
-                }
+        if (project.isAccessible() && !GradleProjectNature.INSTANCE.isPresentOn(project)) {
+            ProjectConfiguration configuration = ProjectConfiguration.from(this.rootRequestAttributes, gradleProject);
+            CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, project);
+            CorePlugin.workspaceOperations().addNature(project, GradleProjectNature.ID, monitor);
+        }
 
-                if (project.hasNature(JavaCore.NATURE_ID)) {
-                    IJavaProject javaProject = JavaCore.create(project);
-                    GradleClasspathContainer.requestUpdateOf(javaProject);
-                }
-            }
-        } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(e);
+        if (hasJavaNature(project)) {
+            IJavaProject javaProject = JavaCore.create(project);
+            GradleClasspathContainer.requestUpdateOf(javaProject);
         }
     }
 
-    private void addProjectConfiguration(FixedRequestAttributes requestAttributes, OmniEclipseProject gradleProject, IProject project) {
-        ProjectConfiguration configuration = ProjectConfiguration.from(requestAttributes, gradleProject);
-        CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, project);
+    private boolean hasJavaNature(IProject project) {
+        try {
+            return project.hasNature(JavaCore.NATURE_ID);
+        } catch (CoreException e) {
+            return false;
+        }
     }
 
     @Override
