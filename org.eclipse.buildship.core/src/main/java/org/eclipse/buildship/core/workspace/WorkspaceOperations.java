@@ -117,7 +117,7 @@ public interface WorkspaceOperations {
 
     /**
      * Refreshes the content of an existing {@link IProject} to get it in sync with the file system.
-     * <p>
+     *
      * Useful to avoid having out-of-sync warnings showing up in the IDE.
      *
      * @param project the project to be refreshed
@@ -127,6 +127,7 @@ public interface WorkspaceOperations {
 
     /**
      * Adds the given nature to an existing {@link IProject}.
+     *
      * @param project the project to which to add the nature
      * @param natureId the nature to add
      * @param monitor the monitor to report progress on

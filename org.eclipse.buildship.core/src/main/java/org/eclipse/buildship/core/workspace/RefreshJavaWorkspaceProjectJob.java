@@ -21,7 +21,6 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
@@ -78,11 +77,9 @@ public final class RefreshJavaWorkspaceProjectJob extends ToolingApiWorkspaceJob
             Optional<OmniEclipseProject> gradleProject = findEclipseProject(project, monitor, token);
             monitor.worked(70);
             if (gradleProject.isPresent()) {
-                if (project.isAccessible()) {
-                    CorePlugin.workspaceGradleOperations().updateProjectInWorkspace(project, gradleProject.get(), monitor);
-                }
+                CorePlugin.workspaceGradleOperations().updateProjectInWorkspace(project, gradleProject.get(), monitor);
             } else {
-                throw new GradlePluginsRuntimeException(String.format("Cannot find Eclipse project model for project %s.", project));
+                CorePlugin.workspaceGradleOperations().makeProjectGradleUnaware(project, monitor);
             }
         } else {
             // update project/external dependencies to be empty
