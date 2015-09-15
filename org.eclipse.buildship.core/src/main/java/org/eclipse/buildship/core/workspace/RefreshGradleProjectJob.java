@@ -154,17 +154,6 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
     private void removeProject(IProject project, IProgressMonitor monitor) {
         CorePlugin.workspaceOperations().removeNature(project, GradleProjectNature.ID, monitor);
         CorePlugin.projectConfigurationManager().deleteProjectConfiguration(project);
-
-        try {
-            if (project.hasNature(JavaCore.NATURE_ID)) {
-                IJavaProject javaProject = JavaCore.create(project);
-                GradleClasspathContainer.requestUpdateOf(javaProject);
-                // when a workspace project is excluded and included multiple times, JDT throws an exception, unless a project is cleaned
-                javaProject.getProject().build(IncrementalProjectBuilder.CLEAN_BUILD, null);
-            }
-        } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(e);
-        }
     }
 
     private void addProject(OmniEclipseProject gradleProject, OmniEclipseGradleBuild eclipseGradleBuild, IProgressMonitor monitor) {
