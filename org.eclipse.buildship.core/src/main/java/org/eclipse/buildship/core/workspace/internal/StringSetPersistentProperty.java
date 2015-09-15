@@ -65,7 +65,7 @@ public final class StringSetPersistentProperty {
     }
 
     /**
-     * Returns the set of strings from the resource
+     * Returns the set of strings from the resource.
      *
      * @return the string set
      */
