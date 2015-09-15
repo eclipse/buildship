@@ -133,19 +133,20 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
             public boolean apply(IProject project) {
                 ProjectConfiguration projectConfiguration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
                 return projectConfiguration.getRequestAttributes().getProjectDir().equals(RefreshGradleProjectJob.this.rootRequestAttributes.getProjectDir()) &&
-                        !gradleProjectDirectories.contains(projectConfiguration.getProjectDir());
+                        (project.getLocation() != null && !gradleProjectDirectories.contains(project.getLocation().toFile()));
             }
         }).toList();
     }
 
     private List<OmniEclipseProject> collectGradleProjectsNotPresentInWorkspace(List<OmniEclipseProject> gradleProjects) {
-        // collect all Gradle project which doesn't have a corresponding workspace project with the
-        // same location
+        // from all Gradle projects that belong to the Gradle build, collect those which
+        // don't have a corresponding workspace project with the same location
         return FluentIterable.from(gradleProjects).filter(new Predicate<OmniEclipseProject>() {
 
             @Override
             public boolean apply(OmniEclipseProject gradleProject) {
-                return !CorePlugin.workspaceOperations().findProjectByLocation(gradleProject.getProjectDirectory()).isPresent();
+                Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(gradleProject.getProjectDirectory());
+                return !workspaceProject.isPresent();
             }
         }).toList();
     }
