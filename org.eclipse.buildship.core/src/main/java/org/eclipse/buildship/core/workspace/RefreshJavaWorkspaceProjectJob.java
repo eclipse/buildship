@@ -74,7 +74,8 @@ public final class RefreshJavaWorkspaceProjectJob extends ToolingApiWorkspaceJob
     private void synchronizeWorkspaceProject(IJavaProject javaProject, IProgressMonitor monitor, CancellationToken token) throws CoreException {
         IProject project = javaProject.getProject();
         if (GradleProjectNature.INSTANCE.isPresentOn(project)) {
-            Optional<OmniEclipseProject> gradleProject = findEclipseProject(project, monitor, token);
+            // find the Gradle project corresponding to the workspace project ad update it accordingly
+            Optional<OmniEclipseProject> gradleProject = findEclipseGradleProject(project, monitor, token);
             monitor.worked(50);
             if (gradleProject.isPresent()) {
                 CorePlugin.workspaceGradleOperations().updateProjectInWorkspace(project, gradleProject.get(), new SubProgressMonitor(monitor, 50));
@@ -82,12 +83,12 @@ public final class RefreshJavaWorkspaceProjectJob extends ToolingApiWorkspaceJob
                 CorePlugin.workspaceGradleOperations().makeProjectGradleUnaware(project, new SubProgressMonitor(monitor, 50));
             }
         } else {
-            // update project/external dependencies to be empty
+            // in case the Gradle specifics have been removed in the previous Eclipse session, update project/external dependencies to be empty
             ClasspathContainerUpdater.clear(javaProject, new SubProgressMonitor(monitor, 100));
         }
     }
 
-    private Optional<OmniEclipseProject> findEclipseProject(IProject project, IProgressMonitor monitor, CancellationToken token) {
+    private Optional<OmniEclipseProject> findEclipseGradleProject(IProject project, IProgressMonitor monitor, CancellationToken token) {
         ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
         OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(configuration.getRequestAttributes(), monitor, token);
         return eclipseGradleBuild.getRootEclipseProject().tryFind(Specs.eclipseProjectMatchesProjectPath(configuration.getProjectPath()));
