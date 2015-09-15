@@ -156,11 +156,11 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             IProject project = workspace.getRoot().getProject(projectName);
             project.create(projectDescription, new SubProgressMonitor(monitor, 1));
 
-            // attach filters to the project
-            ResourceFilter.attachFilters(project, filteredSubFolders, new SubProgressMonitor(monitor, 1));
-
             // open the project
             project.open(new SubProgressMonitor(monitor, 1));
+
+            // attach filters to the project
+            ResourceFilter.attachFilters(project, filteredSubFolders, new SubProgressMonitor(monitor, 1));
 
             // add project natures separately to trigger IProjectNature#configure
             // the project needs to be open while the natures are added
@@ -194,11 +194,11 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             IProject project = workspace.getRoot().getProject(projectName);
             project.create(projectDescription, new SubProgressMonitor(monitor, 1));
 
-            // attach filters to the project
-            ResourceFilter.attachFilters(project, filteredSubFolders, new SubProgressMonitor(monitor, 1));
-
             // open the project
             project.open(new SubProgressMonitor(monitor, 1));
+
+            // attach filters to the project
+            ResourceFilter.attachFilters(project, filteredSubFolders, new SubProgressMonitor(monitor, 1));
 
             // add project natures separately to trigger IProjectNature#configure
             // the project needs to be open while the natures are added
