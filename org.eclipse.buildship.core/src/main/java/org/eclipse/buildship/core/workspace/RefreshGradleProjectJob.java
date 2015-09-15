@@ -116,9 +116,9 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
     }
 
     private List<IProject> collectWorkspaceProjectsRemovedFromGradleBuild(List<OmniEclipseProject> gradleProjects) {
-        // find all projects in the workspace that belong to the same Gradle project (based on the
-        // FixedRequestAttributes) but no module matches with its location
-        final Set<File> projectDirectories = FluentIterable.from(gradleProjects).transform(new Function<OmniEclipseProject, File>() {
+        // in the workspace, find all projects with a Gradle nature that belong to the same Gradle build (based on the root project directory) but
+        // which do not match the location of one of the Gradle projects of that build
+        final Set<File> gradleProjectDirectories = FluentIterable.from(gradleProjects).transform(new Function<OmniEclipseProject, File>() {
 
             @Override
             public File apply(OmniEclipseProject gradleProject) {
@@ -126,17 +126,14 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
             }
         }).toSet();
 
-        return FluentIterable.from(CorePlugin.workspaceOperations().getAllProjects()).filter(Predicates.accessibleGradleProject()).filter(new Predicate<IProject>() {
+        ImmutableList<IProject> allWorkspaceProjects = CorePlugin.workspaceOperations().getAllProjects();
+        return FluentIterable.from(allWorkspaceProjects).filter(Predicates.accessibleGradleProject()).filter(new Predicate<IProject>() {
 
             @Override
             public boolean apply(IProject project) {
-                IPath location = project.getLocation();
-                if (location != null) {
-                    return !projectDirectories.contains(location.toFile()) && CorePlugin.projectConfigurationManager().readProjectConfiguration(project).getRequestAttributes()
-                            .getProjectDir().equals(RefreshGradleProjectJob.this.rootRequestAttributes.getProjectDir());
-                } else {
-                    return false;
-                }
+                ProjectConfiguration projectConfiguration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
+                return projectConfiguration.getRequestAttributes().getProjectDir().equals(RefreshGradleProjectJob.this.rootRequestAttributes.getProjectDir()) &&
+                        !gradleProjectDirectories.contains(projectConfiguration.getProjectDir());
             }
         }).toList();
     }
