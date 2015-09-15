@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
- * Class defining how to store a set of strings on an {@link IResource} instance using persistent
+ * Class defining how to store a set of strings on an {@link IResource} instance using persistent.
  * properties.
  *
  * @see IResource#getPersistentProperties()
