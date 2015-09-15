@@ -75,11 +75,11 @@ public final class RefreshJavaWorkspaceProjectJob extends ToolingApiWorkspaceJob
         IProject project = javaProject.getProject();
         if (GradleProjectNature.INSTANCE.isPresentOn(project)) {
             Optional<OmniEclipseProject> gradleProject = findEclipseProject(project, monitor, token);
-            monitor.worked(70);
+            monitor.worked(50);
             if (gradleProject.isPresent()) {
-                CorePlugin.workspaceGradleOperations().updateProjectInWorkspace(project, gradleProject.get(), monitor);
+                CorePlugin.workspaceGradleOperations().updateProjectInWorkspace(project, gradleProject.get(), new SubProgressMonitor(monitor, 50));
             } else {
-                CorePlugin.workspaceGradleOperations().makeProjectGradleUnaware(project, monitor);
+                CorePlugin.workspaceGradleOperations().makeProjectGradleUnaware(project, new SubProgressMonitor(monitor, 50));
             }
         } else {
             // update project/external dependencies to be empty
