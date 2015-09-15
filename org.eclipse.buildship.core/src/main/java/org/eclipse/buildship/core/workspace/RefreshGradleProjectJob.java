@@ -34,6 +34,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
@@ -148,22 +149,37 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
     }
 
     private void removeProject(IProject project, IProgressMonitor monitor) {
-        CorePlugin.workspaceGradleOperations().makeProjectGradleUnaware(project, monitor);
+        monitor.beginTask(String.format("Remove project %s", project.getName()), 1);
+        try {
+            CorePlugin.workspaceGradleOperations().makeProjectGradleUnaware(project, new SubProgressMonitor(monitor, 1));
+        } finally {
+            monitor.done();
+        }
     }
 
     private void addProject(OmniEclipseProject gradleProject, OmniEclipseGradleBuild eclipseGradleBuild, IProgressMonitor monitor) {
-        CorePlugin.workspaceGradleOperations().attachNewGradleAwareProjectOrExistingProjectToWorkspace(gradleProject, eclipseGradleBuild, this.rootRequestAttributes, ImmutableList.<String>of(), monitor);
+        monitor.beginTask(String.format("Add project %s", gradleProject.getName()), 1);
+        try {
+            CorePlugin.workspaceGradleOperations().attachNewGradleAwareProjectOrExistingProjectToWorkspace(gradleProject, eclipseGradleBuild, this.rootRequestAttributes, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 1));
+        } finally {
+            monitor.done();
+        }
     }
 
     private void updateProject(OmniEclipseProject gradleProject, IProgressMonitor monitor) {
-        IProject project = CorePlugin.workspaceOperations().findProjectByLocation(gradleProject.getProjectDirectory()).get();
-        if (project.isAccessible()) {
-            if (!GradleProjectNature.INSTANCE.isPresentOn(project)) {
-                ProjectConfiguration configuration = ProjectConfiguration.from(this.rootRequestAttributes, gradleProject);
-                CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, project);
-                CorePlugin.workspaceOperations().addNature(project, GradleProjectNature.ID, monitor);
+        monitor.beginTask(String.format("Add project %s", gradleProject.getName()), 1);
+        try {
+            IProject project = CorePlugin.workspaceOperations().findProjectByLocation(gradleProject.getProjectDirectory()).get();
+            if (project.isAccessible()) {
+                if (!GradleProjectNature.INSTANCE.isPresentOn(project)) {
+                    ProjectConfiguration configuration = ProjectConfiguration.from(this.rootRequestAttributes, gradleProject);
+                    CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, project);
+                    CorePlugin.workspaceOperations().addNature(project, GradleProjectNature.ID, new NullProgressMonitor());
+                }
+                CorePlugin.workspaceGradleOperations().updateProjectInWorkspace(project, gradleProject, new SubProgressMonitor(monitor, 1));
             }
-            CorePlugin.workspaceGradleOperations().updateProjectInWorkspace(project, gradleProject, monitor);
+        } finally {
+            monitor.done();
         }
     }
 
