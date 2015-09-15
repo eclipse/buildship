@@ -12,7 +12,8 @@
 package org.eclipse.buildship.core.workspace;
 
 /**
- * TODO javadoc.
+ * Provides operations related to querying and modifying the Gradle specific parts of
+ * Eclipse elements that exist in a workspace.
  */
 public interface WorkspaceGradleOperations {
 
