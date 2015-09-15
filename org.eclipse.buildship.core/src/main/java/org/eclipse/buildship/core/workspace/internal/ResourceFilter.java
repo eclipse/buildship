@@ -13,6 +13,7 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
@@ -27,7 +28,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.QualifiedName;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.object.MoreObjects;
 
@@ -44,6 +47,8 @@ final class ResourceFilter {
     // resource filter id
     private static final String FILTER_ID = "org.eclipse.ui.ide.multiFilter"; //$NON-NLS-1$
 
+    private static final QualifiedName RESOURCE_PROPERTY_GRADLE_FILTER = new QualifiedName(CorePlugin.PLUGIN_ID, "GRADLE_FILTER");
+
     private ResourceFilter() {
     }
 
@@ -58,6 +63,32 @@ final class ResourceFilter {
         monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
         List<FileInfoMatcherDescription> matchers = createMatchers(project, childLocations);
         setExclusionFilters(project, matchers, monitor);
+    }
+
+    /**
+     * Removes all resource filters created with the {@link #attachFilters(IProject, List, IProgressMonitor)} method.
+     *
+     * @param project the target project to remove the filters from
+     * @param monitor the monitor to report progress on
+     */
+    public static void detachAllFilters(IProject project, IProgressMonitor monitor) {
+        monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
+        monitor.beginTask("Detach all Gradle filters", IProgressMonitor.UNKNOWN);
+        try {
+            StringSetPersistentProperty knownMatcherNames = StringSetPersistentProperty.from(RESOURCE_PROPERTY_GRADLE_FILTER, project);
+            Set<String> matcherNames = knownMatcherNames.get();
+            for (IResourceFilterDescription filter : project.getFilters()) {
+                FileInfoMatcherDescription matcher = filter.getFileInfoMatcherDescription();
+                if (matcher != null && matcher.getArguments() != null && matcherNames.contains(matcher.getArguments())) {
+                    knownMatcherNames.remove((String) matcher.getArguments());
+                    filter.delete(IResource.BACKGROUND_REFRESH, monitor);
+                }
+            }
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(e);
+        } finally {
+            monitor.done();
+        }
     }
 
     private static List<FileInfoMatcherDescription> createMatchers(IProject project, List<File> children) {
@@ -108,6 +139,7 @@ final class ResourceFilter {
                     int type = IResourceFilterDescription.EXCLUDE_ALL | IResourceFilterDescription.FOLDERS | IResourceFilterDescription.INHERITABLE;
                     for (FileInfoMatcherDescription matcher : newMatchers) {
                         project.createFilter(type, matcher, IResource.BACKGROUND_REFRESH, new NullProgressMonitor());
+                        StringSetPersistentProperty.from(RESOURCE_PROPERTY_GRADLE_FILTER, project).add((String)matcher.getArguments());
                     }
                 } catch (CoreException e) {
                     String message = String.format("Cannot create new resource filters for project %s.", project); //$NON-NLS-1$
