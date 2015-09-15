@@ -172,9 +172,9 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
             IProject project = CorePlugin.workspaceOperations().findProjectByLocation(gradleProject.getProjectDirectory()).get();
             if (project.isAccessible()) {
                 if (!GradleProjectNature.INSTANCE.isPresentOn(project)) {
+                    CorePlugin.workspaceOperations().addNature(project, GradleProjectNature.ID, new NullProgressMonitor());
                     ProjectConfiguration configuration = ProjectConfiguration.from(this.rootRequestAttributes, gradleProject);
                     CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, project);
-                    CorePlugin.workspaceOperations().addNature(project, GradleProjectNature.ID, new NullProgressMonitor());
                 }
                 CorePlugin.workspaceGradleOperations().updateProjectInWorkspace(project, gradleProject, new SubProgressMonitor(monitor, 1));
             }
