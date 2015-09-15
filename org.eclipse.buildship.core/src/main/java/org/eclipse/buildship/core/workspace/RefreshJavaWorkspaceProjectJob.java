@@ -63,7 +63,7 @@ public final class RefreshJavaWorkspaceProjectJob extends ToolingApiWorkspaceJob
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         manager.beginRule(workspaceRoot, monitor);
         try {
-            internalInitialize(this.project, monitor, getToken());
+            synchronizeWorkspaceProject(this.project, monitor, getToken());
         } finally {
             manager.endRule(workspaceRoot);
         }
@@ -71,7 +71,7 @@ public final class RefreshJavaWorkspaceProjectJob extends ToolingApiWorkspaceJob
         // monitor is closed by caller in super class
     }
 
-    private void internalInitialize(IJavaProject javaProject, IProgressMonitor monitor, CancellationToken token) throws CoreException {
+    private void synchronizeWorkspaceProject(IJavaProject javaProject, IProgressMonitor monitor, CancellationToken token) throws CoreException {
         IProject project = javaProject.getProject();
         if (GradleProjectNature.INSTANCE.isPresentOn(project)) {
             Optional<OmniEclipseProject> gradleProject = findEclipseProject(project, monitor, token);
