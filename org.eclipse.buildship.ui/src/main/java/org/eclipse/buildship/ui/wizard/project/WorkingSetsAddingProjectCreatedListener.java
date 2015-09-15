@@ -13,7 +13,7 @@ package org.eclipse.buildship.ui.wizard.project;
 
 import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.event.EventListener;
-import org.eclipse.buildship.core.projectimport.ProjectCreatedEvent;
+import org.eclipse.buildship.core.workspace.ProjectCreatedEvent;
 import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;

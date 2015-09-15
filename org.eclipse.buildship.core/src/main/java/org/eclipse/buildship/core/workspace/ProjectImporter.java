@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.projectimport;
+package org.eclipse.buildship.core.workspace;
 
 import java.io.File;
 import java.util.List;
@@ -36,8 +36,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.gradle.Specs;
-import org.eclipse.buildship.core.projectimport.internal.DefaultProjectCreatedEvent;
-import org.eclipse.buildship.core.workspace.WorkspaceOperations;
+import org.eclipse.buildship.core.workspace.internal.DefaultProjectCreatedEvent;
 
 /**
  * Imports a Gradle project as an Eclipse project into the current workspace.

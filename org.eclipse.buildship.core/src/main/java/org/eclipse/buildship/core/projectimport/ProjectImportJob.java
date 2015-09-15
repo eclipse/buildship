@@ -37,6 +37,7 @@ import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
+import org.eclipse.buildship.core.workspace.ProjectImporter;
 
 /**
  * Imports a Gradle project into Eclipse using the project import coordinates given by a

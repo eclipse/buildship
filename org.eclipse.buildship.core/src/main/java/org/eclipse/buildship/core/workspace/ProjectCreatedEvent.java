@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.projectimport;
+package org.eclipse.buildship.core.workspace;
 
 import com.google.common.collect.ImmutableList;
 import org.eclipse.buildship.core.event.Event;

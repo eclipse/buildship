@@ -9,17 +9,17 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.projectimport.internal;
+package org.eclipse.buildship.core.workspace.internal;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import org.eclipse.buildship.core.projectimport.ProjectCreatedEvent;
+import org.eclipse.buildship.core.workspace.ProjectCreatedEvent;
 import org.eclipse.core.resources.IProject;
 
 import java.util.List;
 
 /**
- * Default implementation of {@link org.eclipse.buildship.core.projectimport.ProjectCreatedEvent}.
+ * Default implementation of {@link ProjectCreatedEvent}.
  */
 public final class DefaultProjectCreatedEvent implements ProjectCreatedEvent {
 
