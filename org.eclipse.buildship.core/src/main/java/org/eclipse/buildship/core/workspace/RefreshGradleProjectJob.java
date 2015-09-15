@@ -151,10 +151,6 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
         }).toList();
     }
 
-    private void addProject(OmniEclipseProject gradleProject, OmniEclipseGradleBuild eclipseGradleBuild, IProgressMonitor monitor) {
-        ProjectImporter.importProject(gradleProject, eclipseGradleBuild, this.rootRequestAttributes, ImmutableList.<String>of(), monitor);
-    }
-
     private void removeProject(IProject project, IProgressMonitor monitor) {
         try {
             CorePlugin.workspaceOperations().removeNature(project, GradleProjectNature.ID, monitor);
@@ -169,10 +165,21 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
         }
     }
 
+    private void removeProjectConfiguration(IProject project) throws CoreException {
+        IFolder settingsFolder = project.getFolder(".settings");
+        if (settingsFolder.exists()) {
+            settingsFolder.delete(true, false, null);
+        }
+    }
+
     private void cleanBuildProject(IJavaProject javaProject) throws CoreException {
         // when a workspace project is excluded and included multiple times, JDT throws an
         // exception, unless a project is cleaned
         javaProject.getProject().build(IncrementalProjectBuilder.CLEAN_BUILD, null);
+    }
+
+    private void addProject(OmniEclipseProject gradleProject, OmniEclipseGradleBuild eclipseGradleBuild, IProgressMonitor monitor) {
+        ProjectImporter.importProject(gradleProject, eclipseGradleBuild, this.rootRequestAttributes, ImmutableList.<String>of(), monitor);
     }
 
     private void updateProject(OmniEclipseProject gradleProject, IProgressMonitor monitor) {
@@ -207,13 +214,6 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
     private static void addProjectConfiguration(FixedRequestAttributes requestAttributes, OmniEclipseProject gradleProject, IProject project) {
         ProjectConfiguration configuration = ProjectConfiguration.from(requestAttributes, gradleProject);
         CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, project);
-    }
-
-    private static void removeProjectConfiguration(IProject project) throws CoreException {
-        IFolder settingsFolder = project.getFolder(".settings");
-        if (settingsFolder.exists()) {
-            settingsFolder.delete(true, false, null);
-        }
     }
 
 }
