@@ -1,8 +1,16 @@
 package org.eclipse.buildship.core.launch
 
+import com.gradleware.tooling.toolingclient.TestLaunchRequest
 import org.gradle.tooling.events.test.TestOperationDescriptor
 
 class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
+
+    TestLaunchRequest testLaunchRequest
+
+    def setup(){
+        testLaunchRequest = Mock(TestLaunchRequest)
+        toolingClient.newTestLaunchRequest(_) >> testLaunchRequest
+    }
 
     def "Job launches a Gradle test"() {
         setup:
@@ -14,7 +22,7 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
         then:
         job.getResult().isOK()
-        1 * testRequest.executeAndWait()
+        1 * testLaunchRequest.executeAndWait()
     }
 
     def "Job prints its configuration"() {
@@ -28,6 +36,11 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
         then:
         job.getResult().isOK()
         1 * processStreamsProvider.createProcessStreams(null).getConfiguration().flush()
+    }
+
+    GradleRunConfigurationAttributes createRunConfigurationAttributesMock() {
+        def launchConfiguration = createLaunchConfigurationMock()
+        GradleRunConfigurationAttributes.from(launchConfiguration)
     }
 
     def createTestOperationDescriptorsMock() {

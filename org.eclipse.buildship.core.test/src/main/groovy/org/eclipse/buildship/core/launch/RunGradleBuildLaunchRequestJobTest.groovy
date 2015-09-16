@@ -1,8 +1,16 @@
 package org.eclipse.buildship.core.launch
 
+import com.gradleware.tooling.toolingclient.BuildLaunchRequest
 import org.eclipse.debug.core.ILaunch
 
 class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
+
+    BuildLaunchRequest buildLaunchRequest
+
+    def setup() {
+        buildLaunchRequest = Mock(BuildLaunchRequest)
+        toolingClient.newBuildLaunchRequest(_) >> buildLaunchRequest
+    }
 
     def "Job launches a Gradle build"() {
         setup:
@@ -14,7 +22,7 @@ class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
         then:
         job.getResult().isOK()
-        1 * buildRequest.executeAndWait()
+        1 * buildLaunchRequest.executeAndWait()
     }
 
     def "Job prints its configuration"() {
