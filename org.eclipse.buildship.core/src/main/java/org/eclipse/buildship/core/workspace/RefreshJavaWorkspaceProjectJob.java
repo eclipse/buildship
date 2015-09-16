@@ -81,7 +81,7 @@ public final class RefreshJavaWorkspaceProjectJob extends ToolingApiWorkspaceJob
                 CorePlugin.workspaceGradleOperations().updateProjectInWorkspace(project, gradleProject.get(), new SubProgressMonitor(monitor, 50));
             } else {
                 CorePlugin.workspaceGradleOperations().makeProjectGradleUnaware(project, new SubProgressMonitor(monitor, 25));
-                ClasspathContainerUpdater.clear(javaProject, new SubProgressMonitor(monitor, 25));
+                ClasspathContainerUpdater.clear(javaProject, new SubProgressMonitor(monitor, 100));
             }
         } else {
             // in case the Gradle specifics have been removed in the previous Eclipse session, update project/external dependencies to be empty
