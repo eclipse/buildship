@@ -122,10 +122,11 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
 
     @Override
     public void makeProjectGradleUnaware(IProject workspaceProject, IProgressMonitor monitor) {
-        monitor.beginTask("Detach Gradle specifics from project " + workspaceProject.getName(), 1);
+        monitor.beginTask("Detach Gradle specifics from project " + workspaceProject.getName(), 2);
         try {
             CorePlugin.workspaceOperations().removeNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
             CorePlugin.projectConfigurationManager().deleteProjectConfiguration(workspaceProject);
+            ResourceFilter.detachAllFilters(workspaceProject, new SubProgressMonitor(monitor, 1));
         } finally {
             monitor.done();
         }
