@@ -73,13 +73,13 @@ final class ResourceFilter {
      */
     public static void detachAllFilters(IProject project, IProgressMonitor monitor) {
         monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
-        monitor.beginTask("Detach all Gradle filters", IProgressMonitor.UNKNOWN);
+        monitor.beginTask(String.format("Remove Gradle resource filters from project %s", project), IProgressMonitor.UNKNOWN);
         try {
             StringSetPersistentProperty knownMatcherNames = StringSetPersistentProperty.from(RESOURCE_PROPERTY_GRADLE_FILTER, project);
             Set<String> matcherNames = knownMatcherNames.get();
             for (IResourceFilterDescription filter : project.getFilters()) {
                 FileInfoMatcherDescription matcher = filter.getFileInfoMatcherDescription();
-                if (matcher != null && matcher.getArguments() != null && matcherNames.contains(matcher.getArguments())) {
+                if (matcher != null && matcher.getArguments() instanceof String && matcherNames.contains(matcher.getArguments())) {
                     knownMatcherNames.remove((String) matcher.getArguments());
                     filter.delete(IResource.BACKGROUND_REFRESH, monitor);
                 }
@@ -108,7 +108,7 @@ final class ResourceFilter {
     }
 
     private static void setExclusionFilters(IProject project, List<FileInfoMatcherDescription> matchers, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Set resource filters for project %s", project), IProgressMonitor.UNKNOWN); //$NON-NLS-1$
+        monitor.beginTask(String.format("Set Gradle resource filters for project %s", project), IProgressMonitor.UNKNOWN); //$NON-NLS-1$
         try {
             // retrieve already defined filters
             final IResourceFilterDescription[] existingFilters;
@@ -139,7 +139,7 @@ final class ResourceFilter {
                     int type = IResourceFilterDescription.EXCLUDE_ALL | IResourceFilterDescription.FOLDERS | IResourceFilterDescription.INHERITABLE;
                     for (FileInfoMatcherDescription matcher : newMatchers) {
                         project.createFilter(type, matcher, IResource.BACKGROUND_REFRESH, new NullProgressMonitor());
-                        StringSetPersistentProperty.from(RESOURCE_PROPERTY_GRADLE_FILTER, project).add((String)matcher.getArguments());
+                        StringSetPersistentProperty.from(RESOURCE_PROPERTY_GRADLE_FILTER, project).add((String) matcher.getArguments());
                     }
                 } catch (CoreException e) {
                     String message = String.format("Cannot create new resource filters for project %s.", project); //$NON-NLS-1$
