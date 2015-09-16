@@ -41,7 +41,7 @@ class ResourceFilterTest extends Specification {
         CorePlugin.workspaceOperations().deleteAllProjects(null)
     }
 
-    def "Define resource filter on the project"() {
+    def "Defining a resource filter on the project"() {
         given:
         projectFolder('filtered')
         projectFolder('unfiltered')
@@ -60,7 +60,7 @@ class ResourceFilterTest extends Specification {
         workspace().validateFiltered(project.getFolder('unfiltered')).isOK()
     }
 
-    def "Define resource filter on a subfolder"() {
+    def "Defining a resource filter on a subfolder"() {
         given:
         projectFolder('basefolder/subfolder')
 
@@ -76,7 +76,7 @@ class ResourceFilterTest extends Specification {
         !workspace().validateFiltered(project.getFolder('basefolder/subfolder')).isOK()
     }
 
-    def "Defining resource filter on direct child folder does not hide anything in inner folder structure"() {
+    def "Defining a resource filter on a direct child folder does not hide anything in inner folder structure"() {
         given:
         projectFolder('pkg')
         projectFolder('src/main/java/pkg')
@@ -89,7 +89,7 @@ class ResourceFilterTest extends Specification {
         workspace().validateFiltered(project.getFolder('src/main/java/pkg')).isOK()
     }
 
-    def "Defining resource filter on non-child location is ignored"() {
+    def "Defining a resource filter on non-child location is ignored"() {
         given:
         ResourceFilter.attachFilters(project, [tempFolder.newFolder('siblingproject')], null)
 
@@ -97,8 +97,7 @@ class ResourceFilterTest extends Specification {
         project.getFilters().length == 0
     }
 
-
-    def "Defining new resource filter preserves the previously defined resource filters"() {
+    def "Defining a new resource filter preserves the previously defined resource filters"() {
         given:
         projectFolder('alpha')
         projectFolder('beta')
@@ -107,41 +106,41 @@ class ResourceFilterTest extends Specification {
         ResourceFilter.attachFilters(project, [toFile(project.getFolder('alpha'))], null)
 
         then:
-        project.getFilters().length == 1
-        (project.getFilters()[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('alpha')
+        project.filters.length == 1
+        (project.filters[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('alpha')
 
         when:
         ResourceFilter.attachFilters(project, [toFile(project.getFolder('beta'))], null)
 
         then:
-        project.getFilters().length == 2
-        (project.getFilters()[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('alpha')
-        (project.getFilters()[1].getFileInfoMatcherDescription().getArguments() as String).endsWith('beta')
+        project.filters.length == 2
+        (project.filters[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('alpha')
+        (project.filters[1].getFileInfoMatcherDescription().getArguments() as String).endsWith('beta')
     }
 
-    def "Defining new resource filter is idempotent"() {
+    def "Defining a new resource filter is idempotent"() {
         given:
         projectFolder('alpha')
 
         expect:
-        project.getFilters().length == 0
+        project.filters.length == 0
 
         when:
         ResourceFilter.attachFilters(project, [toFile(project.getFolder('alpha'))], null)
 
         then:
-        project.getFilters().length == 1
-        (project.getFilters()[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('alpha')
+        project.filters.length == 1
+        (project.filters[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('alpha')
 
         when:
         ResourceFilter.attachFilters(project, [toFile(project.getFolder('alpha'))], null)
 
         then:
-        project.getFilters().length == 1
-        (project.getFilters()[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('alpha')
+        project.filters.length == 1
+        (project.filters[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('alpha')
     }
 
-    def "Can remove a filter"() {
+    def "Removing a filter"() {
         given:
         projectFolder('filtered')
 
@@ -157,12 +156,12 @@ class ResourceFilterTest extends Specification {
         workspace().validateFiltered(project.getFolder('filtered')).isOK()
     }
 
-    def "Removing filter don't modify manually created filters"() {
+    def "Removing a filter does not modify manually created filters"() {
         given:
         projectFolder('filtered')
         int type = IResourceFilterDescription.EXCLUDE_ALL | IResourceFilterDescription.FOLDERS | IResourceFilterDescription.INHERITABLE;
         def matchers = ResourceFilter.createMatchers(project, [project.getFolder('manuallyfiltered').getLocation().toFile()] as List)
-        project.createFilter(type, matchers[0],IResource.BACKGROUND_REFRESH,  null)
+        project.createFilter(type, matchers[0], IResource.BACKGROUND_REFRESH, null)
 
         when:
         ResourceFilter.attachFilters(project, [ toFile(project.getFolder('filtered')) ], null)

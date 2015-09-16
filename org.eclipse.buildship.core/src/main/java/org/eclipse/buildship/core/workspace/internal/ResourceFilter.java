@@ -91,7 +91,7 @@ final class ResourceFilter {
         }
     }
 
-    private static List<FileInfoMatcherDescription> createMatchers(IProject project, List<File> children) {
+    static List<FileInfoMatcherDescription> createMatchers(IProject project, List<File> children) {
         ImmutableList.Builder<FileInfoMatcherDescription> matchers = ImmutableList.builder();
         IPath projectLocation = project.getLocation();
         for (File child : children) {

@@ -27,12 +27,11 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
- * Class defining how to store a set of strings on an {@link IResource} instance using persistent.
- * properties.
+ * Defines ow to store a set of strings on an {@link IResource} instance using persistent properties.
  *
  * @see IResource#getPersistentProperties()
  */
-public final class StringSetPersistentProperty {
+final class StringSetPersistentProperty {
 
     private final QualifiedName key;
     private final IResource resource;
@@ -55,7 +54,7 @@ public final class StringSetPersistentProperty {
     /**
      * Removes an entry from the set.
      *
-     * @param entry
+     * @param entry the entry to remove
      */
     public void remove(String entry) {
         Set<String> current = get();
@@ -67,7 +66,7 @@ public final class StringSetPersistentProperty {
     /**
      * Returns the set of strings from the resource.
      *
-     * @return the string set
+     * @return the set of strings
      */
     public Set<String> get() {
         try {
@@ -90,8 +89,8 @@ public final class StringSetPersistentProperty {
     /**
      * Creates a new {@link StringSetPersistentProperty} instance.
      *
-     * @param key the persistent property key to define where to store the list
-     * @param resource the target resource the list is associated with
+     * @param key the key of the persistent property
+     * @param resource the target resource that the property is associated with
      * @return the new instance
      */
     public static StringSetPersistentProperty from(QualifiedName key, IResource resource) {
