@@ -33,6 +33,7 @@ public final class Limitations {
         addIfNeeded("2.1", "No cancellation support", limitations);
         addIfNeeded("2.4", "No test progress visualization", limitations);
         addIfNeeded("2.5", "No build/task progress visualization", limitations);
+        addIfNeeded("2.5", "No improved project classpath generation with all transitive dependencies as direct dependencies", limitations);
         addIfNeeded("2.6", "No running of tests from the Executions View", limitations);
         addIfNeeded("2.6", "No rerunning of failed tests from the Executions View", limitations);
         return limitations.build();
