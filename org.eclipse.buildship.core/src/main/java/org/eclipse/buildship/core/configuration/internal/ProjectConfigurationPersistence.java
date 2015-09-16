@@ -161,7 +161,7 @@ final class ProjectConfigurationPersistence {
         try {
             IFile configFile = getConfigFile(workspaceProject);
             ensureNoProjectPreferencesLoadedFrom(workspaceProject, GRADLE_PREFERENCES_FILE_WITHOUT_EXTENSION);
-            deleteConfigFileIfExists(configFile);
+            deleteConfigFileIfExistsAndSettingsFolderIfEmpty(configFile);
         } catch (Exception e) {
             String message = String.format("Cannot delete Gradle configuration for project %s.", workspaceProject.getName());
             CorePlugin.logger().error(message, e);
@@ -180,9 +180,14 @@ final class ProjectConfigurationPersistence {
         }
     }
 
-    private static void deleteConfigFileIfExists(IFile configFile) throws CoreException {
+    private static void deleteConfigFileIfExistsAndSettingsFolderIfEmpty(IFile configFile) throws CoreException {
         if (configFile.exists()) {
+            // delete the preferences file
             configFile.delete(true, false, new NullProgressMonitor());
+            if (configFile.getParent().members().length == 0) {
+                // delete the .settings folder if it is empty
+                configFile.getParent().delete(true, new NullProgressMonitor());
+            }
         }
     }
 
