@@ -1,5 +1,6 @@
 package org.eclipse.buildship.core.launch
 
+import org.eclipse.debug.core.ILaunch
 
 class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
@@ -18,7 +19,7 @@ class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
     def "Job prints its configuration"() {
         setup:
-        def job = new RunGradleTestLaunchRequestJob(createTestOperationDescriptorsMock(), createRunConfigurationAttribuetesMock())
+        def job = new RunGradleBuildLaunchRequestJob(createLaunchMock())
 
         when:
         job.schedule()
@@ -28,4 +29,12 @@ class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
         job.getResult().isOK()
         1 * processStreamsProvider.createProcessStreams(null).getConfiguration().flush()
     }
+
+    def createLaunchMock() {
+        def launchConfiguration = createLaunchConfigurationMock()
+        ILaunch launch = Mock(ILaunch)
+        launch.getLaunchConfiguration() >> launchConfiguration
+        launch
+    }
+
 }

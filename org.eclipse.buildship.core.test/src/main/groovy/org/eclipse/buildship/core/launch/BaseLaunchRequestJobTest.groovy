@@ -46,21 +46,7 @@ class BaseLaunchRequestJobTest extends Specification {
         TestEnvironment.cleanup()
     }
 
-    def createLaunchMock() {
-        def launchConfiguration = createLaunchConfigurationMock()
-        ILaunch launch = Mock(ILaunch)
-        launch.getLaunchConfiguration() >> launchConfiguration
-        launch
-    }
-
-    def createTestOperationDescriptorsMock() {
-        TestOperationDescriptor descriptor = Mock(TestOperationDescriptor)
-        descriptor.getName() >> 'testName'
-        descriptor.getDisplayName() >> 'display name'
-        Arrays.asList(descriptor)
-    }
-
-    GradleRunConfigurationAttributes createRunConfigurationAttribuetesMock() {
+    GradleRunConfigurationAttributes createRunConfigurationAttributesMock() {
         def launchConfiguration = createLaunchConfigurationMock()
         GradleRunConfigurationAttributes.from(launchConfiguration)
     }

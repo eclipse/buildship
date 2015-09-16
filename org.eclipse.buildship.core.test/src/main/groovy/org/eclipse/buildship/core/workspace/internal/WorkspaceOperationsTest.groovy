@@ -24,10 +24,7 @@ import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IProjectDescription
-import org.eclipse.core.resources.IWorkspace
-import org.eclipse.core.resources.ResourcesPlugin
 import org.eclipse.core.runtime.NullProgressMonitor
-import org.eclipse.core.runtime.SubProgressMonitor
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.launching.JavaRuntime
@@ -145,7 +142,7 @@ class WorkspaceOperationsTest extends Specification {
     // tests for deleteAllProjects() //
     ///////////////////////////////////
 
-    def "Delete succeeds even the workspace is empty"() {
+    def "Delete succeeds when the workspace is empty"() {
         when:
         workspaceOperations.deleteAllProjects(new NullProgressMonitor())
 
@@ -284,18 +281,6 @@ class WorkspaceOperationsTest extends Specification {
         sampleProject.hasNature(GradleProjectNature.ID)
     }
 
-    def "Assigning a nature to a non-accessible project results in a runtime exception"() {
-        setup:
-        IProject sampleProject = createSampleProject()
-        sampleProject.close()
-
-        when:
-        workspaceOperations.addNature(sampleProject, GradleProjectNature.ID, new NullProgressMonitor())
-
-        then:
-        thrown(GradlePluginsRuntimeException)
-    }
-
     def "Adding a project nature is idempotent"() {
         setup:
         IProject sampleProject = createSampleProject()
@@ -308,20 +293,19 @@ class WorkspaceOperationsTest extends Specification {
         sampleProject.description.natureIds.findAll{ it == GradleProjectNature.ID }.size() == 1
     }
 
-    def "Removing a nature which was not present on a project changes nothing"() {
+    def "Assigning a nature to a non-accessible project results in a runtime exception"() {
         setup:
         IProject sampleProject = createSampleProject()
-        def originalNatureIds = sampleProject.description.natureIds
+        sampleProject.close(null)
 
         when:
-        workspaceOperations.removeNature(sampleProject, GradleProjectNature.ID, new NullProgressMonitor())
+        workspaceOperations.addNature(sampleProject, GradleProjectNature.ID, new NullProgressMonitor())
 
         then:
-        !sampleProject.description.natureIds.is(originalNatureIds)
-        sampleProject.description.natureIds == originalNatureIds
+        thrown(GradlePluginsRuntimeException)
     }
 
-    def "Can remove a nature from  a project"() {
+    def "Can remove a nature from a project"() {
         setup:
         IProject sampleProject = createSampleProject()
         workspaceOperations.addNature(sampleProject, JavaCore.NATURE_ID, new NullProgressMonitor())
@@ -338,10 +322,23 @@ class WorkspaceOperationsTest extends Specification {
         sampleProject.description.natureIds[0] == JavaCore.NATURE_ID
     }
 
+    def "Removing a nature which was not present on a project changes nothing"() {
+        setup:
+        IProject sampleProject = createSampleProject()
+        String[] originalNatureIds = sampleProject.description.natureIds
+
+        when:
+        workspaceOperations.removeNature(sampleProject, GradleProjectNature.ID, new NullProgressMonitor())
+
+        then:
+        !sampleProject.description.natureIds.is(originalNatureIds)
+        sampleProject.description.natureIds == originalNatureIds
+    }
+
     def "Removing a nature from a non-accessible project results in a runtime exception"() {
         setup:
         IProject sampleProject = createSampleProject()
-        sampleProject.close()
+        sampleProject.close(null)
 
         when:
         workspaceOperations.removeNature(sampleProject, GradleProjectNature.ID, new NullProgressMonitor())
