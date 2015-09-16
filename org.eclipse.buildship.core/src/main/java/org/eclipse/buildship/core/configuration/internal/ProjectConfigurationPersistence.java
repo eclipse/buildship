@@ -58,6 +58,7 @@ final class ProjectConfigurationPersistence {
 
     private static final String ECLIPSE_SETTINGS_FOLDER = ".settings";
     private static final String GRADLE_PREFERENCES_FILE = "gradle.prefs";
+    private static final String GRADLE_PREFERENCES_FILE_WITHOUT_EXTENSION = GRADLE_PREFERENCES_FILE.substring(0, GRADLE_PREFERENCES_FILE.indexOf('.'));
 
     /**
      * Saves the given Gradle project configuration in the Eclipse project's <i>.settings</i>
@@ -159,11 +160,8 @@ final class ProjectConfigurationPersistence {
     public void deleteProjectConfiguration(IProject workspaceProject) {
         try {
             IFile configFile = getConfigFile(workspaceProject);
-            ensureNoProjectPreferencesLoadedFrom(workspaceProject, configFile);
-
-            if (configFile.exists()) {
-                configFile.delete(true, false, new NullProgressMonitor());
-            }
+            ensureNoProjectPreferencesLoadedFrom(workspaceProject, GRADLE_PREFERENCES_FILE_WITHOUT_EXTENSION);
+            deleteConfigFileIfExists(configFile);
         } catch (Exception e) {
             String message = String.format("Cannot delete Gradle configuration for project %s.", workspaceProject.getName());
             CorePlugin.logger().error(message, e);
@@ -171,17 +169,20 @@ final class ProjectConfigurationPersistence {
         }
     }
 
-    private static void ensureNoProjectPreferencesLoadedFrom(IProject project, IFile configFile) throws BackingStoreException {
-        // TODO (donat) the ${project_name}/.settings/gradle.prefs file is automatically loaded as
-        // project preferences by the core runtime. if the preferences are loaded, then deleting
-        // the prefs file results in a BackingStoreException. to resolve that we explicitly unset
-        // the project preference node before the deletion
-        // in future versions 1) the prefs file extension should be changed, and 2) this method
-        // should be deleted.
+    private static void ensureNoProjectPreferencesLoadedFrom(IProject project, String preferenceNodeName) throws BackingStoreException {
+        // The ${project_name}/.settings/gradle.prefs file is automatically loaded as project
+        // preferences by the core runtime since the fie extension is '.prefs'. If the preferences
+        // are loaded, then deleting the prefs file results in a BackingStoreException.
         ProjectScope projectScope = new ProjectScope(project);
-        IEclipsePreferences node = projectScope.getNode("gradle");
+        IEclipsePreferences node = projectScope.getNode(preferenceNodeName);
         if (node != null) {
             node.removeNode();
+        }
+    }
+
+    private static void deleteConfigFileIfExists(IFile configFile) throws CoreException {
+        if (configFile.exists()) {
+            configFile.delete(true, false, new NullProgressMonitor());
         }
     }
 
