@@ -44,6 +44,56 @@ import java.util.List;
  */
 public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOperations {
 
+    @Override
+    public void synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor) {
+        monitor.beginTask("Update Gradle project " + project.getName(), 4);
+        try {
+            // check if there is a workspace project at the location given by the Gradle project
+            Optional<IProject> projectInWorkspace = CorePlugin.workspaceOperations().findProjectByLocation(project.getProjectDirectory());
+            if (!projectInWorkspace.isPresent()) {
+                attachNewGradleAwareProjectOrExistingProjectToWorkspace(project, gradleBuild, rootRequestAttributes, workingSets, monitor);
+                return;
+            }
+
+            // do not modify closed projects
+            IProject workspaceProject = projectInWorkspace.get();
+            if (!workspaceProject.isAccessible()) {
+                return;
+            }
+
+            // add Gradle nature and .prefs file if needed
+            if (!GradleProjectNature.INSTANCE.isPresentOn(workspaceProject) && rootRequestAttributes != null) {
+                CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
+                ProjectConfiguration configuration = ProjectConfiguration.from(rootRequestAttributes, project);
+                CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, workspaceProject);
+            } else {
+                monitor.worked(1);
+            }
+
+            // update linked resources
+            LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), new SubProgressMonitor(monitor, 1));
+
+            // additional updates for Java projects
+            if (hasJavaNature(workspaceProject)) {
+                IJavaProject javaProject = JavaCore.create(workspaceProject);
+
+                // update the sources
+                SourceFolderUpdater.update(javaProject, project.getSourceDirectories(), new SubProgressMonitor(monitor, 1));
+
+                // update project/external dependencies
+                ClasspathContainerUpdater.update(javaProject, project, new SubProgressMonitor(monitor, 1));
+            } else {
+                monitor.worked(2);
+            }
+        } catch (CoreException e) {
+            String message = String.format("Cannot update project %s.", project.getName());
+            CorePlugin.logger().error(message, e);
+            throw new GradlePluginsRuntimeException(message, e);
+        } finally {
+            monitor.done();
+        }
+    }
+
     // todo (etst)
     private void attachNewGradleAwareProjectOrExistingProjectToWorkspace(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor) {
         monitor.beginTask("Attach Gradle project " + project.getName(), 3);
@@ -115,56 +165,6 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
 
     private boolean isJavaProject(OmniEclipseProject project) {
         return !project.getSourceDirectories().isEmpty();
-    }
-
-    @Override
-    public void synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor) {
-        monitor.beginTask("Update Gradle project " + project.getName(), 4);
-        try {
-            // check if there is a workspace project at the location given by the Gradle project
-            Optional<IProject> projectInWorkspace = CorePlugin.workspaceOperations().findProjectByLocation(project.getProjectDirectory());
-            if (!projectInWorkspace.isPresent()) {
-                attachNewGradleAwareProjectOrExistingProjectToWorkspace(project, gradleBuild, rootRequestAttributes, workingSets, monitor);
-                return;
-            }
-
-            // do not modify closed projects
-            IProject workspaceProject = projectInWorkspace.get();
-            if (!workspaceProject.isAccessible()) {
-                return;
-            }
-
-            // add Gradle nature and .prefs file if needed
-            if (!GradleProjectNature.INSTANCE.isPresentOn(workspaceProject) && rootRequestAttributes != null) {
-                CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
-                ProjectConfiguration configuration = ProjectConfiguration.from(rootRequestAttributes, project);
-                CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, workspaceProject);
-            } else {
-                monitor.worked(1);
-            }
-
-            // update linked resources
-            LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), new SubProgressMonitor(monitor, 1));
-
-            // additional updates for Java projects
-            if (hasJavaNature(workspaceProject)) {
-                IJavaProject javaProject = JavaCore.create(workspaceProject);
-
-                // update the sources
-                SourceFolderUpdater.update(javaProject, project.getSourceDirectories(), new SubProgressMonitor(monitor, 1));
-
-                // update project/external dependencies
-                ClasspathContainerUpdater.update(javaProject, project, new SubProgressMonitor(monitor, 1));
-            } else {
-                monitor.worked(2);
-            }
-        } catch (CoreException e) {
-            String message = String.format("Cannot update project %s.", project.getName());
-            CorePlugin.logger().error(message, e);
-            throw new GradlePluginsRuntimeException(message, e);
-        } finally {
-            monitor.done();
-        }
     }
 
     private boolean hasJavaNature(IProject project) {
