@@ -31,7 +31,10 @@ import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.launching.JavaRuntime;
@@ -46,17 +49,27 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
 
     @Override
     public void synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor) {
-        monitor.beginTask("Update Gradle project " + project.getName(), 4);
+        monitor.beginTask(String.format("Synchronize Gradle project %s with workspace project", project.getName()), 2);
         try {
-            // check if there is a workspace project at the location given by the Gradle project
-            Optional<IProject> projectInWorkspace = CorePlugin.workspaceOperations().findProjectByLocation(project.getProjectDirectory());
-            if (!projectInWorkspace.isPresent()) {
-                attachNewGradleAwareProjectOrExistingProjectToWorkspace(project, gradleBuild, rootRequestAttributes, workingSets, monitor);
-                return;
+            Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(project.getProjectDirectory());
+            if (workspaceProject.isPresent()) {
+                synchronizeWorkspaceProject(project, workspaceProject.get(), rootRequestAttributes, new SubProgressMonitor(monitor, 1));
+            } else {
+                synchronizeNonWorkspaceProject(project, gradleBuild, rootRequestAttributes, workingSets, new SubProgressMonitor(monitor, 1));
             }
+        } catch (CoreException e) {
+            String message = String.format("Cannot synchronize Gradle project %s with workspace project.", project.getName());
+            CorePlugin.logger().error(message, e);
+            throw new GradlePluginsRuntimeException(message, e);
+        } finally {
+            monitor.done();
+        }
+    }
 
+    private void synchronizeWorkspaceProject(OmniEclipseProject project, IProject workspaceProject, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) throws CoreException {
+        monitor.beginTask(String.format("Synchronize workspace Gradle project %s", project.getName()), 3);
+        try {
             // do not modify closed projects
-            IProject workspaceProject = projectInWorkspace.get();
             if (!workspaceProject.isAccessible()) {
                 return;
             }
@@ -85,18 +98,13 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             } else {
                 monitor.worked(2);
             }
-        } catch (CoreException e) {
-            String message = String.format("Cannot update project %s.", project.getName());
-            CorePlugin.logger().error(message, e);
-            throw new GradlePluginsRuntimeException(message, e);
         } finally {
             monitor.done();
         }
     }
 
-    // todo (etst)
-    private void attachNewGradleAwareProjectOrExistingProjectToWorkspace(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor) {
-        monitor.beginTask("Attach Gradle project " + project.getName(), 3);
+    private void synchronizeNonWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor) {
+        monitor.beginTask(String.format("Synchronize non-workspace Gradle project %s", project.getName()), 3);
         try {
             // check if an Eclipse project already exists at the location of the Gradle project to import
             WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations();
