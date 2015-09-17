@@ -124,7 +124,8 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             // check if there is a workspace project at the location given by the Gradle project
             Optional<IProject> projectInWorkspace = CorePlugin.workspaceOperations().findProjectByLocation(project.getProjectDirectory());
             if (!projectInWorkspace.isPresent()) {
-                throw new IllegalStateException(String.format("Cannot find workspace project located at %s for Gradle project %s.", project.getProjectDirectory(), project.getName()));
+                attachNewGradleAwareProjectOrExistingProjectToWorkspace(project, gradleBuild, rootRequestAttributes, workingSets, monitor);
+                return;
             }
 
             // do not modify closed projects

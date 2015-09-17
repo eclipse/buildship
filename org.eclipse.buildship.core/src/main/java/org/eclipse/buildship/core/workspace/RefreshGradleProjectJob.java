@@ -12,7 +12,6 @@
 package org.eclipse.buildship.core.workspace;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
@@ -90,20 +89,16 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
         // collect added and removed projects
         List<OmniEclipseProject> allGradleProjects = gradleBuild.getRootEclipseProject().getAll();
         List<IProject> oldWorkspaceProjects = collectWorkspaceProjectsRemovedFromGradleBuild(allGradleProjects);
-        List<OmniEclipseProject> newGradleProjects = collectGradleProjectsNotPresentInWorkspace(allGradleProjects);
 
         monitor.beginTask("Synchronize Gradle projects with workspace", oldWorkspaceProjects.size() + allGradleProjects.size());
         try {
-            // remove old, add new and refresh existing workspace projects
+            // remove the workspace projects that do not have a corresponding Gradle project anymore
             for (IProject oldProject : oldWorkspaceProjects) {
                 removeProject(oldProject, new SubProgressMonitor(monitor, 1));
             }
+            // synchronize the Gradle projects with their corresponding workspace projects
             for (OmniEclipseProject gradleProject : allGradleProjects) {
-                if (newGradleProjects.contains(gradleProject)) {
-                    addProject(gradleProject, gradleBuild, new SubProgressMonitor(monitor, 1));
-                } else {
-                    updateProject(gradleProject, gradleBuild, new SubProgressMonitor(monitor, 1));
-                }
+                updateProject(gradleProject, gradleBuild, new SubProgressMonitor(monitor, 1));
             }
         } finally {
             monitor.done();
@@ -133,19 +128,6 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
         }).toList();
     }
 
-    private List<OmniEclipseProject> collectGradleProjectsNotPresentInWorkspace(List<OmniEclipseProject> gradleProjects) {
-        // from all Gradle projects that belong to the Gradle build, collect those which
-        // don't have a corresponding workspace project with the same location
-        return FluentIterable.from(gradleProjects).filter(new Predicate<OmniEclipseProject>() {
-
-            @Override
-            public boolean apply(OmniEclipseProject gradleProject) {
-                Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(gradleProject.getProjectDirectory());
-                return !workspaceProject.isPresent();
-            }
-        }).toList();
-    }
-
     private void removeProject(IProject project, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Remove project %s", project.getName()), 1);
         try {
@@ -155,17 +137,8 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
         }
     }
 
-    private void addProject(OmniEclipseProject gradleProject, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Add project %s", gradleProject.getName()), 1);
-        try {
-            CorePlugin.workspaceGradleOperations().attachNewGradleAwareProjectOrExistingProjectToWorkspace(gradleProject, gradleBuild, this.rootRequestAttributes, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 1));
-        } finally {
-            monitor.done();
-        }
-    }
-
     private void updateProject(OmniEclipseProject gradleProject, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Add project %s", gradleProject.getName()), 1);
+        monitor.beginTask(String.format("Update project %s", gradleProject.getName()), 1);
         try {
             CorePlugin.workspaceGradleOperations().updateProjectInWorkspace(gradleProject, gradleBuild, this.rootRequestAttributes, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 1));
         } finally {
