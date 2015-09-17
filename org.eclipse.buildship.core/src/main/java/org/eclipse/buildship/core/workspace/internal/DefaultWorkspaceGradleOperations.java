@@ -130,10 +130,17 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     }
 
     @Override
-    public void updateProjectInWorkspace(IProject workspaceProject, OmniEclipseProject project, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) {
+    public void updateProjectInWorkspace(OmniEclipseProject project, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) {
         monitor.beginTask("Update Gradle project " + project.getName(), 4);
         try {
+            // check if there is a workspace project at the location given by the Gradle project
+            Optional<IProject> projectInWorkspace = CorePlugin.workspaceOperations().findProjectByLocation(project.getProjectDirectory());
+            if (!projectInWorkspace.isPresent()) {
+                throw new IllegalStateException(String.format("Cannot find workspace project located at %s for Gradle project %s.", project.getProjectDirectory(), project.getName()));
+            }
+
             // do not modify closed projects
+            IProject workspaceProject = projectInWorkspace.get();
             if (!workspaceProject.isAccessible()) {
                 return;
             }
@@ -163,7 +170,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
                 monitor.worked(2);
             }
         } catch (CoreException e) {
-            String message = String.format("Cannot update project %s.", workspaceProject);
+            String message = String.format("Cannot update project %s.", project.getName());
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
         } finally {

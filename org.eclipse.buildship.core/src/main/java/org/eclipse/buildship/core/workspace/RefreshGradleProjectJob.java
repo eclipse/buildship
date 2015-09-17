@@ -167,8 +167,7 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
     private void updateProject(OmniEclipseProject gradleProject, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Add project %s", gradleProject.getName()), 1);
         try {
-            IProject project = CorePlugin.workspaceOperations().findProjectByLocation(gradleProject.getProjectDirectory()).get();
-            CorePlugin.workspaceGradleOperations().updateProjectInWorkspace(project, gradleProject, this.rootRequestAttributes, new SubProgressMonitor(monitor, 1));
+            CorePlugin.workspaceGradleOperations().updateProjectInWorkspace(gradleProject, this.rootRequestAttributes, new SubProgressMonitor(monitor, 1));
         } finally {
             monitor.done();
         }
