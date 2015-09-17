@@ -131,7 +131,7 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
     private void makeWorkspaceProjectGradleUnaware(IProject project, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Remove project %s", project.getName()), 1);
         try {
-            CorePlugin.workspaceGradleOperations().makeProjectGradleUnaware(project, new SubProgressMonitor(monitor, 1));
+            CorePlugin.workspaceGradleOperations().makeWorkspaceProjectGradleUnaware(project, new SubProgressMonitor(monitor, 1));
         } finally {
             monitor.done();
         }
@@ -140,7 +140,7 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
     private void synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject gradleProject, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Update project %s", gradleProject.getName()), 1);
         try {
-            CorePlugin.workspaceGradleOperations().updateProjectInWorkspace(gradleProject, gradleBuild, this.rootRequestAttributes, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 1));
+            CorePlugin.workspaceGradleOperations().synchronizeGradleProjectWithWorkspaceProject(gradleProject, gradleBuild, this.rootRequestAttributes, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 1));
         } finally {
             monitor.done();
         }

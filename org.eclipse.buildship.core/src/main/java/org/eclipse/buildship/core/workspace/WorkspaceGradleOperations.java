@@ -49,7 +49,7 @@ public interface WorkspaceGradleOperations {
      * @param workingSets           the working set to assign the imported projects to
      * @param monitor               the monitor to report the progress on
      */
-    void updateProjectInWorkspace(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor);
+    void synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor);
 
     /**
      * Removes all Gradle specific parts from the given project.
@@ -57,6 +57,6 @@ public interface WorkspaceGradleOperations {
      * @param workspaceProject the project from which to remove all Gradle specific parts
      * @param monitor          the monitor to report the progress on
      */
-    void makeProjectGradleUnaware(IProject workspaceProject, IProgressMonitor monitor);
+    void makeWorkspaceProjectGradleUnaware(IProject workspaceProject, IProgressMonitor monitor);
 
 }
