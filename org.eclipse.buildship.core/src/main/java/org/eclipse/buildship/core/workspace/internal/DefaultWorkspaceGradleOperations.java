@@ -45,7 +45,7 @@ import java.util.List;
 public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOperations {
 
     @Override
-    public void attachNewGradleAwareProjectOrExistingProjectToWorkspace(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes fixedAttributes, List<String> workingSets, IProgressMonitor monitor) {
+    public void attachNewGradleAwareProjectOrExistingProjectToWorkspace(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor) {
         monitor.beginTask("Attach Gradle project " + project.getName(), 3);
         try {
             // check if an Eclipse project already exists at the location of the Gradle project to import
@@ -78,7 +78,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             }
 
             // persist the Gradle-specific configuration in the Eclipse project's .settings folder
-            ProjectConfiguration projectConfiguration = ProjectConfiguration.from(fixedAttributes, project);
+            ProjectConfiguration projectConfiguration = ProjectConfiguration.from(rootRequestAttributes, project);
             CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, workspaceProject);
 
             // notify the listeners that a new IProject has been created

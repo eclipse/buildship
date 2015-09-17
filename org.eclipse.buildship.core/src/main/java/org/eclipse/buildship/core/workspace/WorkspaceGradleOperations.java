@@ -31,21 +31,21 @@ public interface WorkspaceGradleOperations {
      * attached unchanged, only the {@link org.eclipse.buildship.core.configuration.GradleProjectNature} is assigned to it and some resources filters are
      * applied. Otherwise the project is fully populated from the model.
      *
-     * @param project         the Gradle project to attach as an Eclipse project
-     * @param gradleBuild     the Gradle build to which the Gradle project belongs
-     * @param fixedAttributes the preferences used to query the models
-     * @param workingSets     the working set to assign the imported projects to
-     * @param monitor         the monitor to report the progress on
+     * @param project               the Gradle project to attach as an Eclipse project
+     * @param gradleBuild           the Gradle build to which the Gradle project belongs
+     * @param rootRequestAttributes the preferences used to query the Gradle build
+     * @param workingSets           the working set to assign the imported projects to
+     * @param monitor               the monitor to report the progress on
      * @throws IllegalStateException thrown if there is a project at the given location that is already attached to the workspace
      */
-    void attachNewGradleAwareProjectOrExistingProjectToWorkspace(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes fixedAttributes, List<String> workingSets, IProgressMonitor monitor);
+    void attachNewGradleAwareProjectOrExistingProjectToWorkspace(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor);
 
     /**
      * Updates the Gradle specific parts of the given project.
      *
      * @param project               the backing Gradle project
      * @param gradleBuild           the Gradle build to which the Gradle project belongs
-     * @param rootRequestAttributes the request attributes of the root project
+     * @param rootRequestAttributes the preferences used to query the Gradle build
      * @param monitor               the monitor to report the progress on
      */
     void updateProjectInWorkspace(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor);
