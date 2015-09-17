@@ -44,10 +44,11 @@ public interface WorkspaceGradleOperations {
      * Updates the Gradle specific parts of the given project.
      *
      * @param project               the backing Gradle project
+     * @param gradleBuild           the Gradle build to which the Gradle project belongs
      * @param rootRequestAttributes the request attributes of the root project
      * @param monitor               the monitor to report the progress on
      */
-    void updateProjectInWorkspace(OmniEclipseProject project, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor);
+    void updateProjectInWorkspace(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor);
 
     /**
      * Removes all Gradle specific parts from the given project.

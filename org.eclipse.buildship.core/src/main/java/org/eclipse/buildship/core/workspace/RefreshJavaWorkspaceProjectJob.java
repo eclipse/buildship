@@ -75,10 +75,13 @@ public final class RefreshJavaWorkspaceProjectJob extends ToolingApiWorkspaceJob
         IProject project = javaProject.getProject();
         if (GradleProjectNature.INSTANCE.isPresentOn(project)) {
             // find the Gradle project corresponding to the workspace project ad update it accordingly
-            Optional<OmniEclipseProject> gradleProject = findEclipseGradleProject(project, monitor, token);
+            ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
+            OmniEclipseGradleBuild gradleBuild = fetchEclipseGradleBuild(configuration.getRequestAttributes(), monitor, token);
+            Optional<OmniEclipseProject> gradleProject = gradleBuild.getRootEclipseProject().tryFind(Specs.eclipseProjectMatchesProjectPath(configuration.getProjectPath()));
+
             monitor.worked(50);
             if (gradleProject.isPresent()) {
-                CorePlugin.workspaceGradleOperations().updateProjectInWorkspace(gradleProject.get(), null, new SubProgressMonitor(monitor, 50));
+                CorePlugin.workspaceGradleOperations().updateProjectInWorkspace(gradleProject.get(), gradleBuild, null, new SubProgressMonitor(monitor, 50));
             } else {
                 CorePlugin.workspaceGradleOperations().makeProjectGradleUnaware(project, new SubProgressMonitor(monitor, 25));
                 ClasspathContainerUpdater.clear(javaProject, new SubProgressMonitor(monitor, 100));
@@ -87,12 +90,6 @@ public final class RefreshJavaWorkspaceProjectJob extends ToolingApiWorkspaceJob
             // in case the Gradle specifics have been removed in the previous Eclipse session, update project/external dependencies to be empty
             ClasspathContainerUpdater.clear(javaProject, new SubProgressMonitor(monitor, 100));
         }
-    }
-
-    private Optional<OmniEclipseProject> findEclipseGradleProject(IProject project, IProgressMonitor monitor, CancellationToken token) {
-        ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
-        OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(configuration.getRequestAttributes(), monitor, token);
-        return eclipseGradleBuild.getRootEclipseProject().tryFind(Specs.eclipseProjectMatchesProjectPath(configuration.getProjectPath()));
     }
 
     private OmniEclipseGradleBuild fetchEclipseGradleBuild(FixedRequestAttributes fixedRequestAttributes, IProgressMonitor monitor, CancellationToken token) {

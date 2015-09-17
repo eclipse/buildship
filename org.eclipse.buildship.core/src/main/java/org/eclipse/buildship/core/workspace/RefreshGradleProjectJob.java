@@ -102,7 +102,7 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
                 if (newGradleProjects.contains(gradleProject)) {
                     addProject(gradleProject, gradleBuild, new SubProgressMonitor(monitor, 1));
                 } else {
-                    updateProject(gradleProject, new SubProgressMonitor(monitor, 1));
+                    updateProject(gradleProject, gradleBuild, new SubProgressMonitor(monitor, 1));
                 }
             }
         } finally {
@@ -155,19 +155,19 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
         }
     }
 
-    private void addProject(OmniEclipseProject gradleProject, OmniEclipseGradleBuild eclipseGradleBuild, IProgressMonitor monitor) {
+    private void addProject(OmniEclipseProject gradleProject, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Add project %s", gradleProject.getName()), 1);
         try {
-            CorePlugin.workspaceGradleOperations().attachNewGradleAwareProjectOrExistingProjectToWorkspace(gradleProject, eclipseGradleBuild, this.rootRequestAttributes, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 1));
+            CorePlugin.workspaceGradleOperations().attachNewGradleAwareProjectOrExistingProjectToWorkspace(gradleProject, gradleBuild, this.rootRequestAttributes, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 1));
         } finally {
             monitor.done();
         }
     }
 
-    private void updateProject(OmniEclipseProject gradleProject, IProgressMonitor monitor) {
+    private void updateProject(OmniEclipseProject gradleProject, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Add project %s", gradleProject.getName()), 1);
         try {
-            CorePlugin.workspaceGradleOperations().updateProjectInWorkspace(gradleProject, this.rootRequestAttributes, new SubProgressMonitor(monitor, 1));
+            CorePlugin.workspaceGradleOperations().updateProjectInWorkspace(gradleProject, gradleBuild, this.rootRequestAttributes, new SubProgressMonitor(monitor, 1));
         } finally {
             monitor.done();
         }
