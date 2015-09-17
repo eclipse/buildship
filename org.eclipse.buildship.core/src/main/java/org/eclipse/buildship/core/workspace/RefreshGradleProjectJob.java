@@ -94,11 +94,11 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
         try {
             // remove the workspace projects that do not have a corresponding Gradle project anymore
             for (IProject oldProject : oldWorkspaceProjects) {
-                removeProject(oldProject, new SubProgressMonitor(monitor, 1));
+                makeWorkspaceProjectGradleUnaware(oldProject, new SubProgressMonitor(monitor, 1));
             }
             // synchronize the Gradle projects with their corresponding workspace projects
             for (OmniEclipseProject gradleProject : allGradleProjects) {
-                updateProject(gradleProject, gradleBuild, new SubProgressMonitor(monitor, 1));
+                synchronizeGradleProjectWithWorkspaceProject(gradleProject, gradleBuild, new SubProgressMonitor(monitor, 1));
             }
         } finally {
             monitor.done();
@@ -128,7 +128,7 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
         }).toList();
     }
 
-    private void removeProject(IProject project, IProgressMonitor monitor) {
+    private void makeWorkspaceProjectGradleUnaware(IProject project, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Remove project %s", project.getName()), 1);
         try {
             CorePlugin.workspaceGradleOperations().makeProjectGradleUnaware(project, new SubProgressMonitor(monitor, 1));
@@ -137,7 +137,7 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
         }
     }
 
-    private void updateProject(OmniEclipseProject gradleProject, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
+    private void synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject gradleProject, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Update project %s", gradleProject.getName()), 1);
         try {
             CorePlugin.workspaceGradleOperations().updateProjectInWorkspace(gradleProject, gradleBuild, this.rootRequestAttributes, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 1));
