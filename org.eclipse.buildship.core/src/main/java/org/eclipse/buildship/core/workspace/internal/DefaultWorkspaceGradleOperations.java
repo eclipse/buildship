@@ -31,10 +31,7 @@ import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.launching.JavaRuntime;
@@ -133,9 +130,18 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     }
 
     @Override
-    public void updateProjectInWorkspace(IProject workspaceProject, OmniEclipseProject project, IProgressMonitor monitor) {
-        monitor.beginTask("Update Gradle project " + project.getName(), 3);
+    public void updateProjectInWorkspace(IProject workspaceProject, OmniEclipseProject project, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) {
+        monitor.beginTask("Update Gradle project " + project.getName(), 4);
         try {
+            // add Gradle nature and .prefs file if needed
+            if (!GradleProjectNature.INSTANCE.isPresentOn(workspaceProject) && rootRequestAttributes != null) {
+                CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
+                ProjectConfiguration configuration = ProjectConfiguration.from(rootRequestAttributes, project);
+                CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, workspaceProject);
+            } else {
+                monitor.worked(1);
+            }
+
             // update linked resources
             LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), new SubProgressMonitor(monitor, 1));
 

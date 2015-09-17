@@ -24,7 +24,6 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.util.predicate.Predicates;
@@ -34,7 +33,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
@@ -171,12 +169,7 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
         try {
             IProject project = CorePlugin.workspaceOperations().findProjectByLocation(gradleProject.getProjectDirectory()).get();
             if (project.isAccessible()) {
-                if (!GradleProjectNature.INSTANCE.isPresentOn(project)) {
-                    CorePlugin.workspaceOperations().addNature(project, GradleProjectNature.ID, new NullProgressMonitor());
-                    ProjectConfiguration configuration = ProjectConfiguration.from(this.rootRequestAttributes, gradleProject);
-                    CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, project);
-                }
-                CorePlugin.workspaceGradleOperations().updateProjectInWorkspace(project, gradleProject, new SubProgressMonitor(monitor, 1));
+                CorePlugin.workspaceGradleOperations().updateProjectInWorkspace(project, gradleProject, this.rootRequestAttributes,new SubProgressMonitor(monitor, 1));
             }
         } finally {
             monitor.done();
