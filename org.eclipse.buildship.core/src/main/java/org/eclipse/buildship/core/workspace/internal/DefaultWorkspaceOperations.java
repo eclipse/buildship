@@ -141,7 +141,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         monitor.beginTask(String.format("Create Eclipse project %s", name), 4 + natureIds.size());
         try {
             // make sure no project with the specified name already exists
-            Preconditions.checkState(!findProjectByName(name).isPresent(), String.format("Workspace already contains project with name %s.", name));
+            Preconditions.checkState(!findProjectByName(name).isPresent(), String.format("Workspace already contains a project with name %s.", name));
             monitor.worked(1);
 
             // calculate the name and the project location
