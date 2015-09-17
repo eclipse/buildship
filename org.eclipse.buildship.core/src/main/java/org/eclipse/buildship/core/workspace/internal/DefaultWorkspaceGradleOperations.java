@@ -133,6 +133,11 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     public void updateProjectInWorkspace(IProject workspaceProject, OmniEclipseProject project, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) {
         monitor.beginTask("Update Gradle project " + project.getName(), 4);
         try {
+            // do not modify closed projects
+            if (!workspaceProject.isAccessible()) {
+                return;
+            }
+
             // add Gradle nature and .prefs file if needed
             if (!GradleProjectNature.INSTANCE.isPresentOn(workspaceProject) && rootRequestAttributes != null) {
                 CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
