@@ -44,8 +44,8 @@ import java.util.List;
  */
 public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOperations {
 
-    @Override
-    public void attachNewGradleAwareProjectOrExistingProjectToWorkspace(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor) {
+    // todo (etst)
+    private void attachNewGradleAwareProjectOrExistingProjectToWorkspace(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor) {
         monitor.beginTask("Attach Gradle project " + project.getName(), 3);
         try {
             // check if an Eclipse project already exists at the location of the Gradle project to import

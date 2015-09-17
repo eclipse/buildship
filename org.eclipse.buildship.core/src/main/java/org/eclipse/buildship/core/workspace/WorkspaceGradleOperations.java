@@ -26,22 +26,42 @@ import java.util.List;
 public interface WorkspaceGradleOperations {
 
     /**
-     * Either creates a new, Gradle-aware project and attaches it to the workspace or, if an Eclipse project already
-     * exists at the given location, attaches the found project to the workspace. An existing Eclipse project is
-     * attached unchanged, only the {@link org.eclipse.buildship.core.configuration.GradleProjectNature} is assigned to it and some resources filters are
-     * applied. Otherwise the project is fully populated from the model.
-     *
-     * @param project               the Gradle project to attach as an Eclipse project
-     * @param gradleBuild           the Gradle build to which the Gradle project belongs
-     * @param rootRequestAttributes the preferences used to query the Gradle build
-     * @param workingSets           the working set to assign the imported projects to
-     * @param monitor               the monitor to report the progress on
-     * @throws IllegalStateException thrown if there is a project at the given location that is already attached to the workspace
-     */
-    void attachNewGradleAwareProjectOrExistingProjectToWorkspace(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor);
-
-    /**
-     * Updates the Gradle specific parts of the given project.
+     * Synchronizes the given Gradle project with its workspace project counterpart. The algorithm is as follows:
+     * <p/>
+     * <ol>
+     * <li>
+     * If there is a project in the workspace at the location of the Gradle project, the synchronization is as follows:
+     * <ol>
+     * <li>If the workspace project is closed, the project is left unchanged</li>
+     * <li>If the workspace project is open: ????
+     * <ul>
+     * <li>the Gradle nature is set</li>
+     * <li>the Gradle settings file is written</li>
+     * <li>the Gradle resource filter is set</li>
+     * <li>a Java project is set ?????</li>
+     * </ul>
+     * </li>
+     * </ol>
+     * </li>
+     * <li>
+     * If there is an Eclipse project at the location of the Gradle project, i.e. there is a .project file in that folder, the synchronization is as follows:
+     * <ul>
+     * <li>the Eclipse project is added to the workspace</li>
+     * <li>the Gradle nature is set</li>
+     * <li>the Gradle settings file is written</li>
+     * <li>the Gradle resource filter is set</li>
+     * </ul>
+     * </li>
+     * <li>If the there is no project in the workspace nor an Eclipse project at the location of the Gradle build, the synchronization is as follows:
+     * <ul>
+     * <li>an Eclipse project is created and added to the workspace</li>
+     * <li>the Gradle nature is set</li>
+     * <li>the Gradle settings file is written</li>
+     * <li>the Gradle resource filter is set</li>
+     * <li>a Java project is set in case of a Java Gradle project</li>
+     * </ul>
+     * </li>
+     * </ol>
      *
      * @param project               the backing Gradle project
      * @param gradleBuild           the Gradle build to which the Gradle project belongs

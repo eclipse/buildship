@@ -78,7 +78,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
             OmniEclipseProject rootProject = eclipseGradleBuild.getRootEclipseProject();
             List<OmniEclipseProject> allProjects = rootProject.getAll();
             for (OmniEclipseProject project : allProjects) {
-                CorePlugin.workspaceGradleOperations().attachNewGradleAwareProjectOrExistingProjectToWorkspace(project, eclipseGradleBuild, this.fixedAttributes, this.workingSets, new SubProgressMonitor(monitor, 50 / allProjects.size()));
+                CorePlugin.workspaceGradleOperations().synchronizeGradleProjectWithWorkspaceProject(project, eclipseGradleBuild, this.fixedAttributes, this.workingSets, new SubProgressMonitor(monitor, 50 / allProjects.size()));
             }
         } finally {
             manager.endRule(workspaceRoot);
