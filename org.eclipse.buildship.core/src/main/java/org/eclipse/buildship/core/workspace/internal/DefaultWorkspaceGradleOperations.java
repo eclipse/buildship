@@ -118,18 +118,6 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     }
 
     @Override
-    public void makeProjectGradleUnaware(IProject workspaceProject, IProgressMonitor monitor) {
-        monitor.beginTask("Detach Gradle specifics from project " + workspaceProject.getName(), 2);
-        try {
-            CorePlugin.workspaceOperations().removeNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
-            CorePlugin.projectConfigurationManager().deleteProjectConfiguration(workspaceProject);
-            ResourceFilter.detachAllFilters(workspaceProject, new SubProgressMonitor(monitor, 1));
-        } finally {
-            monitor.done();
-        }
-    }
-
-    @Override
     public void updateProjectInWorkspace(OmniEclipseProject project, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) {
         monitor.beginTask("Update Gradle project " + project.getName(), 4);
         try {
@@ -183,6 +171,18 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             return project.hasNature(JavaCore.NATURE_ID);
         } catch (CoreException e) {
             return false;
+        }
+    }
+
+    @Override
+    public void makeProjectGradleUnaware(IProject workspaceProject, IProgressMonitor monitor) {
+        monitor.beginTask("Detach Gradle specifics from project " + workspaceProject.getName(), 2);
+        try {
+            CorePlugin.workspaceOperations().removeNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
+            CorePlugin.projectConfigurationManager().deleteProjectConfiguration(workspaceProject);
+            ResourceFilter.detachAllFilters(workspaceProject, new SubProgressMonitor(monitor, 1));
+        } finally {
+            monitor.done();
         }
     }
 

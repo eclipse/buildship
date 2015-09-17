@@ -41,14 +41,6 @@ public interface WorkspaceGradleOperations {
     void attachNewGradleAwareProjectOrExistingProjectToWorkspace(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes fixedAttributes, List<String> workingSets, IProgressMonitor monitor);
 
     /**
-     * Removes all Gradle specific parts from the given project.
-     *
-     * @param workspaceProject the project from which to remove all Gradle specific parts
-     * @param monitor          the monitor to report the progress on
-     */
-    void makeProjectGradleUnaware(IProject workspaceProject, IProgressMonitor monitor);
-
-    /**
      * Updates the Gradle specific parts of the given project.
      *
      * @param project               the backing Gradle project
@@ -56,5 +48,13 @@ public interface WorkspaceGradleOperations {
      * @param monitor               the monitor to report the progress on
      */
     void updateProjectInWorkspace(OmniEclipseProject project, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor);
+
+    /**
+     * Removes all Gradle specific parts from the given project.
+     *
+     * @param workspaceProject the project from which to remove all Gradle specific parts
+     * @param monitor          the monitor to report the progress on
+     */
+    void makeProjectGradleUnaware(IProject workspaceProject, IProgressMonitor monitor);
 
 }
