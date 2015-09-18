@@ -39,7 +39,6 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.JavaRuntime;
 
 import java.io.File;
@@ -147,13 +146,16 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         return workspaceProject;
     }
 
-    private IProject addNewEclipseProjectToWorkspace(OmniEclipseProject project, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor, WorkspaceOperations workspaceOperations, List<File> filteredSubFolders, ImmutableList<String> gradleNature) throws JavaModelException {
+    private IProject addNewEclipseProjectToWorkspace(OmniEclipseProject project, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor, WorkspaceOperations workspaceOperations, List<File> filteredSubFolders, ImmutableList<String> gradleNature) throws CoreException {
         // create a new Eclipse project in the workspace for the current Gradle project
         IProject workspaceProject = workspaceOperations.createProject(project.getName(), project.getProjectDirectory(), filteredSubFolders, gradleNature, new SubProgressMonitor(monitor, 1));
 
         // persist the Gradle-specific configuration in the Eclipse project's .settings folder
         ProjectConfiguration projectConfiguration = ProjectConfiguration.from(rootRequestAttributes, project);
         CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, workspaceProject);
+
+        // set linked resources
+        LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), new SubProgressMonitor(monitor, 1));
 
         // if the current Gradle project is a Java project, configure the Java nature, the classpath, and the source paths
         if (isJavaProject(project)) {
