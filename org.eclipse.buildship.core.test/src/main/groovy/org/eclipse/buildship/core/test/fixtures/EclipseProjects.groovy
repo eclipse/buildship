@@ -34,6 +34,7 @@ abstract class EclipseProjects {
         IProject project = workspace.getRoot().getProject('another')
         project.create(projectDescription, null)
         project.open(null)
+        project
     }
 
     /**
