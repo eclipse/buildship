@@ -291,6 +291,9 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
     // -- helper methods --
 
     private static def executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(GradleModel gradleModel) {
+        // Note: executing the synchronizeGradleProjectWithWorkspaceProject() in a new job is necessary
+        // as the jdt operations expect that all modifications are guarded by proper rules. For the sake
+        // of this test class we simply use the workspace root as the job rule.
         Job job = new Job('') {
             protected IStatus run(IProgressMonitor monitor) {
                 Job.jobManager.beginRule(LegacyEclipseSpockTestHelper.workspace.root, monitor)
