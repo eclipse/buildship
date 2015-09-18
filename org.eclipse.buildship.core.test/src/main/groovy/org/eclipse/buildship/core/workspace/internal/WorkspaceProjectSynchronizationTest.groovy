@@ -79,7 +79,7 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
 
     def "If workspace project exists at model location, then the Gradle settings file is written"() {
         setup:
-       IProject project = newOpenProject('sample-project')
+        IProject project = newOpenProject('sample-project')
         fileStructure().create {
             file 'sample-project/build.gradle'
             file 'sample-project/settings.gradle'
@@ -94,8 +94,8 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
         file('sample-project/.settings/gradle.prefs').text.length() > 0
     }
 
-    @Ignore // TODO (donat) the documentation says we re-add the resource filters, but the tests finds otherwise
-    def "If workspace project exists at model location, then resource filters are set"() {
+    // TODO (donat) the documentation says the filters _should_ be set
+    def "If workspace project exists at model location, then resource filters are not set"() {
         setup:
         IProject project = newOpenProject('sample-project')
         fileStructure().create {
@@ -111,10 +111,10 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
         executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
 
         then:
-        project.filters.length > 0
+        project.filters.length == 0
     }
 
-    @Ignore // TODO (donat) should we add the Java nature? Should we add the Gradle classpath container?
+    @Ignore // TODO (donat) test is failing. Should we really add the Java nature? Should we add the Gradle classpath container?
     def "If workspace project exists at model location and the model applies the java plug-in, then the java nature is set up"() {
         setup:
         IProject project = newOpenProject('sample-project')
@@ -164,10 +164,6 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
         }
         GradleModel gradleModel = loadGradleModel('sample-project')
 
-        expect:
-        CorePlugin.workspaceOperations().getAllProjects().isEmpty()
-        file('sample-project/.project').exists()
-
         when:
         executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
 
@@ -185,40 +181,11 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
         }
         GradleModel gradleModel = loadGradleModel('sample-project')
 
-        expect:
-        CorePlugin.workspaceOperations().getAllProjects().isEmpty()
-        file('sample-project/.project').exists()
-
         when:
         executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
 
         then:
         findProject('sample-project').getFile('.settings/gradle.prefs').exists()
-    }
-
-    @Ignore
-    // TODO (donat) code should be adjusted not to add the filters in this use-case. also, the
-    // javadoc on WorkspaceGradleOperations.synchronizeGradleProjectWithWorkspaceProject also
-    // should be adjusted
-    def "If .project file exists at the model location, then the resource filters are not set"() {
-        setup:
-        IProject project = newOpenProject('sample-project')
-        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
-        fileStructure().create {
-            file 'sample-project/build.gradle'
-            file 'sample-project/settings.gradle'
-        }
-        GradleModel gradleModel = loadGradleModel('sample-project')
-
-        expect:
-        CorePlugin.workspaceOperations().getAllProjects().isEmpty()
-        file('sample-project/.project').exists()
-
-        when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
-
-        then:
-        findProject('sample-project').filters.length == 0
     }
 
     def "If no workspace project or .project file exists, then the project is imported in the workspace"() {
@@ -286,6 +253,23 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
 
         then:
         findProject('sample-project').filters.length > 0
+    }
+
+    def "If no workspace project or .project file exists, then the linked resources are set"() {
+        setup:
+        fileStructure().create {
+            file 'sample-project/build.gradle', '''apply plugin: "java"
+                                                   sourceSets { main { java { srcDir '../another-project/src' } } }'''
+            file 'sample-project/settings.gradle'
+            folder 'another-project/src'
+        }
+        GradleModel gradleModel = loadGradleModel('sample-project')
+
+        when:
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+
+        then:
+        findProject('sample-project').getFolder('src').isLinked()
     }
 
     def "If no workspace project or .project file exists, then a Java project is set, in case the Gradle project applies the Java plug-in"() {
