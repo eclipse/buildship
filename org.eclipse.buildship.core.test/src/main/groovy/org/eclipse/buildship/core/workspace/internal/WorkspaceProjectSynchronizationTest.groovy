@@ -286,9 +286,6 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
 
         then:
         findProject('sample-project').hasNature(JavaCore.NATURE_ID)
-        JavaCore.create(findProject('sample-project')).rawClasspath.find{ it.path.toPortableString() == GradleClasspathContainer.CONTAINER_ID }
-        JavaCore.create(findProject('sample-project')).rawClasspath.findAll{ it.entryKind == IClasspathEntry.CPE_SOURCE }.size() == 1
-        JavaCore.create(findProject('sample-project')).rawClasspath.find{ it.entryKind == IClasspathEntry.CPE_SOURCE && it.path.toPortableString() == '/sample-project/src/main/java' }
     }
 
     // -- helper methods --
