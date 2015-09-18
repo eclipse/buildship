@@ -74,13 +74,13 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
                 return;
             }
 
-            // add Gradle nature and .prefs file if needed
-            if (!GradleProjectNature.INSTANCE.isPresentOn(workspaceProject) && rootRequestAttributes != null) {
-                CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
+            // add Gradle nature, if needed
+            CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
+
+            // persist the Gradle-specific configuration in the Eclipse project's .settings folder, if the configuration is available
+            if (rootRequestAttributes != null) {
                 ProjectConfiguration configuration = ProjectConfiguration.from(rootRequestAttributes, project);
                 CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, workspaceProject);
-            } else {
-                monitor.worked(1);
             }
 
             // update linked resources
