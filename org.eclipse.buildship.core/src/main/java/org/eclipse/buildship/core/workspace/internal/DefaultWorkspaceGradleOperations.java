@@ -26,6 +26,7 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.gradle.Specs;
+import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 import org.eclipse.buildship.core.workspace.ProjectCreatedEvent;
 import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
@@ -35,8 +36,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.JavaRuntime;
 
 import java.io.File;
@@ -103,7 +106,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         }
     }
 
-    private void synchronizeNonWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor) {
+    private void synchronizeNonWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor) throws CoreException {
         monitor.beginTask(String.format("Synchronize non-workspace Gradle project %s", project.getName()), 3);
         try {
             // check if an Eclipse project already exists at the location of the Gradle project to import
@@ -144,7 +147,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         return workspaceProject;
     }
 
-    private IProject addNewEclipseProjectToWorkspace(OmniEclipseProject project, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor, WorkspaceOperations workspaceOperations, List<File> filteredSubFolders, ImmutableList<String> gradleNature) {
+    private IProject addNewEclipseProjectToWorkspace(OmniEclipseProject project, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor, WorkspaceOperations workspaceOperations, List<File> filteredSubFolders, ImmutableList<String> gradleNature) throws JavaModelException {
         // create a new Eclipse project in the workspace for the current Gradle project
         IProject workspaceProject = workspaceOperations.createProject(project.getName(), project.getProjectDirectory(), filteredSubFolders, gradleNature, new SubProgressMonitor(monitor, 1));
 
@@ -155,7 +158,8 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         // if the current Gradle project is a Java project, configure the Java nature, the classpath, and the source paths
         if (isJavaProject(project)) {
             IPath jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath();
-            workspaceOperations.createJavaProject(workspaceProject, jrePath, new SubProgressMonitor(monitor, 1));
+            IClasspathEntry classpathContainer = GradleClasspathContainer.newClasspathEntry();
+            workspaceOperations.createJavaProject(workspaceProject, jrePath, classpathContainer, new SubProgressMonitor(monitor, 1));
         } else {
             monitor.worked(1);
         }

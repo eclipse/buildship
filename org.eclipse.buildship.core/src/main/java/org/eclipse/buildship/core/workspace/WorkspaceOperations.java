@@ -21,6 +21,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 
 /**
@@ -110,10 +111,11 @@ public interface WorkspaceOperations {
      *
      * @param project the project to turn into a Java project
      * @param jrePath the path of the Java runtime which will be added to the project
+     * @param classpathContainer the classpath container to add to the classpath entries
      * @param monitor the monitor to report progress on
      * @return the created Java project
      */
-    IJavaProject createJavaProject(IProject project, IPath jrePath, IProgressMonitor monitor);
+    IJavaProject createJavaProject(IProject project, IPath jrePath, IClasspathEntry classpathContainer, IProgressMonitor monitor);
 
     /**
      * Refreshes the content of an existing {@link IProject} to get it in sync with the file system.

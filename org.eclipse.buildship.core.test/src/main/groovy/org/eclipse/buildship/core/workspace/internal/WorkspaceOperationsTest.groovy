@@ -12,6 +12,7 @@
 package org.eclipse.buildship.core.workspace.internal
 
 import com.google.common.collect.ImmutableList
+import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.Path
@@ -224,7 +225,7 @@ class WorkspaceOperationsTest extends Specification {
         def jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath()
 
         when:
-        IJavaProject javaProject = workspaceOperations.createJavaProject(project, jrePath, new NullProgressMonitor())
+        IJavaProject javaProject = workspaceOperations.createJavaProject(project, jrePath, GradleClasspathContainer.newClasspathEntry(), new NullProgressMonitor())
 
         then:
         javaProject != null
@@ -236,7 +237,7 @@ class WorkspaceOperationsTest extends Specification {
         def jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath()
 
         when:
-        workspaceOperations.createJavaProject(null, jrePath, new NullProgressMonitor())
+        workspaceOperations.createJavaProject(null, jrePath, GradleClasspathContainer.newClasspathEntry(), new NullProgressMonitor())
 
         then:
         thrown(NullPointerException)
@@ -249,7 +250,7 @@ class WorkspaceOperationsTest extends Specification {
         def jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath()
 
         when:
-        workspaceOperations.createJavaProject(project, jrePath, new NullProgressMonitor())
+        workspaceOperations.createJavaProject(project, jrePath, GradleClasspathContainer.newClasspathEntry(), new NullProgressMonitor())
 
         then:
         thrown(IllegalArgumentException)
@@ -260,7 +261,7 @@ class WorkspaceOperationsTest extends Specification {
         IProject project = workspaceOperations.createProject("sample-project", tempFolder.newFolder(), ImmutableList.of(), ImmutableList.of(JavaCore.NATURE_ID), new NullProgressMonitor())
 
         when:
-        workspaceOperations.createJavaProject(project, null, new NullProgressMonitor())
+        workspaceOperations.createJavaProject(project, null, GradleClasspathContainer.newClasspathEntry(), new NullProgressMonitor())
 
         then:
         thrown(NullPointerException)

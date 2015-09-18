@@ -40,7 +40,6 @@ import org.eclipse.jdt.core.JavaCore;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.object.MoreObjects;
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 /**
@@ -220,7 +219,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
-    public IJavaProject createJavaProject(IProject project, IPath jrePath, IProgressMonitor monitor) {
+    public IJavaProject createJavaProject(IProject project, IPath jrePath, IClasspathEntry classpathContainer, IProgressMonitor monitor) {
         // validate arguments
         Preconditions.checkNotNull(project);
         Preconditions.checkNotNull(jrePath);
@@ -237,7 +236,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             monitor.worked(5);
 
             // set up initial classpath container on project
-            setClasspathOnProject(javaProject, jrePath, new SubProgressMonitor(monitor, 5));
+            setClasspathOnProject(javaProject, jrePath, classpathContainer, new SubProgressMonitor(monitor, 5));
 
             // set up output location
             IFolder outputFolder = createOutputFolder(project, new SubProgressMonitor(monitor, 1));
@@ -272,7 +271,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         }
     }
 
-    private void setClasspathOnProject(IJavaProject javaProject, IPath jrePath, IProgressMonitor monitor) {
+    private void setClasspathOnProject(IJavaProject javaProject, IPath jrePath, IClasspathEntry classpathContainerEntry, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Configure sources and classpath for Eclipse project %s", javaProject.getProject().getName()), 10);
         try {
             // create a new holder for all classpath entries
@@ -285,7 +284,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             // add classpath definition of where to store the source/project/external dependencies, the classpath
             // will be populated lazily by the org.eclipse.jdt.core.classpathContainerInitializer
             // extension point (see GradleClasspathContainerInitializer)
-            entries.add(GradleClasspathContainer.newClasspathEntry());
+            entries.add(classpathContainerEntry);
             monitor.worked(1);
 
             // assign the whole classpath at once to the project
