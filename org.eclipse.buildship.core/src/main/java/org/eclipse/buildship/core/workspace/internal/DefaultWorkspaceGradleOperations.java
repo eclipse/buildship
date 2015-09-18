@@ -120,24 +120,10 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
 
             IProject workspaceProject;
             if (projectDescription.isPresent()) {
-                // include the existing Eclipse project in the workspace
-                workspaceProject = workspaceOperations.includeProject(projectDescription.get(), filteredSubFolders, gradleNature, new SubProgressMonitor(monitor, 2));
+                workspaceProject = addExistingEclipseProjectToWorkspace(project, projectDescription.get(), rootRequestAttributes, workspaceOperations, filteredSubFolders, gradleNature, monitor);
             } else {
-                // create a new Eclipse project in the workspace for the current Gradle project
-                workspaceProject = workspaceOperations.createProject(project.getName(), project.getProjectDirectory(), filteredSubFolders, gradleNature, new SubProgressMonitor(monitor, 1));
-
-                // if the current Gradle project is a Java project, configure the Java nature, the classpath, and the source paths
-                if (isJavaProject(project)) {
-                    IPath jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath();
-                    workspaceOperations.createJavaProject(workspaceProject, jrePath, new SubProgressMonitor(monitor, 1));
-                } else {
-                    monitor.worked(1);
-                }
+                workspaceProject = addNewEclipseProjectToWorkspace(project, rootRequestAttributes, monitor, workspaceOperations, filteredSubFolders, gradleNature);
             }
-
-            // persist the Gradle-specific configuration in the Eclipse project's .settings folder
-            ProjectConfiguration projectConfiguration = ProjectConfiguration.from(rootRequestAttributes, project);
-            CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, workspaceProject);
 
             // notify the listeners that a new IProject has been created
             ProjectCreatedEvent event = new DefaultProjectCreatedEvent(workspaceProject, workingSets);
@@ -145,6 +131,36 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         } finally {
             monitor.done();
         }
+    }
+
+    private IProject addExistingEclipseProjectToWorkspace(OmniEclipseProject project, IProjectDescription projectDescription, FixedRequestAttributes rootRequestAttributes, WorkspaceOperations workspaceOperations, List<File> filteredSubFolders, ImmutableList<String> gradleNature, IProgressMonitor monitor) {
+        // include the existing Eclipse project in the workspace
+        IProject workspaceProject = workspaceOperations.includeProject(projectDescription, filteredSubFolders, gradleNature, new SubProgressMonitor(monitor, 2));
+
+        // persist the Gradle-specific configuration in the Eclipse project's .settings folder
+        ProjectConfiguration projectConfiguration = ProjectConfiguration.from(rootRequestAttributes, project);
+        CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, workspaceProject);
+
+        return workspaceProject;
+    }
+
+    private IProject addNewEclipseProjectToWorkspace(OmniEclipseProject project, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor, WorkspaceOperations workspaceOperations, List<File> filteredSubFolders, ImmutableList<String> gradleNature) {
+        // create a new Eclipse project in the workspace for the current Gradle project
+        IProject workspaceProject = workspaceOperations.createProject(project.getName(), project.getProjectDirectory(), filteredSubFolders, gradleNature, new SubProgressMonitor(monitor, 1));
+
+        // persist the Gradle-specific configuration in the Eclipse project's .settings folder
+        ProjectConfiguration projectConfiguration = ProjectConfiguration.from(rootRequestAttributes, project);
+        CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, workspaceProject);
+
+        // if the current Gradle project is a Java project, configure the Java nature, the classpath, and the source paths
+        if (isJavaProject(project)) {
+            IPath jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath();
+            workspaceOperations.createJavaProject(workspaceProject, jrePath, new SubProgressMonitor(monitor, 1));
+        } else {
+            monitor.worked(1);
+        }
+
+        return workspaceProject;
     }
 
     private List<File> collectChildProjectLocations(OmniEclipseProject project) {
