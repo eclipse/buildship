@@ -132,18 +132,16 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         // validate arguments
         Preconditions.checkNotNull(name);
         Preconditions.checkNotNull(location);
+        Preconditions.checkNotNull(filteredSubFolders);
         Preconditions.checkNotNull(natureIds);
         Preconditions.checkArgument(!name.isEmpty(), "Project name must not be empty.");
+        Preconditions.checkState(!findProjectByName(name).isPresent(), String.format("Workspace already contains a project with name %s.", name));
         Preconditions.checkArgument(location.exists(), String.format("Project location %s must exist.", location));
         Preconditions.checkArgument(location.isDirectory(), String.format("Project location %s must be a directory.", location));
 
         monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
-        monitor.beginTask(String.format("Create Eclipse project %s", name), 4 + natureIds.size());
+        monitor.beginTask(String.format("Create Eclipse project %s", name), 3 + natureIds.size());
         try {
-            // make sure no project with the specified name already exists
-            Preconditions.checkState(!findProjectByName(name).isPresent(), String.format("Workspace already contains a project with name %s.", name));
-            monitor.worked(1);
-
             // calculate the name and the project location
             String projectName = resolveProjectName(name, location);
             IPath projectLocation = resolveProjectLocation(location);
@@ -182,9 +180,10 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     public IProject includeProject(IProjectDescription projectDescription, List<File> filteredSubFolders, List<String> extraNatureIds, IProgressMonitor monitor) {
         // validate arguments
         Preconditions.checkNotNull(projectDescription);
+        Preconditions.checkNotNull(filteredSubFolders);
         Preconditions.checkNotNull(extraNatureIds);
         String projectName = projectDescription.getName();
-        Preconditions.checkState(!findProjectByName(projectName).isPresent(), String.format("Workspace already contains project with name %s.", projectName));
+        Preconditions.checkState(!findProjectByName(projectName).isPresent(), String.format("Workspace already contains a project with name %s.", projectName));
 
         monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
         monitor.beginTask(String.format("Include existing non-workspace Eclipse project %s", projectName), 3 + extraNatureIds.size());
