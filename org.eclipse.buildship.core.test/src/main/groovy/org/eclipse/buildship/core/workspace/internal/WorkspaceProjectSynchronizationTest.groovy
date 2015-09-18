@@ -1,10 +1,11 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import groovy.lang.Closure
 import org.gradle.tooling.model.eclipse.EclipseProject
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-import spock.lang.Ignore;
-import spock.lang.IgnoreIf;
+import spock.lang.Ignore
+import spock.lang.IgnoreIf
 import spock.lang.Specification
 
 import com.google.common.base.Optional
@@ -34,11 +35,17 @@ import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 
 class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
 
+    FileStructure fileStructure
+
+    def setup() {
+        fileStructure = new FileStructure(externalTestFolder){}
+    }
+
     def "If workspace project exists at model location and closed then the project remins untouched"() {
         setup:
         IProject project = EclipseProjects.newClosedProject('sample-project', folder('sample-project'))
 
-        createFileStructure {
+        fileStructure.create {
             file 'sample-project/build.gradle'
             file 'sample-project/settings.gradle'
         }
@@ -59,7 +66,7 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
         setup:
         IProject project = EclipseProjects.newProject('sample-project', folder('sample-project'))
 
-        createFileStructure {
+        fileStructure.create {
             file 'sample-project/build.gradle'
             file 'sample-project/settings.gradle'
         }
@@ -76,7 +83,7 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
         setup:
         IProject project = EclipseProjects.newProject('sample-project', folder('sample-project'))
 
-        createFileStructure {
+        fileStructure.create {
             file 'sample-project/build.gradle'
             file 'sample-project/settings.gradle'
         }
@@ -95,7 +102,7 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
         setup:
         IProject project = EclipseProjects.newProject('sample-project', folder('sample-project'))
 
-        createFileStructure {
+        fileStructure.create {
             file 'sample-project/build.gradle'
             file 'sample-project/settings.gradle'
         }
@@ -116,7 +123,7 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
         setup:
         IProject project = EclipseProjects.newProject('sample-project', folder('sample-project'))
 
-        createFileStructure {
+        fileStructure.create {
             file 'sample-project/build.gradle', 'apply plugin: "java"'
             file 'sample-project/settings.gradle'
             folder 'sample-project/src/main/java'

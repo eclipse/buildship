@@ -11,37 +11,44 @@
 
 package org.eclipse.buildship.core.test.fixtures
 
+import org.junit.After;
+
 /**
  * Helper class to define file structures under a target folder.
+ * <p/>
+ * Usage example:
+ * <pre>
+ * File root = ...
+ * FileStructure fileStructure = new FileStructure(root){}
+ * fileStructure.create {
+ *     folder('folder-a')
+ *     file('folder-b/emptyfile')
+ *     file('folder-b/nonemptyfile', 'fileContent')
+ * }
+ * </pre>
  */
 abstract class FileStructure {
 
-    private File rootFolder
+    private final File rootFolder
+
+    /**
+     * Constructor.
+     *
+     * @param rootFolder the root where the files and folders will be created under
+     */
+    FileStructure(File rootFolder) {
+        this.rootFolder = rootFolder
+    }
 
     /**
      * Creates the file structure under the target root.
-     * <p/>
-     * Usage example:
-     * <pre>
-     * File root = ...
-     * FileStructure.create(root) {
-     *     folder('folder-a')
-     *     file('folder-b/emptyfile')
-     *     file('folder-b/nonemptyfile', 'fileContent')
-     * }
-     * </pre>
      *
+     * @param closure the block creating the the files and folders
      */
-    static FileStructure create(File rootFolder, Closure closure) {
-        FileStructure fileStructure = new FileStructure(rootFolder, closure) {}
-        closure.call()
-        fileStructure
-    }
-
-    FileStructure(File rootFolder, Closure closure) {
-        this.rootFolder = rootFolder
+    void create(Closure closure) {
         closure.setDelegate(this)
         closure.setResolveStrategy(Closure.DELEGATE_FIRST)
+        closure.call()
     }
 
     /**
@@ -54,7 +61,8 @@ abstract class FileStructure {
     }
 
     /**
-     * Creates an empty file with a  specified content and location.
+     * Creates an empty file with a specified content and location.
+     *
      * @param location the relative path of the file location
      * @param content the content of the new file
      */
@@ -65,19 +73,12 @@ abstract class FileStructure {
     }
 
     /**
-     * Creates a folder at the target location
+     * Creates a folder at the target location.
+     *
      * @param location the target location
      */
     void folder(String location) {
         new File(rootFolder, location).mkdirs()
     }
 
-    /**
-     * The root folder where the #file() and #folder() methods place their result.
-     *
-     * @return the root folder
-     */
-    File getRoot() {
-        rootFolder
-    }
 }

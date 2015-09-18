@@ -41,12 +41,12 @@ abstract class BuildshipTestSpecification extends Specification {
     @Rule
     TemporaryFolder tempFolderProvider
 
-    private File externalFolder
+    private File externalTestFolder
 
     // -- setup and cleanup test environment
 
     def setup() {
-        externalFolder = tempFolderProvider.newFolder('external')
+        externalTestFolder = tempFolderProvider.newFolder('external')
     }
 
     def cleanup() {
@@ -55,22 +55,20 @@ abstract class BuildshipTestSpecification extends Specification {
         workspaceFolder.listFiles().findAll{ it.isDirectory() && !it.name.startsWith('.') }.each { it.deleteDir() }
     }
 
-    static File getWorkspaceFolder() {
+    // -- methods to retrieve test folders
+
+    protected File getWorkspaceFolder() {
         LegacyEclipseSpockTestHelper.workspace.root.location.toFile()
     }
 
-    // -- helper methods to create and access file structure --
-
-    protected void createFileStructure(Closure closure) {
-        FileStructure.create(externalFolder, closure)
+    protected File getExternalTestFolder() {
+        externalTestFolder
     }
 
-    protected void createWorspaceFileStructure(Closure closure) {
-        FileStructure.create(workspaceFolder, closure)
-    }
+    // -- helper methods to create and access files --
 
     protected File folder(String location) {
-        return new File(externalFolder, location)
+        return new File(externalTestFolder, location)
     }
 
     protected File workspaceFolder(String location) {
@@ -78,7 +76,7 @@ abstract class BuildshipTestSpecification extends Specification {
     }
 
     protected File file(String location) {
-        return new File(externalFolder, location)
+        return new File(externalTestFolder, location)
     }
 
     protected File workspaceFile(String location) {
