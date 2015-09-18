@@ -12,8 +12,6 @@
 package org.eclipse.buildship.core.workspace.internal
 
 import com.google.common.collect.ImmutableList
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer
-import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.Path
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
@@ -22,7 +20,8 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.ProjectConfiguration
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
-
+import org.eclipse.buildship.core.workspace.GradleClasspathContainer
+import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IProjectDescription
 import org.eclipse.core.runtime.NullProgressMonitor
@@ -31,7 +30,6 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.launching.JavaRuntime
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -53,7 +51,7 @@ class WorkspaceOperationsTest extends Specification {
         def projectFolder = tempFolder.newFolder("sample-project-folder")
 
         when:
-        IProject project = workspaceOperations.createProject("sample-project", projectFolder, ImmutableList.of(), ImmutableList.of(GradleProjectNature.ID), null)
+        IProject project = workspaceOperations.createProject("sample-project", projectFolder, ImmutableList.of(GradleProjectNature.ID), null)
 
         then:
         project.exists()
@@ -68,7 +66,7 @@ class WorkspaceOperationsTest extends Specification {
         def projectFolder = tempFolder.newFolder("sample-project-folder")
 
         when:
-        IProject project = workspaceOperations.createProject("sample-project", projectFolder, ImmutableList.of(), ImmutableList.of(), null)
+        IProject project = workspaceOperations.createProject("sample-project", projectFolder, ImmutableList.of(), null)
 
         then:
         project.getDescription().natureIds.length == 0
@@ -80,7 +78,7 @@ class WorkspaceOperationsTest extends Specification {
         def projectFolder = tempFolder.newFolder("sample-project-folder")
 
         when:
-        IProject project = workspaceOperations.createProject("sample-project", projectFolder, ImmutableList.of(), ImmutableList.of(JavaCore.NATURE_ID, GradleProjectNature.ID), new NullProgressMonitor())
+        IProject project = workspaceOperations.createProject("sample-project", projectFolder, ImmutableList.of(JavaCore.NATURE_ID, GradleProjectNature.ID), new NullProgressMonitor())
 
         then:
         project.getDescription().natureIds.length == 2
@@ -91,7 +89,7 @@ class WorkspaceOperationsTest extends Specification {
 
     def "Importing nonexisting folder fails"() {
         when:
-        workspaceOperations.createProject("projectname", new File("path-to-nonexisting-folder"), ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
+        workspaceOperations.createProject("projectname", new File("path-to-nonexisting-folder"), ImmutableList.of(), new NullProgressMonitor())
 
         then:
         thrown(IllegalArgumentException.class)
@@ -99,7 +97,7 @@ class WorkspaceOperationsTest extends Specification {
 
     def "Importing a file is considered invalid"() {
         when:
-        workspaceOperations.createProject("projectname", tempFolder.newFile("filename"), ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
+        workspaceOperations.createProject("projectname", tempFolder.newFile("filename"), ImmutableList.of(), new NullProgressMonitor())
 
         then:
         thrown(IllegalArgumentException)
@@ -110,8 +108,8 @@ class WorkspaceOperationsTest extends Specification {
         def projectFolder = tempFolder.newFolder("projectname")
 
         when:
-        workspaceOperations.createProject("projectname", projectFolder, ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
-        workspaceOperations.createProject("projectname", projectFolder, ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
+        workspaceOperations.createProject("projectname", projectFolder, ImmutableList.of(), new NullProgressMonitor())
+        workspaceOperations.createProject("projectname", projectFolder, ImmutableList.of(), new NullProgressMonitor())
 
         then:
         thrown(GradlePluginsRuntimeException.class)
@@ -122,7 +120,7 @@ class WorkspaceOperationsTest extends Specification {
         def projectFolder = tempFolder.newFolder("projectname")
 
         when:
-        workspaceOperations.createProject("", projectFolder, ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
+        workspaceOperations.createProject("", projectFolder, ImmutableList.of(), new NullProgressMonitor())
 
         then:
         thrown(IllegalArgumentException)
@@ -133,7 +131,7 @@ class WorkspaceOperationsTest extends Specification {
         def projectFolder = tempFolder.newFolder("projectname")
 
         when:
-        workspaceOperations.createProject(null, projectFolder, ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
+        workspaceOperations.createProject(null, projectFolder, ImmutableList.of(), new NullProgressMonitor())
 
         then:
         thrown(NullPointerException)
@@ -153,7 +151,7 @@ class WorkspaceOperationsTest extends Specification {
 
     def "A project can be deleted"() {
         setup:
-        workspaceOperations.createProject("sample-project", tempFolder.newFolder(), ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
+        workspaceOperations.createProject("sample-project", tempFolder.newFolder(), ImmutableList.of(), new NullProgressMonitor())
         assert workspaceOperations.allProjects.size() == 1
 
         when:
@@ -165,7 +163,7 @@ class WorkspaceOperationsTest extends Specification {
 
     def "Closed projects can be deleted"() {
         setup:
-        IProject project = workspaceOperations.createProject("sample-project", tempFolder.newFolder(), ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
+        IProject project = workspaceOperations.createProject("sample-project", tempFolder.newFolder(), ImmutableList.of(), new NullProgressMonitor())
         project.close(null)
 
         when:
@@ -218,7 +216,7 @@ class WorkspaceOperationsTest extends Specification {
     def "Java project can be created"() {
         setup:
         def rootFolder = tempFolder.newFolder()
-        IProject project = workspaceOperations.createProject("sample-project", rootFolder, ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
+        IProject project = workspaceOperations.createProject("sample-project", rootFolder, ImmutableList.of(), new NullProgressMonitor())
         def attributes = new FixedRequestAttributes(rootFolder, null, GradleDistribution.fromBuild(), null, ImmutableList.<String> of(), ImmutableList.<String> of())
         ProjectConfiguration projectConfiguration = ProjectConfiguration.from(attributes, Path.from(':'), rootFolder)
         CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, project)
@@ -258,7 +256,7 @@ class WorkspaceOperationsTest extends Specification {
 
     def "Java project can't be created without JRE path"() {
         setup:
-        IProject project = workspaceOperations.createProject("sample-project", tempFolder.newFolder(), ImmutableList.of(), ImmutableList.of(JavaCore.NATURE_ID), new NullProgressMonitor())
+        IProject project = workspaceOperations.createProject("sample-project", tempFolder.newFolder(), ImmutableList.of(JavaCore.NATURE_ID), new NullProgressMonitor())
 
         when:
         workspaceOperations.createJavaProject(project, null, GradleClasspathContainer.newClasspathEntry(), new NullProgressMonitor())

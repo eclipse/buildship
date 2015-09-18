@@ -11,36 +11,25 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
-
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.util.object.MoreObjects;
+import org.eclipse.buildship.core.workspace.WorkspaceOperations;
+import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.util.object.MoreObjects;
-import org.eclipse.buildship.core.workspace.WorkspaceOperations;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Default implementation of the {@link WorkspaceOperations} interface.
@@ -127,11 +116,10 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
-    public IProject createProject(String name, File location, List<File> filteredSubFolders, List<String> natureIds, IProgressMonitor monitor) {
+    public IProject createProject(String name, File location, List<String> natureIds, IProgressMonitor monitor) {
         // validate arguments
         Preconditions.checkNotNull(name);
         Preconditions.checkNotNull(location);
-        Preconditions.checkNotNull(filteredSubFolders);
         Preconditions.checkNotNull(natureIds);
         Preconditions.checkArgument(!name.isEmpty(), "Project name must not be empty.");
         Preconditions.checkArgument(location.exists(), String.format("Project location %s must exist.", location));
@@ -158,9 +146,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             // open the project
             project.open(new SubProgressMonitor(monitor, 1));
 
-            // attach filters to the project
-            ResourceFilter.attachFilters(project, filteredSubFolders, new SubProgressMonitor(monitor, 1));
-
             // add project natures separately to trigger IProjectNature#configure
             // the project needs to be open while the natures are added
             for (String natureId : natureIds) {
@@ -178,10 +163,9 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
-    public IProject includeProject(IProjectDescription projectDescription, List<File> filteredSubFolders, List<String> extraNatureIds, IProgressMonitor monitor) {
+    public IProject includeProject(IProjectDescription projectDescription, List<String> extraNatureIds, IProgressMonitor monitor) {
         // validate arguments
         Preconditions.checkNotNull(projectDescription);
-        Preconditions.checkNotNull(filteredSubFolders);
         Preconditions.checkNotNull(extraNatureIds);
         String projectName = projectDescription.getName();
 

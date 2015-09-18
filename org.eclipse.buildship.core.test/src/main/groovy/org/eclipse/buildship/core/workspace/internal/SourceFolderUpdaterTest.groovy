@@ -1,22 +1,19 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import spock.lang.Specification
-
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory
-
+import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.util.file.FileUtils
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.IClasspathAttribute
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
-import org.eclipse.core.runtime.Path
-
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.util.file.FileUtils
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
+import spock.lang.Specification
 
 class SourceFolderUpdaterTest extends Specification {
 
@@ -168,7 +165,7 @@ class SourceFolderUpdaterTest extends Specification {
         def location = tempFolder.newFolder(projectName)
 
         // create project
-        def project = CorePlugin.workspaceOperations().createProject('project-name', location, [], [], new NullProgressMonitor())
+        def project = CorePlugin.workspaceOperations().createProject('project-name', location, [], new NullProgressMonitor())
         def description = project.getDescription()
         description.setNatureIds([JavaCore.NATURE_ID] as String[])
         project.setDescription(description, new NullProgressMonitor())

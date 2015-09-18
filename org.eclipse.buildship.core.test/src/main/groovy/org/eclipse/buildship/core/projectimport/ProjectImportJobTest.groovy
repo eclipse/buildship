@@ -1,19 +1,17 @@
 package org.eclipse.buildship.core.projectimport
 
-import com.gradleware.tooling.toolingclient.GradleDistribution
-
 import com.google.common.collect.ImmutableList
+import com.gradleware.tooling.toolingclient.GradleDistribution
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectBuilder
 import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper;
+import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
-import org.eclipse.buildship.core.util.variable.ExpressionUtils;
-
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.buildship.core.util.variable.ExpressionUtils
 import org.eclipse.core.resources.IWorkspace
+import org.eclipse.core.runtime.IPath
+import org.eclipse.core.runtime.NullProgressMonitor
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
@@ -132,7 +130,7 @@ class ProjectImportJobTest extends Specification {
         def location = new File(workspaceRootLocation, 'projectname')
         location.mkdirs()
 
-        def project = workspaceOperations.createProject("projectname", location, ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
+        def project = workspaceOperations.createProject("projectname", location, ImmutableList.of(), new NullProgressMonitor())
         project.delete(false, true, new NullProgressMonitor())
 
         when:

@@ -25,7 +25,7 @@ class GradleProjectBuilderTest extends Specification {
     def "Can configure builder on simple project"() {
         given:
         def projectFolder = tempFolder.newFolder("sample-project-folder")
-        IProject project = CorePlugin.workspaceOperations().createProject("sample-project", projectFolder, ImmutableList.of(), ImmutableList.of(), null)
+        IProject project = CorePlugin.workspaceOperations().createProject("sample-project", projectFolder, ImmutableList.of(), null)
 
         when:
         GradleProjectBuilder.INSTANCE.configureOnProject(project)
@@ -38,7 +38,7 @@ class GradleProjectBuilderTest extends Specification {
     def "Builder configuration is idempotent"() {
         given:
         def projectFolder = tempFolder.newFolder("sample-project-folder")
-        IProject project = CorePlugin.workspaceOperations().createProject("sample-project", projectFolder, ImmutableList.of(), ImmutableList.of(), null)
+        IProject project = CorePlugin.workspaceOperations().createProject("sample-project", projectFolder, ImmutableList.of(), null)
 
         when:
         GradleProjectBuilder.INSTANCE.configureOnProject(project)
@@ -52,7 +52,7 @@ class GradleProjectBuilderTest extends Specification {
     def "Can deconfigure builder on simple project"() {
         given:
         def projectFolder = tempFolder.newFolder("sample-project-folder")
-        IProject project = CorePlugin.workspaceOperations().createProject("sample-project", projectFolder, ImmutableList.of(), ImmutableList.of(), null)
+        IProject project = CorePlugin.workspaceOperations().createProject("sample-project", projectFolder, ImmutableList.of(), null)
 
         when:
         GradleProjectBuilder.INSTANCE.configureOnProject(project)
@@ -65,7 +65,7 @@ class GradleProjectBuilderTest extends Specification {
     def "Can deconfigure if builder is not present"() {
         given:
         def projectFolder = tempFolder.newFolder("sample-project-folder")
-        IProject project = CorePlugin.workspaceOperations().createProject("sample-project", projectFolder, ImmutableList.of(), ImmutableList.of(), null)
+        IProject project = CorePlugin.workspaceOperations().createProject("sample-project", projectFolder, ImmutableList.of(), null)
 
         when:
         GradleProjectBuilder.INSTANCE.deconfigureOnProject(project)

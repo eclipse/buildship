@@ -12,25 +12,24 @@
 package org.eclipse.buildship.core.configuration.internal
 
 import com.google.common.collect.ImmutableList
-import org.eclipse.buildship.core.GradlePluginsRuntimeException
-import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
-import org.eclipse.buildship.core.projectimport.ProjectImportJob
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
-import org.eclipse.buildship.core.util.progress.AsyncHandler
-import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import com.gradleware.tooling.junit.TestFile
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.Path
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.GradlePluginsRuntimeException
+import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.ProjectConfiguration
 import org.eclipse.buildship.core.configuration.ProjectConfigurationManager
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
+import org.eclipse.buildship.core.projectimport.ProjectImportJob
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
+import org.eclipse.buildship.core.util.progress.AsyncHandler
+import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -58,7 +57,7 @@ class ProjectConfigurationManagerTest extends Specification {
     def "no Gradle root project configurations available when there are no Eclipse projects with Gradle nature"() {
         given:
         File projectDir = tempFolder.root
-        workspaceOperations.createProject("sample-project", projectDir, ImmutableList.of(), ImmutableList.of(), new NullProgressMonitor())
+        workspaceOperations.createProject("sample-project", projectDir, ImmutableList.of(), new NullProgressMonitor())
 
         when:
         Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
@@ -70,7 +69,7 @@ class ProjectConfigurationManagerTest extends Specification {
     def "no Gradle root project configurations available when there are no open Eclipse projects with Gradle nature"() {
         given:
         File projectDir = tempFolder.root
-        IProject project = workspaceOperations.createProject("sample-project", projectDir, ImmutableList.of(), Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
+        IProject project = workspaceOperations.createProject("sample-project", projectDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
         project.close(new NullProgressMonitor())
 
         when:
@@ -207,7 +206,7 @@ class ProjectConfigurationManagerTest extends Specification {
         File rootProjectDir = tempFolder.newFolder()
 
         // create root project and use Gradle version 2.0 in the persisted configuration
-        IProject rootProject = workspaceOperations.createProject("root-project", rootProjectDir, ImmutableList.of(), Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
+        IProject rootProject = workspaceOperations.createProject("root-project", rootProjectDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
         def requestAttributes = new FixedRequestAttributes(rootProjectDir, null, GradleDistribution.forVersion("2.0"), null,
                 ImmutableList.copyOf("-Xmx256M"), ImmutableList.copyOf("foo"))
         def projectConfiguration = ProjectConfiguration.from(requestAttributes, Path.from(":"), rootProjectDir)
@@ -215,7 +214,7 @@ class ProjectConfigurationManagerTest extends Specification {
 
         // create child project and use Gradle version 1.0 in the persisted configuration
         File childProjectDir = tempFolder.newFolder()
-        IProject childProject = workspaceOperations.createProject("child-project", childProjectDir, ImmutableList.of(), Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
+        IProject childProject = workspaceOperations.createProject("child-project", childProjectDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
         def childRequestAttributes = new FixedRequestAttributes(rootProjectDir, null, GradleDistribution.forVersion("1.0"), null,
                 ImmutableList.copyOf("-Xmx256M"), ImmutableList.copyOf("foo"))
         def childProjectConfiguration = ProjectConfiguration.from(childRequestAttributes, Path.from(":child"), childProjectDir)
@@ -231,7 +230,7 @@ class ProjectConfigurationManagerTest extends Specification {
     def "save and read project with full configuration"() {
         given:
         File projectDir = tempFolder.root
-        IProject project = workspaceOperations.createProject("sample-project", projectDir, ImmutableList.of(), Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
+        IProject project = workspaceOperations.createProject("sample-project", projectDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
 
         def requestAttributes = new FixedRequestAttributes(projectDir, tempFolder.newFolder(), GradleDistribution.forVersion("1.12"), tempFolder.newFolder(),
                 ImmutableList.copyOf("-Xmx256M"), ImmutableList.copyOf("foo"))
@@ -247,7 +246,7 @@ class ProjectConfigurationManagerTest extends Specification {
     def "save and read project with minimal configuration"() {
         given:
         File projectDir = tempFolder.newFolder()
-        IProject project = workspaceOperations.createProject("sample-project", projectDir, ImmutableList.of(), Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
+        IProject project = workspaceOperations.createProject("sample-project", projectDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
 
         def attributes = new FixedRequestAttributes(projectDir, null, GradleDistribution.fromBuild(), null,
                 ImmutableList.of(), ImmutableList.of())
