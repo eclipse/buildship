@@ -77,6 +77,14 @@ abstract class BuildshipTestSpecification extends Specification {
         return new File(workspaceFolder, location)
     }
 
+    protected File file(String location) {
+        return new File(externalFolder, location)
+    }
+
+    protected File workspaceFile(String location) {
+        return new File(workspaceFolder, location)
+    }
+
     // -- helper methods to load models --
 
     protected GradleModel loadGradleModel(String location) {
