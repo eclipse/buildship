@@ -69,40 +69,48 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     }
 
     private void synchronizeWorkspaceProject(OmniEclipseProject project, IProject workspaceProject, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask(String.format("Synchronize Gradle project %s that is already in the workspace", project.getName()), 4);
+        monitor.beginTask(String.format("Synchronize Gradle project %s that is already in the workspace", project.getName()), 1);
         try {
-            // do not modify closed projects
-            if (!workspaceProject.isAccessible()) {
-                return;
-            }
-
-            // add Gradle nature, if needed
-            CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
-
-            // persist the Gradle-specific configuration in the Eclipse project's .settings folder, if the configuration is available
-            if (rootRequestAttributes != null) {
-                ProjectConfiguration configuration = ProjectConfiguration.from(rootRequestAttributes, project);
-                CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, workspaceProject);
-            }
-
-            // update linked resources
-            LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), new SubProgressMonitor(monitor, 1));
-
-            // additional updates for Java projects
-            if (hasJavaNature(workspaceProject)) {
-                IJavaProject javaProject = JavaCore.create(workspaceProject);
-
-                // update the sources
-                SourceFolderUpdater.update(javaProject, project.getSourceDirectories(), new SubProgressMonitor(monitor, 1));
-
-                // update project/external dependencies
-                ClasspathContainerUpdater.update(javaProject, project, new SubProgressMonitor(monitor, 1));
+            // check if the workspace project is open or not
+            if (workspaceProject.isAccessible()) {
+                synchronizeOpenWorkspaceProject(project, workspaceProject, rootRequestAttributes, new SubProgressMonitor(monitor, 1));
             } else {
-                monitor.worked(2);
+                synchronizeClosedWorkspaceProject();
             }
         } finally {
             monitor.done();
         }
+    }
+
+    private void synchronizeOpenWorkspaceProject(OmniEclipseProject project, IProject workspaceProject, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) throws CoreException {
+        // add Gradle nature, if needed
+        CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
+
+        // persist the Gradle-specific configuration in the Eclipse project's .settings folder, if the configuration is available
+        if (rootRequestAttributes != null) {
+            ProjectConfiguration configuration = ProjectConfiguration.from(rootRequestAttributes, project);
+            CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, workspaceProject);
+        }
+
+        // update linked resources
+        LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), new SubProgressMonitor(monitor, 1));
+
+        // additional updates for Java projects
+        if (hasJavaNature(workspaceProject)) {
+            IJavaProject javaProject = JavaCore.create(workspaceProject);
+
+            // update the sources
+            SourceFolderUpdater.update(javaProject, project.getSourceDirectories(), new SubProgressMonitor(monitor, 1));
+
+            // update project/external dependencies
+            ClasspathContainerUpdater.update(javaProject, project, new SubProgressMonitor(monitor, 1));
+        } else {
+            monitor.worked(2);
+        }
+    }
+
+    private void synchronizeClosedWorkspaceProject() {
+        // do not modify closed projects
     }
 
     private void synchronizeNonWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor) throws CoreException {
