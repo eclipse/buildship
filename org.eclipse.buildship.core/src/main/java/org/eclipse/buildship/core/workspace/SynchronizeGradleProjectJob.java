@@ -43,7 +43,7 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
     private final AsyncHandler initializer;
 
     public SynchronizeGradleProjectJob(FixedRequestAttributes rootRequestAttributes, List<String> workingSets, AsyncHandler initializer) {
-        super("Reload Gradle root project at " + Preconditions.checkNotNull(rootRequestAttributes).getProjectDir().getAbsolutePath(), false);
+        super(String.format("Synchronize Gradle root project at %s with workspace", Preconditions.checkNotNull(rootRequestAttributes).getProjectDir().getAbsolutePath()), false);
 
         this.rootRequestAttributes = Preconditions.checkNotNull(rootRequestAttributes);
         this.workingSets = ImmutableList.copyOf(workingSets);
@@ -55,7 +55,7 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
 
     @Override
     protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) {
-        monitor.beginTask("Synchronize Gradle project with Eclipse workspace", 100);
+        monitor.beginTask(String.format("Synchronizing Gradle root project at %s with workspace", this.rootRequestAttributes.getProjectDir().getAbsolutePath()), 100);
 
         this.initializer.run(new SubProgressMonitor(monitor, 10), getToken());
 

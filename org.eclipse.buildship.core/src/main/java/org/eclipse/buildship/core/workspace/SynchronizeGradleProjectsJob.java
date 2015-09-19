@@ -34,15 +34,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Finds the Gradle root projects for the given set of Eclipse projects and for each found
- * Gradle root project, it synchronizes the Eclipse workspace via {@link SynchronizeGradleProjectJob}.
+ * Finds the Gradle root projects for the given set of Eclipse projects and then synchronizes
+ * each Gradle root project with the Eclipse workspace via {@link SynchronizeGradleProjectJob}.
  */
 public final class SynchronizeGradleProjectsJob extends Job {
 
     private final List<IProject> projects;
 
     public SynchronizeGradleProjectsJob(List<IProject> projects) {
-        super("Refresh Gradle projects");
+        super("Synchronize workspace projects with Gradle counterparts");
         this.projects = ImmutableList.copyOf(projects);
     }
 
@@ -52,22 +52,22 @@ public final class SynchronizeGradleProjectsJob extends Job {
         return invoker.invoke(new ToolingApiCommand() {
             @Override
             public void run() throws Throwable {
-                scheduleRefreshJobs(monitor);
+                scheduleSynchronizeJobs(monitor);
             }
         }, monitor);
     }
 
-    private void scheduleRefreshJobs(final IProgressMonitor monitor) throws Throwable {
+    private void scheduleSynchronizeJobs(final IProgressMonitor monitor) throws Throwable {
         // find all the unique root projects for the given list of projects and
         // reload the workspace project configuration for each of them (incl. their respective child projects)
         Set<FixedRequestAttributes> rootRequestAttributes = getUniqueRootAttributes(this.projects);
-        monitor.beginTask("Refresh selected Gradle projects in workspace", rootRequestAttributes.size());
+        monitor.beginTask("Synchronizing workspace projects with Gradle counterparts", rootRequestAttributes.size());
         final List<Throwable> errors = new CopyOnWriteArrayList<Throwable>();
         try {
             final CountDownLatch latch = new CountDownLatch(rootRequestAttributes.size());
             for (FixedRequestAttributes requestAttributes : rootRequestAttributes) {
-                Job refreshJob = new SynchronizeGradleProjectJob(requestAttributes, ImmutableList.<String>of(), AsyncHandler.NO_OP);
-                refreshJob.addJobChangeListener(new JobChangeAdapter() {
+                Job synchronizeJob = new SynchronizeGradleProjectJob(requestAttributes, ImmutableList.<String>of(), AsyncHandler.NO_OP);
+                synchronizeJob.addJobChangeListener(new JobChangeAdapter() {
 
                     @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
                     @Override
@@ -82,7 +82,7 @@ public final class SynchronizeGradleProjectsJob extends Job {
                         latch.countDown();
                     }
                 });
-                refreshJob.schedule();
+                synchronizeJob.schedule();
             }
             latch.await();
         } finally {
