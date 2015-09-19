@@ -62,7 +62,12 @@ public interface WorkspaceGradleOperations {
      * <li>the Gradle settings file is written</li>
      * <li>the Gradle resource filter is set</li>
      * <li>the linked resources are set</li>
-     * <li>a Java project is set ?????</li>
+     * <li>a Java project is updated
+     * <ul>
+     *     <li>update the set of source folders</li>
+     *     <li>update the classpath container</li>
+     * </ul>
+     * </li>
      * </ul>
      * </li>
      * </ol>
