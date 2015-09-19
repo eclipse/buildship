@@ -91,6 +91,7 @@ public final class SynchronizeJavaWorkspaceProjectJob extends ToolingApiWorkspac
             }
         } else {
             // in case the Gradle specifics have been removed in the previous Eclipse session, update project/external dependencies to be empty
+            CorePlugin.workspaceGradleOperations().makeWorkspaceProjectGradleUnaware(project, new SubProgressMonitor(monitor, 25));
             ClasspathContainerUpdater.clear(javaProject, new SubProgressMonitor(monitor, 100));
         }
     }
