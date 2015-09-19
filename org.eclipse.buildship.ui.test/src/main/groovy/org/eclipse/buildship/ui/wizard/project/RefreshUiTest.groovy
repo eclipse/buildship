@@ -14,9 +14,9 @@ package org.eclipse.buildship.ui.wizard.project
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
-import org.eclipse.buildship.core.projectimport.ProjectImportJob
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
+import org.eclipse.buildship.core.workspace.RefreshGradleProjectJob
 import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification
 import org.eclipse.core.resources.IProject
 import org.eclipse.swt.SWT
@@ -68,7 +68,7 @@ class RefreshUiTest extends SwtBotSpecification {
         configuration.projectDir = location
         configuration.applyWorkingSets = true
         configuration.workingSets = []
-        new ProjectImportJob(configuration.toFixedAttributes(), configuration.workingSets.getValue(), AsyncHandler.NO_OP)
+        new RefreshGradleProjectJob(configuration.toFixedAttributes(), configuration.workingSets.getValue(), AsyncHandler.NO_OP)
     }
 
     private static def performDefaultEclipseRefresh() {

@@ -22,9 +22,9 @@ import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.ProjectConfiguration
 import org.eclipse.buildship.core.configuration.ProjectConfigurationManager
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
-import org.eclipse.buildship.core.projectimport.ProjectImportJob
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
+import org.eclipse.buildship.core.workspace.RefreshGradleProjectJob
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
@@ -33,6 +33,7 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Shared
 import spock.lang.Specification
 
+@SuppressWarnings("GroovyAccessibility")
 class ProjectConfigurationManagerTest extends Specification {
 
     @Shared
@@ -106,7 +107,7 @@ class ProjectConfigurationManagerTest extends Specification {
         importConfigurationOne.applyWorkingSets = true
         importConfigurationOne.workingSets = []
 
-        new ProjectImportJob(importConfigurationOne.toFixedAttributes(), importConfigurationOne.workingSets.getValue(), AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
+        new RefreshGradleProjectJob(importConfigurationOne.toFixedAttributes(), importConfigurationOne.workingSets.getValue(), AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
 
         when:
         Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
@@ -175,8 +176,8 @@ class ProjectConfigurationManagerTest extends Specification {
         importConfigurationTwo.applyWorkingSets = true
         importConfigurationTwo.workingSets = []
 
-        new ProjectImportJob(importConfigurationOne.toFixedAttributes(), importConfigurationOne.workingSets.getValue(), AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
-        new ProjectImportJob(importConfigurationTwo.toFixedAttributes(), importConfigurationOne.workingSets.getValue(), AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
+        new RefreshGradleProjectJob(importConfigurationOne.toFixedAttributes(), importConfigurationOne.workingSets.getValue(), AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
+        new RefreshGradleProjectJob(importConfigurationTwo.toFixedAttributes(), importConfigurationOne.workingSets.getValue(), AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
 
         when:
         Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()

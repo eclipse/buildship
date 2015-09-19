@@ -19,7 +19,6 @@ import com.gradleware.tooling.toolingutils.binding.Property;
 import com.gradleware.tooling.toolingutils.binding.ValidationListener;
 import com.gradleware.tooling.toolingutils.binding.Validator;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.core.projectimport.ProjectImportJob;
 import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
@@ -27,6 +26,7 @@ import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
+import org.eclipse.buildship.core.workspace.RefreshGradleProjectJob;
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 import org.eclipse.buildship.ui.view.execution.ExecutionsView;
 import org.eclipse.buildship.ui.view.task.TaskView;
@@ -169,8 +169,8 @@ public class ProjectImportWizardController {
     public boolean performImportProject(AsyncHandler initializer) {
         FixedRequestAttributes rootRequestAttributes = this.configuration.toFixedAttributes();
         List<String> workingSets = this.configuration.getApplyWorkingSets().getValue() ? ImmutableList.copyOf(this.configuration.getWorkingSets().getValue()) : ImmutableList.<String>of();
-        ProjectImportJob importJob = new ProjectImportJob(rootRequestAttributes, workingSets, initializer);
-        importJob.addJobChangeListener(new JobChangeAdapter() {
+        RefreshGradleProjectJob synchronizeJob = new RefreshGradleProjectJob(rootRequestAttributes, workingSets, initializer);
+        synchronizeJob.addJobChangeListener(new JobChangeAdapter() {
 
             @Override
             public void done(IJobChangeEvent event) {
@@ -179,7 +179,7 @@ public class ProjectImportWizardController {
                 }
             }
         });
-        importJob.schedule();
+        synchronizeJob.schedule();
         return true;
     }
 
