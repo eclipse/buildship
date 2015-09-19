@@ -34,14 +34,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Finds the Gradle root projects for the given Eclipse projects and
- * starts a {@link RefreshGradleProjectJob} for each one of them.
+ * Finds the Gradle root projects for the given set of Eclipse projects and for each found
+ * Gradle root project, it synchronizes the Eclipse workspace via {@link RefreshGradleProjectJob}.
  */
-public final class RefreshGradleProjectsJob extends Job {
+public final class SynchronizeGradleProjectsJob extends Job {
 
     private final List<IProject> projects;
 
-    public RefreshGradleProjectsJob(List<IProject> projects) {
+    public SynchronizeGradleProjectsJob(List<IProject> projects) {
         super("Refresh Gradle projects");
         this.projects = ImmutableList.copyOf(projects);
     }

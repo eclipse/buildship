@@ -13,11 +13,11 @@
 
 package org.eclipse.buildship.ui.workspace;
 
-import java.util.List;
-
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-
+import org.eclipse.buildship.core.util.collections.AdapterFunction;
+import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectsJob;
+import org.eclipse.buildship.ui.util.predicate.Predicates;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Platform;
@@ -25,13 +25,11 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import org.eclipse.buildship.core.util.collections.AdapterFunction;
-import org.eclipse.buildship.core.workspace.RefreshGradleProjectsJob;
-import org.eclipse.buildship.ui.util.predicate.Predicates;
+import java.util.List;
 
 /**
- * Collects all selected {@link IProject} instances and schedules a
- * {@link RefreshGradleProjectsJob} to refresh these projects.
+ * Collects all selected, Gradle-aware {@link IProject} instances and schedules a
+ * {@link SynchronizeGradleProjectsJob} to refresh these projects.
  */
 public final class GradleClasspathContainerRefresher {
 
@@ -41,8 +39,8 @@ public final class GradleClasspathContainerRefresher {
             return;
         }
 
-        RefreshGradleProjectsJob refreshJob = new RefreshGradleProjectsJob(selectedProjects);
-        refreshJob.schedule();
+        SynchronizeGradleProjectsJob synchronizeJob = new SynchronizeGradleProjectsJob(selectedProjects);
+        synchronizeJob.schedule();
     }
 
     private static List<IProject> collectSelectedProjects(ExecutionEvent event) {

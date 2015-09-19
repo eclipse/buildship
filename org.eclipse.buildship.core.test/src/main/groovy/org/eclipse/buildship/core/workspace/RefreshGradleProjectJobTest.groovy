@@ -1,14 +1,13 @@
 package org.eclipse.buildship.core.workspace
 
+import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.configuration.GradleProjectNature
+import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IProjectDescription
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.JavaCore
-
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
 
 class RefreshGradleProjectJobTest extends ProjectImportSpecification {
 
@@ -23,7 +22,7 @@ class RefreshGradleProjectJobTest extends ProjectImportSpecification {
         """
 
         when:
-        new RefreshGradleProjectsJob([findProject('moduleA')] as List).schedule()
+        new SynchronizeGradleProjectsJob([findProject('moduleA')] as List).schedule()
         waitForJobsToFinish()
 
         then:
@@ -37,7 +36,7 @@ class RefreshGradleProjectJobTest extends ProjectImportSpecification {
         """
 
         when:
-        new RefreshGradleProjectsJob([findProject('moduleB')] as List).schedule()
+        new SynchronizeGradleProjectsJob([findProject('moduleB')] as List).schedule()
         waitForJobsToFinish()
 
         then:
@@ -59,7 +58,7 @@ class RefreshGradleProjectJobTest extends ProjectImportSpecification {
         folder('sample', 'moduleC', 'src', 'main', 'java')
 
         when:
-        new RefreshGradleProjectsJob([findProject('moduleB')] as List).schedule()
+        new SynchronizeGradleProjectsJob([findProject('moduleB')] as List).schedule()
         waitForJobsToFinish()
 
         then:
@@ -93,7 +92,7 @@ class RefreshGradleProjectJobTest extends ProjectImportSpecification {
         waitForJobsToFinish()
 
         when:
-        new RefreshGradleProjectsJob([findProject('sample')] as List).schedule()
+        new SynchronizeGradleProjectsJob([findProject('sample')] as List).schedule()
         waitForJobsToFinish()
 
         then:

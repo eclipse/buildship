@@ -1,14 +1,13 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
+import org.eclipse.buildship.core.workspace.GradleClasspathContainer
+import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectsJob
 import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.IClasspathContainer
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
-
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer
-import org.eclipse.buildship.core.workspace.RefreshGradleProjectsJob
 
 class RefreshGradleClasspathContainerTest extends ProjectImportSpecification {
 
@@ -106,23 +105,23 @@ class RefreshGradleClasspathContainerTest extends ProjectImportSpecification {
         folder(rootProjectName)
     }
 
-    private def findJavaProject(String name) {
+    private static def findJavaProject(String name) {
         JavaCore.create(CorePlugin.workspaceOperations().findProjectByName(name).get())
     }
 
-    private def executeRefreshGradleClasspathContainerJobAndWait(IJavaProject... javaProjects) {
+    private static def executeRefreshGradleClasspathContainerJobAndWait(IJavaProject... javaProjects) {
         def projects = javaProjects.collect { it.project }
-        RefreshGradleProjectsJob refreshJob = new RefreshGradleProjectsJob(projects)
-        refreshJob.schedule()
-        refreshJob.join()
+        SynchronizeGradleProjectsJob synchronizeJob = new SynchronizeGradleProjectsJob(projects)
+        synchronizeJob.schedule()
+        synchronizeJob.join()
         waitForJobsToFinish()
     }
 
-    private def defineLocalGroovyDependency(File buildScript) {
+    private static def defineLocalGroovyDependency(File buildScript) {
         buildScript << '\ndependencies { compile localGroovy() }'
     }
 
-    private def hasLocalGroovyDependencyDefinedInClasspathContainer(IJavaProject javaProject) {
+    private static def hasLocalGroovyDependencyDefinedInClasspathContainer(IJavaProject javaProject) {
         IClasspathContainer rootContainer = JavaCore.getClasspathContainer(new Path(GradleClasspathContainer.CONTAINER_ID), javaProject)
         rootContainer.classpathEntries.find  { it.path.toPortableString().contains('groovy-all') } != null
     }
