@@ -12,7 +12,7 @@ import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
 import org.gradle.tooling.GradleConnector
 
-class RefreshJavaWorkspaceProjectJobTest extends ProjectImportSpecification {
+class SynchronizeJavaWorkspaceProjectJobTest extends ProjectImportSpecification {
 
     def setup() {
         executeProjectImportAndWait(createSampleProject())
@@ -21,7 +21,7 @@ class RefreshJavaWorkspaceProjectJobTest extends ProjectImportSpecification {
 
     def "Removed project doesn't have Buildship artifacts"() {
         setup:
-        file('sample', 'settings.gradle').text  = "include 'moduleA'"
+        file('sample', 'settings.gradle').text = "include 'moduleA'"
         IProject project = CorePlugin.workspaceOperations().findProjectByName('moduleB').get()
 
         expect:
@@ -29,7 +29,7 @@ class RefreshJavaWorkspaceProjectJobTest extends ProjectImportSpecification {
         project.filters.length > 0
         project.getFolder('.settings').exists()
         project.getFolder('.settings').getFile('gradle.prefs').exists()
-        JavaCore.create(project).getResolvedClasspath(false).find{ it.path.toPortableString().contains('junit') }
+        JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().contains('junit') }
 
         when:
         executeSynchronizeJavaWorkspaceProjectJobAndWait(project)
@@ -39,7 +39,7 @@ class RefreshJavaWorkspaceProjectJobTest extends ProjectImportSpecification {
         project.filters.length == 0
         !project.getFolder('.settings').exists()
         !project.getFolder('.settings').getFile('gradle.prefs').exists()
-        !JavaCore.create(project).getResolvedClasspath(false).find{ it.path.toPortableString().contains('junit') }
+        !JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().contains('junit') }
     }
 
     def "Existing project is updated"() {
@@ -52,8 +52,8 @@ class RefreshJavaWorkspaceProjectJobTest extends ProjectImportSpecification {
         executeSynchronizeJavaWorkspaceProjectJobAndWait(project)
 
         then:
-        JavaCore.create(project).rawClasspath.find{ it.entryKind == IClasspathEntry.CPE_SOURCE && it.path.toPortableString() == '/moduleB/src/test/java' }
-        JavaCore.create(project).getResolvedClasspath(false).find{ it.path.toPortableString().contains('spring-beans') }
+        JavaCore.create(project).rawClasspath.find { it.entryKind == IClasspathEntry.CPE_SOURCE && it.path.toPortableString() == '/moduleB/src/test/java' }
+        JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().contains('spring-beans') }
     }
 
     def "A project without a Gradle nature should have an empty classpath container"() {
@@ -65,7 +65,7 @@ class RefreshJavaWorkspaceProjectJobTest extends ProjectImportSpecification {
         executeSynchronizeJavaWorkspaceProjectJobAndWait(moduleB)
 
         then:
-        !JavaCore.create(moduleB).getResolvedClasspath(false).find{ it.path.toPortableString().contains('junit') }
+        !JavaCore.create(moduleB).getResolvedClasspath(false).find { it.path.toPortableString().contains('junit') }
     }
 
     private def executeSynchronizeJavaWorkspaceProjectJobAndWait(IProject project) {
@@ -80,19 +80,19 @@ class RefreshJavaWorkspaceProjectJobTest extends ProjectImportSpecification {
 
     private def createSampleProject() {
         file('sample', 'build.gradle') <<
-        '''allprojects {
+                '''allprojects {
                repositories { mavenCentral() }
            }
         '''
         file('sample', 'settings.gradle') <<
-        """
+                """
            include 'moduleA'
            include 'moduleB'
         """
         file('sample', 'moduleA', 'build.gradle') << "apply plugin: 'java'"
         folder('sample', 'moduleA', 'src', 'main', 'java')
         file('sample', 'moduleB', 'build.gradle') <<
-        """apply plugin: 'java'
+                """apply plugin: 'java'
            dependencies { testCompile "junit:junit:4.12" }
         """
         folder('sample', 'moduleB', 'src', 'main', 'java')
