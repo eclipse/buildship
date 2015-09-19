@@ -18,7 +18,7 @@ class RefreshGradleClasspathContainerTest extends ProjectImportSpecification {
         defineLocalGroovyDependency(new File(location, 'build.gradle'))
 
         when:
-        executeRefreshGradleClasspathContainerJobAndWait(project)
+        executeSynchronizeGradleProjectsJobAndWait(project)
 
         then:
         hasLocalGroovyDependencyDefinedInClasspathContainer(project)
@@ -34,7 +34,7 @@ class RefreshGradleClasspathContainerTest extends ProjectImportSpecification {
         defineLocalGroovyDependency(new File("$location/subproject", 'build.gradle'))
 
         when:
-        executeRefreshGradleClasspathContainerJobAndWait(subProject)
+        executeSynchronizeGradleProjectsJobAndWait(subProject)
 
         then:
         hasLocalGroovyDependencyDefinedInClasspathContainer(rootProject)
@@ -52,7 +52,7 @@ class RefreshGradleClasspathContainerTest extends ProjectImportSpecification {
         defineLocalGroovyDependency(new File(unrelatedProjectLocation, 'build.gradle'))
 
         when:
-        executeRefreshGradleClasspathContainerJobAndWait(project)
+        executeSynchronizeGradleProjectsJobAndWait(project)
 
         then:
         hasLocalGroovyDependencyDefinedInClasspathContainer(project)
@@ -70,7 +70,7 @@ class RefreshGradleClasspathContainerTest extends ProjectImportSpecification {
         defineLocalGroovyDependency(new File(secondLocation, 'build.gradle'))
 
         when:
-        executeRefreshGradleClasspathContainerJobAndWait(firstProject, secondProject)
+        executeSynchronizeGradleProjectsJobAndWait(firstProject, secondProject)
 
         then:
         hasLocalGroovyDependencyDefinedInClasspathContainer(firstProject)
@@ -109,7 +109,7 @@ class RefreshGradleClasspathContainerTest extends ProjectImportSpecification {
         JavaCore.create(CorePlugin.workspaceOperations().findProjectByName(name).get())
     }
 
-    private static def executeRefreshGradleClasspathContainerJobAndWait(IJavaProject... javaProjects) {
+    private static def executeSynchronizeGradleProjectsJobAndWait(IJavaProject... javaProjects) {
         def projects = javaProjects.collect { it.project }
         SynchronizeGradleProjectsJob synchronizeJob = new SynchronizeGradleProjectsJob(projects)
         synchronizeJob.schedule()
