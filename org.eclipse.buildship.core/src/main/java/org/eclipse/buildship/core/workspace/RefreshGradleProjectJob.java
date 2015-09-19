@@ -46,7 +46,10 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
     protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) {
         monitor.beginTask("Refresh Gradle project and Eclipse workspace", 2);
 
-        // use the same rule as the ProjectImportJob to do the initialization
+        // all Java operations use the workspace root as a scheduling rule
+        // see org.eclipse.jdt.internal.core.JavaModelOperation#getSchedulingRule()
+        // if this rule ends during the import then other projects jobs see an
+        // inconsistent workspace state, consequently we keep the rule for the whole import
         IJobManager manager = Job.getJobManager();
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         manager.beginRule(workspaceRoot, monitor);
