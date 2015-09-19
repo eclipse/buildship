@@ -43,12 +43,16 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
     private final ImmutableList<String> workingSets;
     private final AsyncHandler initializer;
 
-    public ProjectImportJob(ProjectImportConfiguration configuration, AsyncHandler initializer) {
+    public ProjectImportJob(ProjectImportConfiguration configuration, FixedRequestAttributes rootRequestAttributes, AsyncHandler initializer) {
+        this(initializer, rootRequestAttributes, configuration.getApplyWorkingSets().getValue() ? ImmutableList.copyOf(configuration.getWorkingSets().getValue()) : ImmutableList.<String>of());
+    }
+
+    public ProjectImportJob(AsyncHandler initializer, FixedRequestAttributes rootRequestAttributes, List<String> workingSets) {
         super("Importing Gradle project");
 
         // extract the required data from the mutable configuration object
-        this.rootRequestAttributes = configuration.toFixedAttributes();
-        this.workingSets = configuration.getApplyWorkingSets().getValue() ? ImmutableList.copyOf(configuration.getWorkingSets().getValue()) : ImmutableList.<String>of();
+        this.rootRequestAttributes = Preconditions.checkNotNull(rootRequestAttributes);
+        this.workingSets = ImmutableList.copyOf(workingSets);
         this.initializer = Preconditions.checkNotNull(initializer);
 
         // explicitly show a dialog with the progress while the project synchronization is in process

@@ -11,24 +11,12 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import java.io.File;
-import java.util.List;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingutils.binding.Property;
 import com.gradleware.tooling.toolingutils.binding.ValidationListener;
 import com.gradleware.tooling.toolingutils.binding.Validator;
-
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.wizard.IWizard;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
-
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectImportJob;
 import org.eclipse.buildship.core.util.binding.Validators;
@@ -41,6 +29,15 @@ import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 import org.eclipse.buildship.ui.view.execution.ExecutionsView;
 import org.eclipse.buildship.ui.view.task.TaskView;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.wizard.IWizard;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
+
+import java.io.File;
+import java.util.List;
 
 /**
  * Controller class for the {@link ProjectImportWizard}. Contains all non-UI related calculations
@@ -169,7 +166,7 @@ public class ProjectImportWizardController {
     }
 
     public boolean performImportProject(AsyncHandler initializer) {
-        ProjectImportJob importJob = new ProjectImportJob(this.configuration, initializer);
+        ProjectImportJob importJob = new ProjectImportJob(this.configuration, this.configuration.toFixedAttributes(), initializer);
         importJob.addJobChangeListener(new JobChangeAdapter() {
 
             @Override
