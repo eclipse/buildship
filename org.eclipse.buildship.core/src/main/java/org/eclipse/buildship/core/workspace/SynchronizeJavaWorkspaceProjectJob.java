@@ -27,7 +27,6 @@ import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
-import org.eclipse.buildship.core.workspace.internal.ClasspathContainerUpdater;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -86,13 +85,11 @@ public final class SynchronizeJavaWorkspaceProjectJob extends ToolingApiWorkspac
             if (gradleProject.isPresent()) {
                 CorePlugin.workspaceGradleOperations().synchronizeGradleProjectWithWorkspaceProject(gradleProject.get(), gradleBuild, null, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 50));
             } else {
-                CorePlugin.workspaceGradleOperations().makeWorkspaceProjectGradleUnaware(project, new SubProgressMonitor(monitor, 25));
-                ClasspathContainerUpdater.clear(javaProject, new SubProgressMonitor(monitor, 25));
+                CorePlugin.workspaceGradleOperations().makeWorkspaceProjectGradleUnaware(project, true, new SubProgressMonitor(monitor, 50));
             }
         } else {
             // in case the Gradle specifics have been removed in the previous Eclipse session, update project/external dependencies to be empty
-            CorePlugin.workspaceGradleOperations().makeWorkspaceProjectGradleUnaware(project, new SubProgressMonitor(monitor, 25));
-            ClasspathContainerUpdater.clear(javaProject, new SubProgressMonitor(monitor, 100));
+            CorePlugin.workspaceGradleOperations().makeWorkspaceProjectGradleUnaware(project, true, new SubProgressMonitor(monitor, 100));
         }
     }
 

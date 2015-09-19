@@ -40,6 +40,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.JavaRuntime;
 
 import java.io.File;
@@ -61,7 +62,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         try {
             // uncouple the open workspace projects that do not have a corresponding Gradle project anymore
             for (IProject project : decoupledWorkspaceProjects) {
-                makeWorkspaceProjectGradleUnaware(project, new SubProgressMonitor(monitor, 1));
+                makeWorkspaceProjectGradleUnaware(project, false, new SubProgressMonitor(monitor, 1));
             }
             // synchronize the Gradle projects with their corresponding workspace projects
             for (OmniEclipseProject gradleProject : allGradleProjects) {
@@ -284,12 +285,21 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     }
 
     @Override
-    public void makeWorkspaceProjectGradleUnaware(IProject workspaceProject, IProgressMonitor monitor) {
-        monitor.beginTask("Detach Gradle specifics from project " + workspaceProject.getName(), 2);
+    public void makeWorkspaceProjectGradleUnaware(IProject workspaceProject, boolean clearClasspathContainer, IProgressMonitor monitor) {
+        monitor.beginTask(String.format("Uncouple project %s from Gradle", workspaceProject.getName()), 2);
         try {
             CorePlugin.workspaceOperations().removeNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
             CorePlugin.projectConfigurationManager().deleteProjectConfiguration(workspaceProject);
             ResourceFilter.detachAllFilters(workspaceProject, new SubProgressMonitor(monitor, 1));
+
+            if (hasJavaNature(workspaceProject) && clearClasspathContainer) {
+                IJavaProject javaProject = JavaCore.create(workspaceProject);
+                ClasspathContainerUpdater.clear(javaProject, new SubProgressMonitor(monitor, 100));
+            }
+        } catch (JavaModelException e) {
+            String message = String.format(String.format("Cannot uncouple project %s from Gradle", workspaceProject.getName()), workspaceProject.getName());
+            CorePlugin.logger().error(message, e);
+            throw new GradlePluginsRuntimeException(message, e);
         } finally {
             monitor.done();
         }
