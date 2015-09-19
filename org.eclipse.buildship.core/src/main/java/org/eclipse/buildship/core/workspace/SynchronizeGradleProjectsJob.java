@@ -35,7 +35,7 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * Finds the Gradle root projects for the given set of Eclipse projects and for each found
- * Gradle root project, it synchronizes the Eclipse workspace via {@link RefreshGradleProjectJob}.
+ * Gradle root project, it synchronizes the Eclipse workspace via {@link SynchronizeGradleProjectJob}.
  */
 public final class SynchronizeGradleProjectsJob extends Job {
 
@@ -66,7 +66,7 @@ public final class SynchronizeGradleProjectsJob extends Job {
         try {
             final CountDownLatch latch = new CountDownLatch(rootRequestAttributes.size());
             for (FixedRequestAttributes requestAttributes : rootRequestAttributes) {
-                Job refreshJob = new RefreshGradleProjectJob(requestAttributes, ImmutableList.<String>of(), AsyncHandler.NO_OP);
+                Job refreshJob = new SynchronizeGradleProjectJob(requestAttributes, ImmutableList.<String>of(), AsyncHandler.NO_OP);
                 refreshJob.addJobChangeListener(new JobChangeAdapter() {
 
                     @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -111,8 +111,8 @@ public final class SynchronizeGradleProjectsJob extends Job {
 
     @Override
     protected void canceling() {
-        // cancel all running RefreshGradleProjectJob instances
-        Job.getJobManager().cancel(RefreshGradleProjectJob.class.getName());
+        // cancel all running SynchronizeGradleProjectJob instances
+        Job.getJobManager().cancel(SynchronizeGradleProjectJob.class.getName());
     }
 
 }

@@ -26,7 +26,7 @@ import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
-import org.eclipse.buildship.core.workspace.RefreshGradleProjectJob;
+import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectJob;
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 import org.eclipse.buildship.ui.view.execution.ExecutionsView;
 import org.eclipse.buildship.ui.view.task.TaskView;
@@ -169,7 +169,7 @@ public class ProjectImportWizardController {
     public boolean performImportProject(AsyncHandler initializer) {
         FixedRequestAttributes rootRequestAttributes = this.configuration.toFixedAttributes();
         List<String> workingSets = this.configuration.getApplyWorkingSets().getValue() ? ImmutableList.copyOf(this.configuration.getWorkingSets().getValue()) : ImmutableList.<String>of();
-        RefreshGradleProjectJob synchronizeJob = new RefreshGradleProjectJob(rootRequestAttributes, workingSets, initializer);
+        SynchronizeGradleProjectJob synchronizeJob = new SynchronizeGradleProjectJob(rootRequestAttributes, workingSets, initializer);
         synchronizeJob.addJobChangeListener(new JobChangeAdapter() {
 
             @Override

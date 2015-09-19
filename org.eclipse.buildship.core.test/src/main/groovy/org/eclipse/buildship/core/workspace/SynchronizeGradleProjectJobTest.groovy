@@ -9,7 +9,7 @@ import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.JavaCore
 
-class RefreshGradleProjectJobTest extends ProjectImportSpecification {
+class SynchronizeGradleProjectJobTest extends ProjectImportSpecification {
 
     def setup() {
         executeProjectImportAndWait(createSampleProject())

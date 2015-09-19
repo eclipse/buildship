@@ -36,13 +36,13 @@ import java.util.List;
 /**
  * Forces the reload of the given Gradle (multi-)project and synchronizes it with the Eclipse workspace.
  */
-public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
+public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
 
     private final FixedRequestAttributes rootRequestAttributes;
     private final ImmutableList<String> workingSets;
     private final AsyncHandler initializer;
 
-    public RefreshGradleProjectJob(FixedRequestAttributes rootRequestAttributes, List<String> workingSets, AsyncHandler initializer) {
+    public SynchronizeGradleProjectJob(FixedRequestAttributes rootRequestAttributes, List<String> workingSets, AsyncHandler initializer) {
         super("Reload Gradle root project at " + Preconditions.checkNotNull(rootRequestAttributes).getProjectDir().getAbsolutePath(), false);
 
         this.rootRequestAttributes = Preconditions.checkNotNull(rootRequestAttributes);
@@ -94,7 +94,7 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
     public boolean belongsTo(Object family) {
         // associate with a family so we can cancel all builds of
         // this type at once through the Eclipse progress manager
-        return RefreshGradleProjectJob.class.getName().equals(family);
+        return SynchronizeGradleProjectJob.class.getName().equals(family);
     }
 
 }
