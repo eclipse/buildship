@@ -23,6 +23,7 @@ import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
+import org.eclipse.buildship.core.workspace.RefreshGradleProjectJob;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -34,8 +35,7 @@ import org.gradle.tooling.ProgressListener;
 import java.util.List;
 
 /**
- * Imports a Gradle project into Eclipse using the project import coordinates given by a
- * {@code ProjectImportConfiguration} instance.
+ * Forces the reload of the given Gradle (multi-)project and synchronizes it with the Eclipse workspace.
  */
 public final class ProjectImportJob extends ToolingApiWorkspaceJob {
 
@@ -46,7 +46,6 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
     public ProjectImportJob(FixedRequestAttributes rootRequestAttributes, List<String> workingSets, AsyncHandler initializer) {
         super("Importing Gradle project");
 
-        // extract the required data from the mutable configuration object
         this.rootRequestAttributes = Preconditions.checkNotNull(rootRequestAttributes);
         this.workingSets = ImmutableList.copyOf(workingSets);
         this.initializer = Preconditions.checkNotNull(initializer);
@@ -57,7 +56,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
 
     @Override
     public void runToolingApiJobInWorkspace(IProgressMonitor monitor) {
-        monitor.beginTask("Import Gradle project", 100);
+        monitor.beginTask("Synchronize Gradle project with Eclipse workspace", 100);
 
         this.initializer.run(new SubProgressMonitor(monitor, 10), getToken());
 
@@ -90,6 +89,13 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         } finally {
             monitor.done();
         }
+    }
+
+    @Override
+    public boolean belongsTo(Object family) {
+        // associate with a family so we can cancel all builds of
+        // this type at once through the Eclipse progress manager
+        return RefreshGradleProjectJob.class.getName().equals(family);
     }
 
 }

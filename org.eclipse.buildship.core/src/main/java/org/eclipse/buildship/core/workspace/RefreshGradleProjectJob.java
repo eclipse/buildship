@@ -20,6 +20,7 @@ import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -33,15 +34,20 @@ import org.gradle.tooling.ProgressListener;
 import java.util.List;
 
 /**
- * Forces the reload of the given Gradle (multi-)project and refreshes all affected workspace projects accordingly.
+ * Forces the reload of the given Gradle (multi-)project and synchronizes it with the Eclipse workspace.
  */
 public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
 
     private final FixedRequestAttributes rootRequestAttributes;
+    private final ImmutableList<String> workingSets;
+    private final AsyncHandler initializer;
 
-    public RefreshGradleProjectJob(FixedRequestAttributes rootRequestAttributes) {
+    public RefreshGradleProjectJob(FixedRequestAttributes rootRequestAttributes, List<String> workingSets, AsyncHandler initializer) {
         super("Reload root project at " + Preconditions.checkNotNull(rootRequestAttributes).getProjectDir().getAbsolutePath(), false);
-        this.rootRequestAttributes = rootRequestAttributes;
+
+        this.rootRequestAttributes = Preconditions.checkNotNull(rootRequestAttributes);
+        this.workingSets = ImmutableList.copyOf(workingSets);
+        this.initializer = Preconditions.checkNotNull(initializer);
 
         // explicitly show a dialog with the progress while the project synchronization is in process
         setUser(true);
@@ -49,7 +55,9 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
 
     @Override
     protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) {
-        monitor.beginTask("Refresh Gradle project and Eclipse workspace", 2);
+        monitor.beginTask("Synchronize Gradle project with Eclipse workspace", 100);
+
+        this.initializer.run(new SubProgressMonitor(monitor, 10), getToken());
 
         // all Java operations use the workspace root as a scheduling rule
         // see org.eclipse.jdt.internal.core.JavaModelOperation#getSchedulingRule()
@@ -59,8 +67,8 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         manager.beginRule(workspaceRoot, monitor);
         try {
-            OmniEclipseGradleBuild gradleBuild = forceReloadEclipseGradleBuild(this.rootRequestAttributes, new SubProgressMonitor(monitor, 1));
-            CorePlugin.workspaceGradleOperations().synchronizeGradleBuildWithWorkspaceProject(gradleBuild, this.rootRequestAttributes, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 1));
+            OmniEclipseGradleBuild gradleBuild = forceReloadEclipseGradleBuild(this.rootRequestAttributes, new SubProgressMonitor(monitor, 40));
+            CorePlugin.workspaceGradleOperations().synchronizeGradleBuildWithWorkspaceProject(gradleBuild, this.rootRequestAttributes, this.workingSets, new SubProgressMonitor(monitor, 50));
         } finally {
             manager.endRule(workspaceRoot);
         }
@@ -69,7 +77,7 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
     }
 
     private OmniEclipseGradleBuild forceReloadEclipseGradleBuild(FixedRequestAttributes requestAttributes, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Force reload of Gradle build located at %s", requestAttributes.getProjectDir().getAbsolutePath()), IProgressMonitor.UNKNOWN);
+        monitor.beginTask(String.format("Force reload of Gradle project located at %s", requestAttributes.getProjectDir().getAbsolutePath()), IProgressMonitor.UNKNOWN);
         try {
             ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
             List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));

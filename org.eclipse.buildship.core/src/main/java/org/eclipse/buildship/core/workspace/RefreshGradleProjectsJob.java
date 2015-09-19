@@ -18,6 +18,7 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import org.eclipse.buildship.core.AggregateException;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.predicate.Predicates;
+import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.ToolingApiCommand;
 import org.eclipse.buildship.core.util.progress.ToolingApiInvoker;
 import org.eclipse.core.resources.IProject;
@@ -65,7 +66,7 @@ public final class RefreshGradleProjectsJob extends Job {
         try {
             final CountDownLatch latch = new CountDownLatch(rootRequestAttributes.size());
             for (FixedRequestAttributes requestAttributes : rootRequestAttributes) {
-                Job refreshJob = new RefreshGradleProjectJob(requestAttributes);
+                Job refreshJob = new RefreshGradleProjectJob(requestAttributes, ImmutableList.<String>of(), AsyncHandler.NO_OP);
                 refreshJob.addJobChangeListener(new JobChangeAdapter() {
 
                     @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
