@@ -11,15 +11,9 @@
 
 package org.eclipse.buildship.core.projectimport;
 
-import java.util.List;
-
 import com.google.common.base.Preconditions;
-import org.eclipse.buildship.core.util.progress.AsyncHandler;
-import org.gradle.tooling.ProgressListener;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
-
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
@@ -27,15 +21,17 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.Pair;
-
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.util.progress.AsyncHandler;
+import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.gradle.tooling.ProgressListener;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.console.ProcessStreams;
-import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
+import java.util.List;
 
 /**
  * A job that fetches the models required for the project import preview.
@@ -74,7 +70,7 @@ public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
     }
 
     @Override
-    public void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
+    protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
         monitor.beginTask("Load Gradle project preview", 20);
 
         this.initializer.run(new SubProgressMonitor(monitor, 10), getToken());
