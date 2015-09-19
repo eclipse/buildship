@@ -24,6 +24,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 import org.eclipse.buildship.core.workspace.internal.ClasspathContainerUpdater;
@@ -36,8 +37,6 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.gradle.api.specs.Spec;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
 
@@ -45,7 +44,7 @@ import java.util.List;
 
 /**
  * Synchronizes a Java workspace project with its Gradle counterpart.
- */
+*/
 public final class SynchronizeJavaWorkspaceProjectJob extends ToolingApiWorkspaceJob {
 
     private final IJavaProject project;
@@ -78,43 +77,21 @@ public final class SynchronizeJavaWorkspaceProjectJob extends ToolingApiWorkspac
     private void synchronizeWorkspaceProject(IJavaProject javaProject, IProgressMonitor monitor, CancellationToken token) throws CoreException {
         IProject project = javaProject.getProject();
         if (GradleProjectNature.INSTANCE.isPresentOn(project)) {
-            // find the Gradle project corresponding to the workspace project and update it accordingly
+            // find the Gradle project corresponding to the workspace project ad update it accordingly
             ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
-            FixedRequestAttributes rootRequestAttributes = configuration.getRequestAttributes();
-            OmniEclipseGradleBuild gradleBuild = fetchEclipseGradleBuild(rootRequestAttributes, monitor, token);
+            OmniEclipseGradleBuild gradleBuild = fetchEclipseGradleBuild(configuration.getRequestAttributes(), monitor, token);
+            Optional<OmniEclipseProject> gradleProject = gradleBuild.getRootEclipseProject().tryFind(Specs.eclipseProjectMatchesProjectPath(configuration.getProjectPath()));
 
-            foo(project, gradleBuild, monitor);
-        } else {
-            // in case the Gradle specifics have been removed in the previous Eclipse session, update project/external dependencies to be empty
-            ClasspathContainerUpdater.clear(javaProject, new SubProgressMonitor(monitor, 100));
-        }
-    }
-
-    private static void foo(final IProject project, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) throws CoreException {
-        if (GradleProjectNature.INSTANCE.isPresentOn(project)) {
-            Optional<OmniEclipseProject> gradleProject = gradleBuild.getRootEclipseProject().tryFind(new Spec<OmniEclipseProject>() {
-                @Override
-                public boolean isSatisfiedBy(OmniEclipseProject gradleProject) {
-                    return gradleProject.getProjectDirectory().equals(project.getLocation());
-                }
-            });
-
+            monitor.worked(50);
             if (gradleProject.isPresent()) {
                 CorePlugin.workspaceGradleOperations().synchronizeGradleProjectWithWorkspaceProject(gradleProject.get(), gradleBuild, null, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 50));
             } else {
                 CorePlugin.workspaceGradleOperations().makeWorkspaceProjectGradleUnaware(project, new SubProgressMonitor(monitor, 25));
-                if (project.hasNature(JavaCore.NATURE_ID)) {
-                    IJavaProject javaProject2 = JavaCore.create(project);
-                    ClasspathContainerUpdater.clear(javaProject2, new SubProgressMonitor(monitor, 25));
-                }
+                ClasspathContainerUpdater.clear(javaProject, new SubProgressMonitor(monitor, 25));
             }
         } else {
             // in case the Gradle specifics have been removed in the previous Eclipse session, update project/external dependencies to be empty
-            CorePlugin.workspaceGradleOperations().makeWorkspaceProjectGradleUnaware(project, new SubProgressMonitor(monitor, 25));
-            if (project.hasNature(JavaCore.NATURE_ID)) {
-                IJavaProject javaProject2 = JavaCore.create(project);
-                ClasspathContainerUpdater.clear(javaProject2, new SubProgressMonitor(monitor, 100));
-            }
+            ClasspathContainerUpdater.clear(javaProject, new SubProgressMonitor(monitor, 100));
         }
     }
 
