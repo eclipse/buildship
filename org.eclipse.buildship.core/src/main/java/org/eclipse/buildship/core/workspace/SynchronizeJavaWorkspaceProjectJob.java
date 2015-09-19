@@ -43,20 +43,20 @@ import org.gradle.tooling.ProgressListener;
 import java.util.List;
 
 /**
-* Refreshes an Eclipse Java project's Gradle specific parts.
+ * Synchronizes a Java workspace project with its Gradle counterpart.
 */
-public final class RefreshJavaWorkspaceProjectJob extends ToolingApiWorkspaceJob {
+public final class SynchronizeJavaWorkspaceProjectJob extends ToolingApiWorkspaceJob {
 
     private final IJavaProject project;
 
-    public RefreshJavaWorkspaceProjectJob(IJavaProject project) {
-        super("Initialize Gradle classpath for project '" + project.getElementName() + "'", false);
+    public SynchronizeJavaWorkspaceProjectJob(IJavaProject project) {
+        super(String.format("Synchronize Java workspace project %s", project.getProject().getName()), false);
         this.project = project;
     }
 
     @Override
     protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
-        monitor.beginTask("Initializing classpath", 100);
+        monitor.beginTask(String.format("Synchronizing Java workspace project %s", this.project.getProject().getName()), 100);
 
         // all Java operations use the workspace root as a scheduling rule
         // see org.eclipse.jdt.internal.core.JavaModelOperation#getSchedulingRule()
@@ -87,7 +87,7 @@ public final class RefreshJavaWorkspaceProjectJob extends ToolingApiWorkspaceJob
                 CorePlugin.workspaceGradleOperations().synchronizeGradleProjectWithWorkspaceProject(gradleProject.get(), gradleBuild, null, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 50));
             } else {
                 CorePlugin.workspaceGradleOperations().makeWorkspaceProjectGradleUnaware(project, new SubProgressMonitor(monitor, 25));
-                ClasspathContainerUpdater.clear(javaProject, new SubProgressMonitor(monitor, 100));
+                ClasspathContainerUpdater.clear(javaProject, new SubProgressMonitor(monitor, 25));
             }
         } else {
             // in case the Gradle specifics have been removed in the previous Eclipse session, update project/external dependencies to be empty

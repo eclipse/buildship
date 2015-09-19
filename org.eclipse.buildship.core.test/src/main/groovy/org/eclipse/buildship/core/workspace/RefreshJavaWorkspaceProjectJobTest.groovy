@@ -1,20 +1,16 @@
 package org.eclipse.buildship.core.workspace
 
-import org.gradle.tooling.GradleConnector
-
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
-
+import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.configuration.GradleProjectNature
+import org.eclipse.buildship.core.configuration.ProjectConfiguration
+import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.IClasspathEntry
-import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
-
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
+import org.gradle.tooling.GradleConnector
 
 class RefreshJavaWorkspaceProjectJobTest extends ProjectImportSpecification {
 
@@ -36,7 +32,7 @@ class RefreshJavaWorkspaceProjectJobTest extends ProjectImportSpecification {
         JavaCore.create(project).getResolvedClasspath(false).find{ it.path.toPortableString().contains('junit') }
 
         when:
-        executeRefreshJavaWorkspaceProjectJobAndWait(project)
+        executeSynchronizeJavaWorkspaceProjectJobAndWait(project)
 
         then:
         !project.hasNature(GradleProjectNature.ID)
@@ -53,7 +49,7 @@ class RefreshJavaWorkspaceProjectJobTest extends ProjectImportSpecification {
 
         when:
         IProject project = CorePlugin.workspaceOperations().findProjectByName('moduleB').get()
-        executeRefreshJavaWorkspaceProjectJobAndWait(project)
+        executeSynchronizeJavaWorkspaceProjectJobAndWait(project)
 
         then:
         JavaCore.create(project).rawClasspath.find{ it.entryKind == IClasspathEntry.CPE_SOURCE && it.path.toPortableString() == '/moduleB/src/test/java' }
@@ -66,18 +62,18 @@ class RefreshJavaWorkspaceProjectJobTest extends ProjectImportSpecification {
         CorePlugin.workspaceOperations().removeNature(moduleB, GradleProjectNature.ID, new NullProgressMonitor())
 
         when:
-        executeRefreshJavaWorkspaceProjectJobAndWait(moduleB)
+        executeSynchronizeJavaWorkspaceProjectJobAndWait(moduleB)
 
         then:
         !JavaCore.create(moduleB).getResolvedClasspath(false).find{ it.path.toPortableString().contains('junit') }
     }
 
-    private def executeRefreshJavaWorkspaceProjectJobAndWait(IProject project) {
+    private def executeSynchronizeJavaWorkspaceProjectJobAndWait(IProject project) {
         // reload Gradle model
         ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project)
         CorePlugin.modelRepositoryProvider().getModelRepository(configuration.requestAttributes).fetchEclipseGradleBuild(new TransientRequestAttributes(false, System.out, System.err, System.in, [] as List, [] as List, GradleConnector.newCancellationTokenSource().token()), FetchStrategy.FORCE_RELOAD)
-        // refresh the project
-        def job = new RefreshJavaWorkspaceProjectJob(JavaCore.create(project))
+        // synchronize the project
+        def job = new SynchronizeJavaWorkspaceProjectJob(JavaCore.create(project))
         job.schedule()
         job.join()
     }

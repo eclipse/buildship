@@ -11,8 +11,7 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import org.eclipse.buildship.core.workspace.RefreshJavaWorkspaceProjectJob;
-
+import org.eclipse.buildship.core.workspace.SynchronizeJavaWorkspaceProjectJob;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
 import org.eclipse.jdt.core.IClasspathContainer;
@@ -37,16 +36,16 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
     @Override
     public void initialize(IPath containerPath, IJavaProject javaProject) {
-        scheduleClasspathInitialization(javaProject);
+        scheduleJavaWorkspaceProjectSynchronization(javaProject);
     }
 
     @Override
     public void requestClasspathContainerUpdate(IPath containerPath, IJavaProject javaProject, IClasspathContainer containerSuggestion) {
-        scheduleClasspathInitialization(javaProject);
+        scheduleJavaWorkspaceProjectSynchronization(javaProject);
     }
 
-    private void scheduleClasspathInitialization(IJavaProject project) {
-        RefreshJavaWorkspaceProjectJob job = new RefreshJavaWorkspaceProjectJob(project);
+    private void scheduleJavaWorkspaceProjectSynchronization(IJavaProject project) {
+        SynchronizeJavaWorkspaceProjectJob job = new SynchronizeJavaWorkspaceProjectJob(project);
         job.schedule();
     }
 
