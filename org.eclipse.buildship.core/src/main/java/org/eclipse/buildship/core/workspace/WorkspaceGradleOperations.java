@@ -38,6 +38,7 @@ public interface WorkspaceGradleOperations {
      * <li>the Gradle nature is set</li>
      * <li>the Gradle settings file is written</li>
      * <li>the Gradle resource filter is set</li>
+     * <li>the linked resources are set</li>
      * <li>a Java project is set ?????</li>
      * </ul>
      * </li>
