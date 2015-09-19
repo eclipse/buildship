@@ -26,7 +26,30 @@ import java.util.List;
 public interface WorkspaceGradleOperations {
 
     /**
-     * Synchronizes the given Gradle project with its workspace project counterpart. The algorithm is as follows:
+     * Synchronizes the given Gradle build with the Eclipse workspace. The algorithm is as follows:
+     * <p/>
+     * <ol>
+     * <li>Uncouple all open workspace projects for which there is no corresponding Gradle project in the Gradle build anymore
+     * <ul>
+     * <li>As outlined in {@link #makeWorkspaceProjectGradleUnaware(IProject, IProgressMonitor)}</li>
+     * </ul>
+     * </li>
+     * <li>Synchronize all Gradle projects of the Gradle build with the Eclipse workspace project counterparts:
+     * <ul>
+     * <li>As outlined in {@link #synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject, OmniEclipseGradleBuild, FixedRequestAttributes, List, IProgressMonitor)}</li>
+     * </ul>
+     * </li>
+     * </ol>
+     *
+     * @param gradleBuild           the Gradle build to synchronize
+     * @param rootRequestAttributes the preferences used to query the Gradle build
+     * @param workingSets           the working set to assign the imported projects to
+     * @param monitor               the monitor to report the progress on
+     */
+    void synchronizeGradleBuildWithWorkspaceProject(OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor);
+
+    /**
+     * Synchronizes the given Gradle project with its Eclipse workspace project counterpart. The algorithm is as follows:
      * <p/>
      * <ol>
      * <li>

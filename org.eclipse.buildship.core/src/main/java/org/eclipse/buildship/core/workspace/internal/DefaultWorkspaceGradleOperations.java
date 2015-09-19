@@ -14,6 +14,7 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
@@ -26,6 +27,7 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.gradle.Specs;
+import org.eclipse.buildship.core.util.predicate.Predicates;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 import org.eclipse.buildship.core.workspace.ProjectCreatedEvent;
 import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;
@@ -42,11 +44,56 @@ import org.eclipse.jdt.launching.JavaRuntime;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Default implementation of the {@link WorkspaceGradleOperations} interface.
  */
 public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOperations {
+
+    @Override
+    public void synchronizeGradleBuildWithWorkspaceProject(OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor) {
+        // collect Gradle projects and Eclipse workspace projects to sync
+        List<OmniEclipseProject> allGradleProjects = gradleBuild.getRootEclipseProject().getAll();
+        List<IProject> decoupledWorkspaceProjects = collectOpenWorkspaceProjectsRemovedFromGradleBuild(allGradleProjects, rootRequestAttributes);
+
+        monitor.beginTask("Synchronize Gradle build with Eclipse workspace", decoupledWorkspaceProjects.size() + allGradleProjects.size());
+        try {
+            // uncouple the open workspace projects that do not have a corresponding Gradle project anymore
+            for (IProject project : decoupledWorkspaceProjects) {
+                makeWorkspaceProjectGradleUnaware(project, new SubProgressMonitor(monitor, 1));
+            }
+            // synchronize the Gradle projects with their corresponding workspace projects
+            for (OmniEclipseProject gradleProject : allGradleProjects) {
+                synchronizeGradleProjectWithWorkspaceProject(gradleProject, gradleBuild, rootRequestAttributes, workingSets, new SubProgressMonitor(monitor, 1));
+            }
+        } finally {
+            monitor.done();
+        }
+    }
+
+    private List<IProject> collectOpenWorkspaceProjectsRemovedFromGradleBuild(List<OmniEclipseProject> gradleProjects, final FixedRequestAttributes rootRequestAttributes) {
+        // in the workspace, find all projects with a Gradle nature that belong to the same Gradle build (based on the root project directory) but
+        // which do not match the location of one of the Gradle projects of that build
+        final Set<File> gradleProjectDirectories = FluentIterable.from(gradleProjects).transform(new Function<OmniEclipseProject, File>() {
+
+            @Override
+            public File apply(OmniEclipseProject gradleProject) {
+                return gradleProject.getProjectDirectory();
+            }
+        }).toSet();
+
+        ImmutableList<IProject> allWorkspaceProjects = CorePlugin.workspaceOperations().getAllProjects();
+        return FluentIterable.from(allWorkspaceProjects).filter(Predicates.accessibleGradleProject()).filter(new Predicate<IProject>() {
+
+            @Override
+            public boolean apply(IProject project) {
+                ProjectConfiguration projectConfiguration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
+                return projectConfiguration.getRequestAttributes().getProjectDir().equals(rootRequestAttributes.getProjectDir()) &&
+                        (project.getLocation() == null || !gradleProjectDirectories.contains(project.getLocation().toFile()));
+            }
+        }).toList();
+    }
 
     @Override
     public void synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor) {
