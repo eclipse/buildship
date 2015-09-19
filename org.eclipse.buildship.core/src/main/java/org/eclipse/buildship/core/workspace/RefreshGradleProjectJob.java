@@ -16,7 +16,7 @@ import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessStreams;
@@ -30,6 +30,8 @@ import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.gradle.tooling.ProgressListener;
 
+import java.util.List;
+
 /**
  * Forces the reload of the given Gradle (multi-)project and refreshes all affected workspace projects accordingly.
  */
@@ -40,6 +42,9 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
     public RefreshGradleProjectJob(FixedRequestAttributes rootRequestAttributes) {
         super("Reload root project at " + Preconditions.checkNotNull(rootRequestAttributes).getProjectDir().getAbsolutePath(), false);
         this.rootRequestAttributes = rootRequestAttributes;
+
+        // explicitly show a dialog with the progress while the project synchronization is in process
+        setUser(true);
     }
 
     @Override
@@ -54,8 +59,8 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         manager.beginRule(workspaceRoot, monitor);
         try {
-            OmniEclipseGradleBuild result = forceReloadEclipseGradleBuild(this.rootRequestAttributes, new SubProgressMonitor(monitor, 1));
-            CorePlugin.workspaceGradleOperations().synchronizeGradleBuildWithWorkspaceProject(result, this.rootRequestAttributes, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 1));
+            OmniEclipseGradleBuild gradleBuild = forceReloadEclipseGradleBuild(this.rootRequestAttributes, new SubProgressMonitor(monitor, 1));
+            CorePlugin.workspaceGradleOperations().synchronizeGradleBuildWithWorkspaceProject(gradleBuild, this.rootRequestAttributes, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 1));
         } finally {
             manager.endRule(workspaceRoot);
         }
@@ -67,11 +72,11 @@ public final class RefreshGradleProjectJob extends ToolingApiWorkspaceJob {
         monitor.beginTask(String.format("Force reload of Gradle build located at %s", requestAttributes.getProjectDir().getAbsolutePath()), IProgressMonitor.UNKNOWN);
         try {
             ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-            ImmutableList<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
+            List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
             TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), listeners,
                     ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
-            ModelRepositoryProvider repository = CorePlugin.modelRepositoryProvider();
-            return repository.getModelRepository(requestAttributes).fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FORCE_RELOAD);
+            ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(requestAttributes);
+            return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FORCE_RELOAD);
         } finally {
             monitor.done();
         }

@@ -39,7 +39,7 @@ import java.util.List;
  */
 public final class ProjectImportJob extends ToolingApiWorkspaceJob {
 
-    private final FixedRequestAttributes fixedAttributes;
+    private final FixedRequestAttributes rootRequestAttributes;
     private final ImmutableList<String> workingSets;
     private final AsyncHandler initializer;
 
@@ -47,11 +47,11 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         super("Importing Gradle project");
 
         // extract the required data from the mutable configuration object
-        this.fixedAttributes = configuration.toFixedAttributes();
+        this.rootRequestAttributes = configuration.toFixedAttributes();
         this.workingSets = configuration.getApplyWorkingSets().getValue() ? ImmutableList.copyOf(configuration.getWorkingSets().getValue()) : ImmutableList.<String>of();
         this.initializer = Preconditions.checkNotNull(initializer);
 
-        // explicitly show a dialog with the progress while the import is in process
+        // explicitly show a dialog with the progress while the project synchronization is in process
         setUser(true);
     }
 
@@ -69,8 +69,8 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         manager.beginRule(workspaceRoot, monitor);
         try {
-            OmniEclipseGradleBuild gradleBuild = fetchEclipseGradleBuild(new SubProgressMonitor(monitor, 40));
-            CorePlugin.workspaceGradleOperations().synchronizeGradleBuildWithWorkspaceProject(gradleBuild, this.fixedAttributes, this.workingSets, new SubProgressMonitor(monitor, 50));
+            OmniEclipseGradleBuild gradleBuild = forceReloadEclipseGradleBuild(this.rootRequestAttributes, new SubProgressMonitor(monitor, 40));
+            CorePlugin.workspaceGradleOperations().synchronizeGradleBuildWithWorkspaceProject(gradleBuild, this.rootRequestAttributes, this.workingSets, new SubProgressMonitor(monitor, 50));
         } finally {
             manager.endRule(workspaceRoot);
         }
@@ -78,14 +78,14 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         // monitor is closed by caller in super class
     }
 
-    private OmniEclipseGradleBuild fetchEclipseGradleBuild(IProgressMonitor monitor) {
+    private OmniEclipseGradleBuild forceReloadEclipseGradleBuild(FixedRequestAttributes requestAttributes, IProgressMonitor monitor) {
         monitor.beginTask("Load Eclipse Gradle project", IProgressMonitor.UNKNOWN);
         try {
             ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
             List<ProgressListener> listeners = ImmutableList.<ProgressListener> of(new DelegatingProgressListener(monitor));
-            TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), null, listeners,
+            TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), listeners,
                     ImmutableList.<org.gradle.tooling.events.ProgressListener> of(), getToken());
-            ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(this.fixedAttributes);
+            ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(requestAttributes);
             return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FORCE_RELOAD);
         } finally {
             monitor.done();
