@@ -23,7 +23,7 @@ public final class RefreshProjectHandler extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        GradleClasspathContainerRefresher.execute(event);
+        ProjectSynchronizer.execute(event);
         return null;
     }
 

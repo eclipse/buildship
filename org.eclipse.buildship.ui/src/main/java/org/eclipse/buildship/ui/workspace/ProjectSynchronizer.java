@@ -30,8 +30,10 @@ import java.util.List;
 /**
  * Collects all selected, Gradle-aware {@link IProject} instances and schedules a
  * {@link SynchronizeGradleProjectsJob} to refresh these projects.
+ *
+ * @see SynchronizeGradleProjectsJob
  */
-public final class GradleClasspathContainerRefresher {
+public final class ProjectSynchronizer {
 
     public static void execute(final ExecutionEvent event) {
         List<IProject> selectedProjects = collectSelectedProjects(event);

@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.ui.workspace;
 
+import org.eclipse.buildship.ui.UiPluginConstants;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IExecutionListener;
@@ -18,8 +19,6 @@ import org.eclipse.core.commands.NotHandledException;
 import org.eclipse.ui.IWorkbenchCommandConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.contexts.IContextService;
-
-import org.eclipse.buildship.ui.UiPluginConstants;
 
 /**
  * Listens for the default Eclipse Refresh command, and triggers a refresh of the project configuration in case
@@ -66,7 +65,7 @@ public final class RefreshProjectCommandExecutionListener implements IExecutionL
     }
 
     private void refreshGradleProject(ExecutionEvent event) {
-        GradleClasspathContainerRefresher.execute(event);
+        ProjectSynchronizer.execute(event);
     }
 
 }
