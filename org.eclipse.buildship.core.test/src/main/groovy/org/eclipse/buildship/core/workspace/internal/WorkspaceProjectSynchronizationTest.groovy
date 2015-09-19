@@ -1,35 +1,5 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import groovy.lang.Closure
-import org.gradle.tooling.model.eclipse.EclipseProject
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import spock.lang.Ignore
-import spock.lang.IgnoreIf
-import spock.lang.Specification
-
-import com.google.common.base.Optional
-
-import com.gradleware.tooling.toolingclient.GradleDistribution
-import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject
-import com.gradleware.tooling.toolingmodel.OmniGradleProject
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
-import com.gradleware.tooling.toolingmodel.util.Maybe
-
-import org.eclipse.core.resources.IProject
-import org.eclipse.core.resources.IProjectDescription
-import org.eclipse.core.runtime.IProgressMonitor
-import org.eclipse.core.runtime.IStatus
-import org.eclipse.core.runtime.NullProgressMonitor
-import org.eclipse.core.runtime.Path
-import org.eclipse.core.runtime.Status
-import org.eclipse.core.runtime.SubProgressMonitor
-import org.eclipse.core.runtime.jobs.IJobManager
-import org.eclipse.core.runtime.jobs.Job
-import org.eclipse.jdt.core.IClasspathEntry
-import org.eclipse.jdt.core.JavaCore
-
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.test.fixtures.BuildshipTestSpecification
@@ -37,7 +7,14 @@ import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 import org.eclipse.buildship.core.test.fixtures.FileStructure
 import org.eclipse.buildship.core.test.fixtures.GradleModel
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer
+import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.IProgressMonitor
+import org.eclipse.core.runtime.IStatus
+import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.core.runtime.Status
+import org.eclipse.core.runtime.jobs.Job
+import org.eclipse.jdt.core.JavaCore
+import spock.lang.Ignore
 
 class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
 
@@ -94,8 +71,7 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
         file('sample-project/.settings/gradle.prefs').text.length() > 0
     }
 
-    // TODO (donat) the documentation says the filters _should_ be set
-    def "If workspace project exists at model location, then resource filters are not set"() {
+    def "If workspace project exists at model location, then resource filters are set"() {
         setup:
         IProject project = newOpenProject('sample-project')
         fileStructure().create {
@@ -111,7 +87,7 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
         executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
 
         then:
-        project.filters.length == 0
+        project.filters.length == 2
     }
 
     @Ignore // TODO (donat) test is failing. Should we really add the Java nature? Should we add the Gradle classpath container?
