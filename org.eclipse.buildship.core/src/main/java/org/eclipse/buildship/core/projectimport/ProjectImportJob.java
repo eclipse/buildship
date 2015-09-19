@@ -11,32 +11,27 @@
 
 package org.eclipse.buildship.core.projectimport;
 
-import java.util.List;
-
-import org.gradle.tooling.ProgressListener;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
-
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.util.progress.AsyncHandler;
+import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
+import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
+import org.gradle.tooling.ProgressListener;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.console.ProcessStreams;
-import org.eclipse.buildship.core.util.progress.AsyncHandler;
-import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
-import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
+import java.util.List;
 
 /**
  * Imports a Gradle project into Eclipse using the project import coordinates given by a
@@ -74,12 +69,8 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         manager.beginRule(workspaceRoot, monitor);
         try {
-            OmniEclipseGradleBuild eclipseGradleBuild = fetchEclipseGradleBuild(new SubProgressMonitor(monitor, 40));
-            OmniEclipseProject rootProject = eclipseGradleBuild.getRootEclipseProject();
-            List<OmniEclipseProject> allProjects = rootProject.getAll();
-            for (OmniEclipseProject project : allProjects) {
-                CorePlugin.workspaceGradleOperations().synchronizeGradleProjectWithWorkspaceProject(project, eclipseGradleBuild, this.fixedAttributes, this.workingSets, new SubProgressMonitor(monitor, 50 / allProjects.size()));
-            }
+            OmniEclipseGradleBuild gradleBuild = fetchEclipseGradleBuild(new SubProgressMonitor(monitor, 40));
+            CorePlugin.workspaceGradleOperations().synchronizeGradleBuildWithWorkspaceProject(gradleBuild, this.fixedAttributes, this.workingSets, new SubProgressMonitor(monitor, 50));
         } finally {
             manager.endRule(workspaceRoot);
         }
