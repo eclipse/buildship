@@ -17,7 +17,8 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
 /**
- * Refreshes the project configuration of all Gradle projects that belong to the same build as the currently selected Gradle projects.
+ * Synchronizes all selected, Gradle-aware {@link org.eclipse.core.resources.IProject} instances with
+ * the workspace, including those projects that belong to the same Gradle multi-project.
  */
 public final class RefreshProjectHandler extends AbstractHandler {
 

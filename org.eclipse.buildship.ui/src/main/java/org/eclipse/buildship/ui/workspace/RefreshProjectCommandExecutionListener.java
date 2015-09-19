@@ -21,8 +21,10 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.contexts.IContextService;
 
 /**
- * Listens for the default Eclipse Refresh command, and triggers a refresh of the project configuration in case
- * the command is triggered in the context of a Gradle project.
+ * Listens for the default Eclipse Refresh command, and in case the command is triggered
+ * in the context of a Gradle project, it triggers synchronization of all selected,
+ * Gradle-aware {@link org.eclipse.core.resources.IProject} instances with
+ * the workspace, including those projects that belong to the same Gradle multi-project.
  */
 public final class RefreshProjectCommandExecutionListener implements IExecutionListener {
 
