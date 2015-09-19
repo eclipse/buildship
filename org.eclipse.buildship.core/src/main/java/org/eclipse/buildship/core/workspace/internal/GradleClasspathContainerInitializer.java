@@ -18,19 +18,17 @@ import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IJavaProject;
 
 /**
- * Initializes the classpath of each Eclipse workspace project that has a Gradle nature with the
- * linked resources/sources/project and external dependencies of the underlying Gradle project.
- * <p/>
- * When this initializer is invoked, it looks up the {@link com.gradleware.tooling.toolingmodel.OmniEclipseProject} for the given
- * Eclipse workspace project, applies all the found linked resources and the sources, reads the
- * project dependencies and external dependencies and adds the dependencies to the
- * {@link org.eclipse.buildship.core.workspace.GradleClasspathContainer#CONTAINER_ID} classpath
- * container.
+ * Synchronizes the given Java workspace project with its Gradle counterpart
+ * via {@code SynchronizeJavaWorkspaceProjectJob}, including but not limited
+ * to the initialization of the classpath container.
  * <p/>
  * This initializer is assigned to the projects via the
  * {@code org.eclipse.jdt.core.classpathContainerInitializer} extension point.
  * <p/>
  * The initialization is scheduled as a job, to not block the IDE upon startup.
+ *
+ * @see SynchronizeJavaWorkspaceProjectJob
+ * @see ClasspathContainerUpdater
  */
 public final class GradleClasspathContainerInitializer extends ClasspathContainerInitializer {
 
