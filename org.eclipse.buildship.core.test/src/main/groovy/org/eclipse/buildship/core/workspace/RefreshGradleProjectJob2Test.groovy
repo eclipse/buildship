@@ -1,7 +1,8 @@
-package org.eclipse.buildship.core.projectimport
+package org.eclipse.buildship.core.workspace
 
 import com.google.common.collect.ImmutableList
 import com.gradleware.tooling.toolingclient.GradleDistribution
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectBuilder
 import org.eclipse.buildship.core.configuration.GradleProjectNature
@@ -16,7 +17,7 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
-class ProjectImportJobTest extends Specification {
+class RefreshGradleProjectJob2Test extends Specification {
 
     @Rule
     TemporaryFolder tempFolder
@@ -29,7 +30,7 @@ class ProjectImportJobTest extends Specification {
         setup:
         def applyJavaPlugin = false
         File projectLocation = newProject(projectDescriptorExists, applyJavaPlugin)
-        ProjectImportJob job = newProjectImportJob(projectLocation)
+        RefreshGradleProjectJob job = newRefreshGradleProjectJob(projectLocation)
 
         when:
         job.schedule()
@@ -45,7 +46,7 @@ class ProjectImportJobTest extends Specification {
     def "Project descriptors should be created iff they don't already exist"(boolean applyJavaPlugin, boolean projectDescriptorExists, String descriptorComment) {
         setup:
         File rootProject = newProject(projectDescriptorExists, applyJavaPlugin)
-        ProjectImportJob job = newProjectImportJob(rootProject)
+        RefreshGradleProjectJob job = newRefreshGradleProjectJob(rootProject)
 
         when:
         job.schedule()
@@ -67,7 +68,7 @@ class ProjectImportJobTest extends Specification {
     def "Imported projects always have Gradle builder and nature"(boolean projectDescriptorExists) {
         setup:
         File rootProject = newProject(projectDescriptorExists, false)
-        ProjectImportJob job = newProjectImportJob(rootProject)
+        RefreshGradleProjectJob job = newRefreshGradleProjectJob(rootProject)
 
         when:
         job.schedule()
@@ -85,7 +86,7 @@ class ProjectImportJobTest extends Specification {
     def "Imported parent projects have filters to hide the content of the children and the build folders"() {
         setup:
         File rootProject = newMultiProject()
-        ProjectImportJob job = newProjectImportJob(rootProject)
+        RefreshGradleProjectJob job = newRefreshGradleProjectJob(rootProject)
 
         when:
         job.schedule()
@@ -105,13 +106,13 @@ class ProjectImportJobTest extends Specification {
         File rootProject = newMultiProject()
 
         when:
-        ProjectImportJob job = newProjectImportJob(rootProject)
+        RefreshGradleProjectJob job = newRefreshGradleProjectJob(rootProject)
         job.schedule()
         job.join()
 
         workspaceOperations.deleteAllProjects(null)
 
-        job = newProjectImportJob(rootProject)
+        job = newRefreshGradleProjectJob(rootProject)
         job.schedule()
         job.join()
 
@@ -134,7 +135,7 @@ class ProjectImportJobTest extends Specification {
         project.delete(false, true, new NullProgressMonitor())
 
         when:
-        ProjectImportJob job = newProjectImportJob(new File(workspaceRootLocation, "projectname"))
+        RefreshGradleProjectJob job = newRefreshGradleProjectJob(new File(workspaceRootLocation, "projectname"))
         job.schedule()
         job.join()
 
@@ -145,7 +146,7 @@ class ProjectImportJobTest extends Specification {
     def "Can import project located in workspace folder and with custom root name"() {
         setup:
         File rootProject = newProjectWithCustomNameInWorkspaceFolder()
-        ProjectImportJob job = newProjectImportJob(rootProject)
+        RefreshGradleProjectJob job = newRefreshGradleProjectJob(rootProject)
 
         when:
         job.schedule()
@@ -209,13 +210,10 @@ class ProjectImportJobTest extends Specification {
         root
     }
 
-    def newProjectImportJob(File location) {
-        ProjectImportConfiguration configuration = new ProjectImportConfiguration()
-        configuration.gradleDistribution = GradleDistributionWrapper.from(GradleDistribution.fromBuild())
-        configuration.projectDir = location
-        configuration.applyWorkingSets = true
-        configuration.workingSets = []
-        new ProjectImportJob(configuration.toFixedAttributes(), configuration.workingSets.getValue(), AsyncHandler.NO_OP)
+    def newRefreshGradleProjectJob(File location) {
+        def distribution = GradleDistributionWrapper.from(GradleDistribution.fromBuild()).toGradleDistribution()
+        def rootRequestAttributes = new FixedRequestAttributes(location, null, distribution, null, ImmutableList.of(), ImmutableList.of())
+        new RefreshGradleProjectJob(rootRequestAttributes, [], AsyncHandler.NO_OP)
     }
 
 }

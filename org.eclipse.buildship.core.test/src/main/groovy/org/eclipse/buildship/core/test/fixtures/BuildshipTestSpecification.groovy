@@ -11,26 +11,10 @@
 
 package org.eclipse.buildship.core.test.fixtures
 
+import org.eclipse.buildship.core.CorePlugin
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
-
-import com.google.common.util.concurrent.FutureCallback
-
-import com.gradleware.tooling.toolingclient.GradleDistribution
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure
-import com.gradleware.tooling.toolingmodel.util.Pair
-
-import org.eclipse.core.resources.IWorkspace
-import org.eclipse.core.runtime.jobs.Job
-
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
-import org.eclipse.buildship.core.projectimport.ProjectImportJob
-import org.eclipse.buildship.core.projectimport.ProjectPreviewJob
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
-import org.eclipse.buildship.core.util.progress.AsyncHandler
 
 /**
  * Base Spock test specification to verify Buildship functionality against the current state of the
