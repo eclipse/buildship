@@ -14,6 +14,7 @@ package org.eclipse.buildship.ui.wizard.project;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingutils.binding.Property;
 import com.gradleware.tooling.toolingutils.binding.ValidationListener;
 import com.gradleware.tooling.toolingutils.binding.Validator;
@@ -166,7 +167,9 @@ public class ProjectImportWizardController {
     }
 
     public boolean performImportProject(AsyncHandler initializer) {
-        ProjectImportJob importJob = new ProjectImportJob(this.configuration, this.configuration.toFixedAttributes(), initializer);
+        FixedRequestAttributes rootRequestAttributes = this.configuration.toFixedAttributes();
+        List<String> workingSets = this.configuration.getApplyWorkingSets().getValue() ? ImmutableList.copyOf(this.configuration.getWorkingSets().getValue()) : ImmutableList.<String>of();
+        ProjectImportJob importJob = new ProjectImportJob(rootRequestAttributes, workingSets, initializer);
         importJob.addJobChangeListener(new JobChangeAdapter() {
 
             @Override

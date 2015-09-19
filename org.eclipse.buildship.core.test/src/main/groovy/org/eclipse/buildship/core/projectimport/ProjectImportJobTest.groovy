@@ -215,7 +215,7 @@ class ProjectImportJobTest extends Specification {
         configuration.projectDir = location
         configuration.applyWorkingSets = true
         configuration.workingSets = []
-        new ProjectImportJob(configuration, configuration.toFixedAttributes(), AsyncHandler.NO_OP)
+        new ProjectImportJob(configuration.toFixedAttributes(), configuration.workingSets.getValue(), AsyncHandler.NO_OP)
     }
 
 }

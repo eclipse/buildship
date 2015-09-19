@@ -43,11 +43,7 @@ public final class ProjectImportJob extends ToolingApiWorkspaceJob {
     private final ImmutableList<String> workingSets;
     private final AsyncHandler initializer;
 
-    public ProjectImportJob(ProjectImportConfiguration configuration, FixedRequestAttributes rootRequestAttributes, AsyncHandler initializer) {
-        this(initializer, rootRequestAttributes, configuration.getApplyWorkingSets().getValue() ? ImmutableList.copyOf(configuration.getWorkingSets().getValue()) : ImmutableList.<String>of());
-    }
-
-    public ProjectImportJob(AsyncHandler initializer, FixedRequestAttributes rootRequestAttributes, List<String> workingSets) {
+    public ProjectImportJob(FixedRequestAttributes rootRequestAttributes, List<String> workingSets, AsyncHandler initializer) {
         super("Importing Gradle project");
 
         // extract the required data from the mutable configuration object

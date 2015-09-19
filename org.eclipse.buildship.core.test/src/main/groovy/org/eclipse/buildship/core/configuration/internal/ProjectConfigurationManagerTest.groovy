@@ -106,7 +106,7 @@ class ProjectConfigurationManagerTest extends Specification {
         importConfigurationOne.applyWorkingSets = true
         importConfigurationOne.workingSets = []
 
-        new ProjectImportJob(importConfigurationOne, importConfigurationOne.toFixedAttributes(), AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
+        new ProjectImportJob(importConfigurationOne.toFixedAttributes(), importConfigurationOne.workingSets.getValue(), AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
 
         when:
         Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
@@ -175,8 +175,8 @@ class ProjectConfigurationManagerTest extends Specification {
         importConfigurationTwo.applyWorkingSets = true
         importConfigurationTwo.workingSets = []
 
-        new ProjectImportJob(importConfigurationOne, importConfigurationOne.toFixedAttributes(), AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
-        new ProjectImportJob(importConfigurationTwo, importConfigurationTwo.toFixedAttributes(), AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
+        new ProjectImportJob(importConfigurationOne.toFixedAttributes(), importConfigurationOne.workingSets.getValue(), AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
+        new ProjectImportJob(importConfigurationTwo.toFixedAttributes(), importConfigurationOne.workingSets.getValue(), AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
 
         when:
         Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
