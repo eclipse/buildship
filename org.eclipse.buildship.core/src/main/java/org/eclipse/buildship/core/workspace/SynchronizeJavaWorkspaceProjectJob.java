@@ -74,11 +74,22 @@ public final class SynchronizeJavaWorkspaceProjectJob extends ToolingApiWorkspac
     }
 
     private void synchronizeWorkspaceProject(IJavaProject javaProject, IProgressMonitor monitor, CancellationToken token) throws CoreException {
-        final IProject project = javaProject.getProject();
+        IProject project = javaProject.getProject();
         if (GradleProjectNature.INSTANCE.isPresentOn(project)) {
-            // find the Gradle project corresponding to the workspace project ad update it accordingly
+            // find the Gradle project corresponding to the workspace project and update it accordingly
             ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
-            OmniEclipseGradleBuild gradleBuild = fetchEclipseGradleBuild(configuration.getRequestAttributes(), monitor, token);
+            FixedRequestAttributes rootRequestAttributes = configuration.getRequestAttributes();
+            OmniEclipseGradleBuild gradleBuild = fetchEclipseGradleBuild(rootRequestAttributes, monitor, token);
+
+            foo(project, gradleBuild, monitor);
+        } else {
+            // in case the Gradle specifics have been removed in the previous Eclipse session, update project/external dependencies to be empty
+            CorePlugin.workspaceGradleOperations().makeWorkspaceProjectGradleUnaware(project, true, new SubProgressMonitor(monitor, 100));
+        }
+    }
+
+    private static void foo(final IProject project, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) throws CoreException {
+        if (GradleProjectNature.INSTANCE.isPresentOn(project)) {
             Optional<OmniEclipseProject> gradleProject = gradleBuild.getRootEclipseProject().tryFind(new Spec<OmniEclipseProject>() {
                 @Override
                 public boolean isSatisfiedBy(OmniEclipseProject gradleProject) {
@@ -86,7 +97,6 @@ public final class SynchronizeJavaWorkspaceProjectJob extends ToolingApiWorkspac
                 }
             });
 
-            monitor.worked(50);
             if (gradleProject.isPresent()) {
                 CorePlugin.workspaceGradleOperations().synchronizeGradleProjectWithWorkspaceProject(gradleProject.get(), gradleBuild, null, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 50));
             } else {
