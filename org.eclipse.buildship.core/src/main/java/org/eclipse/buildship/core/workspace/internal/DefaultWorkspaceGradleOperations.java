@@ -42,6 +42,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.JavaRuntime;
+import org.gradle.api.specs.Spec;
 
 import java.io.File;
 import java.util.List;
@@ -52,13 +53,14 @@ import java.util.Set;
  */
 public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOperations {
 
+    // todo (etst) rename method to synchronizeGradleBuildWithWorkspaceProjects
     @Override
     public void synchronizeGradleBuildWithWorkspaceProject(OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor) {
         // collect Gradle projects and Eclipse workspace projects to sync
         List<OmniEclipseProject> allGradleProjects = gradleBuild.getRootEclipseProject().getAll();
         List<IProject> decoupledWorkspaceProjects = collectOpenWorkspaceProjectsRemovedFromGradleBuild(allGradleProjects, rootRequestAttributes);
 
-        monitor.beginTask("Synchronize Gradle build with Eclipse workspace", decoupledWorkspaceProjects.size() + allGradleProjects.size());
+        monitor.beginTask("Synchronize Gradle build with workspace", decoupledWorkspaceProjects.size() + allGradleProjects.size());
         try {
             // uncouple the open workspace projects that do not have a corresponding Gradle project anymore
             for (IProject project : decoupledWorkspaceProjects) {
@@ -285,6 +287,32 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     }
 
     @Override
+    public void synchronizeWorkspaceProject(final IProject project, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
+        monitor.beginTask(String.format("Synchronize workspace project %s with Gradle build", project.getName()), 1);
+        try {
+            if (GradleProjectNature.INSTANCE.isPresentOn(project)) {
+                Optional<OmniEclipseProject> gradleProject = gradleBuild.getRootEclipseProject().tryFind(new Spec<OmniEclipseProject>() {
+                    @Override
+                    public boolean isSatisfiedBy(OmniEclipseProject gradleProject) {
+                        return project.getLocation() != null && project.getLocation().toFile().equals(gradleProject.getProjectDirectory());
+                    }
+                });
+
+                if (gradleProject.isPresent()) {
+                    synchronizeGradleProjectWithWorkspaceProject(gradleProject.get(), gradleBuild, null, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 1));
+                } else {
+                    makeWorkspaceProjectGradleUnaware(project, true, new SubProgressMonitor(monitor, 1));
+                }
+            } else {
+                makeWorkspaceProjectGradleUnaware(project, true, new SubProgressMonitor(monitor, 1));
+            }
+        } finally {
+            monitor.done();
+        }
+    }
+
+    // todo (etst) rename method
+    @Override
     public void makeWorkspaceProjectGradleUnaware(IProject workspaceProject, boolean clearClasspathContainer, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Uncouple project %s from Gradle", workspaceProject.getName()), 2);
         try {
@@ -294,7 +322,9 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
 
             if (hasJavaNature(workspaceProject) && clearClasspathContainer) {
                 IJavaProject javaProject = JavaCore.create(workspaceProject);
-                ClasspathContainerUpdater.clear(javaProject, new SubProgressMonitor(monitor, 100));
+                ClasspathContainerUpdater.clear(javaProject, new SubProgressMonitor(monitor, 1));
+            } else {
+                monitor.worked(1);
             }
         } catch (JavaModelException e) {
             String message = String.format(String.format("Cannot uncouple project %s from Gradle", workspaceProject.getName()), workspaceProject.getName());

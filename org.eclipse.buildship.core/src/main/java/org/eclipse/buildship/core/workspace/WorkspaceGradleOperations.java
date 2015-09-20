@@ -56,16 +56,16 @@ public interface WorkspaceGradleOperations {
      * If there is a project in the workspace at the location of the Gradle project, the synchronization is as follows:
      * <ol>
      * <li>If the workspace project is closed, the project is left unchanged</li>
-     * <li>If the workspace project is open: ????
+     * <li>If the workspace project is open:
      * <ul>
      * <li>the Gradle nature is set</li>
      * <li>the Gradle settings file is written</li>
      * <li>the Gradle resource filter is set</li>
      * <li>the linked resources are set</li>
-     * <li>a Java project is updated
+     * <li>an existing Java project is updated
      * <ul>
-     *     <li>update the set of source folders</li>
-     *     <li>update the classpath container</li>
+     * <li>update the set of source folders</li>
+     * <li>update the Gradle classpath container</li>
      * </ul>
      * </li>
      * </ul>
@@ -87,7 +87,11 @@ public interface WorkspaceGradleOperations {
      * <li>the Gradle settings file is written</li>
      * <li>the Gradle resource filter is set</li>
      * <li>the linked resources are set</li>
-     * <li>a Java project is set in case of a Java Gradle project (which triggers a synchronize through the classpath container, handled by #1)</li>
+     * <li>a Java project is created in case of a Java Gradle project
+     * <ul>
+     * <li>a Gradle classpath container is added (this triggers a synchronize through the classpath container, handled by #1)</li>
+     * </ul>
+     * </li>
      * </ul>
      * </li>
      * </ol>
@@ -99,6 +103,34 @@ public interface WorkspaceGradleOperations {
      * @param monitor               the monitor to report the progress on
      */
     void synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor);
+
+    // todo (etst) finish javadoc
+
+    /**
+     * Synchronizes the given Eclipse workspace project with its Gradle counterpart, if that counterpart exists. The algorithm is as follows:
+     * <p/>
+     * <ol>
+     * <li>If the project contains the Gradle nature</li>
+     * <li>If the project does not contain the Gradle nature
+     * <ul>
+     * if (hasJavaNature(workspaceProject) && clearClasspathContainer) {
+     * IJavaProject javaProject = JavaCore.create(workspaceProject);
+     * ClasspathContainerUpdater.clear(javaProject, new SubProgressMonitor(monitor, 100));
+     * }
+     * <p/>
+     * <li>the Gradle nature is removed</li>
+     * <li>the Gradle settings file is removed</li>
+     * <li>the Gradle resource filter is removed</li>
+     * </ul></li>
+     * </ol>
+     *
+     * @param project     the project to synchronize
+     * @param gradleBuild the Gradle build to which the Gradle project is expected to belong
+     * @param monitor     the monitor to report the progress on
+     */
+    void synchronizeWorkspaceProject(IProject project, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor);
+
+    // todo (etst) finish javadoc
 
     /**
      * Removes all Gradle specific parts from the given project.

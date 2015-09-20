@@ -12,10 +12,8 @@
 
 package org.eclipse.buildship.core.workspace;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
@@ -31,11 +29,9 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IJavaProject;
-import org.gradle.api.specs.Spec;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
 
@@ -84,27 +80,7 @@ public final class SynchronizeJavaWorkspaceProjectJob extends ToolingApiWorkspac
             gradleBuild = fetchEclipseGradleBuild(rootRequestAttributes, monitor, token);
         }
 
-        synchronizeWorkspaceProject(project, gradleBuild, monitor);
-    }
-
-    private static void synchronizeWorkspaceProject(final IProject project, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) throws CoreException {
-        if (GradleProjectNature.INSTANCE.isPresentOn(project)) {
-            Optional<OmniEclipseProject> gradleProject = gradleBuild.getRootEclipseProject().tryFind(new Spec<OmniEclipseProject>() {
-                @Override
-                public boolean isSatisfiedBy(OmniEclipseProject gradleProject) {
-                    return project.getLocation() != null && project.getLocation().toFile().equals(gradleProject.getProjectDirectory());
-                }
-            });
-
-            if (gradleProject.isPresent()) {
-                CorePlugin.workspaceGradleOperations().synchronizeGradleProjectWithWorkspaceProject(gradleProject.get(), gradleBuild, null, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 50));
-            } else {
-                CorePlugin.workspaceGradleOperations().makeWorkspaceProjectGradleUnaware(project, true, new SubProgressMonitor(monitor, 50));
-            }
-        } else {
-            // in case the Gradle specifics have been removed in the previous Eclipse session, update project/external dependencies to be empty
-            CorePlugin.workspaceGradleOperations().makeWorkspaceProjectGradleUnaware(project, true, new SubProgressMonitor(monitor, 100));
-        }
+        CorePlugin.workspaceGradleOperations().synchronizeWorkspaceProject(project, gradleBuild, monitor);
     }
 
     private OmniEclipseGradleBuild fetchEclipseGradleBuild(FixedRequestAttributes fixedRequestAttributes, IProgressMonitor monitor, CancellationToken token) {
