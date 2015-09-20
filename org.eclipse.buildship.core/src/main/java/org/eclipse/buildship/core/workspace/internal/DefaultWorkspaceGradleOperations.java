@@ -290,6 +290,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         monitor.beginTask(String.format("Synchronize workspace project %s with Gradle build", project.getName()), 10);
         try {
             if (GradleProjectNature.INSTANCE.isPresentOn(project)) {
+                // find the Gradle project matching the location of the workspace project
                 Optional<OmniEclipseProject> gradleProject = gradleBuild.getRootEclipseProject().tryFind(new Spec<OmniEclipseProject>() {
                     @Override
                     public boolean isSatisfiedBy(OmniEclipseProject gradleProject) {
@@ -297,16 +298,16 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
                     }
                 });
 
+                // if the matching Gradle project can be found, synchronize the workspace project with it
                 if (gradleProject.isPresent()) {
                     synchronizeGradleProjectWithWorkspaceProject(gradleProject.get(), gradleBuild, null, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 10));
-                } else {
-                    uncoupleWorkspaceProjectFromGradle(project, new SubProgressMonitor(monitor, 5));
-                    clearClasspathContainer(project, new SubProgressMonitor(monitor, 5));
+                    return;
                 }
-            } else {
-                uncoupleWorkspaceProjectFromGradle(project, new SubProgressMonitor(monitor, 5));
-                clearClasspathContainer(project, new SubProgressMonitor(monitor, 5));
             }
+
+            // uncouple the workspace project from Gradle if there is no matching Gradle project
+            uncoupleWorkspaceProjectFromGradle(project, new SubProgressMonitor(monitor, 5));
+            clearClasspathContainer(project, new SubProgressMonitor(monitor, 5));
         } finally {
             monitor.done();
         }
@@ -316,9 +317,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         try {
             if (hasJavaNature(workspaceProject)) {
                 IJavaProject javaProject = JavaCore.create(workspaceProject);
-                ClasspathContainerUpdater.clear(javaProject, new SubProgressMonitor(monitor, 1));
-            } else {
-                monitor.worked(1);
+                ClasspathContainerUpdater.clear(javaProject, monitor);
             }
         } catch (JavaModelException e) {
             String message = String.format("Cannot clear classpath container from workspace project %s", workspaceProject.getName());
