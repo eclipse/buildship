@@ -31,7 +31,7 @@ public interface WorkspaceGradleOperations {
      * <ol>
      * <li>Uncouple all open workspace projects for which there is no corresponding Gradle project in the Gradle build anymore
      * <ul>
-     * <li>As outlined in {@link #uncoupleWorkspaceProjectFromGradle(IProject, boolean, IProgressMonitor)}</li>
+     * <li>As outlined in {@link #uncoupleWorkspaceProjectFromGradle(IProject, IProgressMonitor)}</li>
      * </ul>
      * </li>
      * <li>Synchronize all Gradle projects of the Gradle build with the Eclipse workspace project counterparts:
@@ -136,9 +136,8 @@ public interface WorkspaceGradleOperations {
      * Removes all Gradle specific parts from the given project.
      *
      * @param workspaceProject        the project from which to remove all Gradle specific parts
-     * @param clearClasspathContainer if {@code true} the classpath container (if available) is cleared from all entries
      * @param monitor                 the monitor to report the progress on
      */
-    void uncoupleWorkspaceProjectFromGradle(IProject workspaceProject, boolean clearClasspathContainer, IProgressMonitor monitor);
+    void uncoupleWorkspaceProjectFromGradle(IProject workspaceProject, IProgressMonitor monitor);
 
 }
