@@ -24,7 +24,6 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
-import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 import org.eclipse.core.resources.IProject;
@@ -36,6 +35,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IJavaProject;
+import org.gradle.api.specs.Spec;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
 
@@ -43,7 +43,7 @@ import java.util.List;
 
 /**
  * Synchronizes a Java workspace project with its Gradle counterpart.
-*/
+ */
 public final class SynchronizeJavaWorkspaceProjectJob extends ToolingApiWorkspaceJob {
 
     private final IJavaProject project;
@@ -74,12 +74,17 @@ public final class SynchronizeJavaWorkspaceProjectJob extends ToolingApiWorkspac
     }
 
     private void synchronizeWorkspaceProject(IJavaProject javaProject, IProgressMonitor monitor, CancellationToken token) throws CoreException {
-        IProject project = javaProject.getProject();
+        final IProject project = javaProject.getProject();
         if (GradleProjectNature.INSTANCE.isPresentOn(project)) {
             // find the Gradle project corresponding to the workspace project ad update it accordingly
             ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
             OmniEclipseGradleBuild gradleBuild = fetchEclipseGradleBuild(configuration.getRequestAttributes(), monitor, token);
-            Optional<OmniEclipseProject> gradleProject = gradleBuild.getRootEclipseProject().tryFind(Specs.eclipseProjectMatchesProjectPath(configuration.getProjectPath()));
+            Optional<OmniEclipseProject> gradleProject = gradleBuild.getRootEclipseProject().tryFind(new Spec<OmniEclipseProject>() {
+                @Override
+                public boolean isSatisfiedBy(OmniEclipseProject gradleProject) {
+                    return project.getLocation() != null && project.getLocation().toFile().equals(gradleProject.getProjectDirectory());
+                }
+            });
 
             monitor.worked(50);
             if (gradleProject.isPresent()) {
