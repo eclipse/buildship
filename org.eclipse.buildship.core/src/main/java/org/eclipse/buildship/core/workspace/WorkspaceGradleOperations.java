@@ -46,7 +46,7 @@ public interface WorkspaceGradleOperations {
      * @param workingSets           the working set to assign the imported projects to
      * @param monitor               the monitor to report the progress on
      */
-    void synchronizeGradleBuildWithWorkspaceProject(OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor);
+    void synchronizeGradleBuildWithWorkspace(OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor);
 
     /**
      * Synchronizes the given Gradle project with its Eclipse workspace project counterpart. The algorithm is as follows:

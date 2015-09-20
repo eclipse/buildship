@@ -53,9 +53,8 @@ import java.util.Set;
  */
 public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOperations {
 
-    // todo (etst) rename method to synchronizeGradleBuildWithWorkspaceProjects
     @Override
-    public void synchronizeGradleBuildWithWorkspaceProject(OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor) {
+    public void synchronizeGradleBuildWithWorkspace(OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor) {
         // collect Gradle projects and Eclipse workspace projects to sync
         List<OmniEclipseProject> allGradleProjects = gradleBuild.getRootEclipseProject().getAll();
         List<IProject> decoupledWorkspaceProjects = collectOpenWorkspaceProjectsRemovedFromGradleBuild(allGradleProjects, rootRequestAttributes);

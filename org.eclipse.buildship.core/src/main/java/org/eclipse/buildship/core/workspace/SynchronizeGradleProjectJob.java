@@ -68,7 +68,7 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
         manager.beginRule(workspaceRoot, monitor);
         try {
             OmniEclipseGradleBuild gradleBuild = forceReloadEclipseGradleBuild(this.rootRequestAttributes, new SubProgressMonitor(monitor, 40));
-            CorePlugin.workspaceGradleOperations().synchronizeGradleBuildWithWorkspaceProject(gradleBuild, this.rootRequestAttributes, this.workingSets, new SubProgressMonitor(monitor, 50));
+            CorePlugin.workspaceGradleOperations().synchronizeGradleBuildWithWorkspace(gradleBuild, this.rootRequestAttributes, this.workingSets, new SubProgressMonitor(monitor, 50));
         } finally {
             manager.endRule(workspaceRoot);
         }
