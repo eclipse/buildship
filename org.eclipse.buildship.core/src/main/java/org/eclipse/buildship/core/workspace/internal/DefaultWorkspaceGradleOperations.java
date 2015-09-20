@@ -63,7 +63,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         try {
             // uncouple the open workspace projects that do not have a corresponding Gradle project anymore
             for (IProject project : decoupledWorkspaceProjects) {
-                makeWorkspaceProjectGradleUnaware(project, false, new SubProgressMonitor(monitor, 1));
+                uncoupleWorkspaceProjectFromGradle(project, false, new SubProgressMonitor(monitor, 1));
             }
             // synchronize the Gradle projects with their corresponding workspace projects
             for (OmniEclipseProject gradleProject : allGradleProjects) {
@@ -300,19 +300,18 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
                 if (gradleProject.isPresent()) {
                     synchronizeGradleProjectWithWorkspaceProject(gradleProject.get(), gradleBuild, null, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 1));
                 } else {
-                    makeWorkspaceProjectGradleUnaware(project, true, new SubProgressMonitor(monitor, 1));
+                    uncoupleWorkspaceProjectFromGradle(project, true, new SubProgressMonitor(monitor, 1));
                 }
             } else {
-                makeWorkspaceProjectGradleUnaware(project, true, new SubProgressMonitor(monitor, 1));
+                uncoupleWorkspaceProjectFromGradle(project, true, new SubProgressMonitor(monitor, 1));
             }
         } finally {
             monitor.done();
         }
     }
 
-    // todo (etst) rename method
     @Override
-    public void makeWorkspaceProjectGradleUnaware(IProject workspaceProject, boolean clearClasspathContainer, IProgressMonitor monitor) {
+    public void uncoupleWorkspaceProjectFromGradle(IProject workspaceProject, boolean clearClasspathContainer, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Uncouple project %s from Gradle", workspaceProject.getName()), 2);
         try {
             CorePlugin.workspaceOperations().removeNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
