@@ -36,7 +36,7 @@ class SynchronizeJavaWorkspaceProjectJobTest extends ProjectImportSpecification 
 
         then:
         !project.hasNature(GradleProjectNature.ID)
-        project.filters.length == 0
+        project.filters.length > 0
         !project.getFolder('.settings').exists()
         !project.getFolder('.settings').getFile('gradle.prefs').exists()
         !JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().contains('junit') }
