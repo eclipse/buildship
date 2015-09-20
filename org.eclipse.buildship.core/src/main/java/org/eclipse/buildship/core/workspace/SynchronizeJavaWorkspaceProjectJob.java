@@ -70,17 +70,18 @@ public final class SynchronizeJavaWorkspaceProjectJob extends ToolingApiWorkspac
     }
 
     private void synchronizeWorkspaceProject(IJavaProject javaProject, IProgressMonitor monitor, CancellationToken token) throws CoreException {
-        IProject project = javaProject.getProject();
+        FixedRequestAttributes rootRequestAttributes = null;
         OmniEclipseGradleBuild gradleBuild = null;
 
+        IProject project = javaProject.getProject();
         if (GradleProjectNature.INSTANCE.isPresentOn(project)) {
             // find the Gradle project corresponding to the workspace project and update it accordingly
             ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
-            FixedRequestAttributes rootRequestAttributes = configuration.getRequestAttributes();
+            rootRequestAttributes = configuration.getRequestAttributes();
             gradleBuild = fetchEclipseGradleBuild(rootRequestAttributes, monitor, token);
         }
 
-        CorePlugin.workspaceGradleOperations().synchronizeWorkspaceProject(project, gradleBuild, monitor);
+        CorePlugin.workspaceGradleOperations().synchronizeWorkspaceProject(project, gradleBuild, rootRequestAttributes, monitor);
     }
 
     private OmniEclipseGradleBuild fetchEclipseGradleBuild(FixedRequestAttributes fixedRequestAttributes, IProgressMonitor monitor, CancellationToken token) {

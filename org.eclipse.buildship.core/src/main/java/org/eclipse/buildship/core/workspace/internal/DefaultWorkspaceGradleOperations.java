@@ -286,7 +286,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     }
 
     @Override
-    public void synchronizeWorkspaceProject(final IProject project, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
+    public void synchronizeWorkspaceProject(final IProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Synchronize workspace project %s with Gradle build", project.getName()), 10);
         try {
             if (GradleProjectNature.INSTANCE.isPresentOn(project)) {
@@ -300,7 +300,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
 
                 // if the matching Gradle project can be found, synchronize the workspace project with it
                 if (gradleProject.isPresent()) {
-                    synchronizeGradleProjectWithWorkspaceProject(gradleProject.get(), gradleBuild, null, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 10));
+                    synchronizeGradleProjectWithWorkspaceProject(gradleProject.get(), gradleBuild, rootRequestAttributes, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 10));
                     return;
                 }
             }

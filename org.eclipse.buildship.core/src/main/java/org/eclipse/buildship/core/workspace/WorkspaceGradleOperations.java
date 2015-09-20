@@ -124,11 +124,12 @@ public interface WorkspaceGradleOperations {
      * </ul></li>
      * </ol>
      *
-     * @param project     the project to synchronize
-     * @param gradleBuild the Gradle build to which the Gradle project is expected to belong
-     * @param monitor     the monitor to report the progress on
+     * @param project               the project to synchronize
+     * @param gradleBuild           the Gradle build to which the Gradle project is expected to belong, can be null
+     * @param rootRequestAttributes the preferences used to query the Gradle build, can be null
+     * @param monitor               the monitor to report the progress on
      */
-    void synchronizeWorkspaceProject(IProject project, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor);
+    void synchronizeWorkspaceProject(IProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor);
 
     // todo (etst) finish javadoc
 
