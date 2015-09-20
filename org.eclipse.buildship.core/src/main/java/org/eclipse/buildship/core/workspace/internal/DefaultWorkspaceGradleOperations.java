@@ -286,15 +286,15 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     }
 
     @Override
-    public void synchronizeWorkspaceProject(final IProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Synchronize workspace project %s with Gradle build", project.getName()), 10);
+    public void synchronizeWorkspaceProject(final IProject workspaceProject, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) {
+        monitor.beginTask(String.format("Synchronize workspace project %s with Gradle build", workspaceProject.getName()), 10);
         try {
-            if (GradleProjectNature.INSTANCE.isPresentOn(project)) {
+            if (GradleProjectNature.INSTANCE.isPresentOn(workspaceProject)) {
                 // find the Gradle project matching the location of the workspace project
                 Optional<OmniEclipseProject> gradleProject = gradleBuild.getRootEclipseProject().tryFind(new Spec<OmniEclipseProject>() {
                     @Override
                     public boolean isSatisfiedBy(OmniEclipseProject gradleProject) {
-                        return project.getLocation() != null && project.getLocation().toFile().equals(gradleProject.getProjectDirectory());
+                        return workspaceProject.getLocation() != null && workspaceProject.getLocation().toFile().equals(gradleProject.getProjectDirectory());
                     }
                 });
 
@@ -306,8 +306,8 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             }
 
             // uncouple the workspace project from Gradle if there is no matching Gradle project
-            uncoupleWorkspaceProjectFromGradle(project, new SubProgressMonitor(monitor, 5));
-            clearClasspathContainer(project, new SubProgressMonitor(monitor, 5));
+            uncoupleWorkspaceProjectFromGradle(workspaceProject, new SubProgressMonitor(monitor, 5));
+            clearClasspathContainer(workspaceProject, new SubProgressMonitor(monitor, 5));
         } finally {
             monitor.done();
         }

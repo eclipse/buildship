@@ -104,32 +104,27 @@ public interface WorkspaceGradleOperations {
      */
     void synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor);
 
-    // todo (etst) finish javadoc
-
     /**
      * Synchronizes the given Eclipse workspace project with its Gradle counterpart, if that counterpart exists. The algorithm is as follows:
      * <p/>
      * <ol>
-     * <li>If the project contains the Gradle nature</li>
-     * <li>If the project does not contain the Gradle nature
+     * <li>If the workspace project contains the Gradle nature and there is a matching Gradle project at the location of the workspace project
      * <ul>
-     * if (hasJavaNature(workspaceProject) && clearClasspathContainer) {
-     * IJavaProject javaProject = JavaCore.create(workspaceProject);
-     * ClasspathContainerUpdater.clear(javaProject, new SubProgressMonitor(monitor, 100));
-     * }
-     * <p/>
-     * <li>the Gradle nature is removed</li>
-     * <li>the Gradle settings file is removed</li>
-     * <li>the Gradle resource filter is removed</li>
+     * <li>As outlined in {@link #synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject, OmniEclipseGradleBuild, FixedRequestAttributes, List, IProgressMonitor)}</li>
+     * </ul></li>
+     * <li>In all other cases
+     * <ul>
+     * <li>As outlined in {@link #uncoupleWorkspaceProjectFromGradle(IProject, IProgressMonitor)}</li>
+     * <li>and clear the Gradle classpath container</li>
      * </ul></li>
      * </ol>
      *
-     * @param project               the project to synchronize
+     * @param workspaceProject      the project to synchronize
      * @param gradleBuild           the Gradle build to which the Gradle project is expected to belong, can be null
      * @param rootRequestAttributes the preferences used to query the Gradle build, can be null
      * @param monitor               the monitor to report the progress on
      */
-    void synchronizeWorkspaceProject(IProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor);
+    void synchronizeWorkspaceProject(IProject workspaceProject, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor);
 
     /**
      * Uncouples the given Eclipse workspace project from Gradle. The algorithm is as follows:
