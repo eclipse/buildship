@@ -12,16 +12,10 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.OmniGradleProject;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.util.Maybe;
+import java.io.File;
+import java.util.List;
+import java.util.Set;
+
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
@@ -44,9 +38,16 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.gradle.api.specs.Spec;
 
-import java.io.File;
-import java.util.List;
-import java.util.Set;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
+import com.gradleware.tooling.toolingmodel.OmniGradleProject;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.util.Maybe;
 
 /**
  * Default implementation of the {@link WorkspaceGradleOperations} interface.
@@ -197,7 +198,9 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         }
     }
 
-    private IProject addExistingEclipseProjectToWorkspace(OmniEclipseProject project, IProjectDescription projectDescription, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) {
+    private IProject addExistingEclipseProjectToWorkspace(OmniEclipseProject project,
+            IProjectDescription projectDescription, FixedRequestAttributes rootRequestAttributes,
+            IProgressMonitor monitor) throws JavaModelException {
         monitor.beginTask(String.format("Add existing Eclipse project %s for Gradle project %s to the workspace", projectDescription.getName(), project.getName()), 1);
         try {
             // include the existing Eclipse project in the workspace
@@ -207,6 +210,15 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             // persist the Gradle-specific configuration in the Eclipse project's .settings folder
             ProjectConfiguration projectConfiguration = ProjectConfiguration.from(rootRequestAttributes, project);
             CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, workspaceProject);
+
+            // if the current Gradle project is a Java project, configure the
+            // Java nature, the classpath, and the source paths
+            if (isJavaProject(project)) {
+                IPath jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath();
+                IClasspathEntry classpathContainer = GradleClasspathContainer.newClasspathEntry();
+                CorePlugin.workspaceOperations().createJavaProject(workspaceProject, jrePath, classpathContainer,
+                        new SubProgressMonitor(monitor, 1));
+            }
 
             return workspaceProject;
         } finally {
