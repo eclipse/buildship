@@ -3,6 +3,10 @@ package org.eclipse.buildship.core.test.fixtures
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IProjectDescription
 import org.eclipse.core.runtime.Path
+import org.eclipse.jdt.core.IClasspathEntry
+import org.eclipse.jdt.core.IJavaProject
+import org.eclipse.jdt.core.JavaCore
+import org.eclipse.jdt.launching.JavaRuntime
 
 
 /**
@@ -62,5 +66,32 @@ abstract class EclipseProjects {
         IProject project = newProject(name, location)
         project.close(null)
         project
+    }
+
+    /**
+     * Creates a new Java project at a custom location.
+     * <p/>
+     * The result Java project has
+     * <ul>
+     * <li>A source folder at project_loc/src</li>
+     * <li>An output folder at project_loc/bin</li>
+     * <li>The default JRE location added to the classpath</li>
+     * </ul>
+     *
+     * @param name the name of the project
+     * @param location the location where to store the project
+     * @return the reference of the created Java project
+     */
+    static IJavaProject newJavaProject(String name, File location) {
+        IProject project = newProject(name, location)
+        IProjectDescription description = project.description
+        description.natureIds = description.natureIds + JavaCore.NATURE_ID
+        project.setDescription(description, null)
+        IJavaProject javaProject = JavaCore.create(project)
+        project.getFolder('src').create(true, false, null)
+        javaProject.setRawClasspath([JavaCore.newContainerEntry(JavaRuntime.getDefaultJREContainerEntry().getPath()),
+            JavaCore.newSourceEntry(project.getFolder('src').location)] as IClasspathEntry[], null)
+        javaProject.setOutputLocation(project.getFolder('bin').fullPath, null)
+        javaProject
     }
 }
