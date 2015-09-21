@@ -2,23 +2,35 @@ package org.eclipse.buildship.core.workspace.internal
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectNature
+import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationPersistence
 import org.eclipse.buildship.core.test.fixtures.BuildshipTestSpecification
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 import org.eclipse.buildship.core.test.fixtures.FileStructure
 import org.eclipse.buildship.core.test.fixtures.GradleModel
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
+import org.eclipse.buildship.core.util.logging.EclipseLogger
+import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
+
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IResourceFilterDescription
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.IStatus
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Status
 import org.eclipse.core.runtime.jobs.Job
+import org.eclipse.jdt.core.IClasspathEntry
+import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
+
 import spock.lang.Ignore
 
 class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
 
-    def "If workspace project exists at model location and closed then the project remins untouched"() {
+    //
+    // Section #1: If there is a project in the workspace at the location of the Gradle project.
+    //
+
+    def "If workspace project exists at model location and closed, then the project remins untouched"() {
         setup:
         IProject project = newClosedProject('sample-project')
         fileStructure().create {
@@ -67,8 +79,7 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
         executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
 
         then:
-        file('sample-project/.settings/gradle.prefs').exists()
-        file('sample-project/.settings/gradle.prefs').text.length() > 0
+        new ProjectConfigurationPersistence().readProjectConfiguration(project)
     }
 
     def "If workspace project exists at model location, then resource filters are set"() {
@@ -88,16 +99,24 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
 
         then:
         project.filters.length == 2
+        project.filters[0].type == IResourceFilterDescription.EXCLUDE_ALL.or(IResourceFilterDescription.FOLDERS).or(IResourceFilterDescription.INHERITABLE)
+        project.filters[1].type == IResourceFilterDescription.EXCLUDE_ALL.or(IResourceFilterDescription.FOLDERS).or(IResourceFilterDescription.INHERITABLE)
+        project.filters[0].fileInfoMatcherDescription.id == 'org.eclipse.ui.ide.multiFilter'
+        project.filters[1].fileInfoMatcherDescription.id == 'org.eclipse.ui.ide.multiFilter'
+        (project.filters[0].fileInfoMatcherDescription.arguments as String).endsWith("build")
+        (project.filters[1].fileInfoMatcherDescription.arguments as String).endsWith(".gradle")
     }
 
-    @Ignore // TODO (donat) test is failing. Should we really add the Java nature? Should we add the Gradle classpath container?
-    def "If workspace project exists at model location and the model applies the java plug-in, then the java nature is set up"() {
+    def "If workspace project exists at model location, then the linked resources are set"() {
         setup:
         IProject project = newOpenProject('sample-project')
         fileStructure().create {
-            file 'sample-project/build.gradle', 'apply plugin: "java"'
+            file 'sample-project/build.gradle',
+            '''apply plugin: "java"
+               sourceSets { main { java { srcDir '../another-project/src' } } }
+            '''
             file 'sample-project/settings.gradle'
-            folder 'sample-project/src/main/java'
+            folder 'another-project/src'
         }
         GradleModel gradleModel = loadGradleModel('sample-project')
 
@@ -105,8 +124,63 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
         executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
 
         then:
-        project.hasNature(JavaCore.NATURE_ID)
+        findProject('sample-project').getFolder('src').isLinked()
     }
+
+    def "If workspace project exists at model location, then an existing java project's source folders are updated"() {
+        setup:
+        IJavaProject javaProject = newJavaProject('sample-project')
+        fileStructure().create {
+            file 'sample-project/build.gradle', 'apply plugin: "java"'
+            file 'sample-project/settings.gradle'
+            folder 'sample-project/src/main/java'
+        }
+        GradleModel gradleModel = loadGradleModel('sample-project')
+
+        expect:
+        javaProject.project.hasNature(JavaCore.NATURE_ID)
+
+        when:
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+
+        then:
+        javaProject.rawClasspath.find{
+            it.entryKind == IClasspathEntry.CPE_SOURCE &&
+            it.path.toPortableString() == '/sample-project/src/main/java' &&
+            it.extraAttributes.length == 1
+            it.extraAttributes[0].name == "FROM_GRADLE_MODEL"
+        }
+    }
+
+    def "If workspace project exists at model location, then update the Gradle classpath container"() {
+        setup:
+        IJavaProject javaProject = newJavaProject('sample-project')
+        IClasspathEntry[] entries = javaProject.rawClasspath + GradleClasspathContainer.newClasspathEntry()
+        javaProject.setRawClasspath(entries, null)
+        fileStructure().create {
+            file 'sample-project/build.gradle','''apply plugin: "java"
+               repositories { jcenter() }
+               dependencies { compile "org.springframework:spring-beans:1.2.8"}
+            '''
+            file 'sample-project/settings.gradle'
+            folder 'sample-project/src/main/java'
+        }
+        GradleModel gradleModel = loadGradleModel('sample-project')
+
+        expect:
+        !javaProject.getResolvedClasspath(false).find{ it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
+
+        when:
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+
+        then:
+        javaProject.getResolvedClasspath(false).find{ it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
+    }
+
+    //
+    // Section #2: If there is an Eclipse project at the location of the Gradle project, i.e. there is a .project file
+    //             in that folder.
+    //
 
     def "If .project file exists at the model location, then the project is added to the workspace"() {
         setup:
@@ -161,10 +235,15 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
         executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
 
         then:
-        findProject('sample-project').getFile('.settings/gradle.prefs').exists()
+        new ProjectConfigurationPersistence().readProjectConfiguration(project)
     }
 
-    def "If no workspace project or .project file exists, then the project is imported in the workspace"() {
+    //
+    // Section #3: If the there is no project in the workspace nor an Eclipse project at the location of the Gradle
+    //             build
+    //
+
+    def "If no workspace project or .project file exists, then the project is created and added to the workspace"() {
         setup:
         fileStructure().create {
             file 'sample-project/build.gradle'
@@ -195,12 +274,11 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
         executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
 
         then:
-        CorePlugin.workspaceOperations().allProjects.size() == 1
         findProject('sample-project').hasNature(GradleProjectNature.ID)
     }
 
 
-    def "If no workspace project or .project file exists, then the settings file is set"() {
+    def "If no workspace project or .project file exists, then the settings file is written"() {
         setup:
         fileStructure().create {
             file 'sample-project/build.gradle'
@@ -212,8 +290,7 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
         executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
 
         then:
-        CorePlugin.workspaceOperations().allProjects.size() == 1
-        findProject('sample-project').getFile('.settings/gradle.prefs').exists()
+        new ProjectConfigurationPersistence().readProjectConfiguration(findProject('sample-project'))
     }
 
     def "If no workspace project or .project file exists, then the resource filters are set"() {
@@ -228,14 +305,23 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
         executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
 
         then:
-        findProject('sample-project').filters.length > 0
+        IProject project = findProject('sample-project')
+        project.filters.length == 2
+        project.filters[0].type == IResourceFilterDescription.EXCLUDE_ALL.or(IResourceFilterDescription.FOLDERS).or(IResourceFilterDescription.INHERITABLE)
+        project.filters[1].type == IResourceFilterDescription.EXCLUDE_ALL.or(IResourceFilterDescription.FOLDERS).or(IResourceFilterDescription.INHERITABLE)
+        project.filters[0].fileInfoMatcherDescription.id == 'org.eclipse.ui.ide.multiFilter'
+        project.filters[1].fileInfoMatcherDescription.id == 'org.eclipse.ui.ide.multiFilter'
+        (project.filters[0].fileInfoMatcherDescription.arguments as String).endsWith("build")
+        (project.filters[1].fileInfoMatcherDescription.arguments as String).endsWith(".gradle")
     }
 
     def "If no workspace project or .project file exists, then the linked resources are set"() {
         setup:
         fileStructure().create {
-            file 'sample-project/build.gradle', '''apply plugin: "java"
-                                                   sourceSets { main { java { srcDir '../another-project/src' } } }'''
+            file 'sample-project/build.gradle',
+            '''apply plugin: "java"
+               sourceSets { main { java { srcDir '../another-project/src' } } }
+            '''
             file 'sample-project/settings.gradle'
             folder 'another-project/src'
         }
@@ -248,7 +334,7 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
         findProject('sample-project').getFolder('src').isLinked()
     }
 
-    def "If no workspace project or .project file exists, then a Java project is set, in case the Gradle project applies the Java plug-in"() {
+    def "If no workspace project or .project file exists, then a Java project is created with the Gradle classpath container"() {
         setup:
         fileStructure().create {
             file 'sample-project/build.gradle', 'apply plugin: "java"'
@@ -261,7 +347,12 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
         executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
 
         then:
-        findProject('sample-project').hasNature(JavaCore.NATURE_ID)
+        def project = findProject('sample-project')
+        project.hasNature(JavaCore.NATURE_ID)
+        JavaCore.create(project).rawClasspath.find{
+            it.entryKind == IClasspathEntry.CPE_CONTAINER &&
+            it.path.toPortableString() == GradleClasspathContainer.CONTAINER_ID
+        }
     }
 
     // -- helper methods --
@@ -293,6 +384,10 @@ class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
 
     private IProject newOpenProject(String name) {
         EclipseProjects.newProject(name, folder(name))
+    }
+
+    private IJavaProject newJavaProject(String name) {
+        EclipseProjects.newJavaProject(name, folder(name))
     }
 
     private FileStructure fileStructure() {
