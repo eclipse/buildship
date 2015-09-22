@@ -24,7 +24,7 @@ import org.eclipse.jdt.core.JavaCore
 
 import spock.lang.Ignore
 
-class WorkspaceProjectSynchronizationTest extends BuildshipTestSpecification {
+class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
 
     //
     // Section #1: If there is a project in the workspace at the location of the Gradle project.
