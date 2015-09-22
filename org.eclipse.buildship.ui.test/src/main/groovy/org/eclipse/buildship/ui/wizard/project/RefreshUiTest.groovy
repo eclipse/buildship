@@ -26,6 +26,7 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import spock.lang.Ignore;
 
 class RefreshUiTest extends SwtBotSpecification {
 
@@ -36,6 +37,7 @@ class RefreshUiTest extends SwtBotSpecification {
         SWTBotPreferences.KEYBOARD_LAYOUT = "EN_US"
     }
 
+    @Ignore
     def "default Eclipse behaviour is not hindered"() {
         setup:
         File projectFolder = tempFolder.newFolder('project-name')
