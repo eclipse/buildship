@@ -9,7 +9,7 @@ import org.eclipse.buildship.core.test.fixtures.FileStructure
 import org.eclipse.buildship.core.test.fixtures.GradleModel
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.util.logging.EclipseLogger
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
+import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResourceFilterDescription
@@ -22,11 +22,7 @@ import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
-import spock.lang.Ignore
-
 class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
-
-
 
     //
     // Section #1: If there is a project in the workspace at the location of the Gradle project.
