@@ -175,6 +175,28 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         javaProject.getResolvedClasspath(false).find{ it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
     }
 
+    def "If workspace project exists at model location and the project applies the java plugin, then it's converted to a Java project"() {
+        setup:
+        IProject project = newOpenProject('sample-project')
+        fileStructure().create {
+            file 'sample-project/build.gradle', 'apply plugin: "java"'
+            file 'sample-project/settings.gradle'
+            folder 'sample-project/src/main/java'
+        }
+        GradleModel gradleModel = loadGradleModel('sample-project')
+
+        when:
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+
+        then:
+        project.hasNature(JavaCore.NATURE_ID)
+        JavaCore.create(project).rawClasspath.find{
+            it.entryKind == IClasspathEntry.CPE_CONTAINER &&
+            it.path.toPortableString() == GradleClasspathContainer.CONTAINER_ID
+        }
+
+    }
+
     //
     // Section #2: If there is an Eclipse project at the location of the Gradle project, i.e. there is a .project file
     //             in that folder.

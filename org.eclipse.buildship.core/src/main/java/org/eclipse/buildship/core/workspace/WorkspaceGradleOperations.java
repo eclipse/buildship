@@ -68,6 +68,12 @@ public interface WorkspaceGradleOperations {
      * <li>update the Gradle classpath container</li>
      * </ul>
      * </li>
+     * <li>the workspace project is converted to a Java project if
+     * <ul>
+     * <li>the Gradle project applies the Java plugin</li>
+     * <li>the workspace project doesn't have the Java nature</li>
+     * </ul>
+     * </li>
      * </ul>
      * </li>
      * </ol>
