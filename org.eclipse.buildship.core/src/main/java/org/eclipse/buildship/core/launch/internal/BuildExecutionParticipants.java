@@ -7,14 +7,15 @@
  *
  * Contributors:
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
+ *     Simon Scholz <simon.scholz@vogella.com> - Bug 478054
  */
 
 package org.eclipse.buildship.core.launch.internal;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
-
-import org.eclipse.buildship.core.CorePlugin;
+import org.osgi.framework.Bundle;
 
 /**
  * Helper class to activate plugins which contribute to the {@code executionparticipants} extension point.
@@ -35,8 +36,14 @@ public final class BuildExecutionParticipants {
         for (IConfigurationElement element : elements) {
             String pluginId = element.getAttribute(EXTENSION_ATTRIBUTE_PLUGIN_ID);
             try {
+                Bundle bundle = Platform.getBundle(pluginId);
+
+                // only start bundle in case it is not active yet
+                if (Bundle.ACTIVE == bundle.getState()) {
+                    return;
+                }
                 // start the specified plugin
-                Platform.getBundle(pluginId).start();
+                bundle.start();
             } catch (Exception e) {
                 String message = String.format("Failed to activate plugin %s referenced in extension point 'executionparticipants'.", pluginId);
                 CorePlugin.logger().error(message, e);
