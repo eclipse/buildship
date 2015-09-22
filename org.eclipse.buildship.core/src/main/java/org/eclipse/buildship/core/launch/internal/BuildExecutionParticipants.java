@@ -43,7 +43,7 @@ public final class BuildExecutionParticipants {
                     return;
                 }
                 // start the specified plugin
-                bundle.start();
+                bundle.start(Bundle.START_TRANSIENT);
             } catch (Exception e) {
                 String message = String.format("Failed to activate plugin %s referenced in extension point 'executionparticipants'.", pluginId);
                 CorePlugin.logger().error(message, e);
