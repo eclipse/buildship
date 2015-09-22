@@ -4,11 +4,15 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectsJob
+
+import spock.lang.Ignore;
+
 import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.IClasspathContainer
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
+@Ignore
 class RefreshGradleClasspathContainerTest extends ProjectImportSpecification {
 
     def "Update the project classpath"() {
