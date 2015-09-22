@@ -37,6 +37,7 @@ public final class BuildExecutionParticipants {
             String pluginId = element.getAttribute(EXTENSION_ATTRIBUTE_PLUGIN_ID);
             try {
                 // start the bundle in case it is not active yet
+                // for details, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=478054
                 Bundle bundle = Platform.getBundle(pluginId);
                 if (Bundle.ACTIVE != bundle.getState()) {
                     bundle.start(Bundle.START_TRANSIENT);
