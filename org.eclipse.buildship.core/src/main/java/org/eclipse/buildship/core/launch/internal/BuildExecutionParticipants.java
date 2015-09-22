@@ -36,14 +36,11 @@ public final class BuildExecutionParticipants {
         for (IConfigurationElement element : elements) {
             String pluginId = element.getAttribute(EXTENSION_ATTRIBUTE_PLUGIN_ID);
             try {
+                // start the bundle in case it is not active yet
                 Bundle bundle = Platform.getBundle(pluginId);
-
-                // only start bundle in case it is not active yet
-                if (Bundle.ACTIVE == bundle.getState()) {
-                    return;
+                if (Bundle.ACTIVE != bundle.getState()) {
+                    bundle.start(Bundle.START_TRANSIENT);
                 }
-                // start the specified plugin
-                bundle.start(Bundle.START_TRANSIENT);
             } catch (Exception e) {
                 String message = String.format("Failed to activate plugin %s referenced in extension point 'executionparticipants'.", pluginId);
                 CorePlugin.logger().error(message, e);
