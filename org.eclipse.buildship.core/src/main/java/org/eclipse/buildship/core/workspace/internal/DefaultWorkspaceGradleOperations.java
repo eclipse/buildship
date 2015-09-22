@@ -150,8 +150,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             // update linked resources
             LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), new SubProgressMonitor(monitor, 1));
 
-            // if the current Gradle project is a Java project but the workspace project is not yet a Java project,
-            // then configure the Java nature, the classpath, and the source paths
+            // if the current Gradle project has become a Java project, make the Eclipse project a Java project and add a Gradle classpath container
             if (isJavaProject(project) && !hasJavaNature(workspaceProject)) {
                 IPath jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath();
                 IClasspathEntry classpathContainer = GradleClasspathContainer.newClasspathEntry();
@@ -237,7 +236,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             // set linked resources
             LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), new SubProgressMonitor(monitor, 1));
 
-            // if the current Gradle project is a Java project, configure the Java nature, the classpath, and the source paths
+            // if the current Gradle project is a Java project, make the Eclipse project a Java project and add a Gradle classpath container
             if (isJavaProject(project)) {
                 IPath jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath();
                 IClasspathEntry classpathContainer = GradleClasspathContainer.newClasspathEntry();
