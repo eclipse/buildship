@@ -26,6 +26,8 @@ import spock.lang.Ignore
 
 class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
 
+
+
     //
     // Section #1: If there is a project in the workspace at the location of the Gradle project.
     //
@@ -364,7 +366,7 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         Job job = new Job('') {
             protected IStatus run(IProgressMonitor monitor) {
                 Job.jobManager.beginRule(LegacyEclipseSpockTestHelper.workspace.root, monitor)
-                CorePlugin.workspaceGradleOperations().synchronizeGradleProjectWithWorkspaceProject(
+                new DefaultWorkspaceGradleOperations().synchronizeGradleProjectWithWorkspaceProject(
                         gradleModel.eclipseProject('sample-project'),
                         gradleModel.build,
                         gradleModel.attributes,
