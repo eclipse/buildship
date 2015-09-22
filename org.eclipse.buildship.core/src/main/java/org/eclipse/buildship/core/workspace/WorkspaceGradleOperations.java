@@ -58,6 +58,7 @@ public interface WorkspaceGradleOperations {
      * <li>If the workspace project is closed, the project is left unchanged</li>
      * <li>If the workspace project is open:
      * <ul>
+     * <li>the project name is updated</li>
      * <li>the Gradle nature is set</li>
      * <li>the Gradle settings file is written</li>
      * <li>the Gradle resource filter is set</li>
@@ -82,6 +83,7 @@ public interface WorkspaceGradleOperations {
      * If there is an Eclipse project at the location of the Gradle project, i.e. there is a .project file in that folder, the synchronization is as follows:
      * <ul>
      * <li>the Eclipse project is added to the workspace</li>
+     * <li>the project name is updated</li>
      * <li>the Gradle nature is set</li>
      * <li>the Gradle settings file is written</li>
      * </ul>

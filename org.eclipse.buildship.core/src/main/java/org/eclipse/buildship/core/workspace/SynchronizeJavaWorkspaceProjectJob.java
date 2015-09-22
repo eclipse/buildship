@@ -61,7 +61,11 @@ public final class SynchronizeJavaWorkspaceProjectJob extends ToolingApiWorkspac
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         manager.beginRule(workspaceRoot, monitor);
         try {
-            synchronizeWorkspaceProject(this.project, monitor, getToken());
+            // if the project being imported is renamed, then this method is called twice, once on
+            // an non-existent project
+            if (this.project.getProject().isAccessible()) {
+                synchronizeWorkspaceProject(this.project, monitor, getToken());
+            }
         } finally {
             manager.endRule(workspaceRoot);
         }

@@ -48,6 +48,24 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         modifiedTimes == folder('sample-project').listFiles().collect{ it.lastModified() }
     }
 
+    def "If workspace project exists at model location, then the project name is updated"() {
+        setup:
+        IProject project = newOpenProject('sample-project')
+        fileStructure().create {
+            file 'sample-project/build.gradle'
+            file 'sample-project/settings.gradle', 'rootProject.name = "custom-name"'
+        }
+        GradleModel gradleModel = loadGradleModel('sample-project')
+
+        when:
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, 'custom-name')
+
+        then:
+        CorePlugin.workspaceOperations().allProjects.size() == 1
+        !findProject('sample-project')
+        findProject('custom-name')
+    }
+
     def "If workspace project exists at model location, then the Gradle nature is set"() {
         setup:
         IProject project = newOpenProject('sample-project')
@@ -224,6 +242,25 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         findProject('sample-project')
     }
 
+    def "If .project file exists at the model location, then the project name is updated"() {
+        setup:
+        IProject project = newOpenProject('sample-project')
+        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
+        fileStructure().create {
+            file 'sample-project/build.gradle'
+            file 'sample-project/settings.gradle', 'rootProject.name = "custom-name"'
+        }
+        GradleModel gradleModel = loadGradleModel('sample-project')
+
+        when:
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, 'custom-name')
+
+        then:
+        CorePlugin.workspaceOperations().allProjects.size() == 1
+        !findProject('sample-project')
+        findProject('custom-name')
+    }
+
     def "If .project file exists at the model location, then the Gradle nature is set"() {
         setup:
         IProject project = newOpenProject('sample-project')
@@ -377,7 +414,7 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
 
     // -- helper methods --
 
-    private static def executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(GradleModel gradleModel) {
+    private static void executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(GradleModel gradleModel, String projectName = 'sample-project') {
         // Note: executing the synchronizeGradleProjectWithWorkspaceProject() in a new job is necessary
         // as the jdt operations expect that all modifications are guarded by proper rules. For the sake
         // of this test class we simply use the workspace root as the job rule.
@@ -385,7 +422,7 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
             protected IStatus run(IProgressMonitor monitor) {
                 Job.jobManager.beginRule(LegacyEclipseSpockTestHelper.workspace.root, monitor)
                 new DefaultWorkspaceGradleOperations().synchronizeGradleProjectWithWorkspaceProject(
-                        gradleModel.eclipseProject('sample-project'),
+                        gradleModel.eclipseProject(projectName),
                         gradleModel.build,
                         gradleModel.attributes,
                         [],

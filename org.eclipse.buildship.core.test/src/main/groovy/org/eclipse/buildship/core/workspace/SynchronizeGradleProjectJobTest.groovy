@@ -96,7 +96,7 @@ class SynchronizeGradleProjectJobTest extends ProjectImportSpecification {
         waitForJobsToFinish()
 
         then:
-        GradleProjectNature.INSTANCE.isPresentOn(project)
+        GradleProjectNature.INSTANCE.isPresentOn(findProject('moduleC'))
     }
 
     private def createSampleProject() {

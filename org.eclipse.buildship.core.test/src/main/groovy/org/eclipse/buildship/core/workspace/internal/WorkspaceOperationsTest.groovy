@@ -346,12 +346,69 @@ class WorkspaceOperationsTest extends Specification {
         thrown(GradlePluginsRuntimeException)
     }
 
-    private def createSampleProject() {
-        File projectLocation = tempFolder.newFolder('sample-project')
-        IProjectDescription projectDescription = LegacyEclipseSpockTestHelper.workspace.newProjectDescription('sample-project')
+    ///////////////////////////////
+    // tests for renameProject() //
+    ///////////////////////////////
+
+    def "Can rename a project"() {
+        setup:
+        IProject sampleProject = createSampleProject()
+
+        expect:
+        CorePlugin.workspaceOperations().allProjects.size() == 1
+        CorePlugin.workspaceOperations().findProjectByName('sample-project').isPresent()
+
+        when:
+        workspaceOperations.renameProject(sampleProject, 'new-name', new NullProgressMonitor())
+
+        then:
+        CorePlugin.workspaceOperations().allProjects.size() == 1
+        CorePlugin.workspaceOperations().findProjectByName('new-name').isPresent()
+    }
+
+    def "Renaming has no effect if project is in the workspace root"() {
+        setup:
+        IProject sampleProject = createSampleProjectInWorkspace()
+
+        expect:
+        CorePlugin.workspaceOperations().allProjects.size() == 1
+        CorePlugin.workspaceOperations().findProjectByName('sample-project').isPresent()
+
+        when:
+        workspaceOperations.renameProject(sampleProject, 'new-name', new NullProgressMonitor())
+
+        then:
+        CorePlugin.workspaceOperations().allProjects.size() == 1
+        CorePlugin.workspaceOperations().findProjectByName('sample-project').isPresent()
+    }
+
+    def "Renaming fails with RuntimeException if target name is already taken" () {
+        setup:
+        IProject projectA = createSampleProject('project-a')
+        IProject projectB = createSampleProject('project-b')
+
+        when:
+        workspaceOperations.renameProject(projectA, 'project-b', new NullProgressMonitor())
+
+        then:
+        thrown(GradlePluginsRuntimeException)
+    }
+
+    private def createSampleProject(String name = 'sample-project') {
+        File projectLocation = tempFolder.newFolder(name)
+        IProjectDescription projectDescription = LegacyEclipseSpockTestHelper.workspace.newProjectDescription(name)
         projectDescription.setLocation(new org.eclipse.core.runtime.Path(projectLocation.absolutePath))
-        projectDescription.setComment(String.format("Project %s created by Buildship.", 'sample-project'))
-        IProject project = LegacyEclipseSpockTestHelper.workspace.root.getProject('sample-project')
+        projectDescription.setComment(String.format("Project %s created by Buildship.", name))
+        IProject project = LegacyEclipseSpockTestHelper.workspace.root.getProject(name)
+        project.create(projectDescription, new NullProgressMonitor())
+        project.open(new NullProgressMonitor())
+        project
+    }
+
+    private def createSampleProjectInWorkspace(String name = 'sample-project') {
+        IProjectDescription projectDescription = LegacyEclipseSpockTestHelper.workspace.newProjectDescription(name)
+        projectDescription.setComment(String.format("Project %s created by Buildship.", name))
+        IProject project = LegacyEclipseSpockTestHelper.workspace.root.getProject(name)
         project.create(projectDescription, new NullProgressMonitor())
         project.open(new NullProgressMonitor())
         project
