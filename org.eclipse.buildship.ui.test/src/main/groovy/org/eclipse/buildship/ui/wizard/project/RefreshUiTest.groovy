@@ -87,7 +87,7 @@ class RefreshUiTest extends SwtBotSpecification {
 
     private static class FileExistsCondition extends DefaultCondition {
 
-        def IFile file
+        private IFile file
 
         private FileExistsCondition(IFile file) { this.file = file }
 
