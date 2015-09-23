@@ -161,7 +161,7 @@ class ResourceFilterTest extends Specification {
         projectFolder('filtered')
         int type = IResourceFilterDescription.EXCLUDE_ALL | IResourceFilterDescription.FOLDERS | IResourceFilterDescription.INHERITABLE
         def matchers = ResourceFilter.createMatchers(project, [project.getFolder('manuallyfiltered').getLocation().toFile()] as List)
-        project.createFilter(type, matchers[0], IResource.BACKGROUND_REFRESH, null)
+        project.createFilter(type, matchers[0], IResource.NONE, null)
 
         when:
         ResourceFilter.attachFilters(project, [ toFile(project.getFolder('filtered')) ], null)
