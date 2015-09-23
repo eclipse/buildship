@@ -23,6 +23,7 @@ import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable
 import org.eclipse.swtbot.swt.finder.results.VoidResult
 import org.eclipse.swtbot.swt.finder.results.BoolResult
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
+import org.eclipse.swtbot.swt.finder.widgets.TimeoutException;
 import org.eclipse.ui.PlatformUI
 
 import org.eclipse.buildship.ui.UiPlugin
@@ -56,7 +57,11 @@ abstract class SwtBotSpecification extends Specification {
         bot.shells().findAll{ it.isOpen() && !isEclipseApplicationShell(it) }.each {
             bot.captureScreenshot(it.text + " NotClosed.jpg")
             UiPlugin.logger().warn(it.text + " was not closed properly.")
-            it.close()
+            try {
+                it.close()
+            } catch (TimeoutException e) {
+                UiPlugin.logger().error("Unable to close shell ${it.text}")
+            }
         }
 
         // http://wiki.eclipse.org/SWTBot/Troubleshooting#No_active_Shell_when_running_SWTBot_tests_in_Xvfb
