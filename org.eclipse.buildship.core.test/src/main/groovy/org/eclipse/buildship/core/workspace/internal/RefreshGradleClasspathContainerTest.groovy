@@ -81,12 +81,14 @@ class RefreshGradleClasspathContainerTest extends ProjectImportSpecification {
     private def importNewSimpleProject(String projectName) {
         def location = newProject(projectName)
         executeProjectImportAndWait(location)
+        waitForJobsToFinish()
         location
     }
 
     private def importNewMultiProject(String rootName, String subName) {
         def location = newMultiProject(rootName, subName)
         executeProjectImportAndWait(location)
+        waitForJobsToFinish()
         location
     }
 
