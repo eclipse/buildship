@@ -115,7 +115,7 @@ final class ProjectConfigurationPersistence {
         String json;
         try {
             IFile configFile = getConfigFile(workspaceProject);
-            InputStream inputStream = configFile.getContents();
+            InputStream inputStream = configFile.getContents(true);
             try {
                 json = CharStreams.toString(new InputStreamReader(inputStream, Charsets.UTF_8));
             } finally {
