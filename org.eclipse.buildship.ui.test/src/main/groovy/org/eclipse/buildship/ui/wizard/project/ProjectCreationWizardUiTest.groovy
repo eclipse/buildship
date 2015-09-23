@@ -79,7 +79,8 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
         bot.button(IDialogConstants.NEXT_LABEL).click()
         bot.button(IDialogConstants.NEXT_LABEL).click()
         // wait until the project preview finishes loading and the buttons are enabled again
-        bot.waitUntil(Conditions.widgetIsEnabled(bot.button(IDialogConstants.BACK_LABEL)), 30000)
+        // the preview can trigger a Gradle distribution download, thus we need a long timeout
+        bot.waitUntil(Conditions.widgetIsEnabled(bot.button(IDialogConstants.BACK_LABEL)), 300000)
 
         then:
         // after the project preview loaded the test project should be created
