@@ -17,10 +17,11 @@ import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectJob
+import org.eclipse.buildship.ui.test.fixtures.LegacyEclipseSpockTestHelper;
 import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification
 import org.eclipse.buildship.ui.wizard.project.RefreshUiTest.FileExistsCondition
 
-import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IProject
 import org.eclipse.swt.SWT
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
@@ -46,24 +47,18 @@ class RefreshUiTest extends SwtBotSpecification {
         File projectFolder = tempFolder.newFolder('project-name')
         new File(projectFolder, 'build.gradle') << ''
         new File(projectFolder, 'settings.gradle') << ''
-
-        when:
         newProjectImportJob(projectFolder).schedule()
         waitForJobsToFinish()
-        new File(projectFolder, 'newFile') << ''
-
-        then:
         IProject project = CorePlugin.workspaceOperations().findProjectByName('project-name').get()
-        !project.getFile('newFile').exists()
+        new File(projectFolder, 'newFile') << ''
 
         when:
         performDefaultEclipseRefresh()
         waitForJobsToFinish()
 
         then:
-        bot.waitUntil(FileExistsCondition.create(project.getFile('newFile')), 5000)
+        bot.waitUntil(FileExistsCondition.create(project.getFile('newFile')), 5000, 500)
 
-        cleanup:
         CorePlugin.workspaceOperations().deleteAllProjects(null)
     }
 
