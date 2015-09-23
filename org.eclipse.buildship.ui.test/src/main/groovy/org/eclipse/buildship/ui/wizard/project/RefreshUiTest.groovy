@@ -20,13 +20,13 @@ import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectJob
 import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification
 import org.eclipse.core.resources.IProject
 import org.eclipse.swt.SWT
+import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-import spock.lang.Ignore;
 
 class RefreshUiTest extends SwtBotSpecification {
 
@@ -37,7 +37,6 @@ class RefreshUiTest extends SwtBotSpecification {
         SWTBotPreferences.KEYBOARD_LAYOUT = "EN_US"
     }
 
-    @Ignore
     def "default Eclipse behaviour is not hindered"() {
         setup:
         File projectFolder = tempFolder.newFolder('project-name')
@@ -56,6 +55,7 @@ class RefreshUiTest extends SwtBotSpecification {
         when:
         performDefaultEclipseRefresh()
         waitForJobsToFinish()
+        delay(1000)
 
         then:
         project.getFile('newFile').exists()
@@ -80,7 +80,6 @@ class RefreshUiTest extends SwtBotSpecification {
         SWTBotTree tree = packageExplorer.bot().tree()
         SWTBotTreeItem treeItem = tree.getTreeItem("project-name")
         treeItem.select().pressShortcut(0, SWT.F5, (char) 0)
-        delay(500)
     }
 
 }
