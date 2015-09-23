@@ -138,7 +138,7 @@ final class ResourceFilter {
                 try {
                     int type = IResourceFilterDescription.EXCLUDE_ALL | IResourceFilterDescription.FOLDERS | IResourceFilterDescription.INHERITABLE;
                     for (FileInfoMatcherDescription matcher : newMatchers) {
-                        project.createFilter(type, matcher, IResource.BACKGROUND_REFRESH, new NullProgressMonitor());
+                        project.createFilter(type, matcher, IResource.NONE, new NullProgressMonitor());
                         StringSetPersistentProperty.from(RESOURCE_PROPERTY_GRADLE_FILTER, project).add((String) matcher.getArguments());
                     }
                 } catch (CoreException e) {
