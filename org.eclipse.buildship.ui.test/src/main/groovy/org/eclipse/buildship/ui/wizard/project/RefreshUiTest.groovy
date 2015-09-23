@@ -17,12 +17,13 @@ import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectJob
-import org.eclipse.buildship.ui.test.fixtures.LegacyEclipseSpockTestHelper;
+import org.eclipse.buildship.ui.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification
 import org.eclipse.buildship.ui.wizard.project.RefreshUiTest.FileExistsCondition
 
 import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.SWT
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView
@@ -32,7 +33,11 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import org.osgi.framework.Bundle
+import spock.lang.Ignore
 
+
+@Ignore
 class RefreshUiTest extends SwtBotSpecification {
 
     @Rule
