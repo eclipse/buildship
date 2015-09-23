@@ -18,11 +18,15 @@ import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectJob
 import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification
+import org.eclipse.buildship.ui.wizard.project.RefreshUiTest.FileExistsCondition
+
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject
 import org.eclipse.swt.SWT
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences
+import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem
 import org.junit.Rule
@@ -55,10 +59,9 @@ class RefreshUiTest extends SwtBotSpecification {
         when:
         performDefaultEclipseRefresh()
         waitForJobsToFinish()
-        delay(1000)
 
         then:
-        project.getFile('newFile').exists()
+        bot.waitUntil(FileExistsCondition.create(project.getFile('newFile')), 5000)
 
         cleanup:
         CorePlugin.workspaceOperations().deleteAllProjects(null)
@@ -82,4 +85,18 @@ class RefreshUiTest extends SwtBotSpecification {
         treeItem.select().pressShortcut(0, SWT.F5, (char) 0)
     }
 
+    private static class FileExistsCondition extends DefaultCondition {
+
+        def IFile file
+
+        private FileExistsCondition(IFile file) { this.file = file }
+
+        static def create(IFile file) { new FileExistsCondition(file) }
+
+        @Override
+        public boolean test() throws Exception { file.exists() }
+
+        @Override
+        public String getFailureMessage() { "File ${file} does not exist" }
+    }
 }
