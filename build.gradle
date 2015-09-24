@@ -289,6 +289,21 @@ task tag << {
     exec { commandLine("git", "push", "origin", "REL_$tagVersion") }
 }
 
+task incrementVersion << {
+    def oldVersion = file('version.txt').text.trim()
+    def newVersion = ""
+    def matcher = version =~ "^(\\d+)\\.(\\d+).(\\d+)"
+    if (matcher.find()) {
+        def serviceSegment = Integer.parseInt(matcher.group(3)) + 1
+        newVersion = matcher.group(1) + "." + matcher.group(2) + "." + serviceSegment
+        file('version.txt').text = newVersion
+    } else {
+        throw new IllegalStateException("Unparseable version: $oldVersion.")
+    }
+    exec { commandLine("git", "commit", "-a", "-m", "Increment version from $oldVersion to $newVersion") }
+    exec { commandLine("git", "push", "origin", "master") }
+}
+
 void killAllGradleDaemons() {
     def output = new ByteArrayOutputStream()
     def queryString
