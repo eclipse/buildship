@@ -281,6 +281,14 @@ gradle.buildFinished {
     }
 }
 
+// tag the HEAD of the current branch and push the new tag
+task tag << {
+    def tagVersion = file('version.txt').text.trim()
+    // create and push tag
+    exec { commandLine("git", "tag", "-a", "REL_$tagVersion", "-m", "Create tag REL_$tagVersion") }
+    exec { commandLine("git", "push", "origin", "REL_$tagVersion") }
+}
+
 void killAllGradleDaemons() {
     def output = new ByteArrayOutputStream()
     def queryString
