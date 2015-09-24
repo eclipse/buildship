@@ -152,14 +152,12 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
 
             if (isJavaProject(project)) {
                 if (hasJavaNature(workspaceProject)) {
-
                     // if the workspace project is already a Java project, then update the source
                     // folders and the project/external dependencies
                     IJavaProject javaProject = JavaCore.create(workspaceProject);
                     SourceFolderUpdater.update(javaProject, project.getSourceDirectories(), new SubProgressMonitor(monitor, 1));
                     ClasspathContainerUpdater.update(javaProject, project, new SubProgressMonitor(monitor, 1));
                 } else {
-
                     // if the workspace project is not a Java project, then convert it to one and
                     // add the Gradle classpath container to its classpath
                     IPath jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath();
