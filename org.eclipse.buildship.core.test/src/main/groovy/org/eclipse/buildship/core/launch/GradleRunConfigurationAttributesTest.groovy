@@ -20,7 +20,7 @@ import spock.lang.Specification;
 
 class GradleRunConfigurationAttributesTest extends Specification {
 
-    // list ov valid attributes
+    // list of valid attributes
     @Shared def atr = [
         'tasks' : ['clean'],
         'workingDir' : "/home/user/workspace",
