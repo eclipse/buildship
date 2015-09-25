@@ -172,6 +172,25 @@ class ResourceFilterTest extends Specification {
         workspace().validateFiltered(project.getFolder('filtered')).isOK()
     }
 
+    def "Can add zero filters"() {
+        given:
+        projectFolder('filtered')
+
+        expect:
+        ResourceFilter.attachFilters(project, [], null)
+    }
+
+    def "Can add a large number of filters" () {
+        given:
+        projectFolder('filtered')
+
+        expect:
+        for (i in 1..500) {
+            ResourceFilter.attachFilters(project, [ toFile(project.getFolder('filtered' + i)) ], null)
+            assert !workspace().validateFiltered(project.getFolder('filtered' + i)).isOK()
+        }
+    }
+
     private def projectFolder(String path) {
         FileUtils.ensureFolderHierarchyExists(project.getFolder(path))
     }

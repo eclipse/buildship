@@ -28,9 +28,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.QualifiedName;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.object.MoreObjects;
 
@@ -47,7 +45,8 @@ final class ResourceFilter {
     // resource filter id
     private static final String FILTER_ID = "org.eclipse.ui.ide.multiFilter"; //$NON-NLS-1$
 
-    private static final QualifiedName RESOURCE_PROPERTY_GRADLE_FILTER = new QualifiedName(CorePlugin.PLUGIN_ID, "GRADLE_FILTER");
+    // properties key to store/retrieve the filters created by Buildship
+    private static final String PROJECT_PROPERTY_KEY_GRADLE_FILTERS = "GRADLE_FILTERS";
 
     private ResourceFilter() {
     }
@@ -75,7 +74,7 @@ final class ResourceFilter {
         monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
         monitor.beginTask(String.format("Remove Gradle resource filters from project %s", project), IProgressMonitor.UNKNOWN);
         try {
-            StringSetPersistentProperty knownMatcherNames = StringSetPersistentProperty.from(RESOURCE_PROPERTY_GRADLE_FILTER, project);
+            StringSetProjectProperty knownMatcherNames = StringSetProjectProperty.from(project, PROJECT_PROPERTY_KEY_GRADLE_FILTERS);
             Set<String> matcherNames = knownMatcherNames.get();
             for (IResourceFilterDescription filter : project.getFilters()) {
                 FileInfoMatcherDescription matcher = filter.getFileInfoMatcherDescription();
@@ -139,7 +138,7 @@ final class ResourceFilter {
                     int type = IResourceFilterDescription.EXCLUDE_ALL | IResourceFilterDescription.FOLDERS | IResourceFilterDescription.INHERITABLE;
                     for (FileInfoMatcherDescription matcher : newMatchers) {
                         project.createFilter(type, matcher, IResource.NONE, new NullProgressMonitor());
-                        StringSetPersistentProperty.from(RESOURCE_PROPERTY_GRADLE_FILTER, project).add((String) matcher.getArguments());
+                        StringSetProjectProperty.from(project, PROJECT_PROPERTY_KEY_GRADLE_FILTERS).add((String) matcher.getArguments());
                     }
                 } catch (CoreException e) {
                     String message = String.format("Cannot create new resource filters for project %s.", project); //$NON-NLS-1$

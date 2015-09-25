@@ -14,31 +14,31 @@ package org.eclipse.buildship.core.workspace.internal;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.osgi.service.prefs.BackingStoreException;
+
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ProjectScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
- * Defines ow to store a set of strings on an {@link IResource} instance using persistent properties.
- *
- * @see IResource#getPersistentProperties()
+ * Stores a set of strings associated with a {@link IProject} instance.
  */
-final class StringSetPersistentProperty {
+final class StringSetProjectProperty {
 
-    private final QualifiedName key;
-    private final IResource resource;
+    private final IProject project;
+    private final String propertyName;
 
-    private StringSetPersistentProperty(QualifiedName key, IResource resource) {
-        this.key = Preconditions.checkNotNull(key);
-        this.resource = Preconditions.checkNotNull(resource);
+    private StringSetProjectProperty(IProject project, String propertyName) {
+        this.project = Preconditions.checkNotNull(project);
+        this.propertyName = Preconditions.checkNotNull(propertyName);
     }
 
     /**
@@ -69,32 +69,32 @@ final class StringSetPersistentProperty {
      * @return the set of strings
      */
     public Set<String> get() {
-        try {
-            String valueString = Optional.fromNullable(this.resource.getPersistentProperty(this.key)).or("");
-            return ImmutableSet.copyOf(Splitter.on(',').split(valueString));
-        } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(e);
-        }
+        ProjectScope projectScope = new ProjectScope(this.project);
+        IEclipsePreferences node = projectScope.getNode(CorePlugin.PLUGIN_ID);
+        String valueString = node.get(this.propertyName, "");
+        return ImmutableSet.copyOf(Splitter.on(',').split(valueString));
     }
 
     private void set(Set<String> entries) {
+        ProjectScope projectScope = new ProjectScope(this.project);
+        IEclipsePreferences node = projectScope.getNode(CorePlugin.PLUGIN_ID);
+        String updateString = Joiner.on(',').join(entries);
+        node.put(this.propertyName, updateString);
         try {
-            String updateString = Joiner.on(',').join(entries);
-            this.resource.setPersistentProperty(this.key, updateString);
-        } catch (CoreException e) {
+            node.flush();
+        } catch (BackingStoreException e) {
             throw new GradlePluginsRuntimeException(e);
         }
     }
 
     /**
-     * Creates a new {@link StringSetPersistentProperty} instance.
+     * Creates a new {@link StringSetProjectProperty} instance.
      *
-     * @param key the key of the persistent property
-     * @param resource the target resource that the property is associated with
+     * @param project the target project that the property is associated with
      * @return the new instance
      */
-    public static StringSetPersistentProperty from(QualifiedName key, IResource resource) {
-        return new StringSetPersistentProperty(key, resource);
+    public static StringSetProjectProperty from(IProject project, String propertyName) {
+        return new StringSetProjectProperty(project, propertyName);
     }
 
 }
