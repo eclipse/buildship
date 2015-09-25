@@ -335,9 +335,9 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     public void uncoupleWorkspaceProjectFromGradle(IProject workspaceProject, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Uncouple workspace project %s from Gradle", workspaceProject.getName()), 2);
         try {
+            ResourceFilter.detachAllFilters(workspaceProject, new SubProgressMonitor(monitor, 1));
             CorePlugin.workspaceOperations().removeNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
             CorePlugin.projectConfigurationManager().deleteProjectConfiguration(workspaceProject);
-            ResourceFilter.detachAllFilters(workspaceProject, new SubProgressMonitor(monitor, 1));
         } finally {
             monitor.done();
         }
