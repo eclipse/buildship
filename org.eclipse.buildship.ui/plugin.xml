@@ -319,21 +319,17 @@
                         style="push">
                     <visibleWhen
                             checkEnabled="false">
-                        <with
-                                variable="activeMenuSelection">
-                            <iterate
-                                    operator="or"
-                                    ifEmpty="false">
-                                <adapt
-                                        type="org.eclipse.core.resources.IProject">
-                                    <test
-                                            forcePluginActivation="true"
-                                            property="org.eclipse.core.resources.projectNature"
-                                            value="org.eclipse.buildship.core.gradleprojectnature">
-                                    </test>
-                                </adapt>
-                            </iterate>
-                        </with>
+                       <and>
+                          <with
+                                variable="activeContexts">
+                             <iterate
+                                   operator="or">
+                                <equals
+                                      value="org.eclipse.buildship.ui.contexts.gradlenature">
+                                </equals>
+                             </iterate>
+                          </with>
+                       </and>
                     </visibleWhen>
                 </command>
             </menu>

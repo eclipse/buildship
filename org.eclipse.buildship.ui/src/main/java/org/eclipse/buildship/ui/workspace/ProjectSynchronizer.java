@@ -13,9 +13,9 @@
 
 package org.eclipse.buildship.ui.workspace;
 
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import org.eclipse.buildship.core.util.collections.AdapterFunction;
+import java.util.List;
+
+import org.eclipse.buildship.core.util.collections.ProjectFunction;
 import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectsJob;
 import org.eclipse.buildship.ui.util.predicate.Predicates;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -25,7 +25,8 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import java.util.List;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Collects all selected, Gradle-aware {@link IProject} instances and schedules a
@@ -51,7 +52,7 @@ public final class ProjectSynchronizer {
             IStructuredSelection selection = (IStructuredSelection) currentSelection;
             @SuppressWarnings("unchecked")
             ImmutableList<IProject> selectedProjects = FluentIterable.from(selection.toList())
-                    .transform(new AdapterFunction<IProject>(IProject.class, Platform.getAdapterManager()))
+                    .transform(new ProjectFunction(Platform.getAdapterManager()))
                     .filter(com.google.common.base.Predicates.notNull())
                     .filter(Predicates.hasGradleNature()).toList();
             return selectedProjects;

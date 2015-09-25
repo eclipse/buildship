@@ -13,15 +13,16 @@ package org.eclipse.buildship.ui.util.predicate;
 
 import java.util.List;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-
+import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.util.collections.ProjectFunction;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.internal.ui.packageview.PackageFragmentRootContainer;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 
 /**
  * Supplies some useful {@link Predicate} instances. May also be used used in PropertyTesters.
@@ -37,13 +38,12 @@ public final class Predicates {
 
             @Override
             public boolean apply(Object adaptable) {
-                @SuppressWarnings({"cast", "RedundantCast"})
-                IProject project = (IProject) Platform.getAdapterManager().getAdapter(adaptable, IProject.class);
-                if (project != null) {
-                    return hasGradleNature(project);
+                Optional<IProject> project = ProjectFunction.getProject(adaptable, Platform.getAdapterManager());
+                if (project.isPresent()) {
+                    return hasGradleNature(project.get());
                 } else if (adaptable instanceof PackageFragmentRootContainer) {
-                    project = ((PackageFragmentRootContainer) adaptable).getJavaProject().getProject();
-                    return hasGradleNature(project);
+                    IProject resource = ((PackageFragmentRootContainer) adaptable).getJavaProject().getProject();
+                    return hasGradleNature(resource.getProject());
                 } else if (adaptable instanceof IStructuredSelection) {
                     List<?> selections = ((IStructuredSelection) adaptable).toList();
                     return FluentIterable.from(selections).anyMatch(hasGradleNature());
