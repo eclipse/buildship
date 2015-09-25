@@ -72,14 +72,22 @@ final class StringSetProjectProperty {
         ProjectScope projectScope = new ProjectScope(this.project);
         IEclipsePreferences node = projectScope.getNode(CorePlugin.PLUGIN_ID);
         String valueString = node.get(this.propertyName, "");
-        return ImmutableSet.copyOf(Splitter.on(',').split(valueString));
+        if (valueString.equals("")) {
+            return ImmutableSet.of();
+        } else {
+            return ImmutableSet.copyOf(Splitter.on(',').split(valueString));
+        }
     }
 
     private void set(Set<String> entries) {
         ProjectScope projectScope = new ProjectScope(this.project);
         IEclipsePreferences node = projectScope.getNode(CorePlugin.PLUGIN_ID);
-        String updateString = Joiner.on(',').join(entries);
-        node.put(this.propertyName, updateString);
+        if (entries.isEmpty()) {
+            node.remove(this.propertyName);
+        } else {
+            String updateString = Joiner.on(',').join(entries);
+            node.put(this.propertyName, updateString);
+        }
         try {
             node.flush();
         } catch (BackingStoreException e) {
