@@ -17,9 +17,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.util.object.MoreObjects;
-import org.eclipse.buildship.core.workspace.WorkspaceOperations;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSet.Builder;
+
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -34,14 +39,11 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSet.Builder;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.util.object.MoreObjects;
+import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 /**
  * Default implementation of the {@link WorkspaceOperations} interface.
@@ -71,10 +73,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             @Override
             public boolean apply(IProject project) {
                 IPath location = project.getLocation();
-                // since Eclipse 3.4 projects can be non-local and they could
-                // return null locations
-                // for Buildship this is not the case, Gradle projects are
-                // always available on the
+                // since Eclipse 3.4 projects can be non-local and they could return null locations
+                // for Buildship this is not the case, Gradle projects are always available on the
                 // local file system
                 return location != null && location.toFile().equals(directory);
             }
@@ -103,8 +103,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             projectDescription.setLocation(projectLocation);
             return Optional.of(projectDescription);
         } catch (Exception e) {
-            String message = String.format("Cannot open existing Eclipse project from %s.",
-                    dotProjectFile.getAbsolutePath());
+            String message = String.format("Cannot open existing Eclipse project from %s.", dotProjectFile.getAbsolutePath());
             throw new GradlePluginsRuntimeException(message, e);
         }
     }
@@ -117,10 +116,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             List<IProject> allProjects = getAllProjects();
             for (IProject project : allProjects) {
                 try {
-                    // don't delete the project from the file system, only from
-                    // the workspace
-                    // moreover, force the removal even if the object is
-                    // out-of-sync with the file system
+                    // don't delete the project from the file system, only from the workspace
+                    // moreover, force the removal even if the object is out-of-sync with the file system
                     project.delete(false, true, new SubProgressMonitor(monitor, 100 / allProjects.size()));
                 } catch (Exception e) {
                     String message = String.format("Cannot delete project %s.", project.getName());
@@ -140,15 +137,13 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         Preconditions.checkNotNull(natureIds);
         Preconditions.checkArgument(!name.isEmpty(), "Project name must not be empty.");
         Preconditions.checkArgument(location.exists(), String.format("Project location %s must exist.", location));
-        Preconditions.checkArgument(location.isDirectory(),
-                String.format("Project location %s must be a directory.", location));
+        Preconditions.checkArgument(location.isDirectory(), String.format("Project location %s must be a directory.", location));
 
         monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
         monitor.beginTask(String.format("Create Eclipse project %s", name), 3 + natureIds.size());
         try {
             // check project name is unique in workspace
-            Preconditions.checkState(!findProjectByName(name).isPresent(),
-                    String.format("Workspace already contains a project with name %s.", name));
+            Preconditions.checkState(!findProjectByName(name).isPresent(), String.format("Workspace already contains a project with name %s.", name));
 
             // calculate the name and the project location
             String projectName = resolveProjectName(name, location);
@@ -165,8 +160,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             // open the project
             project.open(new SubProgressMonitor(monitor, 1));
 
-            // add project natures separately to trigger
-            // IProjectNature#configure
+            // add project natures separately to trigger IProjectNature#configure
             // the project needs to be open while the natures are added
             for (String natureId : natureIds) {
                 addNature(project, natureId, new SubProgressMonitor(monitor, 1));
@@ -183,20 +177,17 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
-    public IProject includeProject(IProjectDescription projectDescription, List<String> extraNatureIds,
-            IProgressMonitor monitor) {
+    public IProject includeProject(IProjectDescription projectDescription, List<String> extraNatureIds, IProgressMonitor monitor) {
         // validate arguments
         Preconditions.checkNotNull(projectDescription);
         Preconditions.checkNotNull(extraNatureIds);
         String projectName = projectDescription.getName();
 
         monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
-        monitor.beginTask(String.format("Include existing non-workspace Eclipse project %s", projectName),
-                3 + extraNatureIds.size());
+        monitor.beginTask(String.format("Include existing non-workspace Eclipse project %s", projectName), 3 + extraNatureIds.size());
         try {
             // check project name is unique in workspace
-            Preconditions.checkState(!findProjectByName(projectName).isPresent(),
-                    String.format("Workspace already contains a project with name %s.", projectName));
+            Preconditions.checkState(!findProjectByName(projectName).isPresent(), String.format("Workspace already contains a project with name %s.", projectName));
 
             // include the project in the workspace
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -206,8 +197,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             // open the project
             project.open(new SubProgressMonitor(monitor, 1));
 
-            // add project natures separately to trigger
-            // IProjectNature#configure
+            // add project natures separately to trigger IProjectNature#configure
             // the project needs to be open while the natures are added
             for (String natureId : extraNatureIds) {
                 addNature(project, natureId, new SubProgressMonitor(monitor, 1));
@@ -224,8 +214,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
-    public IJavaProject createJavaProject(IProject project, IPath jrePath, IClasspathEntry classpathContainer,
-            IProgressMonitor monitor) {
+    public IJavaProject createJavaProject(IProject project, IPath jrePath, IClasspathEntry classpathContainer, IProgressMonitor monitor) {
         // validate arguments
         Preconditions.checkNotNull(project);
         Preconditions.checkNotNull(jrePath);
@@ -277,10 +266,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         }
     }
 
-    private void setClasspathOnProject(IJavaProject javaProject, IPath jrePath, IClasspathEntry classpathContainerEntry,
-            IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Configure sources and classpath for Eclipse project %s",
-                javaProject.getProject().getName()), 10);
+    private void setClasspathOnProject(IJavaProject javaProject, IPath jrePath, IClasspathEntry classpathContainerEntry, IProgressMonitor monitor) {
+        monitor.beginTask(String.format("Configure sources and classpath for Eclipse project %s", javaProject.getProject().getName()), 9);
         try {
             // create a new holder for all classpath entries
             Builder<IClasspathEntry> entries = ImmutableSet.builder();
@@ -289,38 +276,43 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             entries.add(JavaCore.newContainerEntry(jrePath));
             monitor.worked(1);
 
-            // add classpath definition of where to store the
-            // source/project/external dependencies, the classpath
-            // will be populated lazily by the
-            // org.eclipse.jdt.core.classpathContainerInitializer
+            // add classpath definition of where to store the source/project/external dependencies, the classpath
+            // will be populated lazily by the org.eclipse.jdt.core.classpathContainerInitializer
             // extension point (see GradleClasspathContainerInitializer)
             entries.add(classpathContainerEntry);
             monitor.worked(1);
 
-            // add existing classpaths in case the existing ones are not a
-            // prefix of the new ones
-            if (javaProject.getProject().getFile(".classpath").exists()) { //$NON-NLS-1$
-                IClasspathEntry[] rawClasspath = javaProject.getRawClasspath();
-                IPath classpathContainerEntryPath = classpathContainerEntry.getPath();
-                for (IClasspathEntry classpathEntry : rawClasspath) {
-                    IPath projectsResolvedClasspath = classpathEntry.getPath();
-                    if (!projectsResolvedClasspath.isPrefixOf(classpathContainerEntryPath)) {
-                        entries.add(classpathEntry);
+            // if the project already defines classpath entries, then include them on the new
+            // classpath too, except if it's the Gradle classpath container
+            if (!projectHasDefaultClasspath(javaProject)) {
+                IClasspathEntry[] existingEnties = javaProject.getRawClasspath();
+                IPath classpathContainerPath = classpathContainerEntry.getPath();
+                for (IClasspathEntry existingEntry : existingEnties) {
+                    IPath existingEntryPath = existingEntry.getPath();
+                    if (!existingEntryPath.equals(classpathContainerPath)) {
+                        entries.add(existingEntry);
                     }
                 }
             }
+            monitor.worked(1);
 
             // assign the whole classpath at once to the project
             Set<IClasspathEntry> entriesArray = entries.build();
-            javaProject.setRawClasspath(entriesArray.toArray(new IClasspathEntry[entriesArray.size()]),
-                    new SubProgressMonitor(monitor, 6));
+            javaProject.setRawClasspath(entriesArray.toArray(new IClasspathEntry[entriesArray.size()]), new SubProgressMonitor(monitor, 6));
         } catch (Exception e) {
-            String message = String.format("Cannot configure sources and classpath for Eclipse project %s.",
-                    javaProject.getProject().getName());
+            String message = String.format("Cannot configure sources and classpath for Eclipse project %s.", javaProject.getProject().getName());
             throw new GradlePluginsRuntimeException(message, e);
         } finally {
             monitor.done();
         }
+    }
+
+    private boolean projectHasDefaultClasspath(IJavaProject javaProject) throws JavaModelException {
+        // if an IJavaProject project doesn't have a classpath defined, then it returns the default
+        // raw classpath containing only one entry, a source folder in the project's root folder
+        // see org.eclipse.jdt.internal.core.JavaProject#defaultClasspath()
+        IClasspathEntry[] classpath = javaProject.getRawClasspath();
+        return classpath.length == 1 && classpath[0].getPath().equals(javaProject.getProject().getFullPath());
     }
 
     @Override
@@ -342,21 +334,16 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     private String resolveProjectName(String nameInGradleModel, File location) {
-        // if an Eclipse project is imported from the workspace folder it has to
-        // have the same name
-        // as the folder name (even when the project is renamed the underlying
-        // folder is also renamed)
-        // consequently, for this use case, we have to ignore the name provided
-        // by the Gradle model
+        // if an Eclipse project is imported from the workspace folder it has to have the same name
+        // as the folder name (even when the project is renamed the underlying folder is also renamed)
+        // consequently, for this use case, we have to ignore the name provided by the Gradle model
         // and instead use the folder name
         return isDirectChildOfWorkspaceRootFolder(location) ? location.getName() : nameInGradleModel;
     }
 
     private IPath resolveProjectLocation(File location) {
-        // in Eclipse <4.4, the LocationValidator throws an exception in some
-        // scenarios
-        // see also an in-depth explanation in
-        // https://github.com/eclipse/buildship/pull/130
+        // in Eclipse <4.4, the LocationValidator throws an exception in some scenarios
+        // see also an in-depth explanation in https://github.com/eclipse/buildship/pull/130
         return isDirectChildOfWorkspaceRootFolder(location) ? null : Path.fromOSString(location.getPath());
     }
 
@@ -381,8 +368,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             }
 
             // add the nature to the project
-            ImmutableList<String> newIds = ImmutableList.<String> builder().addAll(currentNatureIds).add(natureId)
-                    .build();
+            ImmutableList<String> newIds = ImmutableList.<String>builder().addAll(currentNatureIds).add(natureId).build();
             description.setNatureIds(newIds.toArray(new String[newIds.size()]));
 
             // save the updated description
@@ -416,8 +402,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             // save the updated description
             project.setDescription(description, new SubProgressMonitor(monitor, 1));
         } catch (CoreException e) {
-            String message = String.format("Cannot remove nature %s from Eclipse project %s.", natureId,
-                    project.getName());
+            String message = String.format("Cannot remove nature %s from Eclipse project %s.", natureId, project.getName());
             throw new GradlePluginsRuntimeException(message, e);
         } finally {
             monitor.done();

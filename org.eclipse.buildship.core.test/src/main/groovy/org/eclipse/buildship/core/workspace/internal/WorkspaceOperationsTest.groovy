@@ -11,6 +11,10 @@
 
 package org.eclipse.buildship.core.workspace.internal
 
+import com.google.common.collect.ImmutableList
+import com.gradleware.tooling.toolingclient.GradleDistribution
+import com.gradleware.tooling.toolingmodel.Path
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.configuration.GradleProjectNature
@@ -18,7 +22,6 @@ import org.eclipse.buildship.core.configuration.ProjectConfiguration
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
-import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IProjectDescription
 import org.eclipse.core.runtime.NullProgressMonitor
@@ -27,14 +30,8 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.launching.JavaRuntime
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-
 import spock.lang.Shared
 import spock.lang.Specification
-
-import com.google.common.collect.ImmutableList
-import com.gradleware.tooling.toolingclient.GradleDistribution
-import com.gradleware.tooling.toolingmodel.Path
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 
 class WorkspaceOperationsTest extends Specification {
 
@@ -63,19 +60,6 @@ class WorkspaceOperationsTest extends Specification {
         project.getDescription().natureIds.length == 1
     }
 
-    def "Created Java Project always contains a classpath file"() {
-        setup:
-        workspaceOperations.deleteAllProjects(new NullProgressMonitor())
-        def projectFolder = tempFolder.newFolder("sample-project-folder")
-
-        when:
-        IProject project = workspaceOperations.createProject("sample-project", projectFolder, ImmutableList.of(JavaCore.NATURE_ID, GradleProjectNature.ID), null)
-        IFile classpathFile = project.getFile('.classpath')
-        then:
-        classpathFile != null
-        classpathFile.exists() != null
-    }
-
     def "Project can be created without any natures"() {
         setup:
         workspaceOperations.deleteAllProjects(new NullProgressMonitor())
@@ -100,6 +84,7 @@ class WorkspaceOperationsTest extends Specification {
         project.getDescription().natureIds.length == 2
         project.getDescription().natureIds[0] == JavaCore.NATURE_ID
         project.getDescription().natureIds[1] == GradleProjectNature.ID
+
     }
 
     def "Importing nonexisting folder fails"() {
@@ -243,6 +228,7 @@ class WorkspaceOperationsTest extends Specification {
         then:
         javaProject != null
         javaProject.getProject() == project
+        project.getFile('.classpath').exists()
     }
 
     def "Java project can't be created from null project"() {
