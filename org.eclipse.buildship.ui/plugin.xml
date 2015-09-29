@@ -261,7 +261,76 @@
         </launchConfigurationTabGroup>
     </extension>
 
-    <!-- properties view for tasks and projects -->
+    <!-- Launchshortcut to add entries in the "Run As" menus -->
+    <extension
+          point="org.eclipse.debug.ui.launchShortcuts">
+       <shortcut
+             class="org.eclipse.buildship.ui.launch.TestLaunchShortcut"
+             id="org.eclipse.buildship.ui.shortcut.test"
+             label="Gradle Test"
+             modes="run">
+          <configurationType
+                id="org.eclipse.buildship.core.launch.runconfiguration">
+          </configurationType>
+          <contextualLaunch>
+             <contextLabel
+                   label="Gradle Test"
+                   mode="run">
+             </contextLabel>
+             <enablement>
+                <with
+                      variable="selection">
+                   <and>
+                      <iterate
+                            ifEmpty="false"
+                            operator="and">
+                         <not>
+                            <or>
+                               <instanceof
+                                     value="org.eclipse.jdt.core.IPackageFragmentRoot">
+                               </instanceof>
+                               <instanceof
+                                     value="org.eclipse.jdt.core.IJavaProject">
+                               </instanceof>
+                               <instanceof
+                                     value="org.eclipse.jdt.core.IPackageFragment">
+                               </instanceof>
+                            </or>
+                         </not>
+                         <adapt
+                               type="org.eclipse.jdt.core.IJavaElement">
+                            <test
+                                  forcePluginActivation="true"
+                                  property="buildship.propertyTester.projectnature"
+                                  value="org.eclipse.buildship.core.gradleprojectnature">
+                            </test>
+                            <or>
+                               <test
+                                     property="org.eclipse.jdt.core.hasTypeOnClasspath"
+                                     value="junit.framework.Test">
+                               </test>
+                               <test
+                                     property="org.eclipse.jdt.core.hasTypeOnClasspath"
+                                     value="spock.lang.Specification">
+                               </test>
+                            </or>
+                         </adapt>
+                      </iterate>
+                      <test
+                            property="buildship.propertyTester.singleprojectselection">
+                      </test>
+                   </and>
+                </with>
+             </enablement>
+          </contextualLaunch>
+          <description
+                description="Runs the selected test with Gradle"
+                mode="run">
+          </description>
+       </shortcut>
+    </extension>
+    
+    <!-- Adapters for showing gradle items in the properties view -->
     <extension
           point="org.eclipse.core.runtime.adapters">
        <factory
@@ -325,7 +394,7 @@
                                     operator="or"
                                     ifEmpty="false">
                                 <adapt
-                                        type="org.eclipse.core.resources.IProject">
+                                        type="org.eclipse.core.resources.IResource">
                                     <test
                                             forcePluginActivation="true"
                                             property="org.eclipse.core.resources.projectNature"
@@ -354,5 +423,17 @@
        <plugin
              id="org.eclipse.buildship.ui">
        </plugin>
+    </extension>
+
+   <!-- PropertyTester, which are used for visibility and enablement constraints in the UI -->
+   <extension
+          point="org.eclipse.core.expressions.propertyTesters">
+       <propertyTester
+             class="org.eclipse.buildship.ui.propertytester.ProjectPropertyTester"
+             id="org.eclipse.buildship.ui.propertyTester.nature"
+             namespace="buildship.propertyTester"
+             properties="projectnature,singleprojectselection"
+             type="java.lang.Object">
+       </propertyTester>
     </extension>
 </plugin>
