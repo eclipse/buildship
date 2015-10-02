@@ -28,7 +28,7 @@ class SynchronizeJavaWorkspaceProjectJobTest extends ProjectImportSpecification 
         project.hasNature(GradleProjectNature.ID)
         project.filters.length > 0
         project.getFolder('.settings').exists()
-        project.getFolder('.settings').getFile('gradle.prefs').exists()
+        project.getFolder('.settings').getFile('org.eclipse.buildship.core.prefs').exists()
         JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().contains('junit') }
 
         when:
@@ -37,8 +37,7 @@ class SynchronizeJavaWorkspaceProjectJobTest extends ProjectImportSpecification 
         then:
         !project.hasNature(GradleProjectNature.ID)
         project.filters.length == 0
-        !project.getFolder('.settings').exists()
-        !project.getFolder('.settings').getFile('gradle.prefs').exists()
+        !project.getFolder('.settings').getFile('org.eclipse.buildship.core.prefs').exists()
         !JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().contains('junit') }
     }
 

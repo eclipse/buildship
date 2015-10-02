@@ -49,12 +49,10 @@ public final class DefaultGradleProjectBuilder extends IncrementalProjectBuilder
 
     private void fullBuild(IProject project) throws CoreException {
         // validate project
-        new GradleProjectValidationResourceDeltaVisitor(project).validate();
     }
 
     private void incrementalBuild(IResourceDelta delta, IProject project) throws CoreException {
         // validate project
-        delta.accept(new GradleProjectValidationResourceDeltaVisitor(project));
     }
 
     @Override
