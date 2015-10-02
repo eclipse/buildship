@@ -100,6 +100,7 @@ public final class CorePlugin extends Plugin {
         plugin = this;
         ensureProxySettingsApplied();
         registerServices(bundleContext);
+        LegacyProjectUpdater.cleanupProjects();
     }
 
     @Override
