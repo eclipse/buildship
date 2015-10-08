@@ -11,29 +11,22 @@
 
 package org.eclipse.buildship.core.util.progress;
 
-import java.util.List;
-
-import org.gradle.tooling.BuildCancelledException;
-import org.gradle.tooling.BuildException;
-import org.gradle.tooling.GradleConnectionException;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
+import com.google.common.base.*;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-
 import org.eclipse.buildship.core.AggregateException;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.string.StringUtils;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.gradle.tooling.BuildCancelledException;
+import org.gradle.tooling.BuildException;
+import org.gradle.tooling.GradleConnectionException;
+import org.gradle.tooling.TestExecutionException;
+
+import java.util.List;
 
 /**
  * Invokes the Tooling API and handles any thrown exceptions as specifically as possible.
@@ -155,7 +148,7 @@ public final class ToolingApiInvoker {
     private boolean shouldSendUserNotification(Throwable t) {
         if (t instanceof BuildCancelledException) {
             return false;
-        } else if (t instanceof BuildException) {
+        } else if (t instanceof BuildException || t instanceof TestExecutionException) {
             return this.notifyUserAboutBuildFailures;
         } else {
             return true;
