@@ -44,7 +44,6 @@ class SynchronizeGradleProjectJobTest extends ProjectImportSpecification {
         project != null
         !GradleProjectNature.INSTANCE.isPresentOn(project)
         !project.getFolder('.settings').getFile('gradle.prefs').exists()
-        !project.getFolder('.settings').exists()
     }
 
     def "A new Gradle module is imported into the workspace"() {

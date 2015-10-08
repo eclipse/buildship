@@ -11,7 +11,11 @@
 
 package org.eclipse.buildship.core.configuration.internal;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.Map;
 
@@ -31,16 +35,16 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 
 /**
  * Manages reading and writing of the Gradle-specific configuration of an Eclipse project.
@@ -184,10 +188,9 @@ final class ProjectConfigurationPersistence {
         if (configFile.exists()) {
             // delete the preferences file
             configFile.delete(true, false, new NullProgressMonitor());
-            if (configFile.getParent().members().length == 0) {
-                // delete the .settings folder if it is empty
-                configFile.getParent().delete(true, new NullProgressMonitor());
-            }
+
+            // Note: don't delete the container .settings folder, even if it's empty, because the preferences
+            // API expects it to be there. if the folder is removed, then an IllegalStateException is thrown randomly
         }
     }
 
