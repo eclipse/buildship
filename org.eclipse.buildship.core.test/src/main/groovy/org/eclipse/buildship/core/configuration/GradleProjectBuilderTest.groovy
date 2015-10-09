@@ -3,12 +3,17 @@ package org.eclipse.buildship.core.configuration
 import com.google.common.collect.ImmutableList
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.Logger
+import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.test.fixtures.TestEnvironment
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.CoreException
+import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.IStatus
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Status
+import org.eclipse.core.runtime.jobs.ISchedulingRule
+import org.eclipse.core.runtime.jobs.Job
+
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
@@ -28,7 +33,7 @@ class GradleProjectBuilderTest extends Specification {
         IProject project = CorePlugin.workspaceOperations().createProject("sample-project", projectFolder, ImmutableList.of(), null)
 
         when:
-        GradleProjectBuilder.INSTANCE.configureOnProject(project)
+        executeWithWorkspaceRootRule{ GradleProjectBuilder.INSTANCE.configureOnProject(project) }
 
         then:
         project.getDescription().getBuildSpec().length == 1
@@ -41,8 +46,8 @@ class GradleProjectBuilderTest extends Specification {
         IProject project = CorePlugin.workspaceOperations().createProject("sample-project", projectFolder, ImmutableList.of(), null)
 
         when:
-        GradleProjectBuilder.INSTANCE.configureOnProject(project)
-        GradleProjectBuilder.INSTANCE.configureOnProject(project)
+        executeWithWorkspaceRootRule{ GradleProjectBuilder.INSTANCE.configureOnProject(project) }
+        executeWithWorkspaceRootRule{ GradleProjectBuilder.INSTANCE.configureOnProject(project) }
 
         then:
         project.getDescription().getBuildSpec().length == 1
@@ -55,8 +60,8 @@ class GradleProjectBuilderTest extends Specification {
         IProject project = CorePlugin.workspaceOperations().createProject("sample-project", projectFolder, ImmutableList.of(), null)
 
         when:
-        GradleProjectBuilder.INSTANCE.configureOnProject(project)
-        GradleProjectBuilder.INSTANCE.deconfigureOnProject(project)
+        executeWithWorkspaceRootRule{ GradleProjectBuilder.INSTANCE.configureOnProject(project) }
+        executeWithWorkspaceRootRule{ GradleProjectBuilder.INSTANCE.deconfigureOnProject(project) }
 
         then:
         project.getDescription().getBuildSpec().length == 0
@@ -68,7 +73,7 @@ class GradleProjectBuilderTest extends Specification {
         IProject project = CorePlugin.workspaceOperations().createProject("sample-project", projectFolder, ImmutableList.of(), null)
 
         when:
-        GradleProjectBuilder.INSTANCE.deconfigureOnProject(project)
+        executeWithWorkspaceRootRule{ GradleProjectBuilder.INSTANCE.deconfigureOnProject(project) } 
 
         then:
         project.getDescription().getBuildSpec().length == 0
@@ -80,7 +85,7 @@ class GradleProjectBuilderTest extends Specification {
         TestEnvironment.registerService(Logger, logger)
 
         when:
-        GradleProjectBuilder.INSTANCE.configureOnProject(bogusProject)
+        executeWithWorkspaceRootRule{ GradleProjectBuilder.INSTANCE.configureOnProject(bogusProject) }
 
         then:
         1 * logger.error(_)
@@ -95,7 +100,7 @@ class GradleProjectBuilderTest extends Specification {
         TestEnvironment.registerService(Logger, logger)
 
         when:
-        GradleProjectBuilder.INSTANCE.deconfigureOnProject(bogusProject)
+        executeWithWorkspaceRootRule{ GradleProjectBuilder.INSTANCE.deconfigureOnProject(bogusProject) }
 
         then:
         1 * logger.error(_)
@@ -109,6 +114,27 @@ class GradleProjectBuilderTest extends Specification {
         project.isOpen() >> true
         project.getDescription() >> { throw new CoreException(new Status(IStatus.ERROR, "unknown", "thrown on purpose")) }
         project
+    }
+
+    private void executeWithWorkspaceRootRule(Closure closure) {
+        executeWithRule(LegacyEclipseSpockTestHelper.workspace.root, closure)
+    }
+
+    private void executeWithRule(ISchedulingRule rule, Closure closure) {
+        Job job = new Job("Test") {
+            protected IStatus run(IProgressMonitor monitor) {
+                Job.jobManager.beginRule(rule, monitor)
+                try {
+                    closure()
+                } finally {
+                    Job.jobManager.endRule(rule)
+                }
+                Status.OK_STATUS
+            };
+        }
+
+        job.schedule()
+        job.join()
     }
 
 }

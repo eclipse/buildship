@@ -39,6 +39,8 @@ public enum GradleProjectBuilder {
 
     /**
      * Configures the builder on the target project if it was not added previously.
+     * <p/>
+     * This method requires the {@link org.eclipse.core.resources.IWorkspaceRoot} scheduling rule.
      *
      * @param project the target project
      */
@@ -72,6 +74,8 @@ public enum GradleProjectBuilder {
 
     /**
      * Removes the builder from the target project if it was there before.
+     * <p/>
+     * This method requires the {@link org.eclipse.core.resources.IWorkspaceRoot} scheduling rule.
      *
      * @param project the target project
      */
