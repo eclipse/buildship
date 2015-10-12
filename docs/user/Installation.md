@@ -57,12 +57,12 @@ We propose you install Buildship from eclipse.org. If, for any reason, you still
 from [builds.gradle.org](https://builds.gradle.org/project.html?projectId=Tooling_Buildship&tab=projectOverview), the following snapshot update sites
 are available for all the supported Eclipse versions:
 
-  * `https://builds.gradle.org/repository/download/Tooling_Master_Commit_Eclipse45Build/.lastSuccessful/update-site` (latest 4.5 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Master_Commit_Eclipse44Build/.lastSuccessful/update-site` (latest 4.4 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Master_Commit_Eclipse43Build/.lastSuccessful/update-site` (latest 4.3 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Master_Commit_Eclipse42Build/.lastSuccessful/update-site` (latest 4.2 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Master_Commit_Eclipse37Build/.lastSuccessful/update-site` (latest 3.7 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Master_Commit_Eclipse36Build/.lastSuccessful/update-site` (latest 3.6 development snapshot)
+  * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse45Build/.lastSuccessful/update-site` (latest 4.5 development snapshot)
+  * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse44Build/.lastSuccessful/update-site` (latest 4.4 development snapshot)
+  * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse43Build/.lastSuccessful/update-site` (latest 4.3 development snapshot)
+  * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse42Build/.lastSuccessful/update-site` (latest 4.2 development snapshot)
+  * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse37Build/.lastSuccessful/update-site` (latest 3.7 development snapshot)
+  * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse36Build/.lastSuccessful/update-site` (latest 3.6 development snapshot)
 
 Apply the following instructions to install the latest snapshot of Buildship into your version of Eclipse.
 
