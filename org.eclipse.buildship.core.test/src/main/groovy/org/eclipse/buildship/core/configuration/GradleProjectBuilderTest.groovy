@@ -16,8 +16,11 @@ import org.eclipse.core.runtime.jobs.Job
 
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import spock.lang.Ignore
 import spock.lang.Specification
 
+
+@Ignore
 class GradleProjectBuilderTest extends Specification {
 
     @Rule
