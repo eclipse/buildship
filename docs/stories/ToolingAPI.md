@@ -1,4 +1,98 @@
-# Tooling Client
+
+# Tooling API and Tooling Client
+
+## Set source level for Java projects (1 days)
+
+### Motivation
+
+The `ide-integraion.md` document in Gradle core specifies a story ["expose Java source level for Java projects to Eclipse"](https://github.com/gradle/gradle/blob/master/design-docs/ide-integration.md#story---expose-java-source-level-for-java-projects-to-eclipse). The goal is to make use of the enhancements from there in Buildship.
+
+### Implementation
+- Wait for the corresponding Tooling API story to be finished and upgrade Buildship to the latest TAPI/Tooling-commons version
+- Upon project refresh ensure that the workspace project configuration and the Gradle model is in sync
+    - Read the source compatibility value from `EclipseProject` and
+    - Update the value in the implementation of the `WorkspaceGradleOperations#synchronizeGradleProjectWithWorkspaceProject()` method
+
+### Test cases
+- Model defines no source compatibility
+- Model defines different source compatibility, than the project
+- Model defines invalid source compatibility level (Java 8 for Eclipse Helios)
+
+### Open questions
+- What is a default version?
+- What should happen when the specified source compatibility version is higher, than the highest supported one in Eclipse. Should we 
+    - throw and exception,
+    - use the highest version supported by the IDE, or
+    - set the source compatibility version and let the IDE handle the exceptional case?
+
+
+## Configure the target JDK for Java projects (2 days)
+
+### Motivation
+
+The `ide-integraion.md` document in Gradle core specifies a story ["expose target JDK for Java projects to Eclipse"](https://github.com/gradle/gradle/blob/master/design-docs/ide-integration.md#story---expose-target-jdk-for-java-projects-to-eclipse). The goal is to make use of the enhancements from there in Buildship.
+
+### Implementation
+- Wait for the corresponding Tooling API story to be finished and upgrade Buildship to the latest TAPI/Tooling-commons version
+- Load the `JavaProject` model
+- Synchronize model fields with the related Eclipse workspace project upon refresh
+     - update used JDK, if mismatch
+
+### Test cases
+TBD
+
+### Open questions
+- How to handle unsupported JDK versions (JDK 8 defined for Eclipse Helios)?
+
+
+## Make use of the JavaProject model (1 day)
+
+### Motivation
+The `ide-integraion.md` document in Gradle core specifies a story ["introduce JavaProject"](https://github.com/gradle/gradle/blob/master/design-docs/ide-integration.md#story---introduce-javaproject). The goal is to make use of the enhancements from there in Buildship.
+
+### Implementation
+- Wait for the corresponding Tooling API story to be finished and upgrade Buildship to the latest TAPI/Tooling-commons version
+- Load the `JavaProject` model
+- Synchronize model fields with the related Eclipse workspace project upon refresh
+     - update the source compatibility if not the same
+     - update target compatibility if not the same
+
+### Test cases
+- Update to same source/target compatibility level
+- Update to different source/target compatibility level
+
+### Open questions
+TBD
+
+
+## Set additional builders and natures on the projects (1 day)
+
+### Motivation
+The `ide-integraion.md` document in Gradle core specifies a story ["Expose more Eclipse settings for the projects"](https://github.com/gradle/gradle/blob/master/design-docs/ide-integration.md#story---expose-more-eclipse-settings-for-the-projects). The goal is to make use of the enhancements from there in Buildship.
+
+### Implementation
+- Read the builders and natures list from the model
+- Merge the list with the existing items upon project import
+    - If a project descriptor exists, then preserve the existing builders and natures
+    - Always add the Gradle nature, if not exist
+    - Add the natures/builders from the model, if not exist
+
+### Test cases
+- Setting builders and natures on new project
+    - no builders/natures specified in the model
+    - some builders/natures specified in the model
+- Setting builders and natures on existing project
+    - imported project does not define builders/natures
+    - imported project defines builders/natures
+        - contains the Gradle nature
+        - doesn't contain the Gradle nature
+        - doesn't overlap with the ones from the model
+        - overlaps with the model
+
+### Open questions
+- Do we need to synchronize natures and builders upon project refresh?
+- How to handle when older Gradle version is used and no builders/natures returned?
+
 
 ## Allow to close a single DefaultGradleConnector instance
 
