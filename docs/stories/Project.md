@@ -115,3 +115,19 @@ files, configure them according to what the user has specified, and then import 
 ### Motivation
 
 Inexperienced Gradle users appreciate a project creation wizard that provides an easy way to get started with a new Gradle project.
+
+
+## Verify project import settings upon project synchronization 
+
+### Requested Change
+Make the project import validation mechanism part of the the project synchronization mechanism.
+
+### Motivation
+
+In Eclipse it is common practice to import projects with existing Eclipse descriptors by using the 'Import Existing Project' wizard.
+Currently it is broken for Buildship because the `.settings/gradle.prefs` file contain absolute values specific a local
+environment. If the project import settings verification was part of the project synchronization mechanism, then it would be 
+possible to validate and fix without the import wizard. Also, if the imported project doesn't have the settings file, we could generate
+one with sensible defaults. Moreover, we could get rid of the `GradleProjectValidationResourceDeltaVisitor` class which was reported
+hundreds of times via the [AERI](https://dev.eclipse.org/recommenders/committers/confess/#/problems/55d448e2e4b0f0b83a6e47ab/details) 
+(Eclipse committer account required).
