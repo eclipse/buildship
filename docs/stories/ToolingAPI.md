@@ -1,81 +1,23 @@
 
 # Tooling API and Tooling Client
 
-## Set source level for Java projects (1 days)
-
-### Motivation
-
-The `ide-integraion.md` document in Gradle core specifies a story ["expose Java source level for Java projects to Eclipse"](https://github.com/gradle/gradle/blob/master/design-docs/ide-integration.md#story---expose-java-source-level-for-java-projects-to-eclipse). The goal is to make use of the enhancements from there in Buildship.
-
-### Implementation
-- Wait for the corresponding Tooling API story to be finished and upgrade Buildship to the latest TAPI/Tooling-commons version
-- Upon project refresh ensure that the workspace project configuration and the Gradle model is in sync
-    - Read the source compatibility value from `EclipseProject` and
-    - Update the value in the implementation of the `WorkspaceGradleOperations#synchronizeGradleProjectWithWorkspaceProject()` method
-
-### Test cases
-- Model defines no source compatibility
-- Model defines different source compatibility, than the project
-- Model defines invalid source compatibility level (Java 8 for Eclipse Helios)
-
-### Open questions
-- What is a default version?
-- What should happen when the specified source compatibility version is higher, than the highest supported one in Eclipse. Should we 
-    - throw and exception,
-    - use the highest version supported by the IDE, or
-    - set the source compatibility version and let the IDE handle the exceptional case?
-
-
-## Configure the target JDK for Java projects (2 days)
-
-### Motivation
-
-The `ide-integraion.md` document in Gradle core specifies a story ["expose target JDK for Java projects to Eclipse"](https://github.com/gradle/gradle/blob/master/design-docs/ide-integration.md#story---expose-target-jdk-for-java-projects-to-eclipse). The goal is to make use of the enhancements from there in Buildship.
-
-### Implementation
-- Wait for the corresponding Tooling API story to be finished and upgrade Buildship to the latest TAPI/Tooling-commons version
-- Load the `JavaProject` model
-- Synchronize model fields with the related Eclipse workspace project upon refresh
-     - update used JDK, if mismatch
-
-### Test cases
-TBD
-
-### Open questions
-- How to handle unsupported JDK versions (JDK 8 defined for Eclipse Helios)?
-
-
-## Make use of the JavaProject model (1 day)
-
-### Motivation
-The `ide-integraion.md` document in Gradle core specifies a story ["introduce JavaProject"](https://github.com/gradle/gradle/blob/master/design-docs/ide-integration.md#story---introduce-javaproject). The goal is to make use of the enhancements from there in Buildship.
-
-### Implementation
-- Wait for the corresponding Tooling API story to be finished and upgrade Buildship to the latest TAPI/Tooling-commons version
-- Load the `JavaProject` model
-- Synchronize model fields with the related Eclipse workspace project upon refresh
-     - update the source compatibility if not the same
-     - update target compatibility if not the same
-
-### Test cases
-- Update to same source/target compatibility level
-- Update to different source/target compatibility level
-
-### Open questions
-TBD
-
-
 ## Set additional builders and natures on the projects (1 day)
 
 ### Motivation
-The `ide-integraion.md` document in Gradle core specifies a story ["Expose more Eclipse settings for the projects"](https://github.com/gradle/gradle/blob/master/design-docs/ide-integration.md#story---expose-more-eclipse-settings-for-the-projects). The goal is to make use of the enhancements from there in Buildship.
+The `ide-integraion.md` document in Gradle core specifies a story ["Expose more Eclipse settings for projects"](https://github.com/gradle/gradle/blob/master/design-docs/ide-integration.md#story---expose-natures-and-builders-for-projects-3d). The goal is to make use of the enhancements from there in Buildship.
 
 ### Implementation
-- Read the builders and natures list from the model
-- Merge the list with the existing items upon project import
-    - If a project descriptor exists, then preserve the existing builders and natures
-    - Always add the Gradle nature, if not exist
-    - Add the natures/builders from the model, if not exist
+- Wait for the corresponding Tooling API story to be finished and upgrade tooling-commons to use the latest TAPI version
+- Add `OmniEclipseVersion.getProjectNatures(List)` and propagate the result returned by the TAPI
+- Add `OmniEclipseVersion.getBuildCommand(List)` and propagate the result returned by the TAPI
+- Upgrade tooling-commons used in Buildship
+- Merge the builders/natures list with the existing ones upon project synchronization
+    - If the builders-natures can be retrieved
+        - If a project descriptor exists, then preserve the existing builders and natures
+        - Always add the Gradle nature, if not exist
+        - Add the natures/builders from the model, if not exist
+    - If the builders/natures can't be retrieved
+        - Use existing assumption (Java nature is needed when there is at east one source folder is available) 
 
 ### Test cases
 - Setting builders and natures on new project
@@ -88,10 +30,67 @@ The `ide-integraion.md` document in Gradle core specifies a story ["Expose more 
         - doesn't contain the Gradle nature
         - doesn't overlap with the ones from the model
         - overlaps with the model
+- Verify sensible defaults
+    -  if the project defines a source folder, a java nature should be on the default list
+
+
+## Set source level for Java projects (1 days)
+
+### Motivation
+
+The `ide-integraion.md` document in Gradle core specifies a story ["expose Java source level for Java projects to Eclipse"](https://github.com/gradle/gradle/blob/master/design-docs/ide-integration.md#story---expose-java-source-level-for-java-projects-to-eclipse-3d). The goal is to make use of the enhancements from there in Buildship.
+
+### Implementation
+- Wait for the corresponding Tooling API story to be finished and upgrade Buildship to the latest TAPI/Tooling-commons version
+- Implement `OmniEclipseProject.getJavaView()` and propagate the result returned by the TAPI 
+- Upgrade tooling-commons used in Buildship
+- Upon project refresh ensure that the workspace project configuration and the Gradle model is in sync
+    - Read the source compatibility level and update the project settings  in `WorkspaceGradleOperations#synchronizeGradleProjectWithWorkspaceProject()` method
+
+### Test cases
+- Model defines no source compatibility
+- Model defines different source compatibility, than the project
+- Model defines invalid source compatibility level (Java 8 for Eclipse Helios)
+    - Log it as a warning and set the highest source compatibility level available in the tooling.
+
+
+## Configure the target JDK for Java projects (2 days)
+
+### Motivation
+
+The `ide-integraion.md` document in Gradle core specifies a story ["expose target JDK for Java projects to Eclipse"](https://github.com/gradle/gradle/blob/master/design-docs/ide-integration.md#story---expose-target-jdk-for-java-projects-to-eclipse-3d). The goal is to make use of the enhancements from there in Buildship.
+
+### Implementation
+- Wait for the corresponding Tooling API story to be finished and upgrade Buildship to the latest TAPI/Tooling-commons version
+- Add method to the tooling-commons API to load the information about the target JVM 
+- Upgrade tooling-commons used in Buildship
+- Synchronize model fields with the related Eclipse workspace project upon refresh
+     - update used JDK, if mismatch
+
+### Test cases
+- Update JDK defined by the Tooling API
+- No JDK is available from the Tooling API
+    - Use the default from Eclipse
+
+## Make use of the JavaProject model (1 day)
+
+### Motivation
+The `ide-integraion.md` document in Gradle core specifies a story ["introduce JavaProject"](https://github.com/gradle/gradle/blob/master/design-docs/ide-integration.md#story---introduce-javaproject-35d). The goal is to make use of the enhancements from there in Buildship.
+
+### Implementation
+- Wait for the corresponding Tooling API story to be finished and upgrade Buildship to the latest TAPI/Tooling-commons version
+- Add method tooling-commons counterpart for the `JavaProject` class 
+- Upgrade tooling-commons used in Buildship
+- Synchronize model fields with the related Eclipse workspace project upon refresh
+     - update the source compatibility if not the same
+     - update target compatibility if not the same
+
+### Test cases
+- Update to same source/target compatibility level
+- Update to different source/target compatibility level
 
 ### Open questions
-- Do we need to synchronize natures and builders upon project refresh?
-- How to handle when older Gradle version is used and no builders/natures returned?
+TBD
 
 
 ## Allow to close a single DefaultGradleConnector instance
