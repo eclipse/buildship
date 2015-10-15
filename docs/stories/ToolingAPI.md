@@ -1,10 +1,14 @@
 
 # Tooling API and Tooling Client
 
-## Set additional builders and natures on the projects (1 day)
+## Set additional builders and natures on the projects
 
 ### Motivation
 The `ide-integraion.md` document in Gradle core specifies a story ["Expose more Eclipse settings for projects"](https://github.com/gradle/gradle/blob/master/design-docs/ide-integration.md#story---expose-natures-and-builders-for-projects-3d). The goal is to make use of the enhancements from there in Buildship.
+
+### Estimate
+
+- 1 day
 
 ### Implementation
 - Wait for the corresponding Tooling API story to be finished and upgrade tooling-commons to use the latest TAPI version
@@ -34,11 +38,15 @@ The `ide-integraion.md` document in Gradle core specifies a story ["Expose more 
     -  if the project defines a source folder, a java nature should be on the default list
 
 
-## Set source level for Java projects (1 days)
+## Set source level for Java projects
 
 ### Motivation
 
 The `ide-integraion.md` document in Gradle core specifies a story ["expose Java source level for Java projects to Eclipse"](https://github.com/gradle/gradle/blob/master/design-docs/ide-integration.md#story---expose-java-source-level-for-java-projects-to-eclipse-3d). The goal is to make use of the enhancements from there in Buildship.
+
+### Estimate
+
+- 1 day
 
 ### Implementation
 - Wait for the corresponding Tooling API story to be finished and upgrade Buildship to the latest TAPI/Tooling-commons version
@@ -54,11 +62,15 @@ The `ide-integraion.md` document in Gradle core specifies a story ["expose Java 
     - Log it as a warning and set the highest source compatibility level available in the tooling.
 
 
-## Configure the target JDK for Java projects (2 days)
+## Configure the target JDK for Java projects
 
 ### Motivation
 
 The `ide-integraion.md` document in Gradle core specifies a story ["expose target JDK for Java projects to Eclipse"](https://github.com/gradle/gradle/blob/master/design-docs/ide-integration.md#story---expose-target-jdk-for-java-projects-to-eclipse-3d). The goal is to make use of the enhancements from there in Buildship.
+
+### Estimate
+
+- 2 days
 
 ### Implementation
 - Wait for the corresponding Tooling API story to be finished and upgrade Buildship to the latest TAPI/Tooling-commons version
@@ -72,10 +84,14 @@ The `ide-integraion.md` document in Gradle core specifies a story ["expose targe
 - No JDK is available from the Tooling API
     - Use the default from Eclipse
 
-## Make use of the JavaProject model (1 day)
+## Make use of the JavaProject model
 
 ### Motivation
 The `ide-integraion.md` document in Gradle core specifies a story ["introduce JavaProject"](https://github.com/gradle/gradle/blob/master/design-docs/ide-integration.md#story---introduce-javaproject-35d). The goal is to make use of the enhancements from there in Buildship.
+
+### Estimate
+
+- 1 day
 
 ### Implementation
 - Wait for the corresponding Tooling API story to be finished and upgrade Buildship to the latest TAPI/Tooling-commons version
