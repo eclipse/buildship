@@ -4,7 +4,7 @@
 ## Set additional builders and natures on the projects
 
 ### Motivation
-The `ide-integraion.md` document in Gradle core specifies a story ["Expose more Eclipse settings for projects"](https://github.com/gradle/gradle/blob/master/design-docs/ide-integration.md#story---expose-natures-and-builders-for-projects-3d). The goal is to make use of the enhancements from there in Buildship.
+The `ide-integraion.md` document in Gradle core specifies a story ["Expose more Eclipse settings for projects"](https://github.com/gradle/gradle/blob/master/design-docs/ide-integration.md#story---expose-natures-and-builders-for-projects). The goal is to make use of the enhancements from there in Buildship.
 
 ### Estimate
 
