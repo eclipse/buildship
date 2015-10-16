@@ -12,8 +12,9 @@ The `ide-integraion.md` document in Gradle core specifies a story ["Expose more 
 
 ### Implementation
 - Wait for the corresponding Tooling API story to be finished and upgrade tooling-commons to use the latest TAPI version
-- Add `OmniEclipseVersion.getProjectNatures(List)` and propagate the result returned by the TAPI
-- Add `OmniEclipseVersion.getBuildCommand(List)` and propagate the result returned by the TAPI
+- Add `Optional<List<String>> OmniEclipseVersion.getProjectNatures()` and propagate the result returned by the TAPI
+    - It doesn't return the Gradle nature unless the the build configuration explicitly defines it
+- Add `Optional<List<String>> OmniEclipseVersion.getBuildCommands()` and propagate the result returned by the TAPI
 - Upgrade tooling-commons used in Buildship
 - Merge the builders/natures list with the existing ones upon project synchronization
     - If the builders-natures can be retrieved
@@ -21,7 +22,7 @@ The `ide-integraion.md` document in Gradle core specifies a story ["Expose more 
         - Always add the Gradle nature, if not exist
         - Add the natures/builders from the model, if not exist
     - If the builders/natures can't be retrieved
-        - Use existing assumption (Java nature is needed when there is at east one source folder is available) 
+        - Use existing assumption (Java nature is needed when there is at east one source folder available)
 
 ### Test cases
 - Setting builders and natures on new project
