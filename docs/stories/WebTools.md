@@ -11,11 +11,11 @@ communicate the location of the web application directory to WTP.
 - ? day(s)
 
 ### Implementation
-- Create branch in buildship repository `wtp-integration`.
-- Define `org.eclipse.buildship.wtp` plugin in `wtp-integration`.
-- Define `org.eclipse.buildship.wtp.test` plugin in `wtp-integration`.
-- Wait for corresponding story in TAPI to be completed.
-- Upgrade Tooling Commons (if necessary).
+- Create branch in buildship repository `wtp-integration`
+- Define `org.eclipse.buildship.wtp` plugin in `wtp-integration`
+- Define `org.eclipse.buildship.wtp.test` plugin in `wtp-integration`
+- Wait for corresponding story in TAPI to be completed
+- Upgrade Tooling Commons (if necessary)
 - Define configuration class in `org.eclipse.buildship.wtp`, either configurator class, or a similar class to `DefaultWorkspaceGradleOperations`.
     - Retrieve Web application model from TAPI
     - If a project is a web application project (model will be `null` if project doesn't apply `war` plugin)
@@ -30,14 +30,15 @@ communicate the location of the web application directory to WTP.
 - Dynamic Web Facet is added to project
 - If Java Facet already on project but has incorrect version, version is updated to correct version based on source Java version
 - If Dynamic Web Facet already on project but has incorrect version, version is updated to correct version
-- Default Java Facet version is x.
-- Default Dynamic Web Facet version is x.
+- Default Dynamic Web Facet version is 2.5.
 - If Java Facet exists on project with correct version, Facet is not affected.
 - If Dynamic Web Facet exists on project with correct version, Facet is not affected.
+- Dynamic Web Facet version inferred from _web.xml_ file.
 - Custom web application directory location is communicated successfully to component file, file exists.
 - Default web application directory location is communicated successfully to component file, file exists.
-- Custom web application directory location is communicated successfuly to component file, file does not exist.
-- Default web application directory location is communicated successfully to component file, file does not exist.
+- Custom web application directory location is communicated successfuly to component file, file does not exist
+- Default web application directory location is communicated successfully to component file, file does not exist
+- Existing `wb-resource` entries in component file not overwritten. 
 
 ### Open Questions
 
@@ -51,3 +52,7 @@ communicate the location of the web application directory to WTP.
 
 - How should buildship core call the WTP configuration plugin?
 
+### Notes
+
+The default Dynamic Web Facet version is 2.5, as it allows for a missing web.xml file, and doens't have a strong constraint on the Java version (
+at least Java 5).
