@@ -132,7 +132,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     }
 
     private void synchronizeOpenWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, IProject workspaceProject, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask(String.format("Synchronize Gradle project %s that is open in the workspace", project.getName()), 5);
+        monitor.beginTask(String.format("Synchronize Gradle project %s that is open in the workspace", project.getName()), 6);
         try {
             // add Gradle nature, if needed
             CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
@@ -167,6 +167,10 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             } else {
                 monitor.worked(2);
             }
+
+            // add additional project natures and build commands
+            ProjectNatureUpdater.update(workspaceProject, project.getProjectNatures(), new SubProgressMonitor(monitor, 1));
+            BuildCommandUpdater.update(workspaceProject, project.getBuildCommands(), new SubProgressMonitor(monitor, 1));
         } finally {
             monitor.done();
         }
@@ -197,8 +201,8 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         }
     }
 
-    private IProject addExistingEclipseProjectToWorkspace(OmniEclipseProject project, IProjectDescription projectDescription, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Add existing Eclipse project %s for Gradle project %s to the workspace", projectDescription.getName(), project.getName()), 1);
+    private IProject addExistingEclipseProjectToWorkspace(OmniEclipseProject project, IProjectDescription projectDescription, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) throws CoreException {
+        monitor.beginTask(String.format("Add existing Eclipse project %s for Gradle project %s to the workspace", projectDescription.getName(), project.getName()), 3);
         try {
             // include the existing Eclipse project in the workspace
             List<String> gradleNature = ImmutableList.of(GradleProjectNature.ID);
@@ -208,6 +212,9 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             ProjectConfiguration projectConfiguration = ProjectConfiguration.from(rootRequestAttributes, project);
             CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, workspaceProject);
 
+            // add project natures and build command
+            ProjectNatureUpdater.update(workspaceProject, project.getProjectNatures(), new SubProgressMonitor(monitor, 1));
+            BuildCommandUpdater.update(workspaceProject, project.getBuildCommands(), new SubProgressMonitor(monitor, 1));
             return workspaceProject;
         } finally {
             monitor.done();
@@ -215,7 +222,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     }
 
     private IProject addNewEclipseProjectToWorkspace(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask(String.format("Add new Eclipse project for Gradle project %s to the workspace", project.getName()), 4);
+        monitor.beginTask(String.format("Add new Eclipse project for Gradle project %s to the workspace", project.getName()), 6);
         try {
             // create a new Eclipse project in the workspace for the current Gradle project
             List<String> gradleNature = ImmutableList.of(GradleProjectNature.ID);
@@ -240,6 +247,10 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             } else {
                 monitor.worked(1);
             }
+
+            // add project natures and build command
+            ProjectNatureUpdater.update(workspaceProject, project.getProjectNatures(), new SubProgressMonitor(monitor, 1));
+            BuildCommandUpdater.update(workspaceProject, project.getBuildCommands(), new SubProgressMonitor(monitor, 1));
 
             return workspaceProject;
         } finally {

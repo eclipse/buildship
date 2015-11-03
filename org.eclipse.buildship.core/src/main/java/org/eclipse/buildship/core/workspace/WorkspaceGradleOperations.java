@@ -74,6 +74,7 @@ public interface WorkspaceGradleOperations {
      * <li>the workspace project doesn't have the Java nature</li>
      * </ul>
      * </li>
+     * <li>project natures and build commands are set</li>
      * </ul>
      * </li>
      * </ol>
@@ -84,6 +85,7 @@ public interface WorkspaceGradleOperations {
      * <li>the Eclipse project is added to the workspace</li>
      * <li>the Gradle nature is set</li>
      * <li>the Gradle settings file is written</li>
+     * <li>project natures and build commands are set</li>
      * </ul>
      * </li>
      * <li>If the there is no project in the workspace nor an Eclipse project at the location of the Gradle build, the synchronization is as follows:
@@ -98,6 +100,7 @@ public interface WorkspaceGradleOperations {
      * <li>a Gradle classpath container is added (this triggers a synchronize through the classpath container, handled by #1)</li>
      * </ul>
      * </li>
+     * <li>project natures and build commands are set</li>
      * </ul>
      * </li>
      * </ol>

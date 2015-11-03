@@ -68,6 +68,31 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         project.hasNature(GradleProjectNature.ID)
     }
 
+    def "If workspace project exists at model location, then the additional natures and build commands are set"() {
+        setup:
+        IProject project = newOpenProject('sample-project')
+        fileStructure().create {
+            file 'sample-project/build.gradle', """
+                apply plugin: 'eclipse'
+                eclipse {
+                    project {
+                        natures << "org.eclipse.pde.UpdateSiteNature"
+                        buildCommand 'customBuildCommand', buildCommandKey: "buildCommandValue"
+                    }
+                }
+            """
+            file 'sample-project/settings.gradle'
+        }
+        GradleModel gradleModel = loadGradleModel('sample-project')
+
+        when:
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+
+        then:
+        project.description.natureIds.find{ it == 'org.eclipse.pde.UpdateSiteNature' }
+        project.description.buildSpec.find{ it.builderName == 'customBuildCommand' }.arguments == ['buildCommandKey' : "buildCommandValue"]
+    }
+
     def "If workspace project exists at model location, then the Gradle settings file is written"() {
         setup:
         IProject project = newOpenProject('sample-project')
@@ -262,6 +287,32 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         new ProjectConfigurationPersistence().readProjectConfiguration(project)
     }
 
+    def "If .project file exists at the model location, then build commands and natures are set"() {
+        setup:
+        IProject project = newOpenProject('sample-project')
+        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
+        fileStructure().create {
+            file 'sample-project/build.gradle', """
+                apply plugin: 'eclipse'
+                eclipse {
+                    project {
+                        natures << "org.eclipse.pde.UpdateSiteNature"
+                        buildCommand 'customBuildCommand', buildCommandKey: "buildCommandValue"
+                    }
+                }
+            """
+            file 'sample-project/settings.gradle'
+        }
+        GradleModel gradleModel = loadGradleModel('sample-project')
+
+        when:
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+
+        then:
+        project.description.natureIds.find{ it == 'org.eclipse.pde.UpdateSiteNature' }
+        project.description.buildSpec.find{ it.builderName == 'customBuildCommand' }.arguments == ['buildCommandKey' : "buildCommandValue"]
+    }
+
     //
     // Section #3: If the there is no project in the workspace nor an Eclipse project at the location of the Gradle
     //             build
@@ -377,6 +428,31 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
             it.entryKind == IClasspathEntry.CPE_CONTAINER &&
             it.path.toPortableString() == GradleClasspathContainer.CONTAINER_ID
         }
+    }
+
+    def "If no workspace project or .project file exists, then the additional natures and build commands are set"() {
+        setup:
+        fileStructure().create {
+            file 'sample-project/build.gradle', """
+                apply plugin: 'eclipse'
+                eclipse {
+                    project {
+                        natures << "org.eclipse.pde.UpdateSiteNature"
+                        buildCommand 'customBuildCommand', buildCommandKey: "buildCommandValue"
+                    }
+                }
+            """
+            file 'sample-project/settings.gradle'
+        }
+        GradleModel gradleModel = loadGradleModel('sample-project')
+
+        when:
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+
+        then:
+        def project = findProject('sample-project')
+        project.description.natureIds.find{ it == 'org.eclipse.pde.UpdateSiteNature' }
+        project.description.buildSpec.find{ it.builderName == 'customBuildCommand' }.arguments == ['buildCommandKey' : "buildCommandValue"]
     }
 
     def "Uncoupling a project removes the Gradle nature"() {

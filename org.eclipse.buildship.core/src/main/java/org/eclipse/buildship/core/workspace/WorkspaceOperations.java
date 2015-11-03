@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.IJavaProject;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Provides operations related to querying and modifying the Eclipse elements that exist in a
@@ -139,5 +140,30 @@ public interface WorkspaceOperations {
      * @param monitor  the monitor to report progress on
      */
     void removeNature(IProject project, String natureId, IProgressMonitor monitor);
+
+    /**
+     * Adds a new build command to the target project.
+     * <p/>
+     * If the target project already has the same build command defined, then the the project will
+     * remain unchanged. If the build command is defined with a different arguments map, then the
+     * arguments will be updated.
+     *
+     * @param project the target project
+     * @param name the name of the new build command
+     * @param arguments the arguments of the new build command
+     * @param monitor the monitor to report the progress on
+     */
+    void addBuildCommand(IProject project, String name, Map<String, String> arguments, IProgressMonitor monitor);
+
+    /**
+     * Removes a build command from the target project.
+     * <p/>
+     * If there is no build command with the given name, then the project will remain unchanged.
+     *
+     * @param project the target project
+     * @param name the name of the build command to remove
+     * @param monitor the monitor to report the progress on
+     */
+    void removeBuildCommand(IProject project, String name, IProgressMonitor monitor);
 
 }
