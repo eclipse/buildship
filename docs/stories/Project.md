@@ -1,5 +1,37 @@
 # Project import and configuration
 
+## Add option to clear Eclipse descriptors upon project import
+
+### Estimate
+
+1.5 days
+
+### Requested change
+
+Add a checkbox to the first page of the import wizard enabling 'clean import'. When enabled, the project import
+deletes the Eclipse project descriptors (.project and .classpath files) before adding projects to the workspace.
+
+### Motivation
+
+Users are reportedly find it confusing that there is a difference between importing projects with or without Eclipse
+project descriptors.
+
+### Implementation plan
+
+- Define a workspace-scoped preference to store whether the clean build should be enabled when the import project is shown
+    - make it disabled by default
+- Modify import project `DefaultWorkspaceGradleOperations.synchronizeNonWorkspaceProject()` such that it deletes
+ the project descriptors if the clean import is enabled.
+- Add a checkbox widget to the first page of the import wizard to switch the value of the clean import property.
+
+### Test cases
+
+- Imported project has a .project file
+- .project file under the project folder is malformed (invalid xml)
+- Subset of the modules in a multi-project build has project descriptors
+- UI test: clicking the checkbox changes the value of the preference
+
+
 ## Fine-tune import wizard UI
 
 ### Requested Change
