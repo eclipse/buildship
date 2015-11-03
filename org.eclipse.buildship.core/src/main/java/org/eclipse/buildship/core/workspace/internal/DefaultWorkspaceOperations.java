@@ -16,6 +16,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -346,6 +348,12 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         } finally {
             monitor.done();
         }
+    }
+    
+    private boolean natureRecognizedByEclipse(String natureId) {
+        // if a description contains a nature id not defined by any of the Eclipse plugins then setting
+        // it on a project throws an exception
+        return ResourcesPlugin.getWorkspace().getNatureDescriptor(natureId) != null;
     }
 
     private boolean natureRecognizedByEclipse(String natureId) {

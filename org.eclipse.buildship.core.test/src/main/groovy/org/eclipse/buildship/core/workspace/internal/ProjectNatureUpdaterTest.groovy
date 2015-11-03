@@ -2,7 +2,9 @@ package org.eclipse.buildship.core.workspace.internal
 
 import com.google.common.base.Optional
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature
+import org.eclipse.core.resources.IProject
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.junit.Rule

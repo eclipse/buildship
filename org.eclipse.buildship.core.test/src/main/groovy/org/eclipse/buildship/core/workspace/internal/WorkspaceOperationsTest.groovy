@@ -357,6 +357,101 @@ class WorkspaceOperationsTest extends Specification {
         then:
         thrown(GradlePluginsRuntimeException)
     }
+    
+    //////////////////////////////////////////////////////////
+    // tests for addBuildCommand() and removeBuildCommand() //
+    //////////////////////////////////////////////////////////
+
+    def "Can assign a build command to a project"() {
+        setup:
+        IProject project = createSampleProject()
+
+        when:
+        workspaceOperations.addBuildCommand(project, 'buildCommand', ['builderArgKey' : 'builderArgValue'], new NullProgressMonitor())
+
+        then:
+        project.description.buildSpec.length == 1
+        project.description.buildSpec[0].builderName == 'buildCommand'
+        project.description.buildSpec[0].arguments.keySet().size() == 1
+        project.description.buildSpec[0].arguments['builderArgKey'] == 'builderArgValue'
+    }
+
+    def "Assigning a build command to a project is idempotent"() {
+        setup:
+        IProject project = createSampleProject()
+
+        when:
+        workspaceOperations.addBuildCommand(project, 'buildCommand', ['builderArgKey' : 'builderArgValue'], new NullProgressMonitor())
+        workspaceOperations.addBuildCommand(project, 'buildCommand', ['builderArgKey' : 'builderArgValue'], new NullProgressMonitor())
+
+        then:
+        project.description.buildSpec.length == 1
+        project.description.buildSpec[0].builderName == 'buildCommand'
+        project.description.buildSpec[0].arguments.keySet().size() == 1
+        project.description.buildSpec[0].arguments['builderArgKey'] == 'builderArgValue'
+    }
+
+    def "Assigning a build command to a non-accessible project results in a runtime exception"() {
+        setup:
+        IProject project = createSampleProject()
+        project.close()
+
+        when:
+        workspaceOperations.addBuildCommand(project, 'buildCommand', ['builderArgKey' : 'builderArgValue'], new NullProgressMonitor())
+
+        then:
+        thrown(RuntimeException)
+    }
+
+    def "Assigning an existing build command to a project with different arguments updates the build command"() {
+        setup:
+        IProject project = createSampleProject()
+
+        when:
+        workspaceOperations.addBuildCommand(project, 'buildCommand', ['builderArgKey' : 'builderArgValue'], new NullProgressMonitor())
+        workspaceOperations.addBuildCommand(project, 'buildCommand', ['updatedArgKey' : 'updatedArgValue'], new NullProgressMonitor())
+
+        then:
+        project.description.buildSpec.length == 1
+        project.description.buildSpec[0].builderName == 'buildCommand'
+        project.description.buildSpec[0].arguments.keySet().size() == 1
+        project.description.buildSpec[0].arguments['updatedArgKey'] == 'updatedArgValue'
+    }
+
+    def "Can remove a build command from a project"() {
+        setup:
+        IProject project = createSampleProject()
+
+        when:
+        workspaceOperations.addBuildCommand(project, 'buildCommand', ['builderArgKey' : 'builderArgValue'], new NullProgressMonitor())
+        workspaceOperations.removeBuildCommand(project, 'buildCommand', new NullProgressMonitor())
+
+        then:
+        project.description.buildSpec.length == 0
+    }
+
+    def "Removing a non-exsting build command from a project doesn't do anything"() {
+        setup:
+        IProject project = createSampleProject()
+
+        when:
+        workspaceOperations.removeBuildCommand(project, 'buildCommand', new NullProgressMonitor())
+
+        then:
+        project.description.buildSpec.length == 0
+    }
+
+    def "Removing a build command from a non-accessible project results in a runtime exception"() {
+        setup:
+        IProject project = createSampleProject()
+        project.close()
+
+        when:
+        workspaceOperations.removeBuildCommand(project, 'buildCommand', new NullProgressMonitor())
+
+        then:
+        thrown(RuntimeException)
+    }
 
     //////////////////////////////////////////////////////////
     // tests for addBuildCommand() and removeBuildCommand() //

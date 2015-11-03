@@ -9,7 +9,7 @@ def eclipseVersionAgnosticDependencies = [
     'com.gradleware.tooling.utils'      : '0.8.1',
     'com.gradleware.tooling.client'     : '0.8.1',
     'com.gradleware.tooling.model'      : '0.8.1',
-    'org.gradle.toolingapi'             : '2.9.0',
+    'org.gradle.toolingapi'             : '2.10.0',
     'org.slf4j.api'                     : '1.7.2',
     'org.slf4j.simple'                  : '1.7.2',
     'com.google.guava'                  : '15.0.0',
