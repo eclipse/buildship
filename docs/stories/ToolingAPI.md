@@ -43,21 +43,32 @@ The `ide-integraion.md` document in Gradle core specifies a story ["Expose more 
 
 ### Motivation
 
-The `ide-integraion.md` document in Gradle core specifies a story ["expose Java source level for Java projects to Eclipse"](https://github.com/gradle/gradle/blob/master/design-docs/ide-integration.md#story---expose-java-source-level-for-java-projects-to-eclipse-3d). The goal is to make use of the enhancements from there in Buildship.
+The `ide-integraion.md` document in Gradle core specifies a story ["expose Java source level for Java projects to Eclipse"](https://github.com/gradle/gradle/blob/master/design-docs/ide-integration.md#story---expose-java-source-level-for-java-projects-to-eclipse). The goal is to utilize this TAPI enhancement in Buildship.
 
 ### Estimate
 
-- 1 day
+- 2 days
 
 ### Implementation
-- Wait for the corresponding Tooling API story to be finished and upgrade Buildship to the latest TAPI/Tooling-commons version
-- Implement `OmniEclipseProject.getJavaView()` and propagate the result returned by the TAPI 
-- Upgrade tooling-commons used in Buildship
-- Upon project refresh ensure that the workspace project configuration and the Gradle model is in sync
-    - Read the source compatibility level and update the project settings  in `WorkspaceGradleOperations#synchronizeGradleProjectWithWorkspaceProject()` method
+- add new features to tooling-commons
+    - Define the `OmniJavaLanguageLevel`, `OmniJavaSourceSettings` interfaces with the same methods as their TAPI-counterparts.
+    - Define the `Maybe<OmniJavaSourceSettings> getJavaSourceSettings()` method on the `OmniEclipseProject` interface
+        - Returns absent value for older Gradle versions
+        - Returns null if the project is not a Java project
+        - Returns valid values otherwise
+- make use of the new features in Buildship
+    - Configure the project as Java project based on the existence of the source settings
+        - For older Gradle versions use the existing assumption (e.g. if there is a source folder then the project is a Java project)
+        - If the source settings is not null, then configure the Java project
+    - Upon project refresh ensure that the workspace project source compatibility is in sync with the model
+        - Read the source compatibility level and update the project settings  in `WorkspaceGradleOperations#synchronizeGradleProjectWithWorkspaceProject()` method
+            - Convert the representation to Eclipse constants
+            - If the source level is not available in the Distribution (Java 8 for Eclipse Helios): define the highest available and log the the problem
 
 ### Test cases
-- Model defines no source compatibility
+- Older Gradle version is used
+    - project has/doesn't have source folders
+- null is returned for the source settings (non-Java project)
 - Model defines different source compatibility, than the project
 - Model defines invalid source compatibility level (Java 8 for Eclipse Helios)
     - Log it as a warning and set the highest source compatibility level available in the tooling.
