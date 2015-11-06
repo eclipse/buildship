@@ -72,7 +72,7 @@ abstract class GradleModel {
     static GradleModel fromProject(File rootProjectFolder) {
         FixedRequestAttributes attributes = new FixedRequestAttributes(rootProjectFolder, null, GradleDistribution.fromBuild(), null, [], [])
         ModelRepository modelRepository = CorePlugin.modelRepositoryProvider().getModelRepository(attributes)
-        OmniEclipseGradleBuild eclipseGradleBuild = modelRepository.fetchEclipseGradleBuild(new TransientRequestAttributes(false, System.out, System.err, System.in, [], [], GradleConnector.newCancellationTokenSource().token()), FetchStrategy.LOAD_IF_NOT_CACHED)
+        OmniEclipseGradleBuild eclipseGradleBuild = modelRepository.fetchEclipseGradleBuild(new TransientRequestAttributes(false, System.out, System.err, System.in, [], [], GradleConnector.newCancellationTokenSource().token()), FetchStrategy.FORCE_RELOAD)
         new GradleModel(attributes, eclipseGradleBuild) {}
     }
 }

@@ -1,15 +1,9 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationPersistence
-import org.eclipse.buildship.core.test.fixtures.BuildshipTestSpecification
-import org.eclipse.buildship.core.test.fixtures.EclipseProjects
-import org.eclipse.buildship.core.test.fixtures.FileStructure
-import org.eclipse.buildship.core.test.fixtures.GradleModel
-import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
-import org.eclipse.buildship.core.util.logging.EclipseLogger
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer
+import java.util.List
+
+import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResourceFilterDescription
@@ -21,6 +15,16 @@ import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
+
+import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.configuration.GradleProjectNature
+import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationPersistence
+import org.eclipse.buildship.core.test.fixtures.BuildshipTestSpecification
+import org.eclipse.buildship.core.test.fixtures.EclipseProjects
+import org.eclipse.buildship.core.test.fixtures.FileStructure
+import org.eclipse.buildship.core.test.fixtures.GradleModel
+import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
+import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 
 class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
 
@@ -375,6 +379,81 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         }
     }
 
+    def "Uncoupling a project removes the Gradle nature"() {
+        setup:
+        fileStructure().create {
+            file 'sample-project/subproject-a/build.gradle'
+            file 'sample-project/subproject-b/build.gradle'
+            file 'sample-project/build.gradle'
+            file 'sample-project/settings.gradle', "include 'subproject-a', 'subproject-b'"
+        }
+        GradleModel gradleModel = loadGradleModel('sample-project')
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+
+        expect:
+        findProject('subproject-a').hasNature(GradleProjectNature.ID)
+
+        when:
+        fileStructure().create { file 'sample-project/settings.gradle', "'subproject-b'" }
+        gradleModel = loadGradleModel('sample-project')
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+
+        then:
+        !findProject('subproject-a').hasNature(GradleProjectNature.ID)
+    }
+
+    def "Uncoupling a project removes the resource filters"() {
+        setup:
+        fileStructure().create {
+            file 'sample-project/subproject-a/build.gradle'
+            file 'sample-project/subproject-b/build.gradle'
+            file 'sample-project/build.gradle'
+            file 'sample-project/settings.gradle', "include 'subproject-a', 'subproject-b'"
+        }
+        GradleModel gradleModel = loadGradleModel('sample-project')
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+
+        expect:
+        IProject project = findProject('subproject-a')
+        project.filters.length == 2
+        project.filters[0].fileInfoMatcherDescription.arguments.contains("build")
+        project.filters[1].fileInfoMatcherDescription.arguments.contains("gradle")
+
+        when:
+        fileStructure().create { file 'sample-project/settings.gradle', "'subproject-b'" }
+        gradleModel = loadGradleModel('sample-project')
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+
+        then:
+        project == findProject('subproject-a')
+        project.filters.length == 0
+    }
+
+    def "Uncoupling a project removes the settings file"() {
+        setup:
+        fileStructure().create {
+            file 'sample-project/subproject-a/build.gradle'
+            file 'sample-project/subproject-b/build.gradle'
+            file 'sample-project/build.gradle'
+            file 'sample-project/settings.gradle', "include 'subproject-a', 'subproject-b'"
+        }
+        GradleModel gradleModel = loadGradleModel('sample-project')
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+
+        expect:
+        IProject project = findProject('subproject-a')
+        new File(project.location.toFile(), '.settings/gradle.prefs').exists()
+
+        when:
+        fileStructure().create { file 'sample-project/settings.gradle', "'subproject-b'" }
+        gradleModel = loadGradleModel('sample-project')
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+
+        then:
+        project == findProject('subproject-a')
+        !new File(project.location.toFile(), '.settings/gradle.prefs').exists()
+    }
+
     // -- helper methods --
 
     private static def executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(GradleModel gradleModel) {
@@ -384,12 +463,7 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         Job job = new Job('') {
             protected IStatus run(IProgressMonitor monitor) {
                 Job.jobManager.beginRule(LegacyEclipseSpockTestHelper.workspace.root, monitor)
-                new DefaultWorkspaceGradleOperations().synchronizeGradleProjectWithWorkspaceProject(
-                        gradleModel.eclipseProject('sample-project'),
-                        gradleModel.build,
-                        gradleModel.attributes,
-                        [],
-                        new NullProgressMonitor())
+                new DefaultWorkspaceGradleOperations().synchronizeGradleBuildWithWorkspace(gradleModel.build, gradleModel.attributes, [], new NullProgressMonitor())
                 Job.jobManager.endRule(LegacyEclipseSpockTestHelper.workspace.root)
                 Status.OK_STATUS
             }
