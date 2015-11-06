@@ -50,12 +50,12 @@ public final class RunTestAction extends Action implements SelectionSpecificActi
 
     @Override
     public boolean isVisibleFor(NodeSelection selection) {
-        return !selection.isEmpty() && FluentIterable.from(selection.getNodes(OperationItem.class)).anyMatch(TEST_OPERATION_ITEM_PREDICATE);
+        return !selection.isEmpty() && FluentIterable.from(selection.toList(OperationItem.class)).anyMatch(TEST_OPERATION_ITEM_PREDICATE);
     }
 
     @Override
     public boolean isEnabledFor(NodeSelection selection) {
-        return !selection.isEmpty() && FluentIterable.from(selection.getNodes(OperationItem.class)).allMatch(TEST_OPERATION_ITEM_PREDICATE);
+        return !selection.isEmpty() && FluentIterable.from(selection.toList(OperationItem.class)).allMatch(TEST_OPERATION_ITEM_PREDICATE);
     }
 
     @Override
@@ -64,7 +64,7 @@ public final class RunTestAction extends Action implements SelectionSpecificActi
     }
 
     private List<TestOperationDescriptor> collectSelectedTests(NodeSelection nodeSelection) {
-        return FluentIterable.from(nodeSelection.getNodes(OperationItem.class)).filter(TEST_OPERATION_ITEM_PREDICATE).transform(new Function<OperationItem, TestOperationDescriptor>() {
+        return FluentIterable.from(nodeSelection.toList(OperationItem.class)).filter(TEST_OPERATION_ITEM_PREDICATE).transform(new Function<OperationItem, TestOperationDescriptor>() {
 
             @Override
             public TestOperationDescriptor apply(OperationItem operationItem) {

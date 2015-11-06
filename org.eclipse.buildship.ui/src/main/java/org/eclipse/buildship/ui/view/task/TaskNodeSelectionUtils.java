@@ -99,10 +99,10 @@ public final class TaskNodeSelectionUtils {
 
     private static Optional<FixedRequestAttributes> getFixedRequestAttributes(NodeSelection selection) {
         if (TaskViewActionStateRules.taskScopedTaskExecutionActionsEnabledFor(selection)) {
-            TaskNode taskNode = selection.getFirstNode(TaskNode.class);
+            TaskNode taskNode = selection.getFirstElement(TaskNode.class);
             return getFixedRequestAttributes(taskNode.getParentProjectNode());
         } else if (TaskViewActionStateRules.projectScopedTaskExecutionActionsEnabledFor(selection)) {
-            ProjectNode projectNode = selection.getFirstNode(ProjectNode.class);
+            ProjectNode projectNode = selection.getFirstElement(ProjectNode.class);
             return getFixedRequestAttributes(projectNode);
         } else {
             throw new IllegalStateException("Unsupported selection: " + selection);
@@ -123,7 +123,7 @@ public final class TaskNodeSelectionUtils {
         if (TaskViewActionStateRules.taskScopedTaskExecutionActionsEnabledFor(selection)) {
             // running the set of project tasks and task selectors
             ImmutableList.Builder<String> taskStrings = ImmutableList.builder();
-            for (TaskNode node : selection.getNodes(TaskNode.class)) {
+            for (TaskNode node : selection.toList(TaskNode.class)) {
                 TaskNode.TaskNodeType type = node.getType();
                 switch (type) {
                     case PROJECT_TASK_NODE:
@@ -149,11 +149,11 @@ public final class TaskNodeSelectionUtils {
         if (TaskViewActionStateRules.taskScopedTaskExecutionActionsEnabledFor(selection)) {
             // task selectors need to be run from the direct parent directory, project tasks can be run
             // from any directory as long as the tasks are fully qualified
-            TaskNode taskNode = selection.getFirstNode(TaskNode.class);
+            TaskNode taskNode = selection.getFirstElement(TaskNode.class);
             return getProjectDirectoryExpression(taskNode.getParentProjectNode());
         } else if (TaskViewActionStateRules.projectScopedTaskExecutionActionsEnabledFor(selection)) {
             // the default tasks of a project must be run from the direct parent directory (obviously)
-            ProjectNode projectNode = selection.getFirstNode(ProjectNode.class);
+            ProjectNode projectNode = selection.getFirstElement(ProjectNode.class);
             return getProjectDirectoryExpression(projectNode);
         } else {
             throw new IllegalStateException("Unsupported selection: " + selection);

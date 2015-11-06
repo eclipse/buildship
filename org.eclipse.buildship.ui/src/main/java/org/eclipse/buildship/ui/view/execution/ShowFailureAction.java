@@ -56,7 +56,7 @@ public final class ShowFailureAction extends Action implements SelectionSpecific
         }
 
         List<FinishEvent> result = Lists.newArrayList();
-        ImmutableList<OperationItem> operationItems = selection.getNodes(OperationItem.class);
+        ImmutableList<OperationItem> operationItems = selection.toList(OperationItem.class);
         for (OperationItem operationItem : operationItems) {
             FinishEvent finishEvent = operationItem.getFinishEvent();
             if (finishEvent != null && finishEvent.getResult() instanceof FailureResult) {
@@ -77,7 +77,7 @@ public final class ShowFailureAction extends Action implements SelectionSpecific
         }
 
         // at least one selected node must have a failure
-        ImmutableList<OperationItem> operationItems = selection.getNodes(OperationItem.class);
+        ImmutableList<OperationItem> operationItems = selection.toList(OperationItem.class);
         return FluentIterable.from(operationItems).anyMatch(new Predicate<OperationItem>() {
             @Override
             public boolean apply(OperationItem operationItem) {
@@ -98,7 +98,7 @@ public final class ShowFailureAction extends Action implements SelectionSpecific
         }
 
         // all selected nodes must have a failure
-        ImmutableList<OperationItem> operationItems = selection.getNodes(OperationItem.class);
+        ImmutableList<OperationItem> operationItems = selection.toList(OperationItem.class);
         return FluentIterable.from(operationItems).allMatch(new Predicate<OperationItem>() {
             @Override
             public boolean apply(OperationItem operationItem) {

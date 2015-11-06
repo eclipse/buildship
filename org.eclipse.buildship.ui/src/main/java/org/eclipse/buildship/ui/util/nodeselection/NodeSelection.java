@@ -40,7 +40,7 @@ public final class NodeSelection implements IStructuredSelection {
 
     @Override
     public boolean isEmpty() {
-        return getNodes().isEmpty();
+        return this.nodes.isEmpty();
     }
 
     /**
@@ -58,47 +58,18 @@ public final class NodeSelection implements IStructuredSelection {
     }
 
     /**
-     * Returns the first node.
-     *
-     * @return the first node
-     * @throws java.lang.IllegalStateException thrown if the selection is empty
-     */
-    // TODO remove this method and use getFirstElement(), which is defined by
-    // IStructuredSelection
-    public Object getFirstNode() {
-        if (isEmpty()) {
-            throw new IllegalStateException("Selection is empty.");
-        } else {
-            return this.nodes.get(0);
-        }
-    }
-
-    /**
      * Returns the first node where the first node is expected to be of the given type.
      *
      * @param expectedType the expected type of the first node
      * @return the first node
      * @throws java.lang.IllegalStateException thrown if the selection is empty
      */
-    // TODO rename this method to getFirstElement(Class<T> expectedType) to have
-    // consistent names
-    public <T> T getFirstNode(Class<T> expectedType) {
+    public <T> T getFirstElement(Class<T> expectedType) {
         if (isEmpty()) {
             throw new IllegalStateException("Selection is empty.");
         } else {
             return expectedType.cast(this.nodes.get(0));
         }
-    }
-
-    /**
-     * Returns a list of all nodes.
-     *
-     * @return the list of all nodes
-     */
-    // TODO rename this method to "toList" to have
-    // consistent names
-    public ImmutableList<?> getNodes() {
-        return this.nodes;
     }
 
     /**
@@ -108,9 +79,7 @@ public final class NodeSelection implements IStructuredSelection {
      * @return the list of all nodes
      * @throws ClassCastException thrown if a node is not of the expected type
      */
-    // TODO rename this method to "toList" to have
-    // consistent names
-    public <T> ImmutableList<T> getNodes(final Class<T> expectedType) {
+    public <T> ImmutableList<T> toList(final Class<T> expectedType) {
         return FluentIterable.from(this.nodes).transform(new Function<Object, T>() {
 
             @Override
@@ -176,10 +145,10 @@ public final class NodeSelection implements IStructuredSelection {
         List<Object> result = Lists.newArrayList(this.nodes);
 
         // remove those nodes that are not in the new selection anymore
-        result.retainAll(newSelection.getNodes());
+        result.retainAll(newSelection.toList());
 
         // add those nodes that are new in the new selection
-        ImmutableList<?> newlySelected = removeAll(newSelection.getNodes(), result);
+        ImmutableList<?> newlySelected = removeAll(newSelection.toList(), result);
         result.addAll(newlySelected);
 
         return new NodeSelection(result);
