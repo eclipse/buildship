@@ -165,7 +165,9 @@ class ResourceFilterTest extends Specification {
 
         when:
         ResourceFilter.attachFilters(project, [ toFile(project.getFolder('filtered')) ], null)
+        project.refreshLocal(IResource.DEPTH_INFINITE, null)
         ResourceFilter.detachAllFilters(project, null)
+        project.refreshLocal(IResource.DEPTH_INFINITE, null)
 
         then:
         !workspace().validateFiltered(project.getFolder('manuallyfiltered')).isOK()
