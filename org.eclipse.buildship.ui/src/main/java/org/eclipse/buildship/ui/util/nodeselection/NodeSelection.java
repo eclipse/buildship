@@ -7,9 +7,13 @@
  *
  * Contributors:
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
+ *     Simon Scholz <simon.scholz@vogella.com> - Bug 479243
  */
 
 package org.eclipse.buildship.ui.util.nodeselection;
+
+import java.util.Iterator;
+import java.util.List;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -17,15 +21,14 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-
-import java.util.List;
 
 /**
  * Provides information about a given set of selected nodes.
  */
-public final class NodeSelection {
+public final class NodeSelection implements IStructuredSelection {
 
     private static final NodeSelection EMPTY = new NodeSelection(ImmutableList.of());
 
@@ -35,13 +38,9 @@ public final class NodeSelection {
         this.nodes = ImmutableList.copyOf(nodes);
     }
 
-    /**
-     * Returns whether the selection is empty.
-     *
-     * @return {@code true} if the selection is empty, {@code false} otherwise
-     */
+    @Override
     public boolean isEmpty() {
-        return this.nodes.isEmpty();
+        return getNodes().isEmpty();
     }
 
     /**
@@ -50,7 +49,12 @@ public final class NodeSelection {
      * @return {@code true} if a single node is selected, {@code false} otherwise
      */
     public boolean isSingleSelection() {
-        return this.nodes.size() == 1;
+        return size() == 1;
+    }
+
+    @Override
+    public Object getFirstElement() {
+        return isEmpty() ? null : this.nodes.get(0);
     }
 
     /**
@@ -59,6 +63,8 @@ public final class NodeSelection {
      * @return the first node
      * @throws java.lang.IllegalStateException thrown if the selection is empty
      */
+    // TODO remove this method and use getFirstElement(), which is defined by
+    // IStructuredSelection
     public Object getFirstNode() {
         if (isEmpty()) {
             throw new IllegalStateException("Selection is empty.");
@@ -74,6 +80,8 @@ public final class NodeSelection {
      * @return the first node
      * @throws java.lang.IllegalStateException thrown if the selection is empty
      */
+    // TODO rename this method to getFirstElement(Class<T> expectedType) to have
+    // consistent names
     public <T> T getFirstNode(Class<T> expectedType) {
         if (isEmpty()) {
             throw new IllegalStateException("Selection is empty.");
@@ -87,6 +95,8 @@ public final class NodeSelection {
      *
      * @return the list of all nodes
      */
+    // TODO rename this method to "toList" to have
+    // consistent names
     public ImmutableList<?> getNodes() {
         return this.nodes;
     }
@@ -98,6 +108,8 @@ public final class NodeSelection {
      * @return the list of all nodes
      * @throws ClassCastException thrown if a node is not of the expected type
      */
+    // TODO rename this method to "toList" to have
+    // consistent names
     public <T> ImmutableList<T> getNodes(final Class<T> expectedType) {
         return FluentIterable.from(this.nodes).transform(new Function<Object, T>() {
 
@@ -106,6 +118,26 @@ public final class NodeSelection {
                 return expectedType.cast(input);
             }
         }).toList();
+    }
+
+    @Override
+    public Iterator<?> iterator() {
+        return this.nodes.iterator();
+    }
+
+    @Override
+    public int size() {
+        return this.nodes.size();
+    }
+
+    @Override
+    public Object[] toArray() {
+        return this.nodes.toArray();
+    }
+
+    @Override
+    public List<?> toList() {
+        return this.nodes;
     }
 
     /**

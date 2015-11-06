@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
+ *     Simon Scholz <simon.scholz@vogella.com> - Bug 479243
  */
 
 package org.eclipse.buildship.ui.view.task;
@@ -15,6 +16,9 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.common.NotDefinedException;
+import org.eclipse.core.expressions.IEvaluationContext;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.ui.ISources;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -28,29 +32,22 @@ import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 
     @Override
     public void setEnabled(Object evaluationContext) {
-        boolean enabled;
-        TaskView taskView = getTaskView();
-        if (taskView != null) {
-            NodeSelection selectionHistory = taskView.getSelection();
-            enabled = isEnabledFor(selectionHistory);
-        } else {
-            enabled = false;
+        boolean enabled = false;
+        if (evaluationContext instanceof IEvaluationContext) {
+            IEvaluationContext evalContext = (IEvaluationContext) evaluationContext;
+            // getting the current ISelection from the IEvaluationContext
+            // See https://wiki.eclipse.org/Command_Core_Expressions
+            Object variable = evalContext.getVariable(ISources.ACTIVE_CURRENT_SELECTION_NAME);
+            if (variable instanceof NodeSelection) {
+                enabled = isEnabledFor((NodeSelection) variable);
+            }
         }
         setBaseEnabled(enabled);
     }
 
     protected NodeSelection getSelectionHistory(ExecutionEvent event) {
-        TaskView taskView = getTaskView(event);
-        if (taskView == null) {
-            throw new IllegalStateException(String.format("Cannot execute command '%s' in current window.", getCommandName(event)));
-        }
-
-        NodeSelection selectionHistory = taskView.getSelection();
-        if (!isEnabledFor(selectionHistory)) {
-            throw new IllegalStateException(String.format("Cannot execute command '%s' for current selection.", getCommandName(event)));
-        }
-
-        return selectionHistory;
+        ISelection currentSelection = HandlerUtil.getCurrentSelection(event);
+        return NodeSelection.from(currentSelection);
     }
 
     protected abstract boolean isEnabledFor(NodeSelection selection);
