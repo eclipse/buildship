@@ -11,9 +11,8 @@
 
 package org.eclipse.buildship.ui.notification;
 
-import org.eclipse.swt.widgets.Shell;
-
 import org.eclipse.buildship.core.notification.UserNotification;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 /**
@@ -21,15 +20,24 @@ import org.eclipse.ui.PlatformUI;
  */
 public final class DialogUserNotification implements UserNotification {
 
+    private volatile ExceptionDetailsDialog dialog;
+
     @Override
-    public void errorOccurred(final String headline, final String message, final String details, final int severity, final Throwable throwable) {
+    public void errorOccurred(final String headline, final String message, final String details, final int severity,
+            final Throwable... throwables) {
         PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 
             @Override
             public void run() {
                 Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
-                ExceptionDetailsDialog dialog = new ExceptionDetailsDialog(shell, headline,  message, details, severity, throwable);
-                dialog.open();
+                if (DialogUserNotification.this.dialog == null || DialogUserNotification.this.dialog.getShell() == null
+                        || DialogUserNotification.this.dialog.getShell().isDisposed()) {
+                    DialogUserNotification.this.dialog = new ExceptionDetailsDialog(shell, headline, message, details,
+                            severity, throwables);
+                    DialogUserNotification.this.dialog.open();
+                } else {
+                    DialogUserNotification.this.dialog.addException(throwables);
+                }
             }
         });
     }
