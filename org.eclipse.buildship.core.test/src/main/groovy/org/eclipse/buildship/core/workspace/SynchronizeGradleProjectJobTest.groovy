@@ -43,6 +43,7 @@ class SynchronizeGradleProjectJobTest extends ProjectImportSpecification {
         IProject project = findProject('moduleB')
         project != null
         !GradleProjectNature.INSTANCE.isPresentOn(project)
+        project.getFolder('.settings').exists()
         !project.getFolder('.settings').getFile('gradle.prefs').exists()
     }
 
