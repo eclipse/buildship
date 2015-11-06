@@ -62,7 +62,7 @@ public final class TaskViewActionStateRules {
 
     private static boolean taskNodesBelongToSameParentProjectNode(NodeSelection nodeSelection) {
         Preconditions.checkArgument(!nodeSelection.isEmpty());
-        final TaskNode firstNode = (TaskNode) nodeSelection.getFirstNode();
+        final TaskNode firstNode = (TaskNode) nodeSelection.getFirstElement();
         return nodeSelection.allMatch(new Predicate<Object>() {
 
             @Override

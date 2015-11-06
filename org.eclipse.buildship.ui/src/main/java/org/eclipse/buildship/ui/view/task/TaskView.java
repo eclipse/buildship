@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
+ *     Simon Scholz <simon.scholz@vogella.com> - Bug 479243
  */
 
 package org.eclipse.buildship.ui.view.task;
@@ -134,8 +135,11 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
         });
 
         // manage the selection history as required for the task execution
-        getSite().setSelectionProvider(this.treeViewer);
-        this.selectionHistoryManager = new SelectionHistoryManager(this.getTreeViewer());
+        this.selectionHistoryManager = new SelectionHistoryManager(getTreeViewer());
+        // let the SelectionHistoryManager propagate the NodeSelection to the
+        // Workbench
+        getSite().setSelectionProvider(this.selectionHistoryManager);
+
 
         // create toolbar actions, menu items, event listeners, etc.
         this.uiContributionManager = new UiContributionManager(this);

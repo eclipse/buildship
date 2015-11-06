@@ -33,7 +33,7 @@ public final class OpenBuildScriptHandler extends SelectionDependentHandler {
     @Override
     public Object execute(ExecutionEvent event) {
         NodeSelection selectionHistory = getSelectionHistory(event);
-        for (ProjectNode projectNode : selectionHistory.getNodes(ProjectNode.class)) {
+        for (ProjectNode projectNode : selectionHistory.toList(ProjectNode.class)) {
             Optional<File> buildScript = getBuildScriptFor(projectNode);
             if (buildScript.isPresent()) {
                 EditorUtils.openInInternalEditor(buildScript.get(), true);
