@@ -11,22 +11,19 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.osgi.service.prefs.BackingStoreException;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
-
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.osgi.service.prefs.BackingStoreException;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Stores a set of strings associated with a {@link IProject} instance.
@@ -72,11 +69,7 @@ final class StringSetProjectProperty {
         ProjectScope projectScope = new ProjectScope(this.project);
         IEclipsePreferences node = projectScope.getNode(CorePlugin.PLUGIN_ID);
         String valueString = node.get(this.propertyName, "");
-        if (valueString.equals("")) {
-            return ImmutableSet.of();
-        } else {
-            return ImmutableSet.copyOf(Splitter.on(',').split(valueString));
-        }
+        return valueString.equals("") ? ImmutableSet.<String>of() : ImmutableSet.copyOf(Splitter.on(',').split(valueString));
     }
 
     private void set(Set<String> entries) {
