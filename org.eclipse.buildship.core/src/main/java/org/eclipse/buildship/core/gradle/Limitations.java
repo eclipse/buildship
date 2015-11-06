@@ -36,6 +36,7 @@ public final class Limitations {
         addIfNeeded("2.5", "No improved project classpath generation with all transitive dependencies as direct dependencies", limitations);
         addIfNeeded("2.6", "No running of tests from the Executions View", limitations);
         addIfNeeded("2.6", "No rerunning of failed tests from the Executions View", limitations);
+        addIfNeeded("2.7", "No running of test classes and methods from the Editor", limitations);
         return limitations.build();
     }
 

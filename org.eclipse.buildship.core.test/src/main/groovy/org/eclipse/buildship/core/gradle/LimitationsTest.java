@@ -11,15 +11,14 @@
 
 package org.eclipse.buildship.core.gradle;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
-
+import com.gradleware.tooling.toolingmodel.util.Pair;
 import org.gradle.util.GradleVersion;
 import org.junit.Test;
 
-import com.gradleware.tooling.toolingmodel.util.Pair;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Limitations test.
@@ -49,14 +48,14 @@ public class LimitationsTest {
     public void someLimitationWhenUsingFinalVersionOf24() {
         Limitations limitations = new Limitations(GradleVersion.version("2.4"));
         List<Pair<GradleVersion, String>> limitationDetails = limitations.getLimitations();
-        assertEquals(limitationDetails.size(), 4);
+        assertEquals(limitationDetails.size(), 5);
     }
 
     @Test
     public void someLimitationWhenUsingSnapshotVersionOf24() {
         Limitations limitations = new Limitations(GradleVersion.version("2.4-20150101053008+0000"));
         List<Pair<GradleVersion, String>> limitationDetails = limitations.getLimitations();
-        assertEquals(limitationDetails.size(), 4);
+        assertEquals(limitationDetails.size(), 5);
     }
 
 }
