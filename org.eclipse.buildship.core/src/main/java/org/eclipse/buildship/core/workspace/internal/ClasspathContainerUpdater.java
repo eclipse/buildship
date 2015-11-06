@@ -13,15 +13,21 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
+
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
+
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -67,10 +73,15 @@ final class ClasspathContainerUpdater {
                     public IClasspathEntry apply(OmniEclipseProjectDependency dependency) {
                         OmniEclipseProject dependentProject = ClasspathContainerUpdater.this.gradleProject.getRoot()
                                 .tryFind(Specs.eclipseProjectMatchesProjectPath(dependency.getTargetProjectPath())).get();
-                        IPath path = new Path("/" + dependentProject.getName());
-                        return JavaCore.newProjectEntry(path, dependency.isExported());
+                        Optional<IProject> dependantWorkspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(dependentProject.getProjectDirectory());
+                        if (dependantWorkspaceProject.isPresent()) {
+                            return JavaCore.newProjectEntry(dependantWorkspaceProject.get().getFullPath(), dependency.isExported());
+                        } else {
+                            CorePlugin.logger().warn("Can't locate project " + dependentProject.getName() + " in workspace");
+                            return null;
+                        }
                     }
-                }).toList();
+                }).filter(Predicates.notNull()).toList();
 
         // external dependencies
         List<IClasspathEntry> externalDependencies = FluentIterable.from(this.gradleProject.getExternalDependencies()).filter(new Predicate<OmniExternalDependency>() {

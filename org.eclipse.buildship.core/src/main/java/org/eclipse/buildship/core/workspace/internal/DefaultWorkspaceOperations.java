@@ -373,4 +373,38 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         }
     }
 
+    @Override
+    public IProject renameProject(IProject project, String newName, IProgressMonitor monitor) {
+        // validate arguments
+        Preconditions.checkNotNull(project);
+        Preconditions.checkNotNull(newName);
+        Preconditions.checkArgument(project.isAccessible(), "Project must be open.");
+
+        monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
+        monitor.beginTask(String.format("Rename project %s to %s", project.getName(), newName), 1);
+        try {
+            // don't modify the project name if is located under the workspace root
+            IPath location = project.getLocation();
+            if (location != null && isDirectChildOfWorkspaceRootFolder(location.toFile())) {
+                return project;
+            }
+
+            // verify that the new name is not in use
+            Preconditions.checkState(!findProjectByName(newName).isPresent(), String.format("Workspace already contains a project with name %s.", newName));
+
+            // to rename the project the path has to be modified
+            // see org.eclipse.pde.internal.ui.refactoring.RenameProjectChange#perform()
+            IPath projectPath = project.getFullPath();
+            IPath newPath = projectPath.removeLastSegments(1).append(newName);
+            // TODO (donat) consider implementing full refactoring support
+            project.move(newPath, IResource.SHALLOW, new SubProgressMonitor(monitor,1));
+            return ResourcesPlugin.getWorkspace().getRoot().getProject(newName);
+        } catch (Exception e) {
+            String message = String.format("Cannot rename project %s to %s", project.getName(), newName);
+            throw new GradlePluginsRuntimeException(message, e);
+        } finally {
+            monitor.done();
+        }
+    }
+
 }

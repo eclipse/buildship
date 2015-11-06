@@ -140,4 +140,21 @@ public interface WorkspaceOperations {
      */
     void removeNature(IProject project, String natureId, IProgressMonitor monitor);
 
+    /**
+     * Renames the project.
+     * <p/>
+     * If the project is located directly under the workspace root, then no change is performed.
+     * <p/>
+     * Important note: renaming a project changes the path making the target project reference
+     * obsolete. The reference should be updated with returned one.
+     *
+     * @param project the target project
+     * @param newName the name to rename the project to
+     * @param monitor the monitor to report progress on
+     * @return the reference of the new, renamed project
+     * @throws org.eclipse.buildship.core.GradlePluginsRuntimeException if the operation fails or a
+     *             project already exists in the workspace with the same name
+     */
+    IProject renameProject(IProject project, String newName, IProgressMonitor monitor);
+
 }
