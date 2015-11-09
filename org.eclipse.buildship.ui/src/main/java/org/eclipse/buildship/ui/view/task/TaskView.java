@@ -134,7 +134,7 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
 
         // manage the selection history as required for the task execution and let the
         // SelectionHistoryManager propagate the NodeSelection to the Workbench
-        this.selectionHistoryManager = new SelectionHistoryManager(getTreeViewer());
+        this.selectionHistoryManager = new SelectionHistoryManager(this.treeViewer);
         getSite().setSelectionProvider(this.selectionHistoryManager);
 
 
