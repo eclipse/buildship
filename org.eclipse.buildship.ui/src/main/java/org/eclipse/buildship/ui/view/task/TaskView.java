@@ -12,10 +12,14 @@
 
 package org.eclipse.buildship.ui.view.task;
 
-import java.util.Set;
-
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.ui.external.viewer.FilteredTree;
+import org.eclipse.buildship.ui.external.viewer.PatternFilter;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelectionProvider;
+import org.eclipse.buildship.ui.util.nodeselection.SelectionHistoryManager;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.ILabelDecorator;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -34,13 +38,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.ui.external.viewer.FilteredTree;
-import org.eclipse.buildship.ui.external.viewer.PatternFilter;
-import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
-import org.eclipse.buildship.ui.util.nodeselection.NodeSelectionProvider;
-import org.eclipse.buildship.ui.util.nodeselection.SelectionHistoryManager;
+import java.util.Set;
 
 /**
  * A view displaying the Gradle tasks of the Gradle projects in the workspace.
@@ -82,7 +80,7 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
 
         // if there is a problem loading the task data, show an error label
         this.errorInputPage = new Label(this.pages, SWT.NONE);
-        this.errorInputPage.setText(TaskViewMessages.Label_Reload_Problem);
+        this.errorInputPage.setText(TaskViewMessages.Label_Reload_Error);
         this.errorInputPage.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_RED));
 
         // if there is task data to display, show the task tree and the search label on the bottom

@@ -21,7 +21,7 @@ public final class TaskViewMessages extends NLS {
     private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.view.task.TaskViewMessages"; //$NON-NLS-1$
 
     public static String Label_No_Gradle_Projects;
-    public static String Label_Reload_Problem;
+    public static String Label_Reload_Error;
 
     public static String Tree_Column_Name_Text;
     public static String Tree_Column_Description_Text;
