@@ -26,8 +26,7 @@ public final class DialogUserNotification implements UserNotification {
 
     @Override
     public void errorOccurred(final String headline, final String message, final String details, final int severity, final Throwable throwable) {
-        // since the dialog is always accessed from the UI thread there is no need for
-        // further synchronization
+        // dialogs can be opened only from the UI thread; consequently no synchronization needed on the dialog reference
         PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
             @Override
