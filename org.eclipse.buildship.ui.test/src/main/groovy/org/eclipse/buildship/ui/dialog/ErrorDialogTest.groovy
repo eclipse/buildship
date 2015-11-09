@@ -11,23 +11,14 @@
 
 package org.eclipse.buildship.ui.dialog
 
-import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.ui.i18n.UiMessages
 import org.eclipse.buildship.ui.notification.ExceptionDetailsDialog
 import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification
 import org.eclipse.core.runtime.IStatus
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.IDialogConstants
-import org.eclipse.swt.SWT
-import org.eclipse.swt.widgets.Display
-import org.eclipse.swt.widgets.Shell
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException
-import org.eclipse.swtbot.swt.finder.utils.SWTUtils
 import org.eclipse.swtbot.swt.finder.waits.Conditions
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotTable
 import org.eclipse.ui.PlatformUI
-
 
 class ErrorDialogTest extends SwtBotSpecification {
 
@@ -51,7 +42,7 @@ class ErrorDialogTest extends SwtBotSpecification {
             dialog.blockOnOpen = false
             dialog.open()
         }
-        bot.waitUntil(Conditions.shellIsActive(UiMessages.Dialog_Title_Multiple_Error))
+        bot.waitUntil(Conditions.shellIsActive(UiMessages.Dialog_Title_Multiple_Errors))
 
         when:
         bot.table()
@@ -68,7 +59,7 @@ class ErrorDialogTest extends SwtBotSpecification {
             dialog.blockOnOpen = false
             dialog.open()
         }
-        bot.waitUntil(Conditions.shellIsActive(UiMessages.Dialog_Title_Multiple_Error))
+        bot.waitUntil(Conditions.shellIsActive(UiMessages.Dialog_Title_Multiple_Errors))
 
         when:
         bot.table().getTableItem(1).select()
@@ -88,7 +79,7 @@ class ErrorDialogTest extends SwtBotSpecification {
             dialog.open()
         }
 
-        bot.waitUntil(Conditions.shellIsActive(UiMessages.Dialog_Title_Multiple_Error))
+        bot.waitUntil(Conditions.shellIsActive(UiMessages.Dialog_Title_Multiple_Errors))
 
         when:
         bot.button(IDialogConstants.SHOW_DETAILS_LABEL).click()

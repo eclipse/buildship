@@ -11,30 +11,16 @@
 
 package org.eclipse.buildship.ui.notification;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
-
+import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.i18n.UiMessages;
+import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.SameShellProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
@@ -46,19 +32,15 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Widget;
+import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.i18n.UiMessages;
-import org.eclipse.buildship.ui.util.font.FontUtils;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.*;
+import java.util.List;
 
 /**
  * Custom {@link Dialog} implementation showing one or more exceptions.
@@ -291,7 +273,7 @@ public final class ExceptionDetailsDialog extends Dialog {
         setExceptionsViewerInput(this.throwables);
 
         if (this.throwables.size() > 1) {
-            setDialogTitle(UiMessages.Dialog_Title_Multiple_Error);
+            setDialogTitle(UiMessages.Dialog_Title_Multiple_Errors);
             showMultiError();
         } else {
             setDialogTitle(title);
