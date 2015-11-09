@@ -12,18 +12,13 @@
 
 package org.eclipse.buildship.ui.view.task;
 
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.expressions.IEvaluationContext;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.ISources;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
-
-import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 
 /**
  * Base class for all {@code AbstractHandler} classes that contain execution logic that depends on the current selection.
@@ -51,30 +46,5 @@ import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
     }
 
     protected abstract boolean isEnabledFor(NodeSelection selection);
-
-    protected TaskView getTaskView() {
-        IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-        if (workbenchWindow != null) {
-            return (TaskView) workbenchWindow.getActivePage().findView(TaskView.ID);
-        }
-        return null;
-    }
-
-    protected TaskView getTaskView(ExecutionEvent event) {
-        IWorkbenchWindow workbenchWindow = HandlerUtil.getActiveWorkbenchWindow(event);
-        if (workbenchWindow != null) {
-            return (TaskView) workbenchWindow.getActivePage().findView(TaskView.ID);
-        }
-        return null;
-    }
-
-    protected String getCommandName(ExecutionEvent event) {
-        Command command = event.getCommand();
-        try {
-            return command.getName();
-        } catch (NotDefinedException e) {
-            return "Unknown";
-        }
-    }
 
 }
