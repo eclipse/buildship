@@ -39,7 +39,6 @@ class ErrorDialogTest extends SwtBotSpecification {
          executeInUiThread {
             def dialog = new ExceptionDetailsDialog(PlatformUI.workbench.display.activeShell, 'title', 'message', 'details', IStatus.WARNING, new RuntimeException('first'))
             dialog.addException(new RuntimeException('second'))
-            dialog.blockOnOpen = false
             dialog.open()
         }
         bot.waitUntil(Conditions.shellIsActive(UiMessages.Dialog_Title_Multiple_Errors))
@@ -56,7 +55,6 @@ class ErrorDialogTest extends SwtBotSpecification {
         executeInUiThread {
             def dialog = new ExceptionDetailsDialog(PlatformUI.workbench.display.activeShell, 'title', 'message', 'details', IStatus.WARNING, new RuntimeException('first'))
             dialog.addException(new RuntimeException('second'))
-            dialog.blockOnOpen = false
             dialog.open()
         }
         bot.waitUntil(Conditions.shellIsActive(UiMessages.Dialog_Title_Multiple_Errors))
@@ -75,7 +73,6 @@ class ErrorDialogTest extends SwtBotSpecification {
         executeInUiThread {
             def dialog = new ExceptionDetailsDialog(PlatformUI.workbench.display.activeShell, 'title', 'message', 'details', IStatus.WARNING, new RuntimeException('first'))
             dialog.addException(new RuntimeException('second'))
-            dialog.blockOnOpen = false
             dialog.open()
         }
 
