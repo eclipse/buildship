@@ -1,6 +1,6 @@
 # Dependencies View
 
-## Refresh the configuration of an imported project
+## ~~Refresh the configuration of an imported project~~
 
 ### Requested Change
 

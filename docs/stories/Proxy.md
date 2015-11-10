@@ -1,4 +1,4 @@
-### Story: Integrate Eclipse proxy settings into Buildship model loading and task execution
+### ~~Story: Integrate Eclipse proxy settings into Buildship model loading and task execution~~
 
 This story is a follow-up on [Bug 471943 - Make Buildship work behind the firewall](https://bugs.eclipse.org/bugs/show_bug.cgi?id=471943). The goal is to forward Eclipse's proxy settings to Gradle upon all interactions, including the model retrievals and the task executions.
 

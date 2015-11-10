@@ -70,7 +70,7 @@ In order to allow development of Buildship with Buildship, the import logic need
 Buildship should support the development of Eclipse plugins written in Java.
 
 
-## Support re-importing a project
+## ~~Support re-importing a project~~
 
 ### Requested Change
 
@@ -137,7 +137,7 @@ If available, import the _buildSrc_ folder into the workspace as a separate Ecli
 Build authors often make use the _buildSrc_ folder in non-trivial projects.
 
 
-## Project creation wizard
+## ~~Project creation wizard~~
 
 ### Requested Change
 

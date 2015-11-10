@@ -188,19 +188,6 @@ Currently, the only way to pass task-specific arguments is by mixing them into t
 we need a specific API for task-specific arguments.
 
 
-## Provide model information about JDK, sourceCompatibility, and targetCompatibility
-
-### Requested Change
-
-For each Java project, provide model information about the Java version to use for compilation and execution. Also provide
-model information about the sourceCompatibility and targetCompatibility.
-
-### Motivation
-
-For each project that we set up as a Java project in Eclipse during the import, we need the information about JDK, sourceCompatibility,
-and targetCompatibility in order to properly set up the Eclipse project.
-
-
 ## Provide new Plugins Model
 
 ### Requested Change

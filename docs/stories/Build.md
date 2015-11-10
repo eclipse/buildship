@@ -1,28 +1,5 @@
 # Gradle-based Eclipse project build
 
-## Include extension elements in uptodate checks
-
-### Requested Change
-
-Extend the uptodate checks of the tasks provided by the `eclipsebuild` package to also respect changes to
-the extension element that they makes use of. Use convention mappings to solve this problem.
-
-### Motivation
-
-All tasks must properly participate in the uptodate checks.
-
-
-## Make use of NamedDomainObjectContainer for target platform definitions
-
-### Requested Change
-
-Make use of the `NamedDomainObjectContainer` approach to define the target platforms in the root project.
-
-### Motivation
-
-The current DSL to define the target platforms in the `BuildDefinitionPlugin` in the root Gradle build file
-is not the typical way of doing it in Gradle.
-
 
 ## ~~Only declare plugin dependencies in the MANIFEST.MF file~~
 
