@@ -11,39 +11,25 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSet.Builder;
-
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-
+import com.google.common.collect.ImmutableList.Builder;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.object.MoreObjects;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
+import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.*;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Default implementation of the {@link WorkspaceOperations} interface.
@@ -267,10 +253,10 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     private void setClasspathOnProject(IJavaProject javaProject, IPath jrePath, IClasspathEntry classpathContainerEntry, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Configure sources and classpath for Eclipse project %s", javaProject.getProject().getName()), 9);
+        monitor.beginTask(String.format("Configure sources and classpath for Eclipse project %s", javaProject.getProject().getName()), 10);
         try {
             // create a new holder for all classpath entries
-            Builder<IClasspathEntry> entries = ImmutableSet.builder();
+            Builder<IClasspathEntry> entries = ImmutableList.builder();
 
             // add the library with the JRE dependencies
             entries.add(JavaCore.newContainerEntry(jrePath));
@@ -282,22 +268,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             entries.add(classpathContainerEntry);
             monitor.worked(1);
 
-            // if the project already defines classpath entries, then include them on the new
-            // classpath too, except if it's the Gradle classpath container
-            if (!projectHasDefaultClasspath(javaProject)) {
-                IClasspathEntry[] existingEnties = javaProject.getRawClasspath();
-                IPath classpathContainerPath = classpathContainerEntry.getPath();
-                for (IClasspathEntry existingEntry : existingEnties) {
-                    IPath existingEntryPath = existingEntry.getPath();
-                    if (!existingEntryPath.equals(classpathContainerPath)) {
-                        entries.add(existingEntry);
-                    }
-                }
-            }
-            monitor.worked(1);
-
             // assign the whole classpath at once to the project
-            Set<IClasspathEntry> entriesArray = entries.build();
+            List<IClasspathEntry> entriesArray = entries.build();
             javaProject.setRawClasspath(entriesArray.toArray(new IClasspathEntry[entriesArray.size()]), new SubProgressMonitor(monitor, 6));
         } catch (Exception e) {
             String message = String.format("Cannot configure sources and classpath for Eclipse project %s.", javaProject.getProject().getName());
@@ -305,14 +277,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         } finally {
             monitor.done();
         }
-    }
-
-    private boolean projectHasDefaultClasspath(IJavaProject javaProject) throws JavaModelException {
-        // if an IJavaProject project doesn't have a classpath defined, then it returns the default
-        // raw classpath containing only one entry, a source folder in the project's root folder
-        // see org.eclipse.jdt.internal.core.JavaProject#defaultClasspath()
-        IClasspathEntry[] classpath = javaProject.getRawClasspath();
-        return classpath.length == 1 && classpath[0].getPath().equals(javaProject.getProject().getFullPath());
     }
 
     @Override

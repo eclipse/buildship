@@ -228,7 +228,6 @@ class WorkspaceOperationsTest extends Specification {
         then:
         javaProject != null
         javaProject.getProject() == project
-        project.getFile('.classpath').exists()
     }
 
     def "Java project can't be created from null project"() {
