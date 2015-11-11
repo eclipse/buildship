@@ -355,4 +355,98 @@
              id="org.eclipse.buildship.ui">
        </plugin>
     </extension>
+    <extension
+          point="org.eclipse.core.resources.filterMatchers">
+       <filterMatcher
+             class="org.eclipse.buildship.ui.AbstractFileInfoMatcher:1"
+             id="org.eclipse.buildship.ui.filterMatcher1"
+             name="name">
+       </filterMatcher>
+    </extension>
+    <extension
+          point="org.eclipse.jdt.ui.javaElementFilters">
+       <filter
+             class="org.eclipse.buildship.ui.util.viewer.GradleChildResourcesViewerFilter"
+             description="This Filter can be used to filter Gradle resource items"
+             enabled="true"
+             id="org.eclipse.buildship.ui.packageexplorer.filter.gradle.resources"
+             name="Gradle Resources Filter">
+       </filter>
+       <filter
+             class="org.eclipse.buildship.ui.util.viewer.GradleBuildFolderViewerFilter"
+             description="This Filter can be used to filter Gradle&apos;s Build folder"
+             enabled="true"
+             id="org.eclipse.buildship.ui.packageexplorer.filter.gradle.buildfolder"
+             name="Gradle build Folder Filter">
+       </filter>
+       <filter
+             class="org.eclipse.buildship.ui.util.viewer.GradleGradleFolderViewerFilter"
+             description="This Filter can be used to filter Gradle&apos;s gradle folder"
+             enabled="false"
+             id="org.eclipse.buildship.ui.packageexplorer.filter.gradle.gradlefolder"
+             name="Gradle gradle Folder Filter">
+       </filter>
+       <filter
+             class="org.eclipse.buildship.ui.util.viewer.GradleDotGradleFolderViewerFilter"
+             description="This Filter can be used to filter Gradle&apos;s .gradle folder"
+             enabled="true"
+             id="org.eclipse.buildship.ui.packageexplorer.filter.gradle.dotgradlefolder"
+             name="Gradle .gradle Folder Filter">
+       </filter>
+    </extension>
+    <extension
+          point="org.eclipse.ui.navigator.navigatorContent">
+       <commonFilter
+             activeByDefault="true"
+             class="org.eclipse.buildship.ui.util.viewer.GradleChildResourcesViewerFilter"
+             description="This Filter can be used to filter Gradle resource items"
+             id="org.eclipse.buildship.ui.navigator.filter.gradle.resources"
+             name="Gradle Resources Filter"
+             visibleInUI="true">
+       </commonFilter>
+       <commonFilter
+             activeByDefault="true"
+             class="org.eclipse.buildship.ui.util.viewer.GradleBuildFolderViewerFilter"
+             description="This Filter can be used to filter Gradle&apos;s Build folder"
+             id="org.eclipse.buildship.ui.navigator.filter.gradle.buildfolder"
+             name="Gradle build Folder Filter"
+             visibleInUI="true">
+       </commonFilter>
+       <commonFilter
+             activeByDefault="false"
+             class="org.eclipse.buildship.ui.util.viewer.GradleGradleFolderViewerFilter"
+             description="This Filter can be used to filter Gradle&apos;s gradle folder"
+             id="org.eclipse.buildship.ui.navigator.filter.gradle.gradlefolder"
+             name="Gradle gradle Folder Filter"
+             visibleInUI="true">
+       </commonFilter>
+       <commonFilter
+             activeByDefault="true"
+             class="org.eclipse.buildship.ui.util.viewer.GradleDotGradleFolderViewerFilter"
+             description="This Filter can be used to filter Gradle&apos;s .gradle folder"
+             id="org.eclipse.buildship.ui.navigator.filter.gradle.dotgradlefolder"
+             name="Gradle .gradle Folder Filter"
+             visibleInUI="true">
+       </commonFilter>
+    </extension>
+    <extension
+          point="org.eclipse.ui.navigator.viewer">
+       <viewerContentBinding
+             viewerId="org.eclipse.ui.navigator.ProjectExplorer">
+          <includes>
+             <contentExtension
+                   pattern="org.eclipse.buildship.ui.navigator.filter.gradle.resources">
+             </contentExtension>
+             <contentExtension
+                   pattern="org.eclipse.buildship.ui.navigator.filter.gradle.buildfolder">
+             </contentExtension>
+             <contentExtension
+                   pattern="org.eclipse.buildship.ui.navigator.filter.gradle.gradlefolder">
+             </contentExtension>
+             <contentExtension
+                   pattern="org.eclipse.buildship.ui.navigator.filter.gradle.dotgradlefolder">
+             </contentExtension>
+          </includes>
+       </viewerContentBinding>
+    </extension>
 </plugin>
