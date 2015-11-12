@@ -32,6 +32,7 @@ eclipseBuild {
         eclipseVersion = '36'
         targetDefinition = file('tooling-e36.target')
         versionMapping = [
+            'org.eclipse.core.expressions'          : '3.4.200',
             'org.eclipse.core.runtime'              : '3.6.0',
             'org.eclipse.core.resources'            : '3.6.1',
             'org.eclipse.core.variables'            : '3.2.400',
@@ -62,6 +63,7 @@ eclipseBuild {
         eclipseVersion = '37'
         targetDefinition = file('tooling-e37.target')
         versionMapping = [
+            'org.eclipse.core.expressions'          : '3.4.300',
             'org.eclipse.core.runtime'              : '3.7.0',
             'org.eclipse.core.resources'            : '3.7.101',
             'org.eclipse.core.variables'            : '3.2.500',
@@ -92,6 +94,7 @@ eclipseBuild {
         eclipseVersion = '42'
         targetDefinition = file('tooling-e42.target')
         versionMapping = [
+            'org.eclipse.core.expressions'          : '3.4.401',
             'org.eclipse.core.runtime'              : '3.8.0',
             'org.eclipse.core.resources'            : '3.8.1',
             'org.eclipse.core.variables'            : '3.2.600',
@@ -122,6 +125,7 @@ eclipseBuild {
         eclipseVersion = '43'
         targetDefinition = file('tooling-e43.target')
         versionMapping = [
+            'org.eclipse.core.expressions'          : '3.4.501',
             'org.eclipse.core.runtime'              : '3.9.100',
             'org.eclipse.core.resources'            : '3.8.101',
             'org.eclipse.core.variables'            : '3.2.700',
@@ -152,6 +156,7 @@ eclipseBuild {
         eclipseVersion = '44'
         targetDefinition = file('tooling-e44.target')
         versionMapping = [
+            'org.eclipse.core.expressions'          : '3.4.600',
             'org.eclipse.core.runtime'              : '3.10.0',
             'org.eclipse.core.resources'            : '3.9.1',
             'org.eclipse.core.variables'            : '3.2.800',
@@ -182,6 +187,7 @@ eclipseBuild {
         eclipseVersion = '45'
         targetDefinition = file('tooling-e45.target')
         versionMapping = [
+            'org.eclipse.core.expressions'          : '3.5.0',
             'org.eclipse.core.runtime'              : '3.11.0',
             'org.eclipse.core.resources'            : '3.10.0',
             'org.eclipse.core.variables'            : '3.2.800',

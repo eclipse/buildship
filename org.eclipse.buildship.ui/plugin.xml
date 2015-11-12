@@ -261,7 +261,40 @@
         </launchConfigurationTabGroup>
     </extension>
 
-    <!-- properties view for tasks and projects -->
+    <!-- "Gradle Test" entry in the "Run as... " context menu -->
+    <extension
+          point="org.eclipse.debug.ui.launchShortcuts">
+       <shortcut
+             class="org.eclipse.buildship.ui.launch.TestLaunchShortcut"
+             icon="icons/full/obj16/launch_config.png"
+             id="org.eclipse.buildship.ui.shortcut.test"
+             label="Gradle Test"
+             modes="run">
+          <configurationType
+                id="org.eclipse.buildship.core.launch.runconfiguration">
+          </configurationType>
+          <contextualLaunch>
+             <contextLabel
+                   label="Gradle Test"
+                   mode="run">
+             </contextLabel>
+             <enablement>
+                <with variable="selection">
+                    <test
+                          property="org.eclipse.buildship.ui.properties.selectioncanbelaunchedastest"
+                          forcePluginActivation="true">
+                    </test>
+                </with>
+             </enablement>
+          </contextualLaunch>
+          <description
+                description="Runs the selected test with Gradle"
+                mode="run">
+          </description>
+       </shortcut>
+    </extension>
+    
+    <!-- Adapters for showing gradle items in the properties view -->
     <extension
           point="org.eclipse.core.runtime.adapters">
        <factory
@@ -354,5 +387,17 @@
        <plugin
              id="org.eclipse.buildship.ui">
        </plugin>
+    </extension>
+
+   <!-- property tester to determine whether a selection can be launched as tests -->
+   <extension
+          point="org.eclipse.core.expressions.propertyTesters">
+       <propertyTester
+             id="org.eclipse.buildship.ui.launch.testlaunchpropertytester"
+             class="org.eclipse.buildship.ui.launch.TestlaunchShortcutValidator$LaunchShortcutPropertyTester"
+             namespace="org.eclipse.buildship.ui.properties"
+             properties="selectioncanbelaunchedastest"
+             type="java.lang.Object">
+       </propertyTester>
     </extension>
 </plugin>
