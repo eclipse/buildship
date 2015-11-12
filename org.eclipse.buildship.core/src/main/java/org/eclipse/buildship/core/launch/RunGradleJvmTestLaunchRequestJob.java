@@ -28,8 +28,7 @@ import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingclient.TestConfig;
 
 /**
- * Executes tests through Gradle based on a given list of {@code IJavaElement} instances and a given
- * set of {@code GradleRunConfigurationAttributes}.
+ * Runs a Gradle test build which executes a list of test classes.
  */
 public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob {
 

@@ -33,7 +33,7 @@ import org.eclipse.buildship.core.launch.RunGradleJvmTestLaunchRequestJob;
 import org.eclipse.buildship.core.launch.RunGradleJvmTestMethodLaunchRequestJob;
 
 /**
- * Runs tests from the editor or from the package explorer.
+ * Shortcut for Gradle test launches from the Java editor or from the current selection.
  */
 public final class TestLaunchShortcut implements ILaunchShortcut {
 
@@ -51,14 +51,14 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
 
     private void launch(JavaElementResolver resolver) {
         // try to launch test methods
-        List<IMethod> methodsToLaunch = resolver.resolveMethods();
-        if (TestlaunchShortcutValidator.validateElements(methodsToLaunch)) {
-            launchMethods(methodsToLaunch);
+        List<IMethod> methods = resolver.resolveMethods();
+        if (TestlaunchShortcutValidator.validateElements(methods)) {
+            launchMethods(methods);
         } else {
             // If no test methods then try to launch test classes
-            List<IType> typesToLaunch = resolver.resolveTypes();
-            if (TestlaunchShortcutValidator.validateElements(typesToLaunch)) {
-                launchClasses(typesToLaunch);
+            List<IType> types = resolver.resolveTypes();
+            if (TestlaunchShortcutValidator.validateElements(types)) {
+                launchClasses(types);
             } else {
                 // if no classes/methods, then show a dialog
                 showNoTestsFoundDialog();
@@ -73,9 +73,9 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
         new RunGradleJvmTestMethodLaunchRequestJob(methodNames, runConfigurationAttributes).schedule();
     }
 
-    private void launchClasses(List<IType> classes) {
-        Iterable<String> typeNames = JavaElementNameCollector.collectClassNames(classes);
-        IProject project = classes.get(0).getJavaProject().getProject();
+    private void launchClasses(List<IType> types) {
+        Iterable<String> typeNames = JavaElementNameCollector.collectClassNames(types);
+        IProject project = types.get(0).getJavaProject().getProject();
         GradleRunConfigurationAttributes runConfigurationAttributes = collectRunConfigurationAttributes(project);
         new RunGradleJvmTestLaunchRequestJob(typeNames, runConfigurationAttributes).schedule();
     }

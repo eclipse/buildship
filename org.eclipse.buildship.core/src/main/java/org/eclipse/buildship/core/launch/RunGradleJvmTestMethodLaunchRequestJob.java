@@ -29,8 +29,7 @@ import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingclient.TestConfig;
 
 /**
- * Executes tests through Gradle based on a given list of {@code String}
- * instances and a given set of {@code GradleRunConfigurationAttributes}.
+ * Runs a Gradle test build which executes a list of test methods.
  */
 public final class RunGradleJvmTestMethodLaunchRequestJob extends BaseLaunchRequestJob {
 
@@ -69,8 +68,12 @@ public final class RunGradleJvmTestMethodLaunchRequestJob extends BaseLaunchRequ
 
     @Override
     protected Request<Void> createRequest() {
-        return CorePlugin.toolingClient()
-                .newTestLaunchRequest(TestConfig.forJvmTestMethods(this.classNamesWithMethods));
+        TestConfig.Builder testConfig = new TestConfig.Builder();
+        for (String className : classNamesWithMethods.keySet()) {
+            Iterable<String> methodNames = classNamesWithMethods.get(className);
+            testConfig.jvmTestMethods(className, methodNames);
+        }
+        return CorePlugin.toolingClient().newTestLaunchRequest(testConfig.build());
     }
 
     @Override

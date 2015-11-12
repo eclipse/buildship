@@ -50,8 +50,8 @@ public final class JavaElementNameCollector {
     }
 
     /**
-     * Transforms the target methods to a map where the keys are the methods' container class names
-     * and the values are the contained method names.
+     * Transforms the target methods to a map where a key is a class name and a value is a
+     * collection of method names contained by that class.
      *
      * @param methods the target methods to transform
      * @return the result method names

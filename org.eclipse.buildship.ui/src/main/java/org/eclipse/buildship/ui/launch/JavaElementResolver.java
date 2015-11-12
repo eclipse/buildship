@@ -24,25 +24,23 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeRoot;
 
 /**
- * Base class to resolve {@link IJavaElement}s from various sources to {@link IMethod} and
- * {@link IType} instances.
+ * Base class to resolve {@link IMethod} and {@link IType} instances.
  */
 public abstract class JavaElementResolver {
 
     /**
-     * Collect {@link IJavaElement} instances from the data source.
+     * Collects {@link IJavaElement} instances which can be resolved to methods and types.
      *
-     * @return the Java elements to convert
+     * @return the Java elements to be resolved
      */
     protected abstract Collection<IJavaElement> findJavaElements();
 
     /**
-     * Resolves the Java elements from returned by {@link #findJavaElements()} to {@link IMethod}
-     * instances.
+     * Resolves the items returned by {@link #findJavaElements()} to {@link IMethod} instances.
      * <p/>
-     * If a resolution can't be performed the item is skipped from the result.
+     * If an item can't be resolved then it is skipped from from the result list.
      *
-     * @return the list of resolved {@link IMethod} instances
+     * @return the resolved {@link IMethod} instances
      */
     public final List<IMethod> resolveMethods() {
         ImmutableList.Builder<IMethod> result = ImmutableList.builder();
@@ -76,15 +74,14 @@ public abstract class JavaElementResolver {
     }
 
     /**
-     * Resolves the Java elements from returned by {@link #findJavaElements()} to {@link IType}
-     * instances.
+     * Resolves the items returned by {@link #findJavaElements()} to {@link IType} instances.
      * <p/>
      * For each {@link IMethod} or {@link IField}, then the enclosing {@link IType} is returned. If
-     * the exact type can't be determined for an item, then the top-level type is returned.
+     * the exact type can't be determined then the top-level type is returned.
      * <p/>
-     * If a resolution can't be performed the item is skipped from the result.
+     * If an item can't be resolved then it is skipped from from the result list.
      *
-     * @return the list of resolved {@link IType} instances
+     * @return the resolved {@link IType} instances
      */
     public final List<IType> resolveTypes() {
         ImmutableList.Builder<IType> result = ImmutableList.builder();

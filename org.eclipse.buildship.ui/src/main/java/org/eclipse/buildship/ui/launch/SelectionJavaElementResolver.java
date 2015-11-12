@@ -41,7 +41,7 @@ public final class SelectionJavaElementResolver extends JavaElementResolver {
         return FluentIterable.from(this.adaptables).transform(new Function<Object, IJavaElement>() {
 
             @Override
-            @SuppressWarnings({"cast", "RedundantCast"})
+            @SuppressWarnings({ "cast", "RedundantCast" })
             public IJavaElement apply(Object input) {
                 return (IJavaElement) Platform.getAdapterManager().getAdapter(input, IJavaElement.class);
             }
@@ -49,12 +49,9 @@ public final class SelectionJavaElementResolver extends JavaElementResolver {
         }).filter(Predicates.notNull()).toList();
     }
 
-    @SuppressWarnings("unchecked")
     public static SelectionJavaElementResolver from(ISelection selection) {
-        if (selection instanceof IStructuredSelection) {
-            return new SelectionJavaElementResolver(((StructuredSelection) selection).toList());
-        }
-        return new SelectionJavaElementResolver(Collections.emptyList());
+        Collection<?> adaptables = selection instanceof IStructuredSelection ? ((StructuredSelection) selection).toList() : Collections.emptyList();
+        return new SelectionJavaElementResolver(adaptables);
     }
 
     /**

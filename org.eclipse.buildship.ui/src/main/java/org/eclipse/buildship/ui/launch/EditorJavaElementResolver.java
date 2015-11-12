@@ -13,6 +13,7 @@ package org.eclipse.buildship.ui.launch;
 
 import java.util.Collection;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.jdt.core.IJavaElement;
@@ -38,7 +39,7 @@ public final class EditorJavaElementResolver extends JavaElementResolver {
     private final IEditorPart editorPart;
 
     public EditorJavaElementResolver(IEditorPart editorPart) {
-        this.editorPart = editorPart;
+        this.editorPart = Preconditions.checkNotNull(editorPart);
     }
 
     @Override
@@ -68,7 +69,7 @@ public final class EditorJavaElementResolver extends JavaElementResolver {
                 }
             }
         }
-        // if the selected method is not found, then return the target type root
+        // if the selected element is not found then fall back to type opened in the editor
         return typeRoot;
     }
 
