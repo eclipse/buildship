@@ -192,7 +192,7 @@
         xsi:type="setup:VariableTask"
         id="buildship.variables.buildshiptargetplatform"
         name="buildship.target.platform"
-        defaultValue="Luna"
+        defaultValue="Mars"
         label="Buildship Target Platform">
       <choice
           value="Mars"
@@ -276,7 +276,17 @@
           name="com.google.gson"
           versionRange="2.2.4"/>
       <requirement
-          name="org.eclipse.buildship.orbit.staging.feature.group"/>
+          name="com.google.guava"
+          versionRange="15.0.0"/>
+      <requirement
+          name="com.gradleware.tooling.client"
+          versionRange="0.7.0"/>
+      <requirement
+          name="com.gradleware.tooling.model"
+          versionRange="0.7.0"/>
+      <requirement
+          name="com.gradleware.tooling.utils"
+          versionRange="0.7.0"/>
       <repositoryList
           name="Mars">
         <repository
