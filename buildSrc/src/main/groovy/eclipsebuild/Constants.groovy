@@ -95,9 +95,9 @@ class Constants {
     static URL getEclipseSdkDownloadUrl() {
         def archInUrl = getArch() == "x86_64" ? "-x86_64" : "";
         if (getOs() == "win32") {
-            return new URL("http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops4/R-4.4.2-201502041700/eclipse-SDK-4.4.2-win32${archInUrl}.zip&r=1")
+            return new URL("http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops4/R-4.5.1-201509040015/eclipse-SDK-4.5.1-win32${archInUrl}.zip&r=1")
         } else {
-            return new URL("http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops4/R-4.4.2-201502041700/eclipse-SDK-4.4.2-${getOs()}-${getWs()}${archInUrl}.tar.gz&r=1");
+            return new URL("http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops4/R-4.5.1-201509040015/eclipse-SDK-4.5.1-${getOs()}-${getWs()}${archInUrl}.tar.gz&r=1");
         }
     }
 
