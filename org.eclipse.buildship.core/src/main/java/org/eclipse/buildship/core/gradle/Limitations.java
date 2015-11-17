@@ -38,6 +38,7 @@ public final class Limitations {
         addIfNeeded("2.6", "No rerunning of failed tests from the Executions View", limitations);
         addIfNeeded("2.7", "No running of test classes and methods from the Editor", limitations);
         addIfNeeded("2.9", "No custom project natures and build commands applied", limitations);
+        addIfNeeded("2.10", "No source language level set for Java projects", limitations);
         return limitations.build();
     }
 

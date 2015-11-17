@@ -64,6 +64,7 @@ public interface WorkspaceGradleOperations {
      * <li>the linked resources are set</li>
      * <li>an existing Java project is updated
      * <ul>
+     * <li>update the source compatibility settings</li>
      * <li>update the set of source folders</li>
      * <li>update the Gradle classpath container</li>
      * </ul>
@@ -98,6 +99,7 @@ public interface WorkspaceGradleOperations {
      * <li>a Java project is created in case of a Java Gradle project
      * <ul>
      * <li>a Gradle classpath container is added (this triggers a synchronize through the classpath container, handled by #1)</li>
+     * <li>source compatibility settings are set</li>
      * </ul>
      * </li>
      * <li>update project natures and build commands</li>

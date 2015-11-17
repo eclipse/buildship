@@ -154,6 +154,29 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         findProject('sample-project').getFolder('src').isLinked()
     }
 
+    def "If workspace project exists at model location, then the source settings are updated"() {
+        setup:
+        IJavaProject javaProject = newJavaProject('sample-project')
+        fileStructure().create {
+            file 'sample-project/build.gradle', """
+                apply plugin: 'java'
+                sourceCompatibility = 1.2
+            """
+            file 'sample-project/settings.gradle'
+            folder 'sample-project/src/main/java'
+        }
+        GradleModel gradleModel = loadGradleModel('sample-project')
+
+        when:
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+        javaProject = JavaCore.create(findProject('sample-project'))
+
+        then:
+        javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true) == JavaCore.VERSION_1_2
+        javaProject.getOption(JavaCore.COMPILER_SOURCE, true) == JavaCore.VERSION_1_2
+        javaProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == JavaCore.VERSION_1_2
+    }
+
     def "If workspace project exists at model location, then an existing java project's source folders are updated"() {
         setup:
         IJavaProject javaProject = newJavaProject('sample-project')
@@ -429,7 +452,29 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
             it.path.toPortableString() == GradleClasspathContainer.CONTAINER_ID
         }
     }
-    
+
+    def "If no workspace project or .project file exists, then a Java project is created proper source settings"() {
+        setup:
+        fileStructure().create {
+            file 'sample-project/build.gradle', """
+                apply plugin: "java"
+                sourceCompatibility = 1.3
+            """
+            file 'sample-project/settings.gradle'
+            folder 'sample-project/src/main/java'
+        }
+        GradleModel gradleModel = loadGradleModel('sample-project')
+
+        when:
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+
+        then:
+        def javaProject = JavaCore.create(findProject('sample-project'))
+        javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true) == JavaCore.VERSION_1_3
+        javaProject.getOption(JavaCore.COMPILER_SOURCE, true) == JavaCore.VERSION_1_3
+        javaProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == JavaCore.VERSION_1_3
+    }
+
     def "If no workspace project or .project file exists, then the additional natures and build commands are set"() {
         setup:
         fileStructure().create {
