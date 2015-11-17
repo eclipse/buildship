@@ -12,10 +12,12 @@ import com.gradleware.tooling.toolingmodel.util.Maybe
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
+import org.eclipse.jdt.internal.core.JavaModelManager
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 
+@SuppressWarnings("restriction")
 class JavaSourceSettingsUpdaterTest extends Specification {
 
     @Rule
@@ -55,7 +57,7 @@ class JavaSourceSettingsUpdaterTest extends Specification {
         version << ['1.1', '1.2', '1.3', '1.4', '1.5', '1.6']
     }
 
-    def "Setting invalid source settings falls back to highest version available in Eclipse"() {
+    def "Setting invalid source settings falls back to default workspace JDT source settings"() {
         given:
         IJavaProject project = EclipseProjects.newJavaProject('sample-project', tempFolder.newFolder())
 
@@ -63,9 +65,9 @@ class JavaSourceSettingsUpdaterTest extends Specification {
         JavaSourceSettingsUpdater.update(project, sourceSettings(version), new NullProgressMonitor())
 
         then:
-        project.getOption(JavaCore.COMPILER_SOURCE, true) == highestAvailableVersionInRuntime
-        project.getOption(JavaCore.COMPILER_COMPLIANCE, true) == highestAvailableVersionInRuntime
-        project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == highestAvailableVersionInRuntime
+        project.getOption(JavaCore.COMPILER_SOURCE, true) == workspaceDefaultJavaSourceVersion
+        project.getOption(JavaCore.COMPILER_COMPLIANCE, true) == workspaceDefaultJavaSourceVersion
+        project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == workspaceDefaultJavaSourceVersion
 
         where:
         version << [null, '', '1.0.0', '7.8', 'string']
@@ -81,7 +83,7 @@ class JavaSourceSettingsUpdaterTest extends Specification {
         Maybe.of(settings)
     }
 
-    private def getHighestAvailableVersionInRuntime() {
-        new ArrayList(JavaSourceSettingsUpdater.availableJavaVersions).sort().last()
+    private def getWorkspaceDefaultJavaSourceVersion() {
+        JavaModelManager.getJavaModelManager().instancePreferences.get(JavaCore.COMPILER_SOURCE, null)
     }
 }
