@@ -18,18 +18,18 @@
 <repository location="http://dev1.gradle.org:8000/eclipse/update-site/mirror/orbit-mars/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="com.gradleware.tooling.client" version="0.8.1.v201512100932"/>
-<unit id="com.gradleware.tooling.model" version="0.8.1.v201512100932"/>
-<unit id="com.gradleware.tooling.utils" version="0.8.1.v201512100932"/>
-<unit id="org.gradle.toolingapi" version="2.9.0.v201512100932"/>
-<repository location="http://download.eclipse.org/buildship/orbit-staging/site1038"/>
+<unit id="com.gradleware.tooling.client" version="0.8.1.v201512111002"/>
+<unit id="com.gradleware.tooling.model" version="0.8.1.v201512111002"/>
+<unit id="com.gradleware.tooling.utils" version="0.8.1.v201512111002"/>
+<unit id="org.gradle.toolingapi" version="2.10.0.v201512111002"/>
+<repository location="http://download.eclipse.org/buildship/orbit-staging/site1039"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="com.gradleware.tooling.client" version="0.8.1.v201512100932"/>
-<unit id="com.gradleware.tooling.model" version="0.8.1.v201512100932"/>
-<unit id="com.gradleware.tooling.utils" version="0.8.1.v201512100932"/>
-<unit id="org.gradle.toolingapi" version="2.9.0.v201512100932"/>
-<repository location="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging/site1038"/>
+<unit id="com.gradleware.tooling.client" version="0.8.1.v201512111002"/>
+<unit id="com.gradleware.tooling.model" version="0.8.1.v201512111002"/>
+<unit id="com.gradleware.tooling.utils" version="0.8.1.v201512111002"/>
+<unit id="org.gradle.toolingapi" version="2.10.0.v201512111002"/>
+<repository location="http://dev1.gradle.org:8000/eclipse/update-site/orbit-staging/site1039"/>
 </location>
 </locations>
 <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>

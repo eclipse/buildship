@@ -60,7 +60,7 @@ public final class JavaSourceSettingsUpdater {
         monitor.beginTask("Update source settings", 1);
         try {
             if (sourceSettings.isPresent() && sourceSettings.get() != null) {
-                String javaSourceVersion = sourceSettings.get().getSourceLanguageLevel().getVersion().getName();
+                String javaSourceVersion = sourceSettings.get().getSourceLanguageLevel().getName();
                 if (isValidVersion(javaSourceVersion)) {
 
                     // set the source compatibility
