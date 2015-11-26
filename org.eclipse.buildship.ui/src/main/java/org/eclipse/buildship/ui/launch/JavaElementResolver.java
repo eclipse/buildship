@@ -19,9 +19,12 @@ import com.google.common.collect.ImmutableList;
 
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeRoot;
+import org.eclipse.jdt.core.JavaModelException;
 
 /**
  * Base class to resolve {@link IMethod} and {@link IType} instances.
@@ -63,13 +66,29 @@ public abstract class JavaElementResolver {
             IMethod method = (IMethod) javaElement;
 
             // exclude methods without a declaring type
-            if (method.getDeclaringType() == null) {
+            if (method.getDeclaringType() == null || !isInSourceFolder(method.getDeclaringType(), method.getJavaProject())) {
                 return Optional.absent();
             } else {
                 return Optional.of(method);
             }
         } else {
             return Optional.absent();
+        }
+    }
+    
+    private boolean isInSourceFolder(IType type, IJavaProject project) {
+        // if the type is not defined in a source folder or the source folder 
+        // type can't be determined, then return false
+        IJavaElement fragmentRoot = type.getPackageFragment().getParent();
+        if (fragmentRoot != null && fragmentRoot instanceof IPackageFragmentRoot) {
+            IPackageFragmentRoot packageFragmentRoot = (IPackageFragmentRoot) fragmentRoot;
+            try {
+                return packageFragmentRoot.getKind() == IPackageFragmentRoot.K_SOURCE;
+            } catch (JavaModelException e) {
+                return false;
+            }
+        } else {
+            return false;    
         }
     }
 
@@ -87,7 +106,7 @@ public abstract class JavaElementResolver {
         ImmutableList.Builder<IType> result = ImmutableList.builder();
         for (IJavaElement javaElement : findJavaElements()) {
             Optional<IType> type = resolveType(javaElement);
-            if (type.isPresent()) {
+            if (type.isPresent()){
                 result.add(type.get());
             }
         }
@@ -95,24 +114,35 @@ public abstract class JavaElementResolver {
     }
 
     private Optional<IType> resolveType(IJavaElement javaElement) {
-        // exclude elements which have no parent projects
+        // exclude elements with no parent projects
         if (javaElement.getJavaProject() == null || javaElement.getJavaProject().getProject() == null) {
             return Optional.absent();
         }
-
+        
+        IType result = null;
         switch (javaElement.getElementType()) {
             case IJavaElement.TYPE:
-                return Optional.of((IType) javaElement);
+                result = (IType) javaElement;
+                break;
             case IJavaElement.FIELD:
-                return Optional.fromNullable(((IField) javaElement).getDeclaringType());
+                result = ((IField) javaElement).getDeclaringType();
+                break;
             case IJavaElement.CLASS_FILE:
             case IJavaElement.COMPILATION_UNIT:
-                return Optional.fromNullable(((ITypeRoot) javaElement).findPrimaryType());
+                result = ((ITypeRoot) javaElement).findPrimaryType();
+                break;
             case IJavaElement.METHOD:
-                return Optional.fromNullable(((IMethod) javaElement).getDeclaringType());
-            default:
-                return Optional.absent();
+                result = ((IMethod) javaElement).getDeclaringType();
+                break;
         }
+        
+        // if the type could be found but it is not defined in a source folder (class in a 
+        // dependency jar) then don't resolve it
+        if (result != null && !isInSourceFolder(result, javaElement.getJavaProject())) {
+            result = null;
+        }
+        
+        return Optional.fromNullable(result);
     }
 
 }
