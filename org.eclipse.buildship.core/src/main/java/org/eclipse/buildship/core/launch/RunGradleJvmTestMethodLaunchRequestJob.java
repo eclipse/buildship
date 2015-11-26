@@ -78,18 +78,17 @@ public final class RunGradleJvmTestMethodLaunchRequestJob extends BaseLaunchRequ
 
     @Override
     protected void writeExtraConfigInfo(OutputStreamWriter writer) throws IOException {
-        StringBuilder testsInfo = new StringBuilder(CoreMessages.RunConfiguration_Label_Tests);
-        testsInfo.append(": ");
+        writer.write(CoreMessages.RunConfiguration_Label_Tests);
+        writer.write(": ");
         for (String className : this.classNamesWithMethods.keySet()) {
             for (String methodName : this.classNamesWithMethods.get(className)) {
-                testsInfo.append(className);
-                testsInfo.append('.');
-                testsInfo.append(methodName);
-                testsInfo.append("() ");
+                writer.write(className);
+                writer.write('.');
+                writer.write(methodName);
+                writer.write("() ");
             }
         }
-        testsInfo.append('\n');
-        writer.write(testsInfo.toString());
+        writer.write('\n');
     }
 
     /**
