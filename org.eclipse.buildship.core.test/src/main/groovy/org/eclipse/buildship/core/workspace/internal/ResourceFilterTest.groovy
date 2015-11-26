@@ -19,6 +19,7 @@ import java.util.List
 
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import spock.lang.Ignore;
 import spock.lang.Specification
 
 class ResourceFilterTest extends Specification {
@@ -156,6 +157,9 @@ class ResourceFilterTest extends Specification {
         workspace().validateFiltered(project.getFolder('filtered')).isOK()
     }
 
+    // Ignored because it fails randomly. The problem will be resolved once we replace the resource-based
+    // filtering with the solution implemented in https://github.com/eclipse/buildship/pull/180
+    @Ignore
     def "Removing a filter does not modify manually created filters"() {
         given:
         projectFolder('filtered')
