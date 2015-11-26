@@ -60,8 +60,8 @@ public final class TestlaunchShortcutValidator {
 
         // all elements belong to the same project
         IProject project = elements.get(0).getJavaProject().getProject();
-        for (int i = 0; i < elements.size(); i++) {
-            if (!elements.get(i).getJavaProject().getProject().equals(project)) {
+        for (IJavaElement element : elements) {
+            if (!element.getJavaProject().getProject().equals(project)) {
                 return false;
             }
         }

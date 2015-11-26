@@ -17,6 +17,7 @@ import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessDescription;
@@ -69,9 +70,8 @@ public final class RunGradleJvmTestMethodLaunchRequestJob extends BaseLaunchRequ
     @Override
     protected Request<Void> createRequest() {
         TestConfig.Builder testConfig = new TestConfig.Builder();
-        for (String className : classNamesWithMethods.keySet()) {
-            Iterable<String> methodNames = classNamesWithMethods.get(className);
-            testConfig.jvmTestMethods(className, methodNames);
+        for (Entry<String, Iterable<String>> classNameWithMethods : classNamesWithMethods.entrySet()) {
+            testConfig.jvmTestMethods(classNameWithMethods.getKey(), classNameWithMethods.getValue());
         }
         return CorePlugin.toolingClient().newTestLaunchRequest(testConfig.build());
     }
