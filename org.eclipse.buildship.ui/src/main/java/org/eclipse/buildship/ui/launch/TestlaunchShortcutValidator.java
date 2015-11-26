@@ -12,11 +12,16 @@
 package org.eclipse.buildship.ui.launch;
 
 import java.util.Collection;
+import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
@@ -30,14 +35,17 @@ public final class TestlaunchShortcutValidator {
     }
 
     /**
-     * Validates the target Java elements if they can be used to launch tests.
+     * Validates the target types if they can be used to launch tests.
      *
-     * @param javaElements the target elements
-     * @return {@code true} if the elements can be used to launch a tests execution
+     * @param elements the target types
+     * @return {@code true} if the types can be used to launch a tests execution
      */
-    public static boolean validateElements(Collection<? extends IJavaElement> javaElements) {
-        ImmutableList<IJavaElement> elements = ImmutableList.copyOf(javaElements);
+    public static boolean validateTypes(Collection<IType> elements) {
+        ImmutableList<IType> types = ImmutableList.copyOf(elements);
+        return validateJavaElements(types) && validateTypes(types);
+    }
 
+    private static boolean validateJavaElements(List<? extends IJavaElement> elements) {
         // at least one java element is present
         if (elements.isEmpty()) {
             return false;
@@ -52,7 +60,7 @@ public final class TestlaunchShortcutValidator {
 
         // all elements belong to the same project
         IProject project = elements.get(0).getJavaProject().getProject();
-        for (int i = 0; i < javaElements.size(); i++) {
+        for (int i = 0; i < elements.size(); i++) {
             if (!elements.get(i).getJavaProject().getProject().equals(project)) {
                 return false;
             }
@@ -64,6 +72,52 @@ public final class TestlaunchShortcutValidator {
         }
 
         // otherwise the collection is valid
+        return true;
+    }
+
+    private static boolean validateTypes(ImmutableList<IType> types) {
+        for (IType type : types) {
+            if (!isInSourceFolder(type)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean isInSourceFolder(IType type) {
+        // if the type is not defined in a source folder or the source folder
+        // type can't be determined, then return false
+        IJavaElement fragmentRoot = type.getPackageFragment().getParent();
+        if (fragmentRoot instanceof IPackageFragmentRoot) {
+            IPackageFragmentRoot packageFragmentRoot = (IPackageFragmentRoot) fragmentRoot;
+            try {
+                return packageFragmentRoot.getKind() == IPackageFragmentRoot.K_SOURCE;
+            } catch (JavaModelException e) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Validates the target methods if they can be used to launch tests.
+     *
+     * @param elements the target methods
+     * @return {@code true} if the types can be used to launch a tests execution
+     */
+    public static boolean validateMethods(Collection<IMethod> elements) {
+        ImmutableList<IMethod> methods = ImmutableList.copyOf(elements);
+        return validateJavaElements(methods) && validateMethods(methods);
+    }
+
+    private static boolean validateMethods(ImmutableList<IMethod> methods) {
+        for (IMethod element : methods) {
+            IType type = element.getDeclaringType();
+            if (type == null || !isInSourceFolder(type)) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -86,7 +140,7 @@ public final class TestlaunchShortcutValidator {
 
         private static boolean selectionCanBeLaunchedAsTest(Collection<? extends Object> elements) {
             JavaElementResolver elementResolver = SelectionJavaElementResolver.from(elements);
-            return validateElements(elementResolver.resolveTypes()) || validateElements(elementResolver.resolveMethods());
+            return validateTypes(elementResolver.resolveTypes()) || validateMethods(elementResolver.resolveMethods());
         }
     }
 

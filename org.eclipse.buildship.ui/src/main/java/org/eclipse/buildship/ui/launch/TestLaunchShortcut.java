@@ -52,12 +52,12 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
     private void launch(JavaElementResolver resolver) {
         // try to launch test methods
         List<IMethod> methods = resolver.resolveMethods();
-        if (TestlaunchShortcutValidator.validateElements(methods)) {
+        if (TestlaunchShortcutValidator.validateMethods(methods)) {
             launchMethods(methods);
         } else {
             // If no test methods then try to launch test classes
             List<IType> types = resolver.resolveTypes();
-            if (TestlaunchShortcutValidator.validateElements(types)) {
+            if (TestlaunchShortcutValidator.validateTypes(types)) {
                 launchClasses(types);
             } else {
                 // if no classes/methods, then show a dialog
