@@ -23,6 +23,7 @@ import org.eclipse.buildship.ui.view.TreeViewerState;
  * Represents the (persistable) configuration state of the {@link TaskView}. Backed by the Eclipse
  * Preferences API.
  */
+@SuppressWarnings("deprecation")
 public final class TaskViewState implements TreeViewerState {
 
     private static final String PREF_PROJECT_TASKS_VISIBLE = "tasksView.projectTasksVisible";
@@ -45,7 +46,6 @@ public final class TaskViewState implements TreeViewerState {
     private int headerNameColumnWidth;
     private int headerDescriptionColumnWidth;
 
-    @SuppressWarnings("deprecation")
     public void load() {
         // in Eclipse 3.6 the method InstanceScope.INSTANCE does not exist
         IEclipsePreferences prefs = new InstanceScope().getNode(UiPlugin.PLUGIN_ID);
@@ -60,7 +60,6 @@ public final class TaskViewState implements TreeViewerState {
         this.headerDescriptionColumnWidth = prefs.getInt(PREF_HEADER_DESCRIPTION_COLUMN_WIDTH, 400);
     }
 
-    @SuppressWarnings("deprecation")
     public void save() {
         // in Eclipse 3.6 the method InstanceScope.INSTANCE does not exist
         IEclipsePreferences prefs = new InstanceScope().getNode(UiPlugin.PLUGIN_ID);
