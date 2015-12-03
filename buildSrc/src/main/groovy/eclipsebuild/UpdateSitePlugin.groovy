@@ -203,6 +203,7 @@ class UpdateSitePlugin implements Plugin<Project> {
             inputs.dir new File(project.buildDir, PRE_NORMALIZED_BUNDLES_DIR_NAME)
             outputs.dir new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
             doLast { normalizeBundles(project) }
+            doLast { copyOverAlreadySignedBundles(project, "$UNSIGNED_BUNDLES_DIR_NAME/$PLUGINS_DIR_NAME") }
         }
     }
 
@@ -225,15 +226,15 @@ class UpdateSitePlugin implements Plugin<Project> {
             inputs.dir new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
             outputs.dir new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME)
             doLast { project.updateSite.signing(new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME), new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME)) }
-            doLast { copyOverAlreadySignedBundles(project) }
+            doLast { copyOverAlreadySignedBundles(project, "$SIGNED_BUNDLES_DIR_NAME/$PLUGINS_DIR_NAME") }
             onlyIf { project.updateSite.signing != null }
         }
     }
 
-    static void copyOverAlreadySignedBundles(Project project) {
+    static void copyOverAlreadySignedBundles(Project project, String folderInBuildDir) {
         project.copy {
             from project.configurations.signedExternalPlugin
-            into new File(project.buildDir, "$SIGNED_BUNDLES_DIR_NAME/$PLUGINS_DIR_NAME")
+            into new File(project.buildDir, folderInBuildDir)
         }
     }
 
