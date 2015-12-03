@@ -14,8 +14,8 @@ package org.eclipse.buildship.ui.view.task;
 import org.osgi.service.prefs.BackingStoreException;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 
+import org.eclipse.buildship.core.util.prefereces.PreferencesUtils;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.view.TreeViewerState;
 
@@ -23,7 +23,6 @@ import org.eclipse.buildship.ui.view.TreeViewerState;
  * Represents the (persistable) configuration state of the {@link TaskView}. Backed by the Eclipse
  * Preferences API.
  */
-@SuppressWarnings("deprecation")
 public final class TaskViewState implements TreeViewerState {
 
     private static final String PREF_PROJECT_TASKS_VISIBLE = "tasksView.projectTasksVisible";
@@ -47,8 +46,7 @@ public final class TaskViewState implements TreeViewerState {
     private int headerDescriptionColumnWidth;
 
     public void load() {
-        // in Eclipse 3.6 the method InstanceScope.INSTANCE does not exist
-        IEclipsePreferences prefs = new InstanceScope().getNode(UiPlugin.PLUGIN_ID);
+        IEclipsePreferences prefs = PreferencesUtils.getInstanceScope().getNode(UiPlugin.PLUGIN_ID);
         this.projectTasksVisible = prefs.getBoolean(PREF_PROJECT_TASKS_VISIBLE, false);
         this.taskSelectorsVisible = prefs.getBoolean(PREF_TASK_SELECTORS_VISIBLE, true);
         this.privateTasksVisible = prefs.getBoolean(PREF_PRIVATE_TASKS_VISIBLE, false);
@@ -61,8 +59,7 @@ public final class TaskViewState implements TreeViewerState {
     }
 
     public void save() {
-        // in Eclipse 3.6 the method InstanceScope.INSTANCE does not exist
-        IEclipsePreferences prefs = new InstanceScope().getNode(UiPlugin.PLUGIN_ID);
+        IEclipsePreferences prefs = PreferencesUtils.getInstanceScope().getNode(UiPlugin.PLUGIN_ID);
         prefs.putBoolean(PREF_PROJECT_TASKS_VISIBLE, this.projectTasksVisible);
         prefs.putBoolean(PREF_TASK_SELECTORS_VISIBLE, this.taskSelectorsVisible);
         prefs.putBoolean(PREF_PRIVATE_TASKS_VISIBLE, this.privateTasksVisible);

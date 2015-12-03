@@ -15,8 +15,8 @@ package org.eclipse.buildship.ui.view.execution;
 import org.osgi.service.prefs.BackingStoreException;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 
+import org.eclipse.buildship.core.util.prefereces.PreferencesUtils;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.view.TreeViewerState;
 
@@ -35,18 +35,14 @@ public final class ExecutionViewState implements TreeViewerState {
     private int headerDurationColumnWidth;
 
     public void load() {
-        // in Eclipse 3.6 the method InstanceScope.INSTANCE does not exist
-        @SuppressWarnings("deprecation")
-        IEclipsePreferences prefs = new InstanceScope().getNode(UiPlugin.PLUGIN_ID);
+        IEclipsePreferences prefs = PreferencesUtils.getInstanceScope().getNode(UiPlugin.PLUGIN_ID);
         this.showTreeHeader = prefs.getBoolean(PREF_SHOW_TREE_HEADER, false);
         this.headerNameColumnWidth = prefs.getInt(PREF_HEADER_NAME_COLUMN_WIDTH, 600);
         this.headerDurationColumnWidth = prefs.getInt(PREF_HEADER_DURATION_COLUMN_WIDTH, 100);
     }
 
     public void save() {
-        // in Eclipse 3.6 the method InstanceScope.INSTANCE does not exist
-        @SuppressWarnings("deprecation")
-        IEclipsePreferences prefs = new InstanceScope().getNode(UiPlugin.PLUGIN_ID);
+        IEclipsePreferences prefs = PreferencesUtils.getInstanceScope().getNode(UiPlugin.PLUGIN_ID);
         prefs.putBoolean(PREF_SHOW_TREE_HEADER, this.showTreeHeader);
         prefs.putInt(PREF_HEADER_NAME_COLUMN_WIDTH, this.headerNameColumnWidth);
         prefs.putInt(PREF_HEADER_DURATION_COLUMN_WIDTH, this.headerDurationColumnWidth);
