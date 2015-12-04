@@ -194,6 +194,43 @@ class UpdateSitePlugin implements Plugin<Project> {
             from project.configurations.externalPlugin
             into pluginsDir
         }
+        // if the signing is not enabled, then remove existing signatures
+        if (project.updateSite.signing == null) {
+            // extract the jars and delete the the sums from the manifest file
+            pluginsDir.eachFile { jar ->
+                def extractedJar = new File(jar.parentFile, jar.name + ".u")
+                project.ant.unzip(src: jar, dest: new File(jar.parentFile, jar.name + ".u"))
+                jar.delete()
+                def manifest = new File(extractedJar, "META-INF/MANIFEST.MF")
+                removeSignaturesFromManifest(manifest)
+            }
+            // re-jar the content without the signature files
+            pluginsDir.eachFile { extractedJar ->
+                def jar = new File(extractedJar.parentFile, extractedJar.name.substring(0, extractedJar.name.length() - 2))
+                project.ant.zip(destfile: jar, basedir: extractedJar) {
+                    exclude(name: '**/*.RSA')
+                    exclude(name: '**/*.DSA')
+                    exclude(name: '**/*.SF')
+                }
+                extractedJar.deleteDir()
+            }
+        }
+    }
+
+    public static def removeSignaturesFromManifest(File input) {
+        def output = new StringBuilder()
+        def newLineFound = false
+        input.eachLine { line ->
+            if (!newLineFound) {
+                output.append(line)
+                if (line.equals('')) {
+                    newLineFound = true
+                    return
+                }
+                output.append('\n')
+            }
+        }
+        input.text = output.toString()
     }
 
     static void addTaskNormalizeBundles(Project project) {
@@ -203,7 +240,6 @@ class UpdateSitePlugin implements Plugin<Project> {
             inputs.dir new File(project.buildDir, PRE_NORMALIZED_BUNDLES_DIR_NAME)
             outputs.dir new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
             doLast { normalizeBundles(project) }
-            doLast { copyOverAlreadySignedBundles(project, "$UNSIGNED_BUNDLES_DIR_NAME/$PLUGINS_DIR_NAME") }
         }
     }
 
