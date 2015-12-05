@@ -11,11 +11,9 @@
 
 package org.eclipse.buildship.ui.launch;
 
-import java.util.Collection;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-
+import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
@@ -28,7 +26,7 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchSite;
 
-import org.eclipse.buildship.ui.UiPlugin;
+import java.util.Collection;
 
 /**
  * Resolves elements from the Java source editor.
@@ -38,21 +36,17 @@ public final class EditorJavaElementResolver extends JavaElementResolver {
 
     private final IEditorPart editorPart;
 
-    public EditorJavaElementResolver(IEditorPart editorPart) {
+    private EditorJavaElementResolver(IEditorPart editorPart) {
         this.editorPart = Preconditions.checkNotNull(editorPart);
     }
 
     @Override
-    public Collection<IJavaElement> findJavaElements() {
+    protected Collection<IJavaElement> findJavaElements() {
         try {
             ITypeRoot typeRoot = JavaUI.getEditorInputTypeRoot(this.editorPart.getEditorInput());
-            if (typeRoot == null) {
-                return ImmutableList.of();
-            } else {
-                return ImmutableList.of(findSelectedJavaElements(typeRoot));
-            }
+            return typeRoot != null ? ImmutableList.of(findSelectedJavaElements(typeRoot)) : ImmutableList.<IJavaElement>of();
         } catch (JavaModelException e) {
-            UiPlugin.logger().warn("Failed find selected method in Java editor", e);
+            UiPlugin.logger().warn("Failed to find selected method in Java editor.", e);
             return ImmutableList.of();
         }
     }

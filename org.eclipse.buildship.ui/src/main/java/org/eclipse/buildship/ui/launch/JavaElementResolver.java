@@ -11,29 +11,17 @@
 
 package org.eclipse.buildship.ui.launch;
 
-import java.util.Collection;
-import java.util.List;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import org.eclipse.jdt.core.*;
 
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeRoot;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Base class to resolve {@link IMethod} and {@link IType} instances.
  */
 public abstract class JavaElementResolver {
-
-    /**
-     * Collects {@link IJavaElement} instances which can be resolved to methods and types.
-     *
-     * @return the Java elements to be resolved
-     */
-    protected abstract Collection<IJavaElement> findJavaElements();
 
     /**
      * Resolves the items returned by {@link #findJavaElements()} to {@link IMethod} instances.
@@ -61,13 +49,7 @@ public abstract class JavaElementResolver {
 
         if (javaElement instanceof IMethod) {
             IMethod method = (IMethod) javaElement;
-
-            // exclude methods without a declaring type
-            if (method.getDeclaringType() == null) {
-                return Optional.absent();
-            } else {
-                return Optional.of(method);
-            }
+            return method.getDeclaringType() != null ? Optional.of(method) : Optional.<IMethod>absent();
         } else {
             return Optional.absent();
         }
@@ -76,7 +58,7 @@ public abstract class JavaElementResolver {
     /**
      * Resolves the items returned by {@link #findJavaElements()} to {@link IType} instances.
      * <p/>
-     * For each {@link IMethod} or {@link IField}, then the enclosing {@link IType} is returned. If
+     * For each {@link IMethod} or {@link IField}, the enclosing {@link IType} is returned. If
      * the exact type can't be determined then the top-level type is returned.
      * <p/>
      * If an item can't be resolved then it is skipped from from the result list.
@@ -87,7 +69,7 @@ public abstract class JavaElementResolver {
         ImmutableList.Builder<IType> result = ImmutableList.builder();
         for (IJavaElement javaElement : findJavaElements()) {
             Optional<IType> type = resolveType(javaElement);
-            if (type.isPresent()){
+            if (type.isPresent()) {
                 result.add(type.get());
             }
         }
@@ -108,16 +90,23 @@ public abstract class JavaElementResolver {
             case IJavaElement.FIELD:
                 result = ((IField) javaElement).getDeclaringType();
                 break;
+            case IJavaElement.METHOD:
+                result = ((IMethod) javaElement).getDeclaringType();
+                break;
             case IJavaElement.CLASS_FILE:
             case IJavaElement.COMPILATION_UNIT:
                 result = ((ITypeRoot) javaElement).findPrimaryType();
-                break;
-            case IJavaElement.METHOD:
-                result = ((IMethod) javaElement).getDeclaringType();
                 break;
         }
 
         return Optional.fromNullable(result);
     }
+
+    /**
+     * Collects {@link IJavaElement} instances which can be resolved to methods and types.
+     *
+     * @return the Java elements to be resolved
+     */
+    protected abstract Collection<IJavaElement> findJavaElements();
 
 }

@@ -11,22 +11,18 @@
 
 package org.eclipse.buildship.ui.launch;
 
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableMultimap;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IType;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IType;
-
 /**
  * Collects the names of {@link IType} and {@link IMethod} instances.
- *
  */
 public final class JavaElementNameCollector {
 
@@ -39,7 +35,7 @@ public final class JavaElementNameCollector {
      * @param types the types to transform
      * @return the result class names
      */
-    public static Iterable<String> collectClassNames(List<IType> types) {
+    public static Collection<String> collectClassNamesForTypes(List<IType> types) {
         return FluentIterable.from(types).transform(new Function<IType, String>() {
 
             @Override
@@ -50,29 +46,19 @@ public final class JavaElementNameCollector {
     }
 
     /**
-     * Transforms the target methods to a map where a key is a class name and a value is a
-     * collection of method names contained by that class.
+     * Transforms the target methods to a map where the key is the class name and the value is the collection of method names of that class.
      *
      * @param methods the target methods to transform
      * @return the result method names
      */
-    public static Map<String, Iterable<String>> collectClassNamesWithMethods(List<IMethod> methods) {
-        Map<String, Collection<String>> testMethods = Maps.newHashMap();
+    public static Map<String, Collection<String>> collectClassNamesForMethods(List<IMethod> methods) {
+        ImmutableMultimap.Builder<String, String> result = ImmutableMultimap.builder();
         for (IMethod method : methods) {
             String typeName = method.getDeclaringType().getFullyQualifiedName();
             String methodName = method.getElementName();
-            createNewOrAppendToExistingEntry(testMethods, typeName, methodName);
+            result.put(typeName, methodName);
         }
-        return ImmutableMap.<String, Iterable<String>>copyOf(testMethods);
-    }
-
-    private static void createNewOrAppendToExistingEntry(Map<String, Collection<String>> collection, String key, String valueEntry) {
-        Collection<String> value = collection.get(key);
-        if (value == null) {
-            value = Lists.newArrayList();
-            collection.put(key, value);
-        }
-        value.add(valueEntry);
+        return result.build().asMap();
     }
 
 }

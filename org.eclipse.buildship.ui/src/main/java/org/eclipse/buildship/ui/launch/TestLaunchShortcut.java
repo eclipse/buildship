@@ -11,14 +11,14 @@
 
 package org.eclipse.buildship.ui.launch;
 
-import java.util.List;
-import java.util.Map;
-
 import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.launch.RunGradleJvmTestLaunchRequestJob;
+import org.eclipse.buildship.core.launch.RunGradleJvmTestMethodLaunchRequestJob;
+import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.ui.ILaunchShortcut;
@@ -27,10 +27,9 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorPart;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
-import org.eclipse.buildship.core.launch.RunGradleJvmTestLaunchRequestJob;
-import org.eclipse.buildship.core.launch.RunGradleJvmTestMethodLaunchRequestJob;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Shortcut for Gradle test launches from the Java editor or from the current selection.
@@ -50,54 +49,63 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
     }
 
     private void launch(JavaElementResolver resolver) {
-        // try to launch test methods
+        // try to launch test methods, otherwise try to launch entire test classes
         List<IMethod> methods = resolver.resolveMethods();
         if (TestlaunchShortcutValidator.validateMethods(methods)) {
             launchMethods(methods);
         } else {
-            // If no test methods then try to launch test classes
             List<IType> types = resolver.resolveTypes();
             if (TestlaunchShortcutValidator.validateTypes(types)) {
                 launchClasses(types);
             } else {
-                // if no classes/methods, then show a dialog
                 showNoTestsFoundDialog();
             }
         }
     }
 
     private void launchMethods(List<IMethod> methods) {
-        Map<String, Iterable<String>> methodNames = JavaElementNameCollector.collectClassNamesWithMethods(methods);
+        Map<String, Collection<String>> methodNames = JavaElementNameCollector.collectClassNamesForMethods(methods);
         IProject project = methods.get(0).getJavaProject().getProject();
         GradleRunConfigurationAttributes runConfigurationAttributes = collectRunConfigurationAttributes(project);
         new RunGradleJvmTestMethodLaunchRequestJob(methodNames, runConfigurationAttributes).schedule();
     }
 
     private void launchClasses(List<IType> types) {
-        Iterable<String> typeNames = JavaElementNameCollector.collectClassNames(types);
+        Iterable<String> typeNames = JavaElementNameCollector.collectClassNamesForTypes(types);
         IProject project = types.get(0).getJavaProject().getProject();
         GradleRunConfigurationAttributes runConfigurationAttributes = collectRunConfigurationAttributes(project);
         new RunGradleJvmTestLaunchRequestJob(typeNames, runConfigurationAttributes).schedule();
     }
 
+    @SuppressWarnings("ConstantConditions")
     private GradleRunConfigurationAttributes collectRunConfigurationAttributes(IProject project) {
-        FixedRequestAttributes attributes = CorePlugin.projectConfigurationManager().readProjectConfiguration(project).getRequestAttributes();
+        FixedRequestAttributes requestAttributes = CorePlugin.projectConfigurationManager().readProjectConfiguration(project).getRequestAttributes();
 
-        String projectDir = attributes.getProjectDir().getAbsolutePath();
-        GradleDistribution gradleDistribution = attributes.getGradleDistribution();
-        String gradleUserHome = attributes.getGradleUserHome() != null ? attributes.getGradleUserHome().getAbsolutePath() : null;
-        String javaHome = attributes.getJavaHome() != null ? attributes.getJavaHome().getAbsolutePath() : null;
-        List<String> jvmArguments = attributes.getJvmArguments();
-        List<String> arguments = attributes.getArguments();
+        // configure the project directory
+        String projectDir = requestAttributes.getProjectDir().getAbsolutePath();
+
+        // configure the advanced options
+        GradleDistribution gradleDistribution = requestAttributes.getGradleDistribution();
+        String gradleUserHome = FileUtils.getAbsolutePath(requestAttributes.getGradleUserHome()).orNull();
+        String javaHome = FileUtils.getAbsolutePath(requestAttributes.getJavaHome()).orNull();
+        List<String> jvmArguments = requestAttributes.getJvmArguments();
+        List<String> arguments = requestAttributes.getArguments();
+
+        // have execution view and console view enabled by default
         boolean showExecutionView = true;
-        boolean showConsoleView = false;
+        boolean showConsoleView = true;
 
-        return GradleRunConfigurationAttributes
-                .with(ImmutableList.<String>of(), projectDir, gradleDistribution, gradleUserHome, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView);
+        return GradleRunConfigurationAttributes.with(ImmutableList.<String>of(), projectDir, gradleDistribution, gradleUserHome,
+                javaHome, jvmArguments, arguments, showExecutionView, showConsoleView);
     }
 
     private void showNoTestsFoundDialog() {
-        CorePlugin.userNotification()
-                .errorOccurred(LaunchMessages.Test_Not_Found_Dialog_Title, LaunchMessages.Test_Not_Found_Dialog_Message, LaunchMessages.Test_Not_Found_Dialog_Details, IStatus.WARNING, null);
+        CorePlugin.userNotification().errorOccurred(
+                LaunchMessages.Test_Not_Found_Dialog_Title,
+                LaunchMessages.Test_Not_Found_Dialog_Message,
+                LaunchMessages.Test_Not_Found_Dialog_Details,
+                IStatus.WARNING,
+                null);
     }
+
 }

@@ -11,29 +11,28 @@
 
 package org.eclipse.buildship.core.launch;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.gradleware.tooling.toolingclient.Request;
+import com.gradleware.tooling.toolingclient.TestConfig;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.core.i18n.CoreMessages;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.util.Date;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.i18n.CoreMessages;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingclient.Request;
-import com.gradleware.tooling.toolingclient.TestConfig;
-
 /**
  * Runs a Gradle test build which executes a list of test classes.
  */
 public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob {
 
+    private final ImmutableList<String> testClasses;
     private final GradleRunConfigurationAttributes configurationAttributes;
-    private ImmutableList<String> testClasses;
 
     public RunGradleJvmTestLaunchRequestJob(Iterable<String> testClasses, GradleRunConfigurationAttributes configurationAttributes) {
         super("Launching Gradle Tests", false);
@@ -43,7 +42,7 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
 
     @Override
     protected String getJobTaskName() {
-        return "Launch Gradle Tests";
+        return "Launch Gradle test classes";
     }
 
     @Override
@@ -57,6 +56,7 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
         return new TestLaunchProcessDescription(processName);
     }
 
+    // todo (etst) DONAt only show the simple name of the test classes
     private String createProcessName(File workingDir) {
         return String.format("[Gradle Project] %s in %s (%s)", Joiner.on(' ').join(this.testClasses),
                 workingDir.getAbsolutePath(),

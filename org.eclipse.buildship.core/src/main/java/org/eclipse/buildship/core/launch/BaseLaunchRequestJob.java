@@ -132,7 +132,7 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
             writer.write('\n');
             writer.flush();
         } catch (IOException e) {
-            String message = String.format("Cannot write run configuration description to Gradle console.");
+            String message = "Cannot write run configuration description to Gradle console.";
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
         }

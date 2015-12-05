@@ -11,23 +11,19 @@
 
 package org.eclipse.buildship.ui.launch;
 
+import com.google.common.collect.ImmutableList;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.jdt.core.*;
+
 import java.util.Collection;
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
-
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
+// todo (etst) DONAT: the class name of Testlaunch should be written in mixed-case in the class name
 
 /**
- * Tests if a set of {@link IJavaElement} is valid to launch tests with.
+ * Tests if a set of {@link IJavaElement} instances are valid to launch as tests with.
  */
 public final class TestlaunchShortcutValidator {
 
@@ -38,41 +34,11 @@ public final class TestlaunchShortcutValidator {
      * Validates the target types if they can be used to launch tests.
      *
      * @param elements the target types
-     * @return {@code true} if the types can be used to launch a tests execution
+     * @return {@code true} if the types can be used to launch tests
      */
     public static boolean validateTypes(Collection<IType> elements) {
         ImmutableList<IType> types = ImmutableList.copyOf(elements);
         return validateJavaElements(types) && validateTypes(types);
-    }
-
-    private static boolean validateJavaElements(List<? extends IJavaElement> elements) {
-        // at least one java element is present
-        if (elements.isEmpty()) {
-            return false;
-        }
-
-        // all elements have associated projects
-        for (IJavaElement element : elements) {
-            if (element.getJavaProject() == null || element.getJavaProject().getProject() == null) {
-                return false;
-            }
-        }
-
-        // all elements belong to the same project
-        IProject project = elements.get(0).getJavaProject().getProject();
-        for (IJavaElement element : elements) {
-            if (!element.getJavaProject().getProject().equals(project)) {
-                return false;
-            }
-        }
-
-        // the container project has the Gradle nature
-        if (!project.isAccessible() || !GradleProjectNature.INSTANCE.isPresentOn(project)) {
-            return false;
-        }
-
-        // otherwise the collection is valid
-        return true;
     }
 
     private static boolean validateTypes(ImmutableList<IType> types) {
@@ -121,9 +87,38 @@ public final class TestlaunchShortcutValidator {
         return true;
     }
 
+    private static boolean validateJavaElements(List<? extends IJavaElement> elements) {
+        // at least one java element is present
+        if (elements.isEmpty()) {
+            return false;
+        }
+
+        // all elements have associated projects
+        for (IJavaElement element : elements) {
+            if (element.getJavaProject() == null || element.getJavaProject().getProject() == null) {
+                return false;
+            }
+        }
+
+        // all elements belong to the same project
+        IProject project = elements.get(0).getJavaProject().getProject();
+        for (IJavaElement element : elements) {
+            if (!element.getJavaProject().getProject().equals(project)) {
+                return false;
+            }
+        }
+
+        // the container project has the Gradle nature
+        if (!project.isAccessible() || !GradleProjectNature.INSTANCE.isPresentOn(project)) {
+            return false;
+        }
+
+        // otherwise the collection is valid
+        return true;
+    }
+
     /**
-     * Property tester to determine if the test launch shortcut should be visible in the context
-     * menus.
+     * Property tester to determine if the test launch shortcut should be visible in the context menus.
      */
     public static final class PropertyTester extends org.eclipse.core.expressions.PropertyTester {
 
@@ -132,16 +127,17 @@ public final class TestlaunchShortcutValidator {
         @Override
         public boolean test(Object receiver, String propertyString, Object[] args, Object expectedValue) {
             if (propertyString.equals(PROPERTY_NAME_SELECTION_CAN_BE_LAUNCHED_AS_TEST)) {
-                return receiver instanceof Collection<?> && selectionCanBeLaunchedAsTest((Collection<?>) receiver);
+                return receiver instanceof Collection && selectionIsLaunchableAsTest((Collection<?>) receiver);
             } else {
-                throw new GradlePluginsRuntimeException("Not recognized property to test: " + propertyString);
+                throw new GradlePluginsRuntimeException("Unrecognized property to test: " + propertyString);
             }
         }
 
-        private static boolean selectionCanBeLaunchedAsTest(Collection<? extends Object> elements) {
+        private boolean selectionIsLaunchableAsTest(Collection<?> elements) {
             JavaElementResolver elementResolver = SelectionJavaElementResolver.from(elements);
             return validateTypes(elementResolver.resolveTypes()) || validateMethods(elementResolver.resolveMethods());
         }
+
     }
 
 }

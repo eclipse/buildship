@@ -11,34 +11,34 @@
 
 package org.eclipse.buildship.core.launch;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.i18n.CoreMessages;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingclient.TestConfig;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.core.i18n.CoreMessages;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.text.DateFormat;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Runs a Gradle test build which executes a list of test methods.
  */
 public final class RunGradleJvmTestMethodLaunchRequestJob extends BaseLaunchRequestJob {
 
+    private final ImmutableMap<String, Collection<String>> classNamesWithMethods;
     private final GradleRunConfigurationAttributes configurationAttributes;
-    private ImmutableMap<String, Iterable<String>> classNamesWithMethods;
 
-    public RunGradleJvmTestMethodLaunchRequestJob(Map<String, Iterable<String>> classNamesWithMethods,
-            GradleRunConfigurationAttributes configurationAttributes) {
+    public RunGradleJvmTestMethodLaunchRequestJob(Map<String, Collection<String>> classNamesWithMethods,
+                                                  GradleRunConfigurationAttributes configurationAttributes) {
         super("Launching Gradle Tests", false);
         this.classNamesWithMethods = ImmutableMap.copyOf(classNamesWithMethods);
         this.configurationAttributes = Preconditions.checkNotNull(configurationAttributes);
@@ -46,7 +46,7 @@ public final class RunGradleJvmTestMethodLaunchRequestJob extends BaseLaunchRequ
 
     @Override
     protected String getJobTaskName() {
-        return "Launch Gradle Test Methods";
+        return "Launch Gradle test methods";
     }
 
     @Override
@@ -60,6 +60,7 @@ public final class RunGradleJvmTestMethodLaunchRequestJob extends BaseLaunchRequ
         return new TestLaunchProcessDescription(processName);
     }
 
+    // todo (etst) DONAT we should show each test method as <simple-class-name>#<method-name>
     private String createProcessName(File workingDir) {
         return String.format("%s [Gradle Project] %s in %s (%s)",
                 Joiner.on(' ').join(this.classNamesWithMethods.keySet()),
@@ -70,7 +71,7 @@ public final class RunGradleJvmTestMethodLaunchRequestJob extends BaseLaunchRequ
     @Override
     protected Request<Void> createRequest() {
         TestConfig.Builder testConfig = new TestConfig.Builder();
-        for (Entry<String, Iterable<String>> classNameWithMethods : classNamesWithMethods.entrySet()) {
+        for (Entry<String, Collection<String>> classNameWithMethods : classNamesWithMethods.entrySet()) {
             testConfig.jvmTestMethods(classNameWithMethods.getKey(), classNameWithMethods.getValue());
         }
         return CorePlugin.toolingClient().newTestLaunchRequest(testConfig.build());
