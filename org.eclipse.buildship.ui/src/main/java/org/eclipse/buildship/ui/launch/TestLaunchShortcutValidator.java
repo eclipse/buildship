@@ -20,14 +20,12 @@ import org.eclipse.jdt.core.*;
 import java.util.Collection;
 import java.util.List;
 
-// todo (etst) DONAT: the class name of Testlaunch should be written in mixed-case in the class name
-
 /**
  * Tests if a set of {@link IJavaElement} instances are valid to launch as tests with.
  */
-public final class TestlaunchShortcutValidator {
+public final class TestLaunchShortcutValidator {
 
-    private TestlaunchShortcutValidator() {
+    private TestLaunchShortcutValidator() {
     }
 
     /**
