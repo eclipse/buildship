@@ -13,9 +13,15 @@ package org.eclipse.buildship.core.launch;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMultimap;
+
 import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingclient.TestConfig;
+
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IType;
+
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.i18n.CoreMessages;
@@ -26,6 +32,7 @@ import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -34,13 +41,13 @@ import java.util.Map.Entry;
  */
 public final class RunGradleJvmTestMethodLaunchRequestJob extends BaseLaunchRequestJob {
 
-    private final ImmutableMap<String, Collection<String>> classNamesWithMethods;
+    private final ImmutableList<IMethod> testMethods;
     private final GradleRunConfigurationAttributes configurationAttributes;
 
-    public RunGradleJvmTestMethodLaunchRequestJob(Map<String, Collection<String>> classNamesWithMethods,
+    public RunGradleJvmTestMethodLaunchRequestJob(List<IMethod> testMethods,
                                                   GradleRunConfigurationAttributes configurationAttributes) {
         super("Launching Gradle Tests", false);
-        this.classNamesWithMethods = ImmutableMap.copyOf(classNamesWithMethods);
+        this.testMethods = ImmutableList.copyOf(testMethods);
         this.configurationAttributes = Preconditions.checkNotNull(configurationAttributes);
     }
 
@@ -60,17 +67,17 @@ public final class RunGradleJvmTestMethodLaunchRequestJob extends BaseLaunchRequ
         return new TestLaunchProcessDescription(processName);
     }
 
-    // todo (etst) DONAT we should show each test method as <simple-class-name>#<method-name>
     private String createProcessName(File workingDir) {
-        return String.format("%s [Gradle Project] %s in %s (%s)",
-                Joiner.on(' ').join(this.classNamesWithMethods.keySet()),
-                Joiner.on(' ').join(this.classNamesWithMethods.values()), workingDir.getAbsolutePath(),
+        return String.format("[Gradle Project] %s in %s (%s)",
+                Joiner.on(' ').join(collectSimpleMetodSignatures(testMethods)),
+                workingDir.getAbsolutePath(),
                 DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(new Date()));
     }
 
     @Override
     protected Request<Void> createRequest() {
         TestConfig.Builder testConfig = new TestConfig.Builder();
+        Map<String, Collection<String>> classNamesWithMethods = collectClassNamesForMethods(testMethods);
         for (Entry<String, Collection<String>> classNameWithMethods : classNamesWithMethods.entrySet()) {
             testConfig.jvmTestMethods(classNameWithMethods.getKey(), classNameWithMethods.getValue());
         }
@@ -79,10 +86,11 @@ public final class RunGradleJvmTestMethodLaunchRequestJob extends BaseLaunchRequ
 
     @Override
     protected void writeExtraConfigInfo(OutputStreamWriter writer) throws IOException {
+        Map<String, Collection<String>> classNamesWithMethods = collectClassNamesForMethods(testMethods);
         writer.write(CoreMessages.RunConfiguration_Label_Tests);
         writer.write(": ");
-        for (String className : this.classNamesWithMethods.keySet()) {
-            for (String methodName : this.classNamesWithMethods.get(className)) {
+        for (String className : classNamesWithMethods.keySet()) {
+            for (String methodName : classNamesWithMethods.get(className)) {
                 writer.write(className);
                 writer.write('.');
                 writer.write(methodName);
@@ -110,12 +118,35 @@ public final class RunGradleJvmTestMethodLaunchRequestJob extends BaseLaunchRequ
         @Override
         public void rerun() {
             RunGradleJvmTestMethodLaunchRequestJob job = new RunGradleJvmTestMethodLaunchRequestJob(
-                    RunGradleJvmTestMethodLaunchRequestJob.this.classNamesWithMethods,
+                    RunGradleJvmTestMethodLaunchRequestJob.this.testMethods,
                     RunGradleJvmTestMethodLaunchRequestJob.this.configurationAttributes
             );
             job.schedule();
         }
+    }
 
+    private static Map<String, Collection<String>> collectClassNamesForMethods(List<IMethod> methods) {
+        ImmutableMultimap.Builder<String, String> result = ImmutableMultimap.builder();
+        for (IMethod method : methods) {
+            IType declaringType = method.getDeclaringType();
+            if (declaringType != null) {
+                String typeName = declaringType.getFullyQualifiedName();
+                String methodName = method.getElementName();
+                result.put(typeName, methodName);
+            }
+        }
+        return result.build().asMap();
+    }
+
+    private static Iterable<String> collectSimpleMetodSignatures(List<IMethod> methods) {
+        ImmutableList.Builder<String> result = ImmutableList.builder();
+        for (IMethod method : methods) {
+            IType declaringType = method.getDeclaringType();
+            if (declaringType != null) {
+                result.add(declaringType.getElementName() + "#" + method.getElementName());
+            }
+        }
+        return result.build();
     }
 
 }

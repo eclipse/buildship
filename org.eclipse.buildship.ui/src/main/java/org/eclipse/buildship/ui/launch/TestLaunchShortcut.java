@@ -27,9 +27,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorPart;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Shortcut for Gradle test launches from the Java editor or from the current selection.
@@ -64,17 +62,15 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
     }
 
     private void launchMethods(List<IMethod> methods) {
-        Map<String, Collection<String>> methodNames = JavaElementNameCollector.collectClassNamesForMethods(methods);
         IProject project = methods.get(0).getJavaProject().getProject();
         GradleRunConfigurationAttributes runConfigurationAttributes = collectRunConfigurationAttributes(project);
-        new RunGradleJvmTestMethodLaunchRequestJob(methodNames, runConfigurationAttributes).schedule();
+        new RunGradleJvmTestMethodLaunchRequestJob(methods, runConfigurationAttributes).schedule();
     }
 
     private void launchClasses(List<IType> types) {
-        Iterable<String> typeNames = JavaElementNameCollector.collectClassNamesForTypes(types);
         IProject project = types.get(0).getJavaProject().getProject();
         GradleRunConfigurationAttributes runConfigurationAttributes = collectRunConfigurationAttributes(project);
-        new RunGradleJvmTestLaunchRequestJob(typeNames, runConfigurationAttributes).schedule();
+        new RunGradleJvmTestLaunchRequestJob(types, runConfigurationAttributes).schedule();
     }
 
     @SuppressWarnings("ConstantConditions")
