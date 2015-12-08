@@ -82,7 +82,7 @@ class Constants {
         OperatingSystem os = OperatingSystem.current()
         os.isLinux() ? "eclipse/eclipse" :
                 os.isWindows() ? "eclipse/eclipse.exe" :
-                os.isMacOsX() ? "eclipse/Eclipse.app/Contents/MacOS/eclipse" :
+                os.isMacOsX() ? "Eclipse.app/Contents/MacOS/eclipse" :
                 null
     }
 
