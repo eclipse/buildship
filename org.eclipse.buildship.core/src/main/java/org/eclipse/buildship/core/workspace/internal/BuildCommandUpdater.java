@@ -11,24 +11,22 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingmodel.OmniEclipseBuildCommand;
-
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
-import org.eclipse.buildship.core.CorePlugin;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Updates the build commands on the target project.
@@ -62,8 +60,10 @@ public final class BuildCommandUpdater {
         monitor.beginTask("Add new build commands", buildCommands.size());
         try {
             for (OmniEclipseBuildCommand buildCommand : buildCommands) {
-                CorePlugin.workspaceOperations().addBuildCommand(project, buildCommand.getName(), buildCommand.getArguments(), new SubProgressMonitor(monitor, 1));
-                knownCommands.add(buildCommand.getName());
+                String name = buildCommand.getName();
+                Map<String, String> arguments = buildCommand.getArguments();
+                CorePlugin.workspaceOperations().addBuildCommand(project, name, arguments, new SubProgressMonitor(monitor, 1));
+                knownCommands.add(name);
             }
         } finally {
             monitor.done();
