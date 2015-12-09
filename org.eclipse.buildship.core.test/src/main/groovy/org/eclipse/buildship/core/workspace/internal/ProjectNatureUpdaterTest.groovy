@@ -1,19 +1,13 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import com.google.common.base.Optional
+import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature
+import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.test.fixtures.EclipseProjects
+import org.eclipse.core.runtime.NullProgressMonitor
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
-
-import com.google.common.base.Optional
-
-import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature
-
-import org.eclipse.core.resources.IProject
-import org.eclipse.core.runtime.NullProgressMonitor
-
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 
 class ProjectNatureUpdaterTest extends Specification {
 
@@ -52,8 +46,7 @@ class ProjectNatureUpdaterTest extends Specification {
         given:
         def project = EclipseProjects.newProject('sample-project', tempFolder.newFolder())
         def description = project.description
-        description.setNatureIds([
-            'org.eclipse.pde.UpdateSiteNature'] as String[])
+        description.setNatureIds(['org.eclipse.pde.UpdateSiteNature'] as String[])
         project.setDescription(description, new NullProgressMonitor())
 
         when:
@@ -86,4 +79,5 @@ class ProjectNatureUpdaterTest extends Specification {
             natureMock
         })
     }
+
 }

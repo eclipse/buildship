@@ -1,18 +1,14 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import com.google.common.base.Optional
+import com.gradleware.tooling.toolingmodel.OmniEclipseBuildCommand
+import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.test.fixtures.EclipseProjects
+import org.eclipse.core.resources.ICommand
+import org.eclipse.core.runtime.NullProgressMonitor
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
-
-import com.google.common.base.Optional
-
-import com.gradleware.tooling.toolingmodel.OmniEclipseBuildCommand
-
-import org.eclipse.core.resources.ICommand
-import org.eclipse.core.runtime.NullProgressMonitor
-
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 
 class BuildCommandUpdaterTest extends Specification {
 
@@ -93,4 +89,5 @@ class BuildCommandUpdaterTest extends Specification {
         mockedBuildCommand.arguments >> arguments
         Optional.of([mockedBuildCommand])
     }
+
 }
