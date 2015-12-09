@@ -74,12 +74,8 @@ public final class BuildCommandUpdater {
         Set<String> buildCommands = knownCommands.get();
         monitor.beginTask("Remove old build commands", buildCommands.size());
         try {
-            // iterate through build commands which were previously created by Buildship
             for (String buildCommand : buildCommands) {
-                // check if the build command currently exists on the model
                 if (!buildCommandExistsInGradleModel(buildCommand)) {
-                    // if the build command was removed from the model then remove it from the
-                    // project too
                     CorePlugin.workspaceOperations().removeBuildCommand(project, buildCommand, new SubProgressMonitor(monitor, 1));
                     knownCommands.remove(buildCommand);
                 } else {
