@@ -17,6 +17,8 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+
 import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingclient.TestConfig;
 import org.eclipse.buildship.core.CorePlugin;
@@ -25,6 +27,7 @@ import org.eclipse.buildship.core.i18n.CoreMessages;
 
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.task.TaskOperationDescriptor;
+import org.gradle.tooling.events.test.JvmTestOperationDescriptor;
 import org.gradle.tooling.events.test.TestOperationDescriptor;
 
 import java.io.File;
@@ -65,7 +68,7 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
     }
 
     private String createProcessName(File workingDir) {
-        return String.format("%s [Gradle Project] %s in %s (%s)", collectTestTaskNames(this.testDescriptors), collectTestNames(this.testDescriptors),
+        return String.format("%s [Gradle Project] %s in %s (%s)", collectTestTaskNames(this.testDescriptors), Joiner.on(' ').join(collectSimpleDisplayNames(testDescriptors)),
                 workingDir.getAbsolutePath(), DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(new Date()));
     }
 
@@ -75,7 +78,7 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
             Optional<TaskOperationDescriptor> taskDescriptor = findParentTestTask(testDescriptor);
             testTaskNames.add(taskDescriptor.isPresent() ? taskDescriptor.get().getTaskPath() : "Test");
         }
-        return Joiner.on(' ').join(testTaskNames.build());
+        return Joiner.on(' ').join(ImmutableSet.copyOf(testTaskNames.build()));
     }
 
     private Optional<TaskOperationDescriptor> findParentTestTask(OperationDescriptor testDescriptor) {
@@ -89,17 +92,6 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
         }
     }
 
-    private String collectTestNames(List<TestOperationDescriptor> testDescriptors) {
-        ImmutableList<String> testNames = FluentIterable.from(testDescriptors).transform(new Function<TestOperationDescriptor, String>() {
-
-            @Override
-            public String apply(TestOperationDescriptor descriptor) {
-                return descriptor.getName();
-            }
-        }).toList();
-        return Joiner.on(' ').join(testNames);
-    }
-
     @Override
     protected Request<Void> createRequest() {
         return CorePlugin.toolingClient().newTestLaunchRequest(TestConfig.forTests(this.testDescriptors));
@@ -107,15 +99,52 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
 
     @Override
     protected void writeExtraConfigInfo(OutputStreamWriter writer) throws IOException {
-        writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Tests, collectTestDisplayNames(this.testDescriptors)));
+        writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Tests, Joiner.on(' ').join(collectQualifiedDisplayNames(this.testDescriptors))));
     }
 
-    private List<String> collectTestDisplayNames(List<TestOperationDescriptor> testDescriptors) {
+    private static List<String> collectQualifiedDisplayNames(List<TestOperationDescriptor> testDescriptors) {
         return FluentIterable.from(testDescriptors).transform(new Function<TestOperationDescriptor, String>() {
 
             @Override
             public String apply(TestOperationDescriptor descriptor) {
-                return descriptor.getDisplayName();
+                if (descriptor instanceof JvmTestOperationDescriptor) {
+                    JvmTestOperationDescriptor jvmTestDescriptor = (JvmTestOperationDescriptor) descriptor;
+                    String className = jvmTestDescriptor.getClassName();
+                    String methodName = jvmTestDescriptor.getMethodName();
+                    if (methodName != null) {
+                        return className + "#" + methodName;
+                    } else {
+                        return className;
+                    }
+                } else {
+                    return descriptor.getDisplayName();
+                }
+            }
+        }).toList();
+    }
+
+    private static List<String> collectSimpleDisplayNames(List<TestOperationDescriptor> testDescriptors) {
+        return FluentIterable.from(testDescriptors).transform(new Function<TestOperationDescriptor, String>() {
+
+            @Override
+            public String apply(TestOperationDescriptor descriptor) {
+                if (descriptor instanceof JvmTestOperationDescriptor) {
+                    JvmTestOperationDescriptor jvmTestDescriptor = (JvmTestOperationDescriptor) descriptor;
+                    String className = jvmTestDescriptor.getClassName();
+                    // remove package name if any 
+                    int index = className.lastIndexOf('.');
+                    if (index >= 0 && className.length() > index + 1) {
+                        className = className.substring(index + 1);
+                    }
+                    String methodName = jvmTestDescriptor.getMethodName();
+                    if (methodName != null) {
+                        return className + "#" + methodName;
+                    } else {
+                        return className;
+                    }
+                } else {
+                    return descriptor.getDisplayName();
+                }
             }
         }).toList();
     }

@@ -86,18 +86,7 @@ public final class RunGradleJvmTestMethodLaunchRequestJob extends BaseLaunchRequ
 
     @Override
     protected void writeExtraConfigInfo(OutputStreamWriter writer) throws IOException {
-        Map<String, Collection<String>> classNamesWithMethods = collectClassNamesForMethods(testMethods);
-        writer.write(CoreMessages.RunConfiguration_Label_Tests);
-        writer.write(": ");
-        for (String className : classNamesWithMethods.keySet()) {
-            for (String methodName : classNamesWithMethods.get(className)) {
-                writer.write(className);
-                writer.write('.');
-                writer.write(methodName);
-                writer.write("() ");
-            }
-        }
-        writer.write('\n');
+        writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Tests, Joiner.on(' ').join(collectQualifiedMetodSignatures(testMethods))));
     }
 
     /**
@@ -144,6 +133,17 @@ public final class RunGradleJvmTestMethodLaunchRequestJob extends BaseLaunchRequ
             IType declaringType = method.getDeclaringType();
             if (declaringType != null) {
                 result.add(declaringType.getElementName() + "#" + method.getElementName());
+            }
+        }
+        return result.build();
+    }
+    
+    private static Iterable<String> collectQualifiedMetodSignatures(List<IMethod> methods) {
+        ImmutableList.Builder<String> result = ImmutableList.builder();
+        for (IMethod method : methods) {
+            IType declaringType = method.getDeclaringType();
+            if (declaringType != null) {
+                result.add(declaringType.getFullyQualifiedName() + "#" + method.getElementName());
             }
         }
         return result.build();
