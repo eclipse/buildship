@@ -138,6 +138,14 @@
             name="Refresh Gradle Project"
             description="Refreshes the selected Gradle project">
       </command>
+      <command
+            id="org.eclipse.buildship.ui.shortcut.test.run"
+            categoryId="org.eclipse.debug.ui.category.run"
+            name="Run Gradle Test"
+            description="Run Gradle test based on the current selection">
+            <!-- Supplementary command definition required to bind a launch shortcut to a key combination -->
+            <!-- See the 'API information' section of http://help.eclipse.org/mars/topic/org.eclipse.platform.doc.isv/reference/extension-points/org_eclipse_debug_ui_launchShortcuts.html?cp=2_1_1_60 -->
+      </command>
       <category
             id="org.eclipse.buildship.ui.project"
             name="Buildship"
@@ -210,6 +218,11 @@
              contextId="org.eclipse.buildship.ui.contexts.taskview"
              schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
              sequence="F5">
+       </key>
+       <key
+             commandId="org.eclipse.buildship.ui.shortcut.test.run"
+             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+             sequence="M1+M3+X G">
        </key>
    </extension>
 
