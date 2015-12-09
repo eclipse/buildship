@@ -11,14 +11,18 @@
 
 package org.eclipse.buildship.ui.launch;
 
+import java.util.Collection;
+import java.util.List;
+
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+
 import com.gradleware.tooling.toolingclient.GradleDistribution;
+import com.gradleware.tooling.toolingclient.TestConfig.Builder;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
-import org.eclipse.buildship.core.launch.RunGradleJvmTestLaunchRequestJob;
-import org.eclipse.buildship.core.launch.RunGradleJvmTestMethodLaunchRequestJob;
-import org.eclipse.buildship.core.util.file.FileUtils;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.ui.ILaunchShortcut;
@@ -27,7 +31,12 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorPart;
 
-import java.util.List;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.launch.RunGradleJvmTestLaunchRequestJob;
+import org.eclipse.buildship.core.launch.RunGradleJvmTestMethodLaunchRequestJob;
+import org.eclipse.buildship.core.launch.TestTarget;
+import org.eclipse.buildship.core.util.file.FileUtils;
 
 /**
  * Shortcut for Gradle test launches from the Java editor or from the current selection.
@@ -70,7 +79,7 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
     private void launchClasses(List<IType> types) {
         IProject project = types.get(0).getJavaProject().getProject();
         GradleRunConfigurationAttributes runConfigurationAttributes = collectRunConfigurationAttributes(project);
-        new RunGradleJvmTestLaunchRequestJob(types, runConfigurationAttributes).schedule();
+        new RunGradleJvmTestLaunchRequestJob(toTestTargets(types), runConfigurationAttributes).schedule();
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -102,6 +111,47 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
                 LaunchMessages.Test_Not_Found_Dialog_Details,
                 IStatus.WARNING,
                 null);
+    }
+
+    private static List<TestTarget> toTestTargets(Collection<? extends IType> types) {
+        return FluentIterable.from(types).transform(new Function<IType, TestTarget>() {
+
+            @Override
+            public TestTarget apply(IType type) {
+                return TestType.from(type);
+            }
+        }).toList();
+    }
+
+    /**
+     * {@link TestTarget} implementation backed by an {@link IMethod} instance.
+     */
+    private static final class TestType implements TestTarget {
+
+        private final IType type;
+
+        private TestType(IType type) {
+            this.type = Preconditions.checkNotNull(type);
+        }
+
+        @Override
+        public String getSimpleName() {
+            return type.getElementName();
+        }
+
+        @Override
+        public String getQualifiedName() {
+            return type.getFullyQualifiedName();
+        }
+
+        @Override
+        public void apply(Builder testConfig) {
+            testConfig.jvmTestClasses(type.getFullyQualifiedName());
+        }
+
+        public static TestType from(IType type) {
+            return new TestType(type);
+        }
     }
 
 }
