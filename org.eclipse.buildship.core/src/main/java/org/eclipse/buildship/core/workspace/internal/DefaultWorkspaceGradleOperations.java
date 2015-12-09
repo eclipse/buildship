@@ -168,7 +168,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
                 monitor.worked(2);
             }
 
-            // add additional project natures and build commands
+            // set project natures and build commands
             ProjectNatureUpdater.update(workspaceProject, project.getProjectNatures(), new SubProgressMonitor(monitor, 1));
             BuildCommandUpdater.update(workspaceProject, project.getBuildCommands(), new SubProgressMonitor(monitor, 1));
         } finally {
@@ -212,7 +212,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             ProjectConfiguration projectConfiguration = ProjectConfiguration.from(rootRequestAttributes, project);
             CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, workspaceProject);
 
-            // add project natures and build command
+            // set project natures and build commands
             ProjectNatureUpdater.update(workspaceProject, project.getProjectNatures(), new SubProgressMonitor(monitor, 1));
             BuildCommandUpdater.update(workspaceProject, project.getBuildCommands(), new SubProgressMonitor(monitor, 1));
             return workspaceProject;
@@ -248,7 +248,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
                 monitor.worked(1);
             }
 
-            // add project natures and build command
+            // set project natures and build commands
             ProjectNatureUpdater.update(workspaceProject, project.getProjectNatures(), new SubProgressMonitor(monitor, 1));
             BuildCommandUpdater.update(workspaceProject, project.getBuildCommands(), new SubProgressMonitor(monitor, 1));
 

@@ -16,9 +16,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.ImmutableList.Builder;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.object.MoreObjects;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
@@ -387,19 +387,13 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         monitor.beginTask(String.format("Add build command %s to Eclipse project %s", name, project.getName()), 1);
         try {
             IProjectDescription description = project.getDescription();
-            ArrayList<ICommand> buildCommands = Lists.newArrayList(description.getBuildSpec());
+            List<ICommand> buildCommands = Lists.newArrayList(description.getBuildSpec());
             for (int i = 0; i < buildCommands.size(); i++) {
                 ICommand buildCommand = buildCommands.get(i);
-                // check if the build command is already defined in the project description
                 if (buildCommand.getBuilderName().equals(name)) {
                     if (buildCommand.getArguments().equals(arguments)) {
-                        // if the build command is found with the same name and arguments, then
-                        // don't do anything
                         return;
                     } else {
-                        // if the name is found but the arguments map is different in the command,
-                        // then replace replace the
-                        // existing with a new one and return
                         buildCommands.set(i, createCommand(description, name, arguments));
                         setNewBuildCommands(project, description, buildCommands, new SubProgressMonitor(monitor, 1));
                         return;
@@ -407,8 +401,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
                 }
             }
 
-            // if the build command didn't exist before then create a new command instance and
-            // assign it to the project
+            // if the build command didn't exist before then create a new command instance and assign it to the project
             buildCommands.add(createCommand(description, name, arguments));
             setNewBuildCommands(project, description, buildCommands, new SubProgressMonitor(monitor, 1));
         } catch (CoreException e) {
@@ -433,10 +426,11 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
     @Override
     public void removeBuildCommand(IProject project, final String name, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Remove build command %s to Eclipse project %s", name, project.getName()), 1);
+        monitor.beginTask(String.format("Remove build command %s from Eclipse project %s", name, project.getName()), 1);
         try {
             IProjectDescription description = project.getDescription();
             ImmutableList<ICommand> existingCommands = ImmutableList.copyOf(description.getBuildSpec());
+
             // remove the build command based on the name
             ImmutableList<ICommand> updatedCommands = FluentIterable.from(existingCommands).filter(new Predicate<ICommand>() {
 
@@ -445,7 +439,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
                     return !command.getBuilderName().equals(name);
                 }
             }).toList();
-            // only update the project description if a build command was removed
+
+            // only update the project description if the build command to remove exists
             if (existingCommands.size() != updatedCommands.size()) {
                 description.setBuildSpec(updatedCommands.toArray(new ICommand[updatedCommands.size()]));
                 project.setDescription(description, new SubProgressMonitor(monitor, 1));
