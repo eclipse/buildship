@@ -15,12 +15,10 @@ import java.util.Collection;
 import java.util.List;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingclient.TestConfig.Builder;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
@@ -34,8 +32,9 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.launch.RunGradleJvmTestLaunchRequestJob;
-import org.eclipse.buildship.core.launch.RunGradleJvmTestMethodLaunchRequestJob;
+import org.eclipse.buildship.core.launch.TestMethod;
 import org.eclipse.buildship.core.launch.TestTarget;
+import org.eclipse.buildship.core.launch.TestType;
 import org.eclipse.buildship.core.util.file.FileUtils;
 
 /**
@@ -57,29 +56,26 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
 
     private void launch(JavaElementResolver resolver) {
         // try to launch test methods, otherwise try to launch entire test classes
+        ImmutableList.Builder<TestTarget> targets = ImmutableList.builder();
+        
         List<IMethod> methods = resolver.resolveMethods();
         if (TestLaunchShortcutValidator.validateMethods(methods)) {
-            launchMethods(methods);
-        } else {
-            List<IType> types = resolver.resolveTypes();
-            if (TestLaunchShortcutValidator.validateTypes(types)) {
-                launchClasses(types);
-            } else {
-                showNoTestsFoundDialog();
-            }
+            targets.addAll(convertMethodsToTestTargets(methods));
         }
-    }
 
-    private void launchMethods(List<IMethod> methods) {
-        IProject project = methods.get(0).getJavaProject().getProject();
-        GradleRunConfigurationAttributes runConfigurationAttributes = collectRunConfigurationAttributes(project);
-        new RunGradleJvmTestMethodLaunchRequestJob(methods, runConfigurationAttributes).schedule();
-    }
+        List<IType> types = resolver.resolveTypes();
+        if (TestLaunchShortcutValidator.validateTypes(types)) {
+            targets.addAll(convertTypesToTestTargets(types));
+        }
 
-    private void launchClasses(List<IType> types) {
-        IProject project = types.get(0).getJavaProject().getProject();
-        GradleRunConfigurationAttributes runConfigurationAttributes = collectRunConfigurationAttributes(project);
-        new RunGradleJvmTestLaunchRequestJob(toTestTargets(types), runConfigurationAttributes).schedule();
+        List<TestTarget> testTargets = targets.build();
+        if (!testTargets.isEmpty()) {
+            IProject project = types.get(0).getJavaProject().getProject();
+            GradleRunConfigurationAttributes runConfigurationAttributes = collectRunConfigurationAttributes(project);
+            new RunGradleJvmTestLaunchRequestJob(testTargets, runConfigurationAttributes).schedule();
+        } else {
+            showNoTestsFoundDialog();
+        }
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -105,6 +101,7 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
     }
 
     private void showNoTestsFoundDialog() {
+        // TODO (donat) null is not allowed
         CorePlugin.userNotification().errorOccurred(
                 LaunchMessages.Test_Not_Found_Dialog_Title,
                 LaunchMessages.Test_Not_Found_Dialog_Message,
@@ -113,7 +110,7 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
                 null);
     }
 
-    private static List<TestTarget> toTestTargets(Collection<? extends IType> types) {
+    private static List<TestTarget> convertTypesToTestTargets(Collection<IType> types) {
         return FluentIterable.from(types).transform(new Function<IType, TestTarget>() {
 
             @Override
@@ -123,35 +120,14 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
         }).toList();
     }
 
-    /**
-     * {@link TestTarget} implementation backed by an {@link IMethod} instance.
-     */
-    private static final class TestType implements TestTarget {
+    private static List<TestTarget> convertMethodsToTestTargets(Collection<IMethod> methods) {
+        return FluentIterable.from(methods).transform(new Function<IMethod, TestTarget>() {
 
-        private final IType type;
-
-        private TestType(IType type) {
-            this.type = Preconditions.checkNotNull(type);
-        }
-
-        @Override
-        public String getSimpleName() {
-            return type.getElementName();
-        }
-
-        @Override
-        public String getQualifiedName() {
-            return type.getFullyQualifiedName();
-        }
-
-        @Override
-        public void apply(Builder testConfig) {
-            testConfig.jvmTestClasses(type.getFullyQualifiedName());
-        }
-
-        public static TestType from(IType type) {
-            return new TestType(type);
-        }
+            @Override
+            public TestTarget apply(IMethod method) {
+                return TestMethod.from(method);
+            }
+        }).toList();
     }
 
 }

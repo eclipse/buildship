@@ -63,18 +63,18 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
     }
 
     private String createProcessName(File workingDir) {
-        return String.format("[Gradle Project] %s in %s (%s)", Joiner.on(' ').join(collectSimpleClassNames(testTargets)), workingDir.getAbsolutePath(), DateFormat
+        return String.format("[Gradle Project] %s in %s (%s)", Joiner.on(' ').join(collectSimpleNames(testTargets)), workingDir.getAbsolutePath(), DateFormat
                 .getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(new Date()));
     }
 
     @Override
     protected Request<Void> createRequest() {
-        return CorePlugin.toolingClient().newTestLaunchRequest(TestConfig.forJvmTestClasses(collectFullyQualifiedClassNames(this.testTargets)));
+        return CorePlugin.toolingClient().newTestLaunchRequest(TestConfig.forJvmTestClasses(collectQualifiedNames(this.testTargets)));
     }
 
     @Override
     protected void writeExtraConfigInfo(OutputStreamWriter writer) throws IOException {
-        writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Tests, Joiner.on(' ').join(collectFullyQualifiedClassNames(testTargets))));
+        writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Tests, Joiner.on(' ').join(collectQualifiedNames(testTargets))));
     }
 
     /**
@@ -100,7 +100,7 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
 
     }
 
-    private static Collection<String> collectFullyQualifiedClassNames(ImmutableList<TestTarget> testTargets) {
+    private static Collection<String> collectQualifiedNames(ImmutableList<TestTarget> testTargets) {
         return FluentIterable.from(testTargets).transform(new Function<TestTarget, String>() {
 
             @Override
@@ -110,7 +110,7 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
         }).toSet();
     }
 
-    private static Collection<String> collectSimpleClassNames(ImmutableList<TestTarget> testTargets) {
+    private static Collection<String> collectSimpleNames(ImmutableList<TestTarget> testTargets) {
         return FluentIterable.from(testTargets).transform(new Function<TestTarget, String>() {
 
             @Override
