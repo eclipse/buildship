@@ -48,21 +48,6 @@ public final class TestLaunchShortcutValidator {
         return true;
     }
 
-    private static boolean isInSourceFolder(IType type) {
-        // if the type is not defined in a source folder or the source folder
-        // type can't be determined, then return false
-        IJavaElement fragmentRoot = type.getPackageFragment().getParent();
-        if (fragmentRoot instanceof IPackageFragmentRoot) {
-            IPackageFragmentRoot packageFragmentRoot = (IPackageFragmentRoot) fragmentRoot;
-            try {
-                return packageFragmentRoot.getKind() == IPackageFragmentRoot.K_SOURCE;
-            } catch (JavaModelException e) {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
 
     /**
      * Validates the target methods if they can be used to launch tests.
@@ -83,6 +68,22 @@ public final class TestLaunchShortcutValidator {
             }
         }
         return true;
+    }
+
+    private static boolean isInSourceFolder(IType type) {
+        // if the type is not defined in a source folder or the source folder
+        // type can't be determined, then return false
+        IJavaElement fragmentRoot = type.getPackageFragment().getParent();
+        if (fragmentRoot instanceof IPackageFragmentRoot) {
+            IPackageFragmentRoot packageFragmentRoot = (IPackageFragmentRoot) fragmentRoot;
+            try {
+                return packageFragmentRoot.getKind() == IPackageFragmentRoot.K_SOURCE;
+            } catch (JavaModelException e) {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     private static boolean validateJavaElements(List<? extends IJavaElement> elements) {
