@@ -69,7 +69,11 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
 
     @Override
     protected Request<Void> createRequest() {
-        return CorePlugin.toolingClient().newTestLaunchRequest(TestConfig.forJvmTestClasses(collectQualifiedNames(this.testTargets)));
+        TestConfig.Builder testConfig = new TestConfig.Builder();
+        for (TestTarget testTarget : testTargets) {
+            testTarget.apply(testConfig);
+        }
+        return CorePlugin.toolingClient().newTestLaunchRequest(testConfig.build());
     }
 
     @Override
