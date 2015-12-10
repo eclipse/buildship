@@ -50,7 +50,7 @@ final class ProjectNatureUpdater {
         try {
             StringSetProjectProperty knownNatures = StringSetProjectProperty.from(project, PROJECT_PROPERTY_KEY_GRADLE_NATURES);
             addNaturesNewInGradleModel(knownNatures, new SubProgressMonitor(monitor, 1));
-            removeNatureRemovedFromGradleModel(knownNatures, new SubProgressMonitor(monitor, 1));
+            removeNaturesRemovedFromGradleModel(knownNatures, new SubProgressMonitor(monitor, 1));
         } catch (CoreException e) {
             CorePlugin.logger().error(String.format("Cannot update project natures on %s.", project.getName()), e);
         } finally {
@@ -71,7 +71,7 @@ final class ProjectNatureUpdater {
         }
     }
 
-    private void removeNatureRemovedFromGradleModel(StringSetProjectProperty knownNatures, IProgressMonitor monitor) throws CoreException {
+    private void removeNaturesRemovedFromGradleModel(StringSetProjectProperty knownNatures, IProgressMonitor monitor) throws CoreException {
         Set<String> knownNatureIds = knownNatures.get();
         monitor.beginTask("Remove old natures", knownNatureIds.size());
         try {
