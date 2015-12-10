@@ -32,7 +32,7 @@ import org.eclipse.buildship.core.CorePlugin;
 /**
  * Updates the natures on the target project.
  */
-public final class ProjectNatureUpdater {
+final class ProjectNatureUpdater {
 
     private static final String PROJECT_PROPERTY_KEY_GRADLE_NATURES = "GRADLE_NATURES";
 
