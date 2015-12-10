@@ -37,21 +37,15 @@ public final class TestMethod implements TestTarget {
     @Override
     public String getQualifiedName() {
         IType declaringType = method.getDeclaringType();
-        if (declaringType != null) {
-            return declaringType.getElementName() + "#" + method.getElementName();
-        } else {
-            return "#" + method.getElementName();
-        }
+        return declaringType.getElementName() + "#" + method.getElementName();
     }
 
     @Override
     public void apply(Builder testConfig) {
         IType declaringType = method.getDeclaringType();
-        if (declaringType != null) {
-            String typeName = declaringType.getFullyQualifiedName();
-            String methodName = method.getElementName();
-            testConfig.jvmTestMethods(typeName, methodName);
-        }
+        String typeName = declaringType.getFullyQualifiedName();
+        String methodName = method.getElementName();
+        testConfig.jvmTestMethods(typeName, methodName);
     }
 
     public static TestMethod from(IMethod method) {
