@@ -99,7 +99,7 @@ final class ProjectNatureUpdater {
     }
 
     public static void update(IProject project, Optional<List<OmniEclipseProjectNature>> projectNatures, IProgressMonitor monitor) throws CoreException {
-        List<OmniEclipseProjectNature> natures = projectNatures.isPresent() ? projectNatures.get() : Collections.<OmniEclipseProjectNature>emptyList();
+        List<OmniEclipseProjectNature> natures = projectNatures.or(Collections.<OmniEclipseProjectNature>emptyList());
         ProjectNatureUpdater updater = new ProjectNatureUpdater(project, natures);
         updater.updateNatures(monitor);
     }
