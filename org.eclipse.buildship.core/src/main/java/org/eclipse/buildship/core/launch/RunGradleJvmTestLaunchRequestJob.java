@@ -11,6 +11,17 @@
 
 package org.eclipse.buildship.core.launch;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.gradleware.tooling.toolingclient.Request;
+import com.gradleware.tooling.toolingclient.TestConfig;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.core.i18n.CoreMessages;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -18,19 +29,6 @@ import java.text.DateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-
-import com.gradleware.tooling.toolingclient.Request;
-import com.gradleware.tooling.toolingclient.TestConfig;
-
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.i18n.CoreMessages;
 
 /**
  * Runs a Gradle test build which executes a list of test classes.
@@ -63,8 +61,9 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
     }
 
     private String createProcessName(File workingDir) {
-        return String.format("[Gradle Project] %s in %s (%s)", Joiner.on(' ').join(collectSimpleNames(testTargets)), workingDir.getAbsolutePath(), DateFormat
-                .getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(new Date()));
+        return String.format("[Gradle Project] %s in %s (%s)", Joiner.on(' ').join(collectSimpleNames(testTargets)),
+                workingDir.getAbsolutePath(),
+                DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(new Date()));
     }
 
     @Override
@@ -97,7 +96,8 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
 
         @Override
         public void rerun() {
-            RunGradleJvmTestLaunchRequestJob job = new RunGradleJvmTestLaunchRequestJob(RunGradleJvmTestLaunchRequestJob.this.testTargets,
+            RunGradleJvmTestLaunchRequestJob job = new RunGradleJvmTestLaunchRequestJob(
+                    RunGradleJvmTestLaunchRequestJob.this.testTargets,
                     RunGradleJvmTestLaunchRequestJob.this.configurationAttributes);
             job.schedule();
         }

@@ -18,13 +18,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-
 import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingclient.TestConfig;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.i18n.CoreMessages;
-
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.task.TaskOperationDescriptor;
 import org.gradle.tooling.events.test.JvmTestOperationDescriptor;
@@ -111,11 +109,7 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
                     JvmTestOperationDescriptor jvmTestDescriptor = (JvmTestOperationDescriptor) descriptor;
                     String className = jvmTestDescriptor.getClassName();
                     String methodName = jvmTestDescriptor.getMethodName();
-                    if (methodName != null) {
-                        return className + "#" + methodName;
-                    } else {
-                        return className;
-                    }
+                    return methodName != null ? className + "#" + methodName : className;
                 } else {
                     return descriptor.getDisplayName();
                 }
@@ -131,17 +125,12 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
                 if (descriptor instanceof JvmTestOperationDescriptor) {
                     JvmTestOperationDescriptor jvmTestDescriptor = (JvmTestOperationDescriptor) descriptor;
                     String className = jvmTestDescriptor.getClassName();
-                    // remove package name if any 
+                    String methodName = jvmTestDescriptor.getMethodName();
                     int index = className.lastIndexOf('.');
                     if (index >= 0 && className.length() > index + 1) {
                         className = className.substring(index + 1);
                     }
-                    String methodName = jvmTestDescriptor.getMethodName();
-                    if (methodName != null) {
-                        return className + "#" + methodName;
-                    } else {
-                        return className;
-                    }
+                    return methodName != null ? className + "#" + methodName : className;
                 } else {
                     return descriptor.getDisplayName();
                 }
