@@ -6,9 +6,9 @@ apply plugin: eclipsebuild.BuildDefinitionPlugin
 
 // define version mapping for the 3rd-party dependencies that are not specific to a particular Eclipse version
 def eclipseVersionAgnosticDependencies = [
-    'com.gradleware.tooling.utils'      : '0.8.0',
-    'com.gradleware.tooling.client'     : '0.8.0',
-    'com.gradleware.tooling.model'      : '0.8.0',
+    'com.gradleware.tooling.utils'      : '0.8.1',
+    'com.gradleware.tooling.client'     : '0.8.1',
+    'com.gradleware.tooling.model'      : '0.8.1',
     'org.gradle.toolingapi'             : '2.9.0',
     'org.slf4j.api'                     : '1.7.2',
     'org.slf4j.simple'                  : '1.7.2',
