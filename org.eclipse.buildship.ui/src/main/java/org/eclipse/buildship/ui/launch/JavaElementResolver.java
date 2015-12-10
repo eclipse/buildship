@@ -90,9 +90,6 @@ public abstract class JavaElementResolver {
             case IJavaElement.FIELD:
                 result = ((IField) javaElement).getDeclaringType();
                 break;
-            case IJavaElement.METHOD:
-                result = ((IMethod) javaElement).getDeclaringType();
-                break;
             case IJavaElement.CLASS_FILE:
             case IJavaElement.COMPILATION_UNIT:
                 result = ((ITypeRoot) javaElement).findPrimaryType();
