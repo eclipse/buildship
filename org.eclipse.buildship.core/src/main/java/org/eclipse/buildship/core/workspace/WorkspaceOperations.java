@@ -125,6 +125,8 @@ public interface WorkspaceOperations {
 
     /**
      * Adds the given nature to an existing {@link IProject}.
+     * <p/>
+     * If the target project already has the nature, then it will remain unchanged.
      *
      * @param project the project to which to add the nature
      * @param natureId the nature to add
