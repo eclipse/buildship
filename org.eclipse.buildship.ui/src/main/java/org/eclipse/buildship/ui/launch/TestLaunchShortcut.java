@@ -22,12 +22,14 @@ import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
@@ -57,20 +59,22 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
     private void launch(JavaElementResolver resolver) {
         // try to launch test methods, otherwise try to launch entire test classes
         ImmutableList.Builder<TestTarget> targets = ImmutableList.builder();
-        
+        IProject project = null;
+
         List<IMethod> methods = resolver.resolveMethods();
         if (TestLaunchShortcutValidator.validateMethods(methods)) {
             targets.addAll(convertMethodsToTestTargets(methods));
+            project = methods.get(0).getJavaProject().getProject();
         }
 
         List<IType> types = resolver.resolveTypes();
         if (TestLaunchShortcutValidator.validateTypes(types)) {
             targets.addAll(convertTypesToTestTargets(types));
+            project = types.get(0).getJavaProject().getProject();
         }
 
         List<TestTarget> testTargets = targets.build();
         if (!testTargets.isEmpty()) {
-            IProject project = types.get(0).getJavaProject().getProject();
             GradleRunConfigurationAttributes runConfigurationAttributes = collectRunConfigurationAttributes(project);
             new RunGradleJvmTestLaunchRequestJob(testTargets, runConfigurationAttributes).schedule();
         } else {
@@ -101,13 +105,18 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
     }
 
     private void showNoTestsFoundDialog() {
-        // TODO (donat) null is not allowed
-        CorePlugin.userNotification().errorOccurred(
-                LaunchMessages.Test_Not_Found_Dialog_Title,
-                LaunchMessages.Test_Not_Found_Dialog_Message,
-                LaunchMessages.Test_Not_Found_Dialog_Details,
-                IStatus.WARNING,
-                null);
+        PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+
+            @Override
+            public void run() {
+                Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
+                MessageDialog.openWarning(shell, 
+                                          LaunchMessages.Test_Not_Found_Dialog_Title,
+                                          String.format("%s%n%s", LaunchMessages.Test_Not_Found_Dialog_Message,
+                                                                  LaunchMessages.Test_Not_Found_Dialog_Details));
+
+            }
+        });
     }
 
     private static List<TestTarget> convertTypesToTestTargets(Collection<IType> types) {
