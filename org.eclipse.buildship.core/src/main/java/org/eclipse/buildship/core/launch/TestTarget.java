@@ -19,24 +19,25 @@ import com.gradleware.tooling.toolingclient.TestConfig;
 public interface TestTarget {
 
     /**
-     * Returns the name of the element.For a class it's the name without the package declaration.
-     * 
+     * Returns the name of the element.
+     *
      * @return the simple name of the element
      */
     String getSimpleName();
 
     /**
-     * Returns the qualified name of the element. For a class its the name containing the package
+     * Returns the qualified name of the element.
      * declaration.
-     * 
+     *
      * @return the qualified name of the element
      */
     String getQualifiedName();
 
     /**
      * Adds the current element to the target test configuration.
-     * 
+     *
      * @param testConfig the configuration to apply the current element on
      */
     void apply(TestConfig.Builder testConfig);
+
 }

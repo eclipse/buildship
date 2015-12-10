@@ -12,9 +12,7 @@
 package org.eclipse.buildship.core.launch;
 
 import com.google.common.base.Preconditions;
-
 import com.gradleware.tooling.toolingclient.TestConfig.Builder;
-
 import org.eclipse.jdt.core.IType;
 
 /**
@@ -46,4 +44,5 @@ public final class TestType implements TestTarget {
     public static TestType from(IType type) {
         return new TestType(type);
     }
+
 }

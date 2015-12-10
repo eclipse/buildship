@@ -12,9 +12,7 @@
 package org.eclipse.buildship.core.launch;
 
 import com.google.common.base.Preconditions;
-
 import com.gradleware.tooling.toolingclient.TestConfig.Builder;
-
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 
@@ -51,4 +49,5 @@ public final class TestMethod implements TestTarget {
     public static TestMethod from(IMethod method) {
         return new TestMethod(method);
     }
+
 }
