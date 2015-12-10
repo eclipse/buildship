@@ -11,16 +11,14 @@
 
 package org.eclipse.buildship.ui.launch;
 
-import java.util.Collection;
-import java.util.List;
-
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.launch.*;
+import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.jdt.core.IMethod;
@@ -31,13 +29,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
-import org.eclipse.buildship.core.launch.RunGradleJvmTestLaunchRequestJob;
-import org.eclipse.buildship.core.launch.TestMethod;
-import org.eclipse.buildship.core.launch.TestTarget;
-import org.eclipse.buildship.core.launch.TestType;
-import org.eclipse.buildship.core.util.file.FileUtils;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Shortcut for Gradle test launches from the Java editor or from the current selection.
@@ -57,23 +50,14 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
     }
 
     private void launch(JavaElementResolver resolver) {
-        // try to launch test methods, otherwise try to launch entire test classes
-        ImmutableList.Builder<TestTarget> targets = ImmutableList.builder();
-        IProject project = null;
-
         List<IType> types = resolver.resolveTypes();
         List<IMethod> methods = resolver.resolveMethods();
         if (TestLaunchShortcutValidator.validateTypesAndMethods(types, methods)) {
+            ImmutableList.Builder<TestTarget> targets = ImmutableList.builder();
             targets.addAll(convertTypesToTestTargets(types));
             targets.addAll(convertMethodsToTestTargets(methods));
-            // if the methods-types are valid then all of them has the same non-null container project
-            project = resolver.findFirstContainerProject().get();
-        }
-
-        List<TestTarget> testTargets = targets.build();
-        if (!testTargets.isEmpty()) {
-            GradleRunConfigurationAttributes runConfigurationAttributes = collectRunConfigurationAttributes(project);
-            new RunGradleJvmTestLaunchRequestJob(testTargets, runConfigurationAttributes).schedule();
+            GradleRunConfigurationAttributes runConfigurationAttributes = collectRunConfigurationAttributes(resolver.findFirstContainerProject().get());
+            new RunGradleJvmTestLaunchRequestJob(targets.build(), runConfigurationAttributes).schedule();
         } else {
             showNoTestsFoundDialog();
         }
@@ -107,10 +91,10 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
             @Override
             public void run() {
                 Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
-                MessageDialog.openWarning(shell, 
-                                          LaunchMessages.Test_Not_Found_Dialog_Title,
-                                          String.format("%s%n%s", LaunchMessages.Test_Not_Found_Dialog_Message,
-                                                                  LaunchMessages.Test_Not_Found_Dialog_Details));
+                MessageDialog.openWarning(shell,
+                        LaunchMessages.Test_Not_Found_Dialog_Title,
+                        String.format("%s%n%s", LaunchMessages.Test_Not_Found_Dialog_Message,
+                                LaunchMessages.Test_Not_Found_Dialog_Details));
 
             }
         });

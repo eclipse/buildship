@@ -49,7 +49,6 @@ public final class TestLaunchShortcutValidator {
         return true;
     }
 
-
     private static boolean validateMethods(Collection<IMethod> methods) {
         for (IMethod element : methods) {
             IType type = element.getDeclaringType();
