@@ -31,12 +31,12 @@ import java.util.Set;
 /**
  * Updates the build commands on the target project.
  */
-public final class BuildCommandUpdater {
+final class BuildCommandUpdater {
 
     private static final String PROJECT_PROPERTY_KEY_GRADLE_BUILD_COMMANDS = "GRADLE_BUILD_COMMANDS";
 
     private final IProject project;
-    private final List<OmniEclipseBuildCommand> buildCommands;
+    private final ImmutableList<OmniEclipseBuildCommand> buildCommands;
 
     public BuildCommandUpdater(IProject project, List<OmniEclipseBuildCommand> buildCommands) {
         this.project = Preconditions.checkNotNull(project);
@@ -47,16 +47,16 @@ public final class BuildCommandUpdater {
         monitor.beginTask("Updating build commands", 2);
         try {
             StringSetProjectProperty knownCommands = StringSetProjectProperty.from(project, PROJECT_PROPERTY_KEY_GRADLE_BUILD_COMMANDS);
-            addNewBuildCommandsNewInGradleModel(knownCommands, new SubProgressMonitor(monitor, 1));
+            addBuildCommandsNewInGradleModel(knownCommands, new SubProgressMonitor(monitor, 1));
             removeBuildCommandsRemovedFromGradleModel(knownCommands, new SubProgressMonitor(monitor, 1));
         } catch (CoreException e) {
-            CorePlugin.logger().error(String.format("Can't update build commands on %s.", project.getName()), e);
+            CorePlugin.logger().error(String.format("Cannot update build commands on %s.", project.getName()), e);
         } finally {
             monitor.done();
         }
     }
 
-    private void addNewBuildCommandsNewInGradleModel(StringSetProjectProperty knownCommands, IProgressMonitor monitor) {
+    private void addBuildCommandsNewInGradleModel(StringSetProjectProperty knownCommands, IProgressMonitor monitor) {
         monitor.beginTask("Add new build commands", buildCommands.size());
         try {
             for (OmniEclipseBuildCommand buildCommand : buildCommands) {
@@ -98,7 +98,7 @@ public final class BuildCommandUpdater {
     }
 
     public static void update(IProject project, Optional<List<OmniEclipseBuildCommand>> buildCommands, IProgressMonitor monitor) throws CoreException {
-        List<OmniEclipseBuildCommand> builderCommands = buildCommands.isPresent() ? buildCommands.get() : Collections.<OmniEclipseBuildCommand>emptyList();
+        List<OmniEclipseBuildCommand> builderCommands = buildCommands.or(Collections.<OmniEclipseBuildCommand>emptyList());
         BuildCommandUpdater updater = new BuildCommandUpdater(project, builderCommands);
         updater.updateBuildCommands(monitor);
     }
