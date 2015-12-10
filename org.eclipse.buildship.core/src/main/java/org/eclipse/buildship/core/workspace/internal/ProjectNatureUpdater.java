@@ -52,7 +52,7 @@ final class ProjectNatureUpdater {
             addNewNaturesNewInGradleModel(knownNatures, new SubProgressMonitor(monitor, 1));
             removeNatureRemovedFromGradleModel(knownNatures, new SubProgressMonitor(monitor, 1));
         } catch (CoreException e) {
-            CorePlugin.logger().error(String.format("Can't update project natures on %s.", project.getName()), e);
+            CorePlugin.logger().error(String.format("Cannot update project natures on %s.", project.getName()), e);
         } finally {
             monitor.done();
         }
