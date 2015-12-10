@@ -61,16 +61,13 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
         ImmutableList.Builder<TestTarget> targets = ImmutableList.builder();
         IProject project = null;
 
-        List<IMethod> methods = resolver.resolveMethods();
-        if (TestLaunchShortcutValidator.validateMethods(methods)) {
-            targets.addAll(convertMethodsToTestTargets(methods));
-            project = methods.get(0).getJavaProject().getProject();
-        }
-
         List<IType> types = resolver.resolveTypes();
-        if (TestLaunchShortcutValidator.validateTypes(types)) {
+        List<IMethod> methods = resolver.resolveMethods();
+        if (TestLaunchShortcutValidator.validateTypesAndMethods(types, methods)) {
             targets.addAll(convertTypesToTestTargets(types));
-            project = types.get(0).getJavaProject().getProject();
+            targets.addAll(convertMethodsToTestTargets(methods));
+            // if the methods-types are valid then all of them has the same non-null container project
+            project = resolver.findFirstContainerProject().get();
         }
 
         List<TestTarget> testTargets = targets.build();

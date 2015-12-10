@@ -13,6 +13,8 @@ package org.eclipse.buildship.ui.launch;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.*;
 
 import java.util.Collection;
@@ -97,6 +99,24 @@ public abstract class JavaElementResolver {
         }
 
         return Optional.fromNullable(result);
+    }
+
+    /**
+     * Iterates through the java elements and returns the first non-null container project.
+     *
+     * @return the container project or absent value if none
+     */
+    public Optional<IProject> findFirstContainerProject() {
+        for (IJavaElement javaElement : findJavaElements()) {
+            IJavaProject javaProject = javaElement.getJavaProject();
+            if (javaProject != null) {
+                IProject project = javaProject.getProject();
+                if (project != null) {
+                    return Optional.of(project);
+                }
+            }
+        }
+        return Optional.absent();
     }
 
     /**

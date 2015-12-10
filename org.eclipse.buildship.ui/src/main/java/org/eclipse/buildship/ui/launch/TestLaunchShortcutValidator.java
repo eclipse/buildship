@@ -29,17 +29,18 @@ public final class TestLaunchShortcutValidator {
     }
 
     /**
-     * Validates the target types if they can be used to launch tests.
+     * Validates the target types and methods can be used to launch tests.
      *
-     * @param elements the target types
-     * @return {@code true} if the types can be used to launch tests
+     * @param types the target types
+     * @param methods the target methods
+     * @return {@code true} if the arguments can be used to launch tests
      */
-    public static boolean validateTypes(Collection<IType> elements) {
-        ImmutableList<IType> types = ImmutableList.copyOf(elements);
-        return validateJavaElements(types) && validateTypes(types);
+    public static boolean validateTypesAndMethods(Collection<IType> types, Collection<IMethod> methods) {
+        List<IJavaElement> allElements = ImmutableList.<IJavaElement>builder().addAll(types).addAll(methods).build();
+        return validateJavaElements(allElements) && validateTypes(types) && validateMethods(methods);
     }
 
-    private static boolean validateTypes(ImmutableList<IType> types) {
+    private static boolean validateTypes(Collection<IType> types) {
         for (IType type : types) {
             if (!isInSourceFolder(type)) {
                 return false;
@@ -49,18 +50,7 @@ public final class TestLaunchShortcutValidator {
     }
 
 
-    /**
-     * Validates the target methods if they can be used to launch tests.
-     *
-     * @param elements the target methods
-     * @return {@code true} if the types can be used to launch a tests execution
-     */
-    public static boolean validateMethods(Collection<IMethod> elements) {
-        ImmutableList<IMethod> methods = ImmutableList.copyOf(elements);
-        return validateJavaElements(methods) && validateMethods(methods);
-    }
-
-    private static boolean validateMethods(ImmutableList<IMethod> methods) {
+    private static boolean validateMethods(Collection<IMethod> methods) {
         for (IMethod element : methods) {
             IType type = element.getDeclaringType();
             if (type == null || !isInSourceFolder(type)) {
@@ -134,7 +124,7 @@ public final class TestLaunchShortcutValidator {
 
         private boolean selectionIsLaunchableAsTest(Collection<?> elements) {
             JavaElementResolver elementResolver = SelectionJavaElementResolver.from(elements);
-            return validateTypes(elementResolver.resolveTypes()) || validateMethods(elementResolver.resolveMethods());
+            return validateTypesAndMethods(elementResolver.resolveTypes(), elementResolver.resolveMethods());
         }
 
     }
