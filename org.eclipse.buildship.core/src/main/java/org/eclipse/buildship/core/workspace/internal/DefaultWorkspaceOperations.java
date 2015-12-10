@@ -405,7 +405,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             buildCommands.add(createCommand(description, name, arguments));
             setNewBuildCommands(project, description, buildCommands, new SubProgressMonitor(monitor, 1));
         } catch (CoreException e) {
-            String message = String.format("Cannot add nature %s to Eclipse project %s.", name, project.getName());
+            String message = String.format("Cannot add build command %s with arguments %s to Eclipse project %s.", name, arguments, project.getName());
             throw new GradlePluginsRuntimeException(message, e);
         } finally {
             monitor.done();
@@ -448,7 +448,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
                 monitor.worked(1);
             }
         } catch (CoreException e) {
-            String message = String.format("Cannot add nature %s to Eclipse project %s.", name, project.getName());
+            String message = String.format("Cannot remove build command %s from Eclipse project %s.", name, project.getName());
             throw new GradlePluginsRuntimeException(message, e);
         } finally {
             monitor.done();
