@@ -19,6 +19,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature;
 
@@ -37,11 +38,11 @@ final class ProjectNatureUpdater {
     private static final String PROJECT_PROPERTY_KEY_GRADLE_NATURES = "GRADLE_NATURES";
 
     private final IProject project;
-    private final List<OmniEclipseProjectNature> natures;
+    private final ImmutableList<OmniEclipseProjectNature> natures;
 
     public ProjectNatureUpdater(IProject project, List<OmniEclipseProjectNature> natures) {
         this.project = Preconditions.checkNotNull(project);
-        this.natures = Preconditions.checkNotNull(natures);
+        this.natures = ImmutableList.copyOf(natures);
     }
 
     private void updateNatures(IProgressMonitor monitor) {
