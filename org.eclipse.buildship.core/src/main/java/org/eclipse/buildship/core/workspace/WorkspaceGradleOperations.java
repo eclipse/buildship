@@ -74,7 +74,7 @@ public interface WorkspaceGradleOperations {
      * <li>the workspace project doesn't have the Java nature</li>
      * </ul>
      * </li>
-     * <li>project natures and build commands are set</li>
+     * <li>update project natures and build commands</li>
      * </ul>
      * </li>
      * </ol>
@@ -100,7 +100,7 @@ public interface WorkspaceGradleOperations {
      * <li>a Gradle classpath container is added (this triggers a synchronize through the classpath container, handled by #1)</li>
      * </ul>
      * </li>
-     * <li>project natures and build commands are set</li>
+     * <li>update project natures and build commands</li>
      * </ul>
      * </li>
      * </ol>
