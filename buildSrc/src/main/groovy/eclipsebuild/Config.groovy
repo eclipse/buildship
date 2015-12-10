@@ -91,10 +91,7 @@ class Config {
     }
 
     File getJarProcessorJar() {
-        def pluginsFolder = OperatingSystem.current().isMacOsX() ?
-            new File(eclipseSdkDir.path, '/Eclipse.app/Contents/Eclipse/plugins') :
-            new File(eclipseSdkDir.path, '/eclipse/plugins')
-        pluginsFolder.listFiles().find { it.name.startsWith('org.eclipse.equinox.p2.jarprocessor_') }
+        new File(eclipseSdkDir.path, '/eclipse/plugins').listFiles().find { it.name.startsWith('org.eclipse.equinox.p2.jarprocessor_') }
     }
 
 }
