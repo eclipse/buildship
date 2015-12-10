@@ -35,7 +35,7 @@ public final class TestMethod implements TestTarget {
     @Override
     public String getQualifiedName() {
         IType declaringType = method.getDeclaringType();
-        return declaringType.getElementName() + "#" + method.getElementName();
+        return declaringType.getFullyQualifiedName() + "#" + method.getElementName();
     }
 
     @Override
