@@ -49,7 +49,7 @@ final class ProjectNatureUpdater {
         monitor.beginTask("Updating project natures", 2);
         try {
             StringSetProjectProperty knownNatures = StringSetProjectProperty.from(project, PROJECT_PROPERTY_KEY_GRADLE_NATURES);
-            addNewNaturesNewInGradleModel(knownNatures, new SubProgressMonitor(monitor, 1));
+            addNaturesNewInGradleModel(knownNatures, new SubProgressMonitor(monitor, 1));
             removeNatureRemovedFromGradleModel(knownNatures, new SubProgressMonitor(monitor, 1));
         } catch (CoreException e) {
             CorePlugin.logger().error(String.format("Cannot update project natures on %s.", project.getName()), e);
@@ -58,7 +58,7 @@ final class ProjectNatureUpdater {
         }
     }
 
-    private void addNewNaturesNewInGradleModel(StringSetProjectProperty knownNatures, IProgressMonitor monitor) {
+    private void addNaturesNewInGradleModel(StringSetProjectProperty knownNatures, IProgressMonitor monitor) {
         monitor.beginTask("Add new natures", natures.size());
         try {
             for (OmniEclipseProjectNature nature : natures) {
