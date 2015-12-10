@@ -29,7 +29,8 @@ public final class TestMethod implements TestTarget {
 
     @Override
     public String getSimpleName() {
-        return method.getElementName();
+        IType declaringType = method.getDeclaringType();
+        return declaringType.getElementName() + "#" + method.getElementName();
     }
 
     @Override
