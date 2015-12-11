@@ -13,8 +13,6 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
@@ -33,7 +31,7 @@ import org.eclipse.buildship.core.CorePlugin;
 /**
  * Updates the Java source settings on the target project.
  */
-public final class JavaSourceSettingsUpdater {
+final class JavaSourceSettingsUpdater {
 
     private static final ImmutableList<String> availableJavaVersions;
 
@@ -43,25 +41,25 @@ public final class JavaSourceSettingsUpdater {
     static {
         // the supported Java versions vary along Eclipse releases therefore we can't query it
         // directly
-        List<String> versions = new ArrayList<String>(10);
+        ImmutableList.Builder<String> versions = ImmutableList.builder();
         for (Field field : JavaCore.class.getFields()) {
             if (Modifier.isStatic(field.getModifiers()) && field.getType().equals(String.class) && field.getName().matches("VERSION_\\d+_\\d+")) {
                 try {
                     versions.add((String) field.get(null));
                 } catch (Exception e) {
-                    CorePlugin.logger().error("Can't retrieve supported Java versions from JavaCore.", e);
+                    CorePlugin.logger().error("Cannot retrieve supported Java versions from JavaCore.", e);
                 }
             }
         }
-        availableJavaVersions = ImmutableList.copyOf(versions);
+        availableJavaVersions = versions.build();
     }
 
     public static void update(IJavaProject project, Maybe<OmniJavaSourceSettings> sourceSettings, IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask("Update source settings", 1);
+        monitor.beginTask("Update Java source settings", 1);
         try {
             if (sourceSettings.isPresent() && sourceSettings.get() != null) {
                 String javaSourceVersion = sourceSettings.get().getSourceLanguageLevel().getName();
-                if (isValidVersion(javaSourceVersion)) {
+                if (eclipseRuntimeSupportsJavaVersion(javaSourceVersion)) {
 
                     // set the source compatibility
                     boolean compilerOptionChanged = false;
@@ -69,12 +67,11 @@ public final class JavaSourceSettingsUpdater {
                     compilerOptionChanged |= updateJavaProjectOptionIfNeeded(project, JavaCore.COMPILER_COMPLIANCE, javaSourceVersion);
 
                     // TODO (donat) once the targetCompatibility is available via the Tooling API
-                    // move this command to the corresponding updater class
+                    // this part should be part of the corresponding updater
                     compilerOptionChanged |= updateJavaProjectOptionIfNeeded(project, JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, javaSourceVersion);
 
                     if (compilerOptionChanged) {
-                        // if the compiler options have changed the project has to be rebuilt to
-                        // apply the changes
+                        // if the compiler options have changed the project has to be rebuilt to apply the changes
                         project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, new SubProgressMonitor(monitor, 1));
                     } else {
                         monitor.worked(1);
@@ -86,7 +83,7 @@ public final class JavaSourceSettingsUpdater {
         }
     }
 
-    private static boolean isValidVersion(String javaSourceVersion) {
+    private static boolean eclipseRuntimeSupportsJavaVersion(String javaSourceVersion) {
         return availableJavaVersions.contains(javaSourceVersion);
     }
 
