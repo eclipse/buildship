@@ -500,31 +500,6 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         project.description.buildSpec.find{ it.builderName == 'customBuildCommand' }.arguments == ['buildCommandKey' : "buildCommandValue"]
     }
 
-    def "If no workspace project or .project file exists, then the additional natures and build commands are set"() {
-        setup:
-        fileStructure().create {
-            file 'sample-project/build.gradle', """
-                apply plugin: 'eclipse'
-                eclipse {
-                    project {
-                        natures << "org.eclipse.pde.UpdateSiteNature"
-                        buildCommand 'customBuildCommand', buildCommandKey: "buildCommandValue"
-                    }
-                }
-            """
-            file 'sample-project/settings.gradle'
-        }
-        GradleModel gradleModel = loadGradleModel('sample-project')
-
-        when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
-
-        then:
-        def project = findProject('sample-project')
-        project.description.natureIds.find{ it == 'org.eclipse.pde.UpdateSiteNature' }
-        project.description.buildSpec.find{ it.builderName == 'customBuildCommand' }.arguments == ['buildCommandKey' : "buildCommandValue"]
-    }
-
     def "Uncoupling a project removes the Gradle nature"() {
         setup:
         fileStructure().create {

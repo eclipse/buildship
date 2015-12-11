@@ -4,7 +4,6 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
-import com.gradleware.tooling.toolingmodel.OmniJavaLanguageLevel
 import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings
 import com.gradleware.tooling.toolingmodel.OmniJavaVersion
 import com.gradleware.tooling.toolingmodel.util.Maybe
@@ -76,10 +75,8 @@ class JavaSourceSettingsUpdaterTest extends Specification {
     private def sourceSettings(String sourceVersion) {
         OmniJavaVersion version = Mock()
         version.name >> sourceVersion
-        OmniJavaLanguageLevel sourceLanguageLevel = Mock()
-        sourceLanguageLevel.version >> version
         OmniJavaSourceSettings settings = Mock()
-        settings.sourceLanguageLevel >> sourceLanguageLevel
+        settings.sourceLanguageLevel >> version
         Maybe.of(settings)
     }
 
