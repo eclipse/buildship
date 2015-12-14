@@ -164,6 +164,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
                     // add the Gradle classpath container to its classpath
                     IPath jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath();
                     IClasspathEntry classpathContainer = GradleClasspathContainer.newClasspathEntry();
+                    monitor.worked(1);
                     IJavaProject javaProject = CorePlugin.workspaceOperations().createJavaProject(workspaceProject, jrePath, classpathContainer, new SubProgressMonitor(monitor, 1));
                     JavaSourceSettingsUpdater.update(javaProject, project.getJavaSourceSettings(), new SubProgressMonitor(monitor, 1));
                 }
