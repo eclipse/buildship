@@ -302,7 +302,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             return javaSourceSettings.get() != null;
         } else {
             // for older Gradle versions the following approximation is used: if the project
-            // has at least one source folders then it is a Java project
+            // has at least one source folder then it is a Java project
             return !project.getSourceDirectories().isEmpty();
         }
     }
