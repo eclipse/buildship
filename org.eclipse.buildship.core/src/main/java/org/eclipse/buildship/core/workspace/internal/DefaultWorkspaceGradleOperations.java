@@ -206,7 +206,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     }
 
     private IProject addExistingEclipseProjectToWorkspace(OmniEclipseProject project, IProjectDescription projectDescription, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask(String.format("Add existing Eclipse project %s for Gradle project %s to the workspace", projectDescription.getName(), project.getName()), 3);
+        monitor.beginTask(String.format("Add existing Eclipse project %s for Gradle project %s to the workspace", projectDescription.getName(), project.getName()), 4);
         try {
             // include the existing Eclipse project in the workspace
             List<String> gradleNature = ImmutableList.of(GradleProjectNature.ID);
@@ -215,6 +215,14 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             // persist the Gradle-specific configuration in the Eclipse project's .settings folder
             ProjectConfiguration projectConfiguration = ProjectConfiguration.from(rootRequestAttributes, project);
             CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, workspaceProject);
+
+            // update the source language level in case of a Java project
+            if (hasJavaNature(workspaceProject)) {
+                IJavaProject javaProject = JavaCore.create(workspaceProject);
+                JavaSourceSettingsUpdater.update(javaProject, project.getJavaSourceSettings(), new SubProgressMonitor(monitor, 1));
+            } else {
+                monitor.worked(1);
+            }
 
             // set project natures and build commands
             ProjectNatureUpdater.update(workspaceProject, project.getProjectNatures(), new SubProgressMonitor(monitor, 1));

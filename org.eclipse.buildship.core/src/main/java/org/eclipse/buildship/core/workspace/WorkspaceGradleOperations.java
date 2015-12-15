@@ -86,6 +86,7 @@ public interface WorkspaceGradleOperations {
      * <li>the Eclipse project is added to the workspace</li>
      * <li>the Gradle nature is set</li>
      * <li>the Gradle settings file is written</li>
+     * <li>update the source compatibility settings in case of a java project</li>
      * <li>project natures and build commands are set</li>
      * </ul>
      * </li>
