@@ -21,8 +21,7 @@ new default Eclipse installer. Oomph is a model-based tool to install custom Ecl
 ### 1. Install Oomph
 
 The latest version of Oomph is available at the [project's wiki page](https://wiki.eclipse.org/Eclipse_Oomph_Installer). Download and extract the binary that matches
-your environment. When you start Oomph, click the Advanced Mode icon. You should then see the screen below. Select _Eclipse Platform_ to install the minimum
-set of plugins for the IDE. Check if the _VM_ and the _Bundle pool_ have proper values. Then click _Next_.
+your environment. When you start Oomph, click the Advanced Mode icon. You should then see the screen below. Select _Eclipse IDE for Eclipse committers_. Check if the _VM_ and the _Bundle pool_ have proper values. Then click _Next_.
 
 ![Oomph initial screen](oomph/install-1.png)
 
