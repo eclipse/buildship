@@ -1,5 +1,6 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import org.gradle.api.JavaVersion
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationPersistence
@@ -156,6 +157,7 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
             file 'sample-project/build.gradle', """
                 apply plugin: 'java'
                 sourceCompatibility = 1.2
+                targetCompatibility = 1.3
             """
             file 'sample-project/settings.gradle'
             folder 'sample-project/src/main/java'
@@ -167,9 +169,9 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         javaProject = JavaCore.create(findProject('sample-project'))
 
         then:
-        javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true) == JavaCore.VERSION_1_2
+        javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true) == JavaVersion.current().toString()
         javaProject.getOption(JavaCore.COMPILER_SOURCE, true) == JavaCore.VERSION_1_2
-        javaProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == JavaCore.VERSION_1_2
+        javaProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == JavaCore.VERSION_1_3
     }
 
     def "If workspace project exists at model location, then an existing java project's source folders are updated"() {
@@ -311,6 +313,7 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
             file 'sample-project/build.gradle', """
                 apply plugin: "java"
                 sourceCompatibility = 1.4
+                targetCompatibility = 1.5
             """
         }
 
@@ -327,9 +330,9 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         javaProject = JavaCore.create(findProject('sample-project'))
 
         then:
-        javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true) == JavaCore.VERSION_1_4
+        javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true) == JavaVersion.current().toString()
         javaProject.getOption(JavaCore.COMPILER_SOURCE, true) == JavaCore.VERSION_1_4
-        javaProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == JavaCore.VERSION_1_4
+        javaProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == JavaCore.VERSION_1_5
     }
 
     def "If .project file exists at the model location, then build commands and natures are set"() {
@@ -481,6 +484,7 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
             file 'sample-project/build.gradle', """
                 apply plugin: "java"
                 sourceCompatibility = 1.3
+                targetCompatibility = 1.4
             """
             file 'sample-project/settings.gradle'
             folder 'sample-project/src/main/java'
@@ -492,9 +496,9 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
 
         then:
         def javaProject = JavaCore.create(findProject('sample-project'))
-        javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true) == JavaCore.VERSION_1_3
+        javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true) == JavaVersion.current().toString()
         javaProject.getOption(JavaCore.COMPILER_SOURCE, true) == JavaCore.VERSION_1_3
-        javaProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == JavaCore.VERSION_1_3
+        javaProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == JavaCore.VERSION_1_4
     }
 
     def "If no workspace project or .project file exists, then the additional natures and build commands are set"() {
@@ -553,7 +557,58 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         }
     }
 
-    def "All projects with an existing .project file are handled by the ExistingDescriptorHandler"() {
+    def "If the .project file is deleted on import, then a Java project is created with proper source settings"() {
+        setup:
+        IProject project = newOpenProject('sample-project')
+        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
+        fileStructure().create {
+            file 'sample-project/build.gradle', """
+                apply plugin: "java"
+                sourceCompatibility = 1.3
+                targetCompatibility = 1.4
+            """
+            file 'sample-project/settings.gradle'
+            folder 'sample-project/src/main/java'
+        }
+        GradleModel gradleModel = loadGradleModel('sample-project')
+
+        when:
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, ExistingDescriptorHandler.ALWAYS_DELETE)
+
+        then:
+        def javaProject = JavaCore.create(findProject('sample-project'))
+        javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true) ==  JavaVersion.current().toString()
+        javaProject.getOption(JavaCore.COMPILER_SOURCE, true) == JavaCore.VERSION_1_3
+        javaProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == JavaCore.VERSION_1_4
+    }
+
+    def "If the .project file is deleted on import, then the additional natures and build commands are set"() {
+        setup:
+        IProject project = newOpenProject('sample-project')
+        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
+        fileStructure().create {
+            file 'sample-project/build.gradle', """
+                apply plugin: 'eclipse'
+                eclipse {
+                    project {
+                        natures << "org.eclipse.pde.UpdateSiteNature"
+                        buildCommand 'customBuildCommand', buildCommandKey: "buildCommandValue"
+                    }
+                }
+            """
+            file 'sample-project/settings.gradle'
+        }
+        GradleModel gradleModel = loadGradleModel('sample-project')
+
+        when:
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, ExistingDescriptorHandler.ALWAYS_DELETE)
+
+        then:
+        project.description.natureIds.find{ it == 'org.eclipse.pde.UpdateSiteNature' }
+        project.description.buildSpec.find{ it.builderName == 'customBuildCommand' }.arguments == ['buildCommandKey' : "buildCommandValue"]
+    }
+
+    def "All subprojects with existing .project files are handled by the ExistingDescriptorHandler"() {
         setup:
         EclipseProjects.newProject('subproject-a', folder('sample-project/subproject-a'))
         EclipseProjects.newProject('subproject-b', folder('sample-project/subproject-b'))

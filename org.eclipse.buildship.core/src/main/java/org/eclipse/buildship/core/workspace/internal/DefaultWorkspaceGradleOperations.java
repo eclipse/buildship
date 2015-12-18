@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
-import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
 import org.eclipse.buildship.core.CorePlugin;
@@ -158,7 +157,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
                     // if the workspace project is already a Java project, then update the source
                     // folders and the project/external dependencies
                     IJavaProject javaProject = JavaCore.create(workspaceProject);
-                    JavaSourceSettingsUpdater.update(javaProject, project.getJavaSourceSettings(), new SubProgressMonitor(monitor, 1));
+                    JavaSourceSettingsUpdater.update(javaProject, project.getJavaSourceSettings().get(), new SubProgressMonitor(monitor, 1));
                     SourceFolderUpdater.update(javaProject, project.getSourceDirectories(), new SubProgressMonitor(monitor, 1));
                     ClasspathContainerUpdater.update(javaProject, project, new SubProgressMonitor(monitor, 1));
                 } else {
@@ -229,7 +228,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             // update the source language level in case of a Java project
             if (isJavaProject(project) && hasJavaNature(workspaceProject)) {
                 IJavaProject javaProject = JavaCore.create(workspaceProject);
-                JavaSourceSettingsUpdater.update(javaProject, project.getJavaSourceSettings(), new SubProgressMonitor(monitor, 1));
+                JavaSourceSettingsUpdater.update(javaProject, project.getJavaSourceSettings().get(), new SubProgressMonitor(monitor, 1));
             } else {
                 monitor.worked(1);
             }
@@ -312,16 +311,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     }
 
     private boolean isJavaProject(OmniEclipseProject project) {
-        Maybe<OmniJavaSourceSettings> javaSourceSettings = project.getJavaSourceSettings();
-        if (javaSourceSettings.isPresent()) {
-            // for Gradle version >=2.10 the project is a Java project if and only if
-            // the Java source settings is not null
-            return javaSourceSettings.get() != null;
-        } else {
-            // for older Gradle versions the following approximation is used: if the project
-            // has at least one source folder then it is a Java project
-            return !project.getSourceDirectories().isEmpty();
-        }
+        return project.getJavaSourceSettings().isPresent();
     }
 
     private boolean hasJavaNature(IProject project) {
