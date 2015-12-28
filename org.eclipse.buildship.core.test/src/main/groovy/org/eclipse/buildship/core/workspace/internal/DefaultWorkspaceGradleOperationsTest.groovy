@@ -305,7 +305,7 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         new ProjectConfigurationPersistence().readProjectConfiguration(project)
     }
 
-    def "If .project file exists at the model location, then the Java source language level settings are updated"() {
+    def "If .project file exists at the model location, then the source settings are updated"() {
         setup:
         fileStructure().create {
             file 'sample-project/build.gradle', """
@@ -476,7 +476,7 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
     }
 
     @Ignore
-    def "If no workspace project or .project file exists, then a Java project is created proper source settings"() {
+    def "If no workspace project or .project file exists, then a Java project is created with proper source settings"() {
         setup:
         fileStructure().create {
             file 'sample-project/build.gradle', """
