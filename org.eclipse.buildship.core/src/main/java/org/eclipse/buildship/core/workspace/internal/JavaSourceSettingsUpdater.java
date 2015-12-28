@@ -11,14 +11,10 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-
 import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
-
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -26,7 +22,8 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
-import org.eclipse.buildship.core.CorePlugin;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 /**
  * Updates the Java source settings on the target project.
@@ -35,10 +32,7 @@ final class JavaSourceSettingsUpdater {
 
     private static final ImmutableList<String> availableJavaVersions;
 
-    private JavaSourceSettingsUpdater() {
-    }
-
-    static {
+     static {
         // the supported Java versions vary along Eclipse releases therefore we can't query it
         // directly
         ImmutableList.Builder<String> versions = ImmutableList.builder();
@@ -60,7 +54,6 @@ final class JavaSourceSettingsUpdater {
             if (sourceSettings.isPresent() && sourceSettings.get() != null) {
                 String javaSourceVersion = sourceSettings.get().getSourceLanguageLevel().getName();
                 if (eclipseRuntimeSupportsJavaVersion(javaSourceVersion)) {
-
                     // set the source compatibility
                     boolean compilerOptionChanged = false;
                     compilerOptionChanged |= updateJavaProjectOptionIfNeeded(project, JavaCore.COMPILER_SOURCE, javaSourceVersion);
@@ -95,6 +88,9 @@ final class JavaSourceSettingsUpdater {
         } else {
             return false;
         }
+    }
+
+    private JavaSourceSettingsUpdater() {
     }
 
 }
