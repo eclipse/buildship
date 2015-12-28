@@ -100,7 +100,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
 
     @Override
     public void synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Synchronize Gradle project %s with workspace project", project.getName()), 2);
+        monitor.beginTask(String.format("Synchronize Gradle project %s with workspace project", project.getName()), 1);
         try {
             // check if a project already exists in the workspace at the location of the Gradle project to import
             Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(project.getProjectDirectory());
@@ -126,6 +126,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
                 synchronizeOpenWorkspaceProject(project, gradleBuild, workspaceProject, rootRequestAttributes, new SubProgressMonitor(monitor, 1));
             } else {
                 synchronizeClosedWorkspaceProject();
+                monitor.worked(1);
             }
         } finally {
             monitor.done();
@@ -133,7 +134,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     }
 
     private void synchronizeOpenWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, IProject workspaceProject, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask(String.format("Synchronize Gradle project %s that is open in the workspace", project.getName()), 7);
+        monitor.beginTask(String.format("Synchronize Gradle project %s that is open in the workspace", project.getName()), 8);
         try {
             // add Gradle nature, if needed
             CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
@@ -161,12 +162,11 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
                     ClasspathContainerUpdater.update(javaProject, project, new SubProgressMonitor(monitor, 1));
                 } else {
                     // if the workspace project is not a Java project, then convert it to one and
-                    // add the Gradle classpath container to its classpath
+                    // add the Gradle classpath container to its classpath, which will trigger a re-synchronization (the if-branch above)
                     IPath jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath();
                     IClasspathEntry classpathContainer = GradleClasspathContainer.newClasspathEntry();
-                    monitor.worked(1);
-                    IJavaProject javaProject = CorePlugin.workspaceOperations().createJavaProject(workspaceProject, jrePath, classpathContainer, new SubProgressMonitor(monitor, 1));
-                    JavaSourceSettingsUpdater.update(javaProject, project.getJavaSourceSettings(), new SubProgressMonitor(monitor, 1));
+                    monitor.worked(2);
+                    CorePlugin.workspaceOperations().createJavaProject(workspaceProject, jrePath, classpathContainer, new SubProgressMonitor(monitor, 1));
                 }
             } else {
                 monitor.worked(3);
@@ -217,7 +217,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, workspaceProject);
 
             // update the source language level in case of a Java project
-            if (hasJavaNature(workspaceProject)) {
+            if (isJavaProject(project) && hasJavaNature(workspaceProject)) {
                 IJavaProject javaProject = JavaCore.create(workspaceProject);
                 JavaSourceSettingsUpdater.update(javaProject, project.getJavaSourceSettings(), new SubProgressMonitor(monitor, 1));
             } else {
@@ -234,7 +234,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     }
 
     private IProject addNewEclipseProjectToWorkspace(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask(String.format("Add new Eclipse project for Gradle project %s to the workspace", project.getName()), 7);
+        monitor.beginTask(String.format("Add new Eclipse project for Gradle project %s to the workspace", project.getName()), 6);
         try {
             // create a new Eclipse project in the workspace for the current Gradle project
             List<String> gradleNature = ImmutableList.of(GradleProjectNature.ID);
@@ -255,10 +255,9 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             if (isJavaProject(project)) {
                 IPath jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath();
                 IClasspathEntry classpathContainer = GradleClasspathContainer.newClasspathEntry();
-                IJavaProject javaProject = CorePlugin.workspaceOperations().createJavaProject(workspaceProject, jrePath, classpathContainer, new SubProgressMonitor(monitor, 1));
-                JavaSourceSettingsUpdater.update(javaProject, project.getJavaSourceSettings(), new SubProgressMonitor(monitor, 1));
+                CorePlugin.workspaceOperations().createJavaProject(workspaceProject, jrePath, classpathContainer, new SubProgressMonitor(monitor, 1));
             } else {
-                monitor.worked(2);
+                monitor.worked(1);
             }
 
             // set project natures and build commands

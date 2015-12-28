@@ -62,20 +62,19 @@ public interface WorkspaceGradleOperations {
      * <li>the Gradle settings file is written</li>
      * <li>the Gradle resource filter is set</li>
      * <li>the linked resources are set</li>
-     * <li>an existing Java project is updated
+     * <li>the workspace project is further updated in case of a Java Gradle project and the workspace project having the Java nature set
      * <ul>
      * <li>update the source compatibility settings</li>
      * <li>update the set of source folders</li>
      * <li>update the Gradle classpath container</li>
      * </ul>
      * </li>
-     * <li>the workspace project is converted to a Java project if
+     * <li>the workspace project is converted to a Java project in case of a Java Gradle project and the workspace project not having the Java nature set yet
      * <ul>
-     * <li>the Gradle project applies the Java plugin</li>
-     * <li>the workspace project doesn't have the Java nature</li>
+     * <li>a Gradle classpath container is added (this triggers a synchronize through the classpath container, handled by #1.2)</li>
      * </ul>
      * </li>
-     * <li>update project natures and build commands</li>
+     * <li>the project natures and build commands are set</li>
      * </ul>
      * </li>
      * </ol>
@@ -86,8 +85,11 @@ public interface WorkspaceGradleOperations {
      * <li>the Eclipse project is added to the workspace</li>
      * <li>the Gradle nature is set</li>
      * <li>the Gradle settings file is written</li>
-     * <li>update the source compatibility settings in case of a java project</li>
-     * <li>project natures and build commands are set</li>
+     * <li>the workspace project is further configured in case of a Java Gradle project and the workspace project having the Java nature set
+     * <ul>
+     * <li>the source compatibility settings are set</li>
+     * </ul>
+     * <li>the project natures and build commands are set</li>
      * </ul>
      * </li>
      * <li>If the there is no project in the workspace nor an Eclipse project at the location of the Gradle build, the synchronization is as follows:
@@ -99,11 +101,10 @@ public interface WorkspaceGradleOperations {
      * <li>the linked resources are set</li>
      * <li>a Java project is created in case of a Java Gradle project
      * <ul>
-     * <li>a Gradle classpath container is added (this triggers a synchronize through the classpath container, handled by #1)</li>
-     * <li>update the source compatibility settings</li>
+     * <li>a Gradle classpath container is added (this triggers a synchronize through the classpath container, handled by #1.2)</li>
      * </ul>
      * </li>
-     * <li>update project natures and build commands</li>
+     * <li>the project natures and build commands are set</li>
      * </ul>
      * </li>
      * </ol>
