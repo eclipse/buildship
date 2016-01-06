@@ -43,6 +43,7 @@ class DeployMavenAntTaskExecutor {
      */
     void deployBundle(Map options = [:], Pom pomStruct, File bundleFileOrDirectory) {
         workFolder.mkdirs()
+        String temporaryM2FolderPath = new File(workFolder, ".m2").absolutePath
         def pomFile = new File(workFolder, 'myPom.xml')
         File bundleFile
         if (bundleFileOrDirectory.isDirectory()) {
@@ -68,6 +69,8 @@ class DeployMavenAntTaskExecutor {
                 pom refid: 'mypom'
                 if(sourceFile)
                     attach file: sourceFile, type: 'jar', classifier: 'sources'
+
+                localRepository id:"local.repository", path: temporaryM2FolderPath, layout:"default"
                 remoteRepository url: this.target.toURI().toURL().toString(), {
                 }
             }
