@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
-import spock.lang.Ignore
 
 class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
 
@@ -475,7 +474,6 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         }
     }
 
-    @Ignore
     def "If no workspace project or .project file exists, then a Java project is created with proper source settings"() {
         setup:
         fileStructure().create {
@@ -613,7 +611,7 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
             }
         }
         job.schedule()
-        job.join()
+        waitForJobsToFinish()
     }
 
     private IProject newClosedProject(String name) {

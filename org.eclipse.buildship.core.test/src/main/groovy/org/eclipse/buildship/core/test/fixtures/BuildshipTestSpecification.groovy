@@ -12,6 +12,7 @@
 package org.eclipse.buildship.core.test.fixtures
 
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.core.runtime.jobs.Job
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
@@ -65,6 +66,16 @@ abstract class BuildshipTestSpecification extends Specification {
 
     protected File workspaceFile(String location) {
         return new File(workspaceFolder, location)
+    }
+
+    protected static def waitForJobsToFinish() {
+        while (!Job.jobManager.isIdle()) {
+            delay(100)
+        }
+    }
+
+    protected static def delay(long waitTimeMillis) {
+        Thread.sleep(waitTimeMillis)
     }
 
 }
