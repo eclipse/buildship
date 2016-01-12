@@ -280,13 +280,13 @@
           versionRange="15.0.0"/>
       <requirement
           name="com.gradleware.tooling.client"
-          versionRange="0.7.0"/>
+          versionRange="0.9.0"/>
       <requirement
           name="com.gradleware.tooling.model"
-          versionRange="0.7.0"/>
+          versionRange="0.9.0"/>
       <requirement
           name="com.gradleware.tooling.utils"
-          versionRange="0.7.0"/>
+          versionRange="0.9.0"/>
       <repositoryList
           name="Mars">
         <repository
