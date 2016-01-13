@@ -76,6 +76,11 @@ public interface WorkspaceOperations {
      */
     void deleteAllProjects(IProgressMonitor monitor);
 
+    /**
+     * Removes the project from the workspace and deletes its .project file.
+     */
+    void deleteProjectDescriptor(IProjectDescription projectDescription, IProgressMonitor monitor);
+
    /**
      * Creates a new {@link IProject} in the workspace using the specified name and location. The
      * location must exist and no project with the specified name must currently exist in the

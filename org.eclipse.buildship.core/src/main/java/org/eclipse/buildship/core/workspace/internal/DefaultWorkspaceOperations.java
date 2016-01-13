@@ -119,6 +119,23 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
+    public void deleteProjectDescriptor(IProjectDescription projectDescription, IProgressMonitor monitor) {
+        monitor = monitor != null ? monitor : new NullProgressMonitor();
+        monitor.beginTask(String.format("Remove existing project descriptor for %s.", projectDescription.getName()), 1);
+        try {
+            IWorkspace workspace = ResourcesPlugin.getWorkspace();
+            IProject project = workspace.getRoot().getProject(projectDescription.getName());
+            project.getFile(".project").delete(true, monitor);
+            project.delete(false, true, monitor);
+        } catch (Exception e) {
+            String message = String.format("Cannot delete project %s.", projectDescription.getName());
+            throw new GradlePluginsRuntimeException(message, e);
+        } finally {
+            monitor.done();
+        }
+    }
+
+    @Override
     public IProject createProject(String name, File location, List<String> natureIds, IProgressMonitor monitor) {
         // validate arguments
         Preconditions.checkNotNull(name);

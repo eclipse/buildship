@@ -40,13 +40,19 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
 
     private final FixedRequestAttributes rootRequestAttributes;
     private final ImmutableList<String> workingSets;
+    private final ExistingDescriptorHandler existingDescriptorHandler;
     private final AsyncHandler initializer;
 
     public SynchronizeGradleProjectJob(FixedRequestAttributes rootRequestAttributes, List<String> workingSets, AsyncHandler initializer) {
+        this(rootRequestAttributes, workingSets, ExistingDescriptorHandler.ALWAYS_KEEP, initializer);
+    }
+
+    public SynchronizeGradleProjectJob(FixedRequestAttributes rootRequestAttributes, List<String> workingSets, ExistingDescriptorHandler existingDescriptorHandler, AsyncHandler initializer) {
         super(String.format("Synchronize Gradle root project at %s with workspace", Preconditions.checkNotNull(rootRequestAttributes).getProjectDir().getAbsolutePath()), false);
 
         this.rootRequestAttributes = Preconditions.checkNotNull(rootRequestAttributes);
         this.workingSets = ImmutableList.copyOf(workingSets);
+        this.existingDescriptorHandler = existingDescriptorHandler;
         this.initializer = Preconditions.checkNotNull(initializer);
 
         // explicitly show a dialog with the progress while the project synchronization is in process
@@ -68,7 +74,7 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
         manager.beginRule(workspaceRoot, monitor);
         try {
             OmniEclipseGradleBuild gradleBuild = forceReloadEclipseGradleBuild(this.rootRequestAttributes, new SubProgressMonitor(monitor, 40));
-            CorePlugin.workspaceGradleOperations().synchronizeGradleBuildWithWorkspace(gradleBuild, this.rootRequestAttributes, this.workingSets, new SubProgressMonitor(monitor, 50));
+            CorePlugin.workspaceGradleOperations().synchronizeGradleBuildWithWorkspace(gradleBuild, this.rootRequestAttributes, this.workingSets, this.existingDescriptorHandler, new SubProgressMonitor(monitor, 50));
         } finally {
             manager.endRule(workspaceRoot);
         }
