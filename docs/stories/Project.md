@@ -16,8 +16,12 @@ Users are reportedly find it confusing that there is a difference between import
 project descriptors.
 
 ### Implementation plan
-- Add `deleteDescriptors` boolean argument to the `WorkspaceGradleOperations.synchronizeGradleBuildWithWorkspace()` and the `WorkspaceGradleOperations.synchronizeGradleProjectWithWorkspaceProject()` methods. If true, delete the Eclipse descriptors. For project refresh `deleteDescriptors` is always false.
-- Extend `SynchronizeGradleProjectJob` to optionally search for existing project descriptors. If the search is enabled and some descriptors exists, then show a dialog to the user whether to delete descriptors. If the user selects a clean import, then call `WorkspaceGradleOperations.synchronizeGradleBuildWithWorkspace()` with `deleteDescriptors` set to true.
+- Add `deleteDescriptors` boolean argument to the `WorkspaceGradleOperations.synchronizeGradleBuildWithWorkspace()` and the 
+   `WorkspaceGradleOperations.synchronizeGradleProjectWithWorkspaceProject()` methods. If true, delete the Eclipse descriptors. For 
+   project refresh `deleteDescriptors` is always false.
+- Extend `SynchronizeGradleProjectJob` to optionally search for existing project descriptors. If the search is enabled and some 
+   descriptors exists, then show a dialog to the user whether to delete descriptors. If the user selects a clean import, then 
+   call `WorkspaceGradleOperations.synchronizeGradleBuildWithWorkspace()` with `deleteDescriptors` set to true.
 - Enable the descriptor search feature in `ProjectImportWizardController#performProjectImport()`
 
 ### Test cases
