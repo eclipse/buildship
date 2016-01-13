@@ -71,10 +71,10 @@ class DeployMavenAntTaskExecutor {
                     attach file: sourceFile, type: 'jar', classifier: 'sources'
 
                 localRepository id:"local.repository", path: temporaryM2FolderPath, layout:"default"
-                remoteRepository url: this.target.toURI().toURL().toString(), {
-                }
+                remoteRepository url: this.target.toURI().toURL().toString(), {}
             }
         }
     }
+
 }
 
