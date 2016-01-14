@@ -43,10 +43,8 @@ class ProjectImportWizardUiTest extends SwtBotSpecification {
 
     def "asks the user whether to keep existing .project files"() {
         setup:
-        def IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject("sample-project")
-        project.create(null)
-        project.open(null)
-        project.getFile("build.gradle").create(new ByteArrayInputStream("apply plugin: 'java'".getBytes(Charsets.UTF_8)), true, null)
+        def project = createOpenProject("sample-project")
+        file project, "build.gradle", "apply plugin: 'java'"
         def location = project.location.toString()
         project.delete(false, true, null)
         openGradleImportWizard()
@@ -64,6 +62,17 @@ class ProjectImportWizardUiTest extends SwtBotSpecification {
 
         cleanup:
         project.delete(true, null)
+    }
+
+    private static def IProject createOpenProject(String name) {
+        def IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(name)
+        project.create(null)
+        project.open(null)
+        return project
+    }
+
+    private static def file (IProject project, String name, CharSequence content) {
+        project.getFile(name).create(new ByteArrayInputStream(content.toString().getBytes(Charsets.UTF_8)), true, null)
     }
 
     private static def openGradleImportWizard() {
