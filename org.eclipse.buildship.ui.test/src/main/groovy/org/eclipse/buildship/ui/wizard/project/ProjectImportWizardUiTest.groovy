@@ -42,6 +42,7 @@ class ProjectImportWizardUiTest extends SwtBotSpecification {
         bot.button("Cancel").click()
     }
 
+    @Ignore("Deadlocks on TC. When SWT bot times out, the synchronize job is still running and waiting for input, so the project.delete at the end of the test deadlocks.")
     def "asks the user whether to keep existing .project files"() {
         setup:
         def project = createOpenProject("sample-project")
