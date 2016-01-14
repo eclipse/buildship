@@ -20,6 +20,7 @@ import org.eclipse.core.resources.ResourcesPlugin
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
+import static org.eclipse.buildship.ui.test.fixtures.LegacyEclipseSpockTestHelper.*
 
 import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification
 
@@ -65,7 +66,7 @@ class ProjectImportWizardUiTest extends SwtBotSpecification {
     }
 
     private static def IProject createOpenProject(String name) {
-        def IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(name)
+        def IProject project = getWorkspace().getRoot().getProject(name)
         project.create(null)
         project.open(null)
         return project
