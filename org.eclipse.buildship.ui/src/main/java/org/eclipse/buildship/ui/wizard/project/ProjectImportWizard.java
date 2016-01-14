@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
 import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
@@ -195,8 +196,8 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
             try {
                 latch.await();
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
+                throw new GradlePluginsRuntimeException("Could not determine whether to keep or delete .project files", e);
             }
         }
 
