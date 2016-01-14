@@ -14,6 +14,7 @@ package org.eclipse.buildship.ui.test.fixtures
 
 import spock.lang.Specification
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.swt.widgets.Display
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot
@@ -26,6 +27,7 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
 import org.eclipse.swtbot.swt.finder.widgets.TimeoutException;
 import org.eclipse.ui.PlatformUI
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.ui.UiPlugin
 
 abstract class SwtBotSpecification extends Specification {
@@ -105,6 +107,10 @@ abstract class SwtBotSpecification extends Specification {
                 // ignore
             }
         }
+    }
+
+    private IProject findProject(String name) {
+        CorePlugin.workspaceOperations().findProjectByName(name).orNull()
     }
 
 }

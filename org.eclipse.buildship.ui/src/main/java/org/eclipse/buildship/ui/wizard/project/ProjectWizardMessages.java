@@ -95,6 +95,14 @@ public final class ProjectWizardMessages extends NLS {
     public static String Creation_Wizard_Paragraph_Title_Advanced_Options;
     public static String Creation_Wizard_Paragraph_Content_Advanced_Options;
 
+    public static String Existing_Descriptors_Keep;
+
+    public static String Existing_Descriptors_Overwrite_Dialog_Header;
+
+    public static String Existing_Descriptors_Overwrite;
+
+    public static String Existing_Descriptors_Overwrite_Message;
+
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, ProjectWizardMessages.class);

@@ -11,6 +11,13 @@
 
 package org.eclipse.buildship.ui.wizard.project
 
+import org.junit.Ignore;
+
+import com.google.common.base.Charsets;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
 
@@ -34,13 +41,46 @@ class ProjectImportWizardUiTest extends SwtBotSpecification {
         bot.button("Cancel").click()
     }
 
+    def "asks the user whether to keep existing .project files"() {
+        setup:
+        def IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject("sample-project")
+        project.create(null)
+        project.open(null)
+        project.getFile("build.gradle").create(new ByteArrayInputStream("apply plugin: 'java'".getBytes(Charsets.UTF_8)), true, null)
+        def location = project.location.toString()
+        project.delete(false, true, null)
+        openGradleImportWizard()
+        pressNext()
+        bot.text(0).setText(location)
+        pressFinish()
+        bot.waitUntil(Conditions.shellIsActive(ProjectWizardMessages.Existing_Descriptors_Overwrite_Dialog_Header))
+
+        when:
+        bot.button(ProjectWizardMessages.Existing_Descriptors_Overwrite).click()
+        waitForJobsToFinish()
+
+        then:
+        project.hasNature(JavaCore.NATURE_ID)
+
+        cleanup:
+        project.delete(true, null)
+    }
+
     private static def openGradleImportWizard() {
         bot.menu("File").menu("Import...").click()
         SWTBotShell shell = bot.shell("Import")
         shell.activate()
         bot.waitUntil(Conditions.shellIsActive("Import"))
         bot.tree().expandNode("Gradle").select("Gradle Project")
+        pressNext()
+    }
+
+    private static def pressNext() {
         bot.button("Next >").click()
+    }
+
+    private static def pressFinish() {
+        bot.button("Finish").click()
     }
 
 }

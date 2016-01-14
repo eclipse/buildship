@@ -12,18 +12,23 @@
 package org.eclipse.buildship.ui.wizard.project;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
 import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
+import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
+
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IImportWizard;
 import org.eclipse.ui.IWorkbench;
 import org.gradle.tooling.ProgressListener;
@@ -137,7 +142,7 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
 
     @Override
     public boolean performFinish() {
-        return this.controller.performImportProject(AsyncHandler.NO_OP);
+        return this.controller.performImportProject(AsyncHandler.NO_OP, new AskUserAboutExistingDescriptorHandler());
     }
 
     @Override
@@ -152,6 +157,49 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
             section = dialogSettings.addNewSection(PROJECT_IMPORT_DIALOG_SETTINGS);
         }
         return section;
+    }
+
+    /**
+     * Asks the user whether he wants to keep .project files or overwrite them. Asks only once per multi-project build and remembers the decision.
+     */
+    private class AskUserAboutExistingDescriptorHandler implements ExistingDescriptorHandler {
+        private Boolean deleteDescriptors;
+
+        @Override
+        public boolean shouldDeleteDescriptor() {
+            if (this.deleteDescriptors == null) {
+                askUserWhetherToDeleteDescriptor();
+            }
+            return this.deleteDescriptors;
+        }
+
+        private void askUserWhetherToDeleteDescriptor() {
+            final CountDownLatch latch = new CountDownLatch(1);
+            Display.getDefault().asyncExec(new Runnable() {
+                @Override
+                public void run() {
+                    MessageDialog dialog = new MessageDialog(
+                            getShell(),
+                            ProjectWizardMessages.Existing_Descriptors_Overwrite_Dialog_Header,
+                            null,
+                            ProjectWizardMessages.Existing_Descriptors_Overwrite_Message,
+                            MessageDialog.QUESTION,
+                            new String[]{ProjectWizardMessages.Existing_Descriptors_Overwrite, ProjectWizardMessages.Existing_Descriptors_Keep},
+                            0
+                       );
+                       int choice = dialog.open();
+                       AskUserAboutExistingDescriptorHandler.this.deleteDescriptors = choice == 0;
+                       latch.countDown();
+                }
+            });
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
     }
 
 }
