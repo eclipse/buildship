@@ -85,7 +85,7 @@ class JavaSourceSettingsUpdaterTest extends Specification {
         JavaSourceSettingsUpdater.update(project, sourceSettings('1.6', '1.4', sourceVersion), new NullProgressMonitor())
 
         then:
-        project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == '1.4'
+        project.getOption(JavaCore.COMPILER_SOURCE, true) == '1.4'
 
         where:
         sourceVersion << [ null, '', '1.0.0', '7.8', 'string', '1.5' ]
