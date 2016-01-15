@@ -84,6 +84,11 @@ abstract class SwtBotSpecification extends Specification {
         })
     }
 
+    protected static void cancelAllJobsAndWait() {
+        Job.jobManager.cancel(null)
+        waitForJobsToFinish()
+    }
+
     protected static void waitForJobsToFinish() {
         while (!Job.jobManager.isIdle()) {
             delay(100)
