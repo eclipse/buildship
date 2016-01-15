@@ -52,7 +52,7 @@ class ProjectImportWizardUiTest extends SwtBotSpecification {
         pressNext()
         bot.text(0).setText(location)
         pressFinish()
-        bot.waitUntil(Conditions.shellIsActive(ProjectWizardMessages.Existing_Descriptors_Overwrite_Dialog_Header), 10_000)
+        bot.waitUntil(Conditions.shellIsActive(ProjectWizardMessages.Existing_Descriptors_Overwrite_Dialog_Header), 20_000)
 
         when:
         bot.button(ProjectWizardMessages.Existing_Descriptors_Overwrite).click()
