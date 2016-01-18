@@ -246,9 +246,10 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         def features = []
         def rootNode = new XmlSlurper().parseText(config.targetPlatform.targetDefinition.text)
         rootNode.locations.location.each { location ->
-            updateSites.add(location.repository.@location)
+            updateSites.add(location.repository.@location.text().replace('\${project_loc}', 'file://' +  project.projectDir.absolutePath))
             location.unit.each {unit -> features.add("${unit.@id}/${unit.@version}") }
         }
+        println updateSites
 
         // invoke the P2 director application to assemble install all features from the target
         // definition file to the target platform: http://help.eclipse.org/luna/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_director.html
