@@ -565,7 +565,7 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
             file 'sample-project/build.gradle'
             file 'sample-project/settings.gradle', "include 'subproject-a', 'subproject-b'"
         }
-        def ExistingDescriptorHandler handler = Mock(ExistingDescriptorHandler)
+        ExistingDescriptorHandler handler = Mock()
 
         when:
         GradleModel gradleModel = loadGradleModel('sample-project')
