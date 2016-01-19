@@ -11,6 +11,12 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -19,20 +25,26 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.util.object.MoreObjects;
-import org.eclipse.buildship.core.workspace.WorkspaceOperations;
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
+
+import org.eclipse.core.resources.ICommand;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.util.object.MoreObjects;
+import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 /**
  * Default implementation of the {@link WorkspaceOperations} interface.
@@ -113,23 +125,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
                     throw new GradlePluginsRuntimeException(message, e);
                 }
             }
-        } finally {
-            monitor.done();
-        }
-    }
-
-    @Override
-    public void deleteProjectDescriptor(IProjectDescription projectDescription, IProgressMonitor monitor) {
-        monitor = monitor != null ? monitor : new NullProgressMonitor();
-        monitor.beginTask(String.format("Remove existing project descriptor for %s.", projectDescription.getName()), 1);
-        try {
-            IWorkspace workspace = ResourcesPlugin.getWorkspace();
-            IProject project = workspace.getRoot().getProject(projectDescription.getName());
-            project.getFile(".project").delete(true, monitor);
-            project.delete(false, true, monitor);
-        } catch (Exception e) {
-            String message = String.format("Cannot delete project %s.", projectDescription.getName());
-            throw new GradlePluginsRuntimeException(message, e);
         } finally {
             monitor.done();
         }

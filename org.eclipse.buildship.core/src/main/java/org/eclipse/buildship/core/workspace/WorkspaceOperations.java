@@ -11,18 +11,19 @@
 
 package org.eclipse.buildship.core.workspace;
 
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
-
-import java.io.File;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Provides operations related to querying and modifying the Eclipse elements that exist in a
@@ -75,11 +76,6 @@ public interface WorkspaceOperations {
      * @throws org.eclipse.buildship.core.GradlePluginsRuntimeException thrown if any of the deletions fails
      */
     void deleteAllProjects(IProgressMonitor monitor);
-
-    /**
-     * Removes the project from the workspace and deletes its .project file.
-     */
-    void deleteProjectDescriptor(IProjectDescription projectDescription, IProgressMonitor monitor);
 
    /**
      * Creates a new {@link IProject} in the workspace using the specified name and location. The

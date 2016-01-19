@@ -12,10 +12,24 @@
 package org.eclipse.buildship.ui.wizard.project;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
+
+import org.gradle.tooling.ProgressListener;
+
+import com.google.common.util.concurrent.FutureCallback;
+
+import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
+import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
+import com.gradleware.tooling.toolingmodel.util.Pair;
+
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IImportWizard;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
 import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
@@ -24,20 +38,6 @@ import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
-
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IImportWizard;
-import org.eclipse.ui.IWorkbench;
-import org.gradle.tooling.ProgressListener;
-
-import com.google.common.util.concurrent.FutureCallback;
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
-import com.gradleware.tooling.toolingmodel.util.Pair;
 
 /**
  * Eclipse wizard for importing Gradle projects into the workspace.
@@ -175,8 +175,7 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
         }
 
         private void askUserWhetherToDeleteDescriptor() {
-            final CountDownLatch latch = new CountDownLatch(1);
-            Display.getDefault().asyncExec(new Runnable() {
+            PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
                 @Override
                 public void run() {
                     MessageDialog dialog = new MessageDialog(
@@ -190,15 +189,8 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
                        );
                        int choice = dialog.open();
                        AskUserAboutExistingDescriptorHandler.this.deleteDescriptors = choice == 0;
-                       latch.countDown();
                 }
             });
-            try {
-                latch.await();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new GradlePluginsRuntimeException("Could not determine whether to keep or delete .project files", e);
-            }
         }
 
     }

@@ -52,7 +52,7 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
 
         this.rootRequestAttributes = Preconditions.checkNotNull(rootRequestAttributes);
         this.workingSets = ImmutableList.copyOf(workingSets);
-        this.existingDescriptorHandler = existingDescriptorHandler;
+        this.existingDescriptorHandler = Preconditions.checkNotNull(existingDescriptorHandler);
         this.initializer = Preconditions.checkNotNull(initializer);
 
         // explicitly show a dialog with the progress while the project synchronization is in process

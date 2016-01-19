@@ -1,18 +1,5 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationPersistence
-import org.eclipse.buildship.core.test.fixtures.BuildshipTestSpecification
-import org.eclipse.buildship.core.test.fixtures.EclipseProjects
-import org.eclipse.buildship.core.test.fixtures.FileStructure
-import org.eclipse.buildship.core.test.fixtures.GradleModel
-import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
-import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler;
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer
-
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResourceFilterDescription
 import org.eclipse.core.runtime.IProgressMonitor
@@ -23,6 +10,17 @@ import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
+
+import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.configuration.GradleProjectNature
+import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationPersistence
+import org.eclipse.buildship.core.test.fixtures.BuildshipTestSpecification
+import org.eclipse.buildship.core.test.fixtures.EclipseProjects
+import org.eclipse.buildship.core.test.fixtures.FileStructure
+import org.eclipse.buildship.core.test.fixtures.GradleModel
+import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
+import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler
+import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 
 class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
 
@@ -530,73 +528,14 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
     // Section #4: If there is an existing .project file and the user decides to delete it
     //
 
-    def "If the .project file is deleted on import, then the Gradle nature is set"() {
+    def "If the .project file is deleted on import, then a new project is created"() {
         setup:
         IProject project = newOpenProject('sample-project')
         CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
         fileStructure().create {
-            file 'sample-project/build.gradle'
-            file 'sample-project/settings.gradle'
-        }
-        GradleModel gradleModel = loadGradleModel('sample-project')
-
-        when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, ExistingDescriptorHandler.ALWAYS_DELETE)
-
-        then:
-        findProject('sample-project').hasNature(GradleProjectNature.ID)
-    }
-
-    def "If the .project file is deleted on import, then the resource filters are set"() {
-        setup:
-        IProject project = newOpenProject('sample-project')
-        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
-        fileStructure().create {
-            file 'sample-project/build.gradle'
-            file 'sample-project/settings.gradle'
-        }
-        GradleModel gradleModel = loadGradleModel('sample-project')
-
-        when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, ExistingDescriptorHandler.ALWAYS_DELETE)
-
-        then:
-        project.filters.length == 2
-        project.filters[0].type == IResourceFilterDescription.EXCLUDE_ALL.or(IResourceFilterDescription.FOLDERS).or(IResourceFilterDescription.INHERITABLE)
-        project.filters[1].type == IResourceFilterDescription.EXCLUDE_ALL.or(IResourceFilterDescription.FOLDERS).or(IResourceFilterDescription.INHERITABLE)
-        project.filters[0].fileInfoMatcherDescription.id == 'org.eclipse.ui.ide.multiFilter'
-        project.filters[1].fileInfoMatcherDescription.id == 'org.eclipse.ui.ide.multiFilter'
-        (project.filters[0].fileInfoMatcherDescription.arguments as String).endsWith("build")
-        (project.filters[1].fileInfoMatcherDescription.arguments as String).endsWith(".gradle")
-    }
-
-    def "If the .project file is deleted on import, then the linked resources are set"() {
-        setup:
-        IProject project = newOpenProject('sample-project')
-        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
-        fileStructure().create {
-            file 'sample-project/build.gradle',
-            '''apply plugin: "java"
-               sourceSets { main { java { srcDir '../another-project/src' } } }
-            '''
-            file 'sample-project/settings.gradle'
-            folder 'another-project/src'
-        }
-        GradleModel gradleModel = loadGradleModel('sample-project')
-
-        when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, ExistingDescriptorHandler.ALWAYS_DELETE)
-
-        then:
-        findProject('sample-project').getFolder('src').isLinked()
-    }
-
-    def "If the .project file is deleted on import, then a Java project is created with the Gradle classpath container"() {
-        setup:
-        IProject project = newOpenProject('sample-project')
-        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
-        fileStructure().create {
-            file 'sample-project/build.gradle', 'apply plugin: "java"'
+            file 'sample-project/build.gradle', """
+                apply plugin: 'java'
+            """
             file 'sample-project/settings.gradle'
             folder 'sample-project/src/main/java'
         }
@@ -606,61 +545,13 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, ExistingDescriptorHandler.ALWAYS_DELETE)
 
         then:
+        project.hasNature(GradleProjectNature.ID)
         project.hasNature(JavaCore.NATURE_ID)
-        JavaCore.create(project).rawClasspath.find{
+        def javaProject = JavaCore.create(project)
+        javaProject.rawClasspath.find{
             it.entryKind == IClasspathEntry.CPE_CONTAINER &&
             it.path.toPortableString() == GradleClasspathContainer.CONTAINER_ID
         }
-    }
-
-    def "If the .project file is deleted on import, then a Java project is created with proper source settings"() {
-        setup:
-        IProject project = newOpenProject('sample-project')
-        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
-        fileStructure().create {
-            file 'sample-project/build.gradle', """
-                apply plugin: "java"
-                sourceCompatibility = 1.3
-            """
-            file 'sample-project/settings.gradle'
-            folder 'sample-project/src/main/java'
-        }
-        GradleModel gradleModel = loadGradleModel('sample-project')
-
-        when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, ExistingDescriptorHandler.ALWAYS_DELETE)
-
-        then:
-        def javaProject = JavaCore.create(findProject('sample-project'))
-        javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true) == JavaCore.VERSION_1_3
-        javaProject.getOption(JavaCore.COMPILER_SOURCE, true) == JavaCore.VERSION_1_3
-        javaProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == JavaCore.VERSION_1_3
-    }
-
-    def "If the .project file is deleted on import, then the additional natures and build commands are set"() {
-        setup:
-        IProject project = newOpenProject('sample-project')
-        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
-        fileStructure().create {
-            file 'sample-project/build.gradle', """
-                apply plugin: 'eclipse'
-                eclipse {
-                    project {
-                        natures << "org.eclipse.pde.UpdateSiteNature"
-                        buildCommand 'customBuildCommand', buildCommandKey: "buildCommandValue"
-                    }
-                }
-            """
-            file 'sample-project/settings.gradle'
-        }
-        GradleModel gradleModel = loadGradleModel('sample-project')
-
-        when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, ExistingDescriptorHandler.ALWAYS_DELETE)
-
-        then:
-        project.description.natureIds.find{ it == 'org.eclipse.pde.UpdateSiteNature' }
-        project.description.buildSpec.find{ it.builderName == 'customBuildCommand' }.arguments == ['buildCommandKey' : "buildCommandValue"]
     }
 
     def "All subprojects with existing .project files are handled by the ExistingDescriptorHandler"() {
@@ -674,13 +565,14 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
             file 'sample-project/build.gradle'
             file 'sample-project/settings.gradle', "include 'subproject-a', 'subproject-b'"
         }
+        def ExistingDescriptorHandler handler = Mock(ExistingDescriptorHandler)
+
         when:
         GradleModel gradleModel = loadGradleModel('sample-project')
-        AtomicInteger existingDescriptorCount = new AtomicInteger();
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, {existingDescriptorCount.incrementAndGet(); return true} as ExistingDescriptorHandler)
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, handler)
 
         then:
-        existingDescriptorCount.get() == 2
+        2 * handler.shouldDeleteDescriptor()
     }
 
     def "Uncoupling a project removes the Gradle nature"() {
