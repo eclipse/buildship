@@ -68,122 +68,121 @@ task createExternalDepsRepo(type: PrepareOsgiBundlesTask) {
 
 class PrepareOsgiBundlesTask extends DefaultTask {
 
-        @OutputDirectory
-        File target
+    @OutputDirectory
+    File target
 
-        @Input
-        def bundles
-    
-        @TaskAction
-        def eclipsify() {
-            target.deleteDir()
-            target.mkdirs()
-            
-            def bundleVersionQualifier = 'v' + new Date().format('yyyyMMddkkmm')
-            
-             bundles.each { name, properties ->
-                 def rawVersion = properties['version']
-                 def jarName = "${name}.jar"
-                 
-                 project.copy {
-                     from properties['jar']
-                     into target
-                     rename '(.*)' , jarName
-                 }
-                 
-                 def symbolicName = properties['symbolicname']
-                 def packageNames = packageNames(properties['jar'])
-                 def mainVersion = calculateMainversion(properties['version'])
-                 def fullVersion = "${mainVersion}.${bundleVersionQualifier}"
-                 def dependencies = properties['dependencies']
-                 def aboutDir = properties['about']
-                 def manifest = manifestFor(project, name, symbolicName, packageNames, dependencies, mainVersion, fullVersion)
-    
-                 def manifestFile = project.file("${project.buildDir}/tmp/prepareosgibundles/${jarName}/META-INF/MANIFEST.MF")
-                 manifestFile.parentFile.mkdirs()
-                 manifestFile.text = manifest
-                 
-                 // remove the manifest file insert the generated one
-                 def osgiJar = new File(target, jarName)
-                 def tempOsgiJar = new File(target, jarName + '_')
-                 osgiJar.renameTo(tempOsgiJar)
-                 project.ant.zip(destfile: new File(target, jarName)) {
-                     zipfileset(src: tempOsgiJar, excludes: 'META-INF/MANIFEST.MF')
-                 }
-                 project.ant.zip(update: 'true', destfile: new File(target, jarName)) {
-                     fileset(dir: manifestFile.parentFile.parentFile)
-                     if (aboutDir) {
-                         fileset(dir: aboutDir)
-                     }
-                 }
-                 tempOsgiJar.delete()
-                 osgiJar = new File(target, jarName)
+    @Input
+    def bundles
+
+    @TaskAction
+    def eclipsify() {
+        target.deleteDir()
+        target.mkdirs()
+
+        def bundleVersionQualifier = 'v' + new Date().format('yyyyMMddkkmm')
+
+         bundles.each { name, properties ->
+             def rawVersion = properties['version']
+             def jarName = "${name}.jar"
+
+             project.copy {
+                 from properties['jar']
+                 into target
+                 rename '(.*)' , jarName
+         }
+
+         def symbolicName = properties['symbolicname']
+         def packageNames = packageNames(properties['jar'])
+         def mainVersion = calculateMainversion(properties['version'])
+         def fullVersion = "${mainVersion}.${bundleVersionQualifier}"
+         def dependencies = properties['dependencies']
+         def aboutDir = properties['about']
+         def manifest = manifestFor(project, name, symbolicName, packageNames, dependencies, mainVersion, fullVersion)
+
+         def manifestFile = project.file("${project.buildDir}/tmp/prepareosgibundles/${jarName}/META-INF/MANIFEST.MF")
+         manifestFile.parentFile.mkdirs()
+         manifestFile.text = manifest
+
+         // remove the manifest file insert the generated one
+         def osgiJar = new File(target, jarName)
+         def tempOsgiJar = new File(target, jarName + '_')
+         osgiJar.renameTo(tempOsgiJar)
+         project.ant.zip(destfile: new File(target, jarName)) {
+             zipfileset(src: tempOsgiJar, excludes: 'META-INF/MANIFEST.MF')
+         }
+         project.ant.zip(update: 'true', destfile: new File(target, jarName)) {
+             fileset(dir: manifestFile.parentFile.parentFile)
+             if (aboutDir) {
+                 fileset(dir: aboutDir)
              }
-        }
-    
-        def manifestFor(Project project, name, symbolicName, packageNames, dependencies, mainVersion, fullVersion) {
-            //packageNames = packageNames.findAll { !it.contains("internal") }
-            StringBuilder manifest = new StringBuilder('Manifest-Version: 1.0\n')
-            manifest.append 'Bundle-ManifestVersion: 2\n'
-            manifest.append "Bundle-Name: ${name}\n"
-            manifest.append "Bundle-SymbolicName: ${symbolicName}\n"
-            manifest.append "Bundle-Version: ${fullVersion}\n"
-            manifest.append "Bundle-ClassPath: .\n"
-            manifest.append "Bundle-RequiredExecutionEnvironment: JavaSE-1.6\n"
-    
-            if (packageNames.size() == 1) {
-                manifest.append "Export-Package: ${packageNames[0]};version=\"${mainVersion}\"\n"
-            } else if (packageNames.size() > 1) {
-                manifest.append "Export-Package: ${packageNames[0]};version=\"${mainVersion}\",\n"
-                for(i in 1..<(packageNames.size()-1)) {
-                    manifest.append " ${packageNames[i]};version=\"${mainVersion}\",\n"
-                }
-                manifest.append " ${packageNames[-1]};version=\"${mainVersion}\"\n"
+         }
+         tempOsgiJar.delete()
+         osgiJar = new File(target, jarName)
+     }
+}
+
+    def manifestFor(Project project, name, symbolicName, packageNames, dependencies, mainVersion, fullVersion) {
+        //packageNames = packageNames.findAll { !it.contains("internal") }
+        StringBuilder manifest = new StringBuilder('Manifest-Version: 1.0\n')
+        manifest.append 'Bundle-ManifestVersion: 2\n'
+        manifest.append "Bundle-Name: ${name}\n"
+        manifest.append "Bundle-SymbolicName: ${symbolicName}\n"
+        manifest.append "Bundle-Version: ${fullVersion}\n"
+        manifest.append "Bundle-ClassPath: .\n"
+        manifest.append "Bundle-RequiredExecutionEnvironment: JavaSE-1.6\n"
+
+        if (packageNames.size() == 1) {
+            manifest.append "Export-Package: ${packageNames[0]};version=\"${mainVersion}\"\n"
+        } else if (packageNames.size() > 1) {
+            manifest.append "Export-Package: ${packageNames[0]};version=\"${mainVersion}\",\n"
+            for(i in 1..<(packageNames.size()-1)) {
+                manifest.append " ${packageNames[i]};version=\"${mainVersion}\",\n"
             }
-    
-            if (dependencies.size() == 1) {
-                manifest.append "Require-Bundle: ${dependencies[0]}\n"
-            } else if (dependencies.size() > 1) {
-                manifest.append "Require-Bundle: ${dependencies[0]},\n"
-                for(i in 1..<(dependencies.size()-1)) {
-                    manifest.append " ${dependencies[i]},\n"
-                }
-                manifest.append " ${dependencies[-1]}\n"
-            }
-            
-            manifest.toString()
+            manifest.append " ${packageNames[-1]};version=\"${mainVersion}\"\n"
         }
-    
-        def packageNames(File jar) {
-            def jarStream = new FileInputStream(jar);
-            ZipInputStream zip = new ZipInputStream(new FileInputStream(jar))
-            def result = [] as Set
-            while(true) {
-                ZipEntry e = zip.nextEntry
-                if (e == null) break;
-                if (!e.directory && e.name.endsWith(".class")) {
-                    int index = e.name.lastIndexOf('/')
-                    if (index < 0) index = e.name.length()
-                    String packageName = e.name.substring(0, index).replace('/', '.')
-                    result.add(packageName)
-                }
+
+        if (dependencies.size() == 1) {
+            manifest.append "Require-Bundle: ${dependencies[0]}\n"
+        } else if (dependencies.size() > 1) {
+            manifest.append "Require-Bundle: ${dependencies[0]},\n"
+            for(i in 1..<(dependencies.size()-1)) {
+                manifest.append " ${dependencies[i]},\n"
             }
-            jarStream.close()
-            result
+            manifest.append " ${dependencies[-1]}\n"
         }
-    
-      
-        def calculateMainversion(String version) {
-            Matcher matcher = version =~ /(\d+).(\d+)(?:-.*|\.(\d+)(?:-.*)?)?/
-            if (matcher.matches()) {
-                def major = matcher.group(1)
-                def minor = matcher.group(2)
-                def service = matcher.group(3)
-                if (service == null) service = "0"
-                return "$major.$minor.$service"
-            } else {
-                return "NIL"
-            }
-        }
-    
+
+        manifest.toString()
     }
+
+    def packageNames(File jar) {
+        def jarStream = new FileInputStream(jar);
+        ZipInputStream zip = new ZipInputStream(new FileInputStream(jar))
+        def result = [] as Set
+        while(true) {
+            ZipEntry e = zip.nextEntry
+            if (e == null) break;
+            if (!e.directory && e.name.endsWith(".class")) {
+                int index = e.name.lastIndexOf('/')
+                if (index < 0) index = e.name.length()
+                String packageName = e.name.substring(0, index).replace('/', '.')
+                result.add(packageName)
+            }
+        }
+        jarStream.close()
+        result
+    }
+
+    def calculateMainversion(String version) {
+        Matcher matcher = version =~ /(\d+).(\d+)(?:-.*|\.(\d+)(?:-.*)?)?/
+        if (matcher.matches()) {
+            def major = matcher.group(1)
+            def minor = matcher.group(2)
+            def service = matcher.group(3)
+            if (service == null) service = "0"
+            return "$major.$minor.$service"
+        } else {
+            return "NIL"
+        }
+    }
+
+}
