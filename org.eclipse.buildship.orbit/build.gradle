@@ -67,10 +67,10 @@ task createExternalDepsRepo(type: PrepareOsgiBundlesTask) {
 }
 
 class PrepareOsgiBundlesTask extends DefaultTask {
-    
-        @Input
+
+        @OutputDirectory
         File target
-        
+
         @Input
         def bundles
     
