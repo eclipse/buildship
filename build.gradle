@@ -1,4 +1,4 @@
-import eclipsebuild.Config
+qimport eclipsebuild.Config
 import eclipsebuild.BuildshipConfig
 import org.gradle.internal.os.OperatingSystem
 
@@ -223,6 +223,24 @@ eclipseBuild {
 
 // read the current version from an external file and add a timestamp suffix if requested by the caller
 version = getVersion(file('version.txt').text.trim())
+
+// delete the org.eclipse.core.runtime.compatibility.registry plugin from the target platform
+// it causes classpath issues when the the Spock tests are running with Groovy 2.4; only
+// contains files to provide 2.x compatibility hence it's safe to remove
+project.assembleTargetPlatform << {
+    def config = Config.on(project)
+    def pluginsFolder = new File(config.nonMavenizedTargetPlatformDir.path, 'plugins')
+     pluginsFolder.list().each { pluginName ->
+        if (pluginName.startsWith('org.eclipse.core.runtime.compatibility.registry')) {
+            def compatPlugin = new File(pluginsFolder, pluginName)
+            if (compatPlugin.isDirectory()) {
+                compatPlugin.deleteDir()
+            } else {
+                compatPlugin.delete()
+            }
+        }
+    }
+}
 
 subprojects {
     // set the calculated version on all projects in the hierarchy
