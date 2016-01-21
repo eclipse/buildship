@@ -1,4 +1,4 @@
-qimport eclipsebuild.Config
+import eclipsebuild.Config
 import eclipsebuild.BuildshipConfig
 import org.gradle.internal.os.OperatingSystem
 
