@@ -17,6 +17,9 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
+/**
+ * Utility methods to work with Eclipse preferences.
+ */
 public final class EclipsePreferencesUtils {
 
     private EclipsePreferencesUtils() {
