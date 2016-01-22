@@ -21,8 +21,11 @@ import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.internal.ui.DebugUIPlugin;
 import org.eclipse.debug.internal.ui.preferences.IDebugPreferenceConstants;
+import org.eclipse.debug.ui.IDebugUIConstants;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IOConsole;
 import org.eclipse.ui.console.IOConsoleInputStream;
@@ -69,6 +72,12 @@ public final class GradleConsole extends IOConsole implements ProcessStreams {
             @SuppressWarnings("restriction")
             @Override
             public void run() {
+                Font consoleFont = JFaceResources.getFont(IDebugUIConstants.PREF_CONSOLE_FONT);
+                GradleConsole.this.setFont(consoleFont);
+                
+                Color backgroundColor = DebugUIPlugin.getPreferenceColor(IDebugPreferenceConstants.CONSOLE_BAKGROUND_COLOR);
+                GradleConsole.this.setBackground(backgroundColor);
+
                 Color inputColor = DebugUIPlugin.getPreferenceColor(IDebugPreferenceConstants.CONSOLE_SYS_IN_COLOR);
                 GradleConsole.this.inputStream.setColor(inputColor);
 
