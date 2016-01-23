@@ -11,8 +11,6 @@
 
 package org.eclipse.buildship.core.test.fixtures
 
-import org.junit.After;
-
 /**
  * Helper class to define file structures under a target folder.
  * <p/>
