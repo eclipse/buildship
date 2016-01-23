@@ -36,7 +36,7 @@ public interface WorkspaceGradleOperations {
      * </li>
      * <li>Synchronize all Gradle projects of the Gradle build with the Eclipse workspace project counterparts:
      * <ul>
-     * <li>As outlined in {@link #synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject, OmniEclipseGradleBuild, FixedRequestAttributes, List, IProgressMonitor)}</li>
+     * <li>As outlined in {@link #synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject, OmniEclipseGradleBuild, FixedRequestAttributes, List, ExistingDescriptorHandler, IProgressMonitor)}</li>
      * </ul>
      * </li>
      * </ol>
@@ -126,7 +126,7 @@ public interface WorkspaceGradleOperations {
      * <ol>
      * <li>If the workspace project contains the Gradle nature and there is a matching Gradle project at the location of the workspace project
      * <ul>
-     * <li>As outlined in {@link #synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject, OmniEclipseGradleBuild, FixedRequestAttributes, List, IProgressMonitor)}</li>
+     * <li>As outlined in {@link #synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject, OmniEclipseGradleBuild, FixedRequestAttributes, List, ExistingDescriptorHandler, IProgressMonitor)}</li>
      * </ul></li>
      * <li>In all other cases
      * <ul>
