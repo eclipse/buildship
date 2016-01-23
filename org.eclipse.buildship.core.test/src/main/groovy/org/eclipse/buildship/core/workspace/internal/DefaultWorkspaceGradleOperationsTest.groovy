@@ -553,7 +553,7 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         }
     }
 
-    def "All subprojects with existing .project files are handled by the ExistingDescriptorHandler"() {
+    def "All projects with an existing .project file are handled by the ExistingDescriptorHandler"() {
         setup:
         EclipseProjects.newProject('subproject-a', folder('sample-project/subproject-a'))
         EclipseProjects.newProject('subproject-b', folder('sample-project/subproject-b'))
