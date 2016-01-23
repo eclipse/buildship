@@ -17,11 +17,6 @@ package org.eclipse.buildship.core.workspace;
  */
 public interface ExistingDescriptorHandler {
 
-    /**
-     * @return {@code true} if an existig .project file should be deleted, {@code false} otherwise.
-     */
-    boolean shouldDeleteDescriptor();
-
     ExistingDescriptorHandler ALWAYS_KEEP = new ExistingDescriptorHandler() {
 
         @Override
@@ -29,11 +24,18 @@ public interface ExistingDescriptorHandler {
             return false;
         }
     };
+
     ExistingDescriptorHandler ALWAYS_DELETE = new ExistingDescriptorHandler() {
 
         @Override
         public boolean shouldDeleteDescriptor() {
             return true;
-        };
+        }
     };
+
+    /**
+     * @return {@code true} if an existig .project file should be deleted, {@code false} otherwise.
+     */
+    boolean shouldDeleteDescriptor();
+
 }
