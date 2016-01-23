@@ -11,24 +11,10 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import java.util.List;
-
-import org.gradle.tooling.ProgressListener;
-
 import com.google.common.util.concurrent.FutureCallback;
-
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 import com.gradleware.tooling.toolingmodel.util.Pair;
-
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.ui.IImportWizard;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.PlatformUI;
-
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
@@ -38,6 +24,16 @@ import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IImportWizard;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PlatformUI;
+import org.gradle.tooling.ProgressListener;
+
+import java.util.List;
 
 /**
  * Eclipse wizard for importing Gradle projects into the workspace.
@@ -163,7 +159,8 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
     /**
      * Asks the user whether he wants to keep .project files or overwrite them. Asks only once per multi-project build and remembers the decision.
      */
-    private class AskUserAboutExistingDescriptorHandler implements ExistingDescriptorHandler {
+    private final class AskUserAboutExistingDescriptorHandler implements ExistingDescriptorHandler {
+
         private Boolean deleteDescriptors;
 
         @Override
