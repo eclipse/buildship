@@ -24,6 +24,7 @@ import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -139,7 +140,7 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
 
     @Override
     public boolean performFinish() {
-        return this.controller.performImportProject(AsyncHandler.NO_OP, new AskUserAboutExistingDescriptorHandler());
+        return this.controller.performImportProject(AsyncHandler.NO_OP, new UserDelegatedDescriptorHandler());
     }
 
     @Override
@@ -159,19 +160,19 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
     /**
      * Asks the user whether he wants to keep .project files or overwrite them. Asks only once per multi-project build and remembers the decision.
      */
-    private final class AskUserAboutExistingDescriptorHandler implements ExistingDescriptorHandler {
+    private final class UserDelegatedDescriptorHandler implements ExistingDescriptorHandler {
 
-        private Boolean deleteDescriptors;
+        private Boolean overwriteDescriptors;
 
         @Override
-        public boolean shouldDeleteDescriptor() {
-            if (this.deleteDescriptors == null) {
-                askUserWhetherToDeleteDescriptor();
+        public boolean shouldOverwriteDescriptor(IProjectDescription project) {
+            if (this.overwriteDescriptors == null) {
+                askUser();
             }
-            return this.deleteDescriptors;
+            return this.overwriteDescriptors;
         }
 
-        private void askUserWhetherToDeleteDescriptor() {
+        private void askUser() {
             PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
                 @Override
                 public void run() {
@@ -185,7 +186,7 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
                             0
                        );
                        int choice = dialog.open();
-                       AskUserAboutExistingDescriptorHandler.this.deleteDescriptors = choice == 0;
+                       UserDelegatedDescriptorHandler.this.overwriteDescriptors = choice == 0;
                 }
             });
         }

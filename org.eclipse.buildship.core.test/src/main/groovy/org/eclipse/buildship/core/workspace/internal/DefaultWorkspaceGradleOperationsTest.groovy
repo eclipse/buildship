@@ -541,7 +541,7 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         GradleModel gradleModel = loadGradleModel('sample-project')
 
         when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, ExistingDescriptorHandler.ALWAYS_DELETE)
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, ExistingDescriptorHandler.ALWAYS_OVERWRITE)
 
         then:
         project.hasNature(GradleProjectNature.ID)
@@ -571,7 +571,7 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, handler)
 
         then:
-        2 * handler.shouldDeleteDescriptor()
+        2 * handler.shouldOverwriteDescriptor(_)
     }
 
     def "Uncoupling a project removes the Gradle nature"() {

@@ -193,7 +193,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             // check if an Eclipse project already exists at the location of the Gradle project to import
             Optional<IProjectDescription> projectDescription = CorePlugin.workspaceOperations().findProjectInFolder(project.getProjectDirectory(), new SubProgressMonitor(monitor, 1));
             if (projectDescription.isPresent()) {
-                if (existingDescriptorHandler.shouldDeleteDescriptor()) {
+                if (existingDescriptorHandler.shouldOverwriteDescriptor(projectDescription.get())) {
                     deleteProjectDescriptor(project);
                     workspaceProject = addNewEclipseProjectToWorkspace(project, gradleBuild, rootRequestAttributes, new SubProgressMonitor(monitor, 1));
                 } else {
