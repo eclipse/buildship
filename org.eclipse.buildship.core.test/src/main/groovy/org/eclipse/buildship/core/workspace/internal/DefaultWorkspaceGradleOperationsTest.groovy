@@ -1,16 +1,5 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import org.eclipse.core.resources.IProject
-import org.eclipse.core.resources.IResourceFilterDescription
-import org.eclipse.core.runtime.IProgressMonitor
-import org.eclipse.core.runtime.IStatus
-import org.eclipse.core.runtime.NullProgressMonitor
-import org.eclipse.core.runtime.Status
-import org.eclipse.core.runtime.jobs.Job
-import org.eclipse.jdt.core.IClasspathEntry
-import org.eclipse.jdt.core.IJavaProject
-import org.eclipse.jdt.core.JavaCore
-
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationPersistence
@@ -21,6 +10,16 @@ import org.eclipse.buildship.core.test.fixtures.GradleModel
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
+import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IResourceFilterDescription
+import org.eclipse.core.runtime.IProgressMonitor
+import org.eclipse.core.runtime.IStatus
+import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.core.runtime.Status
+import org.eclipse.core.runtime.jobs.Job
+import org.eclipse.jdt.core.IClasspathEntry
+import org.eclipse.jdt.core.IJavaProject
+import org.eclipse.jdt.core.JavaCore
 
 class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
 
@@ -528,7 +527,7 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
     // Section #4: If there is an existing .project file and the user decides to delete it
     //
 
-    def "If the .project file is deleted on import, then a new project is created"() {
+    def "If the .project file is overwritten on import, then any information of the former descriptor is omitted"() {
         setup:
         IProject project = newOpenProject('sample-project')
         CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
@@ -565,7 +564,7 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
             file 'sample-project/build.gradle'
             file 'sample-project/settings.gradle', "include 'subproject-a', 'subproject-b'"
         }
-        ExistingDescriptorHandler handler = Mock()
+        ExistingDescriptorHandler handler = Mock(ExistingDescriptorHandler)
 
         when:
         GradleModel gradleModel = loadGradleModel('sample-project')
