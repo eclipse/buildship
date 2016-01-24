@@ -1,31 +1,28 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import java.io.File
-
-import spock.lang.Specification
-
 import org.eclipse.jdt.internal.launching.StandardVMType
 import org.eclipse.jdt.launching.IVMInstall
 import org.eclipse.jdt.launching.IVMInstallType
 import org.eclipse.jdt.launching.JavaRuntime
+import spock.lang.Specification
 
 @SuppressWarnings("restriction")
 class EclipseVmUtilTest extends Specification {
 
     def "Can find an existing VM"() {
         given:
-        def initialNumOfRegisteredVms = numberOfRegisteredVms()
         def location = firstRegisteredVm().installLocation
+        def initialNumOfRegisteredVms = numberOfRegisteredVms()
 
         when:
         def vm = EclipseVmUtil.findOrRegisterVM(location, '1.7')
-        def currentNumOfRegisteredVms = numberOfRegisteredVms()
 
         then:
         vm.installLocation == location
-        initialNumOfRegisteredVms == currentNumOfRegisteredVms
+        numberOfRegisteredVms() == initialNumOfRegisteredVms
     }
 
+    @SuppressWarnings("GroovyAccessibility")
     def "Creates new VM if none registered at the same location"() {
         given:
         IVMInstall vm = firstRegisteredVm()
@@ -34,17 +31,17 @@ class EclipseVmUtilTest extends Specification {
 
         when:
         vm.VMInstallType.disposeVMInstall(vm.id)
-        def currentNumOfRegisteredVms = numberOfRegisteredVms()
 
         then:
-        currentNumOfRegisteredVms == initialNumOfRegisteredVms - 1
+        numberOfRegisteredVms() == initialNumOfRegisteredVms - 1
 
         when:
         vm = EclipseVmUtil.findOrRegisterVM(vmLocation, '1.7')
-        currentNumOfRegisteredVms = numberOfRegisteredVms()
 
         then:
-        currentNumOfRegisteredVms == initialNumOfRegisteredVms
+        numberOfRegisteredVms() == initialNumOfRegisteredVms
+
+        and:
         vm.id.startsWith EclipseVmUtil.VM_ID_PREFIX
         vm.name.startsWith EclipseVmUtil.VM_NAME_PREFIX
         vm.name.contains '1.7'
@@ -52,11 +49,11 @@ class EclipseVmUtilTest extends Specification {
         vm.installLocation == vmLocation
     }
 
-    private def numberOfRegisteredVms() {
+    private static def numberOfRegisteredVms() {
         JavaRuntime.VMInstallTypes.sum { it.VMInstalls.length }
     }
 
-    private def firstRegisteredVm() {
+    private static def firstRegisteredVm() {
         for (IVMInstallType type : JavaRuntime.VMInstallTypes) {
             for (IVMInstall vm : type.VMInstalls) {
                 if (vm.installLocation) {
@@ -65,5 +62,6 @@ class EclipseVmUtilTest extends Specification {
             }
         }
     }
+
 }
 

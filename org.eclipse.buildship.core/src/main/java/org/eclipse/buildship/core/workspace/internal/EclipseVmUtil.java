@@ -11,14 +11,13 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.io.File;
-
 import com.google.common.base.Optional;
-
 import org.eclipse.jdt.internal.launching.StandardVMType;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.IVMInstallType;
 import org.eclipse.jdt.launching.JavaRuntime;
+
+import java.io.File;
 
 /**
  * Helper class to access the installed VMs in the Eclipse registry.
@@ -42,11 +41,7 @@ final class EclipseVmUtil {
      */
     public static IVMInstall findOrRegisterVM(File installLocation, String version) {
         Optional<IVMInstall> vm = findRegisteredVM(installLocation);
-        if (vm.isPresent()) {
-            return vm.get();
-        } else {
-            return registerNewVM(installLocation, version);
-        }
+        return vm.isPresent() ? vm.get() : registerNewVM(installLocation, version);
     }
 
     private static Optional<IVMInstall> findRegisteredVM(File installLocation) {
@@ -65,7 +60,7 @@ final class EclipseVmUtil {
         // use the 'Standard VM' type to register a new VM
         IVMInstallType installType = JavaRuntime.getVMInstallType(StandardVMType.ID_STANDARD_VM_TYPE);
 
-        // both the id and the name has to be unique for the registration
+        // both the id and the name have to be unique for the registration
         String vmId = generateUniqueVMId(installType);
         String vmName = generateUniqueVMName(version, installType);
 
