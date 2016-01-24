@@ -573,7 +573,7 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         GradleModel gradleModel = loadGradleModel('sample-project')
 
         when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, ExistingDescriptorHandler.ALWAYS_DELETE)
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, ExistingDescriptorHandler.ALWAYS_OVERWRITE)
 
         then:
         def javaProject = JavaCore.create(findProject('sample-project'))
@@ -601,7 +601,7 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         GradleModel gradleModel = loadGradleModel('sample-project')
 
         when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, ExistingDescriptorHandler.ALWAYS_DELETE)
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, ExistingDescriptorHandler.ALWAYS_OVERWRITE)
 
         then:
         project.description.natureIds.find{ it == 'org.eclipse.pde.UpdateSiteNature' }
