@@ -1,25 +1,19 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import org.gradle.api.JavaVersion
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import spock.lang.Specification
-
 import com.gradleware.tooling.toolingmodel.OmniJavaRuntime
 import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings
 import com.gradleware.tooling.toolingmodel.OmniJavaVersion
-import com.gradleware.tooling.toolingmodel.util.Maybe
-
+import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
-import org.eclipse.jdt.internal.core.JavaModelManager
 import org.eclipse.jdt.launching.JavaRuntime
-
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.test.fixtures.EclipseProjects
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
+import spock.lang.Specification
 
 @SuppressWarnings("restriction")
 class JavaSourceSettingsUpdaterTest extends Specification {
@@ -49,7 +43,8 @@ class JavaSourceSettingsUpdaterTest extends Specification {
         '1.6'          | '1.5'         | '1.4'
     }
 
-    def "Invalid compilance setting replaced with highest available Java version"() {
+    @SuppressWarnings("GroovyAccessibility")
+    def "Invalid compliance setting replaced with highest available Java version"() {
         given:
         IJavaProject project = EclipseProjects.newJavaProject('sample-project', tempFolder.newFolder())
 
@@ -60,7 +55,7 @@ class JavaSourceSettingsUpdaterTest extends Specification {
         project.getOption(JavaCore.COMPILER_COMPLIANCE, true) == JavaSourceSettingsUpdater.availableJavaVersions[-1]
 
         where:
-        runtimeVersion << [ null, '', '1.0.0', '7.8', 'string' ]
+        runtimeVersion << [null, '', '1.0.0', '7.8', 'string']
     }
 
     def "Invalid target Java version replaced with current compilance settings"() {
@@ -74,7 +69,7 @@ class JavaSourceSettingsUpdaterTest extends Specification {
         project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == '1.4'
 
         where:
-        targetVersion << [ null, '', '1.0.0', '7.8', 'string', '1.5' ]
+        targetVersion << [null, '', '1.0.0', '7.8', 'string', '1.5']
     }
 
     def "Invalid source Java version replaced with current target Java version"() {
@@ -88,7 +83,7 @@ class JavaSourceSettingsUpdaterTest extends Specification {
         project.getOption(JavaCore.COMPILER_SOURCE, true) == '1.4'
 
         where:
-        sourceVersion << [ null, '', '1.0.0', '7.8', 'string', '1.5' ]
+        sourceVersion << [null, '', '1.0.0', '7.8', 'string', '1.5']
     }
 
     def "VM added to the project classpath if not exist"() {
@@ -115,31 +110,37 @@ class JavaSourceSettingsUpdaterTest extends Specification {
         project.setRawClasspath(updatedClasspath as IClasspathEntry[], null)
 
         expect:
-        project.rawClasspath.find { it.path.toPortableString().equals('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/custom') }
+        project.rawClasspath.find {
+            it.path.toPortableString().equals('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/custom')
+        }
 
         when:
         JavaSourceSettingsUpdater.update(project, sourceSettings('1.6', '1.6', '1.6'), new NullProgressMonitor())
 
         then:
-        project.rawClasspath.find { it.path.toPortableString().startsWith('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType') }
-        !project.rawClasspath.find { it.path.toPortableString().equals('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/custom') }
+        project.rawClasspath.find {
+            it.path.toPortableString().startsWith('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType')
+        }
+        !project.rawClasspath.find {
+            it.path.toPortableString().equals('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/custom')
+        }
     }
 
     private OmniJavaSourceSettings sourceSettings(String runtimeVersion, String targetVersion, String sourceVersion) {
-        OmniJavaVersion runtime = Mock()
+        OmniJavaVersion runtime = Mock(OmniJavaVersion)
         runtime.name >> runtimeVersion
 
-        OmniJavaRuntime rt = Mock()
+        OmniJavaRuntime rt = Mock(OmniJavaRuntime)
         rt.homeDirectory >> new File(System.getProperty('java.home'))
         rt.javaVersion >> runtime
 
-        OmniJavaVersion target = Mock()
+        OmniJavaVersion target = Mock(OmniJavaVersion)
         target.name >> targetVersion
 
-        OmniJavaVersion source = Mock()
+        OmniJavaVersion source = Mock(OmniJavaVersion)
         source.name >> sourceVersion
 
-        OmniJavaSourceSettings settings = Mock()
+        OmniJavaSourceSettings settings = Mock(OmniJavaSourceSettings)
         settings.targetRuntime >> rt
         settings.targetBytecodeLevel >> target
         settings.sourceLanguageLevel >> source
