@@ -193,7 +193,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             Optional<IProjectDescription> projectDescription = CorePlugin.workspaceOperations().findProjectInFolder(project.getProjectDirectory(), new SubProgressMonitor(monitor, 1));
             if (projectDescription.isPresent()) {
                 if (existingDescriptorHandler.shouldOverwriteDescriptor(projectDescription.get())) {
-                    deleteProjectDescriptor(project);
+                    CorePlugin.workspaceOperations().deleteProjectDescriptor(project);
                     workspaceProject = addNewEclipseProjectToWorkspace(project, gradleBuild, rootRequestAttributes, new SubProgressMonitor(monitor, 1));
                 } else {
                     workspaceProject = addExistingEclipseProjectToWorkspace(project, projectDescription.get(), rootRequestAttributes, new SubProgressMonitor(monitor, 1));
@@ -208,10 +208,6 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         } finally {
             monitor.done();
         }
-    }
-
-    private void deleteProjectDescriptor(OmniEclipseProject project) {
-        new File(project.getProjectDirectory(), ".project").delete();
     }
 
     private IProject addExistingEclipseProjectToWorkspace(OmniEclipseProject project, IProjectDescription projectDescription, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) throws CoreException {

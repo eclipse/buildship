@@ -23,6 +23,9 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
@@ -128,6 +131,11 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         } finally {
             monitor.done();
         }
+    }
+
+    @Override
+    public void deleteProjectDescriptor(OmniEclipseProject eclipseProject) {
+        new File(eclipseProject.getProjectDirectory(), ".project").delete();
     }
 
     @Override
