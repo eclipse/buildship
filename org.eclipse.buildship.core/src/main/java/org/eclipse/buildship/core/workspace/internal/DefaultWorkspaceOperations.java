@@ -135,7 +135,9 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
     @Override
     public void deleteProjectDescriptor(OmniEclipseProject eclipseProject) {
-        new File(eclipseProject.getProjectDirectory(), ".project").delete();
+        File projectDir = eclipseProject.getProjectDirectory();
+        new File(projectDir, ".project").delete();
+        new File(projectDir, ".classpath").delete();
     }
 
     @Override

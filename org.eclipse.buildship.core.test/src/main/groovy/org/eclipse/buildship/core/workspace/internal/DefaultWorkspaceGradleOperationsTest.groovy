@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
+import org.eclipse.jdt.core.JavaModelException;
 
 class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
 
@@ -477,7 +478,7 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
     // Section #4: If there is an existing .project file
     //
 
-    def "If the .project file is overwritten on import, then the settings are synchronized with the Gradle build"() {
+    def "If the project descriptor is overwritten on import, then the settings are synchronized with the Gradle build"() {
         setup:
         IProject project = newOpenProject('sample-project')
         CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
@@ -503,7 +504,32 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         }
     }
 
-    def "If the .project file is kept on import, then no settings are overwritten"() {
+    def "If the project descriptor is overwritten on import, then all existing settings are removed"() {
+        setup:
+        IProject project = newJavaProject('sample-project').project
+        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
+        fileStructure().create {
+            file 'sample-project/build.gradle', """
+            """
+            file 'sample-project/settings.gradle'
+        }
+        GradleModel gradleModel = loadGradleModel('sample-project')
+
+        when:
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, ExistingDescriptorHandler.ALWAYS_OVERWRITE)
+
+        then:
+        project.hasNature(GradleProjectNature.ID)
+        !project.hasNature(JavaCore.NATURE_ID)
+
+        when:
+        JavaCore.create(project).rawClasspath
+
+        then:
+        thrown JavaModelException
+    }
+
+    def "If the project descriptor is kept on import, then no settings are overwritten"() {
         setup:
         IProject project = newOpenProject('sample-project')
         CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())

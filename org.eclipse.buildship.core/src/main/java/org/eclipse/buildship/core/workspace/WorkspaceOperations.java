@@ -80,7 +80,7 @@ public interface WorkspaceOperations {
     void deleteAllProjects(IProgressMonitor monitor);
 
     /**
-     * Deletes the .project file of the given eclipse project.
+     * Deletes the .project and .classpath files of the given eclipse project.
      * @param eclipseProject the project, must not be null
      */
     void deleteProjectDescriptor(OmniEclipseProject eclipseProject);
