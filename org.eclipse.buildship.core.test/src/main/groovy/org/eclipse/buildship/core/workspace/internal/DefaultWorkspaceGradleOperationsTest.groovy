@@ -557,57 +557,6 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         }
     }
 
-    def "If the .project file is deleted on import, then a Java project is created with proper source settings"() {
-        setup:
-        IProject project = newOpenProject('sample-project')
-        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
-        fileStructure().create {
-            file 'sample-project/build.gradle', """
-                apply plugin: "java"
-                sourceCompatibility = 1.3
-                targetCompatibility = 1.4
-            """
-            file 'sample-project/settings.gradle'
-            folder 'sample-project/src/main/java'
-        }
-        GradleModel gradleModel = loadGradleModel('sample-project')
-
-        when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, ExistingDescriptorHandler.ALWAYS_OVERWRITE)
-
-        then:
-        def javaProject = JavaCore.create(findProject('sample-project'))
-        javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true) ==  JavaVersion.current().toString()
-        javaProject.getOption(JavaCore.COMPILER_SOURCE, true) == JavaCore.VERSION_1_3
-        javaProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == JavaCore.VERSION_1_4
-    }
-
-    def "If the .project file is deleted on import, then the additional natures and build commands are set"() {
-        setup:
-        IProject project = newOpenProject('sample-project')
-        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
-        fileStructure().create {
-            file 'sample-project/build.gradle', """
-                apply plugin: 'eclipse'
-                eclipse {
-                    project {
-                        natures << "org.eclipse.pde.UpdateSiteNature"
-                        buildCommand 'customBuildCommand', buildCommandKey: "buildCommandValue"
-                    }
-                }
-            """
-            file 'sample-project/settings.gradle'
-        }
-        GradleModel gradleModel = loadGradleModel('sample-project')
-
-        when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, ExistingDescriptorHandler.ALWAYS_OVERWRITE)
-
-        then:
-        project.description.natureIds.find{ it == 'org.eclipse.pde.UpdateSiteNature' }
-        project.description.buildSpec.find{ it.builderName == 'customBuildCommand' }.arguments == ['buildCommandKey' : "buildCommandValue"]
-    }
-
     def "All subprojects with existing .project files are handled by the ExistingDescriptorHandler"() {
         setup:
         EclipseProjects.newProject('subproject-a', folder('sample-project/subproject-a'))
