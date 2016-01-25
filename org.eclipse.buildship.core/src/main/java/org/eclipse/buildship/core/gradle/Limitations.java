@@ -40,6 +40,7 @@ public final class Limitations {
         addIfNeeded("2.9", "No custom project natures and build commands applied", limitations);
         addIfNeeded("2.10", "Language source level not set on Java projects", limitations);
         addIfNeeded("2.11", "Java runtime not set on Java projects", limitations);
+        addIfNeeded("2.11", "Target bytecode version not set on Java projects", limitations);
         return limitations.build();
     }
 
