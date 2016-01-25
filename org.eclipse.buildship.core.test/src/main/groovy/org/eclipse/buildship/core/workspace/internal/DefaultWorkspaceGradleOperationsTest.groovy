@@ -307,60 +307,6 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         new ProjectConfigurationPersistence().readProjectConfiguration(project)
     }
 
-    def "If .project file exists at the model location, then the source settings are updated"() {
-        setup:
-        fileStructure().create {
-            file 'sample-project/build.gradle', """
-                apply plugin: "java"
-                sourceCompatibility = 1.4
-                targetCompatibility = 1.5
-            """
-        }
-
-        IJavaProject javaProject = newJavaProject("sample-project")
-        javaProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_3)
-        javaProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3)
-        javaProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_3)
-        javaProject.project.delete(false, true, new NullProgressMonitor())
-
-        GradleModel gradleModel = loadGradleModel('sample-project')
-
-        when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
-        javaProject = JavaCore.create(findProject('sample-project'))
-
-        then:
-        javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true) == JavaVersion.current().toString()
-        javaProject.getOption(JavaCore.COMPILER_SOURCE, true) == JavaCore.VERSION_1_4
-        javaProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == JavaCore.VERSION_1_5
-    }
-
-    def "If .project file exists at the model location, then build commands and natures are set"() {
-        setup:
-        IProject project = newOpenProject('sample-project')
-        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
-        fileStructure().create {
-            file 'sample-project/build.gradle', """
-                apply plugin: 'eclipse'
-                eclipse {
-                    project {
-                        natures << "org.eclipse.pde.UpdateSiteNature"
-                        buildCommand 'customBuildCommand', buildCommandKey: "buildCommandValue"
-                    }
-                }
-            """
-            file 'sample-project/settings.gradle'
-        }
-        GradleModel gradleModel = loadGradleModel('sample-project')
-
-        when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
-
-        then:
-        project.description.natureIds.find{ it == 'org.eclipse.pde.UpdateSiteNature' }
-        project.description.buildSpec.find{ it.builderName == 'customBuildCommand' }.arguments == ['buildCommandKey' : "buildCommandValue"]
-    }
-
     //
     // Section #3: If the there is no project in the workspace nor an Eclipse project at the location of the Gradle
     //             build
