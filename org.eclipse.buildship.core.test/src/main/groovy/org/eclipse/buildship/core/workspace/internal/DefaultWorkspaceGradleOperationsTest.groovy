@@ -528,10 +528,10 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
 
 
     //
-    // Section #4: If there is an existing .project file and the user decides to delete it
+    // Section #4: If there is an existing .project file
     //
 
-    def "If the .project file is overwritten on import, then any information of the former descriptor is omitted"() {
+    def "If the .project file is overwritten on import, then the settings are synchronized with the Gradle build"() {
         setup:
         IProject project = newOpenProject('sample-project')
         CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
@@ -555,6 +555,27 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
             it.entryKind == IClasspathEntry.CPE_CONTAINER &&
             it.path.toPortableString() == GradleClasspathContainer.CONTAINER_ID
         }
+    }
+
+    def "If the .project file is kept on import, then no settings are overwritten"() {
+        setup:
+        IProject project = newOpenProject('sample-project')
+        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
+        fileStructure().create {
+            file 'sample-project/build.gradle', """
+                apply plugin: 'java'
+            """
+            file 'sample-project/settings.gradle'
+            folder 'sample-project/src/main/java'
+        }
+        GradleModel gradleModel = loadGradleModel('sample-project')
+
+        when:
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, ExistingDescriptorHandler.ALWAYS_KEEP)
+
+        then:
+        project.hasNature(GradleProjectNature.ID)
+        !project.hasNature(JavaCore.NATURE_ID)
     }
 
     def "All subprojects with existing .project files are handled by the ExistingDescriptorHandler"() {

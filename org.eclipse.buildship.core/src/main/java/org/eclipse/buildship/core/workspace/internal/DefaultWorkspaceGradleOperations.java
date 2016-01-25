@@ -220,18 +220,6 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             // persist the Gradle-specific configuration in the Eclipse project's .settings folder
             ProjectConfiguration projectConfiguration = ProjectConfiguration.from(rootRequestAttributes, project);
             CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, workspaceProject);
-
-            // update the source language level in case of a Java project
-            if (isJavaProject(project) && hasJavaNature(workspaceProject)) {
-                IJavaProject javaProject = JavaCore.create(workspaceProject);
-                JavaSourceSettingsUpdater.update(javaProject, project.getJavaSourceSettings().get(), new SubProgressMonitor(monitor, 1));
-            } else {
-                monitor.worked(1);
-            }
-
-            // set project natures and build commands
-            ProjectNatureUpdater.update(workspaceProject, project.getProjectNatures(), new SubProgressMonitor(monitor, 1));
-            BuildCommandUpdater.update(workspaceProject, project.getBuildCommands(), new SubProgressMonitor(monitor, 1));
             return workspaceProject;
         } finally {
             monitor.done();
