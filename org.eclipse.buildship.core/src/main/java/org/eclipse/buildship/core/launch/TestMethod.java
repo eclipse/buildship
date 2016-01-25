@@ -29,21 +29,21 @@ public final class TestMethod implements TestTarget {
 
     @Override
     public String getSimpleName() {
-        IType declaringType = method.getDeclaringType();
-        return declaringType.getElementName() + "#" + method.getElementName();
+        IType declaringType = this.method.getDeclaringType();
+        return declaringType.getElementName() + "#" + this.method.getElementName();
     }
 
     @Override
     public String getQualifiedName() {
-        IType declaringType = method.getDeclaringType();
-        return declaringType.getFullyQualifiedName() + "#" + method.getElementName();
+        IType declaringType = this.method.getDeclaringType();
+        return declaringType.getFullyQualifiedName() + "#" + this.method.getElementName();
     }
 
     @Override
     public void apply(Builder testConfig) {
-        IType declaringType = method.getDeclaringType();
+        IType declaringType = this.method.getDeclaringType();
         String typeName = declaringType.getFullyQualifiedName();
-        String methodName = method.getElementName();
+        String methodName = this.method.getElementName();
         testConfig.jvmTestMethods(typeName, methodName);
     }
 

@@ -41,6 +41,11 @@
 
         <!-- to enable SuppressionCommentFilter -->
         <module name="FileContentsHolder"/>
+        
+        <module name="RequireThis">
+            <property name="checkFields" value="true"/>
+            <property name="checkMethods" value="false"/>
+        </module>
     </module>
 
 </module>

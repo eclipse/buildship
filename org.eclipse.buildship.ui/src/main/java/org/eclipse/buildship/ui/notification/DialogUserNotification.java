@@ -41,13 +41,13 @@ public final class DialogUserNotification implements UserNotification {
     }
 
     private boolean noDialogVisible() {
-        return dialog == null || dialog.getShell() == null || dialog.getShell().isDisposed();
+        return this.dialog == null || this.dialog.getShell() == null || this.dialog.getShell().isDisposed();
     }
 
     private void createAndOpenDialog(Shell shell, final String title, final String message, final String details, final int severity, final Throwable throwable) {
-        dialog = new ExceptionDetailsDialog(shell, title, message, details, severity, throwable);
-        dialog.setBlockOnOpen(false);
-        dialog.open();
+        this.dialog = new ExceptionDetailsDialog(shell, title, message, details, severity, throwable);
+        this.dialog.setBlockOnOpen(false);
+        this.dialog.open();
     }
 
     private void addExceptionToDialog(Throwable throwable) {

@@ -47,7 +47,7 @@ public abstract class BasicUIJob extends Job {
         if (monitor.isCanceled()) {
             return Status.CANCEL_STATUS;
         }
-        Display asyncDisplay = (cachedDisplay == null) ? getDisplay() : cachedDisplay;
+        Display asyncDisplay = (this.cachedDisplay == null) ? getDisplay() : this.cachedDisplay;
         if (asyncDisplay == null || asyncDisplay.isDisposed()) {
             return Status.CANCEL_STATUS;
         }
@@ -89,6 +89,6 @@ public abstract class BasicUIJob extends Job {
      * @return Display or <code>null</code>.
      */
     public Display getDisplay() {
-        return (cachedDisplay != null) ? cachedDisplay : Display.getCurrent();
+        return (this.cachedDisplay != null) ? this.cachedDisplay : Display.getCurrent();
     }
 }

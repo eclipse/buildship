@@ -28,17 +28,17 @@ public final class TestType implements TestTarget {
 
     @Override
     public String getSimpleName() {
-        return type.getElementName();
+        return this.type.getElementName();
     }
 
     @Override
     public String getQualifiedName() {
-        return type.getFullyQualifiedName();
+        return this.type.getFullyQualifiedName();
     }
 
     @Override
     public void apply(Builder testConfig) {
-        testConfig.jvmTestClasses(type.getFullyQualifiedName());
+        testConfig.jvmTestClasses(this.type.getFullyQualifiedName());
     }
 
     public static TestType from(IType type) {

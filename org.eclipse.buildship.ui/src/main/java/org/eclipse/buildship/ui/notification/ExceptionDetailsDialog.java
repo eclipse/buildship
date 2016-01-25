@@ -118,7 +118,7 @@ public final class ExceptionDetailsDialog extends Dialog {
         messageLabelGridData.verticalAlignment = SWT.TOP;
         messageLabelGridData.grabExcessHorizontalSpace = true;
         this.singleErrorMessageLabel.setLayoutData(messageLabelGridData);
-        this.singleErrorMessageLabel.setText(message);
+        this.singleErrorMessageLabel.setText(this.message);
 
         // single error details
         this.singleErrorDetailsLabel = new Label(this.singleErrorContainer, SWT.WRAP);
@@ -126,7 +126,7 @@ public final class ExceptionDetailsDialog extends Dialog {
         detailsLabelGridData.verticalAlignment = SWT.TOP;
         detailsLabelGridData.grabExcessHorizontalSpace = true;
         this.singleErrorDetailsLabel.setLayoutData(detailsLabelGridData);
-        this.singleErrorDetailsLabel.setText(details);
+        this.singleErrorDetailsLabel.setText(this.details);
 
         // multi error container
         this.multiErrorContainer = new Composite(stackLayoutContainer, SWT.NONE);
@@ -137,7 +137,7 @@ public final class ExceptionDetailsDialog extends Dialog {
         // multi error label
         this.multiErrorMessageLabel = new Label(this.multiErrorContainer, SWT.WRAP);
         this.multiErrorMessageLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-        this.multiErrorMessageLabel.setText(message);
+        this.multiErrorMessageLabel.setText(this.message);
 
         // multi error messages displayed in a list viewer
         GridData multiErrorExceptionListGridData = new GridData();
@@ -276,7 +276,7 @@ public final class ExceptionDetailsDialog extends Dialog {
             setDialogTitle(UiMessages.Dialog_Title_Multiple_Errors);
             showMultiError();
         } else {
-            setDialogTitle(title);
+            setDialogTitle(this.title);
             showSingleError();
         }
     }
@@ -352,9 +352,9 @@ public final class ExceptionDetailsDialog extends Dialog {
 
     private void copyStacktracesToClipboard() {
         StringBuilder sb = new StringBuilder();
-        sb.append(message);
+        sb.append(this.message);
         sb.append(LINE_SEPARATOR);
-        sb.append(details);
+        sb.append(this.details);
         sb.append(LINE_SEPARATOR);
         sb.append(collectStackTraces(this.throwables));
         setClipboardContent(sb.toString());
@@ -367,21 +367,21 @@ public final class ExceptionDetailsDialog extends Dialog {
     }
 
     private void showSingleError() {
-        if (stackLayout != null && isAccessible(singleErrorContainer)) {
+        if (this.stackLayout != null && isAccessible(this.singleErrorContainer)) {
             this.stackLayout.topControl = this.singleErrorContainer;
             this.singleErrorContainer.getParent().layout();
         }
     }
 
     private void showMultiError() {
-        if (stackLayout != null && isAccessible(multiErrorContainer)) {
+        if (this.stackLayout != null && isAccessible(this.multiErrorContainer)) {
             this.stackLayout.topControl = this.multiErrorContainer;
             this.multiErrorContainer.getParent().layout();
         }
     }
 
     private Collection<Throwable> getSelectedExceptionsFromViewer() {
-        if (isAccessible(exceptionsViewer)) {
+        if (isAccessible(this.exceptionsViewer)) {
             ISelection selection = this.exceptionsViewer.getSelection();
             if (selection instanceof IStructuredSelection) {
                 @SuppressWarnings("unchecked")
@@ -400,14 +400,14 @@ public final class ExceptionDetailsDialog extends Dialog {
     }
 
     private void setExceptionsViewerInput(Collection<Throwable> input) {
-        if (isAccessible(exceptionsViewer)) {
-            exceptionsViewer.setInput(input);
+        if (isAccessible(this.exceptionsViewer)) {
+            this.exceptionsViewer.setInput(input);
         }
     }
 
     private void setStacktraceAreaText(String text) {
-        if (isAccessible(stacktraceAreaText)) {
-            stacktraceAreaText.setText(text);
+        if (isAccessible(this.stacktraceAreaText)) {
+            this.stacktraceAreaText.setText(text);
         }
     }
 

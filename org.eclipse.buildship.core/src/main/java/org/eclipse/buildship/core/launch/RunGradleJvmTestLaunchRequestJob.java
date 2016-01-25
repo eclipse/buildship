@@ -61,7 +61,7 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
     }
 
     private String createProcessName(File workingDir) {
-        return String.format("[Gradle Project] %s in %s (%s)", Joiner.on(' ').join(collectSimpleNames(testTargets)),
+        return String.format("[Gradle Project] %s in %s (%s)", Joiner.on(' ').join(collectSimpleNames(this.testTargets)),
                 workingDir.getAbsolutePath(),
                 DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(new Date()));
     }
@@ -69,7 +69,7 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
     @Override
     protected Request<Void> createRequest() {
         TestConfig.Builder testConfig = new TestConfig.Builder();
-        for (TestTarget testTarget : testTargets) {
+        for (TestTarget testTarget : this.testTargets) {
             testTarget.apply(testConfig);
         }
         return CorePlugin.toolingClient().newTestLaunchRequest(testConfig.build());
@@ -77,7 +77,7 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
 
     @Override
     protected void writeExtraConfigInfo(OutputStreamWriter writer) throws IOException {
-        writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Tests, Joiner.on(' ').join(collectQualifiedNames(testTargets))));
+        writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Tests, Joiner.on(' ').join(collectQualifiedNames(this.testTargets))));
     }
 
     /**

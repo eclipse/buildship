@@ -53,11 +53,11 @@ public class StringMatcher {
         }
 
         public int getStart() {
-            return start;
+            return this.start;
         }
 
         public int getEnd() {
-            return end;
+            return this.end;
         }
     }
 
@@ -83,12 +83,12 @@ public class StringMatcher {
         if (pattern == null) {
             throw new IllegalArgumentException();
         }
-        fIgnoreCase = ignoreCase;
-        fIgnoreWildCards = ignoreWildCards;
-        fPattern = pattern;
-        fLength = pattern.length();
+        this.fIgnoreCase = ignoreCase;
+        this.fIgnoreWildCards = ignoreWildCards;
+        this.fPattern = pattern;
+        this.fLength = pattern.length();
 
-        if (fIgnoreWildCards) {
+        if (this.fIgnoreWildCards) {
             parseNoWildCards();
         } else {
             parseWildCards();
@@ -124,18 +124,18 @@ public class StringMatcher {
         if (end < 0 || start >= end) {
             return null;
         }
-        if (fLength == 0) {
+        if (this.fLength == 0) {
             return new Position(start, start);
         }
-        if (fIgnoreWildCards) {
+        if (this.fIgnoreWildCards) {
             int x = posIn(text, start, end);
             if (x < 0) {
                 return null;
             }
-            return new Position(x, x + fLength);
+            return new Position(x, x + this.fLength);
         }
 
-        int segCount = fSegments.length;
+        int segCount = this.fSegments.length;
         if (segCount == 0) {
             return new Position(start, end);
         }
@@ -144,7 +144,7 @@ public class StringMatcher {
         int matchStart = -1;
         int i;
         for (i = 0; i < segCount && curPos < end; ++i) {
-            String current = fSegments[i];
+            String current = this.fSegments[i];
             int nextMatch = regExpPosIn(text, curPos, end, current);
             if (nextMatch < 0) {
                 return null;
@@ -191,17 +191,17 @@ public class StringMatcher {
             return false;
         }
 
-        if (fIgnoreWildCards) {
-            return (end - start == fLength) && fPattern.regionMatches(fIgnoreCase, 0, text, start, fLength);
+        if (this.fIgnoreWildCards) {
+            return (end - start == this.fLength) && this.fPattern.regionMatches(this.fIgnoreCase, 0, text, start, this.fLength);
         }
-        int segCount = fSegments.length;
-        if (segCount == 0 && (fHasLeadingStar || fHasTrailingStar)) {
+        int segCount = this.fSegments.length;
+        if (segCount == 0 && (this.fHasLeadingStar || this.fHasTrailingStar)) {
             return true;
         }
         if (start == end) {
-            return fLength == 0;
+            return this.fLength == 0;
         }
-        if (fLength == 0) {
+        if (this.fLength == 0) {
             return start == end;
         }
 
@@ -214,29 +214,29 @@ public class StringMatcher {
         }
 
         int tCurPos = start;
-        int bound = end - fBound;
+        int bound = end - this.fBound;
         if (bound < 0) {
             return false;
         }
         int i = 0;
-        String current = fSegments[i];
+        String current = this.fSegments[i];
         int segLength = current.length();
 
         /* process first segment */
-        if (!fHasLeadingStar) {
+        if (!this.fHasLeadingStar) {
             if (!regExpRegionMatches(text, start, current, 0, segLength)) {
                 return false;
             }
             ++i;
             tCurPos = tCurPos + segLength;
         }
-        if ((fSegments.length == 1) && (!fHasLeadingStar) && (!fHasTrailingStar)) {
+        if ((this.fSegments.length == 1) && (!this.fHasLeadingStar) && (!this.fHasTrailingStar)) {
             // only one segment to match, no wildcards specified
             return tCurPos == end;
         }
         /* process middle segments */
         while (i < segCount) {
-            current = fSegments[i];
+            current = this.fSegments[i];
             int currentMatch;
             int k = current.indexOf(fSingleWildCard);
             if (k < 0) {
@@ -255,7 +255,7 @@ public class StringMatcher {
         }
 
         /* process final segment */
-        if (!fHasTrailingStar && tCurPos != end) {
+        if (!this.fHasTrailingStar && tCurPos != end) {
             int clen = current.length();
             return regExpRegionMatches(text, end - clen, current, 0, clen);
         }
@@ -267,22 +267,22 @@ public class StringMatcher {
      * Since wildcards are not being used in this case, the pattern consists of a single segment.
      */
     private void parseNoWildCards() {
-        fSegments = new String[1];
-        fSegments[0] = fPattern;
-        fBound = fLength;
+        this.fSegments = new String[1];
+        this.fSegments[0] = this.fPattern;
+        this.fBound = this.fLength;
     }
 
     /**
      * Parses the given pattern into segments seperated by wildcard '*' characters.
      */
     private void parseWildCards() {
-        if (fPattern.startsWith("*")) { //$NON-NLS-1$
-            fHasLeadingStar = true;
+        if (this.fPattern.startsWith("*")) { //$NON-NLS-1$
+            this.fHasLeadingStar = true;
         }
-        if (fPattern.endsWith("*")) {//$NON-NLS-1$
+        if (this.fPattern.endsWith("*")) {//$NON-NLS-1$
             /* make sure it's not an escaped wildcard */
-            if (fLength > 1 && fPattern.charAt(fLength - 2) != '\\') {
-                fHasTrailingStar = true;
+            if (this.fLength > 1 && this.fPattern.charAt(this.fLength - 2) != '\\') {
+                this.fHasTrailingStar = true;
             }
         }
 
@@ -290,14 +290,14 @@ public class StringMatcher {
 
         int pos = 0;
         StringBuffer buf = new StringBuffer();
-        while (pos < fLength) {
-            char c = fPattern.charAt(pos++);
+        while (pos < this.fLength) {
+            char c = this.fPattern.charAt(pos++);
             switch (c) {
                 case '\\':
-                    if (pos >= fLength) {
+                    if (pos >= this.fLength) {
                         buf.append(c);
                     } else {
-                        char next = fPattern.charAt(pos++);
+                        char next = this.fPattern.charAt(pos++);
                         /* if it's an escape sequence */
                         if (next == '*' || next == '?' || next == '\\') {
                             buf.append(next);
@@ -312,7 +312,7 @@ public class StringMatcher {
                     if (buf.length() > 0) {
                         /* new segment */
                         temp.addElement(buf.toString());
-                        fBound += buf.length();
+                        this.fBound += buf.length();
                         buf.setLength(0);
                     }
                     break;
@@ -328,11 +328,11 @@ public class StringMatcher {
         /* add last buffer to segment list */
         if (buf.length() > 0) {
             temp.addElement(buf.toString());
-            fBound += buf.length();
+            this.fBound += buf.length();
         }
 
-        fSegments = new String[temp.size()];
-        temp.copyInto(fSegments);
+        this.fSegments = new String[temp.size()];
+        temp.copyInto(this.fSegments);
     }
 
     /**
@@ -343,10 +343,10 @@ public class StringMatcher {
      */
     protected int posIn(String text, int start, int end) {// no wild card in
         // pattern
-        int max = end - fLength;
+        int max = end - this.fLength;
 
-        if (!fIgnoreCase) {
-            int i = text.indexOf(fPattern, start);
+        if (!this.fIgnoreCase) {
+            int i = text.indexOf(this.fPattern, start);
             if (i == -1 || i > max) {
                 return -1;
             }
@@ -354,7 +354,7 @@ public class StringMatcher {
         }
 
         for (int i = start; i <= max; ++i) {
-            if (text.regionMatches(true, i, fPattern, 0, fLength)) {
+            if (text.regionMatches(true, i, this.fPattern, 0, this.fLength)) {
                 return i;
             }
         }
@@ -395,7 +395,7 @@ public class StringMatcher {
             char pchar = p.charAt(pStart++);
 
             /* process wild cards */
-            if (!fIgnoreWildCards) {
+            if (!this.fIgnoreWildCards) {
                 /* skip single wild cards */
                 if (pchar == fSingleWildCard) {
                     continue;
@@ -404,7 +404,7 @@ public class StringMatcher {
             if (pchar == tchar) {
                 continue;
             }
-            if (fIgnoreCase) {
+            if (this.fIgnoreCase) {
                 if (Character.toUpperCase(tchar) == Character.toUpperCase(pchar)) {
                     continue;
                 }
@@ -434,7 +434,7 @@ public class StringMatcher {
         int plen = p.length();
         int max = end - plen;
 
-        if (!fIgnoreCase) {
+        if (!this.fIgnoreCase) {
             int i = text.indexOf(p, start);
             if (i == -1 || i > max) {
                 return -1;

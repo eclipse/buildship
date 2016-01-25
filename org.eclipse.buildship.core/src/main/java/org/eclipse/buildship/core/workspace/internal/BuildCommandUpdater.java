@@ -46,23 +46,23 @@ final class BuildCommandUpdater {
     private void updateBuildCommands(IProgressMonitor monitor) {
         monitor.beginTask("Updating build commands", 2);
         try {
-            StringSetProjectProperty knownCommands = StringSetProjectProperty.from(project, PROJECT_PROPERTY_KEY_GRADLE_BUILD_COMMANDS);
+            StringSetProjectProperty knownCommands = StringSetProjectProperty.from(this.project, PROJECT_PROPERTY_KEY_GRADLE_BUILD_COMMANDS);
             addBuildCommandsNewInGradleModel(knownCommands, new SubProgressMonitor(monitor, 1));
             removeBuildCommandsRemovedFromGradleModel(knownCommands, new SubProgressMonitor(monitor, 1));
         } catch (CoreException e) {
-            CorePlugin.logger().error(String.format("Cannot update build commands on %s.", project.getName()), e);
+            CorePlugin.logger().error(String.format("Cannot update build commands on %s.", this.project.getName()), e);
         } finally {
             monitor.done();
         }
     }
 
     private void addBuildCommandsNewInGradleModel(StringSetProjectProperty knownCommands, IProgressMonitor monitor) {
-        monitor.beginTask("Add new build commands", buildCommands.size());
+        monitor.beginTask("Add new build commands", this.buildCommands.size());
         try {
-            for (OmniEclipseBuildCommand buildCommand : buildCommands) {
+            for (OmniEclipseBuildCommand buildCommand : this.buildCommands) {
                 String name = buildCommand.getName();
                 Map<String, String> arguments = buildCommand.getArguments();
-                CorePlugin.workspaceOperations().addBuildCommand(project, name, arguments, new SubProgressMonitor(monitor, 1));
+                CorePlugin.workspaceOperations().addBuildCommand(this.project, name, arguments, new SubProgressMonitor(monitor, 1));
                 knownCommands.add(name);
             }
         } finally {
@@ -76,7 +76,7 @@ final class BuildCommandUpdater {
         try {
             for (String buildCommand : buildCommands) {
                 if (!buildCommandExistsInGradleModel(buildCommand)) {
-                    CorePlugin.workspaceOperations().removeBuildCommand(project, buildCommand, new SubProgressMonitor(monitor, 1));
+                    CorePlugin.workspaceOperations().removeBuildCommand(this.project, buildCommand, new SubProgressMonitor(monitor, 1));
                     knownCommands.remove(buildCommand);
                 } else {
                     monitor.worked(1);
@@ -88,7 +88,7 @@ final class BuildCommandUpdater {
     }
 
     private boolean buildCommandExistsInGradleModel(final String buildCommandName) {
-        return FluentIterable.from(buildCommands).firstMatch(new Predicate<OmniEclipseBuildCommand>() {
+        return FluentIterable.from(this.buildCommands).firstMatch(new Predicate<OmniEclipseBuildCommand>() {
 
             @Override
             public boolean apply(OmniEclipseBuildCommand command) {

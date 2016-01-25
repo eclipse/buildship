@@ -66,7 +66,7 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
     }
 
     private String createProcessName(File workingDir) {
-        return String.format("%s [Gradle Project] %s in %s (%s)", collectTestTaskNames(this.testDescriptors), Joiner.on(' ').join(collectSimpleDisplayNames(testDescriptors)),
+        return String.format("%s [Gradle Project] %s in %s (%s)", collectTestTaskNames(this.testDescriptors), Joiner.on(' ').join(collectSimpleDisplayNames(this.testDescriptors)),
                 workingDir.getAbsolutePath(), DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(new Date()));
     }
 

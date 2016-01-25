@@ -48,22 +48,22 @@ final class ProjectNatureUpdater {
     private void updateNatures(IProgressMonitor monitor) {
         monitor.beginTask("Updating project natures", 2);
         try {
-            StringSetProjectProperty knownNatures = StringSetProjectProperty.from(project, PROJECT_PROPERTY_KEY_GRADLE_NATURES);
+            StringSetProjectProperty knownNatures = StringSetProjectProperty.from(this.project, PROJECT_PROPERTY_KEY_GRADLE_NATURES);
             addNaturesNewInGradleModel(knownNatures, new SubProgressMonitor(monitor, 1));
             removeNaturesRemovedFromGradleModel(knownNatures, new SubProgressMonitor(monitor, 1));
         } catch (CoreException e) {
-            CorePlugin.logger().error(String.format("Cannot update project natures on %s.", project.getName()), e);
+            CorePlugin.logger().error(String.format("Cannot update project natures on %s.", this.project.getName()), e);
         } finally {
             monitor.done();
         }
     }
 
     private void addNaturesNewInGradleModel(StringSetProjectProperty knownNatures, IProgressMonitor monitor) {
-        monitor.beginTask("Add new natures", natures.size());
+        monitor.beginTask("Add new natures", this.natures.size());
         try {
-            for (OmniEclipseProjectNature nature : natures) {
+            for (OmniEclipseProjectNature nature : this.natures) {
                 String natureId = nature.getId();
-                CorePlugin.workspaceOperations().addNature(project, natureId, new SubProgressMonitor(monitor, 1));
+                CorePlugin.workspaceOperations().addNature(this.project, natureId, new SubProgressMonitor(monitor, 1));
                 knownNatures.add(natureId);
             }
         } finally {
@@ -77,7 +77,7 @@ final class ProjectNatureUpdater {
         try {
             for (String knownNatureId : knownNatureIds) {
                 if (!natureIdExistsInGradleModel(knownNatureId)) {
-                    CorePlugin.workspaceOperations().removeNature(project, knownNatureId, new SubProgressMonitor(monitor, 1));
+                    CorePlugin.workspaceOperations().removeNature(this.project, knownNatureId, new SubProgressMonitor(monitor, 1));
                     knownNatures.remove(knownNatureId);
                 } else {
                     monitor.worked(1);
@@ -89,7 +89,7 @@ final class ProjectNatureUpdater {
     }
 
     private boolean natureIdExistsInGradleModel(final String natureId) {
-        return FluentIterable.from(natures).firstMatch(new Predicate<OmniEclipseProjectNature>() {
+        return FluentIterable.from(this.natures).firstMatch(new Predicate<OmniEclipseProjectNature>() {
 
             @Override
             public boolean apply(OmniEclipseProjectNature nature) {

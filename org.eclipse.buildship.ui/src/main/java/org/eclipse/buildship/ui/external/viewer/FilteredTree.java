@@ -197,7 +197,7 @@ public class FilteredTree extends Composite {
      * @since 3.3
      */
     protected void init(int treeStyle, PatternFilter filter) {
-        patternFilter = filter;
+        this.patternFilter = filter;
         setShowFilterControls(true);
         createControl(getParent(), treeStyle);
         createRefreshJob();
@@ -219,31 +219,31 @@ public class FilteredTree extends Composite {
         setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
         if (useNativeSearchField(parent)) {
-            filterComposite = new Composite(this, SWT.NONE);
+            this.filterComposite = new Composite(this, SWT.NONE);
         } else {
-            filterComposite = new Composite(this, SWT.BORDER);
-            filterComposite.setBackground(getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
+            this.filterComposite = new Composite(this, SWT.BORDER);
+            this.filterComposite.setBackground(getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
         }
         GridLayout filterLayout = new GridLayout(2, false);
         filterLayout.marginHeight = 0;
         filterLayout.marginWidth = 0;
-        filterComposite.setLayout(filterLayout);
-        filterComposite.setFont(parent.getFont());
+        this.filterComposite.setLayout(filterLayout);
+        this.filterComposite.setFont(parent.getFont());
 
-        createFilterControls(filterComposite);
+        createFilterControls(this.filterComposite);
         GridData gridData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
-        filterComposite.setVisible(isShowFilterControls());
+        this.filterComposite.setVisible(isShowFilterControls());
         gridData.exclude = !isShowFilterControls();
-        filterComposite.setLayoutData(gridData);
+        this.filterComposite.setLayoutData(gridData);
 
-        treeComposite = new Composite(this, SWT.NONE);
+        this.treeComposite = new Composite(this, SWT.NONE);
         GridLayout treeCompositeLayout = new GridLayout();
         treeCompositeLayout.marginHeight = 0;
         treeCompositeLayout.marginWidth = 0;
-        treeComposite.setLayout(treeCompositeLayout);
+        this.treeComposite.setLayout(treeCompositeLayout);
         GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
-        treeComposite.setLayoutData(data);
-        createTreeControl(treeComposite, treeStyle);
+        this.treeComposite.setLayoutData(data);
+        createTreeControl(this.treeComposite, treeStyle);
     }
 
     private static Boolean useNativeSearchField;
@@ -275,9 +275,9 @@ public class FilteredTree extends Composite {
     protected Composite createFilterControls(Composite parent) {
         createFilterText(parent);
         createClearText(parent);
-        if (clearButtonControl != null) {
+        if (this.clearButtonControl != null) {
             // initially there is no text to clear
-            clearButtonControl.setVisible(false);
+            this.clearButtonControl.setVisible(false);
         }
         return parent;
     }
@@ -292,21 +292,21 @@ public class FilteredTree extends Composite {
      * @return the tree
      */
     protected Control createTreeControl(Composite parent, int style) {
-        treeViewer = doCreateTreeViewer(parent, style);
+        this.treeViewer = doCreateTreeViewer(parent, style);
         GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
-        treeViewer.getControl().setLayoutData(data);
-        treeViewer.getControl().addDisposeListener(new DisposeListener() {
+        this.treeViewer.getControl().setLayoutData(data);
+        this.treeViewer.getControl().addDisposeListener(new DisposeListener() {
 
             @Override
             public void widgetDisposed(DisposeEvent e) {
-                refreshJob.cancel();
+                FilteredTree.this.refreshJob.cancel();
             }
         });
-        if (treeViewer instanceof NotifyingTreeViewer) {
-            patternFilter.setUseCache(true);
+        if (this.treeViewer instanceof NotifyingTreeViewer) {
+            this.patternFilter.setUseCache(true);
         }
-        treeViewer.addFilter(patternFilter);
-        return treeViewer.getControl();
+        this.treeViewer.addFilter(this.patternFilter);
+        return this.treeViewer.getControl();
     }
 
     /**
@@ -330,7 +330,7 @@ public class FilteredTree extends Composite {
      */
     private TreeItem getFirstMatchingItem(TreeItem[] items) {
         for (TreeItem item : items) {
-            if (patternFilter.isLeafMatch(treeViewer, item.getData()) && patternFilter.isElementSelectable(item.getData())) {
+            if (this.patternFilter.isLeafMatch(this.treeViewer, item.getData()) && this.patternFilter.isElementSelectable(item.getData())) {
                 return item;
             }
             TreeItem treeItem = getFirstMatchingItem(item.getItems());
@@ -346,8 +346,8 @@ public class FilteredTree extends Composite {
      *
      */
     private void createRefreshJob() {
-        refreshJob = doCreateRefreshJob();
-        refreshJob.setSystem(true);
+        this.refreshJob = doCreateRefreshJob();
+        this.refreshJob.setSystem(true);
     }
 
     /**
@@ -363,7 +363,7 @@ public class FilteredTree extends Composite {
 
             @Override
             public IStatus runInUIThread(IProgressMonitor monitor) {
-                if (treeViewer.getControl().isDisposed()) {
+                if (FilteredTree.this.treeViewer.getControl().isDisposed()) {
                     return Status.CANCEL_STATUS;
                 }
 
@@ -372,30 +372,30 @@ public class FilteredTree extends Composite {
                     return Status.OK_STATUS;
                 }
 
-                boolean initial = initialText != null && initialText.equals(text);
+                boolean initial = FilteredTree.this.initialText != null && FilteredTree.this.initialText.equals(text);
                 if (initial) {
-                    patternFilter.setPattern(null);
+                    FilteredTree.this.patternFilter.setPattern(null);
                 } else if (text != null) {
-                    patternFilter.setPattern(text);
+                    FilteredTree.this.patternFilter.setPattern(text);
                 }
 
-                Control redrawFalseControl = treeComposite != null ? treeComposite : treeViewer.getControl();
+                Control redrawFalseControl = FilteredTree.this.treeComposite != null ? FilteredTree.this.treeComposite : FilteredTree.this.treeViewer.getControl();
                 try {
                     // don't want the user to see updates that will be made to
                     // the tree
                     // we are setting redraw(false) on the composite to avoid
                     // dancing scrollbar
                     redrawFalseControl.setRedraw(false);
-                    if (!narrowingDown) {
+                    if (!FilteredTree.this.narrowingDown) {
                         // collapse all
-                        TreeItem[] is = treeViewer.getTree().getItems();
+                        TreeItem[] is = FilteredTree.this.treeViewer.getTree().getItems();
                         for (TreeItem item : is) {
                             if (item.getExpanded()) {
-                                treeViewer.setExpandedState(item.getData(), true);
+                                FilteredTree.this.treeViewer.setExpandedState(item.getData(), true);
                             }
                         }
                     }
-                    treeViewer.refresh(true);
+                    FilteredTree.this.treeViewer.refresh(true);
 
                     if (text.length() > 0 && !initial) {
                         /*
@@ -428,7 +428,7 @@ public class FilteredTree extends Composite {
                     // done updating the tree - set redraw back to true
                     TreeItem[] items = getViewer().getTree().getItems();
                     if (items.length > 0 && getViewer().getTree().getSelectionCount() == 0) {
-                        treeViewer.getTree().setTopItem(items[0]);
+                        FilteredTree.this.treeViewer.getTree().setTopItem(items[0]);
                     }
                     redrawFalseControl.setRedraw(true);
                 }
@@ -458,7 +458,7 @@ public class FilteredTree extends Composite {
                             if (!item.getExpanded()) {
                                 // do the expansion through the viewer so that
                                 // it can refresh children appropriately.
-                                treeViewer.setExpandedState(itemData, true);
+                                FilteredTree.this.treeViewer.setExpandedState(itemData, true);
                             }
                             TreeItem[] children = item.getItems();
                             if (items.length > 0) {
@@ -474,8 +474,8 @@ public class FilteredTree extends Composite {
     }
 
     protected void updateToolbar(boolean visible) {
-        if (clearButtonControl != null) {
-            clearButtonControl.setVisible(visible);
+        if (this.clearButtonControl != null) {
+            this.clearButtonControl.setVisible(visible);
         }
     }
 
@@ -487,14 +487,14 @@ public class FilteredTree extends Composite {
      * @param parent <code>Composite</code> of the filter text
      */
     protected void createFilterText(Composite parent) {
-        filterText = doCreateFilterText(parent);
-        filterText.getAccessible().addAccessibleListener(new AccessibleAdapter() {
+        this.filterText = doCreateFilterText(parent);
+        this.filterText.getAccessible().addAccessibleListener(new AccessibleAdapter() {
 
             @Override
             public void getName(AccessibleEvent e) {
-                String filterTextString = filterText.getText();
-                if (filterTextString.length() == 0 || filterTextString.equals(initialText)) {
-                    e.result = initialText;
+                String filterTextString = FilteredTree.this.filterText.getText();
+                if (filterTextString.length() == 0 || filterTextString.equals(FilteredTree.this.initialText)) {
+                    e.result = FilteredTree.this.initialText;
                 } else {
                     e.result = NLS.bind(ViewerMessages.FilteredTree_AccessibleListenerFiltered, new String[] { filterTextString, String.valueOf(getFilteredItemsCount()) });
                 }
@@ -532,22 +532,22 @@ public class FilteredTree extends Composite {
             }
         });
 
-        filterText.addFocusListener(new FocusAdapter() {
+        this.filterText.addFocusListener(new FocusAdapter() {
 
             @Override
             public void focusLost(FocusEvent e) {
-                if (filterText.getText().equals(initialText)) {
+                if (FilteredTree.this.filterText.getText().equals(FilteredTree.this.initialText)) {
                     setFilterText(""); //$NON-NLS-1$
                     textChanged();
                 }
             }
         });
 
-        filterText.addMouseListener(new MouseAdapter() {
+        this.filterText.addMouseListener(new MouseAdapter() {
 
             @Override
             public void mouseDown(MouseEvent e) {
-                if (filterText.getText().equals(initialText)) {
+                if (FilteredTree.this.filterText.getText().equals(FilteredTree.this.initialText)) {
                     // XXX: We cannot call clearText() due to
                     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=260664
                     setFilterText(""); //$NON-NLS-1$
@@ -556,21 +556,21 @@ public class FilteredTree extends Composite {
             }
         });
 
-        filterText.addKeyListener(new KeyAdapter() {
+        this.filterText.addKeyListener(new KeyAdapter() {
 
             @Override
             public void keyPressed(KeyEvent e) {
                 // on a CR we want to transfer focus to the list
                 boolean hasItems = getViewer().getTree().getItemCount() > 0;
                 if (hasItems && e.keyCode == SWT.ARROW_DOWN) {
-                    treeViewer.getTree().setFocus();
+                    FilteredTree.this.treeViewer.getTree().setFocus();
                     return;
                 }
             }
         });
 
         // enter key set focus to tree
-        filterText.addTraverseListener(new TraverseListener() {
+        this.filterText.addTraverseListener(new TraverseListener() {
 
             @Override
             public void keyTraversed(TraverseEvent e) {
@@ -582,8 +582,8 @@ public class FilteredTree extends Composite {
                         // if the initial filter text hasn't changed, do not try
                         // to match
                         boolean hasFocus = getViewer().getTree().setFocus();
-                        boolean textChanged = !getInitialText().equals(filterText.getText().trim());
-                        if (hasFocus && textChanged && filterText.getText().trim().length() > 0) {
+                        boolean textChanged = !getInitialText().equals(FilteredTree.this.filterText.getText().trim());
+                        if (hasFocus && textChanged && FilteredTree.this.filterText.getText().trim().length() > 0) {
                             Tree tree = getViewer().getTree();
                             TreeItem item;
                             if (tree.getSelectionCount() > 0) {
@@ -602,7 +602,7 @@ public class FilteredTree extends Composite {
             }
         });
 
-        filterText.addModifyListener(new ModifyListener() {
+        this.filterText.addModifyListener(new ModifyListener() {
 
             @Override
             public void modifyText(ModifyEvent e) {
@@ -613,8 +613,8 @@ public class FilteredTree extends Composite {
         // if we're using a field with built in cancel we need to listen for
         // default selection changes (which tell us the cancel button has been
         // pressed)
-        if ((filterText.getStyle() & SWT.ICON_CANCEL) != 0) {
-            filterText.addSelectionListener(new SelectionAdapter() {
+        if ((this.filterText.getStyle() & SWT.ICON_CANCEL) != 0) {
+            this.filterText.addSelectionListener(new SelectionAdapter() {
 
                 @Override
                 public void widgetDefaultSelected(SelectionEvent e) {
@@ -628,10 +628,10 @@ public class FilteredTree extends Composite {
         GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false);
         // if the text widget supported cancel then it will have it's own
         // integrated button. We can take all of the space.
-        if ((filterText.getStyle() & SWT.ICON_CANCEL) != 0) {
+        if ((this.filterText.getStyle() & SWT.ICON_CANCEL) != 0) {
             gridData.horizontalSpan = 2;
         }
-        filterText.setLayoutData(gridData);
+        this.filterText.setLayoutData(gridData);
     }
 
     /**
@@ -657,11 +657,11 @@ public class FilteredTree extends Composite {
      * Update the receiver after the text has changed.
      */
     protected void textChanged() {
-        narrowingDown = previousFilterText == null || previousFilterText.equals(ViewerMessages.FilteredTree_FilterMessage) || getFilterString().startsWith(previousFilterText);
-        previousFilterText = getFilterString();
+        this.narrowingDown = this.previousFilterText == null || this.previousFilterText.equals(ViewerMessages.FilteredTree_FilterMessage) || getFilterString().startsWith(this.previousFilterText);
+        this.previousFilterText = getFilterString();
         // cancel currently running job first, to prevent unnecessary redraw
-        refreshJob.cancel();
-        refreshJob.schedule(getRefreshJobDelay());
+        this.refreshJob.cancel();
+        this.refreshJob.schedule(getRefreshJobDelay());
     }
 
     /**
@@ -684,8 +684,8 @@ public class FilteredTree extends Composite {
     @Override
     public void setBackground(Color background) {
         super.setBackground(background);
-        if (filterComposite != null && (useNativeSearchField(filterComposite))) {
-            filterComposite.setBackground(background);
+        if (this.filterComposite != null && (useNativeSearchField(this.filterComposite))) {
+            this.filterComposite.setBackground(background);
         }
     }
 
@@ -698,7 +698,7 @@ public class FilteredTree extends Composite {
     private void createClearText(Composite parent) {
         // only create the button if the text widget doesn't support one
         // natively
-        if ((filterText.getStyle() & SWT.ICON_CANCEL) == 0) {
+        if ((this.filterText.getStyle() & SWT.ICON_CANCEL) == 0) {
 
             final Label clearButton = new Label(parent, SWT.NONE);
             ResourceManager resourceManager = new LocalResourceManager(JFaceResources.getResources(), clearButton);
@@ -718,32 +718,32 @@ public class FilteredTree extends Composite {
                 @Override
                 public void mouseDown(MouseEvent e) {
                     clearButton.setImage(pressedImage);
-                    fMoveListener = new MouseMoveListener() {
+                    this.fMoveListener = new MouseMoveListener() {
 
                         private boolean fMouseInButton = true;
 
                         @Override
                         public void mouseMove(MouseEvent e) {
                             boolean mouseInButton = isMouseInButton(e);
-                            if (mouseInButton != fMouseInButton) {
-                                fMouseInButton = mouseInButton;
+                            if (mouseInButton != this.fMouseInButton) {
+                                this.fMouseInButton = mouseInButton;
                                 clearButton.setImage(mouseInButton ? pressedImage : inactiveImage);
                             }
                         }
                     };
-                    clearButton.addMouseMoveListener(fMoveListener);
+                    clearButton.addMouseMoveListener(this.fMoveListener);
                 }
 
                 @Override
                 public void mouseUp(MouseEvent e) {
-                    if (fMoveListener != null) {
-                        clearButton.removeMouseMoveListener(fMoveListener);
-                        fMoveListener = null;
+                    if (this.fMoveListener != null) {
+                        clearButton.removeMouseMoveListener(this.fMoveListener);
+                        this.fMoveListener = null;
                         boolean mouseInButton = isMouseInButton(e);
                         clearButton.setImage(mouseInButton ? activeImage : inactiveImage);
                         if (mouseInButton) {
                             clearText();
-                            filterText.setFocus();
+                            FilteredTree.this.filterText.setFocus();
                         }
                     }
                 }
@@ -801,8 +801,8 @@ public class FilteredTree extends Composite {
      * @param string
      */
     protected void setFilterText(String string) {
-        if (filterText != null) {
-            filterText.setText(string);
+        if (this.filterText != null) {
+            this.filterText.setText(string);
             selectAll();
         }
     }
@@ -813,7 +813,7 @@ public class FilteredTree extends Composite {
      * @return The pattern filter; never <code>null</code>.
      */
     public final PatternFilter getPatternFilter() {
-        return patternFilter;
+        return this.patternFilter;
     }
 
     /**
@@ -822,7 +822,7 @@ public class FilteredTree extends Composite {
      * @return the tree viewer
      */
     public TreeViewer getViewer() {
-        return treeViewer;
+        return this.treeViewer;
     }
 
     /**
@@ -831,7 +831,7 @@ public class FilteredTree extends Composite {
      * @return the filter Text, or null if it was not created
      */
     public Text getFilterControl() {
-        return filterText;
+        return this.filterText;
     }
 
     /**
@@ -841,7 +841,7 @@ public class FilteredTree extends Composite {
      * @return String in the text, or null if the text does not exist
      */
     protected String getFilterString() {
-        return filterText != null ? filterText.getText() : null;
+        return this.filterText != null ? this.filterText.getText() : null;
     }
 
     /**
@@ -851,26 +851,26 @@ public class FilteredTree extends Composite {
      * @param text initial text to appear in text field
      */
     public void setInitialText(String text) {
-        initialText = text;
-        if (filterText != null) {
-            filterText.setMessage(text);
-            if (filterText.isFocusControl()) {
-                setFilterText(initialText);
+        this.initialText = text;
+        if (this.filterText != null) {
+            this.filterText.setMessage(text);
+            if (this.filterText.isFocusControl()) {
+                setFilterText(this.initialText);
                 textChanged();
             } else {
                 getDisplay().asyncExec(new Runnable() {
 
                     @Override
                     public void run() {
-                        if (!filterText.isDisposed() && filterText.isFocusControl()) {
-                            setFilterText(initialText);
+                        if (!FilteredTree.this.filterText.isDisposed() && FilteredTree.this.filterText.isFocusControl()) {
+                            setFilterText(FilteredTree.this.initialText);
                             textChanged();
                         }
                     }
                 });
             }
         } else {
-            setFilterText(initialText);
+            setFilterText(this.initialText);
             textChanged();
         }
     }
@@ -880,8 +880,8 @@ public class FilteredTree extends Composite {
      *
      */
     protected void selectAll() {
-        if (filterText != null) {
-            filterText.selectAll();
+        if (this.filterText != null) {
+            this.filterText.selectAll();
         }
     }
 
@@ -891,7 +891,7 @@ public class FilteredTree extends Composite {
      * @return String
      */
     protected String getInitialText() {
-        return initialText;
+        return this.initialText;
     }
 
     /**
@@ -931,7 +931,7 @@ public class FilteredTree extends Composite {
     }
 
     public boolean isShowFilterControls() {
-        return showFilterControls;
+        return this.showFilterControls;
     }
 
     public void setShowFilterControls(boolean showFilterControls) {
@@ -940,14 +940,14 @@ public class FilteredTree extends Composite {
         }
 
         this.showFilterControls = showFilterControls;
-        if (filterComposite != null) {
-            Object filterCompositeLayoutData = filterComposite.getLayoutData();
+        if (this.filterComposite != null) {
+            Object filterCompositeLayoutData = this.filterComposite.getLayoutData();
             if (filterCompositeLayoutData instanceof GridData) {
                 ((GridData) filterCompositeLayoutData).exclude = !isShowFilterControls();
             } else if (filterCompositeLayoutData instanceof RowData) {
                 ((RowData) filterCompositeLayoutData).exclude = !isShowFilterControls();
             }
-            filterComposite.setVisible(isShowFilterControls());
+            this.filterComposite.setVisible(isShowFilterControls());
             layout();
         }
     }
