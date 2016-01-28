@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'eclipse'
 
 import java.util.regex.Matcher
 import java.util.zip.*
@@ -7,40 +8,33 @@ import org.gradle.api.tasks.*
 import org.gradle.api.artifacts.*
 
 dependencies {
-    compile "com.gradleware.tooling:toolingmodel:0.9"
+    compile "com.gradleware.tooling:toolingmodel:0.10-20160127240022+0100"
 }
 
 task createExternalDepsRepo(type: PrepareOsgiBundlesTask) {
     target = file("$buildDir/bundles/plugins")
-    def toolingApiVersion = '2.10.0'
-    def toolingCommonsVersion = '0.9.0'
+    def toolingApiVersion = '2.11.0'
+    def toolingCommonsVersion = '0.10.0'
     bundles = [
         'toolingapi' : [
+            'name' : 'Gradle Tooling API',
             'symbolicname' : 'org.gradle.toolingapi',
+            'vendor' : 'Gradle Inc.',
             'version' : toolingApiVersion,
             'dependencies': ['org.slf4j.api;bundle-version="1.7.2"'],
-            'jar' : project.configurations.compile.find { it.name.startsWith("gradle-tooling-api") },
             'about' : file('resources/gradle-tooling-api/about'),
+            'jar' : project.configurations.compile.find { it.name.startsWith("gradle-tooling-api") },
         ],
 
         'toolingutils' : [
-            'symbolicname' : 'com.gradleware.tooling.utils',
-            'version' : toolingCommonsVersion,
-            'dependencies' : ["org.gradle.toolingapi;bundle-version=\"$toolingApiVersion\"", 'com.google.guava;bundle-version="[15.0.0,16.0.0)"', 'com.google.gson;bundle-version="2.2.4"', 'org.slf4j.api;bundle-version="1.7.2"'],
             'jar' : project.configurations.compile.find { it.name.startsWith("toolingutils") }
         ],
 
         'toolingclient' : [
-            'symbolicname' : 'com.gradleware.tooling.client',
-            'version' : toolingCommonsVersion,
-            'dependencies' : ["org.gradle.toolingapi;bundle-version=\"$toolingApiVersion\"", 'com.google.guava;bundle-version="[15.0.0,16.0.0)"', 'org.slf4j.api;bundle-version="1.7.2"'],
             'jar' : project.configurations.compile.find { it.name.startsWith("toolingclient") }
         ],
 
         'toolingmodel' : [
-            'symbolicname' : 'com.gradleware.tooling.model',
-            'version' : toolingCommonsVersion,
-            'dependencies' : ["org.gradle.toolingapi;bundle-version=\"$toolingApiVersion\";visibility:=reexport", 'com.google.guava;bundle-version="[15.0.0,16.0.0)";visibility:=reexport', 'org.slf4j.api;bundle-version="1.7.2"', 'com.gradleware.tooling.utils;visibility:=reexport', 'com.gradleware.tooling.client;visibility:=reexport'],
             'jar' : project.configurations.compile.find { it.name.startsWith("toolingmodel") }
         ]
     ]
@@ -92,40 +86,46 @@ class PrepareOsgiBundlesTask extends DefaultTask {
          }
 
          def symbolicName = properties['symbolicname']
-         def packageNames = packageNames(properties['jar'])
-         def mainVersion = calculateMainversion(properties['version'])
-         def fullVersion = "${mainVersion}.${bundleVersionQualifier}"
-         def dependencies = properties['dependencies']
-         def aboutDir = properties['about']
-         def manifest = manifestFor(project, name, symbolicName, packageNames, dependencies, mainVersion, fullVersion)
 
-         def manifestFile = project.file("${project.buildDir}/tmp/prepareosgibundles/${jarName}/META-INF/MANIFEST.MF")
-         manifestFile.parentFile.mkdirs()
-         manifestFile.text = manifest
+         if (symbolicName) {
+             def packageNames = packageNames(properties['jar'])
+             def mainVersion = calculateMainversion(properties['version'])
+             def fullVersion = "${mainVersion}.${bundleVersionQualifier}"
+             def dependencies = properties['dependencies']
+             def aboutDir = properties['about']
+             def displayName = properties['name']
+             def vendor = properties['vendor']
+             def manifest = manifestFor(project, displayName, vendor, symbolicName, packageNames, dependencies, mainVersion, fullVersion)
 
-         // remove the manifest file insert the generated one
-         def osgiJar = new File(target, jarName)
-         def tempOsgiJar = new File(target, jarName + '_')
-         osgiJar.renameTo(tempOsgiJar)
-         project.ant.zip(destfile: new File(target, jarName)) {
-             zipfileset(src: tempOsgiJar, excludes: 'META-INF/MANIFEST.MF')
-         }
-         project.ant.zip(update: 'true', destfile: new File(target, jarName)) {
-             fileset(dir: manifestFile.parentFile.parentFile)
-             if (aboutDir) {
-                 fileset(dir: aboutDir)
+             def manifestFile = project.file("${project.buildDir}/tmp/prepareosgibundles/${jarName}/META-INF/MANIFEST.MF")
+             manifestFile.parentFile.mkdirs()
+             manifestFile.text = manifest
+
+             // remove the manifest file insert the generated one
+             def osgiJar = new File(target, jarName)
+             def tempOsgiJar = new File(target, jarName + '_')
+             osgiJar.renameTo(tempOsgiJar)
+             project.ant.zip(destfile: new File(target, jarName)) {
+                 zipfileset(src: tempOsgiJar, excludes: 'META-INF/MANIFEST.MF')
              }
+             project.ant.zip(update: 'true', destfile: new File(target, jarName)) {
+                 fileset(dir: manifestFile.parentFile.parentFile)
+                 if (aboutDir) {
+                     fileset(dir: aboutDir)
+                 }
+             }
+             tempOsgiJar.delete()
+             osgiJar = new File(target, jarName)
          }
-         tempOsgiJar.delete()
-         osgiJar = new File(target, jarName)
      }
 }
 
-    def manifestFor(Project project, name, symbolicName, packageNames, dependencies, mainVersion, fullVersion) {
+    def manifestFor(Project project, name, vendor, symbolicName, packageNames, dependencies, mainVersion, fullVersion) {
         //packageNames = packageNames.findAll { !it.contains("internal") }
         StringBuilder manifest = new StringBuilder('Manifest-Version: 1.0\n')
         manifest.append 'Bundle-ManifestVersion: 2\n'
         manifest.append "Bundle-Name: ${name}\n"
+        manifest.append "Bundle-Vendor: ${vendor}\n"
         manifest.append "Bundle-SymbolicName: ${symbolicName}\n"
         manifest.append "Bundle-Version: ${fullVersion}\n"
         manifest.append "Bundle-ClassPath: .\n"
