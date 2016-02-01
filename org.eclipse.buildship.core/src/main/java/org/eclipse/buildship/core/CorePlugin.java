@@ -15,6 +15,7 @@ package org.eclipse.buildship.core;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
@@ -112,7 +113,7 @@ public final class CorePlugin extends Plugin {
 
     private void ensureProxySettingsApplied() throws Exception {
         // the proxy settings are set when the core.net plugin is started
-        Platform.getBundle("org.eclipse.core.net").start();
+        Platform.getBundle("org.eclipse.core.net").start(Bundle.START_TRANSIENT);
     }
 
     private void registerServices(BundleContext context) {
