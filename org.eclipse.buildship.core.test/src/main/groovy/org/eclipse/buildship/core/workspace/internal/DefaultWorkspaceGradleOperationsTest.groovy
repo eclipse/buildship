@@ -529,7 +529,7 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
         thrown JavaModelException
     }
 
-    def "If the project descriptor is kept on import, then no settings are overwritten"() {
+    def "If the project descriptor is kept on import, then no classpath container is added"() {
         setup:
         IProject project = newOpenProject('sample-project')
         CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
@@ -547,7 +547,11 @@ class DefaultWorkspaceGradleOperationsTest extends BuildshipTestSpecification {
 
         then:
         project.hasNature(GradleProjectNature.ID)
-        !project.hasNature(JavaCore.NATURE_ID)
+        project.hasNature(JavaCore.NATURE_ID)
+        !JavaCore.create(project).rawClasspath.find{
+            it.entryKind == IClasspathEntry.CPE_CONTAINER &&
+            it.path.toPortableString() == GradleClasspathContainer.CONTAINER_ID
+        }
     }
 
     def "All subprojects with existing .project files are handled by the ExistingDescriptorHandler"() {
