@@ -3,13 +3,6 @@ apply plugin: 'groovy'
 
 dependencies {
     compile project(':org.eclipse.buildship.core')
-
-    bundled "org.spockframework:spock-core:$spockLibVersion"
-    bundled "cglib:cglib-nodep:$cglibLibVersion"
-    bundled ("com.gradleware.tooling:testing-junit:$commonsLibVersion") {
-        exclude module: "junit-dep"
-    }
-    bundled "org.slf4j:slf4j-simple:$slf4jLibVersion"
 }
 
 eclipseTest {

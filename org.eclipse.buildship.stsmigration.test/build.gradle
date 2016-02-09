@@ -6,12 +6,6 @@ dependencies {
     compile withEclipseBundle('org.eclipse.swtbot.eclipse.finder')
     compile withEclipseBundle('org.eclipse.swtbot.junit4_x')
 
-    bundled "org.spockframework:spock-core:$spockLibVersion"
-    bundled "cglib:cglib-nodep:$cglibLibVersion"
-    bundled ("com.gradleware.tooling:testing-junit:$commonsLibVersion") {
-        exclude module: "junit-dep"
-    }
-    bundled "org.slf4j:slf4j-simple:$slf4jLibVersion"
     bundled "org.objenesis:objenesis:$objenesisLibVersion"
 }
 
