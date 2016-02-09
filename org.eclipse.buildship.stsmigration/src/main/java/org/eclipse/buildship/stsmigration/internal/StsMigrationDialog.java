@@ -92,7 +92,7 @@ class StsMigrationDialog extends Dialog {
         Button muteNotificationButton = new Button(container, SWT.CHECK);
         muteNotificationButton.setText(MUTE_NOTIFICATION_TEXT);
         muteNotificationButton.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, true, 2, 1));
-        muteNotificationButton.setSelection(this.plugin.getNotificationMuted());
+        muteNotificationButton.setSelection(this.plugin.isNotificationMuted());
         muteNotificationButton.addSelectionListener(new SelectionAdapter() {
 
             public void widgetSelected(SelectionEvent e) {

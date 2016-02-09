@@ -59,7 +59,7 @@ public class StsMigrationPlugin extends AbstractUIPlugin {
         return false;
     }
 
-    public boolean getNotificationMuted() {
+    public boolean isNotificationMuted() {
         return getConfigurationScope().getNode(StsMigrationPlugin.PLUGIN_ID).getBoolean(NOTIFICATION_MUTED_PROPERTY, false);
     }
 

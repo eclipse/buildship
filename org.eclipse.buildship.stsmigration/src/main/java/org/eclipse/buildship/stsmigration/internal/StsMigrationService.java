@@ -43,7 +43,7 @@ class StsMigrationService {
     }
 
     private boolean shouldDisplayNotification() {
-        return this.plugin.isStsPluginInstalled() && !this.plugin.getNotificationMuted();
+        return this.plugin.isStsPluginInstalled() && !this.plugin.isNotificationMuted();
     }
 
 }
