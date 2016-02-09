@@ -75,6 +75,21 @@ class TestBundlePlugin implements Plugin<Project> {
     static void configureProject(Project project) {
         project.extensions.create(DSL_EXTENSION_NAME, EclipseTestExtension)
         project.getPlugins().apply(eclipsebuild.BundlePlugin)
+
+        // append the sources of each first-level dependency and its transitive dependencies of
+        // the 'bundled' configuration to the 'bundledSource' configuration
+        project.afterEvaluate {
+            project.configurations.bundled.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
+                addSourcesRecursively(project, dep)
+            }
+        }
+    }
+
+    private static def addSourcesRecursively(project, dep) {
+        project.dependencies {
+            bundledSource group: dep.moduleGroup, name: dep.moduleName, version: dep.moduleVersion, classifier: 'sources'
+        }
+        dep.children.each { childDep -> addSourcesRecursively(project, childDep) }
     }
 
     static void validateDslBeforeBuildStarts(Project project) {
