@@ -3,9 +3,6 @@ apply plugin: 'groovy'
 
 dependencies {
     compile project(':org.eclipse.buildship.stsmigration')
-    compile withEclipseBundle('org.eclipse.swtbot.eclipse.finder')
-    compile withEclipseBundle('org.eclipse.swtbot.junit4_x')
-
     bundled "org.objenesis:objenesis:$objenesisLibVersion"
 }
 

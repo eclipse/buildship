@@ -4,8 +4,6 @@ apply plugin: 'groovy'
 dependencies {
     compile project(':org.eclipse.buildship.core')
     compile project(':org.eclipse.buildship.ui')
-    compile withEclipseBundle('org.eclipse.swtbot.eclipse.finder')
-    compile withEclipseBundle('org.eclipse.swtbot.junit4_x')
 }
 
 eclipseTest {
