@@ -6,6 +6,10 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Fragment-Host: org.eclipse.buildship.stsmigration
 Bundle-Vendor: Eclipse Buildship
+Require-Bundle: org.junit,
+ org.eclipse.swtbot.junit4_x,
+ org.eclipse.swtbot.eclipse.finder,
+ org.apache.log4j
 Bundle-ClassPath: .,
  lib/cglib-nodep-2.2.jar,
  lib/groovy-all-2.4.5.jar,
@@ -17,7 +21,3 @@ Bundle-ClassPath: .,
  lib/slf4j-simple-1.7.2.jar,
  lib/spock-core-1.0-groovy-2.4.jar,
  lib/testing-junit-0.9.jar
-Require-Bundle: org.junit,
- org.eclipse.swtbot.junit4_x,
- org.eclipse.swtbot.eclipse.finder,
- org.apache.log4j
