@@ -60,6 +60,9 @@ closed individually or all at once.
 This is available if the Gradle build is run with target Gradle version 2.5 or newer.
 
 
+## Test execution
+
+
 ## Cancellation
 
 You can cancel all long-running operations like importing a project, executing tasks, refreshing the tasks, etc.
