@@ -88,11 +88,11 @@ class StsMigrationDialog extends Dialog {
             }
         });
 
-        Button muteNotificationButton = new Button(container, SWT.CHECK);
-        muteNotificationButton.setText(MUTE_NOTIFICATION_TEXT);
-        muteNotificationButton.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, true, 2, 1));
-        muteNotificationButton.setSelection(this.plugin.isNotificationMuted());
-        muteNotificationButton.addSelectionListener(new SelectionAdapter() {
+        Button muteNotificationCheckbox = new Button(container, SWT.CHECK);
+        muteNotificationCheckbox.setText(MUTE_NOTIFICATION_TEXT);
+        muteNotificationCheckbox.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, true, 2, 1));
+        muteNotificationCheckbox.setSelection(this.plugin.isNotificationMuted());
+        muteNotificationCheckbox.addSelectionListener(new SelectionAdapter() {
 
             public void widgetSelected(SelectionEvent e) {
                 StsMigrationDialog.this.plugin.setNotificationMuted(((Button) e.getSource()).getSelection());
