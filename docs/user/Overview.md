@@ -62,6 +62,12 @@ This is available if the Gradle build is run with target Gradle version 2.5 or n
 
 ## Test execution
 
+Tests can be executed from the Executions View. You can select one or more tests in the Execution View and they will be run
+by the respective Test task in Gradle. Any setup tasks and teardown tasks that would be run when invoking the Test task from 
+the cmd line are run, too.
+ 
+Tests classes and test methods can also be run from the Code Editor through the context menu. 
+  
 
 ## Cancellation
 
