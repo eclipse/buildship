@@ -37,6 +37,7 @@ dependencies {
     localPlugin project(':org.eclipse.buildship.core')
     localPlugin project(':org.eclipse.buildship.ui')
     localPlugin project(':org.eclipse.buildship.branding')
+    localPlugin project(':org.eclipse.buildship.stsmigration')
     localFeature project(':org.eclipse.buildship.feature')
 
     // include 3rd party dependencies in the update site
