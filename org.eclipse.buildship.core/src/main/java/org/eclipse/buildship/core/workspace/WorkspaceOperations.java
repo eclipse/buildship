@@ -14,8 +14,6 @@ package org.eclipse.buildship.core.workspace;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.IPath;
@@ -80,11 +78,11 @@ public interface WorkspaceOperations {
     void deleteAllProjects(IProgressMonitor monitor);
 
     /**
-     * Deletes the .project and .classpath files of the given eclipse project.
+     * Deletes the .project and .classpath files of the project at the given location.
      *
-     * @param eclipseProject the project, must not be null
+     * @param location the location of the project
      */
-    void deleteProjectDescriptor(OmniEclipseProject eclipseProject);
+    void deleteProjectDescriptors(File location);
 
    /**
      * Creates a new {@link IProject} in the workspace using the specified name and location. The

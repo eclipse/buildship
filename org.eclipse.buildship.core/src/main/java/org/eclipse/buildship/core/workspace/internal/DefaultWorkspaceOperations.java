@@ -24,8 +24,6 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
@@ -134,10 +132,9 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
-    public void deleteProjectDescriptor(OmniEclipseProject eclipseProject) {
-        File projectDir = eclipseProject.getProjectDirectory();
-        new File(projectDir, ".project").delete();
-        new File(projectDir, ".classpath").delete();
+    public void deleteProjectDescriptors(File location) {
+        new File(location, ".project").delete();
+        new File(location, ".classpath").delete();
     }
 
     @Override

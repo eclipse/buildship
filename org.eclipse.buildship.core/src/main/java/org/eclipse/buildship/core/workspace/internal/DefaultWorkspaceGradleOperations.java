@@ -193,7 +193,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             Optional<IProjectDescription> projectDescription = CorePlugin.workspaceOperations().findProjectInFolder(project.getProjectDirectory(), new SubProgressMonitor(monitor, 1));
             if (projectDescription.isPresent()) {
                 if (existingDescriptorHandler.shouldOverwriteDescriptor(projectDescription.get())) {
-                    CorePlugin.workspaceOperations().deleteProjectDescriptor(project);
+                    CorePlugin.workspaceOperations().deleteProjectDescriptors(project.getProjectDirectory());
                     workspaceProject = addNewEclipseProjectToWorkspace(project, gradleBuild, rootRequestAttributes, new SubProgressMonitor(monitor, 1));
                 } else {
                     workspaceProject = addExistingEclipseProjectToWorkspace(project, projectDescription.get(), rootRequestAttributes, new SubProgressMonitor(monitor, 1));
