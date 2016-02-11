@@ -81,6 +81,7 @@ public interface WorkspaceOperations {
 
     /**
      * Deletes the .project and .classpath files of the given eclipse project.
+     *
      * @param eclipseProject the project, must not be null
      */
     void deleteProjectDescriptor(OmniEclipseProject eclipseProject);
