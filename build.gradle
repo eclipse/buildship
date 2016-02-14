@@ -291,6 +291,18 @@ subprojects {
         }
     }
 
+    // use common bundled testing depenendencies for all test plugins
+    plugins.withType(eclipsebuild.TestBundlePlugin) {
+        dependencies {
+            bundled "org.spockframework:spock-core:$spockLibVersion"
+            bundled "cglib:cglib-nodep:$cglibLibVersion"
+            bundled ("com.gradleware.tooling:testing-junit:$commonsLibVersion") {
+                exclude module: "junit-dep"
+            }
+            bundled "org.slf4j:slf4j-simple:$slf4jLibVersion"
+        }
+    }
+
     // apply Checkstyle plugin, mainly to ensure license/copyright and javadoc is present
     apply plugin: 'checkstyle'
 

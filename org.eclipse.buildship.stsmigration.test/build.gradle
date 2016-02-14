@@ -1,0 +1,15 @@
+apply plugin: eclipsebuild.TestBundlePlugin
+apply plugin: 'groovy'
+
+dependencies {
+    compile project(':org.eclipse.buildship.stsmigration')
+    bundled "org.objenesis:objenesis:$objenesisLibVersion"
+}
+
+eclipseTest {
+    fragmentHost 'org.eclipse.buildship.stsmigration'
+    applicationName 'org.eclipse.swtbot.eclipse.core.swtbottestapplication'
+    optionsFile rootProject.project(':org.eclipse.buildship.core').file('.options')
+    consoleLog = true
+}
+
