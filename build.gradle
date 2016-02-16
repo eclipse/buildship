@@ -300,6 +300,7 @@ subprojects {
                 exclude module: "junit-dep"
             }
             bundled "org.slf4j:slf4j-simple:$slf4jLibVersion"
+            bundled "org.objenesis:objenesis:$objenesisLibVersion"
         }
     }
 

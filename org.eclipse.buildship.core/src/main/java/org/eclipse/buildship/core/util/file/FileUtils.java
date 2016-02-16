@@ -11,13 +11,15 @@
 
 package org.eclipse.buildship.core.util.file;
 
+import java.io.File;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
 
-import java.io.File;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
  * Contains helper methods related to file operations.

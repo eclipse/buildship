@@ -44,6 +44,7 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.core.util.file.RelativePathUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 
 /**
@@ -52,7 +53,6 @@ import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 final class ProjectConfigurationPersistence {
 
     private static final String PROJECT_PATH = "project_path";
-    private static final String PROJECT_DIR = "project_dir";
     private static final String CONNECTION_PROJECT_DIR = "connection_project_dir";
     private static final String CONNECTION_GRADLE_USER_HOME = "connection_gradle_user_home";
     private static final String CONNECTION_GRADLE_DISTRIBUTION = "connection_gradle_distribution";
@@ -72,10 +72,11 @@ final class ProjectConfigurationPersistence {
      * @param workspaceProject the Eclipse project for which to persist the Gradle configuration
      */
     public void saveProjectConfiguration(ProjectConfiguration projectConfiguration, IProject workspaceProject) {
+        checkProjectHasValidLocation(workspaceProject);
+
         Map<String, String> projectConfig = Maps.newLinkedHashMap();
         projectConfig.put(PROJECT_PATH, projectConfiguration.getProjectPath().getPath());
-        projectConfig.put(PROJECT_DIR, projectConfiguration.getProjectDir().getAbsolutePath());
-        projectConfig.put(CONNECTION_PROJECT_DIR, projectConfiguration.getRequestAttributes().getProjectDir().getAbsolutePath());
+        projectConfig.put(CONNECTION_PROJECT_DIR, relativePathToRootProject(projectConfiguration.getRequestAttributes().getProjectDir(), workspaceProject));
         projectConfig.put(CONNECTION_GRADLE_USER_HOME, FileUtils.getAbsolutePath(projectConfiguration.getRequestAttributes().getGradleUserHome()).orNull());
         projectConfig.put(CONNECTION_GRADLE_DISTRIBUTION, GradleDistributionSerializer.INSTANCE.serializeToString(projectConfiguration.getRequestAttributes().getGradleDistribution()));
         projectConfig.put(CONNECTION_JAVA_HOME, FileUtils.getAbsolutePath(projectConfiguration.getRequestAttributes().getJavaHome()).orNull());
@@ -103,6 +104,16 @@ final class ProjectConfigurationPersistence {
         }
     }
 
+    private void checkProjectHasValidLocation(IProject workspaceProject) {
+        if (workspaceProject.getLocation() == null) {
+            throw new GradlePluginsRuntimeException(String.format("Project %s has no valid location", workspaceProject.getName()));
+        }
+    }
+
+    private String relativePathToRootProject(File rootProjectDir, IProject workspaceProject) {
+        return RelativePathUtils.getRelativePath(workspaceProject.getLocation().toFile(), rootProjectDir);
+    }
+
     private IFile createConfigFile(IProject workspaceProject) throws CoreException {
         IFolder folder = workspaceProject.getFolder(ECLIPSE_SETTINGS_FOLDER);
         FileUtils.ensureFolderHierarchyExists(folder);
@@ -116,6 +127,8 @@ final class ProjectConfigurationPersistence {
      * @return the persisted Gradle configuration
      */
     public ProjectConfiguration readProjectConfiguration(IProject workspaceProject) {
+        checkProjectHasValidLocation(workspaceProject);
+
         String json;
         try {
             IFile configFile = getConfigFile(workspaceProject);
@@ -139,11 +152,13 @@ final class ProjectConfigurationPersistence {
         Map<String, Object> config = gson.fromJson(json, createMapTypeToken());
         Map<String, String> projectConfig = getProjectConfigForVersion(config);
 
-        FixedRequestAttributes requestAttributes = new FixedRequestAttributes(new File(projectConfig.get(CONNECTION_PROJECT_DIR)), FileUtils.getAbsoluteFile(
+        String relativePathToRoot = projectConfig.get(CONNECTION_PROJECT_DIR);
+        File rootProjectDir = RelativePathUtils.getAbsoluteFile(workspaceProject.getLocation().toFile(), relativePathToRoot);
+        FixedRequestAttributes requestAttributes = new FixedRequestAttributes(rootProjectDir, FileUtils.getAbsoluteFile(
                 projectConfig.get(CONNECTION_GRADLE_USER_HOME)).orNull(), GradleDistributionSerializer.INSTANCE.deserializeFromString(projectConfig
                 .get(CONNECTION_GRADLE_DISTRIBUTION)), FileUtils.getAbsoluteFile(projectConfig.get(CONNECTION_JAVA_HOME)).orNull(), CollectionsUtils.splitBySpace(projectConfig
                 .get(CONNECTION_JVM_ARGUMENTS)), CollectionsUtils.splitBySpace(projectConfig.get(CONNECTION_ARGUMENTS)));
-        return ProjectConfiguration.from(requestAttributes, Path.from(projectConfig.get(PROJECT_PATH)), new File(projectConfig.get(PROJECT_DIR)));
+        return ProjectConfiguration.from(requestAttributes, Path.from(projectConfig.get(PROJECT_PATH)));
     }
 
     private IFile getConfigFile(IProject workspaceProject) throws CoreException {
