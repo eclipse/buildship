@@ -40,7 +40,7 @@ import org.eclipse.ui.PlatformUI;
 class StsMigrationDialog extends Dialog {
 
     private static final String STS_MIGRATION_DOCUMENT_URL = "https://github.com/eclipse/buildship/wiki/Migration-guide-from-STS-to-Buildship";
-    private static final String DIALOG_TITLE = "Migration from SpringSource Gradle to Buildship";
+    private static final String DIALOG_TITLE = "Migration from STS Gradle to Buildship";
     private static final String DIALOG_TEXT = "The development of the STS Gradle plugin is discontinued.\n\nA document "
             + "explaining the migration process from SpringSource Gradle to Buildship can be found <a>here</a>.";
     private static final String MUTE_NOTIFICATION_TEXT = "Don't show this message again";
