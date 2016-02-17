@@ -14,8 +14,8 @@ During the import, the Eclipse projects are created and added to the current wor
 the source paths and the classpath container which contains the external dependencies and the project dependencies are
 configured. The content of the classpath container is refreshed each time the project is opened.
 
-Projects that already contain a .settings folder are left untouched except the Gradle nature being configured and
-the Gradle preferences file being added. This ensures that the given project and its tasks still show up in the Task View.
+If a project already contains an Eclipse project descriptor, Buildship allows the user to decide whether to merge the
+information from Gradle into the existing files or to overwrite the files.
 
 You can stop the import at any time by pressing the Stop button in the Progress View.
 
