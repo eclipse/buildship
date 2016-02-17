@@ -86,7 +86,7 @@ The `ide-integraion.md` document in Gradle core specifies a story ["expose targe
 
 ### Implementation
 - Wait for the corresponding Tooling API story to be finished and upgrade Buildship to the latest TAPI/Tooling-commons version
-- Add method to the tooling-commons API to load the information about the target JVM 
+- Add method to the tooling-commons API to load the information about the target JVM
 - Upgrade tooling-commons used in Buildship
 - Synchronize model fields with the related Eclipse workspace project upon refresh
      - update used JDK, if mismatch
@@ -107,7 +107,7 @@ The `ide-integraion.md` document in Gradle core specifies a story ["introduce Ja
 
 ### Implementation
 - Wait for the corresponding Tooling API story to be finished and upgrade Buildship to the latest TAPI/Tooling-commons version
-- Add method tooling-commons counterpart for the `JavaProject` class 
+- Add method tooling-commons counterpart for the `JavaProject` class
 - Upgrade tooling-commons used in Buildship
 - Synchronize model fields with the related Eclipse workspace project upon refresh
      - update the source compatibility if not the same
@@ -192,7 +192,7 @@ we need a specific API for task-specific arguments.
 
 ### Requested Change
 
-Provide a `Plugins' model that, for a given project, returns the plugins applied to that project. For each plugin, its id, version, and
+Provide a `Plugins` model that, for a given project, returns the plugins applied to that project. For each plugin, its id, version, and
 origin (build, remote repository, etc.) should be available.
 
 ### Motivation
