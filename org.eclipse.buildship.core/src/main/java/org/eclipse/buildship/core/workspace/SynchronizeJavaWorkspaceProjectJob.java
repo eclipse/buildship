@@ -61,7 +61,9 @@ public final class SynchronizeJavaWorkspaceProjectJob extends ToolingApiWorkspac
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         manager.beginRule(workspaceRoot, monitor);
         try {
-            synchronizeWorkspaceProject(this.project, monitor, getToken());
+            if (this.project.getProject().isAccessible()) {
+                synchronizeWorkspaceProject(this.project, monitor, getToken());
+            }
         } finally {
             manager.endRule(workspaceRoot);
         }
