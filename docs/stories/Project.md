@@ -1,6 +1,6 @@
 # Project import and configuration
 
-## Add option to clear Eclipse descriptors upon project import
+## ~~Add option to clear Eclipse descriptors upon project import~~
 
 ### Estimate
 
