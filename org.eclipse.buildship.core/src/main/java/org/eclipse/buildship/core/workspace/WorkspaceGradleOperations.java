@@ -63,52 +63,26 @@ public interface WorkspaceGradleOperations {
      * <li>the Gradle settings file is written</li>
      * <li>the Gradle resource filter is set</li>
      * <li>the linked resources are set</li>
-     * <li>the workspace project is further updated in case of a Java Gradle project and the workspace project having the Java nature set
-     * <ul>
-     * <li>update the source compatibility settings</li>
-     * <li>update the set of source folders</li>
-     * <li>update the Gradle classpath container</li>
-     * </ul>
-     * </li>
-     * <li>the workspace project is converted to a Java project in case of a Java Gradle project and the workspace project not having the Java nature set yet
-     * <ul>
-     * <li>a Gradle classpath container is added (this triggers a synchronize through the classpath container, handled by #1.2)</li>
-     * </ul>
-     * </li>
      * <li>the project natures and build commands are set</li>
+     * <li>if the Gradle project is a Java project
+     * <ul>
+     * <li>the Java nature is added </li>
+     * <li>the source compatibility settings are updated</li>
+     * <li>the set of source folders is updated</li>
+     * <li>the Gradle classpath container is updated</li>
+     * </ul>
+     * </li>
      * </ul>
      * </li>
      * </ol>
      * </li>
      * <li>
      * If there is an Eclipse project at the location of the Gradle project, i.e. there is a .project file in that folder, then
-     * the {@link ExistingDescriptorHandler} decides whether to keep or overwrite that existing .project file. If it is overwritten, the
-     * synchronization happens as if there was none before. If it is kept, the synchronization is as follows:
-     * <ul>
-     * <li>the Eclipse project is added to the workspace</li>
-     * <li>the Gradle nature is set</li>
-     * <li>the Gradle settings file is written</li>
-     * <li>the workspace project is further configured in case of a Java Gradle project and the workspace project having the Java nature set
-     * <ul>
-     * <li>the source compatibility settings are set</li>
-     * </ul>
-     * <li>the project natures and build commands are set</li>
-     * </ul>
+     * the {@link ExistingDescriptorHandler} decides whether to keep or overwrite that existing .project file. The project is imported
+     * into the workspace and then synchronized as specified above.
      * </li>
-     * <li>If the there is no project in the workspace nor an Eclipse project at the location of the Gradle build, the synchronization is as follows:
-     * <ul>
-     * <li>an Eclipse project is created and added to the workspace</li>
-     * <li>the Gradle nature is set</li>
-     * <li>the Gradle settings file is written</li>
-     * <li>the Gradle resource filter is set</li>
-     * <li>the linked resources are set</li>
-     * <li>a Java project is created in case of a Java Gradle project
-     * <ul>
-     * <li>a Gradle classpath container is added (this triggers a synchronize through the classpath container, handled by #1.2)</li>
-     * </ul>
-     * </li>
-     * <li>the project natures and build commands are set</li>
-     * </ul>
+     * <li>If the there is no project in the workspace, nor an Eclipse project at the location of the Gradle build, the project is imported
+     * into the workspace and then synchronized as specified above.
      * </li>
      * </ol>
      *
