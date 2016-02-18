@@ -12,68 +12,42 @@ import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
 import org.gradle.tooling.GradleConnector
 
-class SynchronizeJavaWorkspaceProjectJobTest extends ProjectImportSpecification {
+class UpdateClasspathContainerJobTest extends ProjectImportSpecification {
 
     def setup() {
         executeProjectImportAndWait(createSampleProject())
         waitForJobsToFinish()
     }
 
-    def "Removed project doesn't have Buildship artifacts"() {
+    def "If a project is removed from the Gradle model, the container updater does nothing"() {
         setup:
         file('sample', 'settings.gradle').text = "include 'moduleA'"
         IProject project = CorePlugin.workspaceOperations().findProjectByName('moduleB').get()
 
         expect:
-        project.hasNature(GradleProjectNature.ID)
-        project.filters.length > 0
-        project.getFolder('.settings').exists()
-        project.getFolder('.settings').getFile('gradle.prefs').exists()
         JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().contains('junit') }
 
         when:
-        executeSynchronizeJavaWorkspaceProjectJobAndWait(project)
+        executeUpdateClasspathContainerJobAndWait(project)
 
         then:
-        !project.hasNature(GradleProjectNature.ID)
-        project.filters.length == 0
-        project.getFolder('.settings').exists()
-        !project.getFolder('.settings').getFile('gradle.prefs').exists()
-        !JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().contains('junit') }
+        JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().contains('junit') }
     }
 
     def "Existing project is updated"() {
         setup:
-        folder('sample', 'moduleB', 'src', 'test', 'java')
         file('sample', 'moduleB', 'build.gradle') << "dependencies { compile 'org.springframework:spring-beans:1.2.8' }"
 
         when:
         IProject project = CorePlugin.workspaceOperations().findProjectByName('moduleB').get()
-        executeSynchronizeJavaWorkspaceProjectJobAndWait(project)
+        executeUpdateClasspathContainerJobAndWait(project)
 
         then:
-        JavaCore.create(project).rawClasspath.find { it.entryKind == IClasspathEntry.CPE_SOURCE && it.path.toPortableString() == '/moduleB/src/test/java' }
         JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().contains('spring-beans') }
     }
 
-    def "A project without a Gradle nature should have an empty classpath container"() {
-        setup:
-        IProject moduleB = CorePlugin.workspaceOperations().findProjectByName('moduleB').get()
-        CorePlugin.workspaceOperations().removeNature(moduleB, GradleProjectNature.ID, new NullProgressMonitor())
-
-        when:
-        executeSynchronizeJavaWorkspaceProjectJobAndWait(moduleB)
-
-        then:
-        !JavaCore.create(moduleB).getResolvedClasspath(false).find { it.path.toPortableString().contains('junit') }
-    }
-
-    private def executeSynchronizeJavaWorkspaceProjectJobAndWait(IProject project) {
-        // reload Gradle model
-        ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project)
-        CorePlugin.modelRepositoryProvider().getModelRepository(configuration.requestAttributes).fetchEclipseGradleBuild(new TransientRequestAttributes(false, System.out, System.err, System.in, [] as List, [] as List, GradleConnector.newCancellationTokenSource().token()), FetchStrategy.FORCE_RELOAD)
-        // synchronize the project
-        def job = new SynchronizeJavaWorkspaceProjectJob(JavaCore.create(project))
+    private def executeUpdateClasspathContainerJobAndWait(IProject project) {
+        def job = new UpdateClasspathContainerJob(JavaCore.create(project), FetchStrategy.FORCE_RELOAD)
         job.schedule()
         job.join()
     }

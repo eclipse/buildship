@@ -43,7 +43,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.JavaRuntime;
-import org.gradle.api.specs.Spec;
 
 import java.io.File;
 import java.util.List;
@@ -273,28 +272,13 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     }
 
     @Override
-    public void synchronizeWorkspaceProject(final IProject workspaceProject, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Synchronize workspace project %s with Gradle build", workspaceProject.getName()), 10);
+    public void uncoupleWorkspaceProjectFromGradle(IProject workspaceProject, IProgressMonitor monitor) {
+        monitor.beginTask(String.format("Uncouple workspace project %s from Gradle", workspaceProject.getName()), 3);
         try {
-            if (GradleProjectNature.INSTANCE.isPresentOn(workspaceProject)) {
-                // find the Gradle project matching the location of the workspace project
-                Optional<OmniEclipseProject> gradleProject = gradleBuild.getRootEclipseProject().tryFind(new Spec<OmniEclipseProject>() {
-                    @Override
-                    public boolean isSatisfiedBy(OmniEclipseProject gradleProject) {
-                        return workspaceProject.getLocation() != null && workspaceProject.getLocation().toFile().equals(gradleProject.getProjectDirectory());
-                    }
-                });
-
-                // if the matching Gradle project can be found, synchronize the workspace project with it
-                if (gradleProject.isPresent()) {
-                    synchronizeGradleProjectWithWorkspaceProject(gradleProject.get(), gradleBuild, rootRequestAttributes, ImmutableList.<String>of(), ExistingDescriptorHandler.ALWAYS_KEEP, new SubProgressMonitor(monitor, 10));
-                    return;
-                }
-            }
-
-            // uncouple the workspace project from Gradle if there is no matching Gradle project
-            uncoupleWorkspaceProjectFromGradle(workspaceProject, new SubProgressMonitor(monitor, 5));
-            clearClasspathContainer(workspaceProject, new SubProgressMonitor(monitor, 5));
+            clearClasspathContainer(workspaceProject, new SubProgressMonitor(monitor, 1));
+            ResourceFilter.detachAllFilters(workspaceProject, new SubProgressMonitor(monitor, 1));
+            CorePlugin.workspaceOperations().removeNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
+            CorePlugin.projectConfigurationManager().deleteProjectConfiguration(workspaceProject);
         } finally {
             monitor.done();
         }
@@ -310,18 +294,6 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             String message = String.format("Cannot clear classpath container from workspace project %s", workspaceProject.getName());
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
-        }
-    }
-
-    @Override
-    public void uncoupleWorkspaceProjectFromGradle(IProject workspaceProject, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Uncouple workspace project %s from Gradle", workspaceProject.getName()), 2);
-        try {
-            ResourceFilter.detachAllFilters(workspaceProject, new SubProgressMonitor(monitor, 1));
-            CorePlugin.workspaceOperations().removeNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
-            CorePlugin.projectConfigurationManager().deleteProjectConfiguration(workspaceProject);
-        } finally {
-            monitor.done();
         }
     }
 

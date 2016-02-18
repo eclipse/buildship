@@ -11,6 +11,10 @@
 
 package org.eclipse.buildship.core.gradle;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.gradle.api.UncheckedIOException;
 import org.gradle.api.specs.Spec;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
@@ -38,6 +42,33 @@ public final class Specs {
             @Override
             public boolean isSatisfiedBy(OmniEclipseProject candidate) {
                 return candidate.getPath().equals(projectPath);
+            }
+        };
+    }
+
+    /**
+     * Returns a spec that matches if the the project directory of a {@code OmniEclipseProject} instance
+     * matches the given project directory.
+     *
+     * @param projectDir the project directory to match
+     * @return the spec
+     */
+    public static Spec<OmniEclipseProject> eclipseProjectMatchesProjectDir(final File projectdir) {
+        final File canonicalProjectDir;
+        try {
+            canonicalProjectDir = projectdir.getCanonicalFile();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return new Spec<OmniEclipseProject>() {
+
+            @Override
+            public boolean isSatisfiedBy(OmniEclipseProject candidate) {
+                try {
+                    return candidate.getProjectDirectory().getCanonicalFile().equals(canonicalProjectDir);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
             }
         };
     }

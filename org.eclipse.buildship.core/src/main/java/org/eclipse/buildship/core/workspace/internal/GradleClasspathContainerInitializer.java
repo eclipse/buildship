@@ -11,39 +11,37 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import org.eclipse.buildship.core.workspace.SynchronizeJavaWorkspaceProjectJob;
+import org.eclipse.buildship.core.workspace.UpdateClasspathContainerJob;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IJavaProject;
 
 /**
- * Synchronizes the given Java workspace project with its Gradle counterpart
- * via {@code SynchronizeJavaWorkspaceProjectJob}, including but not limited
- * to the initialization of the classpath container.
+ * Updates the Gradle classpath container of the given Java workspace project.
  * <p/>
  * This initializer is assigned to the projects via the
  * {@code org.eclipse.jdt.core.classpathContainerInitializer} extension point.
  * <p/>
  * The initialization is scheduled as a job, to not block the IDE upon startup.
  *
- * @see SynchronizeJavaWorkspaceProjectJob
+ * @see UpdateClasspathContainerJob
  * @see ClasspathContainerUpdater
  */
 public final class GradleClasspathContainerInitializer extends ClasspathContainerInitializer {
 
     @Override
     public void initialize(IPath containerPath, IJavaProject javaProject) {
-        scheduleJavaWorkspaceProjectSynchronization(javaProject);
+        scheduleClasspatContainerUpdate(javaProject);
     }
 
     @Override
     public void requestClasspathContainerUpdate(IPath containerPath, IJavaProject javaProject, IClasspathContainer containerSuggestion) {
-        scheduleJavaWorkspaceProjectSynchronization(javaProject);
+        scheduleClasspatContainerUpdate(javaProject);
     }
 
-    private void scheduleJavaWorkspaceProjectSynchronization(IJavaProject project) {
-        SynchronizeJavaWorkspaceProjectJob job = new SynchronizeJavaWorkspaceProjectJob(project);
+    private void scheduleClasspatContainerUpdate(IJavaProject project) {
+        UpdateClasspathContainerJob job = new UpdateClasspathContainerJob(project);
         job.schedule();
     }
 
