@@ -5,8 +5,6 @@ import org.junit.rules.TemporaryFolder
 import org.osgi.framework.Bundle
 import spock.lang.Specification
 
-import com.gradleware.tooling.junit.TestDirectoryProvider
-
 import org.eclipse.core.runtime.Platform
 
 class StsMigrationPluginTest extends Specification {
@@ -30,6 +28,7 @@ class StsMigrationPluginTest extends Specification {
         bundle.uninstall()
     }
 
+    @SuppressWarnings("GroovyAccessibility")
     def "Stores muted notification preference in the configuration scope"() {
         setup:
         StsMigrationPlugin.instance.notificationMuted = !isNotificationMuted
@@ -57,4 +56,5 @@ Bundle-Version: 3.7.2.201511260851-RELEASE
 """
         return StsMigrationPlugin.instance.bundle.bundleContext.installBundle(testDir.root.toURI().toString())
     }
+
 }

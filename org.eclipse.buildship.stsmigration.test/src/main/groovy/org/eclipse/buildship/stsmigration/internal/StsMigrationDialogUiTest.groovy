@@ -1,8 +1,5 @@
 package org.eclipse.buildship.stsmigration.internal
 
-import spock.lang.Shared
-import spock.lang.Specification
-
 import org.eclipse.jface.dialogs.IDialogConstants
 import org.eclipse.swt.widgets.Shell
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot
@@ -15,7 +12,10 @@ import org.eclipse.swtbot.swt.finder.results.VoidResult
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
 import org.eclipse.swtbot.swt.finder.widgets.TimeoutException
 import org.eclipse.ui.PlatformUI
+import spock.lang.Shared
+import spock.lang.Specification
 
+@SuppressWarnings("GroovyAccessibility")
 class StsMigrationDialogUiTest extends Specification {
 
     @Shared
@@ -29,7 +29,7 @@ class StsMigrationDialogUiTest extends Specification {
         closeAllShellsExceptTheApplicationShellAndForceShellActivation()
     }
 
-    def"Can display the dialog"() {
+    def "Can display the dialog"() {
         setup:
         executeInUiThread {
             Shell shell = PlatformUI.workbench.display.activeShell
@@ -41,9 +41,9 @@ class StsMigrationDialogUiTest extends Specification {
         bot.button(IDialogConstants.OK_LABEL).click()
     }
 
-    def"Can mute-unmute further nofitiations"() {
+    def "Can mute-unmute further notifications"() {
         setup:
-        StsMigrationPlugin plugin = Mock()
+        StsMigrationPlugin plugin = Mock(StsMigrationPlugin)
         executeInUiThread {
             Shell shell = PlatformUI.workbench.display.activeShell
             StsMigrationDialog.factory().newInstance(shell, plugin).open()
@@ -73,11 +73,6 @@ class StsMigrationDialogUiTest extends Specification {
         bot.button(IDialogConstants.OK_LABEL).click()
     }
 
-    private def executeInUiThread(Closure closure) {
-        // open dialog in a different thread so that the SWTBot is not blocked
-        PlatformUI.workbench.display.asyncExec(closure as Runnable)
-    }
-
     private def closeWelcomePageIfAny() {
         try {
             SWTBotView view = bot.activeView()
@@ -103,7 +98,13 @@ class StsMigrationDialogUiTest extends Specification {
         UIThreadRunnable.syncExec({ PlatformUI.workbench.activeWorkbenchWindow.shell.forceActive() } as VoidResult)
     }
 
-    private def isEclipseApplicationShell(SWTBotShell swtBotShell) {
+    private static def isEclipseApplicationShell(SWTBotShell swtBotShell) {
         return UIThreadRunnable.syncExec({ PlatformUI.workbench.activeWorkbenchWindow.shell.equals(swtBotShell.widget) } as BoolResult)
     }
+
+    private static def executeInUiThread(Closure closure) {
+        // open dialog in a different thread so that the SWTBot is not blocked
+        PlatformUI.workbench.display.asyncExec(closure as Runnable)
+    }
+
 }

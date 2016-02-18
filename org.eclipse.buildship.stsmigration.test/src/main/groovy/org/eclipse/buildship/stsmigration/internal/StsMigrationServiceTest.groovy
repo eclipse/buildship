@@ -1,6 +1,5 @@
 package org.eclipse.buildship.stsmigration.internal
 
-import groovy.swing.factory.DialogFactory
 import spock.lang.Specification
 
 class StsMigrationServiceTest extends Specification {
@@ -48,16 +47,17 @@ class StsMigrationServiceTest extends Specification {
     }
 
     private def createPlugin(boolean stsInstalled, boolean notifMuted) {
-        StsMigrationPlugin plugin = Mock()
+        StsMigrationPlugin plugin = Mock(StsMigrationPlugin)
         plugin.stsPluginInstalled >> stsInstalled
         plugin.notificationMuted >> notifMuted
         plugin
     }
 
     private def createDialogFactory() {
-        StsMigrationDialog dialog = Mock()
-        StsMigrationDialog.Factory factory = Mock()
+        StsMigrationDialog dialog = Mock(StsMigrationDialog)
+        StsMigrationDialog.Factory factory = Mock(StsMigrationDialog.Factory)
         factory.newInstance(_,_) >> dialog
         factory
     }
+
 }
