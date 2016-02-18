@@ -24,7 +24,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 /**
  * Represents the STS migration plugin.
  */
-public class StsMigrationPlugin extends AbstractUIPlugin {
+public class StsMigrationPlugin extends AbstractUIPlugin implements StsMigrationState {
 
     public static final String PLUGIN_ID = "org.eclipse.buildship.stsmigration";
 
@@ -45,10 +45,15 @@ public class StsMigrationPlugin extends AbstractUIPlugin {
         super.stop(context);
     }
 
-    public static StsMigrationPlugin getInstance() {
+    static StsMigrationPlugin getInstance() {
         return plugin;
     }
 
+    static StsMigrationState getStsMigrationState() {
+        return plugin;
+    }
+
+    @Override
     public boolean isStsPluginInstalled() {
         BundleContext bundleContext = getInstance().getBundle().getBundleContext();
         for (Bundle bundle : bundleContext.getBundles()) {
@@ -59,10 +64,12 @@ public class StsMigrationPlugin extends AbstractUIPlugin {
         return false;
     }
 
+    @Override
     public boolean isNotificationMuted() {
         return getConfigurationScope().getNode(StsMigrationPlugin.PLUGIN_ID).getBoolean(NOTIFICATION_MUTED_PROPERTY, false);
     }
 
+    @Override
     public void setNotificationMuted(boolean muted) {
         IEclipsePreferences node = getConfigurationScope().getNode(StsMigrationPlugin.PLUGIN_ID);
         node.putBoolean(NOTIFICATION_MUTED_PROPERTY, muted);

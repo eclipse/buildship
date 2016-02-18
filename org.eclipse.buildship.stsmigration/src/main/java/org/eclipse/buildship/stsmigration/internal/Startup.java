@@ -22,7 +22,7 @@ public final class Startup implements IStartup {
 
     @Override
     public void earlyStartup() {
-        new StsMigrationService(StsMigrationPlugin.getInstance(), StsMigrationDialog.factory()).run();
+        new StsMigrationService(StsMigrationPlugin.getStsMigrationState(), StsMigrationDialog.factory()).run();
     }
 
 }

@@ -20,11 +20,11 @@ import org.eclipse.ui.PlatformUI;
  */
 final class StsMigrationService {
 
-    private final StsMigrationPlugin plugin;
+    private final StsMigrationState migrationState;
     private final StsMigrationDialog.Factory dialogFactory;
 
-    StsMigrationService(StsMigrationPlugin plugin, StsMigrationDialog.Factory dialogFactory) {
-        this.plugin = plugin;
+    StsMigrationService(StsMigrationState migrationState, StsMigrationDialog.Factory dialogFactory) {
+        this.migrationState = migrationState;
         this.dialogFactory = dialogFactory;
     }
 
@@ -35,7 +35,7 @@ final class StsMigrationService {
                 @Override
                 public void run() {
                     Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
-                    StsMigrationDialog dialog = StsMigrationService.this.dialogFactory.newInstance(shell, StsMigrationService.this.plugin);
+                    StsMigrationDialog dialog = StsMigrationService.this.dialogFactory.newInstance(shell, StsMigrationService.this.migrationState);
                     dialog.open();
                 }
             });
@@ -43,7 +43,7 @@ final class StsMigrationService {
     }
 
     private boolean shouldDisplayNotification() {
-        return this.plugin.isStsPluginInstalled() && !this.plugin.isNotificationMuted();
+        return this.migrationState.isStsPluginInstalled() && !this.migrationState.isNotificationMuted();
     }
 
 }

@@ -38,11 +38,11 @@ class StsMigrationDialog extends Dialog {
             "A document explaining the migration process from STS Gradle to Buildship can be found <a>here</a>.";
     private static final String MUTE_NOTIFICATION_TEXT = "Don't show this message again";
 
-    private final StsMigrationPlugin plugin;
+    private final StsMigrationState migrationState;
 
-    private StsMigrationDialog(Shell shell, StsMigrationPlugin plugin) {
+    private StsMigrationDialog(Shell shell, StsMigrationState migrationState) {
         super(shell);
-        this.plugin = plugin;
+        this.migrationState = migrationState;
     }
 
     @Override
@@ -73,7 +73,7 @@ class StsMigrationDialog extends Dialog {
                     try {
                         PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(STS_MIGRATION_DOCUMENT_URL));
                     } catch (PartInitException e) {
-                        StsMigrationDialog.this.plugin.getLog().log(new Status(IStatus.ERROR, StsMigrationPlugin.PLUGIN_ID, "Failed to open external browser.", e));
+                        StsMigrationPlugin.getInstance().getLog().log(new Status(IStatus.ERROR, StsMigrationPlugin.PLUGIN_ID, "Failed to open external browser.", e));
                     } catch (MalformedURLException e) {
                         throw new RuntimeException("Invalid Url: " + STS_MIGRATION_DOCUMENT_URL, e);
                     }
@@ -84,12 +84,12 @@ class StsMigrationDialog extends Dialog {
         Button muteNotificationCheckbox = new Button(container, SWT.CHECK);
         muteNotificationCheckbox.setText(MUTE_NOTIFICATION_TEXT);
         muteNotificationCheckbox.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, true, 2, 1));
-        muteNotificationCheckbox.setSelection(this.plugin.isNotificationMuted());
+        muteNotificationCheckbox.setSelection(this.migrationState.isNotificationMuted());
         muteNotificationCheckbox.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                StsMigrationDialog.this.plugin.setNotificationMuted(((Button) e.getSource()).getSelection());
+                StsMigrationDialog.this.migrationState.setNotificationMuted(((Button) e.getSource()).getSelection());
             }
 
         });
@@ -108,8 +108,8 @@ class StsMigrationDialog extends Dialog {
         private Factory() {
         }
 
-        StsMigrationDialog newInstance(Shell shell, StsMigrationPlugin plugin) {
-            return new StsMigrationDialog(shell, plugin);
+        StsMigrationDialog newInstance(Shell shell, StsMigrationState migrationState) {
+            return new StsMigrationDialog(shell, migrationState);
         }
 
     }

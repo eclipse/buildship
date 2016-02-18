@@ -14,7 +14,7 @@ class StsMigrationPluginTest extends Specification {
 
     def "Can detect if the STS plugin is not installed"() {
         expect:
-        !StsMigrationPlugin.instance.isStsPluginInstalled()
+        !StsMigrationPlugin.stsMigrationState.isStsPluginInstalled()
     }
 
     def "Can detect if the STS plugin is installed"() {
@@ -22,7 +22,7 @@ class StsMigrationPluginTest extends Specification {
         Bundle bundle = createAndInstallFakeStsPlugin()
 
         expect:
-        StsMigrationPlugin.instance.isStsPluginInstalled()
+        StsMigrationPlugin.stsMigrationState.isStsPluginInstalled()
 
         cleanup:
         bundle.uninstall()
@@ -31,11 +31,11 @@ class StsMigrationPluginTest extends Specification {
     @SuppressWarnings("GroovyAccessibility")
     def "Stores muted notification preference in the configuration scope"() {
         setup:
-        StsMigrationPlugin.instance.notificationMuted = !isNotificationMuted
+        StsMigrationPlugin.stsMigrationState.notificationMuted = !isNotificationMuted
         def configurationLocation = new File(Platform.configurationLocation.URL.toURI())
         def configurationFile = new File(configurationLocation, ".settings/${StsMigrationPlugin.PLUGIN_ID}.prefs")
         when:
-        StsMigrationPlugin.instance.notificationMuted = isNotificationMuted
+        StsMigrationPlugin.stsMigrationState.notificationMuted = isNotificationMuted
 
         then:
         configurationFile.text.contains("${StsMigrationPlugin.NOTIFICATION_MUTED_PROPERTY}=${isNotificationMuted}")

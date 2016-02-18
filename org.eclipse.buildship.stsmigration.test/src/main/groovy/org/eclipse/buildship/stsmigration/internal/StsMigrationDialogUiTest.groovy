@@ -33,7 +33,7 @@ class StsMigrationDialogUiTest extends Specification {
         setup:
         executeInUiThread {
             Shell shell = PlatformUI.workbench.display.activeShell
-            StsMigrationDialog.factory().newInstance(shell, Mock(StsMigrationPlugin)).open()
+            StsMigrationDialog.factory().newInstance(shell, Mock(StsMigrationState)).open()
         }
         bot.waitUntil(Conditions.shellIsActive(StsMigrationDialog.DIALOG_TITLE))
 
@@ -43,10 +43,10 @@ class StsMigrationDialogUiTest extends Specification {
 
     def "Can mute-unmute further notifications"() {
         setup:
-        StsMigrationPlugin plugin = Mock(StsMigrationPlugin)
+        StsMigrationState migrationState = Mock(StsMigrationState)
         executeInUiThread {
             Shell shell = PlatformUI.workbench.display.activeShell
-            StsMigrationDialog.factory().newInstance(shell, plugin).open()
+            StsMigrationDialog.factory().newInstance(shell, migrationState).open()
         }
         bot.waitUntil(Conditions.shellIsActive(StsMigrationDialog.DIALOG_TITLE))
 
@@ -58,16 +58,16 @@ class StsMigrationDialogUiTest extends Specification {
 
         then:
         bot.checkBox(StsMigrationDialog.MUTE_NOTIFICATION_TEXT).isChecked()
-        0 * plugin.setNotificationMuted(false)
-        1 * plugin.setNotificationMuted(true)
+        0 * migrationState.setNotificationMuted(false)
+        1 * migrationState.setNotificationMuted(true)
 
         when:
         bot.checkBox(StsMigrationDialog.MUTE_NOTIFICATION_TEXT).click()
 
         then:
         !bot.checkBox(StsMigrationDialog.MUTE_NOTIFICATION_TEXT).isChecked()
-        1 * plugin.setNotificationMuted(false)
-        0 * plugin.setNotificationMuted(true)
+        1 * migrationState.setNotificationMuted(false)
+        0 * migrationState.setNotificationMuted(true)
 
         cleanup:
         bot.button(IDialogConstants.OK_LABEL).click()
