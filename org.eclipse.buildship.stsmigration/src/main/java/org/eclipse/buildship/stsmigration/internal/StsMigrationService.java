@@ -18,17 +18,17 @@ import org.eclipse.ui.PlatformUI;
  * Shows the {@link StsMigrationDialog} if the SpringSource Gradle integration is installed in the
  * current Eclipse instance and the user hasn't muted the notification.
  */
-class StsMigrationService {
+final class StsMigrationService {
 
     private final StsMigrationPlugin plugin;
     private final StsMigrationDialog.Factory dialogFactory;
 
-    public StsMigrationService(StsMigrationPlugin plugin, StsMigrationDialog.Factory dialogFactory) {
+    StsMigrationService(StsMigrationPlugin plugin, StsMigrationDialog.Factory dialogFactory) {
         this.plugin = plugin;
         this.dialogFactory = dialogFactory;
     }
 
-    public void run() {
+    void run() {
         if (shouldDisplayNotification()) {
             PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 

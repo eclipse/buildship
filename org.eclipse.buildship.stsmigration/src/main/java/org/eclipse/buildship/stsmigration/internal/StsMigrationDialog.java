@@ -11,9 +11,6 @@
 
 package org.eclipse.buildship.stsmigration.internal;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.Dialog;
@@ -22,27 +19,23 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Link;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 /**
- * Dialog which informs the user about the migration process from the SpringSource Gradle
- * integration to Buildship.
+ * Dialog which informs the user about the migration process from the STS Gradle integration to Buildship.
  */
-class StsMigrationDialog extends Dialog {
+final class StsMigrationDialog extends Dialog {
 
     private static final String STS_MIGRATION_DOCUMENT_URL = "https://github.com/eclipse/buildship/wiki/Migration-guide-from-STS-Gradle-to-Buildship";
+
     private static final String DIALOG_TITLE = "Migration from STS Gradle to Buildship";
-    private static final String DIALOG_TEXT = "The development of the STS Gradle plugin is discontinued.\n\nA document "
-            + "explaining the migration process from STS Gradle to Buildship can be found <a>here</a>.";
+    private static final String DIALOG_TEXT = "The development of the STS Gradle plugin has been discontinued.\n\n" +
+            "A document explaining the migration process from STS Gradle to Buildship can be found <a>here</a>.";
     private static final String MUTE_NOTIFICATION_TEXT = "Don't show this message again";
 
     private final StsMigrationPlugin plugin;
@@ -80,9 +73,9 @@ class StsMigrationDialog extends Dialog {
                     try {
                         PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(STS_MIGRATION_DOCUMENT_URL));
                     } catch (PartInitException e) {
-                        StsMigrationDialog.this.plugin.getLog().log(new Status(IStatus.ERROR, StsMigrationPlugin.PLUGIN_ID, "Failed to open external browser", e));
+                        StsMigrationDialog.this.plugin.getLog().log(new Status(IStatus.ERROR, StsMigrationPlugin.PLUGIN_ID, "Failed to open external browser.", e));
                     } catch (MalformedURLException e) {
-                        throw new RuntimeException("Invalid URL", e);
+                        throw new RuntimeException("Invalid Url: " + STS_MIGRATION_DOCUMENT_URL, e);
                     }
                 }
             }
@@ -94,28 +87,31 @@ class StsMigrationDialog extends Dialog {
         muteNotificationCheckbox.setSelection(this.plugin.isNotificationMuted());
         muteNotificationCheckbox.addSelectionListener(new SelectionAdapter() {
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 StsMigrationDialog.this.plugin.setNotificationMuted(((Button) e.getSource()).getSelection());
-            };
+            }
+
         });
         return container;
+    }
+
+    static Factory factory() {
+        return new Factory();
     }
 
     /**
      * Factory class for the dialog.
      */
-    static class Factory {
+    static final class Factory {
 
         private Factory() {
         }
 
-        public StsMigrationDialog newInstance(Shell shell, StsMigrationPlugin plugin) {
+        StsMigrationDialog newInstance(Shell shell, StsMigrationPlugin plugin) {
             return new StsMigrationDialog(shell, plugin);
         }
-    }
 
-    public static Factory factory() {
-        return new Factory();
     }
 
 }
