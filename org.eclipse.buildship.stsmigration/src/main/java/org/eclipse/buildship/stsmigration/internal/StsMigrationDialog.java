@@ -29,7 +29,7 @@ import java.net.URL;
 /**
  * Dialog which informs the user about the migration process from the STS Gradle integration to Buildship.
  */
-final class StsMigrationDialog extends Dialog {
+class StsMigrationDialog extends Dialog {
 
     private static final String STS_MIGRATION_DOCUMENT_URL = "https://github.com/eclipse/buildship/wiki/Migration-guide-from-STS-Gradle-to-Buildship";
 
@@ -103,7 +103,7 @@ final class StsMigrationDialog extends Dialog {
     /**
      * Factory class for the dialog.
      */
-    static final class Factory {
+    static class Factory {
 
         private Factory() {
         }
