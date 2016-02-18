@@ -24,7 +24,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 /**
  * Represents the STS migration plugin.
  */
-final class StsMigrationPlugin extends AbstractUIPlugin {
+public class StsMigrationPlugin extends AbstractUIPlugin {
 
     public static final String PLUGIN_ID = "org.eclipse.buildship.stsmigration";
 
