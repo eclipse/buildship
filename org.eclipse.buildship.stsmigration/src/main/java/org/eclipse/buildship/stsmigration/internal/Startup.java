@@ -14,7 +14,7 @@ package org.eclipse.buildship.stsmigration.internal;
 import org.eclipse.ui.IStartup;
 
 /**
- * Ensures that migration dialog is presented to the user upon startup.
+ * Ensures that that migration dialog is presented to the user upon startup.
  * <p/>
  * Class registered with the {@code org.eclipse.ui.startup} extension point.
  */

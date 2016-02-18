@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Buildship, Eclipse Plug-ins for Gradle - STS Migration
+Bundle-Name: Buildship, Eclipse Plug-ins for Gradle - STS Gradle Migration
 Bundle-SymbolicName: org.eclipse.buildship.stsmigration;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Eclipse Buildship
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Activator: org.eclipse.buildship.stsmigration.internal.StsMigrationPlugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime
