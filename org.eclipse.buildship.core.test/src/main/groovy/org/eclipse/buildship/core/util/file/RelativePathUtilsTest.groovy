@@ -1,177 +1,144 @@
 package org.eclipse.buildship.core.util.file
 
-import org.junit.Rule
+import org.junit.ClassRule
 import org.junit.rules.TemporaryFolder
+import spock.lang.Shared
 import spock.lang.Specification
+
+import org.eclipse.core.runtime.Path
 
 class RelativePathUtilsTest extends Specification {
 
-    @Rule
-    TemporaryFolder tempFolder
+    @ClassRule @Shared TemporaryFolder tempFolder
 
-    def "Can calculate relative unix path"() {
-        expect:
-        RelativePathUtils.getRelativePath(base, target, separator) == expected
+    // root
+    // |- a
+    //    |-b/c/file.txt
+    //    |-d/e
 
-        where:
-        base     | target   | separator | expected
-        '/a'     | '/a'     | '/'       | '.'
-        '/a'     | '/a/b'   | '/'       | 'b'
-        '/a/b'   | '/a'     | '/'       | '..'
-        '/a/b/c' | '/a'     | '/'       | '../..'
-        '/a/b'   | '/a/c'   | '/'       | '../c'
-        '/a/b/c' | '/a/d'   | '/'       | '../../d'
-        '/d/e/f' | '/a/b/c' | '/'       | '../../../a/b/c'
+    def setupSpec() {
+        tempFolder.newFolder('a', 'b', 'c')
+        tempFolder.newFolder('a', 'd', 'e')
+        tempFolder.newFile('a/b/c/file.txt')
     }
 
-    def "Can calculate windows relative path"() {
-        expect:
-        RelativePathUtils.getRelativePath(base, target, separator) == expected
-
-        where:
-        base          | target        | separator | expected
-        'C:\\a'       | 'C:\\a'       | '\\'      | '.'
-        'C:\\a'       | 'C:\\a\\b'    | '\\'      | 'b'
-        'C:\\a\\b'    | 'C:\\a'       | '\\'      | '..'
-        'C:\\a\\b\\c' | 'C:\\a'       | '\\'      | '..\\..'
-        'C:\\a\\b'    | 'C:\\a\\c'    | '\\'      | '..\\c'
-        'C:\\a\\b\\c' | 'C:\\a\\d'    | '\\'      | '..\\..\\d'
-        'C:\\d\\e\\f' | 'C:\\a\\b\\c' | '\\'      | '..\\..\\..\\a\\b\\c'
-    }
-
-    def "Relative path calculation ignores whitespaces"() {
-        expect:
-        RelativePathUtils.getRelativePath(base, target, separator) == expected
-
-        where:
-        base       | target     | separator | expected
-        ' /a '     | ' /a '     | '/'       | '.'
-        ' /a '     | ' /a/b '   | '/'       | 'b'
-        ' /a/b '   | ' /a '     | '/'       | '..'
-        ' /a/b/c ' | ' /a '     | '/'       | '../..'
-        ' /a/b '   | ' /a/c '   | '/'       | '../c'
-        ' /a/b/c ' | ' /a/d '   | '/'       | '../../d'
-        ' /d/e/f ' | ' /a/b/c ' | '/'       | '../../../a/b/c'
-    }
-
-    def "Relative path calculation ignores trailing path separators"() {
-        expect:
-        RelativePathUtils.getRelativePath(base, target, separator) == expected
-
-        where:
-        base      | target   | separator | expected
-        '/a/'     | '/a/'    | '/'       | '.'
-        '/a/'     | '/a/b/'  | '/'       | 'b'
-        '/a/b/'   | '/a/'    | '/'       | '..'
-        '/a/b/c/' | '/a/'    | '/'       | '../..'
-        '/a/b/'   | '/a/c/'  | '/'       | '../c'
-        '/a/b/c/' | '/a/d/'  | '/'       | '../../d'
-        '/d/e/f/' | '/a/b/c' | '/'       | '../../../a/b/c'
-    }
-
-    def "Can calculate absolute unix path"() {
-        expect:
-        RelativePathUtils.getAbsolutePath(base, target, separator) == expected
-
-        where:
-        base     | target    | separator | expected
-        '/a'     | ''        | '/'       | '/a'
-        '/a'     | '.'       | '/'       | '/a'
-        '/a/b'   | '..'      | '/'       | '/a'
-        '/a/b/c' | '../..'   | '/'       | '/a'
-        '/a/b'   | '../..'   | '/'       | '/'
-        '/a/b/c' | '../../d' | '/'       | '/a/d'
-        '/a/b'   | '../../d' | '/'       | '/d'
-    }
-
-    def "Can calculate absolute windows path"() {
-        expect:
-        RelativePathUtils.getAbsolutePath(base, target, separator) == expected
-
-        where:
-        base          | target      | separator | expected
-        'C:\\a'       | ''          | '\\'      | 'C:\\a'
-        'C:\\a'       | '.'         | '\\'      | 'C:\\a'
-        'C:\\a\\b'    | '..'        | '\\'      | 'C:\\a'
-        'C:\\a\\b\\c' | '..\\..'    | '\\'      | 'C:\\a'
-        'C:\\a\\b'    | '..\\..'    | '\\'      | 'C:'
-        'C:\\a\\b\\c' | '..\\..\\d' | '\\'      | 'C:\\a\\d'
-        'C:\\a\\b'    | '..\\..\\d' | '\\'      | 'C:\\d'
-    }
-
-    def "Absolute path calculation ignores whitespaces"() {
-        expect:
-        RelativePathUtils.getAbsolutePath(base, target, separator) == expected
-
-        where:
-        base       | target      | separator | expected
-        ' /a '     | ' '         | '/'       | '/a'
-        ' /a '     | ' . '       | '/'       | '/a'
-        ' /a/b '   | ' .. '      | '/'       | '/a'
-        ' /a/b/c ' | ' ../.. '   | '/'       | '/a'
-        ' /a/b '   | ' ../.. '   | '/'       | '/'
-        ' /a/b/c ' | ' ../../d ' | '/'       | '/a/d'
-        ' /a/b '   | ' ../../d ' | '/'       | '/d'
-    }
-
-    def "Absolute path calculation ignores trailing path separators"() {
-        expect:
-        RelativePathUtils.getAbsolutePath(base, target, separator) == expected
-
-        where:
-        base      | target     | separator | expected
-        '/a/'     | ''         | '/'       | '/a'
-        '/a/'     | './'       | '/'       | '/a'
-        '/a/b/'   | '../'      | '/'       | '/a'
-        '/a/b/c/' | '../../'   | '/'       | '/a'
-        '/a/b/'   | '../../'   | '/'       | '/'
-        '/a/b/c/' | '../../d/' | '/'       | '/a/d'
-        '/a/b/'   | '../../d/' | '/'       | '/d'
-    }
-
-    def "Absolute path calculation throws exception when relative path points beyond root"() {
+    def "Relative path calculation throws exception for illegal arguments"() {
         when:
-        RelativePathUtils.getAbsolutePath('/a', '../..', '/')
+        RelativePathUtils.getRelativePath(base, target) == '..'
 
         then:
         thrown IllegalArgumentException
+
+        where:
+        base            | target
+        null            | rootDir
+        rootDir         | null
+        rootDir         | txtFile
+        txtFile         | rootDir
+        new File('rel') | rootDir
+        rootDir         | new File('rel')
     }
 
-    def "Can calculate relative path from directory"() {
-        setup:
-        def base = tempFolder.newFolder('a', 'b')
-        def target = new File(tempFolder.root, 'a')
-
+    def "Can calculate relative path"() {
         expect:
-        RelativePathUtils.getRelativePath(base, target) == '..'
+        RelativePathUtils.getRelativePath(base, target) == expected
+
+        where:
+        base | target | expected
+        ADir | ADir   | "."
+        ADir | BDir   | "b"
+        BDir | ADir   | ".."
+        CDir | ADir   | "..${sep}.."
+        DDir | BDir   | "..${sep}b"
+        EDir | BDir   | "..${sep}..${sep}b"
+        EDir | CDir   | "..${sep}..${sep}b${sep}c"
     }
 
-    def "Can calculate relative path from file"() {
-        setup:
-        def testFolder = tempFolder.newFolder('a', 'b')
-        def base = tempFolder.newFile('a/b/c.txt')
-        def target = new File(tempFolder.root, 'a')
+    def "Absolute path calculation throws exception for illegal arguments"() {
+        when:
+        RelativePathUtils.getAbsoluteFile(base, relativePath)
 
-        expect:
-        RelativePathUtils.getRelativePath(base, target) == '..'
+        then:
+        thrown IllegalArgumentException
+
+        where:
+        base    | relativePath
+        null    | "."
+        rootDir | null
+        txtFile | "."
     }
 
-    def "Can calculate absolute file from directory"() {
-        setup:
-        def base = tempFolder.newFolder('a', 'b')
-        def target = new File(tempFolder.root, 'a')
-
+    def "Can calculate absolute path"() {
         expect:
-        RelativePathUtils.getAbsoluteFile(base, '..') == new File(tempFolder.root, 'a')
+        RelativePathUtils.getAbsoluteFile(base, relativePath) == expected
+
+        where:
+        base | relativePath               | expected
+        ADir | ""                         | ADir
+        ADir | "."                        | ADir
+        BDir | ".."                       | ADir
+        CDir | "..${sep}.."               | ADir
+        CDir | "..${sep}..${sep}d"        | DDir
+        CDir | "..${sep}..${sep}d${sep}e" | EDir
     }
 
-    def "Can calculate absolute file from file"() {
-        setup:
-        def testFolder = tempFolder.newFolder('a', 'b')
-        def base = tempFolder.newFile('a/b/c.txt')
+    private File getRootDir() {
+        tempFolder.root
+    }
 
-        expect:
-        RelativePathUtils.getAbsoluteFile(base, '..') == new File(tempFolder.root, 'a')
+    private String getRootPath() {
+        tempFolder.root.absolutePath
+    }
+
+    private File getADir() {
+        new File(tempFolder.root, 'a')
+    }
+
+    private String getAPath() {
+        new File(tempFolder.root, 'a').absolutePath
+    }
+
+    private File getBDir() {
+        new File(tempFolder.root, 'a/b')
+    }
+
+    private String getBPath() {
+        new File(tempFolder.root, 'a/b').absolutePath
+    }
+
+    private File getCDir() {
+        new File(tempFolder.root, 'a/b/c')
+    }
+
+    private String getCPath() {
+        new File(tempFolder.root, 'a/b/c').absolutePath
+    }
+
+    private File getDDir() {
+        new File(tempFolder.root, 'a/d')
+    }
+
+    private String getDPath() {
+        new File(tempFolder.root, 'a/d').absolutePath
+    }
+
+    private File getEDir() {
+        new File(tempFolder.root, 'a/d/e')
+    }
+
+    private String getEPath() {
+        new File(tempFolder.root, 'a/d/e').absolutePath
+    }
+
+    private File getTxtFile() {
+        new File(tempFolder.root, 'a/b/c/file.txt')
+    }
+    private String getTxtPath() {
+        new File(tempFolder.root, 'a/b/c/file.txt').absolutePath
+    }
+
+    private String getSep() {
+        return File.separator
     }
 
 }

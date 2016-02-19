@@ -12,11 +12,11 @@
 package org.eclipse.buildship.core.util.file;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
+
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 
 /**
  * Contains helper methods to convert absolute file paths to relative paths and vica versa.
@@ -28,111 +28,67 @@ public final class RelativePathUtils {
 
     /**
      * Calculates the relative file path from a base directory to a target file.
-     * <p/>
-     * If the supplied base object is a file, then the relative path will be calculated against the file's container
-     * directory.
      *
-     * @param base the base file to make the target file relative to
+     * @param base the base directory to make the target file relative to
      * @param target the target file to which the relative path is calculated
      * @return the relative path from the base to the target
-     * @throws IllegalArgumentException if any of the input is {@code null}.
+     * @throws IllegalArgumentException if the arguments are {@code null}, or they don't denote an
+     *             absolute directory.
      */
     public static String getRelativePath(File base, File target) {
-        Preconditions.checkArgument(base != null);
-        Preconditions.checkArgument(target != null);
-        String basePath = base.isFile() ? base.getParentFile().getAbsolutePath() : base.getAbsolutePath();
+        checkAbsoluteDirectory(base);
+        checkAbsoluteDirectory(target);
+
+        String basePath = base.getAbsolutePath();
         String targetPath = target.getAbsolutePath();
-       return getRelativePath(basePath, targetPath, File.separator);
+        return getRelativePath(new Path(basePath), new Path(targetPath));
     }
 
-    private static String getRelativePath(String base, String target, String separator) {
-        Preconditions.checkArgument(base != null);
-        Preconditions.checkArgument(target != null);
-        Preconditions.checkArgument(separator != null);
+    private static void checkAbsoluteDirectory(File file) {
+        Preconditions.checkArgument(file != null);
+        Preconditions.checkArgument(!file.exists() || file.isDirectory(), String.format("%s must be a directory.", file.getPath()));
+        Preconditions.checkArgument(file.isAbsolute(), String.format("%s must denote an absolute location.", file.getPath()));
+    }
 
-        List<String> baseSegments = Splitter.on(separator).trimResults().omitEmptyStrings().splitToList(base);
-        List<String> targetSegments = Splitter.on(separator).trimResults().omitEmptyStrings().splitToList(target);
-
-        if (baseSegments.equals(targetSegments)) {
+    private static String getRelativePath(IPath basePath, IPath targetPath) {
+        if (basePath.equals(targetPath)) {
             return ".";
         }
 
-        List<String> sharedSegments = new ArrayList<String>(10);
-        for (int i = 0; i < baseSegments.size() && i < targetSegments.size() && baseSegments.get(i).equals(targetSegments.get(i)); i++) {
-            sharedSegments.add(baseSegments.get(i));
-        }
+        int numOfSharedSegments = basePath.matchingFirstSegments(targetPath);
 
         StringBuilder relativePath = new StringBuilder();
         String sep = "";
-        for (int i = sharedSegments.size(); i < baseSegments.size(); i++) {
+        for (int i = numOfSharedSegments; i < basePath.segmentCount(); i++) {
             relativePath.append(sep);
             relativePath.append("..");
-            sep = separator;
+            sep = File.separator;
         }
 
-        for (int i = sharedSegments.size(); i < targetSegments.size(); i++) {
+        for (int i = numOfSharedSegments; i < targetPath.segmentCount(); i++) {
             relativePath.append(sep);
-            relativePath.append(targetSegments.get(i));
-            sep = separator;
+            relativePath.append(targetPath.segment(i));
+            sep = File.separator;
         }
 
         return relativePath.toString();
     }
 
     /**
-     * Calculates an absolute path from a base file to a relative location and returns a file with that path.
-     * <p/>
-     * If the supplied base object is a file, then the relative path will be calculated against the
-     * file's container directory.
+     * Calculates an absolute path from a base directory to a relative location and returns a file
+     * with that path.
      *
-     * @param base the base file
+     * @param base the base directory
      * @param relativePath the location of the result file relative to the base
      * @return the file instance with the absolute path
-     * @throws IllegalArgumentException if any of the input is {@code null} or if the relative path
-     *             is invalid (points above the root folder).
+     * @throws IllegalArgumentException if the inputs are {@code null} or the base does not denote
+     *             an absolute directory.
      */
     public static File getAbsoluteFile(File base, String relativePath) {
-        Preconditions.checkArgument(base != null);
+        checkAbsoluteDirectory(base);
         Preconditions.checkArgument(relativePath != null);
 
-        String basePath = base.isFile() ? base.getParentFile().getAbsolutePath() : base.getAbsolutePath();
-        return new File(getAbsolutePath(basePath, relativePath, File.separator));
+        IPath basePath = new Path(base.getAbsolutePath());
+        return new File(basePath.append(relativePath).toFile().getAbsolutePath());
     }
-
-    private static String getAbsolutePath(String base, String relativePath, String separator) {
-        base = base.trim();
-        relativePath = relativePath.trim();
-        if (base.endsWith(separator) && !base.equals(separator)) {
-            base = base.substring(0, base.length() - 1);
-        }
-        if (relativePath.endsWith(separator)) {
-            relativePath = relativePath.substring(0, relativePath.length() - 1);
-        }
-
-        if (relativePath.equals(".") || relativePath.isEmpty()) {
-            return base;
-        } else {
-            List<String> relativeSegments = new ArrayList<String>(Splitter.on(separator).trimResults().omitEmptyStrings().splitToList(relativePath));
-
-            for (int i = 0; i < relativeSegments.size(); i++) {
-                String segment = relativeSegments.get(i);
-                if (segment.equals("..")) {
-                    // step one level up
-                    int sepIndex = base.lastIndexOf(separator);
-                    if (sepIndex < 0) {
-                        throw new IllegalArgumentException(String.format("Relative path can't go beyond the root of "
-                                + "the base path (base=%s, relativePath=%s, separator=%s).", base, relativePath, separator));
-                    } else {
-                        base = base.substring(0, sepIndex).trim();
-                    }
-                } else {
-                    // step one level down
-                    base += separator + segment;
-                }
-            }
-            return base.isEmpty() ? separator : base;
-        }
-
-    }
-
 }
