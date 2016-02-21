@@ -154,8 +154,8 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             if (isJavaProject(project)) {
                 IJavaProject javaProject;
                 if (hasJavaNature(workspaceProject)) {
-                    monitor.worked(1);
                     javaProject = JavaCore.create(workspaceProject);
+                    monitor.worked(1);
                 } else {
                     IPath jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath();
                     IClasspathEntry classpathContainer = GradleClasspathContainer.newClasspathEntry();
