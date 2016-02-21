@@ -99,9 +99,9 @@ public interface WorkspaceGradleOperations {
      * Uncouples the given Eclipse workspace project from Gradle. The algorithm is as follows:
      *
      * <ol>
+     * <li>the Gradle resource filter is removed</li>
      * <li>the Gradle nature is removed</li>
      * <li>the Gradle settings file is removed</li>
-     * <li>the Gradle resource filter is removed</li>
      * </ol>
      *
      * @param workspaceProject        the project from which to remove all Gradle specific parts
