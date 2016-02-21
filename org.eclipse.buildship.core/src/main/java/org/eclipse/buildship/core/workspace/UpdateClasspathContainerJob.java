@@ -56,6 +56,7 @@ public final class UpdateClasspathContainerJob extends ToolingApiWorkspaceJob {
     public UpdateClasspathContainerJob(IJavaProject project) {
         this(project, FetchStrategy.LOAD_IF_NOT_CACHED);
     }
+
     public UpdateClasspathContainerJob(IJavaProject project, FetchStrategy fetchStrategy) {
         super(String.format("Update Gradle dependencies for workspace project %s", project.getProject().getName()), false);
         this.project = project;
@@ -66,21 +67,25 @@ public final class UpdateClasspathContainerJob extends ToolingApiWorkspaceJob {
     protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
         monitor.beginTask(String.format("Update Gradle dependencies for workspace project %s", this.project.getProject().getName()), 100);
 
+        // all Java operations use the workspace root as a scheduling rule
+        // see org.eclipse.jdt.internal.core.JavaModelOperation#getSchedulingRule()
+        // if this rule ends during the import then other projects jobs see an
+        // inconsistent workspace state, consequently we keep the rule for the whole import
         IJobManager manager = Job.getJobManager();
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         manager.beginRule(workspaceRoot, monitor);
         try {
-            if (this.project.getProject().isAccessible()) {
-                updateClasspathContainer(this.project, monitor, getToken());
-            }
+            updateClasspathContainer(this.project, monitor, getToken());
         } finally {
             manager.endRule(workspaceRoot);
         }
+
+        // monitor is closed by caller in super class
     }
 
     private void updateClasspathContainer(IJavaProject javaProject, IProgressMonitor monitor, CancellationToken token) throws CoreException {
         IProject project = javaProject.getProject();
-        if (GradleProjectNature.INSTANCE.isPresentOn(project)) {
+        if (project.isAccessible() && GradleProjectNature.INSTANCE.isPresentOn(project)) {
             ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
             FixedRequestAttributes rootRequestAttributes = configuration.getRequestAttributes();
             OmniEclipseGradleBuild gradleBuild = fetchEclipseGradleBuild(rootRequestAttributes, monitor, token);
@@ -89,7 +94,6 @@ public final class UpdateClasspathContainerJob extends ToolingApiWorkspaceJob {
                 ClasspathContainerUpdater.update(javaProject, gradleProject.get(), monitor);
             }
         }
-
     }
 
     private OmniEclipseGradleBuild fetchEclipseGradleBuild(FixedRequestAttributes fixedRequestAttributes, IProgressMonitor monitor, CancellationToken token) {
