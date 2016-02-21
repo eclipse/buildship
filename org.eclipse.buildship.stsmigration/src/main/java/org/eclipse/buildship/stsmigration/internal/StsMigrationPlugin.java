@@ -55,6 +55,9 @@ public final class StsMigrationPlugin extends AbstractUIPlugin {
         return stsMigrationState;
     }
 
+    /**
+     * Keeps track of of the sts migration state.
+     */
     private static final class InternalStsMigrationState implements StsMigrationState {
 
         @Override
