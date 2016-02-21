@@ -53,13 +53,14 @@ public final class Specs {
      * @param projectDir the project directory to match
      * @return the spec
      */
-    public static Spec<OmniEclipseProject> eclipseProjectMatchesProjectDir(final File projectdir) {
+    public static Spec<OmniEclipseProject> eclipseProjectMatchesProjectDir(final File projectDir) {
         final File canonicalProjectDir;
         try {
-            canonicalProjectDir = projectdir.getCanonicalFile();
+            canonicalProjectDir = projectDir.getCanonicalFile();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+
         return new Spec<OmniEclipseProject>() {
 
             @Override
