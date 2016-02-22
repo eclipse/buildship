@@ -74,7 +74,7 @@ public final class UpdateClasspathContainerJob extends ToolingApiWorkspaceJob {
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         manager.beginRule(workspaceRoot, monitor);
         try {
-            updateClasspathContainer(this.project, monitor, getToken());
+            updateClasspathContainer(this.project, getToken(), monitor);
         } finally {
             manager.endRule(workspaceRoot);
         }
@@ -82,7 +82,7 @@ public final class UpdateClasspathContainerJob extends ToolingApiWorkspaceJob {
         // monitor is closed by caller in super class
     }
 
-    private void updateClasspathContainer(IJavaProject javaProject, IProgressMonitor monitor, CancellationToken token) throws CoreException {
+    private void updateClasspathContainer(IJavaProject javaProject, CancellationToken token, IProgressMonitor monitor) throws CoreException {
         IProject project = javaProject.getProject();
         if (project.isAccessible() && GradleProjectNature.INSTANCE.isPresentOn(project)) {
             ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
