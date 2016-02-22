@@ -278,25 +278,11 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     public void uncoupleWorkspaceProjectFromGradle(IProject workspaceProject, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Uncouple workspace project %s from Gradle", workspaceProject.getName()), 3);
         try {
-            clearClasspathContainer(workspaceProject, new SubProgressMonitor(monitor, 1));
             ResourceFilter.detachAllFilters(workspaceProject, new SubProgressMonitor(monitor, 1));
             CorePlugin.workspaceOperations().removeNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
             CorePlugin.projectConfigurationManager().deleteProjectConfiguration(workspaceProject);
         } finally {
             monitor.done();
-        }
-    }
-
-    private void clearClasspathContainer(IProject workspaceProject, IProgressMonitor monitor) {
-        try {
-            if (hasJavaNature(workspaceProject)) {
-                IJavaProject javaProject = JavaCore.create(workspaceProject);
-                ClasspathContainerUpdater.clear(javaProject, monitor);
-            }
-        } catch (JavaModelException e) {
-            String message = String.format("Cannot clear classpath container from workspace project %s", workspaceProject.getName());
-            CorePlugin.logger().error(message, e);
-            throw new GradlePluginsRuntimeException(message, e);
         }
     }
 
