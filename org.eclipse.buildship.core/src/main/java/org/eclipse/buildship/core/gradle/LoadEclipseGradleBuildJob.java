@@ -23,8 +23,8 @@ import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
+import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -85,7 +85,7 @@ public final class LoadEclipseGradleBuildJob extends ToolingApiJob {
             List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
             TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, stream.getOutput(), stream.getError(), null, listeners,
                     ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
-            ModelRepository repository = this.modelRepositoryProvider.getModelRepository(this.configuration.getRequestAttributes());
+            SimpleModelRepository repository = this.modelRepositoryProvider.getModelRepository(this.configuration.getRequestAttributes());
             return repository.fetchEclipseGradleBuild(transientAttributes, this.modelFetchStrategy);
         } finally {
             monitor.done();

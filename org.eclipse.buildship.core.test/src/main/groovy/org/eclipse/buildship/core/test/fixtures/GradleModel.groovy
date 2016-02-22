@@ -18,7 +18,7 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
-import com.gradleware.tooling.toolingmodel.repository.ModelRepository
+import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 
 import org.eclipse.buildship.core.CorePlugin
@@ -71,7 +71,7 @@ abstract class GradleModel {
      */
     static GradleModel fromProject(File rootProjectFolder) {
         FixedRequestAttributes attributes = new FixedRequestAttributes(rootProjectFolder, null, GradleDistribution.fromBuild(), null, [], [])
-        ModelRepository modelRepository = CorePlugin.modelRepositoryProvider().getModelRepository(attributes)
+        SimpleModelRepository modelRepository = CorePlugin.modelRepositoryProvider().getModelRepository(attributes)
         OmniEclipseGradleBuild eclipseGradleBuild = modelRepository.fetchEclipseGradleBuild(new TransientRequestAttributes(false, System.out, System.err, System.in, [], [], GradleConnector.newCancellationTokenSource().token()), FetchStrategy.FORCE_RELOAD)
         new GradleModel(attributes, eclipseGradleBuild) {}
     }

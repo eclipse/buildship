@@ -249,7 +249,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     }
 
     private File getBuildDirectory(OmniEclipseGradleBuild eclipseGradleBuild, OmniEclipseProject project) {
-        Optional<OmniGradleProject> gradleProject = eclipseGradleBuild.getRootProject().tryFind(Specs.gradleProjectMatchesProjectPath(project.getPath()));
+        Optional<OmniGradleProject> gradleProject = eclipseGradleBuild.getRootEclipseProject().getGradleProject().tryFind(Specs.gradleProjectMatchesProjectPath(project.getPath()));
         Maybe<File> buildScript = gradleProject.get().getBuildDirectory();
         if (buildScript.isPresent() && buildScript.get() != null) {
             return buildScript.get();

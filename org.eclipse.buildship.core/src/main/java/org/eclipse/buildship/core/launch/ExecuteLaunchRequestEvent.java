@@ -12,19 +12,19 @@
 
 package org.eclipse.buildship.core.launch;
 
-import com.gradleware.tooling.toolingclient.Request;
+import com.gradleware.tooling.toolingclient.SimpleRequest;
 
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.event.Event;
 
 /**
- * Event informing that a {@link Request} is about to be executed. The request can still be modified
+ * Event informing that a {@link BaseRequest} is about to be executed. The request can still be modified
  * by the recipients of this event.
  */
 public interface ExecuteLaunchRequestEvent extends Event {
 
     ProcessDescription getProcessDescription();
 
-    Request<Void> getRequest();
+    SimpleRequest<Void> getRequest();
 
 }

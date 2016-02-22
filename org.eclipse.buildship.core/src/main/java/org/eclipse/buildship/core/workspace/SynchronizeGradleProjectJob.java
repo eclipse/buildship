@@ -16,7 +16,7 @@ import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessStreams;
@@ -89,7 +89,7 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
             List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
             TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), listeners,
                     ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
-            ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(requestAttributes);
+            SimpleModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(requestAttributes);
             return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FORCE_RELOAD);
         } finally {
             monitor.done();

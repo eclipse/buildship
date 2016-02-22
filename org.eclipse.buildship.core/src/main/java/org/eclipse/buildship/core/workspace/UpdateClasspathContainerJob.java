@@ -25,7 +25,7 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
@@ -101,7 +101,7 @@ public final class UpdateClasspathContainerJob extends ToolingApiWorkspaceJob {
         List<ProgressListener> progressListeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
         TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), null, progressListeners,
                 ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), token);
-        ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(fixedRequestAttributes);
+        SimpleModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(fixedRequestAttributes);
         return repository.fetchEclipseGradleBuild(transientAttributes, this.fetchStrategy);
     }
 
