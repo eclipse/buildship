@@ -12,26 +12,22 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.io.File;
+import java.util.List;
+import java.util.Set;
+
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.gradle.Specs;
-import org.eclipse.buildship.core.util.predicate.Predicates;
-import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler;
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
-import org.eclipse.buildship.core.workspace.ProjectCreatedEvent;
-import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
@@ -44,9 +40,16 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.JavaRuntime;
 
-import java.io.File;
-import java.util.List;
-import java.util.Set;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.gradle.Specs;
+import org.eclipse.buildship.core.util.predicate.Predicates;
+import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler;
+import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
+import org.eclipse.buildship.core.workspace.ProjectCreatedEvent;
+import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;
 
 /**
  * Default implementation of the {@link WorkspaceGradleOperations} interface.
@@ -163,7 +166,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
                 }
                 JavaSourceSettingsUpdater.update(javaProject, project.getJavaSourceSettings().get(), new SubProgressMonitor(monitor, 1));
                 SourceFolderUpdater.update(javaProject, project.getSourceDirectories(), new SubProgressMonitor(monitor, 1));
-                ClasspathContainerUpdater.update(javaProject, project, new SubProgressMonitor(monitor, 1));
+                synchronizeClasspathContainer(javaProject, project,  new SubProgressMonitor(monitor, 1));
             } else {
                 monitor.worked(4);
             }
@@ -292,6 +295,17 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             }
         } catch (JavaModelException e) {
             String message = String.format("Cannot clear classpath container from workspace project %s", workspaceProject.getName());
+            CorePlugin.logger().error(message, e);
+            throw new GradlePluginsRuntimeException(message, e);
+        }
+    }
+
+    @Override
+    public void synchronizeClasspathContainer(IJavaProject workspaceProject, OmniEclipseProject project, IProgressMonitor monitor) {
+        try {
+            ClasspathContainerUpdater.update(workspaceProject, project, monitor);
+        } catch (JavaModelException e) {
+            String message = String.format("Cannot update classpath container on workspace project %s", workspaceProject.getProject().getName());
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
         }

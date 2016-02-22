@@ -43,7 +43,7 @@ import java.util.List;
  * or {@code .zip} file) the given entry is omitted from the classpath container. Due to
  * performance reasons only the file extension is checked.
  */
-public final class ClasspathContainerUpdater {
+final class ClasspathContainerUpdater {
 
     private final IJavaProject eclipseProject;
     private final OmniEclipseProject gradleProject;

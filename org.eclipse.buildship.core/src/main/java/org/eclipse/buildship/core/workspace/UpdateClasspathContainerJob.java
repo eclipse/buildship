@@ -43,7 +43,6 @@ import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
-import org.eclipse.buildship.core.workspace.internal.ClasspathContainerUpdater;
 
 /**
  * Updates the Gradle classpath container of a Java project.
@@ -91,7 +90,7 @@ public final class UpdateClasspathContainerJob extends ToolingApiWorkspaceJob {
             OmniEclipseGradleBuild gradleBuild = fetchEclipseGradleBuild(rootRequestAttributes, monitor, token);
             Optional<OmniEclipseProject> gradleProject = gradleBuild.getRootEclipseProject().tryFind(Specs.eclipseProjectMatchesProjectDir(project.getLocation().toFile()));
             if (gradleProject.isPresent()) {
-                ClasspathContainerUpdater.update(javaProject, gradleProject.get(), monitor);
+                CorePlugin.workspaceGradleOperations().synchronizeClasspathContainer(javaProject, gradleProject.get(), monitor);
             }
         }
     }
