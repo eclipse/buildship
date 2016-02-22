@@ -18,6 +18,7 @@ import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
@@ -58,8 +59,8 @@ public final class UpdateClasspathContainerJob extends ToolingApiWorkspaceJob {
 
     public UpdateClasspathContainerJob(IJavaProject project, FetchStrategy fetchStrategy) {
         super(String.format("Update Gradle dependencies for workspace project %s", project.getProject().getName()), false);
-        this.project = project;
-        this.fetchStrategy = fetchStrategy;
+        this.project = Preconditions.checkNotNull(project);
+        this.fetchStrategy = Preconditions.checkNotNull(fetchStrategy);
     }
 
     @Override
