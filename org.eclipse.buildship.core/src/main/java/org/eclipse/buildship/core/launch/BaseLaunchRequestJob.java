@@ -15,11 +15,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingclient.SimpleRequest;
+import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
@@ -71,7 +71,7 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
                 listeners, ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
 
         // apply the fixed attributes on the request o
-        SimpleRequest<Void> request = createRequest();
+        Request<Void> request = createRequest();
         FixedRequestAttributes fixedAttributes = createFixedAttributes();
         fixedAttributes.apply(request);
 
@@ -152,7 +152,7 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
                                                        IProgressMonitor monitor) {
         monitor.beginTask("Load Gradle Build Environment", IProgressMonitor.UNKNOWN);
         try {
-            SimpleModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(fixedRequestAttributes);
+            ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(fixedRequestAttributes);
             return repository.fetchBuildEnvironment(transientRequestAttributes, FetchStrategy.FORCE_RELOAD);
         } finally {
             monitor.done();
@@ -182,11 +182,11 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
     protected abstract ProcessDescription createProcessDescription();
 
     /**
-     * Creates a new {@link SimpleRequest} object to execute in the job.
+     * Creates a new {@link Request} object to execute in the job.
      *
      * @return the new request object
      */
-    protected abstract SimpleRequest<Void> createRequest();
+    protected abstract Request<Void> createRequest();
 
     /**
      * Writes extra information on the configuration console.

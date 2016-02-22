@@ -8,12 +8,13 @@ import org.gradle.api.tasks.*
 import org.gradle.api.artifacts.*
 
 dependencies {
-    compile "com.gradleware.tooling:toolingmodel:0.11-20160222184354+0100"
+    compile "com.gradleware.tooling:toolingmodel:0.10-20160127240022+0100"
 }
 
 task createExternalDepsRepo(type: PrepareOsgiBundlesTask) {
     target = file("$buildDir/bundles/plugins")
     def toolingApiVersion = '2.11.0'
+    def toolingCommonsVersion = '0.10.0'
     bundles = [
         'toolingapi' : [
             'name' : 'Gradle Tooling API',

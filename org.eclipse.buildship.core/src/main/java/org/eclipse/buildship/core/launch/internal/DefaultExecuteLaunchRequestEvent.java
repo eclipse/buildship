@@ -14,7 +14,7 @@ package org.eclipse.buildship.core.launch.internal;
 
 import com.google.common.base.Preconditions;
 
-import com.gradleware.tooling.toolingclient.SimpleRequest;
+import com.gradleware.tooling.toolingclient.Request;
 
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.launch.ExecuteLaunchRequestEvent;
@@ -25,9 +25,9 @@ import org.eclipse.buildship.core.launch.ExecuteLaunchRequestEvent;
 public final class DefaultExecuteLaunchRequestEvent implements ExecuteLaunchRequestEvent {
 
     private final ProcessDescription processDescription;
-    private final SimpleRequest<Void> request;
+    private final Request<Void> request;
 
-    public DefaultExecuteLaunchRequestEvent(ProcessDescription processDescription, SimpleRequest<Void> request) {
+    public DefaultExecuteLaunchRequestEvent(ProcessDescription processDescription, Request<Void> request) {
         this.processDescription =  Preconditions.checkNotNull(processDescription);
         this.request = Preconditions.checkNotNull(request);
     }
@@ -38,7 +38,7 @@ public final class DefaultExecuteLaunchRequestEvent implements ExecuteLaunchRequ
     }
 
     @Override
-    public SimpleRequest<Void> getRequest() {
+    public Request<Void> getRequest() {
         return this.request;
     }
 

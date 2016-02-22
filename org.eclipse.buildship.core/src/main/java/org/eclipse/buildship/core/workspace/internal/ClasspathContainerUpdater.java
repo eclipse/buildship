@@ -66,7 +66,7 @@ final class ClasspathContainerUpdater {
                     @Override
                     public IClasspathEntry apply(OmniEclipseProjectDependency dependency) {
                         OmniEclipseProject dependentProject = ClasspathContainerUpdater.this.gradleProject.getRoot()
-                                .tryFind(Specs.eclipseProjectMatchesProjectDir(dependency.getTargetProjectDir())).get();
+                                .tryFind(Specs.eclipseProjectMatchesProjectPath(dependency.getTargetProjectPath())).get();
                         IPath path = new Path("/" + dependentProject.getName());
                         return JavaCore.newProjectEntry(path, dependency.isExported());
                     }

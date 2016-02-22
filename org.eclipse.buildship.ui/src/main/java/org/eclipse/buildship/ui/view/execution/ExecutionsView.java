@@ -11,7 +11,7 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import com.gradleware.tooling.toolingclient.SimpleRequest;
+import com.gradleware.tooling.toolingclient.Request;
 
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IContributionItem;
@@ -69,7 +69,7 @@ public final class ExecutionsView extends MultiPageView {
         return new MessagePage(ExecutionViewMessages.Label_No_Execution);
     }
 
-    public void addExecutionPage(ProcessDescription processDescription, SimpleRequest<Void> request) {
+    public void addExecutionPage(ProcessDescription processDescription, Request<Void> request) {
         ExecutionPage executionPage = new ExecutionPage(processDescription, request, this.state);
         addPage(executionPage);
         switchToPage(executionPage);

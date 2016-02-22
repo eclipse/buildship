@@ -60,8 +60,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.TreeTraverser;
-
-import com.gradleware.tooling.toolingclient.SimpleRequest;
+import com.gradleware.tooling.toolingclient.Request;
 
 /**
  * Displays the tree of a single build execution.
@@ -70,14 +69,14 @@ import com.gradleware.tooling.toolingclient.SimpleRequest;
 public final class ExecutionPage extends BasePage<FilteredTree> implements NodeSelectionProvider {
 
     private final ProcessDescription processDescription;
-    private final SimpleRequest<Void> request;
+    private final Request<Void> request;
     private final ExecutionViewState state;
 
     private SelectionHistoryManager selectionHistoryManager;
     private TreeViewerColumn nameColumn;
     private TreeViewerColumn durationColumn;
 
-    public ExecutionPage(ProcessDescription processDescription, SimpleRequest<Void> request, ExecutionViewState state) {
+    public ExecutionPage(ProcessDescription processDescription, Request<Void> request, ExecutionViewState state) {
         this.processDescription = processDescription;
         this.request = request;
         this.state = state;
