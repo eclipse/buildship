@@ -25,7 +25,7 @@ class UpdateClasspathContainerJobTest extends ProjectImportSpecification {
         IProject project = CorePlugin.workspaceOperations().findProjectByName('moduleB').get()
 
         expect:
-        JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().contains('junit') }
+        !JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().contains('junit') }
 
         when:
         executeUpdateClasspathContainerJobAndWait(project)
@@ -37,9 +37,12 @@ class UpdateClasspathContainerJobTest extends ProjectImportSpecification {
     def "Existing project is updated"() {
         setup:
         file('sample', 'moduleB', 'build.gradle') << "dependencies { compile 'org.springframework:spring-beans:1.2.8' }"
+        IProject project = CorePlugin.workspaceOperations().findProjectByName('moduleB').get()
+
+        expect:
+        JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().contains('spring-beans') }
 
         when:
-        IProject project = CorePlugin.workspaceOperations().findProjectByName('moduleB').get()
         executeUpdateClasspathContainerJobAndWait(project)
 
         then:
