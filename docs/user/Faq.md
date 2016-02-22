@@ -14,3 +14,11 @@ from the command line if the target Gradle version is <2.2 and downloads them ag
 reuses cached Gradle distributions.
 
 If you are interested in the discussion of this topic, check out the issue in [Bugzilla](https://bugs.eclipse.org/bugs/show_bug.cgi?id=468466).
+
+
+### Q. Is it possible to disable the dependency management for a project?
+
+__A.__ Not from the UI, because the Gradle project configuration is always kept in sync with the Eclipse project. It can be done by adding the following snippet to the build script:
+
+    apply plugin: 'eclipse'
+    eclipse.classpath.plusConfigurations = []
