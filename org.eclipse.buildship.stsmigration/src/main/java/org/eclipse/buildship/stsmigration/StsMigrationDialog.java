@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.stsmigration.internal;
+package org.eclipse.buildship.stsmigration;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;

@@ -10,7 +10,7 @@
  */
 
 
-package org.eclipse.buildship.stsmigration.internal;
+package org.eclipse.buildship.stsmigration;
 
 /**
  * Exposes the current state of the runtime regarding the STS Gradle to Buildship migration.

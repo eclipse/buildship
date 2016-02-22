@@ -1,4 +1,4 @@
-package org.eclipse.buildship.stsmigration.internal
+package org.eclipse.buildship.stsmigration
 
 import org.eclipse.jface.dialogs.IDialogConstants
 import org.eclipse.swt.widgets.Shell
@@ -12,6 +12,10 @@ import org.eclipse.swtbot.swt.finder.results.VoidResult
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
 import org.eclipse.swtbot.swt.finder.widgets.TimeoutException
 import org.eclipse.ui.PlatformUI
+
+import org.eclipse.buildship.stsmigration.StsMigrationDialog
+import org.eclipse.buildship.stsmigration.StsMigrationState
+
 import spock.lang.Shared
 import spock.lang.Specification
 

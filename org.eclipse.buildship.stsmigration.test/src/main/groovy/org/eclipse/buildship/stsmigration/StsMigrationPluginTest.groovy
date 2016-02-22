@@ -1,4 +1,4 @@
-package org.eclipse.buildship.stsmigration.internal
+package org.eclipse.buildship.stsmigration
 
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -6,6 +6,8 @@ import org.osgi.framework.Bundle
 import spock.lang.Specification
 
 import org.eclipse.core.runtime.Platform
+
+import org.eclipse.buildship.stsmigration.StsMigrationPlugin
 
 class StsMigrationPluginTest extends Specification {
 
