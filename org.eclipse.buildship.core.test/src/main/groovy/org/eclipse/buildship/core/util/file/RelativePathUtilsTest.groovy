@@ -5,89 +5,86 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Shared
 import spock.lang.Specification
 
+import org.eclipse.core.runtime.Path
+
 class RelativePathUtilsTest extends Specification {
 
-    @ClassRule @Shared TemporaryFolder tempFolder
-
-    // root
-    // |- a
-    //    |-b/c
-    //    |-d/e
-
-    def setupSpec() {
-        tempFolder.newFolder('a', 'b', 'c')
-        tempFolder.newFolder('a', 'd', 'e')
-    }
-
     def "Relative path calculation throws exception for illegal arguments"() {
+        setup:
+        def basePath = base == null ? null : new Path(base)
+        def targetPath = target == null ? null : new Path(target)
+
         when:
-        RelativePathUtils.getRelativePath(base, target)
+        RelativePathUtils.getRelativePath(basePath, targetPath)
 
         then:
         thrown NullPointerException
 
         where:
-        base            | target
-        null            | tempFolder.root
-        tempFolder.root | null
+        base | target
+        null | '.'
+        '.'  | null
     }
 
     def "Can calculate relative path"() {
         setup:
-        def baseFile = new File(tempFolder.root, base)
-        def targetFile = new File(tempFolder.root, target)
+        def basePath = new Path(base)
+        def targetPath = new Path(target)
         def expected = result.replace('/', File.separator)
 
         expect:
-        RelativePathUtils.getRelativePath(baseFile, targetFile) == expected
+        RelativePathUtils.getRelativePath(basePath, targetPath) == expected
 
         where:
         base         | target  | result
-        'a'          | 'a'     | "."
-        'a'          | 'a/b'   | "b"
-        'a/b'        | 'a'     | ".."
-        'a/b/c'      | 'a'     | "../.."
-        'a/d'        | 'a/b'   | "../b"
-        'a/d/e'      | 'a/b'   | "../../b"
-        'a/d/e'      | 'a/b/c' | "../../b/c"
+        'a'          | 'a'     | ''
+        'a'          | 'a/b'   | 'b'
+        'a/b'        | 'a'     | '..'
+        'a/b/c'      | 'a'     | '../..'
+        'a/d'        | 'a/b'   | '../b'
+        'a/d/e'      | 'a/b'   | '../../b'
+        'a/d/e'      | 'a/b/c' | '../../b/c'
         'a/b/../b/c' | 'a/b'   | '..'
     }
 
     def "Absolute path calculation throws exception for illegal arguments"() {
+        setup:
+        def basePath = base == null ? null : new Path(base)
+
         when:
-        RelativePathUtils.getAbsoluteFile(base, path)
+        RelativePathUtils.getAbsolutePath(basePath, relativePath)
 
         then:
         thrown NullPointerException
 
         where:
-        base            | path
-        null            | "."
-        tempFolder.root | null
+        base | relativePath
+        null | '.'
+        '.'  | null
     }
 
     def "Can calculate absolute path"() {
         setup:
-        def baseFile = new File(tempFolder.root, base)
+        def baseFile = new Path(base)
         def relativePath = path.replace('/', File.separator)
-        def expected =  new File(tempFolder.root, result)
+        def expected =  new Path(result).makeAbsolute()
 
         expect:
-        RelativePathUtils.getAbsoluteFile(baseFile, relativePath) == expected
+        RelativePathUtils.getAbsolutePath(baseFile, relativePath) == expected
 
         where:
         base    | path        | result
-        'a'     | ""          | 'a'
-        'a'     | "."         | 'a'
-        'a/b'   | ".."        | 'a'
-        'a/b/c' | "../.."     | 'a'
-        'a/b/c' | "../../d"   | 'a/d'
-        'a/b/c' | "../../d/e" | 'a/d/e'
+        'a'     | ''          | 'a'
+        'a'     | '.'         | 'a'
+        'a/b'   | '..'        | 'a'
+        'a/b/c' | '../..'     | 'a'
+        'a/b/c' | '../../d'   | 'a/d'
+        'a/b/c' | '../../d/e' | 'a/d/e'
     }
 
     def "Absolute path calculation fails if relative path points above root"() {
          when:
-         RelativePathUtils.getAbsoluteFile(fsRoot, '..')
+         RelativePathUtils.getAbsolutePath(new Path(fsRoot.absolutePath), '..')
 
          then:
          thrown IllegalArgumentException
