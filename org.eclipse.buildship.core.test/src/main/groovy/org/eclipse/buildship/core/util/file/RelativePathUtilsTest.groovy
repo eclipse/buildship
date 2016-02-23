@@ -11,13 +11,12 @@ class RelativePathUtilsTest extends Specification {
 
     // root
     // |- a
-    //    |-b/c/file.txt
+    //    |-b/c
     //    |-d/e
 
     def setupSpec() {
         tempFolder.newFolder('a', 'b', 'c')
         tempFolder.newFolder('a', 'd', 'e')
-        tempFolder.newFile('a/b/c/file.txt')
     }
 
     def "Relative path calculation throws exception for illegal arguments"() {
@@ -29,115 +28,61 @@ class RelativePathUtilsTest extends Specification {
 
         where:
         base            | target
-        null            | rootDir
-        rootDir         | null
+        null            | tempFolder.root
+        tempFolder.root | null
     }
 
     def "Can calculate relative path"() {
+        setup:
+        def baseFile = new File(tempFolder.root, base)
+        def targetFile = new File(tempFolder.root, target)
+        def expected = result.replace('/', File.separator)
+
         expect:
-        RelativePathUtils.getRelativePath(base, target) == expected
+        RelativePathUtils.getRelativePath(baseFile, targetFile) == expected
 
         where:
-        base | target | expected
-        ADir | ADir   | "."
-        ADir | BDir   | "b"
-        BDir | ADir   | ".."
-        CDir | ADir   | "..${sep}.."
-        DDir | BDir   | "..${sep}b"
-        EDir | BDir   | "..${sep}..${sep}b"
-        EDir | CDir   | "..${sep}..${sep}b${sep}c"
-    }
-
-    def "Relative path calcuation canonize base paths"() {
-        expect:
-        // base = 'a/b/../b/c', target = 'a/b'
-        RelativePathUtils.getRelativePath(new File(tempFolder.root, 'a/b/../b/c'), BDir) == '..'
+        base         | target  | result
+        'a'          | 'a'     | "."
+        'a'          | 'a/b'   | "b"
+        'a/b'        | 'a'     | ".."
+        'a/b/c'      | 'a'     | "../.."
+        'a/d'        | 'a/b'   | "../b"
+        'a/d/e'      | 'a/b'   | "../../b"
+        'a/d/e'      | 'a/b/c' | "../../b/c"
+        'a/b/../b/c' | 'a/b'   | '..'
     }
 
     def "Absolute path calculation throws exception for illegal arguments"() {
         when:
-        RelativePathUtils.getAbsoluteFile(base, relativePath)
+        RelativePathUtils.getAbsoluteFile(base, path)
 
         then:
         thrown NullPointerException
 
         where:
-        base    | relativePath
-        null    | "."
-        rootDir | null
+        base            | path
+        null            | "."
+        tempFolder.root | null
     }
 
     def "Can calculate absolute path"() {
+        setup:
+        def baseFile = new File(tempFolder.root, base)
+        def relativePath = path.replace('/', File.separator)
+        def expected =  new File(tempFolder.root, result)
+
         expect:
-        RelativePathUtils.getAbsoluteFile(base, relativePath) == expected
+        RelativePathUtils.getAbsoluteFile(baseFile, relativePath) == expected
 
         where:
-        base | relativePath               | expected
-        ADir | ""                         | ADir
-        ADir | "."                        | ADir
-        BDir | ".."                       | ADir
-        CDir | "..${sep}.."               | ADir
-        CDir | "..${sep}..${sep}d"        | DDir
-        CDir | "..${sep}..${sep}d${sep}e" | EDir
-    }
-
-    private File getRootDir() {
-        tempFolder.root
-    }
-
-    private String getRootPath() {
-        tempFolder.root.absolutePath
-    }
-
-    private File getADir() {
-        new File(tempFolder.root, 'a')
-    }
-
-    private String getAPath() {
-        new File(tempFolder.root, 'a').absolutePath
-    }
-
-    private File getBDir() {
-        new File(tempFolder.root, 'a/b')
-    }
-
-    private String getBPath() {
-        new File(tempFolder.root, 'a/b').absolutePath
-    }
-
-    private File getCDir() {
-        new File(tempFolder.root, 'a/b/c')
-    }
-
-    private String getCPath() {
-        new File(tempFolder.root, 'a/b/c').absolutePath
-    }
-
-    private File getDDir() {
-        new File(tempFolder.root, 'a/d')
-    }
-
-    private String getDPath() {
-        new File(tempFolder.root, 'a/d').absolutePath
-    }
-
-    private File getEDir() {
-        new File(tempFolder.root, 'a/d/e')
-    }
-
-    private String getEPath() {
-        new File(tempFolder.root, 'a/d/e').absolutePath
-    }
-
-    private File getTxtFile() {
-        new File(tempFolder.root, 'a/b/c/file.txt')
-    }
-    private String getTxtPath() {
-        new File(tempFolder.root, 'a/b/c/file.txt').absolutePath
-    }
-
-    private String getSep() {
-        return File.separator
+        base    | path        | result
+        'a'     | ""          | 'a'
+        'a'     | "."         | 'a'
+        'a/b'   | ".."        | 'a'
+        'a/b/c' | "../.."     | 'a'
+        'a/b/c' | "../../d"   | 'a/d'
+        'a/b/c' | "../../d/e" | 'a/d/e'
     }
 
 }
