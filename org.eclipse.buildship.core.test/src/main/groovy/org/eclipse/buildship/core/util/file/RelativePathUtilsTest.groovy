@@ -54,6 +54,12 @@ class RelativePathUtilsTest extends Specification {
         EDir | CDir   | "..${sep}..${sep}b${sep}c"
     }
 
+    def "Relative path calcuation canonize base paths"() {
+        expect:
+        // base = 'a/b/../b/c', target = 'a/b'
+        RelativePathUtils.getRelativePath(new File(tempFolder.root, 'a/b/../b/c'), BDir) == '..'
+    }
+
     def "Absolute path calculation throws exception for illegal arguments"() {
         when:
         RelativePathUtils.getAbsoluteFile(base, relativePath)
