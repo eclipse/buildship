@@ -36,7 +36,10 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
 import org.eclipse.buildship.core.CorePlugin;
@@ -111,7 +114,13 @@ final class ProjectConfigurationPersistence {
     }
 
     private String relativePathToRootProject(File rootProjectDir, IProject workspaceProject) {
-        return RelativePathUtils.getRelativePath(workspaceProject.getLocation().toFile(), rootProjectDir);
+        try {
+            // the IProject.getLocation() returns the canonical path for the project dir, therefore
+            // the canonical root project dir should be used to calculate the relative path
+            return RelativePathUtils.getRelativePath(workspaceProject.getLocation(), new org.eclipse.core.runtime.Path(rootProjectDir.getCanonicalPath()));
+        } catch (IOException e) {
+            throw new GradlePluginsRuntimeException(e);
+        }
     }
 
     private IFile createConfigFile(IProject workspaceProject) throws CoreException {
@@ -152,13 +161,26 @@ final class ProjectConfigurationPersistence {
         Map<String, Object> config = gson.fromJson(json, createMapTypeToken());
         Map<String, String> projectConfig = getProjectConfigForVersion(config);
 
-        String relativePathToRoot = projectConfig.get(CONNECTION_PROJECT_DIR);
-        File rootProjectDir = RelativePathUtils.getAbsoluteFile(workspaceProject.getLocation().toFile(), relativePathToRoot);
+        String pathToRoot = projectConfig.get(CONNECTION_PROJECT_DIR);
+        File rootProjectDir = rootProjectFile(workspaceProject, pathToRoot);
+
         FixedRequestAttributes requestAttributes = new FixedRequestAttributes(rootProjectDir, FileUtils.getAbsoluteFile(
                 projectConfig.get(CONNECTION_GRADLE_USER_HOME)).orNull(), GradleDistributionSerializer.INSTANCE.deserializeFromString(projectConfig
                 .get(CONNECTION_GRADLE_DISTRIBUTION)), FileUtils.getAbsoluteFile(projectConfig.get(CONNECTION_JAVA_HOME)).orNull(), CollectionsUtils.splitBySpace(projectConfig
                 .get(CONNECTION_JVM_ARGUMENTS)), CollectionsUtils.splitBySpace(projectConfig.get(CONNECTION_ARGUMENTS)));
         return ProjectConfiguration.from(requestAttributes, Path.from(projectConfig.get(PROJECT_PATH)));
+    }
+
+    private File rootProjectFile(IProject workspaceProject, String pathToRoot) {
+        IPath path = new org.eclipse.core.runtime.Path(pathToRoot);
+        File rootProjectDir;
+        if (path.isAbsolute()) {
+            // prior to Buildship 1.0.10 the root project dir is stored as an absolute path
+            rootProjectDir = path.toFile();
+        } else {
+            rootProjectDir = RelativePathUtils.getAbsolutePath(workspaceProject.getLocation(), pathToRoot).toFile();
+        }
+        return rootProjectDir;
     }
 
     private IFile getConfigFile(IProject workspaceProject) throws CoreException {
