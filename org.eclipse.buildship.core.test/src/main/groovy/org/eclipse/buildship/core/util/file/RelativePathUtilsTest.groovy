@@ -5,8 +5,6 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Shared
 import spock.lang.Specification
 
-import org.eclipse.core.runtime.Path
-
 class RelativePathUtilsTest extends Specification {
 
     @ClassRule @Shared TemporaryFolder tempFolder
@@ -27,16 +25,12 @@ class RelativePathUtilsTest extends Specification {
         RelativePathUtils.getRelativePath(base, target) == '..'
 
         then:
-        thrown IllegalArgumentException
+        thrown NullPointerException
 
         where:
         base            | target
         null            | rootDir
         rootDir         | null
-        rootDir         | txtFile
-        txtFile         | rootDir
-        new File('rel') | rootDir
-        rootDir         | new File('rel')
     }
 
     def "Can calculate relative path"() {
@@ -65,13 +59,12 @@ class RelativePathUtilsTest extends Specification {
         RelativePathUtils.getAbsoluteFile(base, relativePath)
 
         then:
-        thrown IllegalArgumentException
+        thrown NullPointerException
 
         where:
         base    | relativePath
         null    | "."
         rootDir | null
-        txtFile | "."
     }
 
     def "Can calculate absolute path"() {
