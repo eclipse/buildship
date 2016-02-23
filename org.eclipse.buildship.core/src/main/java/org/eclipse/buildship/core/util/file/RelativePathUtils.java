@@ -34,8 +34,8 @@ public final class RelativePathUtils {
      * @return the relative path from the base to the target
      */
     public static String getRelativePath(File base, File target) {
-        Preconditions.checkNotNull(base != null);
-        Preconditions.checkNotNull(target != null);
+        Preconditions.checkNotNull(base);
+        Preconditions.checkNotNull(target);
 
         String basePath = base.getAbsolutePath();
         String targetPath = target.getAbsolutePath();
@@ -73,12 +73,28 @@ public final class RelativePathUtils {
      * @param base the base directory
      * @param relativePath the location of the result file relative to the base
      * @return the file instance with the absolute path
+     * @throws IllegalArgumentException if the relative path is invalid (i.e. points above the root folder).
      */
     public static File getAbsoluteFile(File base, String relativePath) {
-        Preconditions.checkNotNull(base != null);
-        Preconditions.checkNotNull(relativePath != null);
+        Preconditions.checkNotNull(base);
+        Preconditions.checkNotNull(relativePath);
 
         IPath basePath = new Path(base.getAbsolutePath());
-        return new File(basePath.append(relativePath).toFile().getAbsolutePath());
+        return getAbsolutePath(basePath, relativePath).toFile();
+    }
+
+    private static IPath getAbsolutePath(IPath basePath, String relativePath) {
+        IPath result = basePath;
+        for (String segment : new Path(relativePath).segments()) {
+            IPath newRewult = result.append(segment);
+            // Appending a '..' segment to the root path does not fail but returns a new path object
+            // see org.eclipse.core.runtime.Path.removeLastSegment(int)
+            if (segment.equals("..") && newRewult.segmentCount() >= result.segmentCount()) {
+                throw new IllegalArgumentException(String.format("Relative path can't point beyond the root of the base path (base=%s, relativePath=%s).", basePath, relativePath));
+            } else {
+                result = newRewult;
+            }
+        }
+        return result;
     }
 }

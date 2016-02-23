@@ -85,4 +85,16 @@ class RelativePathUtilsTest extends Specification {
         'a/b/c' | "../../d/e" | 'a/d/e'
     }
 
+    def "Absolute path calculation fails if relative path points above root"() {
+         when:
+         println RelativePathUtils.getAbsoluteFile(fsRoot, '..')
+
+         then:
+         thrown IllegalArgumentException
+    }
+
+    private static File getFsRoot(File current = new File('.').absoluteFile) {
+        current.parentFile != null ? getFsRoot(current.parentFile) : current
+    }
+
 }
