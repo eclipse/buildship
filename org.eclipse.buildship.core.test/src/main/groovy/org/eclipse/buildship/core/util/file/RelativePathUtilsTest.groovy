@@ -21,7 +21,7 @@ class RelativePathUtilsTest extends Specification {
 
     def "Relative path calculation throws exception for illegal arguments"() {
         when:
-        RelativePathUtils.getRelativePath(base, target) == '..'
+        RelativePathUtils.getRelativePath(base, target)
 
         then:
         thrown NullPointerException
@@ -87,7 +87,7 @@ class RelativePathUtilsTest extends Specification {
 
     def "Absolute path calculation fails if relative path points above root"() {
          when:
-         println RelativePathUtils.getAbsoluteFile(fsRoot, '..')
+         RelativePathUtils.getAbsoluteFile(fsRoot, '..')
 
          then:
          thrown IllegalArgumentException
