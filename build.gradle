@@ -348,8 +348,7 @@ gradle.buildFinished {
 task tag << {
     def tagVersion = file('version.txt').text.trim()
     // create and push tag
-    exec { commandLine("sh", "-c", "git tag -a REL_$tagVersion -m'Create tag REL_$tagVersion'") }
-    exec { commandLine("sh", "-c", "git push origin REL_$tagVersion") }
+    exec { commandLine('./tag.sh', tagVersion) }
 }
 
 task incrementVersion << {
@@ -363,8 +362,7 @@ task incrementVersion << {
     } else {
         throw new IllegalStateException("Unparseable version: $oldVersion.")
     }
-    exec { commandLine("sh", "-c", "git commit -a -m'Increment version from $oldVersion to $newVersion'") }
-    exec { commandLine("sh", "-c", "git push origin master") }
+    exec { commandLine('./incrementVersion.sh', oldVersion, newVersion) }
 }
 
 void killAllGradleDaemons() {
