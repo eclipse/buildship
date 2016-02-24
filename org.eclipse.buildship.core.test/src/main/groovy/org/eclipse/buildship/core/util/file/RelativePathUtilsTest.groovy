@@ -11,26 +11,26 @@ class RelativePathUtilsTest extends Specification {
 
     def "Relative path calculation throws exception for illegal arguments"() {
         setup:
-        def basePath = base == null ? null : new Path(base)
-        def targetPath = target == null ? null : new Path(target)
 
         when:
         RelativePathUtils.getRelativePath(basePath, targetPath)
 
         then:
-        thrown NullPointerException
+        thrown expected
 
         where:
-        base | target
-        null | '.'
-        '.'  | null
+        basePath                     | targetPath                   | expected
+        null                         | new Path('.')                | NullPointerException
+        new Path('.')                | null                         | NullPointerException
+        new Path('.').makeRelative() | new Path('.')                | IllegalArgumentException
+        new Path('.')                | new Path('.').makeRelative() | IllegalArgumentException
     }
 
     def "Can calculate relative path"() {
         setup:
-        def basePath = new Path(base)
-        def targetPath = new Path(target)
-        def expected = result.replace('/', File.separator)
+        def basePath = new Path(base).makeAbsolute()
+        def targetPath = new Path(target).makeAbsolute()
+        def expected = new Path(result)
 
         expect:
         RelativePathUtils.getRelativePath(basePath, targetPath) == expected
@@ -48,29 +48,28 @@ class RelativePathUtilsTest extends Specification {
     }
 
     def "Absolute path calculation throws exception for illegal arguments"() {
-        setup:
-        def basePath = base == null ? null : new Path(base)
-
         when:
         RelativePathUtils.getAbsolutePath(basePath, relativePath)
 
         then:
-        thrown NullPointerException
+        thrown expected
 
         where:
-        base | relativePath
-        null | '.'
-        '.'  | null
+        basePath                     | relativePath                 | expected
+        null                         | new Path('.')                | NullPointerException
+        new Path('.')                | null                         | NullPointerException
+        new Path('.').makeRelative() | new Path('.')                | IllegalArgumentException
+        new Path('.')                | new Path('.').makeRelative() | IllegalArgumentException
     }
 
     def "Can calculate absolute path"() {
         setup:
-        def baseFile = new Path(base)
-        def relativePath = path.replace('/', File.separator)
+        def basePath = new Path(base).makeAbsolute()
+        def relativePath = new Path(path)
         def expected =  new Path(result).makeAbsolute()
 
         expect:
-        RelativePathUtils.getAbsolutePath(baseFile, relativePath) == expected
+        RelativePathUtils.getAbsolutePath(basePath, relativePath) == expected
 
         where:
         base    | path        | result
@@ -84,7 +83,7 @@ class RelativePathUtilsTest extends Specification {
 
     def "Absolute path calculation fails if relative path points above root"() {
          when:
-         RelativePathUtils.getAbsolutePath(new Path(fsRoot.absolutePath), '..')
+         RelativePathUtils.getAbsolutePath(new Path(fsRoot.absolutePath), new Path('..'))
 
          then:
          thrown IllegalArgumentException

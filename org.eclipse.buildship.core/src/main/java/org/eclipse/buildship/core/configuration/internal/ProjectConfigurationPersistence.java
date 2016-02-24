@@ -113,9 +113,9 @@ final class ProjectConfigurationPersistence {
 
     private String relativePathToRootProject(File rootProjectDir, IProject workspaceProject) {
         try {
-            String rootProjectPath = rootProjectDir.getCanonicalPath();
-            String projectPath = workspaceProject.getLocation().toFile().getCanonicalPath();
-            return RelativePathUtils.getRelativePath(new org.eclipse.core.runtime.Path(projectPath), new org.eclipse.core.runtime.Path(rootProjectPath));
+            IPath rootProjectPath = new org.eclipse.core.runtime.Path(rootProjectDir.getCanonicalPath());
+            IPath projectPath = new org.eclipse.core.runtime.Path(workspaceProject.getLocation().toFile().getCanonicalPath());
+            return RelativePathUtils.getRelativePath(projectPath, rootProjectPath).toOSString();
         } catch (IOException e) {
             throw new GradlePluginsRuntimeException(e);
         }
@@ -176,7 +176,7 @@ final class ProjectConfigurationPersistence {
             // prior to Buildship 1.0.10 the root project dir is stored as an absolute path
             rootProjectDir = path.toFile();
         } else {
-            rootProjectDir = RelativePathUtils.getAbsolutePath(workspaceProject.getLocation(), pathToRoot).toFile();
+            rootProjectDir = RelativePathUtils.getAbsolutePath(workspaceProject.getLocation(), new org.eclipse.core.runtime.Path(pathToRoot)).toFile();
         }
         return rootProjectDir;
     }
