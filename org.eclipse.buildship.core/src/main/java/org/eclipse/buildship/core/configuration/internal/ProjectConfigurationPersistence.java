@@ -113,9 +113,9 @@ final class ProjectConfigurationPersistence {
 
     private String relativePathToRootProject(File rootProjectDir, IProject workspaceProject) {
         try {
-            // the IProject.getLocation() returns the canonical path for the project dir, therefore
-            // the canonical root project dir should be used to calculate the relative path
-            return RelativePathUtils.getRelativePath(workspaceProject.getLocation(), new org.eclipse.core.runtime.Path(rootProjectDir.getCanonicalPath()));
+            String rootProjectPath = rootProjectDir.getCanonicalPath();
+            String projectPath = workspaceProject.getLocation().toFile().getCanonicalPath();
+            return RelativePathUtils.getRelativePath(new org.eclipse.core.runtime.Path(projectPath), new org.eclipse.core.runtime.Path(rootProjectPath));
         } catch (IOException e) {
             throw new GradlePluginsRuntimeException(e);
         }
