@@ -28,7 +28,7 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectImportSpecificatio
         // execute a test build to obtain test operation descriptors
         ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project)
         GradleRunConfigurationAttributes attributes = GradleRunConfigurationAttributes.with(['clean', 'test'] as List,
-                configuration.projectDir.absolutePath,
+                project.getLocation().toFile().absolutePath,
                 GradleDistribution.fromBuild(),
                 null,
                 null,

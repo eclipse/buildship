@@ -11,7 +11,6 @@
 
 package org.eclipse.buildship.core.configuration.internal;
 
-import java.io.File;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableSet;
@@ -50,8 +49,7 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
             if (workspaceProject.isOpen() && GradleProjectNature.INSTANCE.isPresentOn(workspaceProject)) {
                 // calculate the root configuration to which the current configuration belongs
                 ProjectConfiguration projectConfiguration = this.projectConfigurationPersistence.readProjectConfiguration(workspaceProject);
-                File rootProjectDir = projectConfiguration.getRequestAttributes().getProjectDir();
-                ProjectConfiguration rootProjectConfiguration = ProjectConfiguration.from(projectConfiguration.getRequestAttributes(), Path.from(":"), rootProjectDir);
+                ProjectConfiguration rootProjectConfiguration = ProjectConfiguration.from(projectConfiguration.getRequestAttributes(), Path.from(":"));
                 rootConfigurations.add(rootProjectConfiguration);
             }
         }
@@ -62,7 +60,7 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
         // changed/corrupted manually
         Map<String, ProjectConfiguration> rootProjectDirs = Maps.newHashMap();
         for (ProjectConfiguration rootProjectConfiguration : rootConfigurations.build()) {
-            String rootProjectDirPath = rootProjectConfiguration.getProjectDir().getPath();
+            String rootProjectDirPath = rootProjectConfiguration.getRequestAttributes().getProjectDir().getAbsolutePath();
             if (!rootProjectDirs.containsKey(rootProjectDirPath)) {
                 rootProjectDirs.put(rootProjectDirPath, rootProjectConfiguration);
             } else {

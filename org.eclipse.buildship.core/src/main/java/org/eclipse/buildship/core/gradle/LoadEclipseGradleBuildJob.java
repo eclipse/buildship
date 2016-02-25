@@ -50,7 +50,7 @@ public final class LoadEclipseGradleBuildJob extends ToolingApiJob {
 
     public LoadEclipseGradleBuildJob(ModelRepositoryProvider modelRepositoryProvider, ProcessStreamsProvider processStreamsProvider, FetchStrategy modelFetchStrategy,
                                      ProjectConfiguration configuration, final FutureCallback<OmniEclipseGradleBuild> resultHandler) {
-        super(String.format("Loading tasks of project located at %s", configuration.getProjectDir().getAbsolutePath()));
+        super(String.format("Loading tasks of project located at %s", configuration.getRequestAttributes().getProjectDir().getName()));
 
         this.modelRepositoryProvider = Preconditions.checkNotNull(modelRepositoryProvider);
         this.processStreamsProvider = Preconditions.checkNotNull(processStreamsProvider);
@@ -74,7 +74,7 @@ public final class LoadEclipseGradleBuildJob extends ToolingApiJob {
 
     @Override
     protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
-        monitor.beginTask(String.format("Load tasks of project located at %s", this.configuration.getProjectDir().getName()), 1);
+        monitor.beginTask(String.format("Load tasks of project located at %s", this.configuration.getRequestAttributes().getProjectDir().getName()), 1);
         this.result = fetchEclipseGradleBuild(new SubProgressMonitor(monitor, 1));
     }
 

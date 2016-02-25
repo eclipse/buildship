@@ -121,7 +121,7 @@ class ProjectConfigurationManagerTest extends Specification {
                                 null,
                                 ImmutableList.of(),
                                 ImmutableList.of()),
-                        Path.from(':'), rootDir)] as Set
+                        Path.from(':'))] as Set
     }
 
     def "two Gradle root project configurations when two Gradle multi-project builds are imported"() {
@@ -191,7 +191,7 @@ class ProjectConfigurationManagerTest extends Specification {
                                 null,
                                 ImmutableList.of(),
                                 ImmutableList.of()),
-                        Path.from(':'), rootDirOne),
+                        Path.from(':')),
                 ProjectConfiguration.from(
                         new FixedRequestAttributes(rootDirTwo,
                                 null,
@@ -199,7 +199,7 @@ class ProjectConfigurationManagerTest extends Specification {
                                 null,
                                 ImmutableList.of(),
                                 ImmutableList.of()),
-                        Path.from(':'), rootDirTwo)] as Set
+                        Path.from(':'))] as Set
     }
 
     def "error thrown when projects of same multi-project build have different shared project configurations"() {
@@ -210,7 +210,7 @@ class ProjectConfigurationManagerTest extends Specification {
         IProject rootProject = workspaceOperations.createProject("root-project", rootProjectDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
         def requestAttributes = new FixedRequestAttributes(rootProjectDir, null, GradleDistribution.forVersion("2.0"), null,
                 ImmutableList.copyOf("-Xmx256M"), ImmutableList.copyOf("foo"))
-        def projectConfiguration = ProjectConfiguration.from(requestAttributes, Path.from(":"), rootProjectDir)
+        def projectConfiguration = ProjectConfiguration.from(requestAttributes, Path.from(":"))
         configurationManager.saveProjectConfiguration(projectConfiguration, rootProject)
 
         // create child project and use Gradle version 1.0 in the persisted configuration
@@ -218,7 +218,7 @@ class ProjectConfigurationManagerTest extends Specification {
         IProject childProject = workspaceOperations.createProject("child-project", childProjectDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
         def childRequestAttributes = new FixedRequestAttributes(rootProjectDir, null, GradleDistribution.forVersion("1.0"), null,
                 ImmutableList.copyOf("-Xmx256M"), ImmutableList.copyOf("foo"))
-        def childProjectConfiguration = ProjectConfiguration.from(childRequestAttributes, Path.from(":child"), childProjectDir)
+        def childProjectConfiguration = ProjectConfiguration.from(childRequestAttributes, Path.from(":child"))
         configurationManager.saveProjectConfiguration(childProjectConfiguration, childProject)
 
         when:
@@ -233,9 +233,9 @@ class ProjectConfigurationManagerTest extends Specification {
         File projectDir = tempFolder.root
         IProject project = workspaceOperations.createProject("sample-project", projectDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
 
-        def requestAttributes = new FixedRequestAttributes(projectDir, tempFolder.newFolder(), GradleDistribution.forVersion("1.12"), tempFolder.newFolder(),
+        def requestAttributes = new FixedRequestAttributes(project.getLocation().toFile(), tempFolder.newFolder(), GradleDistribution.forVersion("1.12"), tempFolder.newFolder(),
                 ImmutableList.copyOf("-Xmx256M"), ImmutableList.copyOf("foo"))
-        def projectConfiguration = ProjectConfiguration.from(requestAttributes, Path.from(":"), projectDir)
+        def projectConfiguration = ProjectConfiguration.from(requestAttributes, Path.from(":"))
 
         when:
         configurationManager.saveProjectConfiguration(projectConfiguration, project)
@@ -249,9 +249,9 @@ class ProjectConfigurationManagerTest extends Specification {
         File projectDir = tempFolder.newFolder()
         IProject project = workspaceOperations.createProject("sample-project", projectDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
 
-        def attributes = new FixedRequestAttributes(projectDir, null, GradleDistribution.fromBuild(), null,
+        def attributes = new FixedRequestAttributes(project.getLocation().toFile(), null, GradleDistribution.fromBuild(), null,
                 ImmutableList.of(), ImmutableList.of())
-        def projectConfiguration = ProjectConfiguration.from(attributes, Path.from(":"), projectDir)
+        def projectConfiguration = ProjectConfiguration.from(attributes, Path.from(":"))
 
         when:
         configurationManager.saveProjectConfiguration(projectConfiguration, project)

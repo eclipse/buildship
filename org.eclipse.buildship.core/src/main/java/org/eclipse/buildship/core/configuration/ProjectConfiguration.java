@@ -11,8 +11,6 @@
 
 package org.eclipse.buildship.core.configuration;
 
-import java.io.File;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
@@ -27,12 +25,10 @@ public final class ProjectConfiguration {
 
     private final FixedRequestAttributes requestAttributes;
     private final Path projectPath;
-    private final File projectDir;
 
-    private ProjectConfiguration(FixedRequestAttributes requestAttributes, Path projectPath, File projectDir) {
+    private ProjectConfiguration(FixedRequestAttributes requestAttributes, Path projectPath) {
         this.requestAttributes = Preconditions.checkNotNull(requestAttributes);
         this.projectPath = Preconditions.checkNotNull(projectPath);
-        this.projectDir = Preconditions.checkNotNull(projectDir);
     }
 
     /**
@@ -53,15 +49,6 @@ public final class ProjectConfiguration {
         return this.projectPath;
     }
 
-    /**
-     * Returns the location of the Gradle project.
-     *
-     * @return the location of the Gradle project, never null
-     */
-    public File getProjectDir() {
-        return this.projectDir;
-    }
-
     @Override
     public boolean equals(Object other) {
         if (this == other) {
@@ -72,13 +59,12 @@ public final class ProjectConfiguration {
         }
 
         ProjectConfiguration that = (ProjectConfiguration) other;
-        return Objects.equal(this.requestAttributes, that.requestAttributes) && Objects.equal(this.projectDir, that.projectDir)
-                && Objects.equal(this.projectPath, that.projectPath);
+        return Objects.equal(this.requestAttributes, that.requestAttributes) && Objects.equal(this.projectPath, that.projectPath);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.requestAttributes, this.projectDir, this.projectPath);
+        return Objects.hashCode(this.requestAttributes, this.projectPath);
     }
 
     /**
@@ -89,7 +75,7 @@ public final class ProjectConfiguration {
      * @return the new instance
      */
     public static ProjectConfiguration from(FixedRequestAttributes requestAttributes, OmniEclipseProject project) {
-        return from(requestAttributes, project.getPath(), project.getProjectDirectory());
+        return from(requestAttributes, project.getPath());
     }
 
     /**
@@ -100,8 +86,8 @@ public final class ProjectConfiguration {
      * @param projectDir the location of the Gradle project
      * @return the new instance
      */
-    public static ProjectConfiguration from(FixedRequestAttributes requestAttributes, Path projectPath, File projectDir) {
-        return new ProjectConfiguration(requestAttributes, projectPath, projectDir);
+    public static ProjectConfiguration from(FixedRequestAttributes requestAttributes, Path projectPath) {
+        return new ProjectConfiguration(requestAttributes, projectPath);
     }
 
 }

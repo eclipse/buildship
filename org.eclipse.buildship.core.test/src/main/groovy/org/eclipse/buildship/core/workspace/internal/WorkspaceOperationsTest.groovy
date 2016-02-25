@@ -218,7 +218,7 @@ class WorkspaceOperationsTest extends Specification {
         def rootFolder = tempFolder.newFolder()
         IProject project = workspaceOperations.createProject("sample-project", rootFolder, ImmutableList.of(), new NullProgressMonitor())
         def attributes = new FixedRequestAttributes(rootFolder, null, GradleDistribution.fromBuild(), null, ImmutableList.<String> of(), ImmutableList.<String> of())
-        ProjectConfiguration projectConfiguration = ProjectConfiguration.from(attributes, Path.from(':'), rootFolder)
+        ProjectConfiguration projectConfiguration = ProjectConfiguration.from(attributes, Path.from(':'))
         CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, project)
         def jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath()
 
