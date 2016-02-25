@@ -13,6 +13,7 @@ package org.eclipse.buildship.core.configuration.internal;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -138,17 +139,7 @@ final class ProjectConfigurationPersistence {
 
         String json;
         try {
-            IFile configFile = getConfigFile(workspaceProject);
-            InputStream inputStream = configFile.getContents(true);
-            try {
-                json = CharStreams.toString(new InputStreamReader(inputStream, Charsets.UTF_8));
-            } finally {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
+            json = readConfigurationFile(workspaceProject);
         } catch (Exception e) {
             String message = String.format("Cannot read Gradle configuration for project %s.", workspaceProject.getName());
             CorePlugin.logger().error(message, e);
@@ -169,6 +160,30 @@ final class ProjectConfigurationPersistence {
         return ProjectConfiguration.from(requestAttributes, Path.from(projectConfig.get(PROJECT_PATH)));
     }
 
+    private String readConfigurationFile(IProject workspaceProject) throws IOException, CoreException {
+        // when the project is being imported, the configuration file might not be visible from the
+        // Eclipse resource API; in that case we fall back to raw IO operations
+        // a similar approach is used in JDT core to load the .classpath file
+        // see org.eclipse.jdt.internal.core.JavaProject.readFileEntriesWithException(Map)
+        IFile configFile = getConfigFile(workspaceProject);
+        InputStream inputStream;
+        if (configFile.exists()) {
+            inputStream = configFile.getContents();
+        } else {
+            File rawConfigFile = getRawConfigFile(workspaceProject);
+            inputStream = new FileInputStream(rawConfigFile);
+        }
+
+        try {
+            return CharStreams.toString(new InputStreamReader(inputStream, Charsets.UTF_8));
+        } finally {
+            try {
+                inputStream.close();
+            } catch (IOException ignore) {
+            }
+        }
+    }
+
     private File rootProjectFile(IProject workspaceProject, String pathToRoot) {
         IPath path = new org.eclipse.core.runtime.Path(pathToRoot);
         File rootProjectDir;
@@ -183,6 +198,10 @@ final class ProjectConfigurationPersistence {
 
     private IFile getConfigFile(IProject workspaceProject) throws CoreException {
         return workspaceProject.getFolder(ECLIPSE_SETTINGS_FOLDER).getFile(GRADLE_PREFERENCES_FILE);
+    }
+
+    private File getRawConfigFile(IProject workspaceProject) {
+        return new File(workspaceProject.getProject().getLocation().toFile(), ECLIPSE_SETTINGS_FOLDER + File.separator + GRADLE_PREFERENCES_FILE);
     }
 
     @SuppressWarnings("serial")
