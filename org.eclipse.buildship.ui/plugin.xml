@@ -180,17 +180,18 @@
             commandId="org.eclipse.buildship.ui.commands.refreshproject"
             class="org.eclipse.buildship.ui.workspace.RefreshProjectHandler">
          <activeWhen>
-            <and>
-               <with
-                     variable="activeContexts">
-                  <iterate
-                        operator="or">
-                     <equals
-                           value="org.eclipse.buildship.ui.contexts.gradlenature">
-                     </equals>
-                  </iterate>
-               </with>
-            </and>
+            <iterate
+                    operator="or"
+                    ifEmpty="false">
+                <adapt
+                        type="org.eclipse.core.resources.IProject">
+                    <test
+                            forcePluginActivation="true"
+                            property="org.eclipse.core.resources.projectNature"
+                            value="org.eclipse.buildship.core.gradleprojectnature">
+                    </test>
+                </adapt>
+            </iterate>
          </activeWhen>
       </handler>
     </extension>
