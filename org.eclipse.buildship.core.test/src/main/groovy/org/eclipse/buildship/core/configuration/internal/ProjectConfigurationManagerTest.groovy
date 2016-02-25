@@ -11,11 +11,22 @@
 
 package org.eclipse.buildship.core.configuration.internal
 
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
+import spock.lang.Shared
+import spock.lang.Specification
+
 import com.google.common.collect.ImmutableList
+
 import com.gradleware.tooling.junit.TestFile
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.Path
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
+
+import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IResource
+import org.eclipse.core.runtime.NullProgressMonitor
+
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.configuration.GradleProjectNature
@@ -26,12 +37,6 @@ import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectJob
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
-import org.eclipse.core.resources.IProject
-import org.eclipse.core.runtime.NullProgressMonitor
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import spock.lang.Shared
-import spock.lang.Specification
 
 @SuppressWarnings("GroovyAccessibility")
 class ProjectConfigurationManagerTest extends Specification {
@@ -258,6 +263,28 @@ class ProjectConfigurationManagerTest extends Specification {
 
         then:
         configurationManager.readProjectConfiguration(project) == projectConfiguration
+    }
+
+    def "project configuration can be read even if project is not yet refreshed"() {
+        given:
+        File projectDir = tempFolder.newFolder()
+        IProject project = workspaceOperations.createProject("sample-project", projectDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
+
+        def attributes = new FixedRequestAttributes(project.getLocation().toFile(), null, GradleDistribution.fromBuild(), null,
+                ImmutableList.of(), ImmutableList.of())
+        def projectConfiguration = ProjectConfiguration.from(attributes, Path.from(":"))
+        configurationManager.saveProjectConfiguration(projectConfiguration, project)
+
+        def projectDescription = project.description
+        project.delete(false, true, null)
+        project.create(projectDescription, null)
+        project.open(IResource.BACKGROUND_REFRESH, null)
+
+        when:
+        def readConfiguration = configurationManager.readProjectConfiguration(project)
+
+        then:
+        readConfiguration == projectConfiguration
     }
 
 }
