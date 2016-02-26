@@ -61,14 +61,16 @@ public final class RelativePathUtils {
         IPath result = base;
         for (String segment : target.segments()) {
             IPath newResult = result.append(segment);
+
             // Appending a '..' segment to the root path does not fail but returns a new path object
             // see org.eclipse.core.runtime.Path.removeLastSegment(int)
             if (segment.equals("..") && newResult.segmentCount() >= result.segmentCount()) {
                 throw new IllegalArgumentException(String.format("Relative path can't point beyond the root (base=%s, relativePath=%s).", base, target));
-            } else {
-                result = newResult;
             }
+
+            result = newResult;
         }
         return result;
     }
+
 }
