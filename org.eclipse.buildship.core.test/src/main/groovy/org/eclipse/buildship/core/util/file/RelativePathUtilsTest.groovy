@@ -1,8 +1,5 @@
 package org.eclipse.buildship.core.util.file
 
-import org.junit.ClassRule
-import org.junit.rules.TemporaryFolder
-import spock.lang.Shared
 import spock.lang.Specification
 
 import org.eclipse.core.runtime.Path
