@@ -79,6 +79,7 @@ class RelativePathUtilsTest extends Specification {
         'a/b/c' | '../..'     | 'a'
         'a/b/c' | '../../d'   | 'a/d'
         'a/b/c' | '../../d/e' | 'a/d/e'
+        'a/b/c' | 'd/e'       | 'a/b/c/d/e'
     }
 
     def "Absolute path calculation fails if relative path points above root"() {
