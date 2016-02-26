@@ -106,16 +106,14 @@ final class ProjectConfigurationPersistence {
         }
     }
 
-    private static void checkProjectHasValidLocation(IProject workspaceProject) {
-        if (workspaceProject.getLocation() == null) {
-            throw new GradlePluginsRuntimeException(String.format("Project %s has no valid location.", workspaceProject.getName()));
+    private static String relativePathToRootProject(IProject workspaceProject, File rootProjectDir) {
+        try {
+            IPath rootProjectPath = new org.eclipse.core.runtime.Path(rootProjectDir.getCanonicalPath());
+            IPath projectPath = new org.eclipse.core.runtime.Path(workspaceProject.getLocation().toFile().getCanonicalPath());
+            return RelativePathUtils.getRelativePath(projectPath, rootProjectPath).toOSString();
+        } catch (IOException e) {
+            throw new GradlePluginsRuntimeException(e);
         }
-    }
-
-    private String relativePathToRootProject(IProject workspaceProject, File rootProjectDir) {
-        IPath rootProjectPath = new org.eclipse.core.runtime.Path(rootProjectDir.getPath());
-        IPath projectPath = new org.eclipse.core.runtime.Path(workspaceProject.getLocation().toFile().getPath());
-        return RelativePathUtils.getRelativePath(projectPath, rootProjectPath).toOSString();
     }
 
     private static IFile createConfigFile(IProject workspaceProject) throws CoreException {
@@ -146,12 +144,13 @@ final class ProjectConfigurationPersistence {
         Map<String, Object> config = gson.fromJson(json, createMapTypeToken());
         Map<String, String> projectConfig = getProjectConfigForVersion(config);
 
-        String pathToRootProject = projectConfig.get(CONNECTION_PROJECT_DIR);
-        File rootProjectDir = rootProjectFile(workspaceProject, pathToRootProject);
-        FixedRequestAttributes requestAttributes = new FixedRequestAttributes(rootProjectDir, FileUtils.getAbsoluteFile(
-                projectConfig.get(CONNECTION_GRADLE_USER_HOME)).orNull(), GradleDistributionSerializer.INSTANCE.deserializeFromString(projectConfig
-                .get(CONNECTION_GRADLE_DISTRIBUTION)), FileUtils.getAbsoluteFile(projectConfig.get(CONNECTION_JAVA_HOME)).orNull(), CollectionsUtils.splitBySpace(projectConfig
-                .get(CONNECTION_JVM_ARGUMENTS)), CollectionsUtils.splitBySpace(projectConfig.get(CONNECTION_ARGUMENTS)));
+        FixedRequestAttributes requestAttributes = new FixedRequestAttributes(
+                rootProjectFile(workspaceProject, projectConfig.get(CONNECTION_PROJECT_DIR)),
+                FileUtils.getAbsoluteFile(projectConfig.get(CONNECTION_GRADLE_USER_HOME)).orNull(),
+                GradleDistributionSerializer.INSTANCE.deserializeFromString(projectConfig.get(CONNECTION_GRADLE_DISTRIBUTION)),
+                FileUtils.getAbsoluteFile(projectConfig.get(CONNECTION_JAVA_HOME)).orNull(),
+                CollectionsUtils.splitBySpace(projectConfig.get(CONNECTION_JVM_ARGUMENTS)),
+                CollectionsUtils.splitBySpace(projectConfig.get(CONNECTION_ARGUMENTS)));
         return ProjectConfiguration.from(requestAttributes, Path.from(projectConfig.get(PROJECT_PATH)));
     }
 
@@ -180,16 +179,12 @@ final class ProjectConfigurationPersistence {
         }
     }
 
-    private static File rootProjectFile(IProject workspaceProject, String pathToRoot) {
-        IPath path = new org.eclipse.core.runtime.Path(pathToRoot);
-        File rootProjectDir;
-        if (path.isAbsolute()) {
-            // prior to Buildship 1.0.10 the root project dir is stored as an absolute path
-            rootProjectDir = path.toFile();
-        } else {
-            rootProjectDir = RelativePathUtils.getAbsolutePath(workspaceProject.getLocation(), new org.eclipse.core.runtime.Path(pathToRoot)).toFile();
-        }
-        return rootProjectDir;
+    private static File rootProjectFile(IProject workspaceProject, String pathToRootProject) {
+        IPath path = new org.eclipse.core.runtime.Path(pathToRootProject);
+        // prior to Buildship 1.0.10 the root project dir is stored as an absolute path
+        return path.isAbsolute()
+                ? path.toFile()
+                : RelativePathUtils.getAbsolutePath(workspaceProject.getLocation(), new org.eclipse.core.runtime.Path(pathToRootProject)).toFile();
     }
 
     private static IFile getConfigFile(IProject workspaceProject) throws CoreException {
@@ -241,6 +236,12 @@ final class ProjectConfigurationPersistence {
 
             // Note: don't delete the container .settings folder, even if it's empty, because the preferences
             // API expects it to be there. if the folder is removed, then an IllegalStateException is thrown randomly
+        }
+    }
+
+    private static void checkProjectHasValidLocation(IProject workspaceProject) {
+        if (workspaceProject.getLocation() == null) {
+            throw new GradlePluginsRuntimeException(String.format("Project %s has no valid location.", workspaceProject.getName()));
         }
     }
 
