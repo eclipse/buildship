@@ -37,7 +37,6 @@ public final class RelativePathUtils {
         Preconditions.checkNotNull(target);
         Preconditions.checkArgument(base.isAbsolute());
         Preconditions.checkArgument(target.isAbsolute());
-
         return target.makeRelativeTo(base);
     }
 
@@ -45,27 +44,27 @@ public final class RelativePathUtils {
      * Calculates the absolute path from a base to a relative target location.
      *
      * @param base the base path
-     * @param target the relative path from the base to the target
+     * @param relativePath the relative path from the base to the target
      * @return the absolute path to the target location
      * @throws NullPointerException if an argument is {@code null}
      * @throws IllegalArgumentException if a) the base path does not denote an absolute path b) the
      *             target path does not denote a relative path, or c) the relative path is invalid
      *             (i.e. points above the root folder)
      */
-    public static IPath getAbsolutePath(IPath base, IPath target) {
+    public static IPath getAbsolutePath(IPath base, IPath relativePath) {
         Preconditions.checkNotNull(base);
-        Preconditions.checkNotNull(target);
+        Preconditions.checkNotNull(relativePath);
         Preconditions.checkArgument(base.isAbsolute());
-        Preconditions.checkArgument(!target.isAbsolute());
+        Preconditions.checkArgument(!relativePath.isAbsolute());
 
         IPath result = base;
-        for (String segment : target.segments()) {
+        for (String segment : relativePath.segments()) {
             IPath newResult = result.append(segment);
 
             // Appending a '..' segment to the root path does not fail but returns a new path object
             // see org.eclipse.core.runtime.Path.removeLastSegment(int)
             if (segment.equals("..") && newResult.segmentCount() >= result.segmentCount()) {
-                throw new IllegalArgumentException(String.format("Relative path can't point beyond the root (base=%s, relativePath=%s).", base, target));
+                throw new IllegalArgumentException(String.format("Relative path can't point beyond the root (base=%s, relativePath=%s).", base, relativePath));
             }
 
             result = newResult;
