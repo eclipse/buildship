@@ -71,14 +71,14 @@ final class ProjectConfigurationPersistence {
      * folder.
      *
      * @param projectConfiguration the Gradle configuration to persist
-     * @param workspaceProject the Eclipse project for which to persist the Gradle configuration
+     * @param workspaceProject     the Eclipse project for which to persist the Gradle configuration
      */
     public void saveProjectConfiguration(ProjectConfiguration projectConfiguration, IProject workspaceProject) {
         checkProjectHasValidLocation(workspaceProject);
 
         Map<String, String> projectConfig = Maps.newLinkedHashMap();
         projectConfig.put(PROJECT_PATH, projectConfiguration.getProjectPath().getPath());
-        projectConfig.put(CONNECTION_PROJECT_DIR, relativePathToRootProject(projectConfiguration.getRequestAttributes().getProjectDir(), workspaceProject));
+        projectConfig.put(CONNECTION_PROJECT_DIR, relativePathToRootProject(workspaceProject, projectConfiguration.getRequestAttributes().getProjectDir()));
         projectConfig.put(CONNECTION_GRADLE_USER_HOME, FileUtils.getAbsolutePath(projectConfiguration.getRequestAttributes().getGradleUserHome()).orNull());
         projectConfig.put(CONNECTION_GRADLE_DISTRIBUTION, GradleDistributionSerializer.INSTANCE.serializeToString(projectConfiguration.getRequestAttributes().getGradleDistribution()));
         projectConfig.put(CONNECTION_JAVA_HOME, FileUtils.getAbsolutePath(projectConfiguration.getRequestAttributes().getJavaHome()).orNull());
@@ -106,19 +106,19 @@ final class ProjectConfigurationPersistence {
         }
     }
 
-    private void checkProjectHasValidLocation(IProject workspaceProject) {
+    private static void checkProjectHasValidLocation(IProject workspaceProject) {
         if (workspaceProject.getLocation() == null) {
-            throw new GradlePluginsRuntimeException(String.format("Project %s has no valid location", workspaceProject.getName()));
+            throw new GradlePluginsRuntimeException(String.format("Project %s has no valid location.", workspaceProject.getName()));
         }
     }
 
-    private String relativePathToRootProject(File rootProjectDir, IProject workspaceProject) {
+    private String relativePathToRootProject(IProject workspaceProject, File rootProjectDir) {
         IPath rootProjectPath = new org.eclipse.core.runtime.Path(rootProjectDir.getPath());
         IPath projectPath = new org.eclipse.core.runtime.Path(workspaceProject.getLocation().toFile().getPath());
         return RelativePathUtils.getRelativePath(projectPath, rootProjectPath).toOSString();
     }
 
-    private IFile createConfigFile(IProject workspaceProject) throws CoreException {
+    private static IFile createConfigFile(IProject workspaceProject) throws CoreException {
         IFolder folder = workspaceProject.getFolder(ECLIPSE_SETTINGS_FOLDER);
         FileUtils.ensureFolderHierarchyExists(folder);
         return folder.getFile(GRADLE_PREFERENCES_FILE);
@@ -146,9 +146,8 @@ final class ProjectConfigurationPersistence {
         Map<String, Object> config = gson.fromJson(json, createMapTypeToken());
         Map<String, String> projectConfig = getProjectConfigForVersion(config);
 
-        String pathToRoot = projectConfig.get(CONNECTION_PROJECT_DIR);
-        File rootProjectDir = rootProjectFile(workspaceProject, pathToRoot);
-
+        String pathToRootProject = projectConfig.get(CONNECTION_PROJECT_DIR);
+        File rootProjectDir = rootProjectFile(workspaceProject, pathToRootProject);
         FixedRequestAttributes requestAttributes = new FixedRequestAttributes(rootProjectDir, FileUtils.getAbsoluteFile(
                 projectConfig.get(CONNECTION_GRADLE_USER_HOME)).orNull(), GradleDistributionSerializer.INSTANCE.deserializeFromString(projectConfig
                 .get(CONNECTION_GRADLE_DISTRIBUTION)), FileUtils.getAbsoluteFile(projectConfig.get(CONNECTION_JAVA_HOME)).orNull(), CollectionsUtils.splitBySpace(projectConfig
@@ -156,7 +155,7 @@ final class ProjectConfigurationPersistence {
         return ProjectConfiguration.from(requestAttributes, Path.from(projectConfig.get(PROJECT_PATH)));
     }
 
-    private String readConfigurationFile(IProject workspaceProject) throws IOException, CoreException {
+    private static String readConfigurationFile(IProject workspaceProject) throws IOException, CoreException {
         // when the project is being imported, the configuration file might not be visible from the
         // Eclipse resource API; in that case we fall back to raw IO operations
         // a similar approach is used in JDT core to load the .classpath file
@@ -176,11 +175,12 @@ final class ProjectConfigurationPersistence {
             try {
                 inputStream.close();
             } catch (IOException ignore) {
+                // ignore
             }
         }
     }
 
-    private File rootProjectFile(IProject workspaceProject, String pathToRoot) {
+    private static File rootProjectFile(IProject workspaceProject, String pathToRoot) {
         IPath path = new org.eclipse.core.runtime.Path(pathToRoot);
         File rootProjectDir;
         if (path.isAbsolute()) {
@@ -192,22 +192,22 @@ final class ProjectConfigurationPersistence {
         return rootProjectDir;
     }
 
-    private IFile getConfigFile(IProject workspaceProject) throws CoreException {
+    private static IFile getConfigFile(IProject workspaceProject) throws CoreException {
         return workspaceProject.getFolder(ECLIPSE_SETTINGS_FOLDER).getFile(GRADLE_PREFERENCES_FILE);
     }
 
-    private File getRawConfigFile(IProject workspaceProject) {
+    private static File getRawConfigFile(IProject workspaceProject) {
         return new File(workspaceProject.getProject().getLocation().toFile(), ECLIPSE_SETTINGS_FOLDER + File.separator + GRADLE_PREFERENCES_FILE);
     }
 
     @SuppressWarnings("serial")
-    private Type createMapTypeToken() {
+    private static Type createMapTypeToken() {
         return new TypeToken<Map<String, Object>>() {
         }.getType();
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, String> getProjectConfigForVersion(Map<String, Object> config) {
+    private static Map<String, String> getProjectConfigForVersion(Map<String, Object> config) {
         return (Map<String, String>) config.get("1.0");
     }
 
