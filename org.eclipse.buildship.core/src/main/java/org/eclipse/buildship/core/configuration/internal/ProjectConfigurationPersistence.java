@@ -74,8 +74,6 @@ final class ProjectConfigurationPersistence {
      * @param workspaceProject     the Eclipse project for which to persist the Gradle configuration
      */
     public void saveProjectConfiguration(ProjectConfiguration projectConfiguration, IProject workspaceProject) {
-        checkProjectHasValidLocation(workspaceProject);
-
         Map<String, String> projectConfig = Maps.newLinkedHashMap();
         projectConfig.put(PROJECT_PATH, projectConfiguration.getProjectPath().getPath());
         projectConfig.put(CONNECTION_PROJECT_DIR, relativePathToRootProject(workspaceProject, projectConfiguration.getRequestAttributes().getProjectDir()));
@@ -129,8 +127,6 @@ final class ProjectConfigurationPersistence {
      * @return the persisted Gradle configuration
      */
     public ProjectConfiguration readProjectConfiguration(IProject workspaceProject) {
-        checkProjectHasValidLocation(workspaceProject);
-
         String json;
         try {
             json = readConfigurationFile(workspaceProject);
@@ -236,12 +232,6 @@ final class ProjectConfigurationPersistence {
 
             // Note: don't delete the container .settings folder, even if it's empty, because the preferences
             // API expects it to be there. if the folder is removed, then an IllegalStateException is thrown randomly
-        }
-    }
-
-    private static void checkProjectHasValidLocation(IProject workspaceProject) {
-        if (workspaceProject.getLocation() == null) {
-            throw new GradlePluginsRuntimeException(String.format("Project %s has no valid location.", workspaceProject.getName()));
         }
     }
 
