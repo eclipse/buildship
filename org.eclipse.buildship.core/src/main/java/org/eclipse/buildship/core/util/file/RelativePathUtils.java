@@ -38,9 +38,6 @@ public final class RelativePathUtils {
         Preconditions.checkArgument(base.isAbsolute());
         Preconditions.checkArgument(target.isAbsolute());
 
-        base = base.makeAbsolute();
-        target = target.makeAbsolute();
-
         return target.makeRelativeTo(base);
     }
 
@@ -61,7 +58,7 @@ public final class RelativePathUtils {
         Preconditions.checkArgument(base.isAbsolute());
         Preconditions.checkArgument(!target.isAbsolute());
 
-        IPath result = base.makeAbsolute();
+        IPath result = base;
         for (String segment : target.segments()) {
             IPath newResult = result.append(segment);
             // Appending a '..' segment to the root path does not fail but returns a new path object
