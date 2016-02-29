@@ -64,7 +64,7 @@ final class JavaSourceSettingsUpdater {
 
             // find or register the VM and assign it to the target project
             File vmLocation = sourceSettings.getTargetRuntime().getHomeDirectory();
-            IVMInstall vm = EclipseVmUtil.findOrRegisterVM(vmLocation, complianceVersion);
+            IVMInstall vm = EclipseVmUtil.findOrRegisterVM("JavaSE-" + targetVersion, vmLocation);
             addVmToClasspath(project, vm, new SubProgressMonitor(monitor, 1));
 
             // if the current Eclipse version doesn't support the compliance level of the VM then use the highest available

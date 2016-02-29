@@ -26,29 +26,28 @@ import java.io.File;
 final class EclipseVmUtil {
 
     private static final String VM_ID_PREFIX = "org.eclipse.buildship.core.vm.";
-    private static final String VM_NAME_PREFIX = "Java SE";
 
     private EclipseVmUtil() {
     }
 
     /**
      * Finds a Java VM in the Eclipse VM registry or registers a new one if none was available with
-     * the target install location.
+     * the selected version.
+     * @param name the name of the VM
+     * @param location the location of the VM
      *
-     * @param installLocation the location of the VM
-     * @param version the Java version of the VM, used only to generate a proper display name
      * @return the reference of an existing or freshly created VM
      */
-    public static IVMInstall findOrRegisterVM(File installLocation, String version) {
-        Optional<IVMInstall> vm = findRegisteredVM(installLocation);
-        return vm.isPresent() ? vm.get() : registerNewVM(installLocation, version);
+    public static IVMInstall findOrRegisterVM(String name, File location) {
+        Optional<IVMInstall> vm = findRegisteredVM(name);
+        return vm.isPresent() ? vm.get() : registerNewVM(name, location);
     }
 
-    private static Optional<IVMInstall> findRegisteredVM(File installLocation) {
+    private static Optional<IVMInstall> findRegisteredVM(String name) {
         for (IVMInstallType type : JavaRuntime.getVMInstallTypes()) {
             for (IVMInstall instance : type.getVMInstalls()) {
-                File location = instance.getInstallLocation();
-                if (location != null && location.equals(installLocation)) {
+                String instanceName = instance.getName();
+                if (instanceName != null && instanceName.equals(name)) {
                     return Optional.of(instance);
                 }
             }
@@ -56,44 +55,31 @@ final class EclipseVmUtil {
         return Optional.absent();
     }
 
-    private static IVMInstall registerNewVM(File installLocation, String version) {
+    private static IVMInstall registerNewVM(String name, File location) {
         // use the 'Standard VM' type to register a new VM
         IVMInstallType installType = JavaRuntime.getVMInstallType(StandardVMType.ID_STANDARD_VM_TYPE);
 
         // both the id and the name have to be unique for the registration
         String vmId = generateUniqueVMId(installType);
-        String vmName = generateUniqueVMName(version, installType);
 
         // instantiate the VM and notify Eclipse about the creation
         IVMInstall vm = installType.createVMInstall(vmId);
-        vm.setName(vmName);
-        vm.setInstallLocation(installLocation);
+        vm.setName(name);
+        vm.setInstallLocation(location);
         JavaRuntime.fireVMAdded(vm);
 
         return vm;
     }
 
-    private static String generateUniqueVMId(IVMInstallType installType) {
+    private static String generateUniqueVMId(IVMInstallType type) {
         // return a unique id for the VM
         int counter = 1;
         String vmId = VM_ID_PREFIX + counter;
-        while (installType.findVMInstall(vmId) != null) {
+        while (type.findVMInstall(vmId) != null) {
             counter++;
             vmId = VM_ID_PREFIX + counter;
         }
         return vmId;
-    }
-
-    private static String generateUniqueVMName(String version, IVMInstallType installType) {
-        // for a Java 1.7 JVM return the name 'Java SE 7' if not taken otherwise
-        // return the first non taken value from 'Java SE 7 (2)', 'Java SE 7 (3)', etc.
-        int counter = 1;
-        String vmName = VM_NAME_PREFIX + " " + version;
-        while (installType.findVMInstallByName(vmName) != null) {
-            counter++;
-            vmName = VM_NAME_PREFIX + " " + version + " (" + counter + ")";
-        }
-        return vmName;
     }
 
 }
