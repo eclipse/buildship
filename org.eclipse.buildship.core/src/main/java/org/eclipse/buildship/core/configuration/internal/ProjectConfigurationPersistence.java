@@ -105,13 +105,9 @@ final class ProjectConfigurationPersistence {
     }
 
     private static String relativePathToRootProject(IProject workspaceProject, File rootProjectDir) {
-        try {
-            IPath rootProjectPath = new org.eclipse.core.runtime.Path(rootProjectDir.getCanonicalPath());
-            IPath projectPath = new org.eclipse.core.runtime.Path(workspaceProject.getLocation().toFile().getCanonicalPath());
-            return RelativePathUtils.getRelativePath(projectPath, rootProjectPath).toOSString();
-        } catch (IOException e) {
-            throw new GradlePluginsRuntimeException(e);
-        }
+        IPath rootProjectPath = new org.eclipse.core.runtime.Path(rootProjectDir.getPath());
+        IPath projectPath = workspaceProject.getLocation();
+        return RelativePathUtils.getRelativePath(projectPath, rootProjectPath).toOSString();
     }
 
     private static IFile createConfigFile(IProject workspaceProject) throws CoreException {
