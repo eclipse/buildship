@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.core.workspace;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
@@ -26,6 +27,7 @@ import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
@@ -73,6 +75,10 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         manager.beginRule(workspaceRoot, monitor);
         try {
+            if (monitor.isCanceled()) {
+                throw new OperationCanceledException();
+            }
+            cancelJobsWithSameConfiguration();
             OmniEclipseGradleBuild gradleBuild = forceReloadEclipseGradleBuild(this.rootRequestAttributes, new SubProgressMonitor(monitor, 40));
             CorePlugin.workspaceGradleOperations().synchronizeGradleBuildWithWorkspace(gradleBuild, this.rootRequestAttributes, this.workingSets, this.existingDescriptorHandler, new SubProgressMonitor(monitor, 50));
         } finally {
@@ -80,6 +86,18 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
         }
 
         // monitor is closed by caller in super class
+    }
+
+    private void cancelJobsWithSameConfiguration() {
+        Job[] otherJobs = Job.getJobManager().find(getJobFamily());
+        for (Job job : otherJobs) {
+            if (job instanceof SynchronizeGradleProjectJob) {
+                SynchronizeGradleProjectJob other = (SynchronizeGradleProjectJob) job;
+                if (this != other && hasSameConfiguration(other)) {
+                    other.cancel();
+                }
+            }
+        }
     }
 
     private OmniEclipseGradleBuild forceReloadEclipseGradleBuild(FixedRequestAttributes requestAttributes, IProgressMonitor monitor) {
@@ -100,7 +118,18 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
     public boolean belongsTo(Object family) {
         // associate with a family so we can cancel all builds of
         // this type at once through the Eclipse progress manager
-        return SynchronizeGradleProjectJob.class.getName().equals(family);
+        return getJobFamily().equals(family);
+    }
+
+    private String getJobFamily() {
+        return SynchronizeGradleProjectJob.class.getName();
+    }
+
+    private boolean hasSameConfiguration(SynchronizeGradleProjectJob other) {
+        return Objects.equal(this.existingDescriptorHandler, other.existingDescriptorHandler)
+            && Objects.equal(this.initializer, other.initializer)
+            && Objects.equal(this.rootRequestAttributes, other.rootRequestAttributes)
+            && Objects.equal(this.workingSets, other.workingSets);
     }
 
 }

@@ -11,14 +11,14 @@
 
 package org.eclipse.buildship.core.workspace;
 
+import java.util.List;
+
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.IJavaProject;
-
-import java.util.List;
 
 /**
  * Provides operations related to querying and modifying the Gradle specific parts of
@@ -109,18 +109,5 @@ public interface WorkspaceGradleOperations {
      * @param monitor                 the monitor to report the progress on
      */
     void uncoupleWorkspaceProjectFromGradle(IProject workspaceProject, IProgressMonitor monitor);
-
-    /**
-     * Updates the Gradle classpath container elements in a target Java project with the entries
-     * defined in an {@link OmniEclipseProject} instance.
-     * <p/>
-     * If the target Java project doesn't have the Gradle classpath container on its classpath, then
-     * this method has no effect.
-     *
-     * @param javaProject the target project containing the classpath container to update
-     * @param project the model supplying the entries to add to the classpath container
-     * @param monitor the monitor to report the progress on
-     */
-    void synchronizeClasspathContainer(IJavaProject javaProject, OmniEclipseProject project, IProgressMonitor monitor);
 
 }

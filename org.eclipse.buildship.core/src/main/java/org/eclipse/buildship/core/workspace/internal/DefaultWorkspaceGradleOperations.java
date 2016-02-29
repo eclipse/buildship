@@ -37,7 +37,6 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.JavaRuntime;
 
 import org.eclipse.buildship.core.CorePlugin;
@@ -166,7 +165,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
                 }
                 JavaSourceSettingsUpdater.update(javaProject, project.getJavaSourceSettings().get(), new SubProgressMonitor(monitor, 1));
                 SourceFolderUpdater.update(javaProject, project.getSourceDirectories(), new SubProgressMonitor(monitor, 1));
-                synchronizeClasspathContainer(javaProject, project,  new SubProgressMonitor(monitor, 1));
+                ClasspathContainerUpdater.updateFromModel(javaProject, project, new SubProgressMonitor(monitor, 1));
             } else {
                 monitor.worked(4);
             }
@@ -283,17 +282,6 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             CorePlugin.projectConfigurationManager().deleteProjectConfiguration(workspaceProject);
         } finally {
             monitor.done();
-        }
-    }
-
-    @Override
-    public void synchronizeClasspathContainer(IJavaProject workspaceProject, OmniEclipseProject project, IProgressMonitor monitor) {
-        try {
-            ClasspathContainerUpdater.update(workspaceProject, project, monitor);
-        } catch (JavaModelException e) {
-            String message = String.format("Cannot update classpath container on workspace project %s", workspaceProject.getProject().getName());
-            CorePlugin.logger().error(message, e);
-            throw new GradlePluginsRuntimeException(message, e);
         }
     }
 
