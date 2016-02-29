@@ -30,60 +30,47 @@ class JavaSourceSettingsUpdaterTest extends Specification {
         IJavaProject project = EclipseProjects.newJavaProject('sample-project', tempFolder.newFolder())
 
         when:
-        JavaSourceSettingsUpdater.update(project, sourceSettings(runtimeVersion, targetVersion, sourceVersion), new NullProgressMonitor())
+        JavaSourceSettingsUpdater.update(project, sourceSettings(sourceVersion, targetVersion), new NullProgressMonitor())
 
         then:
-        project.getOption(JavaCore.COMPILER_COMPLIANCE, true) == runtimeVersion
-        project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == targetVersion
+        project.getOption(JavaCore.COMPILER_COMPLIANCE, true) == sourceVersion
         project.getOption(JavaCore.COMPILER_SOURCE, true) == sourceVersion
+        project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == targetVersion
 
         where:
-        runtimeVersion | targetVersion | sourceVersion
-        '1.2'          | '1.2'         | '1.2'
-        '1.6'          | '1.5'         | '1.4'
+        sourceVersion | targetVersion
+        '1.2'         | '1.2'
+        '1.4'         | '1.5'
     }
 
     @SuppressWarnings("GroovyAccessibility")
-    def "Invalid compliance setting replaced with highest available Java version"() {
+    def "Invalid source setting replaced with highest available Java version"() {
         given:
         IJavaProject project = EclipseProjects.newJavaProject('sample-project', tempFolder.newFolder())
 
         when:
-        JavaSourceSettingsUpdater.update(project, sourceSettings(runtimeVersion, '1.3', '1.3'), new NullProgressMonitor())
+        JavaSourceSettingsUpdater.update(project, sourceSettings(version, '1.3'), new NullProgressMonitor())
 
         then:
         project.getOption(JavaCore.COMPILER_COMPLIANCE, true) == JavaSourceSettingsUpdater.availableJavaVersions[-1]
+        project.getOption(JavaCore.COMPILER_SOURCE, true) == JavaSourceSettingsUpdater.availableJavaVersions[-1]
 
         where:
-        runtimeVersion << [null, '', '1.0.0', '7.8', 'string']
+        version << [null, '', '1.0.0', '7.8', 'string']
     }
 
-    def "Invalid target Java version replaced with current compilance settings"() {
+     def "Invalid target setting replaced with highest available Java version"() {
         given:
         IJavaProject project = EclipseProjects.newJavaProject('sample-project', tempFolder.newFolder())
 
         when:
-        JavaSourceSettingsUpdater.update(project, sourceSettings('1.4', targetVersion, '1.6'), new NullProgressMonitor())
+        JavaSourceSettingsUpdater.update(project, sourceSettings('1.4', version), new NullProgressMonitor())
 
         then:
-        project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == '1.4'
+        project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == JavaSourceSettingsUpdater.availableJavaVersions[-1]
 
         where:
-        targetVersion << [null, '', '1.0.0', '7.8', 'string', '1.5']
-    }
-
-    def "Invalid source Java version replaced with current target Java version"() {
-        given:
-        IJavaProject project = EclipseProjects.newJavaProject('sample-project', tempFolder.newFolder())
-
-        when:
-        JavaSourceSettingsUpdater.update(project, sourceSettings('1.6', '1.4', sourceVersion), new NullProgressMonitor())
-
-        then:
-        project.getOption(JavaCore.COMPILER_SOURCE, true) == '1.4'
-
-        where:
-        sourceVersion << [null, '', '1.0.0', '7.8', 'string', '1.5']
+        version << [null, '', '1.0.0', '7.8', 'string']
     }
 
     def "VM added to the project classpath if not exist"() {
@@ -96,7 +83,7 @@ class JavaSourceSettingsUpdaterTest extends Specification {
         !project.rawClasspath.find { it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
 
         when:
-        JavaSourceSettingsUpdater.update(project, sourceSettings('1.6', '1.6', '1.6'), new NullProgressMonitor())
+        JavaSourceSettingsUpdater.update(project, sourceSettings('1.6', '1.6'), new NullProgressMonitor())
 
         then:
         project.rawClasspath.find { it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
@@ -115,7 +102,7 @@ class JavaSourceSettingsUpdaterTest extends Specification {
         }
 
         when:
-        JavaSourceSettingsUpdater.update(project, sourceSettings('1.6', '1.6', '1.6'), new NullProgressMonitor())
+        JavaSourceSettingsUpdater.update(project, sourceSettings('1.6', '1.6'), new NullProgressMonitor())
 
         then:
         project.rawClasspath.find {
@@ -126,13 +113,10 @@ class JavaSourceSettingsUpdaterTest extends Specification {
         }
     }
 
-    private OmniJavaSourceSettings sourceSettings(String runtimeVersion, String targetVersion, String sourceVersion) {
-        OmniJavaVersion runtime = Mock(OmniJavaVersion)
-        runtime.name >> runtimeVersion
-
+    private OmniJavaSourceSettings sourceSettings(String sourceVersion, String targetVersion) {
         OmniJavaRuntime rt = Mock(OmniJavaRuntime)
         rt.homeDirectory >> new File(System.getProperty('java.home'))
-        rt.javaVersion >> runtime
+        rt.javaVersion >> Mock(OmniJavaVersion)
 
         OmniJavaVersion target = Mock(OmniJavaVersion)
         target.name >> targetVersion

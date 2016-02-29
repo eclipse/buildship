@@ -154,7 +154,7 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
 
         then:
         def javaProject = JavaCore.create(findProject('sample-project'))
-        javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true) == JavaVersion.current().toString()
+        javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true) == JavaCore.VERSION_1_2
         javaProject.getOption(JavaCore.COMPILER_SOURCE, true) == JavaCore.VERSION_1_2
         javaProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == JavaCore.VERSION_1_3
     }

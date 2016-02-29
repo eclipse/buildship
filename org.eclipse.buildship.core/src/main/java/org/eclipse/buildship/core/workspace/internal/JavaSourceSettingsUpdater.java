@@ -58,7 +58,6 @@ final class JavaSourceSettingsUpdater {
         monitor.beginTask("Update Java source settings", 2);
         try {
             // obtain Java source versions
-            String complianceVersion = sourceSettings.getTargetRuntime().getJavaVersion().getName();
             String sourceVersion = sourceSettings.getSourceLanguageLevel().getName();
             String targetVersion = sourceSettings.getTargetBytecodeLevel().getName();
 
@@ -67,24 +66,17 @@ final class JavaSourceSettingsUpdater {
             IVMInstall vm = EclipseVmUtil.findOrRegisterVM("JavaSE-" + targetVersion, vmLocation);
             addVmToClasspath(project, vm, new SubProgressMonitor(monitor, 1));
 
-            // if the current Eclipse version doesn't support the compliance level of the VM then use the highest available
-            if (!eclipseRuntimeSupportsJavaVersion(complianceVersion)) {
-                complianceVersion = availableJavaVersions.get(availableJavaVersions.size() - 1);
+            // if the current Eclipse version doesn't support a Java version, the use the highest available
+            if (!eclipseRuntimeSupportsJavaVersion(sourceVersion)) {
+                sourceVersion = availableJavaVersions.get(availableJavaVersions.size() - 1);
             }
-
-            // set the source and target compatibility such that the obey the the following
-            // relations: complianceVersion >= targetVersion >= sourceVersion
-            // if not done, Eclipse will show an error on the properties view and will be unusable
-            if (!eclipseRuntimeSupportsJavaVersion(targetVersion) || targetVersion.compareTo(complianceVersion) > 0) {
-                targetVersion = complianceVersion;
-            }
-            if (!eclipseRuntimeSupportsJavaVersion(sourceVersion) || sourceVersion.compareTo(targetVersion) > 0) {
-                sourceVersion = targetVersion;
+            if (!eclipseRuntimeSupportsJavaVersion(targetVersion)) {
+                targetVersion = availableJavaVersions.get(availableJavaVersions.size() - 1);
             }
 
             // set the source levels
             boolean compilerOptionChanged = false;
-            compilerOptionChanged |= updateJavaProjectOptionIfNeeded(project, JavaCore.COMPILER_COMPLIANCE, complianceVersion);
+            compilerOptionChanged |= updateJavaProjectOptionIfNeeded(project, JavaCore.COMPILER_COMPLIANCE, sourceVersion);
             compilerOptionChanged |= updateJavaProjectOptionIfNeeded(project, JavaCore.COMPILER_SOURCE, sourceVersion);
             compilerOptionChanged |= updateJavaProjectOptionIfNeeded(project, JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, targetVersion);
 
