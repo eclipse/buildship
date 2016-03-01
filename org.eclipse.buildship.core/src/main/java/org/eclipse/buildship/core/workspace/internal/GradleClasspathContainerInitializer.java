@@ -59,7 +59,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
                 reSynchronizeProject(javaProject);
             }
         } catch (JavaModelException e) {
-            throw new GradlePluginsRuntimeException("Could not initialize classpath container", e);
+            throw new GradlePluginsRuntimeException("Could not initialize Gradle classpath container", e);
         }
     }
 
