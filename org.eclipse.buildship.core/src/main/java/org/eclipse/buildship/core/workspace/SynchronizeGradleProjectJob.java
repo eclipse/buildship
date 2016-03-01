@@ -11,29 +11,32 @@
 
 package org.eclipse.buildship.core.workspace;
 
+import java.util.List;
+
+import org.gradle.tooling.ProgressListener;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
+
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.jobs.IJobManager;
+import org.eclipse.core.runtime.jobs.Job;
+
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.core.runtime.jobs.IJobManager;
-import org.eclipse.core.runtime.jobs.Job;
-import org.gradle.tooling.ProgressListener;
-
-import java.util.List;
 
 /**
  * Forces the reload of the given Gradle (multi-)project and synchronizes it with the Eclipse workspace.
@@ -75,10 +78,6 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         manager.beginRule(workspaceRoot, monitor);
         try {
-            if (monitor.isCanceled()) {
-                throw new OperationCanceledException();
-            }
-            cancelJobsWithSameConfiguration();
             OmniEclipseGradleBuild gradleBuild = forceReloadEclipseGradleBuild(this.rootRequestAttributes, new SubProgressMonitor(monitor, 40));
             CorePlugin.workspaceGradleOperations().synchronizeGradleBuildWithWorkspace(gradleBuild, this.rootRequestAttributes, this.workingSets, this.existingDescriptorHandler, new SubProgressMonitor(monitor, 50));
         } finally {
@@ -86,18 +85,6 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
         }
 
         // monitor is closed by caller in super class
-    }
-
-    private void cancelJobsWithSameConfiguration() {
-        Job[] otherJobs = Job.getJobManager().find(getJobFamily());
-        for (Job job : otherJobs) {
-            if (job instanceof SynchronizeGradleProjectJob) {
-                SynchronizeGradleProjectJob other = (SynchronizeGradleProjectJob) job;
-                if (this != other && hasSameConfiguration(other)) {
-                    other.cancel();
-                }
-            }
-        }
     }
 
     private OmniEclipseGradleBuild forceReloadEclipseGradleBuild(FixedRequestAttributes requestAttributes, IProgressMonitor monitor) {
@@ -123,6 +110,16 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
 
     private String getJobFamily() {
         return SynchronizeGradleProjectJob.class.getName();
+    }
+
+    @Override
+    public boolean shouldSchedule() {
+        for (Job job : Job.getJobManager().find(getJobFamily())) {
+            if (job instanceof SynchronizeGradleProjectJob && hasSameConfiguration((SynchronizeGradleProjectJob) job)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean hasSameConfiguration(SynchronizeGradleProjectJob other) {
