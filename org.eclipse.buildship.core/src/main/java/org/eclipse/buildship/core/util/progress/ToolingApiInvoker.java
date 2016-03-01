@@ -20,6 +20,7 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.string.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.BuildException;
@@ -53,6 +54,8 @@ public final class ToolingApiInvoker {
         try {
             command.run();
             return handleSuccess();
+        } catch (OperationCanceledException oce) {
+            throw oce;
         } catch (BuildCancelledException e) {
             return handleBuildCancelled(e);
         } catch (BuildException e) {
