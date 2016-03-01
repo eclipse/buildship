@@ -44,7 +44,6 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
  * Stores the current state of the gradle classpath container in the workspace metadata area,
@@ -56,17 +55,9 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 class ClasspathContainerPersistence {
 
     private final IJavaProject javaProject;
-    private final Transformer nodeToStringTransformer;
 
     private ClasspathContainerPersistence(IJavaProject javaProject) {
         this.javaProject = Preconditions.checkNotNull(javaProject);
-        try {
-            this.nodeToStringTransformer = TransformerFactory.newInstance().newTransformer();
-        } catch (TransformerException e) {
-            throw new GradlePluginsRuntimeException(e);
-        }
-        this.nodeToStringTransformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-        this.nodeToStringTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
     }
 
     public void save(List<IClasspathEntry> entries) {
@@ -115,10 +106,13 @@ class ClasspathContainerPersistence {
     private List<IClasspathEntry> readEntriesFromClasspathNode(Element classpath) throws TransformerException {
         List<IClasspathEntry> entries = Lists.newArrayList();
         NodeList domEntries = classpath.getElementsByTagName("classpathentry");
+        Transformer identity = TransformerFactory.newInstance().newTransformer();
+        identity.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        identity.setOutputProperty(OutputKeys.INDENT, "yes");
         for (int i = 0; i < domEntries.getLength(); i++) {
             Node domEntry = domEntries.item(i);
             if (domEntry.getNodeType() == Node.ELEMENT_NODE) {
-                String rawEntry = nodeToString(domEntry);
+                String rawEntry = transformNodeToString(domEntry, identity);
                 IClasspathEntry entry = this.javaProject.decodeClasspathEntry(rawEntry);
                 if (entry == null) {
                     throw new IllegalStateException("Could not parse classpath entry " + rawEntry);
@@ -130,9 +124,9 @@ class ClasspathContainerPersistence {
         return entries;
     }
 
-    private String nodeToString(Node node) throws TransformerException {
+    private String transformNodeToString(Node node, Transformer transformer) throws TransformerException {
         StringWriter writer = new StringWriter();
-        this.nodeToStringTransformer.transform(new DOMSource(node), new StreamResult(writer));
+        transformer.transform(new DOMSource(node), new StreamResult(writer));
         return writer.toString();
     }
 
