@@ -37,14 +37,14 @@ class EclipseVmUtilTest extends Specification {
         numberOfRegisteredVms() == initialNumOfRegisteredVms - 1
 
         when:
-        vm = EclipseVmUtil.findOrRegisterVM('JavaSE-1.7', vmLocation)
+        vm = EclipseVmUtil.findOrRegisterVM('a-new-vm', vmLocation)
 
         then:
         numberOfRegisteredVms() == initialNumOfRegisteredVms
 
         and:
         vm.id.startsWith EclipseVmUtil.VM_ID_PREFIX
-        vm.name == 'JavaSE-1.7'
+        vm.name == 'a-new-vm'
         vm.VMInstallType.id == StandardVMType.ID_STANDARD_VM_TYPE
         vm.installLocation == vmLocation
     }
