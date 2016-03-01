@@ -115,18 +115,18 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
     @Override
     public boolean shouldSchedule() {
         for (Job job : Job.getJobManager().find(getJobFamily())) {
-            if (job instanceof SynchronizeGradleProjectJob && hasSameConfiguration((SynchronizeGradleProjectJob) job)) {
+            if (job instanceof SynchronizeGradleProjectJob && hasCompatibleConfiguration((SynchronizeGradleProjectJob) job)) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean hasSameConfiguration(SynchronizeGradleProjectJob other) {
+    private boolean hasCompatibleConfiguration(SynchronizeGradleProjectJob other) {
         return Objects.equal(this.existingDescriptorHandler, other.existingDescriptorHandler)
-            && Objects.equal(this.initializer, other.initializer)
+            && (this.initializer == AsyncHandler.NO_OP || Objects.equal(this.initializer, other.initializer))
             && Objects.equal(this.rootRequestAttributes, other.rootRequestAttributes)
-            && Objects.equal(this.workingSets, other.workingSets);
+            && other.workingSets.containsAll(this.workingSets);
     }
 
 }

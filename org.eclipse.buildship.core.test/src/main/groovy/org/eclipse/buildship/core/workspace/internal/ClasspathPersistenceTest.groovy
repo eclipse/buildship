@@ -12,17 +12,14 @@ import org.eclipse.buildship.core.test.fixtures.TestEnvironment;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;
 
-class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
+class ClasspathPersistenceTest extends ProjectImportSpecification {
     def "The classpath container is persisted"() {
         setup:
-        fileStructure().create {
-            file 'sample-project/build.gradle','''apply plugin: "java"
-               repositories { jcenter() }
-               dependencies { compile "org.springframework:spring-beans:1.2.8"}
-            '''
-        }
-        GradleModel gradleModel = loadGradleModel('sample-project')
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+        file('sample-project', 'build.gradle') << '''apply plugin: "java"
+           repositories { jcenter() }
+           dependencies { compile "org.springframework:spring-beans:1.2.8"}
+        '''
+        executeProjectImportAndWait(folder('sample-project'))
 
         WorkspaceGradleOperations workspaceOperations = Mock(WorkspaceGradleOperations)
         TestEnvironment.registerService(WorkspaceGradleOperations, workspaceOperations)
