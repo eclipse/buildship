@@ -49,6 +49,33 @@ class EclipseVmUtilTest extends Specification {
         vm.installLocation == vmLocation
     }
 
+    def "New VMs names correspond to execution environment names"() {
+        expect:
+        EclipseVmUtil.resolveEeName(version) == expected
+
+        where:
+        version | expected
+        '1.1'   | 'JRE-1.1'
+        '1.2'   | 'J2SE-1.2'
+        '1.3'   | 'J2SE-1.3'
+        '1.4'   | 'J2SE-1.4'
+        '1.5'   | 'J2SE-1.5'
+        '1.6'   | 'JavaSE-1.6'
+        '1.7'   | 'JavaSE-1.7'
+        '1.8'   | 'JavaSE-1.8'
+        '1.9'   | 'JavaSE-1.9'
+    }
+
+    def "Unrecognized versions get sensible vm names"() {
+        expect:
+        EclipseVmUtil.resolveEeName(version) == expected
+
+        where:
+        version   | expected
+        '1.0'     | 'JavaSE-1.0'
+        'unknown' | 'JavaSE-unknown'
+    }
+
     private static def numberOfRegisteredVms() {
         JavaRuntime.VMInstallTypes.sum { it.VMInstalls.length }
     }

@@ -11,13 +11,16 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.io.File;
+import java.util.Arrays;
+
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+
 import org.eclipse.jdt.internal.launching.StandardVMType;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.IVMInstallType;
 import org.eclipse.jdt.launching.JavaRuntime;
-
-import java.io.File;
 
 /**
  * Helper class to access the installed VMs in the Eclipse registry.
@@ -33,14 +36,36 @@ final class EclipseVmUtil {
     /**
      * Finds a Java VM in the Eclipse VM registry or registers a new one if none was available with
      * the selected version.
-     * @param name the name of the VM
-     * @param location the location of the VM
      *
+     * @param version the VM's supported Java version
+     * @param location the location of the VM
      * @return the reference of an existing or freshly created VM
      */
-    public static IVMInstall findOrRegisterVM(String name, File location) {
+    public static IVMInstall findOrRegisterStandardVM(String version, File location) {
+        Preconditions.checkNotNull(version);
+        Preconditions.checkNotNull(location);
+
+        String eeName = resolveEeName(version);
+        return findOrRegisterVM(eeName, location);
+    }
+
+    private static IVMInstall findOrRegisterVM(String name, File location) {
         Optional<IVMInstall> vm = findRegisteredVM(name);
         return vm.isPresent() ? vm.get() : registerNewVM(name, location);
+    }
+
+    private static String resolveEeName(String version) {
+        // the result values correspond to the standard execution environment definitions in the
+        // org.eclipse.jdt.launching/plugin.xml file
+        if (Arrays.asList("1.8", "1.7", "1.6").contains(version)) {
+            return "JavaSE-" + version;
+        } else if (Arrays.asList("1.5", "1.4", "1.3", "1.2").contains(version)) {
+            return "J2SE-" + version;
+        } else if ("1.1".equals(version)) {
+            return "JRE-1.1";
+        } else {
+            return "JavaSE-" + version;
+        }
     }
 
     private static Optional<IVMInstall> findRegisteredVM(String name) {
