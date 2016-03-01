@@ -12,7 +12,6 @@ import org.eclipse.buildship.core.test.fixtures.TestEnvironment;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;
 
-
 class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
     def "The classpath container is persisted"() {
         setup:
@@ -32,14 +31,14 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         IProject project = javaProject.project
 
         expect:
-        javaProject.getResolvedClasspath(false).find{ it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
+        javaProject.getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
 
         when:
         reimportWithoutSynchronization(project)
 
         then:
-        0 * workspaceOperations.synchronizeGradleBuildWithWorkspace(_, _, _, _, _)
-        javaProject.getResolvedClasspath(false).find{ it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
+        0 * workspaceOperations.synchronizeGradleBuildWithWorkspace(*_)
+        javaProject.getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
 
         cleanup:
         TestEnvironment.cleanup()
