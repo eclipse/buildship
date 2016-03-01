@@ -111,9 +111,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
                 synchronizeNonWorkspaceProject(project, gradleBuild, rootRequestAttributes, workingSets, existingDescriptorHandler, new SubProgressMonitor(monitor, 1));
             }
         } catch (CoreException e) {
-            String message = String.format("Cannot synchronize Gradle project %s with workspace project.", project.getName());
-            CorePlugin.logger().error(message, e);
-            throw new GradlePluginsRuntimeException(message, e);
+            throw new GradlePluginsRuntimeException(String.format("Cannot synchronize Gradle project %s with workspace project.", project.getName()), e);
         } finally {
             monitor.done();
         }

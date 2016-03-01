@@ -20,7 +20,6 @@ import com.gradleware.tooling.toolingmodel.Path;
 
 import org.eclipse.core.resources.IProject;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
@@ -64,9 +63,7 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
             if (!rootProjectDirs.containsKey(rootProjectDirPath)) {
                 rootProjectDirs.put(rootProjectDirPath, rootProjectConfiguration);
             } else {
-                String message = String.format("Inconsistent Gradle project configuration for project at %s.", rootProjectDirPath);
-                CorePlugin.logger().error(message);
-                throw new GradlePluginsRuntimeException(message);
+                throw new GradlePluginsRuntimeException(String.format("Inconsistent Gradle project configuration for project at %s.", rootProjectDirPath));
             }
         }
 

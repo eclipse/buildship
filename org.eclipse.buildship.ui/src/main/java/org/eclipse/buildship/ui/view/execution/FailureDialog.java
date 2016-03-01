@@ -17,7 +17,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -187,9 +186,7 @@ public final class FailureDialog extends Dialog {
                     browser.openURL(URI.create(url).toURL());
                     close();
                 } catch (Exception e) {
-                    String message = String.format("Cannot open browser editor for %s.", url);
-                    CorePlugin.logger().error(message, e);
-                    throw new GradlePluginsRuntimeException(message, e);
+                    throw new GradlePluginsRuntimeException(String.format("Cannot open browser editor for %s.", url), e);
                 }
             }
         });

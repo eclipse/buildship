@@ -41,7 +41,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
@@ -98,9 +97,7 @@ final class ProjectConfigurationPersistence {
                 configFile.create(inputStream, true, null);
             }
         } catch (CoreException e) {
-            String message = String.format("Cannot persist Gradle configuration for project %s.", workspaceProject.getName());
-            CorePlugin.logger().error(message, e);
-            throw new GradlePluginsRuntimeException(message, e);
+            throw new GradlePluginsRuntimeException(String.format("Cannot persist Gradle configuration for project %s.", workspaceProject.getName()), e);
         }
     }
 
@@ -127,9 +124,7 @@ final class ProjectConfigurationPersistence {
         try {
             json = readConfigurationFile(workspaceProject);
         } catch (Exception e) {
-            String message = String.format("Cannot read Gradle configuration for project %s.", workspaceProject.getName());
-            CorePlugin.logger().error(message, e);
-            throw new GradlePluginsRuntimeException(message, e);
+            throw new GradlePluginsRuntimeException(String.format("Cannot read Gradle configuration for project %s.", workspaceProject.getName()), e);
         }
 
         Gson gson = new GsonBuilder().create();
@@ -204,9 +199,7 @@ final class ProjectConfigurationPersistence {
             ensureNoProjectPreferencesLoadedFrom(workspaceProject, GRADLE_PREFERENCES_FILE_WITHOUT_EXTENSION);
             deleteConfigFileIfExistsAndSettingsFolderIfEmpty(configFile);
         } catch (Exception e) {
-            String message = String.format("Cannot delete Gradle configuration for project %s.", workspaceProject.getName());
-            CorePlugin.logger().error(message, e);
-            throw new GradlePluginsRuntimeException(message, e);
+            throw new GradlePluginsRuntimeException(String.format("Cannot delete Gradle configuration for project %s.", workspaceProject.getName()), e);
         }
     }
 

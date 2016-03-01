@@ -36,18 +36,14 @@ public enum GradleProjectNature {
     public boolean isPresentOn(IProject project) {
         // abort if the project is not open since we can only investigate open projects
         if (!project.isOpen()) {
-            String message = String.format("Cannot investigate Gradle nature on closed project %s.", project);
-            CorePlugin.logger().error(message);
-            throw new GradlePluginsRuntimeException(message);
+            throw new GradlePluginsRuntimeException(String.format("Cannot investigate Gradle nature on closed project %s.", project));
         }
 
         // check if the Gradle nature is applied
         try {
             return project.hasNature(ID);
         } catch (CoreException e) {
-            String message = String.format("Cannot check for Gradle nature on project %s.", project);
-            CorePlugin.logger().error(message, e);
-            throw new GradlePluginsRuntimeException(message, e);
+            throw new GradlePluginsRuntimeException(String.format("Cannot check for Gradle nature on project %s.", project), e);
         }
     }
 

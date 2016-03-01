@@ -22,7 +22,6 @@ import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
@@ -80,9 +79,7 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
             // persist the launch configuration and return it
             return launchConfiguration.doSave();
         } catch (Exception e) {
-            String message = String.format("Cannot create Gradle launch configuration %s.", launchConfigurationName);
-            CorePlugin.logger().error(message, e);
-            throw new GradlePluginsRuntimeException(e);
+            throw new GradlePluginsRuntimeException(String.format("Cannot create Gradle launch configuration %s.", launchConfigurationName), e);
         }
     }
 
@@ -92,9 +89,7 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
         try {
             return this.launchManager.getLaunchConfigurations(launchConfigurationType);
         } catch (Exception e) {
-            String message = "Cannot get Gradle launch configurations.";
-            CorePlugin.logger().error(message, e);
-            throw new GradlePluginsRuntimeException(message, e);
+            throw new GradlePluginsRuntimeException("Cannot get Gradle launch configurations.", e);
         }
     }
 
