@@ -61,11 +61,6 @@ final class JavaSourceSettingsUpdater {
             String sourceVersion = sourceSettings.getSourceLanguageLevel().getName();
             String targetVersion = sourceSettings.getTargetBytecodeLevel().getName();
 
-            // find or register the VM and assign it to the target project
-            File vmLocation = sourceSettings.getTargetRuntime().getHomeDirectory();
-            IVMInstall vm = EclipseVmUtil.findOrRegisterStandardVM(targetVersion, vmLocation);
-            addVmToClasspath(project, vm, new SubProgressMonitor(monitor, 1));
-
             // if the current Eclipse version doesn't support a Java version, the use the highest available
             if (!eclipseRuntimeSupportsJavaVersion(sourceVersion)) {
                 sourceVersion = availableJavaVersions.get(availableJavaVersions.size() - 1);
@@ -73,6 +68,11 @@ final class JavaSourceSettingsUpdater {
             if (!eclipseRuntimeSupportsJavaVersion(targetVersion)) {
                 targetVersion = availableJavaVersions.get(availableJavaVersions.size() - 1);
             }
+
+            // find or register the VM and assign it to the target project
+            File vmLocation = sourceSettings.getTargetRuntime().getHomeDirectory();
+            IVMInstall vm = EclipseVmUtil.findOrRegisterStandardVM(targetVersion, vmLocation);
+            addVmToClasspath(project, vm, new SubProgressMonitor(monitor, 1));
 
             // set the source levels
             boolean compilerOptionChanged = false;
