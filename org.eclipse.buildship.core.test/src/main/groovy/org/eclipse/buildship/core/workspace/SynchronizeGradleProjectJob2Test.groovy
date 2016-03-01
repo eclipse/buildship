@@ -1,23 +1,28 @@
 package org.eclipse.buildship.core.workspace
 
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
+
 import com.google.common.collect.ImmutableList
+
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.configuration.GradleProjectBuilder
-import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
-import org.eclipse.buildship.core.util.progress.AsyncHandler
-import org.eclipse.buildship.core.util.variable.ExpressionUtils
+
 import org.eclipse.core.resources.IWorkspace
 import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.NullProgressMonitor
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import spock.lang.Specification
 
-class SynchronizeGradleProjectJob2Test extends Specification {
+import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.configuration.GradleProjectBuilder
+import org.eclipse.buildship.core.configuration.GradleProjectNature
+import org.eclipse.buildship.core.test.fixtures.BuildshipTestSpecification
+import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
+import org.eclipse.buildship.core.test.fixtures.TestEnvironment
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
+import org.eclipse.buildship.core.util.progress.AsyncHandler
+import org.eclipse.buildship.core.util.variable.ExpressionUtils
+
+class SynchronizeGradleProjectJob2Test extends BuildshipTestSpecification {
 
     @Rule
     TemporaryFolder tempFolder
@@ -188,6 +193,24 @@ class SynchronizeGradleProjectJob2Test extends Specification {
             }
         }
         root
+    }
+
+    def "Mutliple jobs with the same configuration are merged"() {
+        setup:
+        File projectLocation = newProject(true, false)
+        def jobs = (1..5).collect { newRefreshGradleProjectJob(projectLocation) }
+        WorkspaceGradleOperations workspaceOperations = Mock(WorkspaceGradleOperations)
+        TestEnvironment.registerService(WorkspaceGradleOperations, workspaceOperations)
+
+        when:
+        jobs.each { it.schedule() }
+        waitForJobsToFinish()
+
+        then:
+        1 * workspaceOperations.synchronizeGradleBuildWithWorkspace(*_)
+
+        cleanup:
+        TestEnvironment.cleanup()
     }
 
     def newMultiProject() {
