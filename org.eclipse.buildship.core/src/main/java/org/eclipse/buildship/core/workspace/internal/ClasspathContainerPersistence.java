@@ -19,6 +19,7 @@ import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -31,9 +32,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 
@@ -41,6 +44,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
  * Stores the current state of the gradle classpath container in the workspace metadata area,
@@ -52,9 +56,17 @@ import org.eclipse.buildship.core.CorePlugin;
 class ClasspathContainerPersistence {
 
     private final IJavaProject javaProject;
+    private final Transformer nodeToStringTransformer;
 
     private ClasspathContainerPersistence(IJavaProject javaProject) {
-        this.javaProject = javaProject;
+        this.javaProject = Preconditions.checkNotNull(javaProject);
+        try {
+            this.nodeToStringTransformer = TransformerFactory.newInstance().newTransformer();
+        } catch (TransformerException e) {
+            throw new GradlePluginsRuntimeException(e);
+        }
+        this.nodeToStringTransformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        this.nodeToStringTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
     }
 
     public void save(List<IClasspathEntry> entries) {
@@ -79,39 +91,38 @@ class ClasspathContainerPersistence {
         if (!stateLocation.exists()) {
             return Optional.absent();
         }
-        Element classpath = readClasspathNode(stateLocation);
-        if (classpath == null) {
+
+        try {
+            Element classpath = readClasspathNode(stateLocation);
+            return Optional.of(readEntriesFromClasspathNode(classpath));
+        } catch (Exception e) {
+            CorePlugin.logger().warn("Could not read persisted classpath for project " + this.javaProject.getProject().getName(), e);
             return Optional.absent();
         }
-
-        List<IClasspathEntry> entries = readEntriesFromClasspathNode(classpath);
-        return Optional.of(entries);
     }
 
-    private Element readClasspathNode(File stateLocation) {
-        Element classpath;
-        try {
-            byte[] bytes = Files.toByteArray(stateLocation);
-            DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            classpath = parser.parse(new InputSource(new ByteArrayInputStream(bytes))).getDocumentElement();
-        } catch (Exception e) {
-            return null;
-        }
+    private Element readClasspathNode(File stateLocation) throws IOException, ParserConfigurationException, SAXException {
+        byte[] bytes = Files.toByteArray(stateLocation);
+        DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Element classpath = parser.parse(new InputSource(new ByteArrayInputStream(bytes))).getDocumentElement();
 
         if (!classpath.getNodeName().equalsIgnoreCase("classpath")) {
-            return null;
+            throw new IllegalStateException("Classpath file does not contain a <classpath> element");
         }
         return classpath;
     }
 
-    private List<IClasspathEntry> readEntriesFromClasspathNode(Element classpath) {
+    private List<IClasspathEntry> readEntriesFromClasspathNode(Element classpath) throws TransformerException {
         List<IClasspathEntry> entries = Lists.newArrayList();
-        NodeList rawEntries = classpath.getElementsByTagName("classpathentry");
-        for (int i = 0; i < rawEntries.getLength(); i++) {
-            Node rawEntry = rawEntries.item(i);
-            if (rawEntry.getNodeType() == Node.ELEMENT_NODE) {
-                IClasspathEntry entry = this.javaProject.decodeClasspathEntry(nodeToString(rawEntry));
-                if (entry != null) {
+        NodeList domEntries = classpath.getElementsByTagName("classpathentry");
+        for (int i = 0; i < domEntries.getLength(); i++) {
+            Node domEntry = domEntries.item(i);
+            if (domEntry.getNodeType() == Node.ELEMENT_NODE) {
+                String rawEntry = nodeToString(domEntry);
+                IClasspathEntry entry = this.javaProject.decodeClasspathEntry(rawEntry);
+                if (entry == null) {
+                    throw new IllegalStateException("Could not parse classpath entry " + rawEntry);
+                } else {
                     entries.add(entry);
                 }
             }
@@ -119,16 +130,9 @@ class ClasspathContainerPersistence {
         return entries;
     }
 
-    private String nodeToString(Node node) {
+    private String nodeToString(Node node) throws TransformerException {
         StringWriter writer = new StringWriter();
-        try {
-            Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.transform(new DOMSource(node), new StreamResult(writer));
-        } catch (TransformerException e) {
-            return null;
-        }
+        this.nodeToStringTransformer.transform(new DOMSource(node), new StreamResult(writer));
         return writer.toString();
     }
 
