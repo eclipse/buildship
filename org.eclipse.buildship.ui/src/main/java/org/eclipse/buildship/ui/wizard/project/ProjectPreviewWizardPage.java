@@ -12,6 +12,7 @@
 package org.eclipse.buildship.ui.wizard.project;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -320,8 +321,9 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
                     }
                 }
             });
-        } catch (Exception e) {
-            UiPlugin.logger().error("Failed to load preview.", e); //$NON-NLS-1$
+        } catch (InvocationTargetException e) {
+            UiPlugin.logger().error("Failed to load preview.", e.getCause()); //$NON-NLS-1$
+        } catch (InterruptedException ignored) {
         }
     }
 
