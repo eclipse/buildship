@@ -11,20 +11,18 @@
 
 package org.eclipse.buildship.core.configuration.internal;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.Map;
+import java.util.Properties;
 
 import org.osgi.service.prefs.BackingStoreException;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
-import com.google.common.io.CharStreams;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -32,13 +30,9 @@ import com.google.gson.GsonBuilder;
 import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
 import org.eclipse.buildship.core.CorePlugin;
@@ -62,9 +56,8 @@ final class ProjectConfigurationPersistence {
     private static final String CONNECTION_JVM_ARGUMENTS = "connection_jvm_arguments";
     private static final String CONNECTION_ARGUMENTS = "connection_arguments";
 
-    private static final String ECLIPSE_SETTINGS_FOLDER = ".settings";
-    private static final String GRADLE_PREFERENCES_FILE = "gradle.prefs";
-    private static final String GRADLE_PREFERENCES_FILE_WITHOUT_EXTENSION = GRADLE_PREFERENCES_FILE.substring(0, GRADLE_PREFERENCES_FILE.indexOf('.'));
+    static final String GRADLE_PROJECT_CONFIGURATION = "GRADLE_PROJECT_CONFIGURATION";
+    private static final String PROJECT_PREFS_FILE =  ".settings/" + CorePlugin.PLUGIN_ID + ".prefs";
 
     /**
      * Saves the given Gradle project configuration in the Eclipse project's <i>.settings</i>
@@ -90,14 +83,11 @@ final class ProjectConfigurationPersistence {
         String json = gson.toJson(config, createMapTypeToken());
 
         try {
-            IFile configFile = createConfigFile(workspaceProject);
-            InputStream inputStream = new ByteArrayInputStream(json.getBytes(Charsets.UTF_8));
-            if (configFile.exists()) {
-                configFile.setContents(inputStream, true, false, null);
-            } else {
-                configFile.create(inputStream, true, null);
-            }
-        } catch (CoreException e) {
+            ProjectScope scope = new ProjectScope(workspaceProject);
+            IEclipsePreferences preferences = scope.getNode(CorePlugin.PLUGIN_ID);
+            preferences.put(GRADLE_PROJECT_CONFIGURATION, json);
+            preferences.flush();
+        } catch (BackingStoreException e) {
             String message = String.format("Cannot persist Gradle configuration for project %s.", workspaceProject.getName());
             CorePlugin.logger().error(message, e);
             throw new GradlePluginsRuntimeException(message, e);
@@ -110,12 +100,6 @@ final class ProjectConfigurationPersistence {
         return RelativePathUtils.getRelativePath(projectPath, rootProjectPath).toOSString();
     }
 
-    private static IFile createConfigFile(IProject workspaceProject) throws CoreException {
-        IFolder folder = workspaceProject.getFolder(ECLIPSE_SETTINGS_FOLDER);
-        FileUtils.ensureFolderHierarchyExists(folder);
-        return folder.getFile(GRADLE_PREFERENCES_FILE);
-    }
-
     /**
      * Reads the Gradle project configuration from the Eclipse project's <i>.settings</i> folder.
      *
@@ -123,9 +107,15 @@ final class ProjectConfigurationPersistence {
      * @return the persisted Gradle configuration
      */
     public ProjectConfiguration readProjectConfiguration(IProject workspaceProject) {
+        LegacyProjectConfigurationUtils.cleanup(workspaceProject);
         String json;
         try {
-            json = readConfigurationFile(workspaceProject);
+            ProjectScope scope = new ProjectScope(workspaceProject);
+            IEclipsePreferences preferences = scope.getNode(CorePlugin.PLUGIN_ID);
+            json = preferences.get(ProjectConfigurationPersistence.GRADLE_PROJECT_CONFIGURATION, null);
+            if (json == null) {
+                json = readProjectConfigurationFromFile(workspaceProject);
+            }
         } catch (Exception e) {
             String message = String.format("Cannot read Gradle configuration for project %s.", workspaceProject.getName());
             CorePlugin.logger().error(message, e);
@@ -146,26 +136,24 @@ final class ProjectConfigurationPersistence {
         return ProjectConfiguration.from(requestAttributes, Path.from(projectConfig.get(PROJECT_PATH)));
     }
 
-    private static String readConfigurationFile(IProject workspaceProject) throws IOException, CoreException {
+    private static String readProjectConfigurationFromFile(IProject workspaceProject) throws IOException {
         // when the project is being imported, the configuration file might not be visible from the
         // Eclipse resource API; in that case we fall back to raw IO operations
         // a similar approach is used in JDT core to load the .classpath file
         // see org.eclipse.jdt.internal.core.JavaProject.readFileEntriesWithException(Map)
-        IFile configFile = getConfigFile(workspaceProject);
-        InputStream inputStream;
-        if (configFile.exists()) {
-            inputStream = configFile.getContents();
-        } else {
-            File rawConfigFile = getRawConfigFile(workspaceProject);
-            inputStream = new FileInputStream(rawConfigFile);
-        }
-
+        InputStreamReader reader = null;
         try {
-            return CharStreams.toString(new InputStreamReader(inputStream, Charsets.UTF_8));
+            File file = new File(workspaceProject.getLocation().toFile(), PROJECT_PREFS_FILE);
+            reader = new InputStreamReader(new FileInputStream(file), Charsets.UTF_8);
+            Properties properties = new Properties();
+            properties.load(reader);
+            return properties.getProperty(GRADLE_PROJECT_CONFIGURATION);
         } finally {
             try {
-                inputStream.close();
-            } catch (IOException ignore) {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException e) {
                 // ignore
             }
         }
@@ -177,14 +165,6 @@ final class ProjectConfigurationPersistence {
         return path.isAbsolute()
                 ? path.toFile()
                 : RelativePathUtils.getAbsolutePath(workspaceProject.getLocation(), new org.eclipse.core.runtime.Path(pathToRootProject)).toFile();
-    }
-
-    private static IFile getConfigFile(IProject workspaceProject) throws CoreException {
-        return workspaceProject.getFolder(ECLIPSE_SETTINGS_FOLDER).getFile(GRADLE_PREFERENCES_FILE);
-    }
-
-    private static File getRawConfigFile(IProject workspaceProject) {
-        return new File(workspaceProject.getProject().getLocation().toFile(), ECLIPSE_SETTINGS_FOLDER + File.separator + GRADLE_PREFERENCES_FILE);
     }
 
     @SuppressWarnings("serial")
@@ -199,36 +179,9 @@ final class ProjectConfigurationPersistence {
     }
 
     public void deleteProjectConfiguration(IProject workspaceProject) {
-        try {
-            IFile configFile = getConfigFile(workspaceProject);
-            ensureNoProjectPreferencesLoadedFrom(workspaceProject, GRADLE_PREFERENCES_FILE_WITHOUT_EXTENSION);
-            deleteConfigFileIfExistsAndSettingsFolderIfEmpty(configFile);
-        } catch (Exception e) {
-            String message = String.format("Cannot delete Gradle configuration for project %s.", workspaceProject.getName());
-            CorePlugin.logger().error(message, e);
-            throw new GradlePluginsRuntimeException(message, e);
-        }
-    }
-
-    private static void ensureNoProjectPreferencesLoadedFrom(IProject project, String preferenceNodeName) throws BackingStoreException {
-        // The ${project_name}/.settings/gradle.prefs file is automatically loaded as project
-        // preferences by the core runtime since the fie extension is '.prefs'. If the preferences
-        // are loaded, then deleting the prefs file results in a BackingStoreException.
-        ProjectScope projectScope = new ProjectScope(project);
-        IEclipsePreferences node = projectScope.getNode(preferenceNodeName);
-        if (node != null) {
-            node.removeNode();
-        }
-    }
-
-    private static void deleteConfigFileIfExistsAndSettingsFolderIfEmpty(IFile configFile) throws CoreException {
-        if (configFile.exists()) {
-            // delete the preferences file
-            configFile.delete(true, false, new NullProgressMonitor());
-
-            // Note: don't delete the container .settings folder, even if it's empty, because the preferences
-            // API expects it to be there. if the folder is removed, then an IllegalStateException is thrown randomly
-        }
+        ProjectScope scope = new ProjectScope(workspaceProject);
+        IEclipsePreferences preferences = scope.getNode(CorePlugin.PLUGIN_ID);
+        preferences.remove(GRADLE_PROJECT_CONFIGURATION);
     }
 
 }
