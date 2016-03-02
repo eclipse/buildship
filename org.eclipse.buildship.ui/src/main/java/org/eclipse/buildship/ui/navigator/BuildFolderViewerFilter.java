@@ -28,7 +28,7 @@ public class BuildFolderViewerFilter extends ViewerFilter {
 
     @Override
     public boolean select(Viewer viewer, Object parentElement, Object element) {
-        IResource resource = Platform.getAdapterManager().getAdapter(element, IResource.class);
+        IResource resource = (IResource) Platform.getAdapterManager().getAdapter(element, IResource.class);
         if (resource == null) {
             return true;
         }
