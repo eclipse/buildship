@@ -26,6 +26,7 @@ import org.eclipse.buildship.core.CorePlugin;
  */
 public class BuildFolderViewerFilter extends ViewerFilter {
 
+    @SuppressWarnings({"cast", "RedundantCast"})
     @Override
     public boolean select(Viewer viewer, Object parentElement, Object element) {
         IResource resource = (IResource) Platform.getAdapterManager().getAdapter(element, IResource.class);
