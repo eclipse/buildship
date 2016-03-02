@@ -4,6 +4,7 @@ import com.gradleware.tooling.toolingmodel.OmniJavaRuntime
 import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings
 import com.gradleware.tooling.toolingmodel.OmniJavaVersion
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
@@ -44,7 +45,7 @@ class JavaSourceSettingsUpdaterTest extends Specification {
     }
 
     @SuppressWarnings("GroovyAccessibility")
-    def "Invalid source setting replaced with highest available Java version"() {
+    def "Invalid source setting results in runtime exception"() {
         given:
         IJavaProject project = EclipseProjects.newJavaProject('sample-project', tempFolder.newFolder())
 
@@ -52,22 +53,13 @@ class JavaSourceSettingsUpdaterTest extends Specification {
         JavaSourceSettingsUpdater.update(project, sourceSettings(version, '1.3'), new NullProgressMonitor())
 
         then:
-        project.getOption(JavaCore.COMPILER_COMPLIANCE, true) == JavaSourceSettingsUpdater.availableJavaVersions[-1]
-        project.getOption(JavaCore.COMPILER_SOURCE, true) == JavaSourceSettingsUpdater.availableJavaVersions[-1]
-
-        where:
-        version << [null, '', '1.0.0', '7.8', 'string']
-    }
-
-     def "Invalid target setting replaced with highest available Java version"() {
-        given:
-        IJavaProject project = EclipseProjects.newJavaProject('sample-project', tempFolder.newFolder())
+        thrown GradlePluginsRuntimeException
 
         when:
         JavaSourceSettingsUpdater.update(project, sourceSettings('1.4', version), new NullProgressMonitor())
 
         then:
-        project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == JavaSourceSettingsUpdater.availableJavaVersions[-1]
+        thrown GradlePluginsRuntimeException
 
         where:
         version << [null, '', '1.0.0', '7.8', 'string']

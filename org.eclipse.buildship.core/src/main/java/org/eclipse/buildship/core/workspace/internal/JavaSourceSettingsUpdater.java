@@ -11,12 +11,24 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ObjectArrays;
+
 import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings;
-import org.eclipse.buildship.core.CorePlugin;
+
 import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -24,12 +36,8 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.JavaRuntime;
 
-import java.io.File;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
  * Updates the Java source settings on the target project.
@@ -63,10 +71,10 @@ final class JavaSourceSettingsUpdater {
 
             // if the current Eclipse version doesn't support a Java version, the use the highest available
             if (!eclipseRuntimeSupportsJavaVersion(sourceVersion)) {
-                sourceVersion = availableJavaVersions.get(availableJavaVersions.size() - 1);
+                throw new GradlePluginsRuntimeException(String.format("Eclipse does not support Java source version %s", sourceVersion));
             }
             if (!eclipseRuntimeSupportsJavaVersion(targetVersion)) {
-                targetVersion = availableJavaVersions.get(availableJavaVersions.size() - 1);
+                throw new GradlePluginsRuntimeException(String.format("Eclipse does not support Java target version %s", targetVersion));
             }
 
             // find or register the VM and assign it to the target project
