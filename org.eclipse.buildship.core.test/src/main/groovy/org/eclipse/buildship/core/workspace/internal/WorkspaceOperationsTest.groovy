@@ -22,6 +22,8 @@ import org.eclipse.buildship.core.configuration.ProjectConfiguration
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
+
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IProjectDescription
 import org.eclipse.core.runtime.NullProgressMonitor
@@ -453,7 +455,33 @@ class WorkspaceOperationsTest extends Specification {
         thrown(RuntimeException)
     }
 
-    private def createSampleProject() {
+    def "Marking the build folder makes it derived" () {
+        setup:
+        def project = createSampleProject()
+        def build = project.getFolder("build")
+        build.create(true, true, null)
+
+        when:
+        workspaceOperations.markAsBuildFolder(build, null)
+
+        then:
+        build.isDerived()
+    }
+
+    def "A marked build folder can be identified"() {
+        setup:
+        def project = createSampleProject()
+        def build = project.getFolder("build")
+        build.create(true, true, null)
+
+        when:
+        workspaceOperations.markAsBuildFolder(build, null)
+
+        then:
+        workspaceOperations.isBuildFolder(build)
+    }
+
+    private IProject createSampleProject() {
         File projectLocation = tempFolder.newFolder('sample-project')
         IProjectDescription projectDescription = LegacyEclipseSpockTestHelper.workspace.newProjectDescription('sample-project')
         projectDescription.setLocation(new org.eclipse.core.runtime.Path(projectLocation.absolutePath))
