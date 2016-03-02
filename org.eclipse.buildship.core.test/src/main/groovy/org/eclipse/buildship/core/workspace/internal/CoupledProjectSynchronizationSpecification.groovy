@@ -105,13 +105,27 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
 
         then:
         def project = findProject('sample-project')
-        project.filters.length == 2
+        project.filters.length == 1
         project.filters[0].type == IResourceFilterDescription.EXCLUDE_ALL.or(IResourceFilterDescription.FOLDERS).or(IResourceFilterDescription.INHERITABLE)
-        project.filters[1].type == IResourceFilterDescription.EXCLUDE_ALL.or(IResourceFilterDescription.FOLDERS).or(IResourceFilterDescription.INHERITABLE)
         project.filters[0].fileInfoMatcherDescription.id == 'org.eclipse.ui.ide.multiFilter'
-        project.filters[1].fileInfoMatcherDescription.id == 'org.eclipse.ui.ide.multiFilter'
-        (project.filters[0].fileInfoMatcherDescription.arguments as String).endsWith("build")
-        (project.filters[1].fileInfoMatcherDescription.arguments as String).endsWith(".gradle")
+        (project.filters[0].fileInfoMatcherDescription.arguments as String).endsWith(".gradle")
+    }
+
+    def "Derived resources are marked"() {
+        setup:
+        prepareProject('sample-project')
+        fileStructure().create {
+            file 'sample-project/build.gradle'
+            folder 'sample-project/build'
+        }
+        GradleModel gradleModel = loadGradleModel('sample-project')
+
+        when:
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+
+        then:
+        def project = findProject('sample-project')
+        project.getFolder("build").isDerived()
     }
 
     def "Linked resources are set"() {

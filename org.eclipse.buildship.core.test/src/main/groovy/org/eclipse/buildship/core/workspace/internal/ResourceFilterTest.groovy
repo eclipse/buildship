@@ -54,7 +54,7 @@ class ResourceFilterTest extends Specification {
         workspace().validateFiltered(project.getFolder('unfiltered')).isOK()
 
         when:
-        ResourceFilter.attachFilters(project, [ toFile(project.getFolder('filtered')) ], null)
+        ResourceFilter.updateFilters(project, [ toFile(project.getFolder('filtered')) ], null)
 
         then:
         !workspace().validateFiltered(project.getFolder('filtered')).isOK()
@@ -70,7 +70,7 @@ class ResourceFilterTest extends Specification {
         workspace().validateFiltered(project.getFolder('basefolder/subfolder')).isOK()
 
         when:
-        ResourceFilter.attachFilters(project, [ toFile(project.getFolder('basefolder/subfolder')) ], null)
+        ResourceFilter.updateFilters(project, [ toFile(project.getFolder('basefolder/subfolder')) ], null)
 
         then:
         workspace().validateFiltered(project.getFolder('basefolder')).isOK()
@@ -83,7 +83,7 @@ class ResourceFilterTest extends Specification {
         projectFolder('src/main/java/pkg')
 
         when:
-        ResourceFilter.attachFilters(project, [toFile(project.getFolder('pkg'))], null)
+        ResourceFilter.updateFilters(project, [toFile(project.getFolder('pkg'))], null)
 
         then:
         !workspace().validateFiltered(project.getFolder('pkg')).isOK()
@@ -92,31 +92,30 @@ class ResourceFilterTest extends Specification {
 
     def "Defining a resource filter on non-child location is ignored"() {
         given:
-        ResourceFilter.attachFilters(project, [tempFolder.newFolder('siblingproject')], null)
+        ResourceFilter.updateFilters(project, [tempFolder.newFolder('siblingproject')], null)
 
         expect:
         project.getFilters().length == 0
     }
 
-    def "Defining a new resource filter preserves the previously defined resource filters"() {
+    def "Updating resource filters removes previously defined resource filters"() {
         given:
         projectFolder('alpha')
         projectFolder('beta')
 
         when:
-        ResourceFilter.attachFilters(project, [toFile(project.getFolder('alpha'))], null)
+        ResourceFilter.updateFilters(project, [toFile(project.getFolder('alpha'))], null)
 
         then:
         project.filters.length == 1
         (project.filters[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('alpha')
 
         when:
-        ResourceFilter.attachFilters(project, [toFile(project.getFolder('beta'))], null)
+        ResourceFilter.updateFilters(project, [toFile(project.getFolder('beta'))], null)
 
         then:
-        project.filters.length == 2
-        (project.filters[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('alpha')
-        (project.filters[1].getFileInfoMatcherDescription().getArguments() as String).endsWith('beta')
+        project.filters.length == 1
+        (project.filters[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('beta')
     }
 
     def "Defining a new resource filter is idempotent"() {
@@ -127,14 +126,14 @@ class ResourceFilterTest extends Specification {
         project.filters.length == 0
 
         when:
-        ResourceFilter.attachFilters(project, [toFile(project.getFolder('alpha'))], null)
+        ResourceFilter.updateFilters(project, [toFile(project.getFolder('alpha'))], null)
 
         then:
         project.filters.length == 1
         (project.filters[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('alpha')
 
         when:
-        ResourceFilter.attachFilters(project, [toFile(project.getFolder('alpha'))], null)
+        ResourceFilter.updateFilters(project, [toFile(project.getFolder('alpha'))], null)
 
         then:
         project.filters.length == 1
@@ -150,7 +149,7 @@ class ResourceFilterTest extends Specification {
         workspace().validateFiltered(project.getFolder('filtered')).isOK()
 
         when:
-        ResourceFilter.attachFilters(project, [ toFile(project.getFolder('filtered')) ], null)
+        ResourceFilter.updateFilters(project, [ toFile(project.getFolder('filtered')) ], null)
         ResourceFilter.detachAllFilters(project, null)
 
         then:
@@ -168,7 +167,7 @@ class ResourceFilterTest extends Specification {
         project.createFilter(type, matchers[0], IResource.NONE, null)
 
         when:
-        ResourceFilter.attachFilters(project, [ toFile(project.getFolder('filtered')) ], null)
+        ResourceFilter.updateFilters(project, [ toFile(project.getFolder('filtered')) ], null)
         project.refreshLocal(IResource.DEPTH_INFINITE, null)
         ResourceFilter.detachAllFilters(project, null)
         project.refreshLocal(IResource.DEPTH_INFINITE, null)
@@ -183,7 +182,7 @@ class ResourceFilterTest extends Specification {
         projectFolder('filtered')
 
         expect:
-        ResourceFilter.attachFilters(project, [], null)
+        ResourceFilter.updateFilters(project, [], null)
     }
 
     def "Can add a large number of filters" () {
@@ -192,7 +191,7 @@ class ResourceFilterTest extends Specification {
 
         expect:
         for (i in 1..500) {
-            ResourceFilter.attachFilters(project, [ toFile(project.getFolder('filtered' + i)) ], null)
+            ResourceFilter.updateFilters(project, [ toFile(project.getFolder('filtered' + i)) ], null)
             assert !workspace().validateFiltered(project.getFolder('filtered' + i)).isOK()
         }
     }

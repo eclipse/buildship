@@ -38,11 +38,13 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.object.MoreObjects;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
@@ -51,6 +53,8 @@ import org.eclipse.buildship.core.workspace.WorkspaceOperations;
  * Default implementation of the {@link WorkspaceOperations} interface.
  */
 public final class DefaultWorkspaceOperations implements WorkspaceOperations {
+
+    private static final QualifiedName BUILD_FOLDER_PROPERTY = new QualifiedName(CorePlugin.PLUGIN_ID, "buildFolder");
 
     @Override
     public ImmutableList<IProject> getAllProjects() {
@@ -474,4 +478,22 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         }
     }
 
+    @Override
+    public void markAsBuildFolder(IFolder folder, IProgressMonitor monitor) {
+        try {
+            folder.setDerived(true, monitor);
+            folder.setPersistentProperty(BUILD_FOLDER_PROPERTY, "true");
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(String.format("Could not mark folder %s as a Gradle build folder", folder.getProjectRelativePath()), e);
+        }
+    }
+
+    @Override
+    public boolean isBuildFolder(IFolder folder) {
+        try {
+            return folder.exists() && "true".equals(folder.getPersistentProperty(BUILD_FOLDER_PROPERTY));
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(String.format("Could not check whether folder %s is a Gradle build folder", folder.getProjectRelativePath()), e);
+        }
+    }
 }

@@ -52,20 +52,21 @@ final class ResourceFilter {
     }
 
     /**
-     * Attaches resource filters on the specified project to hide any of the given child locations.
+     * Updates resource filters on the specified project to hide the given child locations.
      *
      * @param project the project for which to create resource filters
      * @param childLocations the child locations
      * @param monitor the monitor to report progress on
      */
-    public static void attachFilters(IProject project, List<File> childLocations, IProgressMonitor monitor) {
+    public static void updateFilters(IProject project, List<File> childLocations, IProgressMonitor monitor) {
         monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
+        detachAllFilters(project, monitor);
         List<FileInfoMatcherDescription> matchers = createMatchers(project, childLocations);
         setExclusionFilters(project, matchers, monitor);
     }
 
     /**
-     * Removes all resource filters created with the {@link #attachFilters(IProject, List, IProgressMonitor)} method.
+     * Removes all resource filters created with the {@link #updateFilters(IProject, List, IProgressMonitor)} method.
      *
      * @param project the target project to remove the filters from
      * @param monitor the monitor to report progress on

@@ -88,7 +88,7 @@ class SynchronizeGradleProjectJob2Test extends BuildshipTestSpecification {
         projectDescriptorExists << [false, true]
     }
 
-    def "Imported parent projects have filters to hide the content of the children and the build folders"() {
+    def "Imported parent projects have filters to hide the content of the children"() {
         setup:
         File rootProject = newMultiProject()
         SynchronizeGradleProjectJob job = newRefreshGradleProjectJob(rootProject)
@@ -99,10 +99,9 @@ class SynchronizeGradleProjectJob2Test extends BuildshipTestSpecification {
 
         then:
         def filters = CorePlugin.workspaceOperations().findProjectByName(rootProject.name).get().getFilters()
-        filters.length == 3
+        filters.length == 2
         (filters[0].fileInfoMatcherDescription.arguments as String).endsWith('subproject')
-        (filters[1].fileInfoMatcherDescription.arguments as String).endsWith('build')
-        (filters[2].fileInfoMatcherDescription.arguments as String).endsWith('.gradle')
+        (filters[1].fileInfoMatcherDescription.arguments as String).endsWith('.gradle')
     }
 
     def "Importing a project twice won't result in duplicate filters"() {
@@ -123,10 +122,9 @@ class SynchronizeGradleProjectJob2Test extends BuildshipTestSpecification {
 
         then:
         def filters = workspaceOperations.findProjectByName(rootProject.name).get().getFilters()
-        filters.length == 3
+        filters.length == 2
         (filters[0].fileInfoMatcherDescription.arguments as String).endsWith('subproject')
-        (filters[1].fileInfoMatcherDescription.arguments as String).endsWith('build')
-        (filters[2].fileInfoMatcherDescription.arguments as String).endsWith('.gradle')
+        (filters[1].fileInfoMatcherDescription.arguments as String).endsWith('.gradle')
     }
 
     def "Can import deleted project located in default location"() {

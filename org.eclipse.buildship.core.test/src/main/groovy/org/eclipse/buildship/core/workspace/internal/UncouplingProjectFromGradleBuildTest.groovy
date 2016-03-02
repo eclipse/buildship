@@ -43,9 +43,8 @@ class UncouplingProjectFromGradleBuildTest extends ProjectSynchronizationSpecifi
 
         expect:
         IProject project = findProject('subproject-a')
-        project.filters.length == 2
-        project.filters[0].fileInfoMatcherDescription.arguments.contains("build")
-        project.filters[1].fileInfoMatcherDescription.arguments.contains("gradle")
+        project.filters.length == 1
+        project.filters[0].fileInfoMatcherDescription.arguments.contains(".gradle")
 
         when:
         fileStructure().create { file 'sample-project/settings.gradle', "'subproject-b'" }
