@@ -30,9 +30,12 @@ import com.google.gson.reflect.TypeToken;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.util.file.RelativePathUtils;
 
 /**
  * Cleans up project artifacts created by Buildship versions < 1.0.10.
@@ -64,7 +67,7 @@ final class LegacyProjectConfigurationUtils {
 
             Map<ProjectConfigurationProperties, String> legacyConfig = Maps.newHashMap();
             legacyConfig.put(ProjectConfigurationProperties.PROJECT_PATH, projectConfig.get("project_path"));
-            legacyConfig.put(ProjectConfigurationProperties.CONNECTION_PROJECT_DIR, projectConfig.get("connection_project_dir"));
+            legacyConfig.put(ProjectConfigurationProperties.CONNECTION_PROJECT_DIR, relativePathToRootProject(project, new Path(projectConfig.get("connection_project_dir")))) ;
             legacyConfig.put(ProjectConfigurationProperties.CONNECTION_GRADLE_USER_HOME, projectConfig.get("connection_gradle_user_home"));
             legacyConfig.put(ProjectConfigurationProperties.CONNECTION_GRADLE_DISTRIBUTION, projectConfig.get("connection_gradle_distribution"));
             legacyConfig.put(ProjectConfigurationProperties.CONNECTION_JAVA_HOME, projectConfig.get("connection_java_home"));
@@ -101,6 +104,15 @@ final class LegacyProjectConfigurationUtils {
     @SuppressWarnings("unchecked")
     private static Map<String, String> getProjectConfigForVersion(Map<String, Object> config) {
         return (Map<String, String>) config.get("1.0");
+    }
+
+    private static String relativePathToRootProject(IProject workspaceProject, IPath rootProjectPath) {
+        if (rootProjectPath.isAbsolute()) {
+            IPath projectPath = workspaceProject.getLocation();
+            return RelativePathUtils.getRelativePath(projectPath, rootProjectPath).toOSString();
+        } else {
+            return rootProjectPath.toOSString();
+        }
     }
 
     public static void cleanup(IProject project) {

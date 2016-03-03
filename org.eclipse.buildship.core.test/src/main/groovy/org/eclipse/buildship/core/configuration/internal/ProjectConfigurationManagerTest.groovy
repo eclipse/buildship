@@ -312,6 +312,34 @@ class ProjectConfigurationManagerTest extends Specification {
         then:
         !new File(projectDir, '.settings/gradle.prefs').exists()
         new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(ProjectConfigurationProperties.PROJECT_PATH.key, null) == ':'
+        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(ProjectConfigurationProperties.CONNECTION_PROJECT_DIR.key, null) == ''
+    }
+
+    def "legacy project configuration conversion handles absolute paths"() {
+        setup:
+        File projectDir = tempFolder.root
+        tempFolder.newFolder('.settings')
+        tempFolder.newFile('.settings/gradle.prefs') << """{
+          "1.0": {
+             "project_path": ":",
+             "connection_project_dir": "${tempFolder.root.parentFile.canonicalPath.replace('\\', '\\\\')}",
+             "connection_gradle_user_home": null,
+             "connection_gradle_distribution": "GRADLE_DISTRIBUTION(WRAPPER)",
+             "connection_java_home": null,
+             "connection_jvm_arguments": "",
+             "connection_arguments": ""
+          }
+        }
+        """
+        IProject project = workspaceOperations.createProject("sample-project", projectDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
+
+        when:
+        configurationManager.saveProjectConfiguration(configurationManager.readProjectConfiguration(project), project)
+
+        then:
+        !new File(projectDir, '.settings/gradle.prefs').exists()
+        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(ProjectConfigurationProperties.PROJECT_PATH.key, null) == ':'
+        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(ProjectConfigurationProperties.CONNECTION_PROJECT_DIR.key, null) == '..'
     }
 
 }

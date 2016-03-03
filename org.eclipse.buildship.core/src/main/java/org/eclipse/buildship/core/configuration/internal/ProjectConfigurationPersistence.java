@@ -95,11 +95,7 @@ final class ProjectConfigurationPersistence {
 
 
     private static File rootProjectFile(IProject workspaceProject, String pathToRootProject) {
-        IPath path = new org.eclipse.core.runtime.Path(pathToRootProject);
-        // prior to Buildship 1.0.10 the root project dir is stored as an absolute path
-        return path.isAbsolute()
-                ? path.toFile()
-                : RelativePathUtils.getAbsolutePath(workspaceProject.getLocation(), new org.eclipse.core.runtime.Path(pathToRootProject)).toFile();
+        return RelativePathUtils.getAbsolutePath(workspaceProject.getLocation(), new org.eclipse.core.runtime.Path(pathToRootProject)).toFile();
     }
 
     public void deleteProjectConfiguration(IProject workspaceProject) {
