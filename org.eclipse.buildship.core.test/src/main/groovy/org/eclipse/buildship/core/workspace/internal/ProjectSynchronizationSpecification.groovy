@@ -25,20 +25,4 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         new SynchronizeGradleProjectJob(attributes, [], existingDescriptorHandler, AsyncHandler.NO_OP)
     }
 
-    protected IProject newClosedProject(String name) {
-        EclipseProjects.newClosedProject(name, dir(name))
-    }
-
-    protected IProject newOpenProject(String name) {
-        EclipseProjects.newProject(name, dir(name))
-    }
-
-    protected IJavaProject newJavaProject(String name) {
-        EclipseProjects.newJavaProject(name, dir(name))
-    }
-
-    protected IProject findProject(String name) {
-        CorePlugin.workspaceOperations().findProjectByName(name).orNull()
-    }
-
 }

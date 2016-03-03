@@ -24,7 +24,7 @@ import org.eclipse.jdt.core.JavaModelException;
 class ImportingProjectWithExistingDescriptorTest extends CoupledProjectSynchronizationSpecification {
 
     def "The project is added to the workspace"() {
-        def project = newOpenProject("sample-project")
+        def project = newProject("sample-project")
         project.delete(false, null)
         setup:
         def projectDir = dir('sample-project') {
@@ -83,7 +83,7 @@ class ImportingProjectWithExistingDescriptorTest extends CoupledProjectSynchroni
 
     @Override
     protected void prepareProject(String name) {
-        def project = newOpenProject(name)
+        def project = newProject(name)
         project.delete(false, true, null)
     }
 

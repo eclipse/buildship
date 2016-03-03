@@ -52,7 +52,7 @@ class SynchronizingExistingWorkspaceProjectTest extends CoupledProjectSynchroniz
 
     @Override
     protected void prepareProject(String name) {
-        newOpenProject(name)
+        newProject(name)
     }
 
     @Override

@@ -22,6 +22,7 @@ import com.google.common.io.Files
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.jobs.Job
+import org.eclipse.jdt.core.IJavaProject;
 
 import org.eclipse.buildship.core.CorePlugin
 
@@ -105,6 +106,22 @@ abstract class WorkspaceSpecification extends Specification {
 
     protected File getWorkspaceFile(String location) {
         return new File(workspaceDir, location)
+    }
+
+    protected IProject newClosedProject(String name) {
+        EclipseProjects.newClosedProject(name, dir(name))
+    }
+
+    protected IProject newProject(String name) {
+        EclipseProjects.newProject(name, dir(name))
+    }
+
+    protected IJavaProject newJavaProject(String name) {
+        EclipseProjects.newJavaProject(name, dir(name))
+    }
+
+    protected IProject findProject(String name) {
+        CorePlugin.workspaceOperations().findProjectByName(name).orNull()
     }
 
     protected static def waitForJobsToFinish() {
