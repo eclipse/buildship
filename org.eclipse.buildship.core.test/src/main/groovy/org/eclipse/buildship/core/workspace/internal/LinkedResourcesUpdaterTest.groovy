@@ -1,7 +1,10 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import com.google.common.io.Files;
+
 import com.gradleware.tooling.toolingmodel.OmniEclipseLinkedResource
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
@@ -12,20 +15,12 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
-class LinkedResourcesUpdaterTest extends Specification {
-
-    @Rule
-    TemporaryFolder tempFolder
-
-    def cleanup() {
-        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
-    }
+class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
 
     def "Can define a linked resource"() {
         given:
-        File projectDir = tempFolder.newFolder('root', 'project-name').getCanonicalFile()
-        File externalDir = tempFolder.newFolder('root', 'another').getCanonicalFile()
-        IProject project = CorePlugin.workspaceOperations().createProject('project-name', projectDir, [], null)
+        File externalDir = dir('another')
+        IProject project = newProject('project-name')
         OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource(externalDir.name, externalDir)
 
         when:
@@ -41,9 +36,8 @@ class LinkedResourcesUpdaterTest extends Specification {
 
     def "Defining a linked resource is idempotent" () {
         given:
-        File projectDir = tempFolder.newFolder('root', 'project-name').getCanonicalFile()
-        File externalDir = tempFolder.newFolder('root', 'another').getCanonicalFile()
-        IProject project = CorePlugin.workspaceOperations().createProject('project-name', projectDir, [], null)
+        File externalDir = dir('another')
+        IProject project = newProject('project-name')
         OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource(externalDir.name, externalDir)
 
         when:
@@ -58,10 +52,9 @@ class LinkedResourcesUpdaterTest extends Specification {
 
     def "Only local folder linked resources are set on the project" () {
         given:
-        File projectDir = tempFolder.newFolder('root', 'project-name').getCanonicalFile()
-        File externalDir = tempFolder.newFolder('root', 'another').getCanonicalFile()
-        File externalFile = tempFolder.newFile('file').getCanonicalFile()
-        IProject project = CorePlugin.workspaceOperations().createProject('project-name', projectDir, [], null)
+        File externalDir = dir('another')
+        File externalFile = file('file')
+        IProject project = newProject('project-name')
         OmniEclipseLinkedResource localFolder =  newFolderLinkedResource(externalDir.name, externalDir)
         OmniEclipseLinkedResource localFile =  newFileLinkedResource(externalFile.name, externalFile)
         OmniEclipseLinkedResource virtualResource =  newVirtualLinkedResource()
@@ -75,10 +68,9 @@ class LinkedResourcesUpdaterTest extends Specification {
 
     def "A folder can be linked even if a local folder already exists with the same name" () {
         given:
-        File projectDir = tempFolder.newFolder('root', 'project-name').getCanonicalFile()
-        IProject project = CorePlugin.workspaceOperations().createProject('project-name', projectDir, [], null)
+        IProject project = newProject('project-name')
         project.getFolder('foldername').create(true, true, null)
-        File externalDir = tempFolder.newFolder('root', 'foldername').getCanonicalFile()
+        File externalDir = dir('foldername')
         OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource(externalDir.name, externalDir)
 
         when:
@@ -93,10 +85,9 @@ class LinkedResourcesUpdaterTest extends Specification {
 
     def "A linked resource is deleted if no longer part of the Gradle model"() {
         given:
-        File projectDir = tempFolder.newFolder('root', 'project-name').getCanonicalFile()
-        File externalDirA = tempFolder.newFolder('root', 'another1').getCanonicalFile()
-        File externalDirB = tempFolder.newFolder('root', 'another2').getCanonicalFile()
-        IProject project = CorePlugin.workspaceOperations().createProject('project-name', projectDir, [], null)
+        File externalDirA = dir('another1')
+        File externalDirB = dir('another2')
+        IProject project = newProject('project-name')
         OmniEclipseLinkedResource linkedResourceA =  newFolderLinkedResource(externalDirB.name, externalDirB)
         OmniEclipseLinkedResource linkedResourceB =  newFolderLinkedResource(externalDirB.name, externalDirB)
 
@@ -115,9 +106,8 @@ class LinkedResourcesUpdaterTest extends Specification {
 
     def "Model linked resources that were previously defined manually are transformed to model linked resources"() {
         given:
-        File projectDir = tempFolder.newFolder('root', 'project-name').getCanonicalFile()
-        File externalDir = tempFolder.newFolder('root', 'another').getCanonicalFile()
-        IProject project = CorePlugin.workspaceOperations().createProject('project-name', projectDir, [], null)
+        File externalDir = dir('another')
+        IProject project = newProject('project-name')
         IPath linkedFolderPath = new Path(externalDir.absolutePath)
 
         when:

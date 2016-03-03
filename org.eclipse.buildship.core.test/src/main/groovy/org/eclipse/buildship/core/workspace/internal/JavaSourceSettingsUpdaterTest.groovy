@@ -5,6 +5,8 @@ import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings
 import com.gradleware.tooling.toolingmodel.OmniJavaVersion
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
+import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification;
+
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.IClasspathEntry
@@ -15,19 +17,11 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
-@SuppressWarnings("restriction")
-class JavaSourceSettingsUpdaterTest extends Specification {
-
-    @Rule
-    TemporaryFolder tempFolder
-
-    def cleanup() {
-        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
-    }
+class JavaSourceSettingsUpdaterTest extends WorkspaceSpecification {
 
     def "Can set valid source settings"() {
         given:
-        IJavaProject project = EclipseProjects.newJavaProject('sample-project', tempFolder.newFolder())
+        IJavaProject project = newJavaProject('sample-project')
 
         when:
         JavaSourceSettingsUpdater.update(project, sourceSettings(runtimeVersion, targetVersion, sourceVersion), new NullProgressMonitor())
@@ -46,7 +40,7 @@ class JavaSourceSettingsUpdaterTest extends Specification {
     @SuppressWarnings("GroovyAccessibility")
     def "Invalid compliance setting replaced with highest available Java version"() {
         given:
-        IJavaProject project = EclipseProjects.newJavaProject('sample-project', tempFolder.newFolder())
+        IJavaProject project = newJavaProject('sample-project')
 
         when:
         JavaSourceSettingsUpdater.update(project, sourceSettings(runtimeVersion, '1.3', '1.3'), new NullProgressMonitor())
@@ -60,7 +54,7 @@ class JavaSourceSettingsUpdaterTest extends Specification {
 
     def "Invalid target Java version replaced with current compilance settings"() {
         given:
-        IJavaProject project = EclipseProjects.newJavaProject('sample-project', tempFolder.newFolder())
+        IJavaProject project = newJavaProject('sample-project')
 
         when:
         JavaSourceSettingsUpdater.update(project, sourceSettings('1.4', targetVersion, '1.6'), new NullProgressMonitor())
@@ -74,7 +68,7 @@ class JavaSourceSettingsUpdaterTest extends Specification {
 
     def "Invalid source Java version replaced with current target Java version"() {
         given:
-        IJavaProject project = EclipseProjects.newJavaProject('sample-project', tempFolder.newFolder())
+        IJavaProject project = newJavaProject('sample-project')
 
         when:
         JavaSourceSettingsUpdater.update(project, sourceSettings('1.6', '1.4', sourceVersion), new NullProgressMonitor())
@@ -88,7 +82,7 @@ class JavaSourceSettingsUpdaterTest extends Specification {
 
     def "VM added to the project classpath if not exist"() {
         given:
-        IJavaProject project = EclipseProjects.newJavaProject('sample-project', tempFolder.newFolder())
+        IJavaProject project = newJavaProject('sample-project')
         def classpathWithoutVM = project.rawClasspath.findAll { !it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
         project.setRawClasspath(classpathWithoutVM as IClasspathEntry[], null)
 
@@ -104,7 +98,7 @@ class JavaSourceSettingsUpdaterTest extends Specification {
 
     def "Existing VM on the project classpath updated"() {
         given:
-        IJavaProject project = EclipseProjects.newJavaProject('sample-project', tempFolder.newFolder())
+        IJavaProject project = newJavaProject('sample-project')
         def updatedClasspath = project.rawClasspath.findAll { !it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
         updatedClasspath += JavaCore.newContainerEntry(new Path('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/custom'))
         project.setRawClasspath(updatedClasspath as IClasspathEntry[], null)

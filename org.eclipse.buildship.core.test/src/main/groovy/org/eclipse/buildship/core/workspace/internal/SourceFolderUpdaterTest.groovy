@@ -2,6 +2,7 @@ package org.eclipse.buildship.core.workspace.internal
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification;
 import org.eclipse.buildship.core.util.file.FileUtils
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.runtime.IPath
@@ -15,14 +16,7 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
-class SourceFolderUpdaterTest extends Specification {
-
-    @Rule
-    TemporaryFolder tempFolder
-
-    def cleanup() {
-        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
-    }
+class SourceFolderUpdaterTest extends WorkspaceSpecification {
 
     def "Model source folders are added"() {
         given:
@@ -161,22 +155,8 @@ class SourceFolderUpdaterTest extends Specification {
         def manualInclusionPattern = arguments['manual-inclusion-pattern']?:new IPath[0]
         def manualExclusionPattern = arguments['manual-exclusion-pattern']?:new IPath[0]
 
-        // create project folder
-        def location = tempFolder.newFolder(projectName)
+        def javaProject = newJavaProject(projectName)
 
-        // create project
-        def project = CorePlugin.workspaceOperations().createProject('project-name', location, [], new NullProgressMonitor())
-        def description = project.getDescription()
-        description.setNatureIds([JavaCore.NATURE_ID] as String[])
-        project.setDescription(description, new NullProgressMonitor())
-
-        // convert it to a java project
-        def javaProject = JavaCore.create(project)
-        IFolder outputLocation = project.getFolder('bin')
-        FileUtils.ensureFolderHierarchyExists(outputLocation)
-        javaProject.setOutputLocation(outputLocation.getFullPath(), new NullProgressMonitor())
-
-        // define source classpath
         def manualSourceEntries = manualSourceFolders.collect { String path ->
             def folder = javaProject.project.getFolder(path)
             FileUtils.ensureFolderHierarchyExists(folder)
@@ -192,7 +172,6 @@ class SourceFolderUpdaterTest extends Specification {
         }
         javaProject.setRawClasspath(manualSourceEntries + modelSourceEntries as IClasspathEntry[], new NullProgressMonitor())
 
-        // return the created instance
         javaProject
     }
 

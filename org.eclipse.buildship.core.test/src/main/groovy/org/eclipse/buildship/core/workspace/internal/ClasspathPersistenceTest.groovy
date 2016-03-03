@@ -6,19 +6,20 @@ import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore;
 
-import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
 import org.eclipse.buildship.core.test.fixtures.TestEnvironment;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;
 
-class ClasspathPersistenceTest extends ProjectImportSpecification {
+class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
     def "The classpath container is persisted"() {
         setup:
-        file('sample-project', 'build.gradle') << '''apply plugin: "java"
-           repositories { jcenter() }
-           dependencies { compile "org.springframework:spring-beans:1.2.8"}
-        '''
-        executeProjectImportAndWait(folder('sample-project'))
+        def projectDir = dir('sample-project') {
+            file 'build.gradle',  '''apply plugin: "java"
+               repositories { jcenter() }
+               dependencies { compile "org.springframework:spring-beans:1.2.8"}
+            '''
+        }
+        importAndWait(projectDir)
 
         WorkspaceGradleOperations workspaceOperations = Mock(WorkspaceGradleOperations)
         TestEnvironment.registerService(WorkspaceGradleOperations, workspaceOperations)

@@ -21,18 +21,17 @@ import org.eclipse.buildship.core.test.fixtures.TestEnvironment
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.util.variable.ExpressionUtils
+import org.eclipse.buildship.core.workspace.internal.ProjectSynchronizationSpecification;
 
-class SynchronizeGradleProjectJob2Test extends WorkspaceSpecification {
+class SynchronizeGradleProjectJob2Test extends ProjectSynchronizationSpecification {
 
     def "Project import job creates a new project in the workspace"(boolean projectDescriptorExists) {
         setup:
         def applyJavaPlugin = false
         File projectLocation = newProject(projectDescriptorExists, applyJavaPlugin)
-        SynchronizeGradleProjectJob job = newRefreshGradleProjectJob(projectLocation)
 
         when:
-        job.schedule()
-        job.join()
+        synchronizeAndWait(projectLocation)
 
         then:
         CorePlugin.workspaceOperations().findProjectByName(projectLocation.name).present
@@ -44,11 +43,9 @@ class SynchronizeGradleProjectJob2Test extends WorkspaceSpecification {
     def "Project descriptors should be created iff they don't already exist"(boolean applyJavaPlugin, boolean projectDescriptorExists, String descriptorComment) {
         setup:
         File rootProject = newProject(projectDescriptorExists, applyJavaPlugin)
-        SynchronizeGradleProjectJob job = newRefreshGradleProjectJob(rootProject)
 
         when:
-        job.schedule()
-        job.join()
+        synchronizeAndWait(rootProject)
 
         then:
         new File(rootProject, '.project').exists()
@@ -66,11 +63,9 @@ class SynchronizeGradleProjectJob2Test extends WorkspaceSpecification {
     def "Imported projects always have Gradle builder and nature"(boolean projectDescriptorExists) {
         setup:
         File rootProject = newProject(projectDescriptorExists, false)
-        SynchronizeGradleProjectJob job = newRefreshGradleProjectJob(rootProject)
 
         when:
-        job.schedule()
-        job.join()
+        synchronizeAndWait(rootProject)
 
         then:
         def project = CorePlugin.workspaceOperations().findProjectByName(rootProject.name).get()
@@ -84,11 +79,9 @@ class SynchronizeGradleProjectJob2Test extends WorkspaceSpecification {
     def "Imported parent projects have filters to hide the content of the children and the build folders"() {
         setup:
         File rootProject = newMultiProject()
-        SynchronizeGradleProjectJob job = newRefreshGradleProjectJob(rootProject)
 
         when:
-        job.schedule()
-        job.join()
+        synchronizeAndWait(rootProject)
 
         then:
         def filters = CorePlugin.workspaceOperations().findProjectByName(rootProject.name).get().getFilters()
@@ -104,15 +97,11 @@ class SynchronizeGradleProjectJob2Test extends WorkspaceSpecification {
         File rootProject = newMultiProject()
 
         when:
-        SynchronizeGradleProjectJob job = newRefreshGradleProjectJob(rootProject)
-        job.schedule()
-        job.join()
+        synchronizeAndWait(rootProject)
 
-        workspaceOperations.deleteAllProjects(null)
+        deleteAllProjects(false)
 
-        job = newRefreshGradleProjectJob(rootProject)
-        job.schedule()
-        job.join()
+        synchronizeAndWait(rootProject)
 
         then:
         def filters = workspaceOperations.findProjectByName(rootProject.name).get().getFilters()
@@ -133,9 +122,7 @@ class SynchronizeGradleProjectJob2Test extends WorkspaceSpecification {
         project.delete(false, true, new NullProgressMonitor())
 
         when:
-        SynchronizeGradleProjectJob job = newRefreshGradleProjectJob(new File(workspaceRootLocation, "projectname"))
-        job.schedule()
-        job.join()
+        synchronizeAndWait(workspaceDir("projectname"))
 
         then:
         workspaceOperations.allProjects.size() == 1
@@ -144,11 +131,9 @@ class SynchronizeGradleProjectJob2Test extends WorkspaceSpecification {
     def "Can import project located in workspace folder and with custom root name"() {
         setup:
         File rootProject = newProjectWithCustomNameInWorkspaceFolder()
-        SynchronizeGradleProjectJob job = newRefreshGradleProjectJob(rootProject)
 
         when:
-        job.schedule()
-        job.join()
+        synchronizeAndWait(rootProject)
 
         then:
         LegacyEclipseSpockTestHelper.workspace.root.projects.length == 1
@@ -165,7 +150,7 @@ class SynchronizeGradleProjectJob2Test extends WorkspaceSpecification {
     def "Mutliple jobs with the same configuration are merged"() {
         setup:
         File projectLocation = newProject(true, false)
-        def jobs = (1..5).collect { newRefreshGradleProjectJob(projectLocation) }
+        def jobs = (1..5).collect { newSynchronizationJob(projectLocation) }
         WorkspaceGradleOperations workspaceOperations = Mock(WorkspaceGradleOperations)
         TestEnvironment.registerService(WorkspaceGradleOperations, workspaceOperations)
 
@@ -182,28 +167,24 @@ class SynchronizeGradleProjectJob2Test extends WorkspaceSpecification {
 
     def File newProject(boolean projectDescriptorExists, boolean applyJavaPlugin) {
         dir('simple-project') {
-           file 'build.gradle', applyJavaPlugin ? 'apply plugin: "java"' : ''
+            file 'build.gradle', applyJavaPlugin ? 'apply plugin: "java"' : ''
             dir 'src/main/java'
             if (projectDescriptorExists) {
-                file '.project', '''
-                    <?xml version="1.0" encoding="UTF-8"?>
+                file '.project', '''<?xml version="1.0" encoding="UTF-8"?>
                     <projectDescription>
                         <name>simple-project</name>
                         <comment>original</comment>
                         <projects></projects>
                         <buildSpec></buildSpec>
                         <natures></natures>
-                    </projectDescription>
-                '''
+                    </projectDescription>'''
                 if (applyJavaPlugin) {
-                    file '.classpath', '''
-                        <?xml version="1.0" encoding="UTF-8"?>
+                    file '.classpath', '''<?xml version="1.0" encoding="UTF-8"?>
                         <classpath>
                             <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
                             <classpathentry kind="src" path="src/main/java"/>
                             <classpathentry kind="output" path="bin"/>
-                        </classpath>
-                    '''
+                        </classpath>'''
                 }
             }
         }
@@ -221,12 +202,6 @@ class SynchronizeGradleProjectJob2Test extends WorkspaceSpecification {
         workspaceDir('Bug472223') {
             file 'settings.gradle', "rootProject.name = 'my-project-name-is-different-than-the-folder'"
         }
-    }
-
-    def newRefreshGradleProjectJob(File location) {
-        def distribution = GradleDistributionWrapper.from(GradleDistribution.fromBuild()).toGradleDistribution()
-        def rootRequestAttributes = new FixedRequestAttributes(location, null, distribution, null, ImmutableList.of(), ImmutableList.of())
-        new SynchronizeGradleProjectJob(rootRequestAttributes, [], AsyncHandler.NO_OP)
     }
 
 }

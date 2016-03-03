@@ -6,20 +6,21 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.ProjectConfiguration
 import org.eclipse.buildship.core.event.Event
 import org.eclipse.buildship.core.event.EventListener
-import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
+import org.eclipse.buildship.core.workspace.internal.ProjectSynchronizationSpecification;
+
 import org.eclipse.core.resources.IProject
 import org.eclipse.debug.core.ILaunch
 import org.gradle.tooling.events.ProgressEvent
 import org.gradle.tooling.events.ProgressListener
 import org.gradle.tooling.events.test.TestOperationDescriptor
 
-class RunGradleTestLaunchRequestJobComplexTest extends ProjectImportSpecification {
+class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpecification {
 
     def "Can execute a test launch using test operation descriptors"() {
         setup:
         // import the project
-        executeProjectImportAndWait(sampleProject())
-        IProject project = CorePlugin.workspaceOperations().findProjectByName('sample-project').get()
+        importAndWait(sampleProject())
+        IProject project = findProject('sample-project')
 
         // setup project collection
         List descriptors = Lists.newCopyOnWriteArrayList()
@@ -52,21 +53,24 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectImportSpecificatio
     }
 
     private def sampleProject() {
-        file('sample-project', 'build.gradle') <<
-                '''apply plugin: "java"
-           repositories { jcenter() }
-           dependencies { testCompile 'junit:junit:4.10' }
-        '''
-        file('sample-project', 'settings.gradle') << ''
-        file('sample-project', 'src', 'test', 'java', 'SampleTest.java') <<
-                '''import org.junit.Test;
-           import static org.junit.Assert.*;
-           public class SampleTest {
-               @Test public void test1() { assertTrue(true); }
-               @Test public void test2() { assertTrue(true); }
-           }
-        '''
-        folder('sample-project')
+        dir('sample-project') {
+            file 'build.gradle',  '''
+                apply plugin: "java"
+                repositories { jcenter() }
+                dependencies { testCompile 'junit:junit:4.10' }
+            '''
+            dir('src/test/java') {
+                file 'SampleTest.java', '''
+                    import org.junit.Test;
+                    import static org.junit.Assert.*;
+                    public class SampleTest {
+                        @Test public void test1() { assertTrue(true); }
+                        @Test public void test2() { assertTrue(true); }
+                    }
+                '''
+            }
+
+        }
     }
 
     private def collectTestDescriptorsInto(List descriptors) {

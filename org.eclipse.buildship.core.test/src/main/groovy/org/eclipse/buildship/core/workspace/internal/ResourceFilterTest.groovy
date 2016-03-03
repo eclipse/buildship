@@ -2,6 +2,7 @@ package org.eclipse.buildship.core.workspace.internal
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
+import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification;
 import org.eclipse.buildship.core.util.file.FileUtils
 import org.eclipse.buildship.core.workspace.ProjectCreatedEvent
 
@@ -22,26 +23,13 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Ignore;
 import spock.lang.Specification
 
-class ResourceFilterTest extends Specification {
-
-    @Rule
-    TemporaryFolder tempFolder
+class ResourceFilterTest extends WorkspaceSpecification {
 
     IProject project
 
     def setup() {
-        // create an empty sample project for all tests
-        IProjectDescription projectDescription = workspace().newProjectDescription("project")
-        project = workspace().getRoot().getProject("project")
-        project.create(projectDescription, new NullProgressMonitor())
-        project.open(new NullProgressMonitor())
+        project = newProject("sample-project")
     }
-
-    def cleanup() {
-        project.delete(true, null)
-        CorePlugin.workspaceOperations().deleteAllProjects(null)
-    }
-
     def "Defining a resource filter on the project"() {
         given:
         projectFolder('filtered')
@@ -50,15 +38,15 @@ class ResourceFilterTest extends Specification {
         expect:
         project.getFolder('filtered').exists()
         project.getFolder('unfiltered').exists()
-        workspace().validateFiltered(project.getFolder('filtered')).isOK()
-        workspace().validateFiltered(project.getFolder('unfiltered')).isOK()
+        workspace.validateFiltered(project.getFolder('filtered')).isOK()
+        workspace.validateFiltered(project.getFolder('unfiltered')).isOK()
 
         when:
         ResourceFilter.attachFilters(project, [ toFile(project.getFolder('filtered')) ], null)
 
         then:
-        !workspace().validateFiltered(project.getFolder('filtered')).isOK()
-        workspace().validateFiltered(project.getFolder('unfiltered')).isOK()
+        !workspace.validateFiltered(project.getFolder('filtered')).isOK()
+        workspace.validateFiltered(project.getFolder('unfiltered')).isOK()
     }
 
     def "Defining a resource filter on a subfolder"() {
@@ -67,14 +55,14 @@ class ResourceFilterTest extends Specification {
 
         expect:
         project.getFolder('basefolder/subfolder').exists()
-        workspace().validateFiltered(project.getFolder('basefolder/subfolder')).isOK()
+        workspace.validateFiltered(project.getFolder('basefolder/subfolder')).isOK()
 
         when:
         ResourceFilter.attachFilters(project, [ toFile(project.getFolder('basefolder/subfolder')) ], null)
 
         then:
-        workspace().validateFiltered(project.getFolder('basefolder')).isOK()
-        !workspace().validateFiltered(project.getFolder('basefolder/subfolder')).isOK()
+        workspace.validateFiltered(project.getFolder('basefolder')).isOK()
+        !workspace.validateFiltered(project.getFolder('basefolder/subfolder')).isOK()
     }
 
     def "Defining a resource filter on a direct child folder does not hide anything in inner folder structure"() {
@@ -86,13 +74,13 @@ class ResourceFilterTest extends Specification {
         ResourceFilter.attachFilters(project, [toFile(project.getFolder('pkg'))], null)
 
         then:
-        !workspace().validateFiltered(project.getFolder('pkg')).isOK()
-        workspace().validateFiltered(project.getFolder('src/main/java/pkg')).isOK()
+        !workspace.validateFiltered(project.getFolder('pkg')).isOK()
+        workspace.validateFiltered(project.getFolder('src/main/java/pkg')).isOK()
     }
 
     def "Defining a resource filter on non-child location is ignored"() {
         given:
-        ResourceFilter.attachFilters(project, [tempFolder.newFolder('siblingproject')], null)
+        ResourceFilter.attachFilters(project, [dir('siblingproject')], null)
 
         expect:
         project.getFilters().length == 0
@@ -147,14 +135,14 @@ class ResourceFilterTest extends Specification {
 
         expect:
         project.getFolder('filtered').exists()
-        workspace().validateFiltered(project.getFolder('filtered')).isOK()
+        workspace.validateFiltered(project.getFolder('filtered')).isOK()
 
         when:
         ResourceFilter.attachFilters(project, [ toFile(project.getFolder('filtered')) ], null)
         ResourceFilter.detachAllFilters(project, null)
 
         then:
-        workspace().validateFiltered(project.getFolder('filtered')).isOK()
+        workspace.validateFiltered(project.getFolder('filtered')).isOK()
     }
 
     // Ignored because it fails randomly. The problem will be resolved once we replace the resource-based
@@ -174,8 +162,8 @@ class ResourceFilterTest extends Specification {
         project.refreshLocal(IResource.DEPTH_INFINITE, null)
 
         then:
-        !workspace().validateFiltered(project.getFolder('manuallyfiltered')).isOK()
-        workspace().validateFiltered(project.getFolder('filtered')).isOK()
+        !workspace.validateFiltered(project.getFolder('manuallyfiltered')).isOK()
+        workspace.validateFiltered(project.getFolder('filtered')).isOK()
     }
 
     def "Can add zero filters"() {
@@ -193,16 +181,12 @@ class ResourceFilterTest extends Specification {
         expect:
         for (i in 1..500) {
             ResourceFilter.attachFilters(project, [ toFile(project.getFolder('filtered' + i)) ], null)
-            assert !workspace().validateFiltered(project.getFolder('filtered' + i)).isOK()
+            assert !workspace.validateFiltered(project.getFolder('filtered' + i)).isOK()
         }
     }
 
     private def projectFolder(String path) {
         FileUtils.ensureFolderHierarchyExists(project.getFolder(path))
-    }
-
-    private static IWorkspace workspace() {
-        LegacyEclipseSpockTestHelper.getWorkspace()
     }
 
     private static def toFile(IFolder folder) {

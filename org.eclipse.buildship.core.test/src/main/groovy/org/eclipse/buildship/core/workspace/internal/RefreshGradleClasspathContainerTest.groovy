@@ -1,7 +1,6 @@
 package org.eclipse.buildship.core.workspace.internal
 
 import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectsJob
 
@@ -10,7 +9,7 @@ import org.eclipse.jdt.core.IClasspathContainer
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
-class RefreshGradleClasspathContainerTest extends ProjectImportSpecification {
+class RefreshGradleClasspathContainerTest extends ProjectSynchronizationSpecification {
 
     def "Update the project classpath"() {
         setup:
@@ -19,7 +18,7 @@ class RefreshGradleClasspathContainerTest extends ProjectImportSpecification {
         defineLocalGroovyDependency(new File(location, 'build.gradle'))
 
         when:
-        executeSynchronizeGradleProjectsJobAndWait(project)
+        synchronizeAndWait(project.project)
 
         then:
         hasLocalGroovyDependencyDefinedInClasspathContainer(project)
@@ -35,7 +34,7 @@ class RefreshGradleClasspathContainerTest extends ProjectImportSpecification {
         defineLocalGroovyDependency(new File("$location/subproject", 'build.gradle'))
 
         when:
-        executeSynchronizeGradleProjectsJobAndWait(subProject)
+        synchronizeAndWait(subProject.project)
 
         then:
         hasLocalGroovyDependencyDefinedInClasspathContainer(rootProject)
@@ -53,7 +52,7 @@ class RefreshGradleClasspathContainerTest extends ProjectImportSpecification {
         defineLocalGroovyDependency(new File(unrelatedProjectLocation, 'build.gradle'))
 
         when:
-        executeSynchronizeGradleProjectsJobAndWait(project)
+        synchronizeAndWait(project.project)
 
         then:
         hasLocalGroovyDependencyDefinedInClasspathContainer(project)
@@ -71,7 +70,7 @@ class RefreshGradleClasspathContainerTest extends ProjectImportSpecification {
         defineLocalGroovyDependency(new File(secondLocation, 'build.gradle'))
 
         when:
-        executeSynchronizeGradleProjectsJobAndWait(firstProject, secondProject)
+        synchronizeAndWait(firstProject.project, secondProject.project)
 
         then:
         hasLocalGroovyDependencyDefinedInClasspathContainer(firstProject)
@@ -79,45 +78,38 @@ class RefreshGradleClasspathContainerTest extends ProjectImportSpecification {
     }
 
     private def importNewSimpleProject(String projectName) {
-        def location = newProject(projectName)
-        executeProjectImportAndWait(location)
-        waitForJobsToFinish()
+        def location = newSimpleGradleProject(projectName)
+        importAndWait(location)
         location
     }
 
     private def importNewMultiProject(String rootName, String subName) {
-        def location = newMultiProject(rootName, subName)
-        executeProjectImportAndWait(location)
-        waitForJobsToFinish()
+        def location = newGradleMultiProject(rootName, subName)
+        importAndWait(location)
         location
     }
 
-    private def newProject(String projectName) {
-        file(projectName, 'build.gradle') << 'apply plugin: "java"'
-        file(projectName, 'settings.gradle') << ''
-        folder(projectName, 'src', 'main', 'java')
-        folder(projectName)
+    private def newSimpleGradleProject(String projectName) {
+        dir(projectName) {
+            file 'build.gradle', 'apply plugin: "java"'
+            dir 'src/main/java'
+        }
     }
 
-    private def newMultiProject(String rootProjectName, String subProjectName) {
-        file(rootProjectName, 'build.gradle') << 'apply plugin: "java"'
-        folder(rootProjectName, 'src', 'main', 'java')
-        file(rootProjectName, 'settings.gradle') << "include '$subProjectName'"
-        folder(rootProjectName, 'subproject', 'src', 'main', 'java')
-        file(rootProjectName, 'subproject', 'build.gradle') << 'apply plugin: "java"'
-        folder(rootProjectName)
+    private def newGradleMultiProject(String rootProjectName, String subProjectName) {
+        dir(rootProjectName) {
+            file 'build.gradle', 'apply plugin: "java"'
+            file 'settings.gradle', "include '$subProjectName'"
+            dir 'src/main/java'
+            dir(subProjectName) {
+                file 'build.gradle', 'apply plugin: "java"'
+                dir 'src/main/java'
+            }
+        }
     }
 
     private static def findJavaProject(String name) {
         JavaCore.create(CorePlugin.workspaceOperations().findProjectByName(name).get())
-    }
-
-    private static def executeSynchronizeGradleProjectsJobAndWait(IJavaProject... javaProjects) {
-        def projects = javaProjects.collect { it.project }
-        SynchronizeGradleProjectsJob synchronizeJob = new SynchronizeGradleProjectsJob(projects)
-        synchronizeJob.schedule()
-        synchronizeJob.join()
-        waitForJobsToFinish()
     }
 
     private static def defineLocalGroovyDependency(File buildScript) {

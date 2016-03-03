@@ -33,26 +33,20 @@ import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.ProjectConfiguration
 import org.eclipse.buildship.core.configuration.ProjectConfigurationManager
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
+import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectJob
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 
 @SuppressWarnings("GroovyAccessibility")
-class ProjectConfigurationManagerTest extends Specification {
+class ProjectConfigurationManagerTest extends WorkspaceSpecification {
 
     @Shared
     ProjectConfigurationManager configurationManager = CorePlugin.projectConfigurationManager()
 
     @Shared
     WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations();
-
-    @Rule
-    TemporaryFolder tempFolder
-
-    def cleanup() {
-        workspaceOperations.deleteAllProjects(new NullProgressMonitor())
-    }
 
     def "no Gradle root project configurations available when there are no projects"() {
         setup:
@@ -62,8 +56,7 @@ class ProjectConfigurationManagerTest extends Specification {
 
     def "no Gradle root project configurations available when there are no Eclipse projects with Gradle nature"() {
         given:
-        File projectDir = tempFolder.root
-        workspaceOperations.createProject("sample-project", projectDir, ImmutableList.of(), new NullProgressMonitor())
+        workspaceOperations.createProject("sample-project", testDir, ImmutableList.of(), new NullProgressMonitor())
 
         when:
         Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
@@ -74,8 +67,7 @@ class ProjectConfigurationManagerTest extends Specification {
 
     def "no Gradle root project configurations available when there are no open Eclipse projects with Gradle nature"() {
         given:
-        File projectDir = tempFolder.root
-        IProject project = workspaceOperations.createProject("sample-project", projectDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
+        IProject project = workspaceOperations.createProject("sample-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
         project.close(new NullProgressMonitor())
 
         when:
@@ -87,8 +79,7 @@ class ProjectConfigurationManagerTest extends Specification {
 
     def "one Gradle root project configuration when one Gradle multi-project build is imported"() {
         setup:
-        def rootDir = new TestFile(tempFolder.newFolder())
-        rootDir.create {
+        def rootDir = dir("root") {
             file('settings.gradle').text = '''
                 rootProject.name = 'project one'
                 include 'sub1'
@@ -131,8 +122,7 @@ class ProjectConfigurationManagerTest extends Specification {
 
     def "two Gradle root project configurations when two Gradle multi-project builds are imported"() {
         setup:
-        def rootDirOne = new TestFile(tempFolder.newFolder())
-        rootDirOne.create {
+        def rootDirOne = dir("root1") {
             file('settings.gradle').text = '''
                 rootProject.name = 'project one'
                 include 'sub1'
@@ -150,8 +140,7 @@ class ProjectConfigurationManagerTest extends Specification {
             }
         }
 
-        def rootDirTwo = new TestFile(tempFolder.newFolder())
-        rootDirTwo.create {
+        def rootDirTwo = dir("root2") {
             file('settings.gradle').text = '''
                 rootProject.name = 'project two'
                 include 'alpha'
@@ -209,19 +198,16 @@ class ProjectConfigurationManagerTest extends Specification {
 
     def "error thrown when projects of same multi-project build have different shared project configurations"() {
         given:
-        File rootProjectDir = tempFolder.newFolder()
-
         // create root project and use Gradle version 2.0 in the persisted configuration
-        IProject rootProject = workspaceOperations.createProject("root-project", rootProjectDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
-        def requestAttributes = new FixedRequestAttributes(rootProjectDir, null, GradleDistribution.forVersion("2.0"), null,
+        IProject rootProject = workspaceOperations.createProject("root-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
+        def requestAttributes = new FixedRequestAttributes(testDir, null, GradleDistribution.forVersion("2.0"), null,
                 ImmutableList.copyOf("-Xmx256M"), ImmutableList.copyOf("foo"))
         def projectConfiguration = ProjectConfiguration.from(requestAttributes, Path.from(":"))
         configurationManager.saveProjectConfiguration(projectConfiguration, rootProject)
 
         // create child project and use Gradle version 1.0 in the persisted configuration
-        File childProjectDir = tempFolder.newFolder()
-        IProject childProject = workspaceOperations.createProject("child-project", childProjectDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
-        def childRequestAttributes = new FixedRequestAttributes(rootProjectDir, null, GradleDistribution.forVersion("1.0"), null,
+        IProject childProject = workspaceOperations.createProject("child-project", dir("child-project"), Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
+        def childRequestAttributes = new FixedRequestAttributes(testDir, null, GradleDistribution.forVersion("1.0"), null,
                 ImmutableList.copyOf("-Xmx256M"), ImmutableList.copyOf("foo"))
         def childProjectConfiguration = ProjectConfiguration.from(childRequestAttributes, Path.from(":child"))
         configurationManager.saveProjectConfiguration(childProjectConfiguration, childProject)
@@ -235,10 +221,9 @@ class ProjectConfigurationManagerTest extends Specification {
 
     def "save and read project with full configuration"() {
         given:
-        File projectDir = tempFolder.root
-        IProject project = workspaceOperations.createProject("sample-project", projectDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
+        IProject project = workspaceOperations.createProject("sample-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
 
-        def requestAttributes = new FixedRequestAttributes(project.getLocation().toFile(), tempFolder.newFolder(), GradleDistribution.forVersion("1.12"), tempFolder.newFolder(),
+        def requestAttributes = new FixedRequestAttributes(project.getLocation().toFile(), tempFolderProvider.newFolder(), GradleDistribution.forVersion("1.12"), tempFolderProvider.newFolder(),
                 ImmutableList.copyOf("-Xmx256M"), ImmutableList.copyOf("foo"))
         def projectConfiguration = ProjectConfiguration.from(requestAttributes, Path.from(":"))
 
@@ -251,8 +236,7 @@ class ProjectConfigurationManagerTest extends Specification {
 
     def "save and read project with minimal configuration"() {
         given:
-        File projectDir = tempFolder.newFolder()
-        IProject project = workspaceOperations.createProject("sample-project", projectDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
+        IProject project = workspaceOperations.createProject("sample-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
 
         def attributes = new FixedRequestAttributes(project.getLocation().toFile(), null, GradleDistribution.fromBuild(), null,
                 ImmutableList.of(), ImmutableList.of())
@@ -267,8 +251,7 @@ class ProjectConfigurationManagerTest extends Specification {
 
     def "project configuration can be read even if project is not yet refreshed"() {
         given:
-        File projectDir = tempFolder.newFolder()
-        IProject project = workspaceOperations.createProject("sample-project", projectDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
+        IProject project = workspaceOperations.createProject("sample-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
 
         def attributes = new FixedRequestAttributes(project.getLocation().toFile(), null, GradleDistribution.fromBuild(), null,
                 ImmutableList.of(), ImmutableList.of())

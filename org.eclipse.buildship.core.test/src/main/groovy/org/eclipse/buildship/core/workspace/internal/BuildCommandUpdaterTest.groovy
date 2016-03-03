@@ -4,24 +4,19 @@ import com.google.common.base.Optional
 import com.gradleware.tooling.toolingmodel.OmniEclipseBuildCommand
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
+import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification;
+
 import org.eclipse.core.resources.ICommand
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
-class BuildCommandUpdaterTest extends Specification {
-
-    @Rule
-    TemporaryFolder tempFolder
-
-    def cleanup() {
-        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
-    }
+class BuildCommandUpdaterTest extends WorkspaceSpecification {
 
     def "Build command can be set on a project"() {
         given:
-        def project = EclipseProjects.newProject('sample-project', tempFolder.newFolder())
+        def project = newProject('sample-project')
 
         when:
         BuildCommandUpdater.update(project, buildCommand('customBuildCommand', ['key' : 'value']), new NullProgressMonitor())
@@ -34,7 +29,7 @@ class BuildCommandUpdaterTest extends Specification {
 
     def "Build commands are removed if they no longer exist in the Gradle model"() {
         given:
-        def project = EclipseProjects.newProject('sample-project', tempFolder.newFolder())
+        def project = newProject('sample-project')
 
         when:
         BuildCommandUpdater.update(project, buildCommand('customBuildCommand', ['key' : 'value']), new NullProgressMonitor())
@@ -46,7 +41,7 @@ class BuildCommandUpdaterTest extends Specification {
 
     def "Manually added build commands are preserved"() {
         given:
-        def project = EclipseProjects.newProject('sample-project', tempFolder.newFolder())
+        def project = newProject('sample-project')
         def description = project.description
         def command = description.newCommand()
         command.setBuilderName('manuallyCreatedBuildCommand')
@@ -66,7 +61,7 @@ class BuildCommandUpdaterTest extends Specification {
 
     def "Build commands that were previously defined manually are transformed to model elements"() {
         given:
-        def project = EclipseProjects.newProject('sample-project', tempFolder.newFolder())
+        def project = newProject('sample-project')
         def description = project.description
         def command = description.newCommand()
         command.setBuilderName('buildCommand')

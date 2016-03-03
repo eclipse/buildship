@@ -6,23 +6,18 @@ import org.eclipse.core.resources.IProject
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
+import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification;
+
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
-class ProjectNatureUpdaterTest extends Specification {
-
-    @Rule
-    TemporaryFolder tempFolder
-
-    def cleanup() {
-        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
-    }
+class ProjectNatureUpdaterTest extends WorkspaceSpecification {
 
     def "Project nature can be set on a project"() {
         given:
-        def project = EclipseProjects.newProject('sample-project', tempFolder.newFolder())
+        def project = newProject('sample-project')
 
         when:
         ProjectNatureUpdater.update(project, natures('org.eclipse.pde.UpdateSiteNature'), new NullProgressMonitor())
@@ -33,7 +28,7 @@ class ProjectNatureUpdaterTest extends Specification {
 
     def "Project natures are removed if they no longer exist in the Gradle model"() {
         given:
-        def project = EclipseProjects.newProject('sample-project', tempFolder.newFolder())
+        def project = newProject('sample-project')
 
         when:
         ProjectNatureUpdater.update(project, natures('org.eclipse.pde.UpdateSiteNature'), new NullProgressMonitor())
@@ -46,7 +41,7 @@ class ProjectNatureUpdaterTest extends Specification {
 
     def "Manually added natures are preserved"() {
         given:
-        def project = EclipseProjects.newProject('sample-project', tempFolder.newFolder())
+        def project = newProject('sample-project')
         def description = project.description
         description.setNatureIds(['org.eclipse.pde.UpdateSiteNature'] as String[])
         project.setDescription(description, new NullProgressMonitor())
@@ -60,7 +55,7 @@ class ProjectNatureUpdaterTest extends Specification {
 
     def "Project natures that were previously defined manually are transformed to model source folders"() {
         given:
-        def project = EclipseProjects.newProject('sample-project', tempFolder.newFolder())
+        def project = newProject('sample-project')
         def description = project.description
         description.setNatureIds([
             'org.eclipse.pde.UpdateSiteNature'] as String[])

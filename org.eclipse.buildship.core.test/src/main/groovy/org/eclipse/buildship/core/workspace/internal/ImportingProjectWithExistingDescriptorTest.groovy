@@ -45,7 +45,7 @@ class ImportingProjectWithExistingDescriptorTest extends CoupledProjectSynchroni
     def "If the project descriptor is overwritten on import, then all existing settings are removed"() {
         setup:
         IProject project = newJavaProject('sample-project').project
-        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
+        deleteAllProjects(false)
         def projectDir = dir('sample-project') {
             file 'settings.gradle'
         }
@@ -68,7 +68,7 @@ class ImportingProjectWithExistingDescriptorTest extends CoupledProjectSynchroni
         setup:
         EclipseProjects.newProject('subproject-a', dir('sample-project/subproject-a'))
         EclipseProjects.newProject('subproject-b', dir('sample-project/subproject-b'))
-        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
+        deleteAllProjects(false)
         def projectDir = dir('sample-project') {
             file 'settings.gradle', "include 'subproject-a', 'subproject-b'"
         }

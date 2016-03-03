@@ -2,28 +2,34 @@ package org.eclipse.buildship.core.workspace
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
+import org.eclipse.buildship.core.test.fixtures.EclipseProjects;
+import org.eclipse.buildship.core.workspace.internal.ProjectSynchronizationSpecification;
+
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IProjectDescription
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.JavaCore
 
-class SynchronizeGradleProjectJobTest extends ProjectImportSpecification {
+class SynchronizeGradleProjectJobTest extends ProjectSynchronizationSpecification {
+
+    File sampleDir
+    File moduleADir
+    File moduleBDir
 
     def setup() {
-        executeProjectImportAndWait(createSampleProject())
+        importAndWait(createSampleProject())
     }
 
     def "Updates the dependency list" () {
         setup:
-        file('sample', 'moduleA', 'build.gradle').text = """apply plugin: 'java'
-           dependencies { testCompile 'junit:junit:4.12' }
+        fileTree(moduleADir).file('build.gradle').text = """
+            apply plugin: 'java'
+            dependencies { testCompile 'junit:junit:4.12' }
         """
 
         when:
-        new SynchronizeGradleProjectsJob([findProject('moduleA')] as List).schedule()
-        waitForJobsToFinish()
+        synchronizeAndWait(findProject('moduleA'))
 
         then:
         JavaCore.create(findProject('moduleA')).resolvedClasspath.find{ it.path.toPortableString().endsWith('junit-4.12.jar') }
@@ -31,13 +37,10 @@ class SynchronizeGradleProjectJobTest extends ProjectImportSpecification {
 
     def "Gradle nature and Gradle settings file are discarded when the project is excluded from a Gradle build"() {
         setup:
-        file('sample', 'settings.gradle').text = """
-           include 'moduleA'
-        """
+        fileTree(sampleDir).file('settings.gradle').text = "include 'moduleA'"
 
         when:
-        new SynchronizeGradleProjectsJob([findProject('moduleB')] as List).schedule()
-        waitForJobsToFinish()
+        synchronizeAndWait(findProject('moduleB'))
 
         then:
         IProject project = findProject('moduleB')
@@ -49,17 +52,20 @@ class SynchronizeGradleProjectJobTest extends ProjectImportSpecification {
 
     def "A new Gradle module is imported into the workspace"() {
         setup:
-        file('sample', 'settings.gradle').text = """
-           include 'moduleA'
-           include 'moduleB'
-           include 'moduleC'
-        """
-        file('sample', 'moduleC', 'build.gradle') << "apply plugin: 'java'"
-        folder('sample', 'moduleC', 'src', 'main', 'java')
+        fileTree(sampleDir) {
+            file('settings.gradle').text = """
+               include 'moduleA'
+               include 'moduleB'
+               include 'moduleC'
+            """
+            moduleC {
+                file 'build.gradle', "apply plugin: 'java'"
+                dir 'src/main/java'
+            }
+        }
 
         when:
-        new SynchronizeGradleProjectsJob([findProject('moduleB')] as List).schedule()
-        waitForJobsToFinish()
+        synchronizeAndWait(findProject('moduleB'))
 
         then:
         IProject project = findProject('moduleC')
@@ -69,53 +75,41 @@ class SynchronizeGradleProjectJobTest extends ProjectImportSpecification {
 
     def "Project is transformed to a Gradle project when included in a Gradle build"() {
         setup:
-        file('sample', 'settings.gradle').text = """
+        fileTree(sampleDir).file('settings.gradle').text = """
            include 'moduleA'
            include 'moduleB'
            include 'moduleC'
         """
-        folder('sample', 'moduleC', 'src', 'main', 'java')
-        file('sample', 'moduleC', '.project') <<
-        '''<?xml version="1.0" encoding="UTF-8"?>
-            <projectDescription>
-              <name>simple-project</name>
-              <comment>original</comment>
-              <projects></projects>
-              <buildSpec></buildSpec>
-              <natures></natures>
-            </projectDescription>
-        '''
-        IProjectDescription description = CorePlugin.workspaceOperations().findProjectInFolder(folder('sample', 'moduleC'), new NullProgressMonitor()).get()
-        IProject project = workspace.root.getProject(description.getName());
-        project.create(description, null);
-        project.open(IResource.BACKGROUND_REFRESH, null);
-        waitForJobsToFinish()
+        def project = EclipseProjects.newProject("moduleC", new File(sampleDir, "moduleC"))
 
         when:
-        new SynchronizeGradleProjectsJob([findProject('sample')] as List).schedule()
-        waitForJobsToFinish()
+        synchronizeAndWait(findProject('sample'))
 
         then:
         GradleProjectNature.INSTANCE.isPresentOn(project)
     }
 
-    private def createSampleProject() {
-        file('sample', 'build.gradle') <<
-        '''allprojects {
-               repositories { mavenCentral() }
-               apply plugin: 'java'
-           }
-        '''
-        file('sample', 'settings.gradle') <<
-        """
-           include 'moduleA'
-           include 'moduleB'
-        """
-        file('sample', 'moduleA', 'build.gradle') << "apply plugin: 'java'"
-        folder('sample', 'moduleA', 'src', 'main', 'java')
-        file('sample', 'moduleB', 'build.gradle') << "apply plugin: 'java'"
-        folder('sample', 'moduleB', 'src', 'main', 'java')
-        folder('sample')
+    private File createSampleProject() {
+        sampleDir = dir('sample') {
+            file 'build.gradle', '''
+                allprojects {
+                    repositories { mavenCentral() }
+                    apply plugin: 'java'
+                }
+            '''
+            file 'settings.gradle', """
+                include 'moduleA'
+                include 'moduleB'
+            """
+            moduleADir = moduleA {
+                file 'build.gradle', "apply plugin: 'java'"
+                dir 'src/main/java'
+            }
+            moduleBDir = moduleB {
+                file 'build.gradle', "apply plugin: 'java'"
+                dir 'src/main/java'
+            }
+        }
     }
 
 }

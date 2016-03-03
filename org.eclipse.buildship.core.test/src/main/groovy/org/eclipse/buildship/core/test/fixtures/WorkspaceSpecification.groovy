@@ -21,6 +21,7 @@ import spock.lang.Specification
 import com.google.common.io.Files
 
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.jdt.core.IJavaProject;
 
@@ -42,13 +43,21 @@ abstract class WorkspaceSpecification extends Specification {
     }
 
     def cleanup() {
-        deleteAllProjects()
+        deleteAllProjects(true)
     }
 
-    private void deleteAllProjects() {
+    protected void deleteAllProjects(boolean includingContent) {
         for (IProject project : CorePlugin.workspaceOperations().allProjects) {
-            project.delete(true, true, null);
+            project.delete(includingContent, true, null);
         }
+    }
+
+    protected FileTreeBuilder fileTree(File baseDir) {
+        new FileTreeBuilder(baseDir)
+    }
+
+    protected File fileTree(File baseDir, @DelegatesTo(value = FileTreeBuilder, strategy = Closure.DELEGATE_FIRST) Closure config) {
+        fileTree(baseDir).call(config)
     }
 
     protected File dir(String location) {
@@ -58,25 +67,25 @@ abstract class WorkspaceSpecification extends Specification {
     }
 
     protected File dir(String location, @DelegatesTo(value = FileTreeBuilder, strategy = Closure.DELEGATE_FIRST) Closure config) {
-        return new FileTreeBuilder(dir(location)).call(config)
+        return fileTree(dir(location), config)
     }
 
     protected File getDir(String location) {
-        return new File(dir, location)
+        return new File(testDir, location)
     }
 
-    protected File getDir() {
+    protected File getTestDir() {
         externalTestDir
     }
 
     protected File file(String location) {
-        def file = new File(dir, location)
-        Files.createParentDirs(file)
+        def file = getFile(location)
+        Files.touch(file)
         return file
     }
 
     protected File getFile(String location) {
-        return new File(dir, location)
+        return new File(testDir, location)
     }
 
 
@@ -87,20 +96,24 @@ abstract class WorkspaceSpecification extends Specification {
     }
 
     protected File workspaceDir(String location, @DelegatesTo(value = FileTreeBuilder, strategy = Closure.DELEGATE_FIRST) Closure config) {
-        return new FileTreeBuilder(workspaceDir(location)).call(config)
+        return fileTree(workspaceDir(location), config)
     }
 
     protected File getWorkspaceDir(String location) {
         return new File(workspaceDir, location)
     }
 
+    protected IWorkspace getWorkspace() {
+        LegacyEclipseSpockTestHelper.workspace
+    }
+
     protected File getWorkspaceDir() {
-        LegacyEclipseSpockTestHelper.workspace.root.location.toFile()
+        workspace.root.location.toFile()
     }
 
     protected File workspaceFile(String location) {
         def file = getWorkspaceFile(location)
-        Files.createParentDirs(file)
+        Files.touch(file)
         return file
     }
 
@@ -120,17 +133,11 @@ abstract class WorkspaceSpecification extends Specification {
         EclipseProjects.newJavaProject(name, dir(name))
     }
 
+    protected List<IProject> allProjects() {
+        workspace.root.projects
+    }
+
     protected IProject findProject(String name) {
         CorePlugin.workspaceOperations().findProjectByName(name).orNull()
-    }
-
-    protected static def waitForJobsToFinish() {
-        while (!Job.jobManager.isIdle()) {
-            delay(100)
-        }
-    }
-
-    protected static def delay(long waitTimeMillis) {
-        Thread.sleep(waitTimeMillis)
     }
 }

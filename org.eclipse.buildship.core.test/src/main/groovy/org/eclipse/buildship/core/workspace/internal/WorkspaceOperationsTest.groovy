@@ -20,6 +20,7 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.ProjectConfiguration
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
+import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import org.eclipse.core.resources.IProject
@@ -33,22 +34,15 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Shared
 import spock.lang.Specification
 
-class WorkspaceOperationsTest extends Specification {
+class WorkspaceOperationsTest extends WorkspaceSpecification {
 
     @Shared
     WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations()
 
-    @Rule
-    TemporaryFolder tempFolder
-
-    def cleanup() {
-        workspaceOperations.deleteAllProjects(new NullProgressMonitor())
-    }
-
     def "can create a new project"() {
         setup:
         workspaceOperations.deleteAllProjects(new NullProgressMonitor())
-        def projectFolder = tempFolder.newFolder("sample-project-folder")
+        def projectFolder = dir("sample-project-folder")
 
         when:
         IProject project = workspaceOperations.createProject("sample-project", projectFolder, ImmutableList.of(GradleProjectNature.ID), null)
@@ -63,7 +57,7 @@ class WorkspaceOperationsTest extends Specification {
     def "Project can be created without any natures"() {
         setup:
         workspaceOperations.deleteAllProjects(new NullProgressMonitor())
-        def projectFolder = tempFolder.newFolder("sample-project-folder")
+        def projectFolder = dir("sample-project-folder")
 
         when:
         IProject project = workspaceOperations.createProject("sample-project", projectFolder, ImmutableList.of(), null)
@@ -75,7 +69,7 @@ class WorkspaceOperationsTest extends Specification {
     def "Project can be created with multiple natures"() {
         setup:
         workspaceOperations.deleteAllProjects(new NullProgressMonitor())
-        def projectFolder = tempFolder.newFolder("sample-project-folder")
+        def projectFolder = dir("sample-project-folder")
 
         when:
         IProject project = workspaceOperations.createProject("sample-project", projectFolder, ImmutableList.of(JavaCore.NATURE_ID, GradleProjectNature.ID), new NullProgressMonitor())
@@ -97,7 +91,7 @@ class WorkspaceOperationsTest extends Specification {
 
     def "Importing a file is considered invalid"() {
         when:
-        workspaceOperations.createProject("projectname", tempFolder.newFile("filename"), ImmutableList.of(), new NullProgressMonitor())
+        workspaceOperations.createProject("projectname", file("filename"), ImmutableList.of(), new NullProgressMonitor())
 
         then:
         thrown(IllegalArgumentException)
@@ -105,7 +99,7 @@ class WorkspaceOperationsTest extends Specification {
 
     def "Importing project with name existing already in workspace fails"() {
         setup:
-        def projectFolder = tempFolder.newFolder("projectname")
+        def projectFolder = dir("projectname")
 
         when:
         workspaceOperations.createProject("projectname", projectFolder, ImmutableList.of(), new NullProgressMonitor())
@@ -117,7 +111,7 @@ class WorkspaceOperationsTest extends Specification {
 
     def "Project name can't be empty when created"() {
         setup:
-        def projectFolder = tempFolder.newFolder("projectname")
+        def projectFolder = dir("projectname")
 
         when:
         workspaceOperations.createProject("", projectFolder, ImmutableList.of(), new NullProgressMonitor())
@@ -128,7 +122,7 @@ class WorkspaceOperationsTest extends Specification {
 
     def "Project name can't be null when created"() {
         setup:
-        def projectFolder = tempFolder.newFolder("projectname")
+        def projectFolder = dir("projectname")
 
         when:
         workspaceOperations.createProject(null, projectFolder, ImmutableList.of(), new NullProgressMonitor())
@@ -151,7 +145,7 @@ class WorkspaceOperationsTest extends Specification {
 
     def "A project can be deleted"() {
         setup:
-        workspaceOperations.createProject("sample-project", tempFolder.newFolder(), ImmutableList.of(), new NullProgressMonitor())
+        workspaceOperations.createProject("sample-project", testDir, ImmutableList.of(), new NullProgressMonitor())
         assert workspaceOperations.allProjects.size() == 1
 
         when:
@@ -163,7 +157,7 @@ class WorkspaceOperationsTest extends Specification {
 
     def "Closed projects can be deleted"() {
         setup:
-        IProject project = workspaceOperations.createProject("sample-project", tempFolder.newFolder(), ImmutableList.of(), new NullProgressMonitor())
+        IProject project = workspaceOperations.createProject("sample-project", testDir, ImmutableList.of(), new NullProgressMonitor())
         project.close(null)
 
         when:
@@ -215,7 +209,7 @@ class WorkspaceOperationsTest extends Specification {
 
     def "Java project can be created"() {
         setup:
-        def rootFolder = tempFolder.newFolder()
+        def rootFolder = testDir
         IProject project = workspaceOperations.createProject("sample-project", rootFolder, ImmutableList.of(), new NullProgressMonitor())
         def attributes = new FixedRequestAttributes(rootFolder, null, GradleDistribution.fromBuild(), null, ImmutableList.<String> of(), ImmutableList.<String> of())
         ProjectConfiguration projectConfiguration = ProjectConfiguration.from(attributes, Path.from(':'))
@@ -256,7 +250,7 @@ class WorkspaceOperationsTest extends Specification {
 
     def "Java project can't be created without JRE path"() {
         setup:
-        IProject project = workspaceOperations.createProject("sample-project", tempFolder.newFolder(), ImmutableList.of(JavaCore.NATURE_ID), new NullProgressMonitor())
+        IProject project = workspaceOperations.createProject("sample-project", testDir, ImmutableList.of(JavaCore.NATURE_ID), new NullProgressMonitor())
 
         when:
         workspaceOperations.createJavaProject(project, null, GradleClasspathContainer.newClasspathEntry(), new NullProgressMonitor())
@@ -454,14 +448,7 @@ class WorkspaceOperationsTest extends Specification {
     }
 
     private def createSampleProject() {
-        File projectLocation = tempFolder.newFolder('sample-project')
-        IProjectDescription projectDescription = LegacyEclipseSpockTestHelper.workspace.newProjectDescription('sample-project')
-        projectDescription.setLocation(new org.eclipse.core.runtime.Path(projectLocation.absolutePath))
-        projectDescription.setComment(String.format("Project %s created by Buildship.", 'sample-project'))
-        IProject project = LegacyEclipseSpockTestHelper.workspace.root.getProject('sample-project')
-        project.create(projectDescription, new NullProgressMonitor())
-        project.open(new NullProgressMonitor())
-        project
+        newProject("sample-project")
     }
 
 }

@@ -5,7 +5,10 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.Logger
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.test.fixtures.TestEnvironment
+import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification;
+
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.IStatus
@@ -20,23 +23,14 @@ import spock.lang.Ignore
 import spock.lang.Specification
 
 
-@Ignore
-class GradleProjectBuilderTest extends Specification {
-
-    @Rule
-    TemporaryFolder tempFolder
-
-    def cleanup() {
-        CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
-    }
+class GradleProjectBuilderTest extends WorkspaceSpecification {
 
     def "Can configure builder on simple project"() {
         given:
-        def projectFolder = tempFolder.newFolder("sample-project-folder")
-        IProject project = CorePlugin.workspaceOperations().createProject("sample-project", projectFolder, ImmutableList.of(), null)
+        def project = newProject("sample-project")
 
         when:
-        executeWithWorkspaceRootRule{ GradleProjectBuilder.INSTANCE.configureOnProject(project) }
+        modifyWorkspace { GradleProjectBuilder.INSTANCE.configureOnProject(project) }
 
         then:
         project.getDescription().getBuildSpec().length == 1
@@ -45,12 +39,11 @@ class GradleProjectBuilderTest extends Specification {
 
     def "Builder configuration is idempotent"() {
         given:
-        def projectFolder = tempFolder.newFolder("sample-project-folder")
-        IProject project = CorePlugin.workspaceOperations().createProject("sample-project", projectFolder, ImmutableList.of(), null)
+        def project = newProject("sample-project")
 
         when:
-        executeWithWorkspaceRootRule{ GradleProjectBuilder.INSTANCE.configureOnProject(project) }
-        executeWithWorkspaceRootRule{ GradleProjectBuilder.INSTANCE.configureOnProject(project) }
+        modifyWorkspace { GradleProjectBuilder.INSTANCE.configureOnProject(project) }
+        modifyWorkspace { GradleProjectBuilder.INSTANCE.configureOnProject(project) }
 
         then:
         project.getDescription().getBuildSpec().length == 1
@@ -59,12 +52,11 @@ class GradleProjectBuilderTest extends Specification {
 
     def "Can deconfigure builder on simple project"() {
         given:
-        def projectFolder = tempFolder.newFolder("sample-project-folder")
-        IProject project = CorePlugin.workspaceOperations().createProject("sample-project", projectFolder, ImmutableList.of(), null)
+        def project = newProject("sample-project")
 
         when:
-        executeWithWorkspaceRootRule{ GradleProjectBuilder.INSTANCE.configureOnProject(project) }
-        executeWithWorkspaceRootRule{ GradleProjectBuilder.INSTANCE.deconfigureOnProject(project) }
+        modifyWorkspace { GradleProjectBuilder.INSTANCE.configureOnProject(project) }
+        modifyWorkspace { GradleProjectBuilder.INSTANCE.deconfigureOnProject(project) }
 
         then:
         project.getDescription().getBuildSpec().length == 0
@@ -72,11 +64,10 @@ class GradleProjectBuilderTest extends Specification {
 
     def "Can deconfigure if builder is not present"() {
         given:
-        def projectFolder = tempFolder.newFolder("sample-project-folder")
-        IProject project = CorePlugin.workspaceOperations().createProject("sample-project", projectFolder, ImmutableList.of(), null)
+        def project = newProject("sample-project")
 
         when:
-        executeWithWorkspaceRootRule{ GradleProjectBuilder.INSTANCE.deconfigureOnProject(project) } 
+        modifyWorkspace { GradleProjectBuilder.INSTANCE.deconfigureOnProject(project) }
 
         then:
         project.getDescription().getBuildSpec().length == 0
@@ -88,7 +79,7 @@ class GradleProjectBuilderTest extends Specification {
         TestEnvironment.registerService(Logger, logger)
 
         when:
-        executeWithWorkspaceRootRule{ GradleProjectBuilder.INSTANCE.configureOnProject(bogusProject) }
+        modifyWorkspace { GradleProjectBuilder.INSTANCE.configureOnProject(bogusProject) }
 
         then:
         1 * logger.error(_)
@@ -103,7 +94,7 @@ class GradleProjectBuilderTest extends Specification {
         TestEnvironment.registerService(Logger, logger)
 
         when:
-        executeWithWorkspaceRootRule{ GradleProjectBuilder.INSTANCE.deconfigureOnProject(bogusProject) }
+        modifyWorkspace { GradleProjectBuilder.INSTANCE.deconfigureOnProject(bogusProject) }
 
         then:
         1 * logger.error(_)
@@ -119,19 +110,10 @@ class GradleProjectBuilderTest extends Specification {
         project
     }
 
-    private void executeWithWorkspaceRootRule(Closure closure) {
-        executeWithRule(LegacyEclipseSpockTestHelper.workspace.root, closure)
-    }
-
-    private void executeWithRule(ISchedulingRule rule, Closure closure) {
-        Job job = new Job("Test") {
-            protected IStatus run(IProgressMonitor monitor) {
-                Job.jobManager.beginRule(rule, monitor)
-                try {
-                    closure()
-                } finally {
-                    Job.jobManager.endRule(rule)
-                }
+    private void modifyWorkspace(Closure closure) {
+        Job job = new WorkspaceJob("Test") {
+            IStatus runInWorkspace(IProgressMonitor arg0) throws CoreException {
+                closure()
                 Status.OK_STATUS
             };
         }
