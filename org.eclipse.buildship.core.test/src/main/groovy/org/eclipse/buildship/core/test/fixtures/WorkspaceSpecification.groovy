@@ -29,7 +29,7 @@ import org.eclipse.buildship.core.CorePlugin
  * Base Spock test specification to verify Buildship functionality against the current state of the
  * workspace.
  */
-abstract class BuildshipTestSpecification extends Specification {
+abstract class WorkspaceSpecification extends Specification {
 
     @Rule
     TemporaryFolder tempFolderProvider

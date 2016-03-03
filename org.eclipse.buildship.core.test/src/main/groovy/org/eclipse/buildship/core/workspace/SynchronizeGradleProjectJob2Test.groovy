@@ -15,14 +15,14 @@ import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectBuilder
 import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.test.fixtures.BuildshipTestSpecification
+import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.test.fixtures.TestEnvironment
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.util.variable.ExpressionUtils
 
-class SynchronizeGradleProjectJob2Test extends BuildshipTestSpecification {
+class SynchronizeGradleProjectJob2Test extends WorkspaceSpecification {
 
     def "Project import job creates a new project in the workspace"(boolean projectDescriptorExists) {
         setup:
