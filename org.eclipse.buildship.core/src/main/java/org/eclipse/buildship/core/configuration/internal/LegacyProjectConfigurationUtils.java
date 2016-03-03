@@ -15,21 +15,27 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.util.Map;
 
 import org.osgi.service.prefs.BackingStoreException;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 import com.google.common.io.CharStreams;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
-import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
- * Cleans up project artifacts created by previous versions of Buildship.
+ * Cleans up project artifacts created by Buildship versions < 1.0.10.
  */
 final class LegacyProjectConfigurationUtils {
 
@@ -39,20 +45,35 @@ final class LegacyProjectConfigurationUtils {
     private LegacyProjectConfigurationUtils() {
     }
 
-    public static void cleanup(IProject project) {
-        Preconditions.checkNotNull(project);
-        Preconditions.checkArgument(project.isAccessible());
+    public static boolean hasLegacyConfiguration(IProject project) {
+        return getLegacyConfigurationFile(project).exists();
+    }
 
-        File gradlePrefsFile = new File(project.getLocation().toFile(), GRADLE_PREFERENCES_LOCATION);
-        if (gradlePrefsFile.exists()) {
-            try {
-                String gradlePrefs = getContents(gradlePrefsFile);
-                savePreferences(project, gradlePrefs);
-                ensureNoProjectPreferencesLoadedFrom(project);
-                deleteLegacyFile(gradlePrefsFile);
-            } catch (Exception e) {
-                CorePlugin.logger().warn(String.format("Cannot clean up legacy project configuration on project %s", project.getName()), e);
-            }
+    private static File getLegacyConfigurationFile(IProject project) {
+        return new File(project.getLocation().toFile(), GRADLE_PREFERENCES_LOCATION);
+    }
+
+    public static Map<ProjectConfigurationProperties, String> readLegacyConfiguration(IProject project) {
+        try {
+            File gradlePrefsFile = getLegacyConfigurationFile(project);
+            String json = getContents(gradlePrefsFile);
+
+            Gson gson = new GsonBuilder().create();
+            Map<String, Object> config = gson.fromJson(json, createMapTypeToken());
+            Map<String, String> projectConfig = getProjectConfigForVersion(config);
+
+            Map<ProjectConfigurationProperties, String> legacyConfig = Maps.newHashMap();
+            legacyConfig.put(ProjectConfigurationProperties.PROJECT_PATH, projectConfig.get("project_path"));
+            legacyConfig.put(ProjectConfigurationProperties.CONNECTION_PROJECT_DIR, projectConfig.get("connection_project_dir"));
+            legacyConfig.put(ProjectConfigurationProperties.CONNECTION_GRADLE_USER_HOME, projectConfig.get("connection_gradle_user_home"));
+            legacyConfig.put(ProjectConfigurationProperties.CONNECTION_GRADLE_DISTRIBUTION, projectConfig.get("connection_gradle_distribution"));
+            legacyConfig.put(ProjectConfigurationProperties.CONNECTION_JAVA_HOME, projectConfig.get("connection_java_home"));
+            legacyConfig.put(ProjectConfigurationProperties.CONNECTION_JVM_ARGUMENTS, projectConfig.get("connection_jvm_arguments"));
+            legacyConfig.put(ProjectConfigurationProperties.CONNECTION_ARGUMENTS, projectConfig.get("connection_arguments"));
+
+            return legacyConfig;
+        } catch (Exception e) {
+            throw new GradlePluginsRuntimeException("Cannot retrieve legacy project configuration", e);
         }
     }
 
@@ -71,11 +92,29 @@ final class LegacyProjectConfigurationUtils {
         }
     }
 
-    private static void savePreferences(IProject project, String projectPreferences) throws BackingStoreException {
-        ProjectScope scope = new ProjectScope(project);
-        IEclipsePreferences preferences = scope.getNode(CorePlugin.PLUGIN_ID);
-        preferences.put(ProjectConfigurationPersistence.GRADLE_PROJECT_CONFIGURATION, projectPreferences);
-        preferences.flush();
+    @SuppressWarnings("serial")
+    private static Type createMapTypeToken() {
+        return new TypeToken<Map<String, Object>>() {
+        }.getType();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, String> getProjectConfigForVersion(Map<String, Object> config) {
+        return (Map<String, String>) config.get("1.0");
+    }
+
+    public static void cleanup(IProject project) {
+        Preconditions.checkNotNull(project);
+        Preconditions.checkArgument(project.isAccessible());
+
+        if (hasLegacyConfiguration(project)) {
+            try {
+                ensureNoProjectPreferencesLoadedFrom(project);
+                getLegacyConfigurationFile(project).delete();
+            } catch (Exception e) {
+                throw new GradlePluginsRuntimeException("Cannot clean up legacy project configuration", e);
+            }
+        }
     }
 
     private static void ensureNoProjectPreferencesLoadedFrom(IProject project) throws BackingStoreException {
@@ -86,13 +125,6 @@ final class LegacyProjectConfigurationUtils {
         IEclipsePreferences node = projectScope.getNode(GRADLE_PREFERENCES_FILE_NAME_WITHOUT_EXTENSION);
         if (node != null) {
             node.removeNode();
-        }
-    }
-
-    private static void deleteLegacyFile(File gradlePrefsFile) throws IOException {
-        boolean result = gradlePrefsFile.delete();
-        if (!result) {
-            throw new IOException(String.format("Cannot delete old preference file %s", gradlePrefsFile.getAbsolutePath()));
         }
     }
 

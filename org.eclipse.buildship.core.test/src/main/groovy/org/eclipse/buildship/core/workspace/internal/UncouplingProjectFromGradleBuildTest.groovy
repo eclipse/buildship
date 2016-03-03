@@ -6,7 +6,8 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationPersistence;
+import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationPersistence
+import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationProperties
 import org.eclipse.buildship.core.test.fixtures.GradleModel
 
 class UncouplingProjectFromGradleBuildTest extends ProjectSynchronizationSpecification {
@@ -74,7 +75,7 @@ class UncouplingProjectFromGradleBuildTest extends ProjectSynchronizationSpecifi
 
         expect:
         IProject project = findProject('subproject-a')
-        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(ProjectConfigurationPersistence.GRADLE_PROJECT_CONFIGURATION, null)
+        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(ProjectConfigurationProperties.CONNECTION_PROJECT_DIR.key, null)
 
         when:
         fileStructure().create { file 'sample-project/settings.gradle', "'subproject-b'" }
@@ -83,6 +84,6 @@ class UncouplingProjectFromGradleBuildTest extends ProjectSynchronizationSpecifi
 
         then:
         project == findProject('subproject-a')
-        !new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(ProjectConfigurationPersistence.GRADLE_PROJECT_CONFIGURATION, null)
+        !new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(ProjectConfigurationProperties.CONNECTION_PROJECT_DIR.key, null)
     }
 }

@@ -3,6 +3,7 @@ package org.eclipse.buildship.core.workspace
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationPersistence
+import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationProperties
 import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IProjectDescription
@@ -45,7 +46,7 @@ class SynchronizeGradleProjectJobTest extends ProjectImportSpecification {
         IProject project = findProject('moduleB')
         project != null
         !GradleProjectNature.INSTANCE.isPresentOn(project)
-        !new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(ProjectConfigurationPersistence.GRADLE_PROJECT_CONFIGURATION, null)
+        !new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(ProjectConfigurationProperties.CONNECTION_PROJECT_DIR.key, null)
     }
 
     def "A new Gradle module is imported into the workspace"() {

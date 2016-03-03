@@ -25,6 +25,7 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
+import org.eclipse.core.resources.ProjectScope
 import org.eclipse.core.runtime.NullProgressMonitor
 
 import org.eclipse.buildship.core.CorePlugin
@@ -285,6 +286,32 @@ class ProjectConfigurationManagerTest extends Specification {
 
         then:
         readConfiguration == projectConfiguration
+    }
+
+    def "legacy project configuration is converted to use the Eclipse preferences api"() {
+        setup:
+        File projectDir = tempFolder.root
+        tempFolder.newFolder('.settings')
+        tempFolder.newFile('.settings/gradle.prefs') << """{
+          "1.0": {
+             "project_path": ":",
+             "connection_project_dir": ".",
+             "connection_gradle_user_home": null,
+             "connection_gradle_distribution": "GRADLE_DISTRIBUTION(WRAPPER)",
+             "connection_java_home": null,
+             "connection_jvm_arguments": "",
+             "connection_arguments": ""
+          }
+        }
+        """
+        IProject project = workspaceOperations.createProject("sample-project", projectDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
+
+        when:
+        configurationManager.saveProjectConfiguration(configurationManager.readProjectConfiguration(project), project)
+
+        then:
+        !new File(projectDir, '.settings/gradle.prefs').exists()
+        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(ProjectConfigurationProperties.PROJECT_PATH.key, null) == ':'
     }
 
 }
