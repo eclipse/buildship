@@ -6,7 +6,6 @@ import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationPersistence
 import org.eclipse.buildship.core.test.fixtures.BuildshipTestSpecification
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
-import org.eclipse.buildship.core.test.fixtures.FileStructure
 import org.eclipse.buildship.core.test.fixtures.GradleModel
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler
@@ -32,9 +31,8 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "The Gradle nature is set"() {
         setup:
         prepareProject('sample-project')
-        fileStructure().create {
-            file 'sample-project/build.gradle'
-            file 'sample-project/settings.gradle'
+        fileTree('sample-project') {
+            file 'settings.gradle'
         }
         GradleModel gradleModel = loadGradleModel('sample-project')
 
@@ -51,8 +49,8 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "Natures and build commands are set"() {
         setup:
         prepareProject('sample-project')
-        fileStructure().create {
-            file 'sample-project/build.gradle', """
+        fileTree('sample-project') {
+            file 'build.gradle', """
                 apply plugin: 'eclipse'
                 eclipse {
                     project {
@@ -61,7 +59,6 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
                     }
                 }
             """
-            file 'sample-project/settings.gradle'
         }
         GradleModel gradleModel = loadGradleModel('sample-project')
 
@@ -77,9 +74,8 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "The Gradle settings file is written"() {
         setup:
         prepareProject('sample-project')
-        fileStructure().create {
-            file 'sample-project/build.gradle'
-            file 'sample-project/settings.gradle'
+        fileTree('sample-project') {
+            file 'settings.gradle'
         }
         GradleModel gradleModel = loadGradleModel('sample-project')
 
@@ -94,9 +90,8 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "Resource filters are set"() {
         setup:
         prepareProject('sample-project')
-        fileStructure().create {
-            file 'sample-project/build.gradle'
-            file 'sample-project/settings.gradle'
+        fileTree('sample-project') {
+            file 'settings.gradle'
         }
         GradleModel gradleModel = loadGradleModel('sample-project')
 
@@ -117,13 +112,15 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "Linked resources are set"() {
         setup:
         prepareProject('sample-project')
-        fileStructure().create {
-            file 'sample-project/build.gradle',
-            '''apply plugin: "java"
-               sourceSets { main { java { srcDir '../another-project/src' } } }
-            '''
-            file 'sample-project/settings.gradle'
-            folder 'another-project/src'
+        fileTree {
+            dir('sample-project') {
+                file 'build.gradle',
+                '''
+                    apply plugin: "java"
+                    sourceSets { main { java { srcDir '../another-project/src' } } }
+                '''
+            }
+            dir 'another-project/src'
         }
         GradleModel gradleModel = loadGradleModel('sample-project')
 
@@ -138,14 +135,13 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "Source settings are updated"() {
         setup:
         prepareJavaProject('sample-project')
-        fileStructure().create {
-            file 'sample-project/build.gradle', """
+        fileTree('sample-project') {
+            file 'build.gradle', """
                 apply plugin: 'java'
                 sourceCompatibility = 1.2
                 targetCompatibility = 1.3
             """
-            file 'sample-project/settings.gradle'
-            folder 'sample-project/src/main/java'
+            dir 'src/main/java'
         }
         GradleModel gradleModel = loadGradleModel('sample-project')
 
@@ -162,10 +158,9 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "Source folders are updated"() {
         setup:
         prepareJavaProject('sample-project')
-        fileStructure().create {
-            file 'sample-project/build.gradle', 'apply plugin: "java"'
-            file 'sample-project/settings.gradle'
-            folder 'sample-project/src/main/java'
+        fileTree('sample-project') {
+            file 'build.gradle', 'apply plugin: "java"'
+            dir 'src/main/java'
         }
         GradleModel gradleModel = loadGradleModel('sample-project')
 
@@ -185,10 +180,9 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "If the project applies the java plugin, then it's converted to a Java project"() {
         setup:
         prepareProject('sample-project')
-        fileStructure().create {
-            file 'sample-project/build.gradle', 'apply plugin: "java"'
-            file 'sample-project/settings.gradle'
-            folder 'sample-project/src/main/java'
+        fileTree('sample-project') {
+            file 'build.gradle', 'apply plugin: "java"'
+            dir 'src/main/java'
         }
         GradleModel gradleModel = loadGradleModel('sample-project')
 
@@ -203,10 +197,9 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "If the project applies the Java plugin, then the Gradle classpath container is added"() {
         setup:
         prepareProject("sample-project")
-        fileStructure().create {
-            file 'sample-project/build.gradle', 'apply plugin: "java"'
-            file 'sample-project/settings.gradle'
-            folder 'sample-project/src/main/java'
+        fileTree('sample-project') {
+            file 'build.gradle', 'apply plugin: "java"'
+            dir 'src/main/java'
         }
         GradleModel gradleModel = loadGradleModel('sample-project')
 

@@ -6,7 +6,6 @@ import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationPersistence
 import org.eclipse.buildship.core.test.fixtures.BuildshipTestSpecification
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
-import org.eclipse.buildship.core.test.fixtures.FileStructure
 import org.eclipse.buildship.core.test.fixtures.GradleModel
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler
@@ -29,9 +28,8 @@ class ImportingProjectWithExistingDescriptorTest extends CoupledProjectSynchroni
         def project = newOpenProject("sample-project")
         project.delete(false, null)
         setup:
-        fileStructure().create {
-            file 'sample-project/build.gradle'
-            file 'sample-project/settings.gradle'
+        fileTree('sample-project') {
+            file 'settings.gradle'
         }
         GradleModel gradleModel = loadGradleModel('sample-project')
 
@@ -50,10 +48,8 @@ class ImportingProjectWithExistingDescriptorTest extends CoupledProjectSynchroni
         setup:
         IProject project = newJavaProject('sample-project').project
         CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
-        fileStructure().create {
-            file 'sample-project/build.gradle', """
-            """
-            file 'sample-project/settings.gradle'
+        fileTree('sample-project') {
+            file 'settings.gradle'
         }
         GradleModel gradleModel = loadGradleModel('sample-project')
 
@@ -76,11 +72,8 @@ class ImportingProjectWithExistingDescriptorTest extends CoupledProjectSynchroni
         EclipseProjects.newProject('subproject-a', folder('sample-project/subproject-a'))
         EclipseProjects.newProject('subproject-b', folder('sample-project/subproject-b'))
         CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
-        fileStructure().create {
-            file 'sample-project/subproject-a/build.gradle'
-            file 'sample-project/subproject-b/build.gradle'
-            file 'sample-project/build.gradle'
-            file 'sample-project/settings.gradle', "include 'subproject-a', 'subproject-b'"
+        fileTree('sample-project') {
+            file 'settings.gradle', "include 'subproject-a', 'subproject-b'"
         }
         ExistingDescriptorHandler handler = Mock(ExistingDescriptorHandler)
 

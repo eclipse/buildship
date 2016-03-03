@@ -7,9 +7,8 @@ class ImportingProjectWithoutDescriptorTest extends CoupledProjectSynchronizatio
 
     def "The project is created and added to the workspace"() {
         setup:
-        fileStructure().create {
-            file 'sample-project/build.gradle'
-            file 'sample-project/settings.gradle'
+        fileTree('sample-project') {
+            file 'settings.gradle'
         }
         GradleModel gradleModel = loadGradleModel('sample-project')
 

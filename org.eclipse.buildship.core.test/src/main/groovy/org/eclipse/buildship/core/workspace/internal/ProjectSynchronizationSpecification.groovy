@@ -1,5 +1,9 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import groovy.lang.DelegatesTo;
+
+import com.gradleware.tooling.junit.TestDirectoryProvider;
+
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.IStatus
@@ -11,7 +15,6 @@ import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.test.fixtures.BuildshipTestSpecification
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
-import org.eclipse.buildship.core.test.fixtures.FileStructure
 import org.eclipse.buildship.core.test.fixtures.GradleModel
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler
@@ -46,8 +49,12 @@ abstract class ProjectSynchronizationSpecification extends BuildshipTestSpecific
         EclipseProjects.newJavaProject(name, folder(name))
     }
 
-    protected FileStructure fileStructure() {
-        new FileStructure(externalTestFolder){}
+    protected File fileTree(@DelegatesTo(value = FileTreeBuilder, strategy = Closure.DELEGATE_FIRST) Closure config) {
+        return new FileTreeBuilder(externalTestFolder).call(config)
+    }
+
+    protected File fileTree(String projectName, @DelegatesTo(value = FileTreeBuilder, strategy = Closure.DELEGATE_FIRST) Closure config) {
+        return new FileTreeBuilder(externalTestFolder).dir(projectName, config)
     }
 
     protected GradleModel loadGradleModel(String location) {
