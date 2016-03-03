@@ -36,10 +36,6 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
 
     final def String TEST_PROJECT_NAME = "TestProject"
 
-    def cleanup() {
-        CorePlugin.workspaceOperations().deleteAllProjects(null)
-    }
-
     def "Can open new wizard from menu bar"() {
         setup:
         openGradleCreationWizard()

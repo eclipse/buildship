@@ -41,7 +41,7 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
 
     def "can create a new project"() {
         setup:
-        workspaceOperations.deleteAllProjects(new NullProgressMonitor())
+        deleteAllProjects(false)
         def projectFolder = dir("sample-project-folder")
 
         when:
@@ -56,7 +56,7 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
 
     def "Project can be created without any natures"() {
         setup:
-        workspaceOperations.deleteAllProjects(new NullProgressMonitor())
+        deleteAllProjects(false)
         def projectFolder = dir("sample-project-folder")
 
         when:
@@ -68,7 +68,7 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
 
     def "Project can be created with multiple natures"() {
         setup:
-        workspaceOperations.deleteAllProjects(new NullProgressMonitor())
+        deleteAllProjects(false)
         def projectFolder = dir("sample-project-folder")
 
         when:
@@ -129,42 +129,6 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
 
         then:
         thrown(NullPointerException)
-    }
-
-    ///////////////////////////////////
-    // tests for deleteAllProjects() //
-    ///////////////////////////////////
-
-    def "Delete succeeds when the workspace is empty"() {
-        when:
-        workspaceOperations.deleteAllProjects(new NullProgressMonitor())
-
-        then:
-        workspaceOperations.allProjects.empty
-    }
-
-    def "A project can be deleted"() {
-        setup:
-        workspaceOperations.createProject("sample-project", testDir, ImmutableList.of(), new NullProgressMonitor())
-        assert workspaceOperations.allProjects.size() == 1
-
-        when:
-        workspaceOperations.deleteAllProjects(new NullProgressMonitor())
-
-        then:
-        assert workspaceOperations.allProjects.size() == 0
-    }
-
-    def "Closed projects can be deleted"() {
-        setup:
-        IProject project = workspaceOperations.createProject("sample-project", testDir, ImmutableList.of(), new NullProgressMonitor())
-        project.close(null)
-
-        when:
-        workspaceOperations.deleteAllProjects(new NullProgressMonitor())
-
-        then:
-        assert workspaceOperations.allProjects.size() == 0
     }
 
     /////////////////////////

@@ -111,27 +111,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
-    public void deleteAllProjects(IProgressMonitor monitor) {
-        monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
-        monitor.beginTask("Delete all Eclipse projects from workspace", 100);
-        try {
-            List<IProject> allProjects = getAllProjects();
-            for (IProject project : allProjects) {
-                try {
-                    // don't delete the project from the file system, only from the workspace
-                    // moreover, force the removal even if the object is out-of-sync with the file system
-                    project.delete(false, true, new SubProgressMonitor(monitor, 100 / allProjects.size()));
-                } catch (Exception e) {
-                    String message = String.format("Cannot delete project %s.", project.getName());
-                    throw new GradlePluginsRuntimeException(message, e);
-                }
-            }
-        } finally {
-            monitor.done();
-        }
-    }
-
-    @Override
     public void deleteProjectDescriptors(File location) {
         new File(location, ".project").delete();
         new File(location, ".classpath").delete();

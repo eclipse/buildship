@@ -42,6 +42,16 @@ abstract class SwtBotSpecification extends Specification {
         closeAllShellsExceptTheApplicationShellAndForceShellActivation()
     }
 
+    def cleanup() {
+        deleteAllProjects(true)
+    }
+
+    protected void deleteAllProjects(boolean includingContent) {
+        for (IProject project : CorePlugin.workspaceOperations().allProjects) {
+            project.delete(includingContent, true, null);
+        }
+    }
+
     private static void closeWelcomePageIfAny() {
         try {
             SWTBotView view = bot.activeView()

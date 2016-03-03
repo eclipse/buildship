@@ -67,17 +67,6 @@ public interface WorkspaceOperations {
     Optional<IProjectDescription> findProjectInFolder(File location, IProgressMonitor monitor);
 
     /**
-     * Removes all of the workspace's projects.
-     * <p/>
-     * Calling this method doesn't delete the files physically, it only removes the {@link IProject}
-     * instances from the workspace.
-     *
-     * @param monitor the monitor to report progress on
-     * @throws org.eclipse.buildship.core.GradlePluginsRuntimeException thrown if any of the deletions fails
-     */
-    void deleteAllProjects(IProgressMonitor monitor);
-
-    /**
      * Deletes the .project and .classpath files of the project at the given location.
      *
      * @param location the location of the project
