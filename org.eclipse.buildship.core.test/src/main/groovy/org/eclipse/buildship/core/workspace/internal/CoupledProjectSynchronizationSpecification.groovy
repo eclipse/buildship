@@ -6,7 +6,6 @@ import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationPersistence
 import org.eclipse.buildship.core.test.fixtures.BuildshipTestSpecification
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
-import org.eclipse.buildship.core.test.fixtures.GradleModel
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
@@ -31,13 +30,12 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "The Gradle nature is set"() {
         setup:
         prepareProject('sample-project')
-        fileTree('sample-project') {
+        def projectDir = fileTree('sample-project') {
             file 'settings.gradle'
         }
-        GradleModel gradleModel = loadGradleModel('sample-project')
 
         when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+        synchronizeAndWait(projectDir)
 
         expect:
 
@@ -49,7 +47,7 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "Natures and build commands are set"() {
         setup:
         prepareProject('sample-project')
-        fileTree('sample-project') {
+        def projectDir = fileTree('sample-project') {
             file 'build.gradle', """
                 apply plugin: 'eclipse'
                 eclipse {
@@ -60,10 +58,9 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
                 }
             """
         }
-        GradleModel gradleModel = loadGradleModel('sample-project')
 
         when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+        synchronizeAndWait(projectDir)
 
         then:
         def project = findProject('sample-project')
@@ -74,13 +71,12 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "The Gradle settings file is written"() {
         setup:
         prepareProject('sample-project')
-        fileTree('sample-project') {
+        def projectDir = fileTree('sample-project') {
             file 'settings.gradle'
         }
-        GradleModel gradleModel = loadGradleModel('sample-project')
 
         when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+        synchronizeAndWait(projectDir)
 
         then:
         def project = findProject('sample-project')
@@ -90,13 +86,12 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "Resource filters are set"() {
         setup:
         prepareProject('sample-project')
-        fileTree('sample-project') {
+        def projectDir = fileTree('sample-project') {
             file 'settings.gradle'
         }
-        GradleModel gradleModel = loadGradleModel('sample-project')
 
         when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+        synchronizeAndWait(projectDir)
 
         then:
         def project = findProject('sample-project')
@@ -112,20 +107,17 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "Linked resources are set"() {
         setup:
         prepareProject('sample-project')
-        fileTree {
-            dir('sample-project') {
-                file 'build.gradle',
-                '''
-                    apply plugin: "java"
-                    sourceSets { main { java { srcDir '../another-project/src' } } }
-                '''
-            }
-            dir 'another-project/src'
+        def projectDir = fileTree('sample-project') {
+            file 'build.gradle',
+            '''
+                apply plugin: "java"
+                sourceSets { main { java { srcDir '../another-project/src' } } }
+            '''
+            dir '../another-project/src'
         }
-        GradleModel gradleModel = loadGradleModel('sample-project')
 
         when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+        synchronizeAndWait(projectDir)
 
         then:
         def project = findProject('sample-project')
@@ -135,7 +127,7 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "Source settings are updated"() {
         setup:
         prepareJavaProject('sample-project')
-        fileTree('sample-project') {
+        def projectDir = fileTree('sample-project') {
             file 'build.gradle', """
                 apply plugin: 'java'
                 sourceCompatibility = 1.2
@@ -143,10 +135,9 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
             """
             dir 'src/main/java'
         }
-        GradleModel gradleModel = loadGradleModel('sample-project')
 
         when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+        synchronizeAndWait(projectDir)
 
         then:
         def javaProject = JavaCore.create(findProject('sample-project'))
@@ -158,14 +149,13 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "Source folders are updated"() {
         setup:
         prepareJavaProject('sample-project')
-        fileTree('sample-project') {
+        def projectDir = fileTree('sample-project') {
             file 'build.gradle', 'apply plugin: "java"'
             dir 'src/main/java'
         }
-        GradleModel gradleModel = loadGradleModel('sample-project')
 
         when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+        synchronizeAndWait(projectDir)
 
         then:
         def javaProject = JavaCore.create(findProject('sample-project'))
@@ -180,14 +170,13 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "If the project applies the java plugin, then it's converted to a Java project"() {
         setup:
         prepareProject('sample-project')
-        fileTree('sample-project') {
+        def projectDir = fileTree('sample-project') {
             file 'build.gradle', 'apply plugin: "java"'
             dir 'src/main/java'
         }
-        GradleModel gradleModel = loadGradleModel('sample-project')
 
         when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+        synchronizeAndWait(projectDir)
 
         then:
         def project = findProject("sample-project")
@@ -197,14 +186,13 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "If the project applies the Java plugin, then the Gradle classpath container is added"() {
         setup:
         prepareProject("sample-project")
-        fileTree('sample-project') {
+        def projectDir = fileTree('sample-project') {
             file 'build.gradle', 'apply plugin: "java"'
             dir 'src/main/java'
         }
-        GradleModel gradleModel = loadGradleModel('sample-project')
 
         when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+        synchronizeAndWait(projectDir)
 
         then:
         def project = findProject('sample-project')

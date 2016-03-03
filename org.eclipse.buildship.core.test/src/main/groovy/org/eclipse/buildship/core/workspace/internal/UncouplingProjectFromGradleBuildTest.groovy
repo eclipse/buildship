@@ -3,27 +3,24 @@ package org.eclipse.buildship.core.workspace.internal
 import org.eclipse.core.resources.IProject
 
 import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.test.fixtures.GradleModel
 
 class UncouplingProjectFromGradleBuildTest extends ProjectSynchronizationSpecification {
 
     def "Uncoupling a project removes the Gradle nature"() {
         setup:
-        fileTree('sample-project') {
+        def projectDir = fileTree('sample-project') {
             dir 'subproject-a'
             dir 'subproject-b'
             file 'settings.gradle', "include 'subproject-a', 'subproject-b'"
         }
-        GradleModel gradleModel = loadGradleModel('sample-project')
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+        synchronizeAndWait(projectDir)
 
         expect:
         findProject('subproject-a').hasNature(GradleProjectNature.ID)
 
         when:
         file ('sample-project/settings.gradle').text = "include 'subproject-b'"
-        gradleModel = loadGradleModel('sample-project')
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+        synchronizeAndWait(projectDir)
 
         then:
         !findProject('subproject-a').hasNature(GradleProjectNature.ID)
@@ -31,13 +28,12 @@ class UncouplingProjectFromGradleBuildTest extends ProjectSynchronizationSpecifi
 
     def "Uncoupling a project removes the resource filters"() {
         setup:
-        fileTree('sample-project') {
+        def projectDir = fileTree('sample-project') {
             dir 'subproject-a'
             dir 'subproject-b'
             file 'settings.gradle', "include 'subproject-a', 'subproject-b'"
         }
-        GradleModel gradleModel = loadGradleModel('sample-project')
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+        synchronizeAndWait(projectDir)
 
         expect:
         IProject project = findProject('subproject-a')
@@ -47,8 +43,7 @@ class UncouplingProjectFromGradleBuildTest extends ProjectSynchronizationSpecifi
 
         when:
         file ('sample-project/settings.gradle').text = "include 'subproject-b'"
-        gradleModel = loadGradleModel('sample-project')
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+        synchronizeAndWait(projectDir)
 
         then:
         project == findProject('subproject-a')
@@ -57,13 +52,12 @@ class UncouplingProjectFromGradleBuildTest extends ProjectSynchronizationSpecifi
 
     def "Uncoupling a project removes the settings file"() {
         setup:
-        fileTree('sample-project') {
+        def projectDir = fileTree('sample-project') {
             dir 'subproject-a'
             dir 'subproject-b'
             file 'settings.gradle', "include 'subproject-a', 'subproject-b'"
         }
-        GradleModel gradleModel = loadGradleModel('sample-project')
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+        synchronizeAndWait(projectDir)
 
         expect:
         IProject project = findProject('subproject-a')
@@ -71,8 +65,7 @@ class UncouplingProjectFromGradleBuildTest extends ProjectSynchronizationSpecifi
 
         when:
         file ('sample-project/settings.gradle').text = "include 'subproject-b'"
-        gradleModel = loadGradleModel('sample-project')
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+        synchronizeAndWait(projectDir)
 
         then:
         project == findProject('subproject-a')

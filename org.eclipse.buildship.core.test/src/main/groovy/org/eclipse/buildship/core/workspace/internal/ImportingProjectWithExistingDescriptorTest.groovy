@@ -6,7 +6,6 @@ import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationPersistence
 import org.eclipse.buildship.core.test.fixtures.BuildshipTestSpecification
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
-import org.eclipse.buildship.core.test.fixtures.GradleModel
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
@@ -28,16 +27,15 @@ class ImportingProjectWithExistingDescriptorTest extends CoupledProjectSynchroni
         def project = newOpenProject("sample-project")
         project.delete(false, null)
         setup:
-        fileTree('sample-project') {
+        def projectDir = fileTree('sample-project') {
             file 'settings.gradle'
         }
-        GradleModel gradleModel = loadGradleModel('sample-project')
 
         expect:
         CorePlugin.workspaceOperations().getAllProjects().isEmpty()
 
         when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+        synchronizeAndWait(projectDir)
 
         then:
         CorePlugin.workspaceOperations().allProjects.size() == 1
@@ -48,13 +46,12 @@ class ImportingProjectWithExistingDescriptorTest extends CoupledProjectSynchroni
         setup:
         IProject project = newJavaProject('sample-project').project
         CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
-        fileTree('sample-project') {
+        def projectDir = fileTree('sample-project') {
             file 'settings.gradle'
         }
-        GradleModel gradleModel = loadGradleModel('sample-project')
 
         when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, ExistingDescriptorHandler.ALWAYS_OVERWRITE)
+        synchronizeAndWait(projectDir, ExistingDescriptorHandler.ALWAYS_OVERWRITE)
 
         then:
         project.hasNature(GradleProjectNature.ID)
@@ -72,14 +69,13 @@ class ImportingProjectWithExistingDescriptorTest extends CoupledProjectSynchroni
         EclipseProjects.newProject('subproject-a', folder('sample-project/subproject-a'))
         EclipseProjects.newProject('subproject-b', folder('sample-project/subproject-b'))
         CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
-        fileTree('sample-project') {
+        def projectDir = fileTree('sample-project') {
             file 'settings.gradle', "include 'subproject-a', 'subproject-b'"
         }
         ExistingDescriptorHandler handler = Mock(ExistingDescriptorHandler)
 
         when:
-        GradleModel gradleModel = loadGradleModel('sample-project')
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel, handler)
+        synchronizeAndWait(projectDir, handler)
 
         then:
         2 * handler.shouldOverwriteDescriptor(_)

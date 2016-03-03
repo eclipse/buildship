@@ -6,7 +6,6 @@ import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore;
 
-import org.eclipse.buildship.core.test.fixtures.GradleModel
 import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
 import org.eclipse.buildship.core.test.fixtures.TestEnvironment;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer

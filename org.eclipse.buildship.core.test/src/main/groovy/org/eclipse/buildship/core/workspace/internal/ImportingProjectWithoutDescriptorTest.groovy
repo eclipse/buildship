@@ -1,22 +1,20 @@
 package org.eclipse.buildship.core.workspace.internal
 
 import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.test.fixtures.GradleModel
 
 class ImportingProjectWithoutDescriptorTest extends CoupledProjectSynchronizationSpecification {
 
     def "The project is created and added to the workspace"() {
         setup:
-        fileTree('sample-project') {
+        def projectDir = fileTree('sample-project') {
             file 'settings.gradle'
         }
-        GradleModel gradleModel = loadGradleModel('sample-project')
 
         expect:
-        CorePlugin.workspaceOperations().getAllProjects().isEmpty()
+        CorePlugin.workspaceOperations().allProjects.empty
 
         when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+        synchronizeAndWait(projectDir)
 
         then:
         CorePlugin.workspaceOperations().allProjects.size() == 1
