@@ -24,13 +24,6 @@ import org.eclipse.buildship.core.util.variable.ExpressionUtils
 
 class SynchronizeGradleProjectJob2Test extends BuildshipTestSpecification {
 
-    @Rule
-    TemporaryFolder tempFolder
-
-    def cleanup() {
-        CorePlugin.workspaceOperations().deleteAllProjects(null)
-    }
-
     def "Project import job creates a new project in the workspace"(boolean projectDescriptorExists) {
         setup:
         def applyJavaPlugin = false
@@ -168,32 +161,6 @@ class SynchronizeGradleProjectJob2Test extends BuildshipTestSpecification {
         rootProject.deleteDir()
     }
 
-    def newProject(boolean projectDescriptorExists, boolean applyJavaPlugin) {
-        def root = tempFolder.newFolder('simple-project')
-        new File(root, 'build.gradle') << (applyJavaPlugin ? 'apply plugin: "java"' : '')
-        new File(root, 'settings.gradle') << ''
-        new File(root, 'src/main/java').mkdirs()
-
-        if (projectDescriptorExists) {
-            new File(root, '.project') << '''<?xml version="1.0" encoding="UTF-8"?>
-                <projectDescription>
-                  <name>simple-project</name>
-                  <comment>original</comment>
-                  <projects></projects>
-                  <buildSpec></buildSpec>
-                  <natures></natures>
-                </projectDescription>'''
-            if (applyJavaPlugin) {
-                new File(root, '.classpath') << '''<?xml version="1.0" encoding="UTF-8"?>
-                    <classpath>
-                      <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-                      <classpathentry kind="src" path="src/main/java"/>
-                      <classpathentry kind="output" path="bin"/>
-                    </classpath>'''
-            }
-        }
-        root
-    }
 
     def "Mutliple jobs with the same configuration are merged"() {
         setup:
@@ -213,24 +180,47 @@ class SynchronizeGradleProjectJob2Test extends BuildshipTestSpecification {
         TestEnvironment.cleanup()
     }
 
-    def newMultiProject() {
-        def rootProject = tempFolder.newFolder('multi-project')
-        new File(rootProject, 'build.gradle') << ''
-        new File(rootProject, 'settings.gradle') << 'include "subproject"'
-        def subProject = new File(rootProject, "subproject")
-        subProject.mkdirs()
-        new File(subProject, 'build.gradle') << ''
-        rootProject
+    def File newProject(boolean projectDescriptorExists, boolean applyJavaPlugin) {
+        dir('simple-project') {
+           file 'build.gradle', applyJavaPlugin ? 'apply plugin: "java"' : ''
+            dir 'src/main/java'
+            if (projectDescriptorExists) {
+                file '.project', '''
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <projectDescription>
+                        <name>simple-project</name>
+                        <comment>original</comment>
+                        <projects></projects>
+                        <buildSpec></buildSpec>
+                        <natures></natures>
+                    </projectDescription>
+                '''
+                if (applyJavaPlugin) {
+                    file '.classpath', '''
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <classpath>
+                            <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+                            <classpathentry kind="src" path="src/main/java"/>
+                            <classpathentry kind="output" path="bin"/>
+                        </classpath>
+                    '''
+                }
+            }
+        }
     }
 
-    def newProjectWithCustomNameInWorkspaceFolder() {
-        IWorkspace workspace = LegacyEclipseSpockTestHelper.workspace
-        IPath rootLocation = workspace.root.location
-        def root = new File(rootLocation.toFile(), 'Bug472223')
-        root.mkdirs()
-        new File(root, 'build.gradle') << ''
-        new File(root, 'settings.gradle') << "rootProject.name = 'my-project-name-is-different-than-the-folder'"
-        root
+
+    def File newMultiProject() {
+        dir('multi-project') {
+            dir ('subproject')
+            file 'settings.gradle', 'include "subproject"'
+        }
+    }
+
+    def File newProjectWithCustomNameInWorkspaceFolder() {
+        workspaceDir('Bug472223') {
+            file 'settings.gradle', "rootProject.name = 'my-project-name-is-different-than-the-folder'"
+        }
     }
 
     def newRefreshGradleProjectJob(File location) {

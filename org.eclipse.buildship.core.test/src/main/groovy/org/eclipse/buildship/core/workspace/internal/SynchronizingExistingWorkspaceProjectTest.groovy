@@ -12,19 +12,19 @@ class SynchronizingExistingWorkspaceProjectTest extends CoupledProjectSynchroniz
     def "If the project is closed, then the project remains untouched"() {
         setup:
         IProject project = newClosedProject('sample-project')
-        def projectDir = fileTree('sample-project') {
+        def projectDir = dir('sample-project') {
             file 'settings.gradle'
         }
-        File[] projectFiles = folder('sample-project').listFiles()
-        Long[] modifiedTimes = folder('sample-project').listFiles().collect{ it.lastModified() }
+        File[] projectFiles = dir('sample-project').listFiles()
+        Long[] modifiedTimes = dir('sample-project').listFiles().collect{ it.lastModified() }
 
         when:
         synchronizeAndWait(projectDir)
 
         then:
         !project.isOpen()
-        projectFiles == folder('sample-project').listFiles()
-        modifiedTimes == folder('sample-project').listFiles().collect{ it.lastModified() }
+        projectFiles == dir('sample-project').listFiles()
+        modifiedTimes == dir('sample-project').listFiles().collect{ it.lastModified() }
     }
 
     def "The Gradle classpath container is updated"() {
@@ -32,7 +32,7 @@ class SynchronizingExistingWorkspaceProjectTest extends CoupledProjectSynchroniz
         IJavaProject javaProject = newJavaProject('sample-project')
         IClasspathEntry[] entries = javaProject.rawClasspath + GradleClasspathContainer.newClasspathEntry()
         javaProject.setRawClasspath(entries, null)
-        def projectDir = fileTree('sample-project') {
+        def projectDir = dir('sample-project') {
             file 'build.gradle','''apply plugin: "java"
                repositories { jcenter() }
                dependencies { compile "org.springframework:spring-beans:1.2.8"}

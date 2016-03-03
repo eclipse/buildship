@@ -6,7 +6,7 @@ class ImportingProjectWithoutDescriptorTest extends CoupledProjectSynchronizatio
 
     def "The project is created and added to the workspace"() {
         setup:
-        def projectDir = fileTree('sample-project') {
+        def projectDir = dir('sample-project') {
             file 'settings.gradle'
         }
 

@@ -26,23 +26,15 @@ abstract class ProjectSynchronizationSpecification extends BuildshipTestSpecific
     }
 
     protected IProject newClosedProject(String name) {
-        EclipseProjects.newClosedProject(name, folder(name))
+        EclipseProjects.newClosedProject(name, dir(name))
     }
 
     protected IProject newOpenProject(String name) {
-        EclipseProjects.newProject(name, folder(name))
+        EclipseProjects.newProject(name, dir(name))
     }
 
     protected IJavaProject newJavaProject(String name) {
-        EclipseProjects.newJavaProject(name, folder(name))
-    }
-
-    protected File fileTree(@DelegatesTo(value = FileTreeBuilder, strategy = Closure.DELEGATE_FIRST) Closure config) {
-        return new FileTreeBuilder(externalTestFolder).call(config)
-    }
-
-    protected File fileTree(String projectName, @DelegatesTo(value = FileTreeBuilder, strategy = Closure.DELEGATE_FIRST) Closure config) {
-        return new FileTreeBuilder(externalTestFolder).dir(projectName, config)
+        EclipseProjects.newJavaProject(name, dir(name))
     }
 
     protected IProject findProject(String name) {

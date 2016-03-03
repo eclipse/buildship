@@ -30,7 +30,7 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "The Gradle nature is set"() {
         setup:
         prepareProject('sample-project')
-        def projectDir = fileTree('sample-project') {
+        def projectDir = dir('sample-project') {
             file 'settings.gradle'
         }
 
@@ -47,7 +47,7 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "Natures and build commands are set"() {
         setup:
         prepareProject('sample-project')
-        def projectDir = fileTree('sample-project') {
+        def projectDir = dir('sample-project') {
             file 'build.gradle', """
                 apply plugin: 'eclipse'
                 eclipse {
@@ -71,7 +71,7 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "The Gradle settings file is written"() {
         setup:
         prepareProject('sample-project')
-        def projectDir = fileTree('sample-project') {
+        def projectDir = dir('sample-project') {
             file 'settings.gradle'
         }
 
@@ -86,7 +86,7 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "Resource filters are set"() {
         setup:
         prepareProject('sample-project')
-        def projectDir = fileTree('sample-project') {
+        def projectDir = dir('sample-project') {
             file 'settings.gradle'
         }
 
@@ -107,7 +107,7 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "Linked resources are set"() {
         setup:
         prepareProject('sample-project')
-        def projectDir = fileTree('sample-project') {
+        def projectDir = dir('sample-project') {
             file 'build.gradle',
             '''
                 apply plugin: "java"
@@ -127,7 +127,7 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "Source settings are updated"() {
         setup:
         prepareJavaProject('sample-project')
-        def projectDir = fileTree('sample-project') {
+        def projectDir = dir('sample-project') {
             file 'build.gradle', """
                 apply plugin: 'java'
                 sourceCompatibility = 1.2
@@ -149,7 +149,7 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "Source folders are updated"() {
         setup:
         prepareJavaProject('sample-project')
-        def projectDir = fileTree('sample-project') {
+        def projectDir = dir('sample-project') {
             file 'build.gradle', 'apply plugin: "java"'
             dir 'src/main/java'
         }
@@ -170,7 +170,7 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "If the project applies the java plugin, then it's converted to a Java project"() {
         setup:
         prepareProject('sample-project')
-        def projectDir = fileTree('sample-project') {
+        def projectDir = dir('sample-project') {
             file 'build.gradle', 'apply plugin: "java"'
             dir 'src/main/java'
         }
@@ -186,7 +186,7 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
     def "If the project applies the Java plugin, then the Gradle classpath container is added"() {
         setup:
         prepareProject("sample-project")
-        def projectDir = fileTree('sample-project') {
+        def projectDir = dir('sample-project') {
             file 'build.gradle', 'apply plugin: "java"'
             dir 'src/main/java'
         }

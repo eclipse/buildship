@@ -8,7 +8,7 @@ class UncouplingProjectFromGradleBuildTest extends ProjectSynchronizationSpecifi
 
     def "Uncoupling a project removes the Gradle nature"() {
         setup:
-        def projectDir = fileTree('sample-project') {
+        def projectDir = dir('sample-project') {
             dir 'subproject-a'
             dir 'subproject-b'
             file 'settings.gradle', "include 'subproject-a', 'subproject-b'"
@@ -28,7 +28,7 @@ class UncouplingProjectFromGradleBuildTest extends ProjectSynchronizationSpecifi
 
     def "Uncoupling a project removes the resource filters"() {
         setup:
-        def projectDir = fileTree('sample-project') {
+        def projectDir = dir('sample-project') {
             dir 'subproject-a'
             dir 'subproject-b'
             file 'settings.gradle', "include 'subproject-a', 'subproject-b'"
@@ -52,7 +52,7 @@ class UncouplingProjectFromGradleBuildTest extends ProjectSynchronizationSpecifi
 
     def "Uncoupling a project removes the settings file"() {
         setup:
-        def projectDir = fileTree('sample-project') {
+        def projectDir = dir('sample-project') {
             dir 'subproject-a'
             dir 'subproject-b'
             file 'settings.gradle', "include 'subproject-a', 'subproject-b'"

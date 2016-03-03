@@ -27,7 +27,7 @@ class ImportingProjectWithExistingDescriptorTest extends CoupledProjectSynchroni
         def project = newOpenProject("sample-project")
         project.delete(false, null)
         setup:
-        def projectDir = fileTree('sample-project') {
+        def projectDir = dir('sample-project') {
             file 'settings.gradle'
         }
 
@@ -46,7 +46,7 @@ class ImportingProjectWithExistingDescriptorTest extends CoupledProjectSynchroni
         setup:
         IProject project = newJavaProject('sample-project').project
         CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
-        def projectDir = fileTree('sample-project') {
+        def projectDir = dir('sample-project') {
             file 'settings.gradle'
         }
 
@@ -66,10 +66,10 @@ class ImportingProjectWithExistingDescriptorTest extends CoupledProjectSynchroni
 
     def "All subprojects with existing .project files are handled by the ExistingDescriptorHandler"() {
         setup:
-        EclipseProjects.newProject('subproject-a', folder('sample-project/subproject-a'))
-        EclipseProjects.newProject('subproject-b', folder('sample-project/subproject-b'))
+        EclipseProjects.newProject('subproject-a', dir('sample-project/subproject-a'))
+        EclipseProjects.newProject('subproject-b', dir('sample-project/subproject-b'))
         CorePlugin.workspaceOperations().deleteAllProjects(new NullProgressMonitor())
-        def projectDir = fileTree('sample-project') {
+        def projectDir = dir('sample-project') {
             file 'settings.gradle', "include 'subproject-a', 'subproject-b'"
         }
         ExistingDescriptorHandler handler = Mock(ExistingDescriptorHandler)
