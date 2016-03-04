@@ -23,11 +23,16 @@ import com.google.common.collect.ObjectArrays;
 
 import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -88,15 +93,37 @@ final class JavaSourceSettingsUpdater {
             compilerOptionChanged |= updateJavaProjectOptionIfNeeded(project, JavaCore.COMPILER_SOURCE, sourceVersion);
             compilerOptionChanged |= updateJavaProjectOptionIfNeeded(project, JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, targetVersion);
 
-            if (compilerOptionChanged) {
+            if (compilerOptionChanged && isProjectAutoBuildingEnabled()) {
                 // if the compiler options have changed, the project has to be rebuilt to apply the changes
-                project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, new SubProgressMonitor(monitor, 1));
+                buildProject(project.getProject(), new SubProgressMonitor(monitor, 1));
             } else {
                 monitor.worked(1);
             }
         } finally {
             monitor.done();
         }
+    }
+
+    private static boolean  isProjectAutoBuildingEnabled() {
+        return ResourcesPlugin.getWorkspace().getDescription().isAutoBuilding();
+    }
+
+    private static void buildProject(final IProject project, IProgressMonitor monitor) throws CoreException {
+        WorkspaceJob build = new WorkspaceJob(String.format("Building project %s", project.getName())) {
+            @Override
+            public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
+                try {
+                    project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
+                    return Status.OK_STATUS;
+                } catch (Exception e) {
+                    return new Status(IStatus.WARNING, CorePlugin.PLUGIN_ID, String.format("Cannot perform a full build on project %s", project.getName()), e);
+                } finally {
+                    monitor.done();
+                }
+            }
+        };
+        build.schedule();
+
     }
 
     private static void addVmToClasspath(IJavaProject project, IVMInstall vm, IProgressMonitor monitor) throws JavaModelException {

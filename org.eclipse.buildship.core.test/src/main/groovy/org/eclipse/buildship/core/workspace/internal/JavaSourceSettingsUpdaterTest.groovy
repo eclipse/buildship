@@ -4,10 +4,19 @@ import com.gradleware.tooling.toolingmodel.OmniJavaRuntime
 import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings
 import com.gradleware.tooling.toolingmodel.OmniJavaVersion
 import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
+import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
+import org.eclipse.buildship.core.workspace.internal.JavaSourceSettingsUpdaterTest.BuildJobScheduledByJavaSourceSettingsUpdater
+
+import org.eclipse.core.internal.resources.Workspace
+import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
+import org.eclipse.core.runtime.jobs.IJobChangeEvent
+import org.eclipse.core.runtime.jobs.Job
+import org.eclipse.core.runtime.jobs.JobChangeAdapter
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
@@ -105,6 +114,61 @@ class JavaSourceSettingsUpdaterTest extends Specification {
         }
     }
 
+    def "A project is rebuilt if the source settings have changed"() {
+        setup:
+        IJavaProject javaProject = EclipseProjects.newJavaProject('sample-project', tempFolder.root)
+        def buildScheduledListener = new BuildJobScheduledByJavaSourceSettingsUpdater()
+        Job.jobManager.addJobChangeListener(buildScheduledListener)
+
+        when:
+        JavaSourceSettingsUpdater.update(javaProject, sourceSettings('1.4', '1.4'), new NullProgressMonitor())
+
+        then:
+        buildScheduledListener.isBuildScheduled()
+
+        cleanup:
+        Job.jobManager.removeJobChangeListener(buildScheduledListener)
+    }
+
+    def "A project is not rebuilt if source settings have not changed"() {
+        setup:
+        IJavaProject javaProject = EclipseProjects.newJavaProject('sample-project', tempFolder.root)
+
+        when:
+        JavaSourceSettingsUpdater.update(javaProject, sourceSettings('1.4', '1.4'), new NullProgressMonitor())
+        def buildScheduledListener = new BuildJobScheduledByJavaSourceSettingsUpdater()
+        Job.jobManager.addJobChangeListener(buildScheduledListener)
+        JavaSourceSettingsUpdater.update(javaProject, sourceSettings('1.4', '1.4'), new NullProgressMonitor())
+
+        then:
+        !buildScheduledListener.isBuildScheduled()
+
+        cleanup:
+        Job.jobManager.removeJobChangeListener(buildScheduledListener)
+    }
+
+    def "A project is not rebuilt if the 'Build Automatically' setting is disabled"() {
+        setup:
+        IJavaProject javaProject = EclipseProjects.newJavaProject('sample-project', tempFolder.root)
+        def buildScheduledListener = new BuildJobScheduledByJavaSourceSettingsUpdater()
+        Job.jobManager.addJobChangeListener(buildScheduledListener)
+        def description = LegacyEclipseSpockTestHelper.workspace.description
+        def wasAutoBuilding = description.autoBuilding
+        description.autoBuilding = false
+        LegacyEclipseSpockTestHelper.workspace.description = description
+
+        when:
+        JavaSourceSettingsUpdater.update(javaProject, sourceSettings('1.4', '1.4'), new NullProgressMonitor())
+
+        then:
+        !buildScheduledListener.isBuildScheduled()
+
+        cleanup:
+        description.autoBuilding = wasAutoBuilding
+        LegacyEclipseSpockTestHelper.workspace.description = description
+        Job.jobManager.removeJobChangeListener(buildScheduledListener)
+    }
+
     private OmniJavaSourceSettings sourceSettings(String sourceVersion, String targetVersion) {
         OmniJavaRuntime rt = Mock(OmniJavaRuntime)
         rt.homeDirectory >> new File(System.getProperty('java.home'))
@@ -122,6 +186,22 @@ class JavaSourceSettingsUpdaterTest extends Specification {
         settings.sourceLanguageLevel >> source
 
         settings
+    }
+
+    static class BuildJobScheduledByJavaSourceSettingsUpdater extends JobChangeAdapter {
+
+        boolean buildScheduled = false
+
+        @Override
+        public void scheduled(IJobChangeEvent event) {
+            if (event.job.class.name.startsWith(JavaSourceSettingsUpdater.class.name)) {
+                buildScheduled = true
+            }
+        }
+
+        boolean isRebuildScheduled() {
+            return buildScheduled
+        }
     }
 
 }
