@@ -27,6 +27,7 @@ import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.ProjectScope
 import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.GradlePluginsRuntimeException
@@ -34,6 +35,7 @@ import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.ProjectConfiguration
 import org.eclipse.buildship.core.configuration.ProjectConfigurationManager
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
+import org.eclipse.buildship.core.test.fixtures.EclipseProjects;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectJob
@@ -290,7 +292,7 @@ class ProjectConfigurationManagerTest extends Specification {
 
     def "legacy project configuration is converted to use the Eclipse preferences api"() {
         setup:
-        File projectDir = tempFolder.root
+        IProject project = EclipseProjects.newProject('sample-project', tempFolder.root)
         tempFolder.newFolder('.settings')
         tempFolder.newFile('.settings/gradle.prefs') << """{
           "1.0": {
@@ -304,20 +306,20 @@ class ProjectConfigurationManagerTest extends Specification {
           }
         }
         """
-        IProject project = workspaceOperations.createProject("sample-project", projectDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
 
         when:
+        project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor())
         configurationManager.saveProjectConfiguration(configurationManager.readProjectConfiguration(project), project)
 
         then:
-        !new File(projectDir, '.settings/gradle.prefs').exists()
+        !new File(tempFolder.root, '.settings/gradle.prefs').exists()
         new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(ProjectConfigurationProperties.PROJECT_PATH.key, null) == ':'
         new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(ProjectConfigurationProperties.CONNECTION_PROJECT_DIR.key, null) == ''
     }
 
     def "legacy project configuration conversion handles absolute paths"() {
         setup:
-        File projectDir = tempFolder.root
+        IProject project = EclipseProjects.newProject('sample-project', tempFolder.root)
         tempFolder.newFolder('.settings')
         tempFolder.newFile('.settings/gradle.prefs') << """{
           "1.0": {
@@ -331,13 +333,13 @@ class ProjectConfigurationManagerTest extends Specification {
           }
         }
         """
-        IProject project = workspaceOperations.createProject("sample-project", projectDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
 
         when:
+        project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor())
         configurationManager.saveProjectConfiguration(configurationManager.readProjectConfiguration(project), project)
 
         then:
-        !new File(projectDir, '.settings/gradle.prefs').exists()
+        !new File(tempFolder.root, '.settings/gradle.prefs').exists()
         new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(ProjectConfigurationProperties.PROJECT_PATH.key, null) == ':'
         new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(ProjectConfigurationProperties.CONNECTION_PROJECT_DIR.key, null) == '..'
     }
