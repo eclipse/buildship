@@ -480,11 +480,14 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
     @Override
     public void markAsBuildFolder(IFolder folder, IProgressMonitor monitor) {
+        monitor.beginTask(String.format("Marking %s as a Gradle build folder", folder.getFullPath()), 1);
         try {
-            folder.setDerived(true, monitor);
+            folder.setDerived(true, new SubProgressMonitor(monitor, 1));
             folder.setPersistentProperty(BUILD_FOLDER_PROPERTY, "true");
         } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(String.format("Could not mark folder %s as a Gradle build folder", folder.getProjectRelativePath()), e);
+            throw new GradlePluginsRuntimeException(String.format("Could not mark folder %s as a Gradle build folder", folder.getFullPath()), e);
+        } finally {
+            monitor.done();
         }
     }
 
@@ -493,7 +496,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         try {
             return folder.exists() && "true".equals(folder.getPersistentProperty(BUILD_FOLDER_PROPERTY));
         } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(String.format("Could not check whether folder %s is a Gradle build folder", folder.getProjectRelativePath()), e);
+            throw new GradlePluginsRuntimeException(String.format("Could not check whether folder %s is a Gradle build folder", folder.getFullPath()), e);
         }
     }
 }
