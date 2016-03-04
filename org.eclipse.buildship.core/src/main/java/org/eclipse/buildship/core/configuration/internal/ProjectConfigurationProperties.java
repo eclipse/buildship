@@ -26,13 +26,13 @@ import org.eclipse.buildship.core.util.preference.ProjectScopeUtils;
  */
 public enum ProjectConfigurationProperties {
 
-    PROJECT_PATH("project_path"),
-    CONNECTION_PROJECT_DIR("connection_project_dir"),
-    CONNECTION_GRADLE_USER_HOME("connection_gradle_user_home"),
-    CONNECTION_GRADLE_DISTRIBUTION( "connection_gradle_distribution"),
-    CONNECTION_JAVA_HOME("connection_java_home"),
-    CONNECTION_JVM_ARGUMENTS("connection_jvm_arguments"),
-    CONNECTION_ARGUMENTS("connection_arguments");
+    PROJECT_PATH("project.path"),
+    CONNECTION_PROJECT_DIR("connection.project.dir"),
+    CONNECTION_GRADLE_USER_HOME("connection.gradle.user.home"),
+    CONNECTION_GRADLE_DISTRIBUTION( "connection.gradle.distribution"),
+    CONNECTION_JAVA_HOME("connection.java.home"),
+    CONNECTION_JVM_ARGUMENTS("connection.jvm.arguments"),
+    CONNECTION_ARGUMENTS("connection.arguments");
 
     private static final Map<String, ProjectConfigurationProperties> keyToEntryMap;
 

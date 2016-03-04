@@ -46,7 +46,7 @@ final class ResourceFilter {
     private static final String FILTER_ID = "org.eclipse.ui.ide.multiFilter"; //$NON-NLS-1$
 
     // properties key to store/retrieve the filters created by Buildship
-    private static final String PROJECT_PROPERTY_KEY_GRADLE_FILTERS = "GRADLE_FILTERS";
+    private static final String PROJECT_PROPERTY_KEY_GRADLE_FILTERS = "filters";
 
     private ResourceFilter() {
     }

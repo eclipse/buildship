@@ -35,7 +35,7 @@ import org.eclipse.buildship.core.CorePlugin;
  */
 final class ProjectNatureUpdater {
 
-    private static final String PROJECT_PROPERTY_KEY_GRADLE_NATURES = "GRADLE_NATURES";
+    private static final String PROJECT_PROPERTY_KEY_GRADLE_NATURES = "natures";
 
     private final IProject project;
     private final ImmutableList<OmniEclipseProjectNature> natures;

@@ -33,7 +33,7 @@ import java.util.Set;
  */
 final class BuildCommandUpdater {
 
-    private static final String PROJECT_PROPERTY_KEY_GRADLE_BUILD_COMMANDS = "GRADLE_BUILD_COMMANDS";
+    private static final String PROJECT_PROPERTY_KEY_GRADLE_BUILD_COMMANDS = "build.commands";
 
     private final IProject project;
     private final ImmutableList<OmniEclipseBuildCommand> buildCommands;
