@@ -24,7 +24,7 @@ import org.eclipse.buildship.core.CorePlugin;
  *
  * @author Stefan Oehme
  */
-public class BuildFolderViewerFilter extends ViewerFilter {
+public final class BuildFolderViewerFilter extends ViewerFilter {
 
     @SuppressWarnings({"cast", "RedundantCast"})
     @Override
