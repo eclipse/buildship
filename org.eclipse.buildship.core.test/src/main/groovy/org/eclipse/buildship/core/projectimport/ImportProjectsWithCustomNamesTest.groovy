@@ -17,7 +17,7 @@ import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure
 import com.gradleware.tooling.toolingmodel.util.Pair
 
-import org.eclipse.buildship.core.workspace.internal.ProjectSynchronizationSpecification;
+import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;;
 
 class ImportProjectsWithCustomNamesTest extends ProjectSynchronizationSpecification {
 

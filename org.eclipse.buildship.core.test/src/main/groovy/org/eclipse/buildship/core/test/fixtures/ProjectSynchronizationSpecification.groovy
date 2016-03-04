@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.workspace.internal
+package org.eclipse.buildship.core.test.fixtures
 
 import com.google.common.util.concurrent.FutureCallback
 
@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.jobs.Job
 
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob
-import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler

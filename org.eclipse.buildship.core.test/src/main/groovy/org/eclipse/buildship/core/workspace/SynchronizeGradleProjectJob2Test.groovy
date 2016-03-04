@@ -17,11 +17,11 @@ import org.eclipse.buildship.core.configuration.GradleProjectBuilder
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
+import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
 import org.eclipse.buildship.core.test.fixtures.TestEnvironment
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
-import org.eclipse.buildship.core.util.variable.ExpressionUtils
-import org.eclipse.buildship.core.workspace.internal.ProjectSynchronizationSpecification;
+import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 
 class SynchronizeGradleProjectJob2Test extends ProjectSynchronizationSpecification {
 

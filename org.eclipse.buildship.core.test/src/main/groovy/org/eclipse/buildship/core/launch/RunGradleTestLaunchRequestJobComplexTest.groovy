@@ -6,7 +6,7 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.ProjectConfiguration
 import org.eclipse.buildship.core.event.Event
 import org.eclipse.buildship.core.event.EventListener
-import org.eclipse.buildship.core.workspace.internal.ProjectSynchronizationSpecification;
+import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.debug.core.ILaunch

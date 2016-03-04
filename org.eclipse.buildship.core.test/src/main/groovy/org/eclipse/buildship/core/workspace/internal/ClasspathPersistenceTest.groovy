@@ -4,8 +4,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
-import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaCore
 
+import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
 import org.eclipse.buildship.core.test.fixtures.TestEnvironment;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;
