@@ -47,6 +47,6 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         project.delete(false, true, null)
         project.create(descriptor, null)
         project.open(null)
-        waitForJobsToFinish()
+        waitForGradleJobsToFinish()
     }
 }

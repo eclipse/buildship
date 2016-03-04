@@ -121,7 +121,7 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
 
         when:
         bot.button(IDialogConstants.FINISH_LABEL).click()
-        waitForJobsToFinish()
+        waitForGradleJobsToFinish()
         // after clicking finish the new elements for the working set are not immediately applied
         waitUntilWorkingSetIsAdded()
 

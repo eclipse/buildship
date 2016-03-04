@@ -94,34 +94,13 @@ abstract class SwtBotSpecification extends Specification {
         })
     }
 
-    protected static void cancelAllJobsAndWait() {
-        Job.jobManager.cancel(null)
-        waitForJobsToFinish()
+    protected static void cancelGradleJobsAndWait() {
+        Job.jobManager.cancel(CorePlugin.GRADLE_JOB_FAMILY)
+        waitForGradleJobsToFinish()
     }
 
-    protected static void waitForJobsToFinish() {
-        while (!Job.jobManager.isIdle()) {
-            delay(100)
-        }
-    }
-
-    protected static void delay(long waitTimeMillis) {
-        Display display = Display.current
-        if (display != null) {
-            long endTimeMillis = System.currentTimeMillis() + waitTimeMillis
-            while (System.currentTimeMillis() < endTimeMillis) {
-                if (!display.readAndDispatch()) {
-                    display.sleep()
-                }
-            }
-            display.update()
-        } else {
-            try {
-                Thread.sleep(waitTimeMillis)
-            } catch (InterruptedException e) {
-                // ignore
-            }
-        }
+    protected static void waitForGradleJobsToFinish() {
+        Job.jobManager.join(CorePlugin.GRADLE_JOB_FAMILY, null)
     }
 
     private IProject findProject(String name) {

@@ -56,13 +56,13 @@ class ProjectImportWizardUiTest extends SwtBotSpecification {
 
         when:
         bot.button(ProjectWizardMessages.Existing_Descriptors_Overwrite).click()
-        waitForJobsToFinish()
+        waitForGradleJobsToFinish()
 
         then:
         project.hasNature(JavaCore.NATURE_ID)
 
         cleanup:
-        cancelAllJobsAndWait()
+        cancelGradleJobsAndWait()
         project.delete(true, null)
     }
 

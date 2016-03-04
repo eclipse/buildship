@@ -11,6 +11,7 @@ import com.gradleware.tooling.toolingmodel.util.Pair
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.jobs.Job
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
@@ -58,13 +59,7 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         new ProjectPreviewJob(configuration, [], AsyncHandler.NO_OP, resultHandler)
     }
 
-    protected def waitForJobsToFinish() {
-        while (!Job.jobManager.isIdle()) {
-            delay(100)
-        }
-    }
-
-    protected def delay(long waitTimeMillis) {
-        Thread.sleep(waitTimeMillis)
+    protected def waitForGradleJobsToFinish() {
+        Job.jobManager.join(CorePlugin.GRADLE_JOB_FAMILY, null)
     }
 }

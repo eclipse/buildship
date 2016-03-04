@@ -105,7 +105,7 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
     public boolean belongsTo(Object family) {
         // associate with a family so we can cancel all builds of
         // this type at once through the Eclipse progress manager
-        return getJobFamily().equals(family);
+        return super.belongsTo(family) || getJobFamily().equals(family);
     }
 
     private String getJobFamily() {

@@ -20,6 +20,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 
+import org.eclipse.buildship.core.CorePlugin;
+
 /**
  * Base class for cancellable workspace jobs that invoke the Gradle Tooling API.
  *
@@ -96,6 +98,11 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
     @Override
     protected void canceling() {
         this.tokenSource.cancel();
+    }
+
+    @Override
+    public boolean belongsTo(Object family) {
+        return CorePlugin.GRADLE_JOB_FAMILY.equals(family);
     }
 
 }

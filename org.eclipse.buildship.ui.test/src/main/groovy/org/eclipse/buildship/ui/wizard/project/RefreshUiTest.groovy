@@ -53,18 +53,17 @@ class RefreshUiTest extends SwtBotSpecification {
         new File(projectFolder, 'build.gradle') << ''
         new File(projectFolder, 'settings.gradle') << ''
         newProjectImportJob(projectFolder).schedule()
-        waitForJobsToFinish()
+        waitForGradleJobsToFinish()
         IProject project = CorePlugin.workspaceOperations().findProjectByName('project-name').get()
         new File(projectFolder, 'newFile') << ''
 
         when:
         performDefaultEclipseRefresh()
-        waitForJobsToFinish()
+        waitForGradleJobsToFinish()
 
         then:
         bot.waitUntil(FileExistsCondition.create(project.getFile('newFile')), 5000, 500)
 
-        CorePlugin.workspaceOperations().deleteAllProjects(null)
     }
 
     private static def newProjectImportJob(File location) {

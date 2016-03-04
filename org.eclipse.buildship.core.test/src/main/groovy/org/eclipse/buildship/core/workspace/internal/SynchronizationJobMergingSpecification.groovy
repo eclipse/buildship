@@ -37,7 +37,7 @@ class SynchronizationJobMergingSpecification extends ProjectSynchronizationSpeci
 
         when:
         jobs.each { it.schedule() }
-        waitForJobsToFinish()
+        waitForGradleJobsToFinish()
 
         then:
         1 * workspaceOperations.synchronizeGradleBuildWithWorkspace(*_)

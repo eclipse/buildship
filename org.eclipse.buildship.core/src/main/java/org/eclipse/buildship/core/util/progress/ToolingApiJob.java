@@ -19,6 +19,8 @@ import org.gradle.tooling.GradleConnector;
 
 import org.eclipse.core.runtime.jobs.Job;
 
+import org.eclipse.buildship.core.CorePlugin;
+
 /**
  * Base class for cancellable jobs that invoke the Gradle Tooling API.
  */
@@ -89,6 +91,11 @@ public abstract class ToolingApiJob extends Job {
     @Override
     protected void canceling() {
         this.tokenSource.cancel();
+    }
+
+    @Override
+    public boolean belongsTo(Object family) {
+        return CorePlugin.GRADLE_JOB_FAMILY.equals(family);
     }
 
 }
