@@ -95,7 +95,7 @@ final class JavaSourceSettingsUpdater {
 
             if (compilerOptionChanged && isProjectAutoBuildingEnabled()) {
                 // if the compiler options have changed, the project has to be rebuilt to apply the changes
-                buildProject(project.getProject(), new SubProgressMonitor(monitor, 1));
+                scheduleJdtBuild(project.getProject());
             } else {
                 monitor.worked(1);
             }
@@ -108,22 +108,27 @@ final class JavaSourceSettingsUpdater {
         return ResourcesPlugin.getWorkspace().getDescription().isAutoBuilding();
     }
 
-    private static void buildProject(final IProject project, IProgressMonitor monitor) throws CoreException {
-        WorkspaceJob build = new WorkspaceJob(String.format("Building project %s", project.getName())) {
+    private static void scheduleJdtBuild(final IProject project) {
+        WorkspaceJob build = new WorkspaceJob(String.format("Building project %s after Java compiler settings changed", project.getName())) {
+
             @Override
             public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
                 try {
-                    project.build(IncrementalProjectBuilder.FULL_BUILD, monitor);
+                    project.build(IncrementalProjectBuilder.FULL_BUILD, JavaCore.BUILDER_ID, Collections.<String, String>emptyMap(), monitor);
                     return Status.OK_STATUS;
                 } catch (Exception e) {
-                    return new Status(IStatus.WARNING, CorePlugin.PLUGIN_ID, String.format("Cannot perform a full build on project %s", project.getName()), e);
+                    return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, String.format("Cannot perform a full build on project %s", project.getName()), e);
                 } finally {
                     monitor.done();
                 }
             }
+
+            @Override
+            public boolean belongsTo(Object family) {
+                return family == ResourcesPlugin.FAMILY_AUTO_BUILD;
+            }
         };
         build.schedule();
-
     }
 
     private static void addVmToClasspath(IJavaProject project, IVMInstall vm, IProgressMonitor monitor) throws JavaModelException {
