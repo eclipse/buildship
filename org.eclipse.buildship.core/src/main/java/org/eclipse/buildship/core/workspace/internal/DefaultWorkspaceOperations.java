@@ -480,6 +480,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
     @Override
     public void markAsBuildFolder(IFolder folder, IProgressMonitor monitor) {
+        monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
         monitor.beginTask(String.format("Marking %s as a Gradle build folder", folder.getFullPath()), 1);
         try {
             folder.setDerived(true, new SubProgressMonitor(monitor, 1));
