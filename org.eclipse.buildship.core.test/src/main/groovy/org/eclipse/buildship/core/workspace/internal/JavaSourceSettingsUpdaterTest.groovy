@@ -133,11 +133,11 @@ class JavaSourceSettingsUpdaterTest extends Specification {
     def "A project is not rebuilt if source settings have not changed"() {
         setup:
         IJavaProject javaProject = EclipseProjects.newJavaProject('sample-project', tempFolder.root)
-
-        when:
         JavaSourceSettingsUpdater.update(javaProject, sourceSettings('1.4', '1.4'), new NullProgressMonitor())
         def buildScheduledListener = new BuildJobScheduledByJavaSourceSettingsUpdater()
         Job.jobManager.addJobChangeListener(buildScheduledListener)
+
+        when:
         JavaSourceSettingsUpdater.update(javaProject, sourceSettings('1.4', '1.4'), new NullProgressMonitor())
 
         then:
