@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.workspace
+package org.eclipse.buildship.core.workspace.internal
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectNature
@@ -11,7 +11,7 @@ import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.JavaCore
 
-class SynchronizeGradleProjectJobTest extends ProjectSynchronizationSpecification {
+class ImportingMultiProjectBuilds extends ProjectSynchronizationSpecification {
 
     File sampleDir
     File moduleADir
@@ -21,36 +21,32 @@ class SynchronizeGradleProjectJobTest extends ProjectSynchronizationSpecificatio
         importAndWait(createSampleProject())
     }
 
-    def "Updates the dependency list" () {
-        setup:
-        fileTree(moduleADir).file('build.gradle').text = """
-            apply plugin: 'java'
-            dependencies { testCompile 'junit:junit:4.12' }
-        """
-
-        when:
-        synchronizeAndWait(findProject('moduleA'))
-
-        then:
-        JavaCore.create(findProject('moduleA')).resolvedClasspath.find{ it.path.toPortableString().endsWith('junit-4.12.jar') }
+    def "Imported parent projects have filters to hide the content of the children and the build folders"() {
+        def filters = findProject("sample").getFilters()
+        filters.length == 4
+        (filters[0].fileInfoMatcherDescription.arguments as String).endsWith('moduleA')
+        (filters[1].fileInfoMatcherDescription.arguments as String).endsWith('moduleB')
+        (filters[2].fileInfoMatcherDescription.arguments as String).endsWith('build')
+        (filters[3].fileInfoMatcherDescription.arguments as String).endsWith('.gradle')
     }
 
-    def "Gradle nature and Gradle settings file are discarded when the project is excluded from a Gradle build"() {
+    def "Importing a project twice won't result in duplicate filters"() {
         setup:
-        fileTree(sampleDir).file('settings.gradle').text = "include 'moduleA'"
+        deleteAllProjects(false)
 
         when:
-        synchronizeAndWait(findProject('moduleB'))
+        synchronizeAndWait(sampleDir)
 
         then:
-        IProject project = findProject('moduleB')
-        project != null
-        !GradleProjectNature.INSTANCE.isPresentOn(project)
-        project.getFolder('.settings').exists()
-        !project.getFolder('.settings').getFile('gradle.prefs').exists()
+        def filters = findProject("sample").getFilters()
+        filters.length == 4
+        (filters[0].fileInfoMatcherDescription.arguments as String).endsWith('moduleA')
+        (filters[1].fileInfoMatcherDescription.arguments as String).endsWith('moduleB')
+        (filters[2].fileInfoMatcherDescription.arguments as String).endsWith('build')
+        (filters[3].fileInfoMatcherDescription.arguments as String).endsWith('.gradle')
     }
 
-    def "A new Gradle module is imported into the workspace"() {
+    def "If a new project is added to the Gradle build, it is imported into the workspace"() {
         setup:
         fileTree(sampleDir) {
             file('settings.gradle').text = """
@@ -73,7 +69,7 @@ class SynchronizeGradleProjectJobTest extends ProjectSynchronizationSpecificatio
         GradleProjectNature.INSTANCE.isPresentOn(project)
     }
 
-    def "Project is transformed to a Gradle project when included in a Gradle build"() {
+    def "An existing workspace project is transformed to a Gradle project when included in a Gradle build"() {
         setup:
         fileTree(sampleDir).file('settings.gradle').text = """
            include 'moduleA'

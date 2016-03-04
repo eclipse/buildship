@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.core.JavaModelException;
 
-class ImportingProjectWithExistingDescriptorTest extends CoupledProjectSynchronizationSpecification {
+class ImportingProjectWithExistingDescriptorTest extends SingleProjectSynchronizationSpecification {
 
     def "The project is added to the workspace"() {
         def project = newProject("sample-project")
@@ -54,7 +54,6 @@ class ImportingProjectWithExistingDescriptorTest extends CoupledProjectSynchroni
         synchronizeAndWait(projectDir, ExistingDescriptorHandler.ALWAYS_OVERWRITE)
 
         then:
-        project.hasNature(GradleProjectNature.ID)
         !project.hasNature(JavaCore.NATURE_ID)
 
         when:
@@ -62,6 +61,22 @@ class ImportingProjectWithExistingDescriptorTest extends CoupledProjectSynchroni
 
         then:
         thrown JavaModelException
+    }
+
+    def "If the project descriptor is merged on import, then existing settings are kept"() {
+        setup:
+        IProject project = newJavaProject('sample-project').project
+        deleteAllProjects(false)
+        def projectDir = dir('sample-project') {
+            file 'settings.gradle'
+        }
+
+        when:
+        synchronizeAndWait(projectDir)
+
+        then:
+        project.hasNature(JavaCore.NATURE_ID)
+        JavaCore.create(project).rawClasspath
     }
 
     def "All subprojects with existing .project files are handled by the ExistingDescriptorHandler"() {

@@ -22,7 +22,7 @@ import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.core.JavaModelException;
 
-abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchronizationSpecification {
+abstract class SingleProjectSynchronizationSpecification extends ProjectSynchronizationSpecification {
 
     protected abstract void prepareProject(String name)
 

@@ -2,7 +2,7 @@ package org.eclipse.buildship.core.workspace.internal
 
 import org.eclipse.buildship.core.CorePlugin
 
-class ImportingProjectWithoutDescriptorTest extends CoupledProjectSynchronizationSpecification {
+class ImportingProjectWithoutDescriptorTest extends SingleProjectSynchronizationSpecification {
 
     def "The project is created and added to the workspace"() {
         setup:
