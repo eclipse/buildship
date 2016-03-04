@@ -33,6 +33,7 @@ import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.ProjectConfiguration
 import org.eclipse.buildship.core.configuration.ProjectConfigurationManager
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
+import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
@@ -40,7 +41,7 @@ import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectJob
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 
 @SuppressWarnings("GroovyAccessibility")
-class ProjectConfigurationManagerTest extends WorkspaceSpecification {
+class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecification {
 
     @Shared
     ProjectConfigurationManager configurationManager = CorePlugin.projectConfigurationManager()
@@ -56,7 +57,7 @@ class ProjectConfigurationManagerTest extends WorkspaceSpecification {
 
     def "no Gradle root project configurations available when there are no Eclipse projects with Gradle nature"() {
         given:
-        workspaceOperations.createProject("sample-project", testDir, ImmutableList.of(), new NullProgressMonitor())
+        newProject("sample-project")
 
         when:
         Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
@@ -68,7 +69,7 @@ class ProjectConfigurationManagerTest extends WorkspaceSpecification {
     def "no Gradle root project configurations available when there are no open Eclipse projects with Gradle nature"() {
         given:
         IProject project = workspaceOperations.createProject("sample-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
-        project.close(new NullProgressMonitor())
+        project.close(null)
 
         when:
         Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
@@ -97,13 +98,7 @@ class ProjectConfigurationManagerTest extends WorkspaceSpecification {
             }
         }
 
-        def importConfigurationOne = new ProjectImportConfiguration()
-        importConfigurationOne.projectDir = new File(rootDir.absolutePath)
-        importConfigurationOne.gradleDistribution = GradleDistributionWrapper.from(GradleDistributionWrapper.DistributionType.WRAPPER, null)
-        importConfigurationOne.applyWorkingSets = true
-        importConfigurationOne.workingSets = []
-
-        new SynchronizeGradleProjectJob(importConfigurationOne.toFixedAttributes(), importConfigurationOne.workingSets.getValue(), AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
+        importAndWait(rootDir)
 
         when:
         Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
@@ -158,20 +153,8 @@ class ProjectConfigurationManagerTest extends WorkspaceSpecification {
             }
         }
 
-        def importConfigurationOne = new ProjectImportConfiguration()
-        importConfigurationOne.projectDir = new File(rootDirOne.absolutePath)
-        importConfigurationOne.gradleDistribution = GradleDistributionWrapper.from(GradleDistributionWrapper.DistributionType.WRAPPER, null)
-        importConfigurationOne.applyWorkingSets = true
-        importConfigurationOne.workingSets = []
-
-        def importConfigurationTwo = new ProjectImportConfiguration()
-        importConfigurationTwo.projectDir = new File(rootDirTwo.absolutePath)
-        importConfigurationTwo.gradleDistribution = GradleDistributionWrapper.from(GradleDistributionWrapper.DistributionType.VERSION, '1.12')
-        importConfigurationTwo.applyWorkingSets = true
-        importConfigurationTwo.workingSets = []
-
-        new SynchronizeGradleProjectJob(importConfigurationOne.toFixedAttributes(), importConfigurationOne.workingSets.getValue(), AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
-        new SynchronizeGradleProjectJob(importConfigurationTwo.toFixedAttributes(), importConfigurationOne.workingSets.getValue(), AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
+        importAndWait(rootDirOne)
+        importAndWait(rootDirTwo, GradleDistribution.forVersion("1.12"))
 
         when:
         Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
