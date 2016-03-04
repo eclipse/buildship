@@ -157,7 +157,7 @@ public class ProjectScopeUtils {
                 preferences.put(key, entries.get(key));
             }
 
-            preferences.sync();
+            preferences.flush();
         } catch (Exception e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot store project-scope preferences %s from node %s from project %s", entries, node, project.getName()), e);
         }
