@@ -1,12 +1,9 @@
 /*
- * Copyright (c) 2016 the original author or authors.
+ * Copyright (c) 2016 Gradle Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
 package org.eclipse.buildship.ui.navigator;
