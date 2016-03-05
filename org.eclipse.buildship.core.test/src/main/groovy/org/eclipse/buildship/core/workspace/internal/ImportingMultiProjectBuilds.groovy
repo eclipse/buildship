@@ -22,6 +22,7 @@ class ImportingMultiProjectBuilds extends ProjectSynchronizationSpecification {
     }
 
     def "Imported parent projects have filters to hide the content of the children and the build folders"() {
+        expect:
         def filters = findProject("sample").getFilters()
         filters.length == 4
         (filters[0].fileInfoMatcherDescription.arguments as String).endsWith('moduleA')
