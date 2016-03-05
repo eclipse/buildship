@@ -10,7 +10,7 @@ import org.eclipse.jdt.core.IClasspathContainer
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
-class RefreshGradleClasspathContainerTest extends ProjectSynchronizationSpecification {
+class RefreshingTheGradleClasspathContainer extends ProjectSynchronizationSpecification {
 
     def "Update the project classpath"() {
         setup:

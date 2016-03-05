@@ -5,7 +5,7 @@ import org.eclipse.core.resources.IProject
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
 
-class UncouplingProjectFromGradleBuildTest extends ProjectSynchronizationSpecification {
+class UncouplingProjectFromGradleBuild extends ProjectSynchronizationSpecification {
 
     def "Uncoupling a project removes the Gradle nature"() {
         setup:

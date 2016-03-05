@@ -7,7 +7,7 @@ import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 
-class SynchronizingExistingWorkspaceProjectTest extends SingleProjectSynchronizationSpecification {
+class SynchronizingExistingWorkspaceProject extends SingleProjectSynchronizationSpecification {
 
     def "If the project is closed, then the project remains untouched"() {
         setup:

@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.core.JavaModelException;
 
-class ImportingProjectWithExistingDescriptorTest extends SingleProjectSynchronizationSpecification {
+class ImportingProjectWithExistingDescriptor extends SingleProjectSynchronizationSpecification {
 
     def "The project is added to the workspace"() {
         def project = newProject("sample-project")

@@ -15,7 +15,7 @@ import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
 
-class DependencyExportTest extends ProjectSynchronizationSpecification {
+class ReexportedDependencySpecification extends ProjectSynchronizationSpecification {
 
     def "Transitive dependencies are acessible from local project classpath when using Gradle 2.5+"(GradleDistribution distribution) {
         setup:

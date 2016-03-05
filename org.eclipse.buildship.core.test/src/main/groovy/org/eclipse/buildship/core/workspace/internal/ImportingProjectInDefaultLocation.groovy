@@ -24,7 +24,7 @@ import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.util.variable.ExpressionUtils
 import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;;
 
-class ImportingProjectsInDefaultLocationSpecification extends ProjectSynchronizationSpecification {
+class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecification {
 
     def "Can import deleted project located in default location"() {
         setup:

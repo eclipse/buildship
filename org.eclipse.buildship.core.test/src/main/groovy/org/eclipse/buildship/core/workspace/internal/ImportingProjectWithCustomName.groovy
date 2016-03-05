@@ -19,7 +19,7 @@ import com.gradleware.tooling.toolingmodel.util.Pair
 
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;;
 
-class ImportProjectsWithCustomNamesTest extends ProjectSynchronizationSpecification {
+class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification {
 
     def "Custom project naming is honored when imported from external location"() {
         setup:

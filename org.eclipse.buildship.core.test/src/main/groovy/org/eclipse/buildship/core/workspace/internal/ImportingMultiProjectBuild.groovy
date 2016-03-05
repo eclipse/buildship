@@ -11,7 +11,7 @@ import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.JavaCore
 
-class ImportingMultiProjectBuilds extends ProjectSynchronizationSpecification {
+class ImportingMultiProjectBuild extends ProjectSynchronizationSpecification {
 
     File sampleDir
     File moduleADir
