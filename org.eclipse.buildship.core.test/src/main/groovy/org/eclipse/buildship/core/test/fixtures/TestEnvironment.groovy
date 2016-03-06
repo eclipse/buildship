@@ -1,45 +1,49 @@
 package org.eclipse.buildship.core.test.fixtures
 
-import com.google.common.base.Preconditions
-import org.eclipse.buildship.core.CorePlugin
-import org.osgi.framework.BundleContext
+import groovy.transform.CompileStatic
 import org.osgi.framework.Constants
 import org.osgi.framework.ServiceRegistration
 
+import org.eclipse.buildship.core.CorePlugin
+
 /**
- * Provides facility to replace services of the {@link CorePlugin} with arbitrary implementations for testing purposes.
+ * Allows to replace services of the {@link CorePlugin} with arbitrary implementations for testing purposes.
  * <p/>
- * During the setup phase, the {@link TestEnvironment#registerService(Class, Object)} is available to replace one or more
- * services. During the tear down phase, the service registry has to be cleaned up with {@link TestEnvironment#cleanup()}.
+ * During the setup phase, the {@link #registerService(Class, Object)} is available to replace one or more
+ * services. During the tear down phase, the {@link #close()} method needs to be called to restore the original implementation of all services.
  */
-abstract class TestEnvironment {
+@CompileStatic
+final class TestEnvironment implements Closeable {
 
-    private static def services = [:]
+    public static final TestEnvironment INSTANCE = new TestEnvironment()
 
-    static <T> void registerService(Class<T> definitionType, T implementation) {
-        Preconditions.checkState(services[definitionType.name] == null, "service ${definitionType.name} already initialised" as Object)
+    private static final int HIGHER_RANKING_THAN_PRODUCTION_CODE = 10
+
+    private Map<String, ServiceRegistration<?>> services = [:]
+
+    private TestEnvironment() {
+
+    }
+
+    def <T> void registerService(Class<T> definitionType, T implementation) {
+        def serviceName = definitionType.name
+        assert !services[serviceName] : "Service $serviceName already registred"
         def context = CorePlugin.instance.bundle.bundleContext
-        def registration = internalRegisterService(context, definitionType, implementation, testingServicePreferences);
-        services[definitionType.name] = registration
+        def registration = context.registerService(serviceName, implementation, testingServicePreferences)
+        services[serviceName] = registration
         implementation
     }
 
-    private static def getTestingServicePreferences() {
-        // ranking has to be higher than all services registered in the plugins
-        def preferences = new Hashtable<String, Object>();
-        preferences.put(Constants.SERVICE_RANKING, 10);
-        preferences
+    private Dictionary<String, Object> getTestingServicePreferences() {
+        def preferences = new Hashtable<String, Object>()
+        preferences.put(Constants.SERVICE_RANKING, HIGHER_RANKING_THAN_PRODUCTION_CODE)
+        return preferences
     }
 
-    private static def <T> ServiceRegistration internalRegisterService(BundleContext context, Class<T> clazz, T service, Dictionary<String, Object> properties) {
-        context.registerService(clazz.getName(), service, properties);
-    }
-
-    static def cleanup() {
+    void close() {
         services.each { serviceName, service ->
             service.unregister()
         }
         services.clear()
     }
-
 }

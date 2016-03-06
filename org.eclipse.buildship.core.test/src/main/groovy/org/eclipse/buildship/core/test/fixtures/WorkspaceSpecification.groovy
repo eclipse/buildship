@@ -16,6 +16,7 @@ import java.io.File;
 import groovy.lang.Closure;
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import spock.lang.AutoCleanup;
 import spock.lang.Specification
 
 import com.google.common.io.Files
@@ -36,6 +37,9 @@ abstract class WorkspaceSpecification extends Specification {
     @Rule
     TemporaryFolder tempFolderProvider
 
+    @AutoCleanup
+    TestEnvironment environment = TestEnvironment.INSTANCE
+
     private File externalTestDir
 
     def setup() {
@@ -50,6 +54,10 @@ abstract class WorkspaceSpecification extends Specification {
         for (IProject project : CorePlugin.workspaceOperations().allProjects) {
             project.delete(includingContent, true, null);
         }
+    }
+
+    protected <T> void registerService(Class<T> serviceType, T implementation) {
+        environment.registerService(serviceType, implementation)
     }
 
     protected FileTreeBuilder fileTree(File baseDir) {

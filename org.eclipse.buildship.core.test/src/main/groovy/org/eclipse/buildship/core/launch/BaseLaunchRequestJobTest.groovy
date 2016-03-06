@@ -7,12 +7,16 @@ import org.eclipse.buildship.core.test.fixtures.TestEnvironment
 import org.eclipse.debug.core.ILaunchConfiguration
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import spock.lang.AutoCleanup;
 import spock.lang.Specification
 
 class BaseLaunchRequestJobTest extends Specification {
 
     @Rule
     TemporaryFolder tempFolder
+
+    @AutoCleanup
+    TestEnvironment environment = TestEnvironment.INSTANCE
 
     ToolingClient toolingClient
     ProcessStreamsProvider processStreamsProvider
@@ -28,16 +32,12 @@ class BaseLaunchRequestJobTest extends Specification {
         processStreamsProvider.createProcessStreams(_) >> processStreams
         processStreamsProvider.getBackgroundJobProcessStreams() >> processStreams
 
-        TestEnvironment.registerService(ToolingClient, toolingClient)
-        TestEnvironment.registerService(ProcessStreamsProvider, processStreamsProvider)
-    }
-
-    def cleanup() {
-        TestEnvironment.cleanup()
+        environment.registerService(ToolingClient, toolingClient)
+        environment.registerService(ProcessStreamsProvider, processStreamsProvider)
     }
 
     def createLaunchConfigurationMock() {
-        def launchConfiguration = Mock(ILaunchConfiguration)
+        ILaunchConfiguration launchConfiguration = Mock()
         launchConfiguration.getName() >> 'name'
         launchConfiguration.getAttribute('tasks', _) >> ['clean', 'build']
         launchConfiguration.getAttribute('working_dir', _) >> tempFolder.newFolder().absolutePath

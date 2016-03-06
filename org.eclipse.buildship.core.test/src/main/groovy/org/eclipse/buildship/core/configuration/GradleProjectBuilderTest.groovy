@@ -1,5 +1,6 @@
 package org.eclipse.buildship.core.configuration
 
+import spock.lang.AutoCleanup;
 import spock.lang.Shared;
 import spock.lang.Subject;
 
@@ -68,31 +69,25 @@ class GradleProjectBuilderTest extends WorkspaceSpecification {
     def "If configuration throws exception it is logged but not rethrown"() {
         given:
         Logger logger = Mock(Logger)
-        TestEnvironment.registerService(Logger, logger)
+        registerService(Logger, logger)
 
         when:
         builder.configureOnProject(bogusProject)
 
         then:
         1 * logger.error(_)
-
-        cleanup:
-        TestEnvironment.cleanup()
     }
 
     def "If deconfiguration throws exception it is logged but not rethrown"() {
         given:
         Logger logger = Mock(Logger)
-        TestEnvironment.registerService(Logger, logger)
+        registerService(Logger, logger)
 
         when:
         builder.deconfigureOnProject(bogusProject)
 
         then:
         1 * logger.error(_)
-
-        cleanup:
-        TestEnvironment.cleanup()
     }
 
     private List<String> builderNames(IProject project) {

@@ -23,7 +23,7 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         importAndWait(projectDir)
 
         WorkspaceGradleOperations workspaceOperations = Mock(WorkspaceGradleOperations)
-        TestEnvironment.registerService(WorkspaceGradleOperations, workspaceOperations)
+        registerService(WorkspaceGradleOperations, workspaceOperations)
 
         IJavaProject javaProject = JavaCore.create(findProject("sample-project"))
         IProject project = javaProject.project
@@ -37,9 +37,6 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         then:
         0 * workspaceOperations.synchronizeGradleBuildWithWorkspace(*_)
         javaProject.getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
-
-        cleanup:
-        TestEnvironment.cleanup()
     }
 
     private reimportWithoutSynchronization(IProject project) {

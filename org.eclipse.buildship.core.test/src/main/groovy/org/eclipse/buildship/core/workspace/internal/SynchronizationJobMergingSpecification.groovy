@@ -33,7 +33,7 @@ class SynchronizationJobMergingSpecification extends ProjectSynchronizationSpeci
         }
         def jobs = (1..5).collect { newSynchronizationJob(projectLocation) }
         WorkspaceGradleOperations workspaceOperations = Mock(WorkspaceGradleOperations)
-        TestEnvironment.registerService(WorkspaceGradleOperations, workspaceOperations)
+        registerService(WorkspaceGradleOperations, workspaceOperations)
 
         when:
         jobs.each { it.schedule() }
@@ -41,9 +41,6 @@ class SynchronizationJobMergingSpecification extends ProjectSynchronizationSpeci
 
         then:
         1 * workspaceOperations.synchronizeGradleBuildWithWorkspace(*_)
-
-        cleanup:
-        TestEnvironment.cleanup()
     }
 
 }

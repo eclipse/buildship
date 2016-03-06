@@ -5,20 +5,19 @@ import org.eclipse.core.runtime.IStatus;
 
 import org.eclipse.buildship.core.Logger;
 import org.eclipse.buildship.core.notification.UserNotification;
-import org.eclipse.buildship.core.test.fixtures.TestEnvironment;
+import org.eclipse.buildship.core.test.fixtures.TestEnvironment
 
+import spock.lang.AutoCleanup;
 import spock.lang.Specification
 
 class ToolingApiWorkspaceJobTest extends Specification {
+    @AutoCleanup
+    TestEnvironment environment = TestEnvironment.INSTANCE
 
     def setup () {
         // suppress the error messages from the console
-        TestEnvironment.registerService(Logger, Mock(Logger))
-        TestEnvironment.registerService(UserNotification, Mock(UserNotification))
-    }
-
-    def cleanup() {
-        TestEnvironment.cleanup()
+        environment.registerService(Logger, Mock(Logger))
+        environment.registerService(UserNotification, Mock(UserNotification))
     }
 
     def "Absent root cause should not throw NPE"() {
