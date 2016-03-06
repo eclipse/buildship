@@ -16,7 +16,6 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectBuilder
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
 import org.eclipse.buildship.core.test.fixtures.TestEnvironment
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
@@ -29,7 +28,7 @@ class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecificat
     def "Can import deleted project located in default location"() {
         setup:
         def workspaceOperations = CorePlugin.workspaceOperations()
-        def workspaceRootLocation = LegacyEclipseSpockTestHelper.workspace.root.location.toFile()
+        def workspaceRootLocation = workspace.root.location.toFile()
         def location = new File(workspaceRootLocation, 'projectname')
         location.mkdirs()
 
@@ -51,8 +50,8 @@ class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecificat
         synchronizeAndWait(rootProject)
 
         then:
-        LegacyEclipseSpockTestHelper.workspace.root.projects.length == 1
-        def project = LegacyEclipseSpockTestHelper.workspace.root.projects[0]
+        workspace.root.projects.length == 1
+        def project = workspace.root.projects[0]
         def locationExpression = ExpressionUtils.encodeWorkspaceLocation(project)
         def decodedLocation = ExpressionUtils.decode(locationExpression)
         rootProject.equals(new File(decodedLocation))

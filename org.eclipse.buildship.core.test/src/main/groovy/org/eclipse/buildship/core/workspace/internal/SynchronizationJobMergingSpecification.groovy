@@ -16,7 +16,6 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectBuilder
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
 import org.eclipse.buildship.core.test.fixtures.TestEnvironment
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper

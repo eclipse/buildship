@@ -19,7 +19,6 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.ProjectConfiguration
-import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 import org.eclipse.buildship.core.workspace.WorkspaceOperations

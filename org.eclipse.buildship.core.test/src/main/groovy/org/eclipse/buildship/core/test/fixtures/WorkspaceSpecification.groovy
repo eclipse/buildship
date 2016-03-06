@@ -13,7 +13,8 @@ package org.eclipse.buildship.core.test.fixtures
 
 import java.io.File;
 
-import groovy.lang.Closure;
+import groovy.lang.Closure
+import groovy.transform.CompileStatic;
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.AutoCleanup;
@@ -22,7 +23,8 @@ import spock.lang.Specification
 import com.google.common.io.Files
 
 import org.eclipse.core.resources.IProject
-import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspace
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.jdt.core.IJavaProject;
 
@@ -111,8 +113,9 @@ abstract class WorkspaceSpecification extends Specification {
         return new File(workspaceDir, location)
     }
 
+    @CompileStatic //stop Groovy from loading broken Eclipse 2.x compatibility classes
     protected IWorkspace getWorkspace() {
-        LegacyEclipseSpockTestHelper.workspace
+        ResourcesPlugin.workspace
     }
 
     protected File getWorkspaceDir() {
