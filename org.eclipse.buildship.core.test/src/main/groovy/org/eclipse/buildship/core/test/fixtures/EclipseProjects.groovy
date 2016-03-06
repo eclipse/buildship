@@ -1,10 +1,7 @@
 package org.eclipse.buildship.core.test.fixtures
 
-import groovy.transform.CompileStatic;
-
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IProjectDescription
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
@@ -15,7 +12,6 @@ import org.eclipse.jdt.launching.JavaRuntime
 /**
  * Helper class to create projects in the Eclipse workspace.
  */
-@CompileStatic
 abstract class EclipseProjects {
 
     /**
@@ -36,7 +32,7 @@ abstract class EclipseProjects {
      * @return the reference of the created project
      */
     static IProject newProject(String name, File location) {
-        def workspace = ResourcesPlugin.workspace
+        def workspace = LegacyEclipseSpockTestHelper.workspace
         IProjectDescription projectDescription = workspace.newProjectDescription(name)
         projectDescription.setLocation(new Path(location.absolutePath))
         IProject project = workspace.getRoot().getProject(name)
