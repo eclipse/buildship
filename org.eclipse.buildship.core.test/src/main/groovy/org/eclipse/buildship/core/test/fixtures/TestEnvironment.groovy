@@ -19,7 +19,7 @@ final class TestEnvironment implements Closeable {
 
     private static final int HIGHER_RANKING_THAN_PRODUCTION_CODE = 10
 
-    private Map<String, ServiceRegistration<?>> services = [:]
+    private Map<String, ServiceRegistration> services = [:]
 
     private TestEnvironment() {
 
