@@ -14,16 +14,19 @@ import org.eclipse.buildship.core.test.fixtures.TestEnvironment
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
 
-class GradleProjectBuilderTest extends WorkspaceSpecification {
+class ConfiguringGradleBuilderOnRegularProject extends WorkspaceSpecification {
 
     @Shared
     @Subject
     GradleProjectBuilder builder = GradleProjectBuilder.INSTANCE
 
-    def "Can configure builder on simple project"() {
-        given:
-        def project = newProject("sample-project")
+    IProject project
 
+    def setup() {
+        project = newProject("sample")
+    }
+
+    def "Can configure builder"() {
         when:
         builder.configureOnProject(project)
 
@@ -33,7 +36,6 @@ class GradleProjectBuilderTest extends WorkspaceSpecification {
 
     def "Builder configuration is idempotent"() {
         given:
-        def project = newProject("sample-project")
         builder.configureOnProject(project)
 
         when:
@@ -43,9 +45,8 @@ class GradleProjectBuilderTest extends WorkspaceSpecification {
         builderNames(project) == [GradleProjectBuilder.ID]
     }
 
-    def "Can deconfigure builder on simple project"() {
+    def "Can deconfigure builder"() {
         given:
-        def project = newProject("sample-project")
         builder.configureOnProject(project)
 
         when:
@@ -56,9 +57,6 @@ class GradleProjectBuilderTest extends WorkspaceSpecification {
     }
 
     def "Deconfiguring is a no-op if builder is not present"() {
-        given:
-        def project = newProject("sample-project")
-
         when:
         builder.deconfigureOnProject(project)
 
@@ -66,38 +64,7 @@ class GradleProjectBuilderTest extends WorkspaceSpecification {
         builderNames(project).empty
     }
 
-    def "If configuration throws exception it is logged but not rethrown"() {
-        given:
-        Logger logger = Mock(Logger)
-        registerService(Logger, logger)
-
-        when:
-        builder.configureOnProject(bogusProject)
-
-        then:
-        1 * logger.error(_)
-    }
-
-    def "If deconfiguration throws exception it is logged but not rethrown"() {
-        given:
-        Logger logger = Mock(Logger)
-        registerService(Logger, logger)
-
-        when:
-        builder.deconfigureOnProject(bogusProject)
-
-        then:
-        1 * logger.error(_)
-    }
-
     private List<String> builderNames(IProject project) {
         project.description.buildSpec*.builderName
-    }
-
-    private IProject getBogusProject() {
-        return Stub(IProject) {
-            isOpen() >> true
-            getDescription() >> { throw new CoreException(new Status(IStatus.ERROR, "unknown", "thrown on purpose")) }
-        }
     }
 }
