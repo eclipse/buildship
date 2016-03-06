@@ -54,7 +54,7 @@ class ValidatorsTest extends Specification {
 
         then:
         !result.isPresent()
-        0 * target./.*/(_) // no method was called on the target
+        0 * target._ // no method was called on the target
     }
 
 }
