@@ -13,15 +13,15 @@ import org.eclipse.buildship.core.CorePlugin
  * services. During the tear down phase, the {@link #close()} method needs to be called to restore the original implementation of all services.
  */
 @CompileStatic
-final class TestEnvironment implements Closeable {
+abstract class TestEnvironment implements Closeable {
 
-    public static final TestEnvironment INSTANCE = new TestEnvironment()
+    public static final TestEnvironment INSTANCE = new TestEnvironment(){}
 
     private static final int HIGHER_RANKING_THAN_PRODUCTION_CODE = 10
 
     private Map<String, ServiceRegistration> services = [:]
 
-    private TestEnvironment() {
+    TestEnvironment() {
 
     }
 
