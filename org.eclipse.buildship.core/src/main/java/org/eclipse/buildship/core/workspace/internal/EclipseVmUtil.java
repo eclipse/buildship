@@ -32,16 +32,13 @@ final class EclipseVmUtil {
 
     private static final String VM_ID_PREFIX = "org.eclipse.buildship.core.vm.";
 
-    private EclipseVmUtil() {
-    }
-
     /**
      * Finds a Java VM in the Eclipse VM registry or registers a new one if none was available with
      * the selected version.
      *
-     * @param version the VM's supported Java version
+     * @param version  the VM's supported Java version
      * @param location the location of the VM
-     * @return the reference of an existing or freshly created VM
+     * @return the reference of an existing or newly created VM
      */
     public static IVMInstall findOrRegisterStandardVM(String version, File location) {
         Preconditions.checkNotNull(version);
@@ -55,12 +52,12 @@ final class EclipseVmUtil {
         return vm.isPresent() ? vm.get() : registerNewVM("Java SE " + version, location);
     }
 
-
     private static Optional<IVMInstall> findRegisteredVM(String version) {
         Optional<IExecutionEnvironment> possibleExecutionEnvironment = findExecutionEnvironment(version);
         if (!possibleExecutionEnvironment.isPresent()) {
             return Optional.absent();
         }
+
         IExecutionEnvironment executionEnvironment = possibleExecutionEnvironment.get();
         IVMInstall defaultVm = executionEnvironment.getDefaultVM();
         if (defaultVm != null) {
@@ -72,7 +69,7 @@ final class EclipseVmUtil {
     }
 
     /**
-     * Finds the execution environment for the given compliance version. E.g. 'JavaSE-1.6' for version '1.6'
+     * Finds the execution environment for the given compliance version, e.g. 'JavaSE-1.6' for version '1.6'.
      *
      * @param version the Java version
      * @return the execution environment or {@link Optional#absent()} if none was found
@@ -124,6 +121,9 @@ final class EclipseVmUtil {
             vmId = VM_ID_PREFIX + counter;
         }
         return vmId;
+    }
+
+    private EclipseVmUtil() {
     }
 
 }

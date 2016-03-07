@@ -74,33 +74,6 @@ final class JavaSourceSettingsUpdater {
         }
     }
 
-    private static boolean  isProjectAutoBuildingEnabled() {
-        return ResourcesPlugin.getWorkspace().getDescription().isAutoBuilding();
-    }
-
-    private static void scheduleJdtBuild(final IProject project) {
-        WorkspaceJob build = new WorkspaceJob(String.format("Building project %s after Java compiler settings changed", project.getName())) {
-
-            @Override
-            public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
-                try {
-                    project.build(IncrementalProjectBuilder.FULL_BUILD, JavaCore.BUILDER_ID, Collections.<String, String>emptyMap(), monitor);
-                    return Status.OK_STATUS;
-                } catch (Exception e) {
-                    return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, String.format("Cannot perform a full build on project %s", project.getName()), e);
-                } finally {
-                    monitor.done();
-                }
-            }
-
-            @Override
-            public boolean belongsTo(Object family) {
-                return family == ResourcesPlugin.FAMILY_AUTO_BUILD;
-            }
-        };
-        build.schedule();
-    }
-
     private static void addExecutionEnvironmentToClasspath(IJavaProject project, IExecutionEnvironment executionEnvironment, IProgressMonitor monitor) throws JavaModelException {
         IPath vmPath = JavaRuntime.newJREContainerPath(executionEnvironment);
         addContainerToClasspath(project, vmPath, monitor);
@@ -114,6 +87,7 @@ final class JavaSourceSettingsUpdater {
     private static void addContainerToClasspath(IJavaProject project, IPath containerPath, IProgressMonitor monitor) throws JavaModelException {
         IClasspathEntry[] classpath = project.getRawClasspath();
         IPath defaultContainerPath = JavaRuntime.newDefaultJREContainerPath();
+
         // try to find the VM entry on the classpath
         for (int i = 0; i < classpath.length; i++) {
             IClasspathEntry entry = classpath[i];
@@ -147,6 +121,34 @@ final class JavaSourceSettingsUpdater {
         } else {
             return false;
         }
+    }
+
+    private static boolean isProjectAutoBuildingEnabled() {
+        return ResourcesPlugin.getWorkspace().getDescription().isAutoBuilding();
+    }
+
+    private static void scheduleJdtBuild(final IProject project) {
+        WorkspaceJob build = new WorkspaceJob(String.format("Building project %s after Java compiler settings changed", project.getName())) {
+
+            @Override
+            public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
+                try {
+                    project.build(IncrementalProjectBuilder.FULL_BUILD, JavaCore.BUILDER_ID, Collections.<String, String>emptyMap(), monitor);
+                    return Status.OK_STATUS;
+                } catch (Exception e) {
+                    return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, String.format("Cannot perform a full build on project %s.", project.getName()), e);
+                } finally {
+                    monitor.done();
+                }
+            }
+
+            @Override
+            public boolean belongsTo(Object family) {
+                return family == ResourcesPlugin.FAMILY_AUTO_BUILD;
+            }
+
+        };
+        build.schedule();
     }
 
     private JavaSourceSettingsUpdater() {
