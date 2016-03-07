@@ -26,7 +26,7 @@ import org.eclipse.buildship.core.util.file.RelativePathUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 
 /**
- * Value-holder class used to store {@link ProjectConfiguration} instance in a persistent storage.
+ * Value-holder class to transfer attributes between {@link ProjectConfiguration} and the preference storage.
  */
 final class ProjectConfigurationProperties {
 

@@ -11,6 +11,8 @@
 
 package org.eclipse.buildship.core.configuration.internal;
 
+import com.google.common.base.Preconditions;
+
 import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
@@ -23,7 +25,7 @@ final class LegacyCleaningProjectConfigurationPersistence implements ProjectConf
     private final ProjectConfigurationPersistence delegate;
 
     LegacyCleaningProjectConfigurationPersistence(ProjectConfigurationPersistence delegate) {
-        this.delegate = delegate;
+        this.delegate = Preconditions.checkNotNull(delegate);
     }
 
     @Override

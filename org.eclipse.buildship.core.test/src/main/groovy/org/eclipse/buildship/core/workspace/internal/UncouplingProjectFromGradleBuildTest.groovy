@@ -1,12 +1,12 @@
 package org.eclipse.buildship.core.workspace.internal
 
 import org.eclipse.core.resources.IProject
-import org.eclipse.core.resources.ProjectScope;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.resources.ProjectScope
+import org.eclipse.core.runtime.preferences.IEclipsePreferences
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigurationPersistence;
+import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigurationPersistence
 import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationPersistence
 import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationProperties
 import org.eclipse.buildship.core.test.fixtures.GradleModel

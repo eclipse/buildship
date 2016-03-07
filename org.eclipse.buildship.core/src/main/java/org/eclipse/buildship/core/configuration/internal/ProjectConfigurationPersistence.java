@@ -18,7 +18,7 @@ import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 /**
  * Internal contract how to read and write project configurations.
  */
-public interface ProjectConfigurationPersistence {
+interface ProjectConfigurationPersistence {
     void saveProjectConfiguration(ProjectConfiguration projectConfiguration, IProject workspaceProject);
     void deleteProjectConfiguration(IProject workspaceProject);
     ProjectConfiguration readProjectConfiguration(IProject workspaceProject);
