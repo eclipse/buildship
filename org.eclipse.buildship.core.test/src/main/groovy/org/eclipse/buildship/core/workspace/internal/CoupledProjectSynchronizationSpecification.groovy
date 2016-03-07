@@ -3,7 +3,7 @@ package org.eclipse.buildship.core.workspace.internal
 import org.gradle.api.JavaVersion
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationPersistence
+import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigurationPersistence
 import org.eclipse.buildship.core.test.fixtures.BuildshipTestSpecification
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 import org.eclipse.buildship.core.test.fixtures.FileStructure
@@ -88,7 +88,7 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
 
         then:
         def project = findProject('sample-project')
-        new ProjectConfigurationPersistence().readProjectConfiguration(project)
+        new DefaultProjectConfigurationPersistence().readProjectConfiguration(project)
     }
 
     def "Resource filters are set"() {

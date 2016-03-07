@@ -313,8 +313,8 @@ class ProjectConfigurationManagerTest extends Specification {
 
         then:
         !new File(tempFolder.root, '.settings/gradle.prefs').exists()
-        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(ProjectConfigurationProperties.PROJECT_PATH.key, null) == ':'
-        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(ProjectConfigurationProperties.CONNECTION_PROJECT_DIR.key, null) == ''
+        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_PROJECT_PATH, null) == ':'
+        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null) == ''
     }
 
     def "legacy project configuration conversion handles absolute paths"() {
@@ -340,8 +340,8 @@ class ProjectConfigurationManagerTest extends Specification {
 
         then:
         !new File(tempFolder.root, '.settings/gradle.prefs').exists()
-        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(ProjectConfigurationProperties.PROJECT_PATH.key, null) == ':'
-        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(ProjectConfigurationProperties.CONNECTION_PROJECT_DIR.key, null) == '..'
+        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_PROJECT_PATH, null) == ':'
+        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null) == '..'
     }
 
 }

@@ -37,7 +37,7 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
 
     public DefaultProjectConfigurationManager(WorkspaceOperations workspaceOperations) {
         this.workspaceOperations = workspaceOperations;
-        this.projectConfigurationPersistence = new ProjectConfigurationPersistence();
+        this.projectConfigurationPersistence = new LegacyCleaningProjectConfigurationPersistence(new DefaultProjectConfigurationPersistence());
     }
 
     @Override

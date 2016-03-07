@@ -22,7 +22,6 @@ import org.osgi.service.prefs.BackingStoreException;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -35,17 +34,18 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
 
 /**
  * Cleans up project artifacts created by Buildship versions < 1.0.10.
  */
-final class LegacyProjectConfigurationUtils {
+final class LegacyProjectConfigurationHandler {
 
     private static final String GRADLE_PREFERENCES_LOCATION = ".settings/gradle.prefs";
     private static final String GRADLE_PREFERENCES_FILE_NAME_WITHOUT_EXTENSION = "gradle";
 
-    private LegacyProjectConfigurationUtils() {
+    private LegacyProjectConfigurationHandler() {
     }
 
     public static boolean hasLegacyConfiguration(IProject project) {
@@ -56,7 +56,11 @@ final class LegacyProjectConfigurationUtils {
         return new File(project.getLocation().toFile(), GRADLE_PREFERENCES_LOCATION);
     }
 
-    public static Map<ProjectConfigurationProperties, String> readLegacyConfiguration(IProject project) {
+    public static ProjectConfiguration readProjectConfiguration(IProject workspaceProject) {
+        return readLegacyConfiguration(workspaceProject).toProjectConfiguration(workspaceProject);
+    }
+
+    private static ProjectConfigurationProperties readLegacyConfiguration(IProject project) {
         try {
             File gradlePrefsFile = getLegacyConfigurationFile(project);
             String json = getContents(gradlePrefsFile);
@@ -65,16 +69,15 @@ final class LegacyProjectConfigurationUtils {
             Map<String, Object> config = gson.fromJson(json, createMapTypeToken());
             Map<String, String> projectConfig = getProjectConfigForVersion(config);
 
-            Map<ProjectConfigurationProperties, String> legacyConfig = Maps.newHashMap();
-            legacyConfig.put(ProjectConfigurationProperties.PROJECT_PATH, projectConfig.get("project_path"));
-            legacyConfig.put(ProjectConfigurationProperties.CONNECTION_PROJECT_DIR, relativePathToRootProject(project, new Path(projectConfig.get("connection_project_dir")))) ;
-            legacyConfig.put(ProjectConfigurationProperties.CONNECTION_GRADLE_USER_HOME, projectConfig.get("connection_gradle_user_home"));
-            legacyConfig.put(ProjectConfigurationProperties.CONNECTION_GRADLE_DISTRIBUTION, projectConfig.get("connection_gradle_distribution"));
-            legacyConfig.put(ProjectConfigurationProperties.CONNECTION_JAVA_HOME, projectConfig.get("connection_java_home"));
-            legacyConfig.put(ProjectConfigurationProperties.CONNECTION_JVM_ARGUMENTS, projectConfig.get("connection_jvm_arguments"));
-            legacyConfig.put(ProjectConfigurationProperties.CONNECTION_ARGUMENTS, projectConfig.get("connection_arguments"));
+            String projectPath = projectConfig.get("project_path");
+            String projectDir =  relativePathToRootProject(project, new Path(projectConfig.get("connection_project_dir")));
+            String gradleUserHome =  projectConfig.get("connection_gradle_user_home");
+            String gradleDistribution = projectConfig.get("connection_gradle_distribution");
+            String javaHome =  projectConfig.get("connection_java_home");
+            String jvmArguments =  projectConfig.get("connection_jvm_arguments");
+            String arguments =  projectConfig.get("connection_arguments");
+            return ProjectConfigurationProperties.from(projectPath, projectDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments);
 
-            return legacyConfig;
         } catch (Exception e) {
             throw new GradlePluginsRuntimeException("Cannot retrieve legacy project configuration", e);
         }
@@ -115,7 +118,7 @@ final class LegacyProjectConfigurationUtils {
         }
     }
 
-    public static void cleanup(IProject project) {
+    public static void cleanupLegacyConfiguration(IProject project) {
         Preconditions.checkNotNull(project);
         Preconditions.checkArgument(project.isAccessible());
 
@@ -139,5 +142,4 @@ final class LegacyProjectConfigurationUtils {
             node.removeNode();
         }
     }
-
 }
