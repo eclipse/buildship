@@ -57,12 +57,10 @@ final class EclipseVmUtil {
     private static String resolveEeName(String version) {
         // the result values correspond to the standard execution environment definitions in the
         // org.eclipse.jdt.launching/plugin.xml file
-        if (Arrays.asList("1.8", "1.7", "1.6").contains(version)) {
-            return "JavaSE-" + version;
+        if ("1.1".equals(version)) {
+            return "JRE-1.1";
         } else if (Arrays.asList("1.5", "1.4", "1.3", "1.2").contains(version)) {
             return "J2SE-" + version;
-        } else if ("1.1".equals(version)) {
-            return "JRE-1.1";
         } else {
             return "JavaSE-" + version;
         }
