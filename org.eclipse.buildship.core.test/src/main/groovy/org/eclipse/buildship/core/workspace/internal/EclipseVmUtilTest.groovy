@@ -1,60 +1,54 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import spock.lang.Specification
+
 import org.eclipse.jdt.internal.launching.StandardVMType
 import org.eclipse.jdt.launching.IVMInstall
 import org.eclipse.jdt.launching.IVMInstallType
 import org.eclipse.jdt.launching.JavaRuntime
-import spock.lang.Specification
+
 
 @SuppressWarnings("restriction")
 class EclipseVmUtilTest extends Specification {
 
     def "Can find an existing VM"() {
         given:
-        def name = firstRegisteredVm().name
-        def location = firstRegisteredVm().installLocation
-        def initialNumOfRegisteredVms = numberOfRegisteredVms()
+        def location = allVms().first().installLocation
 
         when:
-        def vm = EclipseVmUtil.findOrRegisterVM(name, location)
+        def vm = EclipseVmUtil.findOrRegisterVM('1.7', location)
 
         then:
         vm.installLocation == location
-        numberOfRegisteredVms() == initialNumOfRegisteredVms
+        allVms().size() == old(allVms().size())
     }
 
-    @SuppressWarnings("GroovyAccessibility")
-    def "Creates new VM if none registered with the same name"() {
+    def "Creates new VM if none registered for that version"() {
         given:
-        IVMInstall vm = firstRegisteredVm()
-        File vmLocation = vm.installLocation
-        def initialNumOfRegisteredVms = numberOfRegisteredVms()
+        File vmLocation = allVms().first().installLocation
 
         when:
-        vm.VMInstallType.disposeVMInstall(vm.id)
+        def vm = EclipseVmUtil.findOrRegisterVM('0.3', vmLocation)
 
         then:
-        numberOfRegisteredVms() == initialNumOfRegisteredVms - 1
-
-        when:
-        vm = EclipseVmUtil.findOrRegisterVM('a-new-vm', vmLocation)
-
-        then:
-        numberOfRegisteredVms() == initialNumOfRegisteredVms
+        allVms().size() == old(allVms().size()) + 1
 
         and:
-        vm.id.startsWith EclipseVmUtil.VM_ID_PREFIX
-        vm.name == 'a-new-vm'
-        vm.VMInstallType.id == StandardVMType.ID_STANDARD_VM_TYPE
-        vm.installLocation == vmLocation
+        with(vm) {
+            id.startsWith EclipseVmUtil.VM_ID_PREFIX
+            name == 'Java SE 0.3'
+            VMInstallType.id == StandardVMType.ID_STANDARD_VM_TYPE
+            installLocation == vmLocation
+        }
     }
 
-    def "New VMs names correspond to execution environment names"() {
+    def "Finds the matching execution environment"() {
         expect:
-        EclipseVmUtil.resolveEeName(version) == expected
+        EclipseVmUtil.findExecutionEnvironment(version).orNull()?.id == expected
 
         where:
         version | expected
+        'foo'   | null
         '1.1'   | 'JRE-1.1'
         '1.2'   | 'J2SE-1.2'
         '1.3'   | 'J2SE-1.3'
@@ -62,32 +56,10 @@ class EclipseVmUtilTest extends Specification {
         '1.5'   | 'J2SE-1.5'
         '1.6'   | 'JavaSE-1.6'
         '1.7'   | 'JavaSE-1.7'
-        '1.8'   | 'JavaSE-1.8'
-        '1.9'   | 'JavaSE-1.9'
     }
 
-    def "Unrecognized versions get sensible vm names"() {
-        expect:
-        EclipseVmUtil.resolveEeName(version) == expected
-
-        where:
-        version   | expected
-        '1.0'     | 'JavaSE-1.0'
-        'unknown' | 'JavaSE-unknown'
-    }
-
-    private static def numberOfRegisteredVms() {
-        JavaRuntime.VMInstallTypes.sum { it.VMInstalls.length }
-    }
-
-    private static def firstRegisteredVm() {
-        for (IVMInstallType type : JavaRuntime.VMInstallTypes) {
-            for (IVMInstall vm : type.VMInstalls) {
-                if (vm.installLocation) {
-                    return vm
-                }
-            }
-        }
+    private static List<IVMInstall> allVms() {
+        JavaRuntime.VMInstallTypes.VMInstalls.findAll { it.installLocation }.flatten()
     }
 
 }

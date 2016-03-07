@@ -14,6 +14,7 @@ package org.eclipse.buildship.core.workspace.internal;
 import java.io.File;
 import java.util.Collections;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ObjectArrays;
 
 import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings;
@@ -26,7 +27,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 
 import org.eclipse.buildship.core.CorePlugin;
 
@@ -51,7 +52,12 @@ final class JavaSourceSettingsUpdater {
             File vmLocation = sourceSettings.getTargetRuntime().getHomeDirectory();
 
             IVMInstall vm = EclipseVmUtil.findOrRegisterStandardVM(targetVersion, vmLocation);
-            addVmToClasspath(project, vm, new SubProgressMonitor(monitor, 1));
+            Optional<IExecutionEnvironment> executionEnvironment = EclipseVmUtil.findExecutionEnvironment(targetVersion);
+            if (executionEnvironment.isPresent()) {
+                addExecutionEnvironmentToClasspath(project, executionEnvironment.get(), new SubProgressMonitor(monitor, 1));
+            } else {
+                addVmToClasspath(project, vm, new SubProgressMonitor(monitor, 1));
+            }
 
             boolean compilerOptionChanged = false;
             compilerOptionChanged |= updateJavaProjectOptionIfNeeded(project, JavaCore.COMPILER_COMPLIANCE, sourceVersion);
@@ -95,30 +101,40 @@ final class JavaSourceSettingsUpdater {
         build.schedule();
     }
 
-    private static void addVmToClasspath(IJavaProject project, IVMInstall vm, IProgressMonitor monitor) throws JavaModelException {
-        IPath containerPath = new Path(JavaRuntime.JRE_CONTAINER);
-        IPath vmPath = containerPath.append(vm.getVMInstallType().getId()).append(vm.getName());
-        IClasspathEntry[] classpath = project.getRawClasspath();
+    private static void addExecutionEnvironmentToClasspath(IJavaProject project, IExecutionEnvironment executionEnvironment, IProgressMonitor monitor) throws JavaModelException {
+        IPath vmPath = JavaRuntime.newJREContainerPath(executionEnvironment);
+        addContainerToClasspath(project, vmPath, monitor);
+    }
 
+    private static void addVmToClasspath(IJavaProject project, IVMInstall vm, IProgressMonitor monitor) throws JavaModelException {
+        IPath vmPath = JavaRuntime.newJREContainerPath(vm);
+        addContainerToClasspath(project, vmPath, monitor);
+    }
+
+    private static void addContainerToClasspath(IJavaProject project, IPath containerPath, IProgressMonitor monitor) throws JavaModelException {
+        IClasspathEntry[] classpath = project.getRawClasspath();
+        IPath defaultContainerPath = JavaRuntime.newDefaultJREContainerPath();
         // try to find the VM entry on the classpath
         for (int i = 0; i < classpath.length; i++) {
             IClasspathEntry entry = classpath[i];
             if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
-                if (entry.getPath().equals(vmPath)) {
+                if (entry.getPath().equals(containerPath)) {
                     // if the same VM is already set then there's no need for the update
                     return;
-                } else if (containerPath.isPrefixOf(entry.getPath())) {
-                    // if a different VM is present then replace it
-                    IClasspathEntry newContainerEntry = JavaCore.newContainerEntry(vmPath);
-                    classpath[i] = newContainerEntry;
-                    project.setRawClasspath(classpath, monitor);
-                    return;
+                } else {
+                    if (defaultContainerPath.isPrefixOf(entry.getPath())) {
+                        // if a different VM is present then replace it
+                        IClasspathEntry newContainerEntry = JavaCore.newContainerEntry(containerPath);
+                        classpath[i] = newContainerEntry;
+                        project.setRawClasspath(classpath, monitor);
+                        return;
+                    }
                 }
             }
         }
 
         // if no VM entry is on the classpath then append it to the end
-        IClasspathEntry newContainerEntry = JavaCore.newContainerEntry(vmPath);
+        IClasspathEntry newContainerEntry = JavaCore.newContainerEntry(containerPath);
         classpath = ObjectArrays.concat(classpath, newContainerEntry);
         project.setRawClasspath(classpath, monitor);
     }

@@ -16,11 +16,13 @@ import java.util.Arrays;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 
 import org.eclipse.jdt.internal.launching.StandardVMType;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.IVMInstallType;
 import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 
 /**
  * Helper class to access the installed VMs in the Eclipse registry.
@@ -45,16 +47,47 @@ final class EclipseVmUtil {
         Preconditions.checkNotNull(version);
         Preconditions.checkNotNull(location);
 
-        String eeName = resolveEeName(version);
-        return findOrRegisterVM(eeName, location);
+        return findOrRegisterVM(version, location);
     }
 
-    private static IVMInstall findOrRegisterVM(String name, File location) {
-        Optional<IVMInstall> vm = findRegisteredVM(name);
-        return vm.isPresent() ? vm.get() : registerNewVM(name, location);
+    private static IVMInstall findOrRegisterVM(String version, File location) {
+        Optional<IVMInstall> vm = findRegisteredVM(version);
+        return vm.isPresent() ? vm.get() : registerNewVM("Java SE " + version, location);
     }
 
-    private static String resolveEeName(String version) {
+
+    private static Optional<IVMInstall> findRegisteredVM(String version) {
+        Optional<IExecutionEnvironment> possibleExecutionEnvironment = findExecutionEnvironment(version);
+        if (!possibleExecutionEnvironment.isPresent()) {
+            return Optional.absent();
+        }
+        IExecutionEnvironment executionEnvironment = possibleExecutionEnvironment.get();
+        IVMInstall defaultVm = executionEnvironment.getDefaultVM();
+        if (defaultVm != null) {
+            return Optional.of(defaultVm);
+        } else {
+            IVMInstall firstVm = Iterables.getFirst(Arrays.asList(executionEnvironment.getCompatibleVMs()), null);
+            return Optional.fromNullable(firstVm);
+        }
+    }
+
+    /**
+     * Finds the execution environment for the given compliance version. E.g. 'JavaSE-1.6' for version '1.6'
+     *
+     * @param version the Java version
+     * @return the execution environment or {@link Optional#absent()} if none was found
+     */
+    public static Optional<IExecutionEnvironment> findExecutionEnvironment(String version) {
+        String executionEnvironmentId = getExecutionEnvironmentId(version);
+        for (IExecutionEnvironment executionEnvironment : JavaRuntime.getExecutionEnvironmentsManager().getExecutionEnvironments()) {
+            if (executionEnvironment.getId().equals(executionEnvironmentId)) {
+                return Optional.of(executionEnvironment);
+            }
+        }
+        return Optional.absent();
+    }
+
+    private static String getExecutionEnvironmentId(String version) {
         // the result values correspond to the standard execution environment definitions in the
         // org.eclipse.jdt.launching/plugin.xml file
         if ("1.1".equals(version)) {
@@ -64,18 +97,6 @@ final class EclipseVmUtil {
         } else {
             return "JavaSE-" + version;
         }
-    }
-
-    private static Optional<IVMInstall> findRegisteredVM(String name) {
-        for (IVMInstallType type : JavaRuntime.getVMInstallTypes()) {
-            for (IVMInstall instance : type.getVMInstalls()) {
-                String instanceName = instance.getName();
-                if (instanceName != null && instanceName.equals(name)) {
-                    return Optional.of(instance);
-                }
-            }
-        }
-        return Optional.absent();
     }
 
     private static IVMInstall registerNewVM(String name, File location) {
