@@ -32,14 +32,13 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.ProjectConfiguration
 import org.eclipse.buildship.core.configuration.ProjectConfigurationManager
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
+import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
-import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectJob
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 
 @SuppressWarnings("GroovyAccessibility")
-class ProjectConfigurationManagerTest extends Specification {
+class ProjectConfigurationManagerTest extends ProjectImportSpecification {
 
     @Shared
     ProjectConfigurationManager configurationManager = CorePlugin.projectConfigurationManager()
@@ -106,13 +105,7 @@ class ProjectConfigurationManagerTest extends Specification {
             }
         }
 
-        def importConfigurationOne = new ProjectImportConfiguration()
-        importConfigurationOne.projectDir = new File(rootDir.absolutePath)
-        importConfigurationOne.gradleDistribution = GradleDistributionWrapper.from(GradleDistributionWrapper.DistributionType.WRAPPER, null)
-        importConfigurationOne.applyWorkingSets = true
-        importConfigurationOne.workingSets = []
-
-        new SynchronizeGradleProjectJob(importConfigurationOne.toFixedAttributes(), importConfigurationOne.workingSets.getValue(), AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
+        executeProjectImportAndWait(rootDir)
 
         when:
         Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
@@ -169,20 +162,8 @@ class ProjectConfigurationManagerTest extends Specification {
             }
         }
 
-        def importConfigurationOne = new ProjectImportConfiguration()
-        importConfigurationOne.projectDir = new File(rootDirOne.absolutePath)
-        importConfigurationOne.gradleDistribution = GradleDistributionWrapper.from(GradleDistributionWrapper.DistributionType.WRAPPER, null)
-        importConfigurationOne.applyWorkingSets = true
-        importConfigurationOne.workingSets = []
-
-        def importConfigurationTwo = new ProjectImportConfiguration()
-        importConfigurationTwo.projectDir = new File(rootDirTwo.absolutePath)
-        importConfigurationTwo.gradleDistribution = GradleDistributionWrapper.from(GradleDistributionWrapper.DistributionType.VERSION, '1.12')
-        importConfigurationTwo.applyWorkingSets = true
-        importConfigurationTwo.workingSets = []
-
-        new SynchronizeGradleProjectJob(importConfigurationOne.toFixedAttributes(), importConfigurationOne.workingSets.getValue(), AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
-        new SynchronizeGradleProjectJob(importConfigurationTwo.toFixedAttributes(), importConfigurationOne.workingSets.getValue(), AsyncHandler.NO_OP).runToolingApiJobInWorkspace(new NullProgressMonitor())
+        executeProjectImportAndWait(rootDirOne.absoluteFile)
+        executeProjectImportAndWait(rootDirTwo.absoluteFile, GradleDistribution.forVersion("1.12"))
 
         when:
         Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
