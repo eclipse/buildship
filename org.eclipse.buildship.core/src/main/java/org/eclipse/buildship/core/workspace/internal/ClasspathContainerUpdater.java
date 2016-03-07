@@ -56,8 +56,8 @@ final class ClasspathContainerUpdater {
 
     private void updateClasspathContainer(IProgressMonitor monitor) throws JavaModelException {
         ImmutableList<IClasspathEntry> containerEntries = collectClasspathContainerEntries();
-        ClasspathContainerPersistence.save(this.eclipseProject, containerEntries);
         setClasspathContainer(this.eclipseProject, containerEntries, monitor);
+        ClasspathContainerPersistence.save(this.eclipseProject, containerEntries);
     }
 
     private ImmutableList<IClasspathEntry> collectClasspathContainerEntries() {
