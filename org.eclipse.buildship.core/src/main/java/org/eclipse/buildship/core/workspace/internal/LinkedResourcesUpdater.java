@@ -159,7 +159,7 @@ final class LinkedResourcesUpdater {
         for (OmniEclipseLinkedResource linkedResource : linkedResources) {
             IPath resourcePath = new Path(linkedResource.getLocation());
             IFolder folder = toNewFolder(linkedResource.getName());
-            folder.createLink(resourcePath, IResource.NONE, null);
+            folder.createLink(resourcePath, IResource.BACKGROUND_REFRESH, null);
             markFolderFromGradleModel(folder);
         }
     }

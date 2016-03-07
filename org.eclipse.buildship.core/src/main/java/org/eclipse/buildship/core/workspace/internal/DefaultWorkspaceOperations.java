@@ -171,7 +171,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             project.create(projectDescription, new SubProgressMonitor(monitor, 1));
 
             // open the project
-            project.open(new SubProgressMonitor(monitor, 1));
+            project.open(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1));
 
             // add project natures separately to trigger IProjectNature#configure
             // the project needs to be open while the natures are added
@@ -208,7 +208,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             project.create(projectDescription, new SubProgressMonitor(monitor, 1));
 
             // open the project
-            project.open(new SubProgressMonitor(monitor, 1));
+            project.open(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1));
 
             // add project natures separately to trigger IProjectNature#configure
             // the project needs to be open while the natures are added
