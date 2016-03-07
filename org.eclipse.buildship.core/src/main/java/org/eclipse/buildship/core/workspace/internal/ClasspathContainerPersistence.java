@@ -81,7 +81,7 @@ final class ClasspathContainerPersistence {
             List<IClasspathEntry> entries = readEntriesFromClasspathNode(classpathNode);
             return Optional.of(entries);
         } catch (Exception e) {
-            CorePlugin.logger().warn(String.format("Could not read persisted classpath for project %s.", this.javaProject.getProject().getName()), e);
+            CorePlugin.logger().error(String.format("Could not read persisted classpath for project %s.", this.javaProject.getProject().getName()), e);
             return Optional.absent();
         }
     }
