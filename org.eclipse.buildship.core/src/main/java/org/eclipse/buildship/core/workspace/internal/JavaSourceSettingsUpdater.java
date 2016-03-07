@@ -51,6 +51,7 @@ final class JavaSourceSettingsUpdater {
             String targetVersion = sourceSettings.getTargetBytecodeLevel().getName();
             File vmLocation = sourceSettings.getTargetRuntime().getHomeDirectory();
 
+            // make sure to set up the VM _before_ finding the execution environment
             IVMInstall vm = EclipseVmUtil.findOrRegisterStandardVM(targetVersion, vmLocation);
             Optional<IExecutionEnvironment> executionEnvironment = EclipseVmUtil.findExecutionEnvironment(targetVersion);
             if (executionEnvironment.isPresent()) {
