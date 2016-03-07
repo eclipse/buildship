@@ -97,8 +97,6 @@ final class ClasspathContainerUpdater {
         return ImmutableList.<IClasspathEntry>builder().addAll(externalDependencies).addAll(projectDependencies).build();
     }
 
-
-
     /**
      * Updates the classpath container of the target project based on the given Gradle model.
      * The container will be persisted so it does not have to be reloaded after the workbench is restarted.

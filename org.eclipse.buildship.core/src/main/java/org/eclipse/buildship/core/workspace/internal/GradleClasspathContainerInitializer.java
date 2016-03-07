@@ -25,6 +25,7 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.util.predicate.Predicates;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
+import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler;
 import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectJob;
 
 /**
@@ -53,19 +54,22 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         if (!Predicates.accessibleGradleProject().apply(project)) {
             return;
         }
+
+        boolean updatedFromStorage;
         try {
-            boolean loadedFromStorage = ClasspathContainerUpdater.updateFromStorage(javaProject, null);
-            if (!loadedFromStorage) {
-                reSynchronizeProject(javaProject);
-            }
+            updatedFromStorage = ClasspathContainerUpdater.updateFromStorage(javaProject, null);
         } catch (JavaModelException e) {
-            throw new GradlePluginsRuntimeException("Could not initialize Gradle classpath container", e);
+            throw new GradlePluginsRuntimeException("Could not initialize Gradle classpath container.", e);
+        }
+
+        if (!updatedFromStorage) {
+            updateFromGradleProject(javaProject);
         }
     }
 
-    private void reSynchronizeProject(IJavaProject project) {
+    private void updateFromGradleProject(IJavaProject project) {
         ProjectConfiguration config = CorePlugin.projectConfigurationManager().readProjectConfiguration(project.getProject());
-        new SynchronizeGradleProjectJob(config.getRequestAttributes(), Lists.<String> newArrayList(), AsyncHandler.NO_OP).schedule();
+        new SynchronizeGradleProjectJob(config.getRequestAttributes(), Lists.<String>newArrayList(), ExistingDescriptorHandler.ALWAYS_KEEP, AsyncHandler.NO_OP).schedule();
     }
 
 }

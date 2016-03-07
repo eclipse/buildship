@@ -1,19 +1,16 @@
 package org.eclipse.buildship.core.workspace.internal
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore;
 
-import org.eclipse.buildship.core.test.fixtures.GradleModel
 import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
 import org.eclipse.buildship.core.test.fixtures.TestEnvironment;
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;
 
 class ClasspathPersistenceTest extends ProjectImportSpecification {
-    def "The classpath container is persisted"() {
+
+    def "the classpath container is persisted"() {
         setup:
         file('sample-project', 'build.gradle') << '''apply plugin: "java"
            repositories { jcenter() }
@@ -41,11 +38,12 @@ class ClasspathPersistenceTest extends ProjectImportSpecification {
         TestEnvironment.cleanup()
     }
 
-    private reimportWithoutSynchronization(IProject project) {
+    private static reimportWithoutSynchronization(IProject project) {
         def descriptor = project.description
         project.delete(false, true, null)
         project.create(descriptor, null)
         project.open(null)
         waitForJobsToFinish()
     }
+
 }
