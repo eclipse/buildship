@@ -99,9 +99,8 @@ class SynchronizeGradleProjectJob2Test extends BuildshipTestSpecification {
 
         then:
         def filters = CorePlugin.workspaceOperations().findProjectByName(rootProject.name).get().getFilters()
-        filters.length == 2
+        filters.length == 1
         (filters[0].fileInfoMatcherDescription.arguments as String).endsWith('subproject')
-        (filters[1].fileInfoMatcherDescription.arguments as String).endsWith('.gradle')
     }
 
     def "Importing a project twice won't result in duplicate filters"() {
@@ -122,9 +121,8 @@ class SynchronizeGradleProjectJob2Test extends BuildshipTestSpecification {
 
         then:
         def filters = workspaceOperations.findProjectByName(rootProject.name).get().getFilters()
-        filters.length == 2
+        filters.length == 1
         (filters[0].fileInfoMatcherDescription.arguments as String).endsWith('subproject')
-        (filters[1].fileInfoMatcherDescription.arguments as String).endsWith('.gradle')
     }
 
     def "Can import deleted project located in default location"() {

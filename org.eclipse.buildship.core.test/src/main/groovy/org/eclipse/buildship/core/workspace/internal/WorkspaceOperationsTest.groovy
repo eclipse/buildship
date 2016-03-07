@@ -455,14 +455,14 @@ class WorkspaceOperationsTest extends Specification {
         thrown(RuntimeException)
     }
 
-    def "Marking the build folder makes it derived" () {
+    def "Can mark a folder as derived" () {
         setup:
         def project = createSampleProject()
         def build = project.getFolder("build")
         build.create(true, true, null)
 
         when:
-        workspaceOperations.markAsBuildFolder(build, null)
+        workspaceOperations.markAsDerived(build, null)
 
         then:
         build.isDerived()
@@ -475,7 +475,7 @@ class WorkspaceOperationsTest extends Specification {
         build.create(true, true, null)
 
         when:
-        workspaceOperations.markAsBuildFolder(build, null)
+        workspaceOperations.markAsBuildFolder(build)
 
         then:
         workspaceOperations.isBuildFolder(build)

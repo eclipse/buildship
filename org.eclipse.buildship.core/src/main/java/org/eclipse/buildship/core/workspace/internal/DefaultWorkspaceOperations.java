@@ -31,6 +31,7 @@ import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -479,16 +480,24 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
-    public void markAsBuildFolder(IFolder folder, IProgressMonitor monitor) {
+    public void markAsDerived(IResource resource, IProgressMonitor monitor) {
         monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
-        monitor.beginTask(String.format("Marking %s as a Gradle build folder", folder.getFullPath()), 1);
+        monitor.beginTask(String.format("Marking %s as derived", resource.getFullPath()), 1);
         try {
-            folder.setDerived(true, new SubProgressMonitor(monitor, 1));
+            resource.setDerived(true, new SubProgressMonitor(monitor, 1));
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(String.format("Could not mark resource %s as derived", resource.getFullPath()), e);
+        } finally {
+            monitor.done();
+        }
+    }
+
+    @Override
+    public void markAsBuildFolder(IFolder folder) {
+        try {
             folder.setPersistentProperty(BUILD_FOLDER_PROPERTY, "true");
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(String.format("Could not mark folder %s as a Gradle build folder", folder.getFullPath()), e);
-        } finally {
-            monitor.done();
         }
     }
 

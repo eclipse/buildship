@@ -12,6 +12,7 @@ import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceFilterDescription
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.IStatus
@@ -91,41 +92,27 @@ abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchro
         new ProjectConfigurationPersistence().readProjectConfiguration(project)
     }
 
-    def "Resource filters are set"() {
-        setup:
-        prepareProject('sample-project')
-        fileStructure().create {
-            file 'sample-project/build.gradle'
-            file 'sample-project/settings.gradle'
-        }
-        GradleModel gradleModel = loadGradleModel('sample-project')
-
-        when:
-        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
-
-        then:
-        def project = findProject('sample-project')
-        project.filters.length == 1
-        project.filters[0].type == IResourceFilterDescription.EXCLUDE_ALL.or(IResourceFilterDescription.FOLDERS).or(IResourceFilterDescription.INHERITABLE)
-        project.filters[0].fileInfoMatcherDescription.id == 'org.eclipse.ui.ide.multiFilter'
-        (project.filters[0].fileInfoMatcherDescription.arguments as String).endsWith(".gradle")
-    }
-
     def "Derived resources are marked"() {
         setup:
         prepareProject('sample-project')
         fileStructure().create {
             file 'sample-project/build.gradle'
-            folder 'sample-project/build'
         }
         GradleModel gradleModel = loadGradleModel('sample-project')
+        executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
+        def project = findProject('sample-project')
+        project.refreshLocal(IResource.DEPTH_INFINITE, null)
+        fileStructure().create {
+            folder 'sample-project/build'
+            folder 'sample-project/.gradle'
+        }
 
         when:
         executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
 
         then:
-        def project = findProject('sample-project')
         project.getFolder("build").isDerived()
+        project.getFolder(".gradle").isDerived()
     }
 
     def "Linked resources are set"() {

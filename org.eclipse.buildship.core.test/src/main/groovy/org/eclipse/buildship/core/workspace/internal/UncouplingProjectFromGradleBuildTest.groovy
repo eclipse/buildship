@@ -42,18 +42,16 @@ class UncouplingProjectFromGradleBuildTest extends ProjectSynchronizationSpecifi
         executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
 
         expect:
-        IProject project = findProject('subproject-a')
-        project.filters.length == 1
-        project.filters[0].fileInfoMatcherDescription.arguments.contains(".gradle")
+        IProject project = findProject('sample-project')
+        project.filters.length == 2
 
         when:
-        fileStructure().create { file 'sample-project/settings.gradle', "'subproject-b'" }
+        fileStructure().create { file 'sample-project/settings.gradle', "include 'subproject-b'" }
         gradleModel = loadGradleModel('sample-project')
         executeSynchronizeGradleProjectWithWorkspaceProjectAndWait(gradleModel)
 
         then:
-        project == findProject('subproject-a')
-        project.filters.length == 0
+        project.filters.length == 1
     }
 
     def "Uncoupling a project removes the settings file"() {

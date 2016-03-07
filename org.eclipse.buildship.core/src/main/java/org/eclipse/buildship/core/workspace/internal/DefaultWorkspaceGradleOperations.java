@@ -154,7 +154,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             // update linked resources
             LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), new SubProgressMonitor(monitor, 1));
 
-            markBuildFolder(project, gradleBuild, workspaceProject, new SubProgressMonitor(monitor, 1));
+            markDerivedFolders(project, gradleBuild, workspaceProject, new SubProgressMonitor(monitor, 1));
 
             if (isJavaProject(project)) {
                 IJavaProject javaProject;
@@ -234,9 +234,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     }
 
     private List<File> getFilteredSubFolders(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild) {
-        return ImmutableList.<File>builder().
-                addAll(collectChildProjectLocations(project)).
-                add(getDotGradleDirectory(project)).build();
+        return collectChildProjectLocations(project);
     }
 
     private List<File> collectChildProjectLocations(OmniEclipseProject project) {
@@ -249,15 +247,20 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         }).toList();
     }
 
-    private File getDotGradleDirectory(OmniEclipseProject project) {
-        return new File(project.getProjectDirectory(), ".gradle");
-    }
-
-    private void markBuildFolder(OmniEclipseProject gradleProject, OmniEclipseGradleBuild gradleBuild, IProject workspaceProject, IProgressMonitor monitor) throws CoreException {
+    private void markDerivedFolders(OmniEclipseProject gradleProject, OmniEclipseGradleBuild gradleBuild, IProject workspaceProject, IProgressMonitor monitor) throws CoreException {
         IFolder buildDirectory = getBuildDirectory(gradleBuild, gradleProject, workspaceProject);
         if (buildDirectory.exists()) {
-            CorePlugin.workspaceOperations().markAsBuildFolder(buildDirectory, monitor);
+            CorePlugin.workspaceOperations().markAsDerived(buildDirectory, monitor);
+            CorePlugin.workspaceOperations().markAsBuildFolder(buildDirectory);
         }
+        IFolder dotGradle = getDotGradleFolder(workspaceProject);
+        if (dotGradle.exists()) {
+            CorePlugin.workspaceOperations().markAsDerived(dotGradle, monitor);
+        }
+    }
+
+    private IFolder getDotGradleFolder(IProject workspaceProject) {
+        return workspaceProject.getFolder(".gradle");
     }
 
     private IFolder getBuildDirectory(OmniEclipseGradleBuild eclipseGradleBuild, OmniEclipseProject project, IProject workspaceProject) {

@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableList;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -178,11 +179,18 @@ public interface WorkspaceOperations {
     void removeBuildCommand(IProject project, String name, IProgressMonitor monitor);
 
     /**
+     * Marks the given resource as a derived resource.
+     * @param resource the resource to mark
+     * @param monitor the monitor to report the progress on
+     */
+    void markAsDerived(IResource resource, IProgressMonitor monitor);
+
+    /**
      * Marks the given folder as a Gradle build folder.
      * @param folder the folder to mark
      * @param monitor the monitor to report the progress on
      */
-    void markAsBuildFolder(IFolder folder, IProgressMonitor monitor);
+    void markAsBuildFolder(IFolder folder);
 
     /**
      * Returns whether the given folder is the build folder of it's corresponding project.
