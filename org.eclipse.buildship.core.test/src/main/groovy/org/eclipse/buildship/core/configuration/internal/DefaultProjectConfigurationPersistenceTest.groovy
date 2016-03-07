@@ -102,7 +102,6 @@ class DefaultProjectConfigurationPersistenceTest extends Specification {
 
     def "can read preferences even the preference api is not accessible"() {
         setup:
-        project.close(new NullProgressMonitor())
         projectDir.newFolder('.settings')
         projectDir.newFile(".settings/${CorePlugin.PLUGIN_ID}.prefs") << """connection.arguments=
 connection.gradle.distribution=GRADLE_DISTRIBUTION(WRAPPER)
@@ -113,7 +112,6 @@ connection.project.dir=
 eclipse.preferences.version=1
 project.path=\\:
 """
-        project.open(IResource.BACKGROUND_REFRESH, ,new NullProgressMonitor())
 
         when:
         def configuration = persistence.readProjectConfiguration(project)
