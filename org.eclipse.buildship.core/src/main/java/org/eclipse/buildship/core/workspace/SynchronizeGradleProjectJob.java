@@ -112,6 +112,17 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
         return SynchronizeGradleProjectJob.class.getName();
     }
 
+    /**
+     * A {@link SynchronizeGradleProjectJob} is only scheduled if there is not already another one that fully covers it.
+     * <p/>
+     * A job A fully covers a job B if all of these conditions are met:
+     * <ul>
+     *  <li> A synchronizes the same Gradle build as B </li>
+     *  <li> A adds a superset of B's working sets </li>
+     *  <li> A and B have the same {@link AsyncHandler} or B's {@link AsyncHandler} is a no-op </li>
+     *  <li> A and B have the same {@link ExistingDescriptorHandler} </li>
+     * </ul>
+     */
     @Override
     public boolean shouldSchedule() {
         for (Job job : Job.getJobManager().find(getJobFamily())) {
