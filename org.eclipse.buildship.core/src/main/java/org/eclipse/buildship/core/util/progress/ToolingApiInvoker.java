@@ -54,10 +54,10 @@ public final class ToolingApiInvoker {
         try {
             command.run();
             return handleSuccess();
-        } catch (OperationCanceledException oce) {
-            throw oce;
+        } catch (OperationCanceledException e) {
+            return handleCancellation(e);
         } catch (BuildCancelledException e) {
-            return handleBuildCancelled(e);
+            return handleCancellation(e);
         } catch (BuildException e) {
             return handleBuildFailed(e);
         } catch (GradleConnectionException e) {
@@ -79,7 +79,7 @@ public final class ToolingApiInvoker {
         return Status.OK_STATUS;
     }
 
-    private IStatus handleBuildCancelled(BuildCancelledException e) {
+    private IStatus handleCancellation(Exception e) {
         // if the job was cancelled by the user, just log the event
         String message = String.format("%s cancelled.", this.workName);
         CorePlugin.logger().info(message, e);
@@ -149,9 +149,7 @@ public final class ToolingApiInvoker {
 
     @SuppressWarnings("SimplifiableIfStatement")
     private boolean shouldSendUserNotification(Throwable t) {
-        if (t instanceof BuildCancelledException) {
-            return false;
-        } else if (t instanceof BuildException || t instanceof TestExecutionException) {
+        if (t instanceof BuildException || t instanceof TestExecutionException) {
             return this.notifyUserAboutBuildFailures;
         } else {
             return true;
@@ -183,7 +181,7 @@ public final class ToolingApiInvoker {
         return new Status(IStatus.INFO, CorePlugin.PLUGIN_ID, message, t);
     }
 
-    private static Status createCancelStatus(String message, BuildCancelledException e) {
+    private static Status createCancelStatus(String message, Exception e) {
         return new Status(IStatus.CANCEL, CorePlugin.PLUGIN_ID, message, e);
     }
 
