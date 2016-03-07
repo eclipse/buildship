@@ -12,13 +12,8 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.File;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ObjectArrays;
 
 import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings;
@@ -42,59 +37,28 @@ import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.JavaRuntime;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
  * Updates the Java source settings on the target project.
  */
 final class JavaSourceSettingsUpdater {
 
-    private static final ImmutableList<String> availableJavaVersions;
-
-    static {
-        // the supported Java versions vary along Eclipse releases therefore we can't query it directly
-        List<String> versions = new ArrayList<String>();
-        for (Field field : JavaCore.class.getFields()) {
-            if (Modifier.isStatic(field.getModifiers()) && field.getType().equals(String.class) && field.getName().matches("VERSION_\\d+_\\d+")) {
-                try {
-                    versions.add((String) field.get(null));
-                } catch (Exception e) {
-                    CorePlugin.logger().error("Cannot retrieve supported Java versions from JavaCore.", e);
-                }
-            }
-        }
-        Collections.sort(versions);
-        availableJavaVersions = ImmutableList.copyOf(versions);
-    }
-
     public static void update(IJavaProject project, OmniJavaSourceSettings sourceSettings, IProgressMonitor monitor) throws CoreException {
         monitor.beginTask("Update Java source settings", 2);
         try {
-            // obtain Java source versions
             String sourceVersion = sourceSettings.getSourceLanguageLevel().getName();
             String targetVersion = sourceSettings.getTargetBytecodeLevel().getName();
-
-            // if the current Eclipse version doesn't support a Java version, the use the highest available
-            if (!eclipseRuntimeSupportsJavaVersion(sourceVersion)) {
-                throw new GradlePluginsRuntimeException(String.format("Eclipse does not support Java source version %s", sourceVersion));
-            }
-            if (!eclipseRuntimeSupportsJavaVersion(targetVersion)) {
-                throw new GradlePluginsRuntimeException(String.format("Eclipse does not support Java target version %s", targetVersion));
-            }
-
-            // find or register the VM and assign it to the target project
             File vmLocation = sourceSettings.getTargetRuntime().getHomeDirectory();
+
             IVMInstall vm = EclipseVmUtil.findOrRegisterStandardVM(targetVersion, vmLocation);
             addVmToClasspath(project, vm, new SubProgressMonitor(monitor, 1));
 
-            // set the source levels
             boolean compilerOptionChanged = false;
             compilerOptionChanged |= updateJavaProjectOptionIfNeeded(project, JavaCore.COMPILER_COMPLIANCE, sourceVersion);
             compilerOptionChanged |= updateJavaProjectOptionIfNeeded(project, JavaCore.COMPILER_SOURCE, sourceVersion);
             compilerOptionChanged |= updateJavaProjectOptionIfNeeded(project, JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, targetVersion);
 
             if (compilerOptionChanged && isProjectAutoBuildingEnabled()) {
-                // if the compiler options have changed, the project has to be rebuilt to apply the changes
                 scheduleJdtBuild(project.getProject());
             } else {
                 monitor.worked(1);
@@ -157,10 +121,6 @@ final class JavaSourceSettingsUpdater {
         IClasspathEntry newContainerEntry = JavaCore.newContainerEntry(vmPath);
         classpath = ObjectArrays.concat(classpath, newContainerEntry);
         project.setRawClasspath(classpath, monitor);
-    }
-
-    private static boolean eclipseRuntimeSupportsJavaVersion(String javaSourceVersion) {
-        return availableJavaVersions.contains(javaSourceVersion);
     }
 
     private static boolean updateJavaProjectOptionIfNeeded(IJavaProject project, String optionKey, String newValue) {

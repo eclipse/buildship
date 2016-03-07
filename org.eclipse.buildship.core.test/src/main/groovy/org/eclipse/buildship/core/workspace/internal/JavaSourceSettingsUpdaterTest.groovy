@@ -54,24 +54,20 @@ class JavaSourceSettingsUpdaterTest extends Specification {
     }
 
     @SuppressWarnings("GroovyAccessibility")
-    def "Invalid source setting results in runtime exception"() {
+    def "Invalid source settings are written as-is"() {
         given:
         IJavaProject project = EclipseProjects.newJavaProject('sample-project', tempFolder.newFolder())
 
         when:
-        JavaSourceSettingsUpdater.update(project, sourceSettings(version, '1.3'), new NullProgressMonitor())
+        JavaSourceSettingsUpdater.update(project, sourceSettings(version, version), new NullProgressMonitor())
 
         then:
-        thrown GradlePluginsRuntimeException
-
-        when:
-        JavaSourceSettingsUpdater.update(project, sourceSettings('1.4', version), new NullProgressMonitor())
-
-        then:
-        thrown GradlePluginsRuntimeException
+        project.getOption(JavaCore.COMPILER_COMPLIANCE, true) == version
+        project.getOption(JavaCore.COMPILER_SOURCE, true) == version
+        project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == version
 
         where:
-        version << [null, '', '1.0.0', '7.8', 'string']
+        version << ['', '1.0.0', '7.8', 'string']
     }
 
     def "VM added to the project classpath if not exist"() {
