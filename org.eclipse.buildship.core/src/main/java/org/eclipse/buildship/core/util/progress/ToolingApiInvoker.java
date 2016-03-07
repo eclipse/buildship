@@ -55,9 +55,9 @@ public final class ToolingApiInvoker {
             command.run();
             return handleSuccess();
         } catch (OperationCanceledException e) {
-            return handleCancellation(e);
+            return handleOperationCanceled(e);
         } catch (BuildCancelledException e) {
-            return handleCancellation(e);
+            return handleBuildCanceled(e);
         } catch (BuildException e) {
             return handleBuildFailed(e);
         } catch (GradleConnectionException e) {
@@ -79,8 +79,15 @@ public final class ToolingApiInvoker {
         return Status.OK_STATUS;
     }
 
-    private IStatus handleCancellation(Exception e) {
-        // if the job was cancelled by the user, just log the event
+    private IStatus handleOperationCanceled(OperationCanceledException e) {
+        // if an Eclipse job was cancelled by the user, just log the event
+        String message = String.format("%s cancelled.", this.workName);
+        CorePlugin.logger().info(message, e);
+        return createCancelStatus(message, e);
+    }
+
+    private IStatus handleBuildCanceled(BuildCancelledException e) {
+        // if a Gradle job was cancelled by the user, just log the event
         String message = String.format("%s cancelled.", this.workName);
         CorePlugin.logger().info(message, e);
         return createCancelStatus(message, e);
@@ -149,7 +156,9 @@ public final class ToolingApiInvoker {
 
     @SuppressWarnings("SimplifiableIfStatement")
     private boolean shouldSendUserNotification(Throwable t) {
-        if (t instanceof BuildException || t instanceof TestExecutionException) {
+        if (t instanceof BuildCancelledException) {
+            return false;
+        } else if (t instanceof BuildException || t instanceof TestExecutionException) {
             return this.notifyUserAboutBuildFailures;
         } else {
             return true;
