@@ -13,14 +13,15 @@ class EclipseVmUtilTest extends Specification {
 
     def "Can find an existing VM"() {
         given:
-        def location = allVms().first().installLocation
 
         when:
-        def vm = EclipseVmUtil.findOrRegisterVM('1.7', location)
+        def vm = EclipseVmUtil.findOrRegisterVM('1.7', new File("foo"))
 
         then:
-        vm.installLocation == location
         allVms().size() == old(allVms().size())
+        !allVms().find {
+            it.installLocation == "foo"
+        }
     }
 
     def "Creates new VM if none registered for that version"() {
