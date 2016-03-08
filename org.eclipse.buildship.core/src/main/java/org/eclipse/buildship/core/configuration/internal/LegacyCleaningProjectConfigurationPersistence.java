@@ -11,28 +11,25 @@
 
 package org.eclipse.buildship.core.configuration.internal;
 
-import java.io.File;
-import java.lang.reflect.Type;
-import java.util.Map;
-
-import org.osgi.service.prefs.BackingStoreException;
-
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.io.Files;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.util.file.RelativePathUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.osgi.service.prefs.BackingStoreException;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.util.file.RelativePathUtils;
+import java.io.File;
+import java.lang.reflect.Type;
+import java.util.Map;
 
 /**
  * Persistence delegate which cleans up the legacy, json-based project configuration format.
@@ -97,9 +94,8 @@ final class LegacyCleaningProjectConfigurationPersistence implements ProjectConf
             String jvmArguments = projectConfig.get("connection_jvm_arguments");
             String arguments = projectConfig.get("connection_arguments");
             return ProjectConfigurationProperties.from(projectPath, projectDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments);
-
         } catch (Exception e) {
-            throw new GradlePluginsRuntimeException("Cannot retrieve legacy project configuration", e);
+            throw new GradlePluginsRuntimeException(String.format("Cannot retrieve legacy project configuration for project %s.", project.getName()), e);
         }
     }
 
@@ -132,7 +128,7 @@ final class LegacyCleaningProjectConfigurationPersistence implements ProjectConf
                 ensureNoProjectPreferencesLoadedFrom(project);
                 getLegacyConfigurationFile(project).delete();
             } catch (Exception e) {
-                throw new GradlePluginsRuntimeException("Cannot clean up legacy project configuration", e);
+                throw new GradlePluginsRuntimeException(String.format("Cannot clean up legacy project configuration for project %s.", project.getName()), e);
             }
         }
     }
