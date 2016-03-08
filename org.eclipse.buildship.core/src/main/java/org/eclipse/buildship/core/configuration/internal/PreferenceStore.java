@@ -104,14 +104,9 @@ abstract class PreferenceStore {
         private final IEclipsePreferences preferences;
 
         private ProjectScopeEclipsePreferencesPreferenceStore(IProject project, String node) {
-            try {
-                this.project = project;
-                this.node = node;
-                this.preferences = new ProjectScope(project).getNode(node);
-                this.preferences.keys();
-            } catch (Exception e) {
-                throw new GradlePluginsRuntimeException(String.format("Cannot read preferences in project %s in node %s.", project.getName(), node), e);
-            }
+            this.project = project;
+            this.node = node;
+            this.preferences = new ProjectScope(project).getNode(node);
         }
 
         @Override
@@ -150,18 +145,28 @@ abstract class PreferenceStore {
      */
     private static final class PropertiesFilePreferenceStore extends PreferenceStore {
 
-        private final Properties properties;
         private final File propertiesFile;
+        private Properties properties;
 
         private PropertiesFilePreferenceStore(File propertiesFile) {
+            this.propertiesFile = propertiesFile;
+        }
+
+        private Properties getProperties() {
+            if (this.properties == null) {
+                loadProperties();
+            }
+            return this.properties;
+        }
+
+        private void loadProperties() {
             InputStreamReader reader = null;
             try {
-                reader = new InputStreamReader(new FileInputStream(propertiesFile), Charsets.UTF_8);
-                this.propertiesFile = propertiesFile;
+                reader = new InputStreamReader(new FileInputStream(this.propertiesFile), Charsets.UTF_8);
                 this.properties = new Properties();
                 this.properties.load(reader);
-            } catch (Exception e) {
-                throw new GradlePluginsRuntimeException(String.format("Cannot read preferences from file %s.", propertiesFile.getAbsolutePath()), e);
+            } catch (IOException e) {
+                throw new GradlePluginsRuntimeException(String.format("Cannot read preference from file %s", this.propertiesFile.getAbsolutePath()), e);
             } finally {
                 try {
                     if (reader != null) {
@@ -175,7 +180,7 @@ abstract class PreferenceStore {
 
         @Override
         String read(String key) {
-            String rawValue = this.properties.getProperty(key, null);
+            String rawValue = getProperties().getProperty(key, null);
             if (rawValue == null) {
                 throw new GradlePluginsRuntimeException(String.format("Cannot read preference %s from file %s.", key, this.propertiesFile.getAbsolutePath()));
             } else {
@@ -185,12 +190,12 @@ abstract class PreferenceStore {
 
         @Override
         void write(String key, String value) {
-            this.properties.put(key, toRawValue(value));
+            getProperties().put(key, toRawValue(value));
         }
 
         @Override
         void delete(String key) {
-            this.properties.remove(key);
+            getProperties().remove(key);
         }
 
         @Override
@@ -198,8 +203,8 @@ abstract class PreferenceStore {
             OutputStreamWriter writer = null;
             try {
                 writer = new OutputStreamWriter(new FileOutputStream(this.propertiesFile), Charsets.UTF_8);
-                this.properties.store(writer, null);
-            } catch (Exception e) {
+                getProperties().store(writer, null);
+            } catch (IOException e) {
                 throw new GradlePluginsRuntimeException(String.format("Cannot store preferences in file %s", this.propertiesFile.getAbsolutePath()), e);
             } finally {
                 try {
