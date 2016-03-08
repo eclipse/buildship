@@ -1,8 +1,14 @@
 package org.eclipse.buildship.core.workspace.internal
 
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.ProjectScope
+import org.eclipse.core.runtime.preferences.IEclipsePreferences
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature
+import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigurationPersistence
+import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationPersistence
+import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationProperties
 import org.eclipse.buildship.core.test.fixtures.GradleModel
 
 class UncouplingProjectFromGradleBuildTest extends ProjectSynchronizationSpecification {
@@ -54,7 +60,7 @@ class UncouplingProjectFromGradleBuildTest extends ProjectSynchronizationSpecifi
         project.filters.length == 1
     }
 
-    def "Uncoupling a project removes the settings file"() {
+    def "Uncoupling a project removes project configuration"() {
         setup:
         fileStructure().create {
             file 'sample-project/subproject-a/build.gradle'
@@ -67,7 +73,7 @@ class UncouplingProjectFromGradleBuildTest extends ProjectSynchronizationSpecifi
 
         expect:
         IProject project = findProject('subproject-a')
-        new File(project.location.toFile(), '.settings/gradle.prefs').exists()
+        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null)
 
         when:
         fileStructure().create { file 'sample-project/settings.gradle', "'subproject-b'" }
@@ -76,6 +82,6 @@ class UncouplingProjectFromGradleBuildTest extends ProjectSynchronizationSpecifi
 
         then:
         project == findProject('subproject-a')
-        !new File(project.location.toFile(), '.settings/gradle.prefs').exists()
+        !new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null)
     }
 }

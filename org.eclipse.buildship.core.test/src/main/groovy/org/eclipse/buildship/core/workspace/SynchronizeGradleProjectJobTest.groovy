@@ -2,10 +2,13 @@ package org.eclipse.buildship.core.workspace
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectNature
+import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigurationPersistence
+import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationProperties
 import org.eclipse.buildship.core.test.fixtures.ProjectImportSpecification
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IProjectDescription
 import org.eclipse.core.resources.IResource
+import org.eclipse.core.resources.ProjectScope
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.JavaCore
 
@@ -29,7 +32,7 @@ class SynchronizeGradleProjectJobTest extends ProjectImportSpecification {
         JavaCore.create(findProject('moduleA')).resolvedClasspath.find{ it.path.toPortableString().endsWith('junit-4.12.jar') }
     }
 
-    def "Gradle nature and Gradle settings file are discarded when the project is excluded from a Gradle build"() {
+    def "Gradle nature and Gradle project configuration are discarded when the project is excluded from a Gradle build"() {
         setup:
         file('sample', 'settings.gradle').text = """
            include 'moduleA'
@@ -43,8 +46,7 @@ class SynchronizeGradleProjectJobTest extends ProjectImportSpecification {
         IProject project = findProject('moduleB')
         project != null
         !GradleProjectNature.INSTANCE.isPresentOn(project)
-        project.getFolder('.settings').exists()
-        !project.getFolder('.settings').getFile('gradle.prefs').exists()
+        !new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_PROJECT_PATH, null)
     }
 
     def "A new Gradle module is imported into the workspace"() {

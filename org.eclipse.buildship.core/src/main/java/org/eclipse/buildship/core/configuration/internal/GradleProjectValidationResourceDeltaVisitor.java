@@ -86,7 +86,7 @@ final class GradleProjectValidationResourceDeltaVisitor implements IResourceDelt
         private GradleProjectValidator(IProject project) {
             this.project = project;
             this.settingsFolder = project.getFolder(".settings");
-            this.preferencesFile = project.getFile(".settings/gradle.prefs");
+            this.preferencesFile = project.getFile(".settings/" + CorePlugin.PLUGIN_ID + ".prefs");
         }
 
         public IFolder getSettingsFolder() {
