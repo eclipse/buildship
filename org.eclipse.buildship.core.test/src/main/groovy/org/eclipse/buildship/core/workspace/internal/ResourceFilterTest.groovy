@@ -8,7 +8,9 @@ import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IResourceFilterDescription
 import org.eclipse.core.resources.IWorkspace
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.util.file.FileUtils
@@ -20,52 +22,32 @@ class ResourceFilterTest extends WorkspaceSpecification {
     def setup() {
         project = newProject("sample-project")
     }
+
     def "Defining a resource filter on the project"() {
-        given:
-        projectFolder('filtered')
-        projectFolder('unfiltered')
-
-        expect:
-        project.getFolder('filtered').exists()
-        project.getFolder('unfiltered').exists()
-        workspace.validateFiltered(project.getFolder('filtered')).isOK()
-        workspace.validateFiltered(project.getFolder('unfiltered')).isOK()
-
         when:
-        ResourceFilter.updateFilters(project, [ toFile(project.getFolder('filtered')) ], null)
+        filterChildren('filtered')
 
         then:
-        !workspace.validateFiltered(project.getFolder('filtered')).isOK()
-        workspace.validateFiltered(project.getFolder('unfiltered')).isOK()
+        isFiltered('filtered')
+        !isFiltered('unfiltered')
     }
 
     def "Defining a resource filter on a subfolder"() {
-        given:
-        projectFolder('basefolder/subfolder')
-
-        expect:
-        project.getFolder('basefolder/subfolder').exists()
-        workspace.validateFiltered(project.getFolder('basefolder/subfolder')).isOK()
-
         when:
-        ResourceFilter.updateFilters(project, [ toFile(project.getFolder('basefolder/subfolder')) ], null)
+        filterChildren('basefolder/subfolder')
 
         then:
-        workspace.validateFiltered(project.getFolder('basefolder')).isOK()
-        !workspace.validateFiltered(project.getFolder('basefolder/subfolder')).isOK()
+        !isFiltered('basefolder')
+        isFiltered('basefolder/subfolder')
     }
 
     def "Defining a resource filter on a direct child folder does not hide anything in inner folder structure"() {
-        given:
-        projectFolder('pkg')
-        projectFolder('src/main/java/pkg')
-
         when:
-        ResourceFilter.updateFilters(project, [toFile(project.getFolder('pkg'))], null)
+        filterChildren('pkg')
 
         then:
-        !workspace.validateFiltered(project.getFolder('pkg')).isOK()
-        workspace.validateFiltered(project.getFolder('src/main/java/pkg')).isOK()
+        isFiltered('pkg')
+        !isFiltered('src/main/java/pkg')
     }
 
     def "Defining a resource filter on non-child location is ignored"() {
@@ -77,110 +59,90 @@ class ResourceFilterTest extends WorkspaceSpecification {
     }
 
     def "Updating resource filters removes previously defined resource filters"() {
-        given:
-        projectFolder('alpha')
-        projectFolder('beta')
-
         when:
-        ResourceFilter.updateFilters(project, [toFile(project.getFolder('alpha'))], null)
+        filterChildren('alpha')
 
         then:
         project.filters.length == 1
-        (project.filters[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('alpha')
+        isFiltered('alpha')
 
         when:
-        ResourceFilter.updateFilters(project, [toFile(project.getFolder('beta'))], null)
+        filterChildren('beta')
 
         then:
         project.filters.length == 1
-        (project.filters[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('beta')
+        isFiltered('beta')
     }
 
     def "Defining a new resource filter is idempotent"() {
         given:
-        projectFolder('alpha')
+        filterChildren('alpha')
 
         expect:
-        project.filters.length == 0
+        project.filters.length == 1
+        isFiltered('alpha')
 
         when:
-        ResourceFilter.updateFilters(project, [toFile(project.getFolder('alpha'))], null)
+        filterChildren('alpha')
 
         then:
         project.filters.length == 1
-        (project.filters[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('alpha')
-
-        when:
-        ResourceFilter.updateFilters(project, [toFile(project.getFolder('alpha'))], null)
-
-        then:
-        project.filters.length == 1
-        (project.filters[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('alpha')
+        isFiltered('alpha')
     }
 
     def "Removing a filter"() {
-        given:
-        projectFolder('filtered')
-
-        expect:
-        project.getFolder('filtered').exists()
-        workspace.validateFiltered(project.getFolder('filtered')).isOK()
-
         when:
-        ResourceFilter.updateFilters(project, [ toFile(project.getFolder('filtered')) ], null)
-        ResourceFilter.detachAllFilters(project, null)
+        filterChildren('filtered')
+        detachFilters()
 
         then:
-        workspace.validateFiltered(project.getFolder('filtered')).isOK()
+        !isFiltered('filtered')
     }
 
-    // Ignored because it fails randomly. The problem will be resolved once we replace the resource-based
-    // filtering with the solution implemented in https://github.com/eclipse/buildship/pull/180
-    @Ignore
     def "Removing a filter does not modify manually created filters"() {
         given:
-        projectFolder('filtered')
+        filterChildren('filtered')
         int type = IResourceFilterDescription.EXCLUDE_ALL | IResourceFilterDescription.FOLDERS | IResourceFilterDescription.INHERITABLE
         def matchers = ResourceFilter.createMatchers(project, [project.getFolder('manuallyfiltered').getLocation().toFile()] as List)
         project.createFilter(type, matchers[0], IResource.NONE, null)
 
         when:
-        ResourceFilter.updateFilters(project, [ toFile(project.getFolder('filtered')) ], null)
-        project.refreshLocal(IResource.DEPTH_INFINITE, null)
-        ResourceFilter.detachAllFilters(project, null)
-        project.refreshLocal(IResource.DEPTH_INFINITE, null)
+        detachFilters()
 
         then:
-        !workspace.validateFiltered(project.getFolder('manuallyfiltered')).isOK()
-        workspace.validateFiltered(project.getFolder('filtered')).isOK()
+        isFiltered('manuallyfiltered')
+        !isFiltered('filtered')
     }
 
     def "Can add zero filters"() {
-        given:
-        projectFolder('filtered')
+        ResourceFilter.updateFilters(project, [], null)
 
         expect:
-        ResourceFilter.updateFilters(project, [], null)
+        project.filters.length == 0
     }
 
     def "Can add a large number of filters" () {
         given:
-        projectFolder('filtered')
+        String[] filterNames = (1..500).collect { 'filtered' + it }
+        filterChildren(filterNames)
 
         expect:
-        for (i in 1..500) {
-            ResourceFilter.updateFilters(project, [ toFile(project.getFolder('filtered' + i)) ], null)
-            assert !workspace.validateFiltered(project.getFolder('filtered' + i)).isOK()
+        filterNames.each {
+            assert isFiltered(it)
         }
     }
 
-    private def projectFolder(String path) {
-        FileUtils.ensureFolderHierarchyExists(project.getFolder(path))
+    private void filterChildren(String... filteredFolderNames) {
+        def filteredFolders = filteredFolderNames.collect { new File(project.location.toFile(), it) }
+        ResourceFilter.updateFilters(project, filteredFolders, null)
     }
 
-    private static def toFile(IFolder folder) {
-        def uri = folder.getLocationURI()
-        EFS.getStore(uri).toLocalFile(0, new NullProgressMonitor())
+    private detachFilters() {
+        ResourceFilter.detachAllFilters(project, null)
+    }
+
+    private boolean isFiltered(String filteredFolderName) {
+        !workspace.validateFiltered(project.getFolder(filteredFolderName)).isOK()
     }
 
 }

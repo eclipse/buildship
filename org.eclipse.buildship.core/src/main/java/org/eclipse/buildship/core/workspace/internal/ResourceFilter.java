@@ -81,7 +81,7 @@ final class ResourceFilter {
                 FileInfoMatcherDescription matcher = filter.getFileInfoMatcherDescription();
                 if (matcher != null && matcher.getArguments() instanceof String && matcherNames.contains(matcher.getArguments())) {
                     knownMatcherNames.remove((String) matcher.getArguments());
-                    filter.delete(IResource.NONE, monitor);
+                    filter.delete(IResource.BACKGROUND_REFRESH, monitor);
                 }
             }
         } catch (CoreException e) {
