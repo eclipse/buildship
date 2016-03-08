@@ -147,4 +147,5 @@ final class LegacyCleaningProjectConfigurationPersistence implements ProjectConf
             node.removeNode();
         }
     }
+
 }

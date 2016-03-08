@@ -20,10 +20,10 @@ import org.eclipse.buildship.core.configuration.ProjectConfiguration;
  */
 interface ProjectConfigurationPersistence {
 
-    void saveProjectConfiguration(ProjectConfiguration projectConfiguration, IProject workspaceProject);
+    void saveProjectConfiguration(ProjectConfiguration projectConfiguration, IProject project);
 
-    void deleteProjectConfiguration(IProject workspaceProject);
+    void deleteProjectConfiguration(IProject project);
 
-    ProjectConfiguration readProjectConfiguration(IProject workspaceProject);
+    ProjectConfiguration readProjectConfiguration(IProject project);
 
 }
