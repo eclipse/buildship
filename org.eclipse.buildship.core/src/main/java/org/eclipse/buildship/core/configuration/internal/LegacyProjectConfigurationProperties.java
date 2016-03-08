@@ -12,9 +12,6 @@
 package org.eclipse.buildship.core.configuration.internal;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.Map;
 
@@ -22,7 +19,7 @@ import org.osgi.service.prefs.BackingStoreException;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
-import com.google.common.io.CharStreams;
+import com.google.common.io.Files;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -63,7 +60,7 @@ final class LegacyProjectConfigurationHandler {
     private static ProjectConfigurationProperties readLegacyConfiguration(IProject project) {
         try {
             File gradlePrefsFile = getLegacyConfigurationFile(project);
-            String json = getContents(gradlePrefsFile);
+            String json =  Files.toString(gradlePrefsFile,  Charsets.UTF_8);
 
             Gson gson = new GsonBuilder().create();
             Map<String, Object> config = gson.fromJson(json, createMapTypeToken());
@@ -80,21 +77,6 @@ final class LegacyProjectConfigurationHandler {
 
         } catch (Exception e) {
             throw new GradlePluginsRuntimeException("Cannot retrieve legacy project configuration", e);
-        }
-    }
-
-    private static String getContents(File file) throws IOException {
-        InputStreamReader reader = null;
-        try {
-            return CharStreams.toString(reader = new InputStreamReader(new FileInputStream(file), Charsets.UTF_8));
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (IOException e) {
-                // ignore
-            }
         }
     }
 
