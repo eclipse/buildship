@@ -27,17 +27,11 @@ public final class BuildFolderViewerFilter extends ViewerFilter {
     @Override
     public boolean select(Viewer viewer, Object parentElement, Object element) {
         IResource resource = (IResource) Platform.getAdapterManager().getAdapter(element, IResource.class);
-        if (resource == null) {
-            return true;
-        }
-        return !isBuildFolder(resource);
+        return resource == null || !isBuildFolder(resource);
     }
 
     private boolean isBuildFolder(IResource resource) {
-        if (resource instanceof IFolder) {
-            return CorePlugin.workspaceOperations().isBuildFolder((IFolder) resource);
-        }
-        return false;
+        return resource instanceof IFolder && CorePlugin.workspaceOperations().isBuildFolder((IFolder) resource);
     }
 
 }
