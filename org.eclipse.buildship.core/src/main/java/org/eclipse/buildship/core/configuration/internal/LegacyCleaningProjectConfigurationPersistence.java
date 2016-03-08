@@ -78,36 +78,30 @@ final class LegacyCleaningProjectConfigurationPersistence implements ProjectConf
     }
 
     private static ProjectConfigurationProperties readLegacyConfiguration(IProject project) {
+        File gradlePrefsFile = getLegacyConfigurationFile(project);
+        Map<String, Map<String, String>> parsedJson = null;
         try {
-            File gradlePrefsFile = getLegacyConfigurationFile(project);
             String json = Files.toString(gradlePrefsFile, Charsets.UTF_8);
-
             Gson gson = new GsonBuilder().create();
-            Map<String, Object> config = gson.fromJson(json, createMapTypeToken());
-            Map<String, String> projectConfig = getProjectConfigForVersion(config);
-
-            String projectPath = projectConfig.get("project_path");
-            String projectDir = relativePathToRootProject(project, new Path(projectConfig.get("connection_project_dir")));
-            String gradleUserHome = projectConfig.get("connection_gradle_user_home");
-            String gradleDistribution = projectConfig.get("connection_gradle_distribution");
-            String javaHome = projectConfig.get("connection_java_home");
-            String jvmArguments = projectConfig.get("connection_jvm_arguments");
-            String arguments = projectConfig.get("connection_arguments");
-            return ProjectConfigurationProperties.from(projectPath, projectDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments);
+            parsedJson = gson.fromJson(json, createMapTypeToken());
         } catch (Exception e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot retrieve legacy project configuration for project %s.", project.getName()), e);
         }
+        Map<String, String> config = parsedJson.get("1.0");
+
+        String projectPath = config.get("project_path");
+        String projectDir = relativePathToRootProject(project, new Path(config.get("connection_project_dir")));
+        String gradleUserHome = config.get("connection_gradle_user_home");
+        String gradleDistribution = config.get("connection_gradle_distribution");
+        String javaHome = config.get("connection_java_home");
+        String jvmArguments = config.get("connection_jvm_arguments");
+        String arguments = config.get("connection_arguments");
+        return ProjectConfigurationProperties.from(projectPath, projectDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments);
     }
 
     @SuppressWarnings("serial")
     private static Type createMapTypeToken() {
-        return new TypeToken<Map<String, Object>>() {
-        }.getType();
-    }
-
-    @SuppressWarnings("unchecked")
-    private static Map<String, String> getProjectConfigForVersion(Map<String, Object> config) {
-        return (Map<String, String>) config.get("1.0");
+        return new TypeToken<Map<String, Map<String, String>>>() {}.getType();
     }
 
     private static String relativePathToRootProject(IProject workspaceProject, IPath rootProjectPath) {
