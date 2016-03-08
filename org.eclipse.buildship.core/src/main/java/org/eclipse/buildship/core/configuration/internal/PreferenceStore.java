@@ -5,6 +5,8 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * Contributors:
+ *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
 package org.eclipse.buildship.core.configuration.internal;
@@ -96,7 +98,7 @@ abstract class PreferenceStore {
     }
 
     /**
-     * Creates new preference store based on a properties file
+     * Creates new preference store based on a properties file.
      *
      * @param propertiesFile the target properties file
      * @return the preference store
@@ -107,6 +109,9 @@ abstract class PreferenceStore {
         return new PropertiesFilePreferenceStore(propertiesFile);
     }
 
+    /**
+     * Preference store backed with project-scoped Eclipse preferences.
+     */
     private static final class ProjectScopeEclipsPreferencesPreferenceStore extends PreferenceStore {
 
         private final IProject project;
@@ -155,6 +160,9 @@ abstract class PreferenceStore {
 
     }
 
+    /**
+     * Preference store backed a properties file.
+     */
     private static final class PropertiesFilePreferenceStore extends PreferenceStore {
 
         private final Properties properties;
