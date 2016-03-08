@@ -74,7 +74,7 @@ class DefaultProjectConfigurationPersistenceTest extends Specification {
         new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_ARGUMENTS, null) == ''
     }
 
-    def "load validates input"() {
+    def "read validates input"() {
         when:
         persistence.readProjectConfiguration(null)
 
@@ -89,7 +89,7 @@ class DefaultProjectConfigurationPersistenceTest extends Specification {
         thrown IllegalArgumentException
     }
 
-    def "can load preferenes"() {
+    def "can read preferences"() {
         setup:
         persistence.saveProjectConfiguration(projectConfiguration(), project)
 
@@ -100,7 +100,7 @@ class DefaultProjectConfigurationPersistenceTest extends Specification {
         configuration == projectConfiguration()
     }
 
-    def "can read preferences even the preference api is not accessible"() {
+    def "can read preferences even when the preference api is not accessible"() {
         setup:
         projectDir.newFolder('.settings')
         projectDir.newFile(".settings/${CorePlugin.PLUGIN_ID}.prefs") << """connection.arguments=
