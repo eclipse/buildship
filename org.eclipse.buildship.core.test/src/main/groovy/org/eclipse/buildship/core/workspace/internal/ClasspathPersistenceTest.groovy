@@ -1,18 +1,15 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jdt.core.IClasspathEntry
+import org.eclipse.core.resources.IProject
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
-import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
-import org.eclipse.buildship.core.test.fixtures.TestEnvironment;
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer
-import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;
+import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations
 
 class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
-    def "The classpath container is persisted"() {
+
+    def "the classpath container is persisted"() {
         setup:
         def projectDir = dir('sample-project') {
             file 'build.gradle',  '''apply plugin: "java"
@@ -46,4 +43,5 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         project.open(null)
         waitForGradleJobsToFinish()
     }
+
 }

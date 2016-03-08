@@ -46,26 +46,27 @@ final class ResourceFilter {
     private static final String FILTER_ID = "org.eclipse.ui.ide.multiFilter"; //$NON-NLS-1$
 
     // properties key to store/retrieve the filters created by Buildship
-    private static final String PROJECT_PROPERTY_KEY_GRADLE_FILTERS = "GRADLE_FILTERS";
+    private static final String PROJECT_PROPERTY_KEY_GRADLE_FILTERS = "filters";
 
     private ResourceFilter() {
     }
 
     /**
-     * Attaches resource filters on the specified project to hide any of the given child locations.
+     * Updates resource filters on the specified project to hide the given child locations.
      *
      * @param project the project for which to create resource filters
      * @param childLocations the child locations
      * @param monitor the monitor to report progress on
      */
-    public static void attachFilters(IProject project, List<File> childLocations, IProgressMonitor monitor) {
+    public static void updateFilters(IProject project, List<File> childLocations, IProgressMonitor monitor) {
         monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
+        detachAllFilters(project, monitor);
         List<FileInfoMatcherDescription> matchers = createMatchers(project, childLocations);
         setExclusionFilters(project, matchers, monitor);
     }
 
     /**
-     * Removes all resource filters created with the {@link #attachFilters(IProject, List, IProgressMonitor)} method.
+     * Removes all resource filters created with the {@link #updateFilters(IProject, List, IProgressMonitor)} method.
      *
      * @param project the target project to remove the filters from
      * @param monitor the monitor to report progress on
@@ -137,7 +138,7 @@ final class ResourceFilter {
                 try {
                     int type = IResourceFilterDescription.EXCLUDE_ALL | IResourceFilterDescription.FOLDERS | IResourceFilterDescription.INHERITABLE;
                     for (FileInfoMatcherDescription matcher : newMatchers) {
-                        project.createFilter(type, matcher, IResource.NONE, new NullProgressMonitor());
+                        project.createFilter(type, matcher, IResource.BACKGROUND_REFRESH, new NullProgressMonitor());
                         StringSetProjectProperty.from(project, PROJECT_PROPERTY_KEY_GRADLE_FILTERS).add((String) matcher.getArguments());
                     }
                 } catch (CoreException e) {

@@ -11,13 +11,18 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.io.File;
+import java.util.Arrays;
+
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
+
 import org.eclipse.jdt.internal.launching.StandardVMType;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.IVMInstallType;
 import org.eclipse.jdt.launching.JavaRuntime;
-
-import java.io.File;
+import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 
 /**
  * Helper class to access the installed VMs in the Eclipse registry.
@@ -26,74 +31,99 @@ import java.io.File;
 final class EclipseVmUtil {
 
     private static final String VM_ID_PREFIX = "org.eclipse.buildship.core.vm.";
-    private static final String VM_NAME_PREFIX = "Java SE";
-
-    private EclipseVmUtil() {
-    }
 
     /**
      * Finds a Java VM in the Eclipse VM registry or registers a new one if none was available with
-     * the target install location.
+     * the selected version.
      *
-     * @param installLocation the location of the VM
-     * @param version the Java version of the VM, used only to generate a proper display name
-     * @return the reference of an existing or freshly created VM
+     * @param version  the VM's supported Java version
+     * @param location the location of the VM
+     * @return the reference of an existing or newly created VM
      */
-    public static IVMInstall findOrRegisterVM(File installLocation, String version) {
-        Optional<IVMInstall> vm = findRegisteredVM(installLocation);
-        return vm.isPresent() ? vm.get() : registerNewVM(installLocation, version);
+    public static IVMInstall findOrRegisterStandardVM(String version, File location) {
+        Preconditions.checkNotNull(version);
+        Preconditions.checkNotNull(location);
+
+        return findOrRegisterVM(version, location);
     }
 
-    private static Optional<IVMInstall> findRegisteredVM(File installLocation) {
-        for (IVMInstallType type : JavaRuntime.getVMInstallTypes()) {
-            for (IVMInstall instance : type.getVMInstalls()) {
-                File location = instance.getInstallLocation();
-                if (location != null && location.equals(installLocation)) {
-                    return Optional.of(instance);
-                }
+    private static IVMInstall findOrRegisterVM(String version, File location) {
+        Optional<IVMInstall> vm = findRegisteredVM(version);
+        return vm.isPresent() ? vm.get() : registerNewVM("Java SE " + version, location);
+    }
+
+    private static Optional<IVMInstall> findRegisteredVM(String version) {
+        Optional<IExecutionEnvironment> possibleExecutionEnvironment = findExecutionEnvironment(version);
+        if (!possibleExecutionEnvironment.isPresent()) {
+            return Optional.absent();
+        }
+
+        IExecutionEnvironment executionEnvironment = possibleExecutionEnvironment.get();
+        IVMInstall defaultVm = executionEnvironment.getDefaultVM();
+        if (defaultVm != null) {
+            return Optional.of(defaultVm);
+        } else {
+            IVMInstall firstVm = Iterables.getFirst(Arrays.asList(executionEnvironment.getCompatibleVMs()), null);
+            return Optional.fromNullable(firstVm);
+        }
+    }
+
+    /**
+     * Finds the execution environment for the given compliance version, e.g. 'JavaSE-1.6' for version '1.6'.
+     *
+     * @param version the Java version
+     * @return the execution environment or {@link Optional#absent()} if none was found
+     */
+    public static Optional<IExecutionEnvironment> findExecutionEnvironment(String version) {
+        String executionEnvironmentId = getExecutionEnvironmentId(version);
+        for (IExecutionEnvironment executionEnvironment : JavaRuntime.getExecutionEnvironmentsManager().getExecutionEnvironments()) {
+            if (executionEnvironment.getId().equals(executionEnvironmentId)) {
+                return Optional.of(executionEnvironment);
             }
         }
         return Optional.absent();
     }
 
-    private static IVMInstall registerNewVM(File installLocation, String version) {
+    private static String getExecutionEnvironmentId(String version) {
+        // the result values correspond to the standard execution environment definitions in the
+        // org.eclipse.jdt.launching/plugin.xml file
+        if ("1.1".equals(version)) {
+            return "JRE-1.1";
+        } else if (Arrays.asList("1.5", "1.4", "1.3", "1.2").contains(version)) {
+            return "J2SE-" + version;
+        } else {
+            return "JavaSE-" + version;
+        }
+    }
+
+    private static IVMInstall registerNewVM(String name, File location) {
         // use the 'Standard VM' type to register a new VM
         IVMInstallType installType = JavaRuntime.getVMInstallType(StandardVMType.ID_STANDARD_VM_TYPE);
 
         // both the id and the name have to be unique for the registration
         String vmId = generateUniqueVMId(installType);
-        String vmName = generateUniqueVMName(version, installType);
 
         // instantiate the VM and notify Eclipse about the creation
         IVMInstall vm = installType.createVMInstall(vmId);
-        vm.setName(vmName);
-        vm.setInstallLocation(installLocation);
+        vm.setName(name);
+        vm.setInstallLocation(location);
         JavaRuntime.fireVMAdded(vm);
 
         return vm;
     }
 
-    private static String generateUniqueVMId(IVMInstallType installType) {
+    private static String generateUniqueVMId(IVMInstallType type) {
         // return a unique id for the VM
         int counter = 1;
         String vmId = VM_ID_PREFIX + counter;
-        while (installType.findVMInstall(vmId) != null) {
+        while (type.findVMInstall(vmId) != null) {
             counter++;
             vmId = VM_ID_PREFIX + counter;
         }
         return vmId;
     }
 
-    private static String generateUniqueVMName(String version, IVMInstallType installType) {
-        // for a Java 1.7 JVM return the name 'Java SE 7' if not taken otherwise
-        // return the first non taken value from 'Java SE 7 (2)', 'Java SE 7 (3)', etc.
-        int counter = 1;
-        String vmName = VM_NAME_PREFIX + " " + version;
-        while (installType.findVMInstallByName(vmName) != null) {
-            counter++;
-            vmName = VM_NAME_PREFIX + " " + version + " (" + counter + ")";
-        }
-        return vmName;
+    private EclipseVmUtil() {
     }
 
 }

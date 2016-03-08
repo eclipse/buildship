@@ -11,19 +11,21 @@
 
 package org.eclipse.buildship.core.workspace;
 
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
-
-import java.io.File;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Provides operations related to querying and modifying the Eclipse elements that exist in a
@@ -164,5 +166,28 @@ public interface WorkspaceOperations {
      * @param monitor the monitor to report the progress on
      */
     void removeBuildCommand(IProject project, String name, IProgressMonitor monitor);
+
+    /**
+     * Marks the given resource as a derived resource.
+     *
+     * @param resource the resource to mark
+     * @param monitor the monitor to report the progress on
+     */
+    void markAsDerived(IResource resource, IProgressMonitor monitor);
+
+    /**
+     * Marks the given folder as a build folder.
+     *
+     * @param folder the folder to mark
+     */
+    void markAsBuildFolder(IFolder folder);
+
+    /**
+     * Returns whether the given folder is a build folder.
+     *
+     * @param folder the folder to check
+     * @return true if this folder is a build folder
+     */
+    boolean isBuildFolder(IFolder folder);
 
 }

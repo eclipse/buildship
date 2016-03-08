@@ -56,8 +56,8 @@ final class ClasspathContainerUpdater {
 
     private void updateClasspathContainer(IProgressMonitor monitor) throws JavaModelException {
         ImmutableList<IClasspathEntry> containerEntries = collectClasspathContainerEntries();
-        ClasspathContainerPersistence.save(this.eclipseProject, containerEntries);
         setClasspathContainer(this.eclipseProject, containerEntries, monitor);
+        ClasspathContainerPersistence.save(this.eclipseProject, containerEntries);
     }
 
     private ImmutableList<IClasspathEntry> collectClasspathContainerEntries() {
@@ -68,7 +68,7 @@ final class ClasspathContainerUpdater {
                     @Override
                     public IClasspathEntry apply(OmniEclipseProjectDependency dependency) {
                         OmniEclipseProject dependentProject = ClasspathContainerUpdater.this.gradleProject.getRoot()
-                                .tryFind(Specs.eclipseProjectMatchesProjectPath(dependency.getTargetProjectPath())).get();
+                                .tryFind(Specs.eclipseProjectMatchesProjectDir(dependency.getTargetProjectDir())).get();
                         IPath path = new Path("/" + dependentProject.getName());
                         return JavaCore.newProjectEntry(path, dependency.isExported());
                     }
@@ -96,8 +96,6 @@ final class ClasspathContainerUpdater {
         // return all dependencies as a joined list - The order of the dependencies is important see Bug 473348
         return ImmutableList.<IClasspathEntry>builder().addAll(externalDependencies).addAll(projectDependencies).build();
     }
-
-
 
     /**
      * Updates the classpath container of the target project based on the given Gradle model.

@@ -31,6 +31,7 @@ import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -38,11 +39,13 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.object.MoreObjects;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
@@ -51,6 +54,9 @@ import org.eclipse.buildship.core.workspace.WorkspaceOperations;
  * Default implementation of the {@link WorkspaceOperations} interface.
  */
 public final class DefaultWorkspaceOperations implements WorkspaceOperations {
+
+    private static final QualifiedName BUILD_FOLDER_PROPERTY_KEY = new QualifiedName(CorePlugin.PLUGIN_ID, "buildFolder");
+    private static final String BUILD_FOLDER_PROPERTY_VALUE = "true";
 
     @Override
     public ImmutableList<IProject> getAllProjects() {
@@ -145,7 +151,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             project.create(projectDescription, new SubProgressMonitor(monitor, 1));
 
             // open the project
-            project.open(new SubProgressMonitor(monitor, 1));
+            project.open(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1));
 
             // add project natures separately to trigger IProjectNature#configure
             // the project needs to be open while the natures are added
@@ -182,7 +188,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             project.create(projectDescription, new SubProgressMonitor(monitor, 1));
 
             // open the project
-            project.open(new SubProgressMonitor(monitor, 1));
+            project.open(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1));
 
             // add project natures separately to trigger IProjectNature#configure
             // the project needs to be open while the natures are added
@@ -450,6 +456,37 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             throw new GradlePluginsRuntimeException(message, e);
         } finally {
             monitor.done();
+        }
+    }
+
+    @Override
+    public void markAsDerived(IResource resource, IProgressMonitor monitor) {
+        monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
+        monitor.beginTask(String.format("Marking %s as derived", resource.getFullPath()), 1);
+        try {
+            resource.setDerived(true, new SubProgressMonitor(monitor, 1));
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(String.format("Could not mark resource %s as derived.", resource.getFullPath()), e);
+        } finally {
+            monitor.done();
+        }
+    }
+
+    @Override
+    public void markAsBuildFolder(IFolder folder) {
+        try {
+            folder.setPersistentProperty(BUILD_FOLDER_PROPERTY_KEY, BUILD_FOLDER_PROPERTY_VALUE);
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(String.format("Could not mark folder %s as a build folder.", folder.getFullPath()), e);
+        }
+    }
+
+    @Override
+    public boolean isBuildFolder(IFolder folder) {
+        try {
+            return folder.exists() && BUILD_FOLDER_PROPERTY_VALUE.equals(folder.getPersistentProperty(BUILD_FOLDER_PROPERTY_KEY));
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(String.format("Could not check whether folder %s is a build folder.", folder.getFullPath()), e);
         }
     }
 

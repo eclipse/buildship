@@ -25,7 +25,9 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
+import org.eclipse.core.resources.ProjectScope
 import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.core.runtime.jobs.Job
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.GradlePluginsRuntimeException
@@ -35,9 +37,9 @@ import org.eclipse.buildship.core.configuration.ProjectConfigurationManager
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification;
+import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
-import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectJob
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 
 @SuppressWarnings("GroovyAccessibility")
@@ -251,6 +253,61 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
 
         then:
         readConfiguration == projectConfiguration
+    }
+
+    def "legacy project configuration is converted to use the Eclipse preferences api"() {
+        setup:
+        IProject project = EclipseProjects.newProject('sample-project', testDir)
+        project.getFolder('.settings').create(true, true, new NullProgressMonitor())
+        String gradlePrefs = """{
+          "1.0": {
+             "project_path": ":",
+             "connection_project_dir": ".",
+             "connection_gradle_user_home": null,
+             "connection_gradle_distribution": "GRADLE_DISTRIBUTION(WRAPPER)",
+             "connection_java_home": null,
+             "connection_jvm_arguments": "",
+             "connection_arguments": ""
+          }
+        }
+        """
+        project.getFile('.settings/gradle.prefs').create(new ByteArrayInputStream(gradlePrefs.getBytes()), true, new NullProgressMonitor())
+
+        when:
+        def configuration = configurationManager.readProjectConfiguration(project)
+        configurationManager.saveProjectConfiguration(configuration, project)
+
+        then:
+        !new File(testDir, '.settings/gradle.prefs').exists()
+        configuration == configurationManager.readProjectConfiguration(project)
+    }
+
+    def "legacy project configuration conversion handles absolute paths"() {
+        setup:
+        IProject project = EclipseProjects.newProject('sample-project', testDir)
+        project.getFolder('.settings').create(true, true, new NullProgressMonitor())
+        String projectDir = testDir.parentFile.canonicalPath.replace('\\', '\\\\') // escape windows-style file separator for json
+        String gradlePrefs = """{
+          "1.0": {
+             "project_path": ":",
+             "connection_project_dir": "${projectDir}",
+             "connection_gradle_user_home": null,
+             "connection_gradle_distribution": "GRADLE_DISTRIBUTION(WRAPPER)",
+             "connection_java_home": null,
+             "connection_jvm_arguments": "",
+             "connection_arguments": ""
+          }
+        }
+        """
+        project.getFile('.settings/gradle.prefs').create(new ByteArrayInputStream(gradlePrefs.getBytes()), true, new NullProgressMonitor())
+
+        when:
+        configurationManager.saveProjectConfiguration(configurationManager.readProjectConfiguration(project), project)
+
+        then:
+        !new File(testDir, '.settings/gradle.prefs').exists()
+        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_PROJECT_PATH, null) == ':'
+        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null) == '..'
     }
 
 }

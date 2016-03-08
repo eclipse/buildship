@@ -45,7 +45,7 @@ public final class PublishedGradleVersionsWrapper {
     }
 
     public List<GradleVersion> getVersions() {
-        return this.publishedGradleVersions.isPresent() ? this.publishedGradleVersions.get().getVersions() : ImmutableList.<GradleVersion> of();
+        return this.publishedGradleVersions.isPresent() ? this.publishedGradleVersions.get().getVersions() : ImmutableList.<GradleVersion> of(GradleVersion.current());
     }
 
 }

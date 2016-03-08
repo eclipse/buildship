@@ -22,7 +22,7 @@ import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -94,7 +94,7 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
             List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
             TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), listeners,
                     ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
-            ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(requestAttributes);
+            SimpleModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(requestAttributes);
             return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FORCE_RELOAD);
         } finally {
             monitor.done();
@@ -112,17 +112,28 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
         return SynchronizeGradleProjectJob.class.getName();
     }
 
+    /**
+     * A {@link SynchronizeGradleProjectJob} is only scheduled if there is not already another one that fully covers it.
+     * <p/>
+     * A job A fully covers a job B if all of these conditions are met:
+     * <ul>
+     *  <li> A synchronizes the same Gradle build as B </li>
+     *  <li> A adds a superset of B's working sets </li>
+     *  <li> A and B have the same {@link AsyncHandler} or B's {@link AsyncHandler} is a no-op </li>
+     *  <li> A and B have the same {@link ExistingDescriptorHandler} </li>
+     * </ul>
+     */
     @Override
     public boolean shouldSchedule() {
         for (Job job : Job.getJobManager().find(getJobFamily())) {
-            if (job instanceof SynchronizeGradleProjectJob && hasCompatibleConfiguration((SynchronizeGradleProjectJob) job)) {
+            if (job instanceof SynchronizeGradleProjectJob && isCoveredBy((SynchronizeGradleProjectJob) job)) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean hasCompatibleConfiguration(SynchronizeGradleProjectJob other) {
+    private boolean isCoveredBy(SynchronizeGradleProjectJob other) {
         return Objects.equal(this.existingDescriptorHandler, other.existingDescriptorHandler)
             && (this.initializer == AsyncHandler.NO_OP || Objects.equal(this.initializer, other.initializer))
             && Objects.equal(this.rootRequestAttributes, other.rootRequestAttributes)

@@ -307,7 +307,7 @@
           </description>
        </shortcut>
     </extension>
-    
+
     <!-- Adapters for showing gradle items in the properties view -->
     <extension
           point="org.eclipse.core.runtime.adapters">
@@ -413,5 +413,39 @@
              properties="selectioncanbelaunchedastest"
              type="java.lang.Object">
        </propertyTester>
+    </extension>
+
+    <!-- allow the user to show/hide the build folder in the Project/Package explorer and Navigator -->
+    <extension
+          point="org.eclipse.jdt.ui.javaElementFilters">
+       <filter
+             id="org.eclipse.buildship.ui.packageexplorer.filter.gradle.buildfolder"
+             class="org.eclipse.buildship.ui.navigator.BuildFolderViewerFilter"
+             name="Gradle build folder"
+             description="Hides the build folder of Gradle projects"
+             enabled="true">
+       </filter>
+    </extension>
+    <extension
+          point="org.eclipse.ui.navigator.navigatorContent">
+       <commonFilter
+             id="org.eclipse.buildship.ui.navigator.filter.gradle.buildfolder"
+             class="org.eclipse.buildship.ui.navigator.BuildFolderViewerFilter"
+             name="Gradle build folder"
+             description="Hides the build folder of Gradle projects"
+             activeByDefault="true"
+             visibleInUI="true">
+       </commonFilter>
+    </extension>
+    <extension
+          point="org.eclipse.ui.navigator.viewer">
+       <viewerContentBinding
+             viewerId="org.eclipse.ui.navigator.ProjectExplorer">
+          <includes>
+             <contentExtension
+                   pattern="org.eclipse.buildship.ui.navigator.filter.gradle.buildfolder">
+             </contentExtension>
+          </includes>
+       </viewerContentBinding>
     </extension>
 </plugin>

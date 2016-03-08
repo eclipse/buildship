@@ -54,10 +54,10 @@ public final class ToolingApiInvoker {
         try {
             command.run();
             return handleSuccess();
-        } catch (OperationCanceledException oce) {
-            throw oce;
+        } catch (OperationCanceledException e) {
+            return handleOperationCanceled(e);
         } catch (BuildCancelledException e) {
-            return handleBuildCancelled(e);
+            return handleBuildCanceled(e);
         } catch (BuildException e) {
             return handleBuildFailed(e);
         } catch (GradleConnectionException e) {
@@ -79,8 +79,15 @@ public final class ToolingApiInvoker {
         return Status.OK_STATUS;
     }
 
-    private IStatus handleBuildCancelled(BuildCancelledException e) {
-        // if the job was cancelled by the user, just log the event
+    private IStatus handleOperationCanceled(OperationCanceledException e) {
+        // if an Eclipse job was cancelled by the user, just log the event
+        String message = String.format("%s cancelled.", this.workName);
+        CorePlugin.logger().info(message, e);
+        return createCancelStatus(message, e);
+    }
+
+    private IStatus handleBuildCanceled(BuildCancelledException e) {
+        // if a Gradle job was cancelled by the user, just log the event
         String message = String.format("%s cancelled.", this.workName);
         CorePlugin.logger().info(message, e);
         return createCancelStatus(message, e);
@@ -183,7 +190,7 @@ public final class ToolingApiInvoker {
         return new Status(IStatus.INFO, CorePlugin.PLUGIN_ID, message, t);
     }
 
-    private static Status createCancelStatus(String message, BuildCancelledException e) {
+    private static Status createCancelStatus(String message, Exception e) {
         return new Status(IStatus.CANCEL, CorePlugin.PLUGIN_ID, message, e);
     }
 

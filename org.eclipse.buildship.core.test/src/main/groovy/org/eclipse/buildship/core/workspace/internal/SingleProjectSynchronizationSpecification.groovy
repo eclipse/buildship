@@ -1,26 +1,12 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import org.gradle.api.JavaVersion
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationPersistence
-import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.test.fixtures.EclipseProjects
-import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
-import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
-import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer
-import org.eclipse.core.resources.IProject
-import org.eclipse.core.resources.IResourceFilterDescription
-import org.eclipse.core.runtime.IProgressMonitor
-import org.eclipse.core.runtime.IStatus
-import org.eclipse.core.runtime.NullProgressMonitor
-import org.eclipse.core.runtime.Status
-import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.jdt.core.IClasspathEntry
-import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
-import org.eclipse.jdt.core.JavaModelException;
+
+import org.eclipse.buildship.core.configuration.GradleProjectNature
+import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigurationPersistence
+import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 
 abstract class SingleProjectSynchronizationSpecification extends ProjectSynchronizationSpecification {
 
@@ -81,14 +67,16 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
 
         then:
         def project = findProject('sample-project')
-        new ProjectConfigurationPersistence().readProjectConfiguration(project)
+        new DefaultProjectConfigurationPersistence().readProjectConfiguration(project)
     }
 
-    def "Resource filters are set"() {
+    def "Derived resources are marked"() {
         setup:
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
             file 'settings.gradle'
+            dir 'build'
+            dir '.gradle'
         }
 
         when:
@@ -96,13 +84,8 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
 
         then:
         def project = findProject('sample-project')
-        project.filters.length == 2
-        project.filters[0].type == IResourceFilterDescription.EXCLUDE_ALL.or(IResourceFilterDescription.FOLDERS).or(IResourceFilterDescription.INHERITABLE)
-        project.filters[1].type == IResourceFilterDescription.EXCLUDE_ALL.or(IResourceFilterDescription.FOLDERS).or(IResourceFilterDescription.INHERITABLE)
-        project.filters[0].fileInfoMatcherDescription.id == 'org.eclipse.ui.ide.multiFilter'
-        project.filters[1].fileInfoMatcherDescription.id == 'org.eclipse.ui.ide.multiFilter'
-        (project.filters[0].fileInfoMatcherDescription.arguments as String).endsWith("build")
-        (project.filters[1].fileInfoMatcherDescription.arguments as String).endsWith(".gradle")
+        project.getFolder("build").isDerived()
+        project.getFolder(".gradle").isDerived()
     }
 
     def "Linked resources are set"() {
@@ -142,7 +125,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
 
         then:
         def javaProject = JavaCore.create(findProject('sample-project'))
-        javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true) == JavaVersion.current().toString()
+        javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true) == JavaCore.VERSION_1_2
         javaProject.getOption(JavaCore.COMPILER_SOURCE, true) == JavaCore.VERSION_1_2
         javaProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == JavaCore.VERSION_1_3
     }

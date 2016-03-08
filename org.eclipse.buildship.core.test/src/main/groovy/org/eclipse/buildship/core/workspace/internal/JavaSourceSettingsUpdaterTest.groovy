@@ -4,11 +4,18 @@ import com.gradleware.tooling.toolingmodel.OmniJavaRuntime
 import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings
 import com.gradleware.tooling.toolingmodel.OmniJavaVersion
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification;
-
+import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
+import org.eclipse.buildship.core.workspace.internal.JavaSourceSettingsUpdaterTest.BuildJobScheduledByJavaSourceSettingsUpdater
+import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
+import org.eclipse.core.runtime.jobs.IJobChangeEvent
+import org.eclipse.core.runtime.jobs.Job
+import org.eclipse.core.runtime.jobs.JobChangeAdapter
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
@@ -24,60 +31,33 @@ class JavaSourceSettingsUpdaterTest extends WorkspaceSpecification {
         IJavaProject project = newJavaProject('sample-project')
 
         when:
-        JavaSourceSettingsUpdater.update(project, sourceSettings(runtimeVersion, targetVersion, sourceVersion), new NullProgressMonitor())
+        JavaSourceSettingsUpdater.update(project, sourceSettings(sourceVersion, targetVersion), new NullProgressMonitor())
 
         then:
-        project.getOption(JavaCore.COMPILER_COMPLIANCE, true) == runtimeVersion
-        project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == targetVersion
+        project.getOption(JavaCore.COMPILER_COMPLIANCE, true) == sourceVersion
         project.getOption(JavaCore.COMPILER_SOURCE, true) == sourceVersion
+        project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == targetVersion
 
         where:
-        runtimeVersion | targetVersion | sourceVersion
-        '1.2'          | '1.2'         | '1.2'
-        '1.6'          | '1.5'         | '1.4'
+        sourceVersion | targetVersion
+        '1.2'         | '1.2'
+        '1.4'         | '1.5'
     }
 
-    @SuppressWarnings("GroovyAccessibility")
-    def "Invalid compliance setting replaced with highest available Java version"() {
+    def "Invalid source settings are written as-is"() {
         given:
         IJavaProject project = newJavaProject('sample-project')
 
         when:
-        JavaSourceSettingsUpdater.update(project, sourceSettings(runtimeVersion, '1.3', '1.3'), new NullProgressMonitor())
+        JavaSourceSettingsUpdater.update(project, sourceSettings(version, version), new NullProgressMonitor())
 
         then:
-        project.getOption(JavaCore.COMPILER_COMPLIANCE, true) == JavaSourceSettingsUpdater.availableJavaVersions[-1]
+        project.getOption(JavaCore.COMPILER_COMPLIANCE, true) == version
+        project.getOption(JavaCore.COMPILER_SOURCE, true) == version
+        project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == version
 
         where:
-        runtimeVersion << [null, '', '1.0.0', '7.8', 'string']
-    }
-
-    def "Invalid target Java version replaced with current compilance settings"() {
-        given:
-        IJavaProject project = newJavaProject('sample-project')
-
-        when:
-        JavaSourceSettingsUpdater.update(project, sourceSettings('1.4', targetVersion, '1.6'), new NullProgressMonitor())
-
-        then:
-        project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == '1.4'
-
-        where:
-        targetVersion << [null, '', '1.0.0', '7.8', 'string', '1.5']
-    }
-
-    def "Invalid source Java version replaced with current target Java version"() {
-        given:
-        IJavaProject project = newJavaProject('sample-project')
-
-        when:
-        JavaSourceSettingsUpdater.update(project, sourceSettings('1.6', '1.4', sourceVersion), new NullProgressMonitor())
-
-        then:
-        project.getOption(JavaCore.COMPILER_SOURCE, true) == '1.4'
-
-        where:
-        sourceVersion << [null, '', '1.0.0', '7.8', 'string', '1.5']
+        version << ['', '1.0.0', '7.8', 'string', '1.5']
     }
 
     def "VM added to the project classpath if not exist"() {
@@ -90,7 +70,7 @@ class JavaSourceSettingsUpdaterTest extends WorkspaceSpecification {
         !project.rawClasspath.find { it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
 
         when:
-        JavaSourceSettingsUpdater.update(project, sourceSettings('1.6', '1.6', '1.6'), new NullProgressMonitor())
+        JavaSourceSettingsUpdater.update(project, sourceSettings('1.6', '1.6'), new NullProgressMonitor())
 
         then:
         project.rawClasspath.find { it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
@@ -109,7 +89,7 @@ class JavaSourceSettingsUpdaterTest extends WorkspaceSpecification {
         }
 
         when:
-        JavaSourceSettingsUpdater.update(project, sourceSettings('1.6', '1.6', '1.6'), new NullProgressMonitor())
+        JavaSourceSettingsUpdater.update(project, sourceSettings('1.6', '1.6'), new NullProgressMonitor())
 
         then:
         project.rawClasspath.find {
@@ -120,13 +100,65 @@ class JavaSourceSettingsUpdaterTest extends WorkspaceSpecification {
         }
     }
 
-    private OmniJavaSourceSettings sourceSettings(String runtimeVersion, String targetVersion, String sourceVersion) {
-        OmniJavaVersion runtime = Mock(OmniJavaVersion)
-        runtime.name >> runtimeVersion
+    def "A project is rebuilt if the source settings have changed"() {
+        setup:
+        IJavaProject javaProject = newJavaProject('sample-project')
+        def buildScheduledListener = new BuildJobScheduledByJavaSourceSettingsUpdater()
+        Job.jobManager.addJobChangeListener(buildScheduledListener)
 
+        when:
+        JavaSourceSettingsUpdater.update(javaProject, sourceSettings('1.4', '1.4'), new NullProgressMonitor())
+
+        then:
+        buildScheduledListener.isBuildScheduled()
+
+        cleanup:
+        Job.jobManager.removeJobChangeListener(buildScheduledListener)
+    }
+
+    def "A project is not rebuilt if source settings have not changed"() {
+        setup:
+        IJavaProject javaProject = newJavaProject('sample-project')
+        JavaSourceSettingsUpdater.update(javaProject, sourceSettings('1.4', '1.4'), new NullProgressMonitor())
+        def buildScheduledListener = new BuildJobScheduledByJavaSourceSettingsUpdater()
+        Job.jobManager.addJobChangeListener(buildScheduledListener)
+
+        when:
+        JavaSourceSettingsUpdater.update(javaProject, sourceSettings('1.4', '1.4'), new NullProgressMonitor())
+
+        then:
+        !buildScheduledListener.isBuildScheduled()
+
+        cleanup:
+        Job.jobManager.removeJobChangeListener(buildScheduledListener)
+    }
+
+    def "A project is not rebuilt if the 'Build Automatically' setting is disabled"() {
+        setup:
+        IJavaProject javaProject = newJavaProject('sample-project')
+        def buildScheduledListener = new BuildJobScheduledByJavaSourceSettingsUpdater()
+        Job.jobManager.addJobChangeListener(buildScheduledListener)
+        def description = LegacyEclipseSpockTestHelper.workspace.description
+        def wasAutoBuilding = description.autoBuilding
+        description.autoBuilding = false
+        LegacyEclipseSpockTestHelper.workspace.description = description
+
+        when:
+        JavaSourceSettingsUpdater.update(javaProject, sourceSettings('1.4', '1.4'), new NullProgressMonitor())
+
+        then:
+        !buildScheduledListener.isBuildScheduled()
+
+        cleanup:
+        description.autoBuilding = wasAutoBuilding
+        LegacyEclipseSpockTestHelper.workspace.description = description
+        Job.jobManager.removeJobChangeListener(buildScheduledListener)
+    }
+
+    private OmniJavaSourceSettings sourceSettings(String sourceVersion, String targetVersion) {
         OmniJavaRuntime rt = Mock(OmniJavaRuntime)
         rt.homeDirectory >> new File(System.getProperty('java.home'))
-        rt.javaVersion >> runtime
+        rt.javaVersion >> Mock(OmniJavaVersion)
 
         OmniJavaVersion target = Mock(OmniJavaVersion)
         target.name >> targetVersion
@@ -140,6 +172,22 @@ class JavaSourceSettingsUpdaterTest extends WorkspaceSpecification {
         settings.sourceLanguageLevel >> source
 
         settings
+    }
+
+    static class BuildJobScheduledByJavaSourceSettingsUpdater extends JobChangeAdapter {
+
+        boolean buildScheduled = false
+
+        @Override
+        public void scheduled(IJobChangeEvent event) {
+            if (event.job.class.name.startsWith(JavaSourceSettingsUpdater.class.name)) {
+                buildScheduled = true
+            }
+        }
+
+        boolean isRebuildScheduled() {
+            return buildScheduled
+        }
     }
 
 }

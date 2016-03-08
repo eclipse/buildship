@@ -37,6 +37,7 @@ public final class RelativePathUtils {
         Preconditions.checkNotNull(target);
         Preconditions.checkArgument(base.isAbsolute());
         Preconditions.checkArgument(target.isAbsolute());
+
         return target.makeRelativeTo(base);
     }
 

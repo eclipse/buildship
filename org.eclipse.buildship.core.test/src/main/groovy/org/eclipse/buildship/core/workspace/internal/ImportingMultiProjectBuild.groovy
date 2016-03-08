@@ -21,14 +21,12 @@ class ImportingMultiProjectBuild extends ProjectSynchronizationSpecification {
         importAndWait(createSampleProject())
     }
 
-    def "Imported parent projects have filters to hide the content of the children and the build folders"() {
+    def "Imported parent projects have filters to hide the content of the children"() {
         expect:
         def filters = findProject("sample").getFilters()
-        filters.length == 4
+        filters.length == 2
         (filters[0].fileInfoMatcherDescription.arguments as String).endsWith('moduleA')
         (filters[1].fileInfoMatcherDescription.arguments as String).endsWith('moduleB')
-        (filters[2].fileInfoMatcherDescription.arguments as String).endsWith('build')
-        (filters[3].fileInfoMatcherDescription.arguments as String).endsWith('.gradle')
     }
 
     def "Importing a project twice won't result in duplicate filters"() {
@@ -40,11 +38,9 @@ class ImportingMultiProjectBuild extends ProjectSynchronizationSpecification {
 
         then:
         def filters = findProject("sample").getFilters()
-        filters.length == 4
+        filters.length == 2
         (filters[0].fileInfoMatcherDescription.arguments as String).endsWith('moduleA')
         (filters[1].fileInfoMatcherDescription.arguments as String).endsWith('moduleB')
-        (filters[2].fileInfoMatcherDescription.arguments as String).endsWith('build')
-        (filters[3].fileInfoMatcherDescription.arguments as String).endsWith('.gradle')
     }
 
     def "If a new project is added to the Gradle build, it is imported into the workspace"() {

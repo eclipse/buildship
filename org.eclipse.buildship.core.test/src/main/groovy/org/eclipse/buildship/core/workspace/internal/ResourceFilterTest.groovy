@@ -1,27 +1,17 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
-import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification;
-import org.eclipse.buildship.core.util.file.FileUtils
-import org.eclipse.buildship.core.workspace.ProjectCreatedEvent
+import spock.lang.Ignore
 
 import org.eclipse.core.filesystem.EFS
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
-import org.eclipse.core.resources.IProjectDescription
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IResourceFilterDescription
 import org.eclipse.core.resources.IWorkspace
 import org.eclipse.core.runtime.NullProgressMonitor
 
-import java.io.File
-import java.util.List
-
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import spock.lang.Ignore;
-import spock.lang.Specification
+import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.util.file.FileUtils
 
 class ResourceFilterTest extends WorkspaceSpecification {
 
@@ -42,7 +32,7 @@ class ResourceFilterTest extends WorkspaceSpecification {
         workspace.validateFiltered(project.getFolder('unfiltered')).isOK()
 
         when:
-        ResourceFilter.attachFilters(project, [ toFile(project.getFolder('filtered')) ], null)
+        ResourceFilter.updateFilters(project, [ toFile(project.getFolder('filtered')) ], null)
 
         then:
         !workspace.validateFiltered(project.getFolder('filtered')).isOK()
@@ -58,7 +48,7 @@ class ResourceFilterTest extends WorkspaceSpecification {
         workspace.validateFiltered(project.getFolder('basefolder/subfolder')).isOK()
 
         when:
-        ResourceFilter.attachFilters(project, [ toFile(project.getFolder('basefolder/subfolder')) ], null)
+        ResourceFilter.updateFilters(project, [ toFile(project.getFolder('basefolder/subfolder')) ], null)
 
         then:
         workspace.validateFiltered(project.getFolder('basefolder')).isOK()
@@ -71,7 +61,7 @@ class ResourceFilterTest extends WorkspaceSpecification {
         projectFolder('src/main/java/pkg')
 
         when:
-        ResourceFilter.attachFilters(project, [toFile(project.getFolder('pkg'))], null)
+        ResourceFilter.updateFilters(project, [toFile(project.getFolder('pkg'))], null)
 
         then:
         !workspace.validateFiltered(project.getFolder('pkg')).isOK()
@@ -80,31 +70,30 @@ class ResourceFilterTest extends WorkspaceSpecification {
 
     def "Defining a resource filter on non-child location is ignored"() {
         given:
-        ResourceFilter.attachFilters(project, [dir('siblingproject')], null)
+        ResourceFilter.updateFilters(project, [dir('siblingproject')], null)
 
         expect:
         project.getFilters().length == 0
     }
 
-    def "Defining a new resource filter preserves the previously defined resource filters"() {
+    def "Updating resource filters removes previously defined resource filters"() {
         given:
         projectFolder('alpha')
         projectFolder('beta')
 
         when:
-        ResourceFilter.attachFilters(project, [toFile(project.getFolder('alpha'))], null)
+        ResourceFilter.updateFilters(project, [toFile(project.getFolder('alpha'))], null)
 
         then:
         project.filters.length == 1
         (project.filters[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('alpha')
 
         when:
-        ResourceFilter.attachFilters(project, [toFile(project.getFolder('beta'))], null)
+        ResourceFilter.updateFilters(project, [toFile(project.getFolder('beta'))], null)
 
         then:
-        project.filters.length == 2
-        (project.filters[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('alpha')
-        (project.filters[1].getFileInfoMatcherDescription().getArguments() as String).endsWith('beta')
+        project.filters.length == 1
+        (project.filters[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('beta')
     }
 
     def "Defining a new resource filter is idempotent"() {
@@ -115,14 +104,14 @@ class ResourceFilterTest extends WorkspaceSpecification {
         project.filters.length == 0
 
         when:
-        ResourceFilter.attachFilters(project, [toFile(project.getFolder('alpha'))], null)
+        ResourceFilter.updateFilters(project, [toFile(project.getFolder('alpha'))], null)
 
         then:
         project.filters.length == 1
         (project.filters[0].getFileInfoMatcherDescription().getArguments() as String).endsWith('alpha')
 
         when:
-        ResourceFilter.attachFilters(project, [toFile(project.getFolder('alpha'))], null)
+        ResourceFilter.updateFilters(project, [toFile(project.getFolder('alpha'))], null)
 
         then:
         project.filters.length == 1
@@ -138,7 +127,7 @@ class ResourceFilterTest extends WorkspaceSpecification {
         workspace.validateFiltered(project.getFolder('filtered')).isOK()
 
         when:
-        ResourceFilter.attachFilters(project, [ toFile(project.getFolder('filtered')) ], null)
+        ResourceFilter.updateFilters(project, [ toFile(project.getFolder('filtered')) ], null)
         ResourceFilter.detachAllFilters(project, null)
 
         then:
@@ -156,7 +145,7 @@ class ResourceFilterTest extends WorkspaceSpecification {
         project.createFilter(type, matchers[0], IResource.NONE, null)
 
         when:
-        ResourceFilter.attachFilters(project, [ toFile(project.getFolder('filtered')) ], null)
+        ResourceFilter.updateFilters(project, [ toFile(project.getFolder('filtered')) ], null)
         project.refreshLocal(IResource.DEPTH_INFINITE, null)
         ResourceFilter.detachAllFilters(project, null)
         project.refreshLocal(IResource.DEPTH_INFINITE, null)
@@ -171,7 +160,7 @@ class ResourceFilterTest extends WorkspaceSpecification {
         projectFolder('filtered')
 
         expect:
-        ResourceFilter.attachFilters(project, [], null)
+        ResourceFilter.updateFilters(project, [], null)
     }
 
     def "Can add a large number of filters" () {
@@ -180,7 +169,7 @@ class ResourceFilterTest extends WorkspaceSpecification {
 
         expect:
         for (i in 1..500) {
-            ResourceFilter.attachFilters(project, [ toFile(project.getFolder('filtered' + i)) ], null)
+            ResourceFilter.updateFilters(project, [ toFile(project.getFolder('filtered' + i)) ], null)
             assert !workspace.validateFiltered(project.getFolder('filtered' + i)).isOK()
         }
     }
