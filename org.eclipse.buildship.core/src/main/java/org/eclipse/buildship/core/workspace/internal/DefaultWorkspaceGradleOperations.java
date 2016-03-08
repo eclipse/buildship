@@ -151,12 +151,13 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             }
 
             // update filters
-            List<File> filteredSubFolders = getFilteredSubFolders(project);
+            List<File> filteredSubFolders = getChildProjectDirectories(project);
             ResourceFilter.updateFilters(workspaceProject, filteredSubFolders, new SubProgressMonitor(monitor, 1));
 
             // update linked resources
             LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), new SubProgressMonitor(monitor, 1));
 
+            // mark derived folders
             markDerivedFolders(project, gradleBuild, workspaceProject, new SubProgressMonitor(monitor, 1));
 
             if (isJavaProject(project)) {
@@ -236,7 +237,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         }
     }
 
-    private List<File> getFilteredSubFolders(OmniEclipseProject project) {
+    private List<File> getChildProjectDirectories(OmniEclipseProject project) {
         return FluentIterable.from(project.getChildren()).transform(new Function<OmniEclipseProject, File>() {
 
             @Override
