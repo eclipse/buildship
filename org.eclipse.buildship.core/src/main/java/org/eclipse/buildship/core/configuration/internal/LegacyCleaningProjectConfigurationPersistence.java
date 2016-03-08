@@ -11,25 +11,27 @@
 
 package org.eclipse.buildship.core.configuration.internal;
 
+import java.io.File;
+import java.lang.reflect.Type;
+import java.util.Map;
+
+import org.osgi.service.prefs.BackingStoreException;
+
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.io.Files;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.util.file.RelativePathUtils;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.osgi.service.prefs.BackingStoreException;
 
-import java.io.File;
-import java.lang.reflect.Type;
-import java.util.Map;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 
 /**
  * Persistence delegate which cleans up the legacy, json-based project configuration format.
@@ -90,7 +92,7 @@ final class LegacyCleaningProjectConfigurationPersistence implements ProjectConf
         Map<String, String> config = parsedJson.get("1.0");
 
         String projectPath = config.get("project_path");
-        String projectDir = relativePathToRootProject(project, new Path(config.get("connection_project_dir")));
+        String projectDir = config.get("connection_project_dir");
         String gradleUserHome = config.get("connection_gradle_user_home");
         String gradleDistribution = config.get("connection_gradle_distribution");
         String javaHome = config.get("connection_java_home");
@@ -102,15 +104,6 @@ final class LegacyCleaningProjectConfigurationPersistence implements ProjectConf
     @SuppressWarnings("serial")
     private static Type createMapTypeToken() {
         return new TypeToken<Map<String, Map<String, String>>>() {}.getType();
-    }
-
-    private static String relativePathToRootProject(IProject workspaceProject, IPath rootProjectPath) {
-        if (rootProjectPath.isAbsolute()) {
-            IPath projectPath = workspaceProject.getLocation();
-            return RelativePathUtils.getRelativePath(projectPath, rootProjectPath).toOSString();
-        } else {
-            return rootProjectPath.toOSString();
-        }
     }
 
     private static void cleanupLegacyConfiguration(IProject project) {
@@ -127,10 +120,12 @@ final class LegacyCleaningProjectConfigurationPersistence implements ProjectConf
         }
     }
 
+    /*
+     * The ${project_name}/.settings/gradle.prefs file is automatically loaded as project
+     * preferences by the core runtime since the fie extension is '.prefs'. If the preferences
+     * are loaded, then deleting the prefs file results in a BackingStoreException.
+     */
     private static void ensureNoProjectPreferencesLoadedFrom(IProject project) throws BackingStoreException {
-        // The ${project_name}/.settings/gradle.prefs file is automatically loaded as project
-        // preferences by the core runtime since the fie extension is '.prefs'. If the preferences
-        // are loaded, then deleting the prefs file results in a BackingStoreException.
         ProjectScope projectScope = new ProjectScope(project);
         IEclipsePreferences node = projectScope.getNode(LEGACY_GRADLE_PREFERENCES_FILE_NAME_WITHOUT_EXTENSION);
         if (node != null) {

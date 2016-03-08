@@ -98,14 +98,24 @@ final class ProjectConfigurationProperties {
     }
 
     ProjectConfiguration toProjectConfiguration(IProject project) {
-        FixedRequestAttributes requestAttributes = new FixedRequestAttributes(rootProjectFile(project, getProjectDir()),
-                FileUtils.getAbsoluteFile(getGradleUserHome()).orNull(), GradleDistributionSerializer.INSTANCE.deserializeFromString(getGradleDistribution()),
-                FileUtils.getAbsoluteFile(getJavaHome()).orNull(), CollectionsUtils.splitBySpace(getJvmArguments()), CollectionsUtils.splitBySpace(getArguments()));
+        FixedRequestAttributes requestAttributes = new FixedRequestAttributes(
+            rootProjectFile(project, getProjectDir()),
+            FileUtils.getAbsoluteFile(getGradleUserHome()).orNull(),
+            GradleDistributionSerializer.INSTANCE.deserializeFromString(getGradleDistribution()),
+            FileUtils.getAbsoluteFile(getJavaHome()).orNull(),
+            CollectionsUtils.splitBySpace(getJvmArguments()),
+            CollectionsUtils.splitBySpace(getArguments())
+        );
         return ProjectConfiguration.from(requestAttributes, Path.from(getProjectPath()));
     }
 
     private static File rootProjectFile(IProject project, String pathToRootProject) {
-        return RelativePathUtils.getAbsolutePath(project.getLocation(), new org.eclipse.core.runtime.Path(pathToRootProject)).toFile();
+        org.eclipse.core.runtime.Path rootPath = new org.eclipse.core.runtime.Path(pathToRootProject);
+        if (rootPath.isAbsolute()) {
+            return rootPath.toFile();
+        } else {
+            return RelativePathUtils.getAbsolutePath(project.getLocation(), rootPath).toFile();
+        }
     }
 
 }
