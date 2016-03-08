@@ -12,7 +12,7 @@ import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 import org.eclipse.core.resources.IProject
-import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IResourceFilterDescription
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.IStatus
@@ -22,7 +22,7 @@ import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.JavaModelException
 
 abstract class CoupledProjectSynchronizationSpecification extends ProjectSynchronizationSpecification {
 
