@@ -309,18 +309,12 @@ class ProjectConfigurationManagerTest extends Specification {
         project.getFile('.settings/gradle.prefs').create(new ByteArrayInputStream(gradlePrefs.getBytes()), true, new NullProgressMonitor())
 
         when:
-        //project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor())
-        configurationManager.saveProjectConfiguration(configurationManager.readProjectConfiguration(project), project)
+        def configuration = configurationManager.readProjectConfiguration(project)
+        configurationManager.saveProjectConfiguration(configuration, project)
 
         then:
         !new File(tempFolder.root, '.settings/gradle.prefs').exists()
-        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_PROJECT_PATH, null) == ':'
-        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null) == ''
-        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_GRADLE_USER_HOME, null) == 'null'
-        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, null) == 'GRADLE_DISTRIBUTION(WRAPPER)'
-        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_JAVA_HOME, null) == 'null'
-        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_JVM_ARGUMENTS, null) == ''
-        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_ARGUMENTS, null) == ''
+        configuration == configurationManager.readProjectConfiguration(project)
     }
 
     def "legacy project configuration conversion handles absolute paths"() {
