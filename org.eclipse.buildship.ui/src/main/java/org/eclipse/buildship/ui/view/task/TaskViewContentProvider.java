@@ -29,11 +29,10 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.OmniProjectTask;
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
-import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
+import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
@@ -44,7 +43,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.gradle.LoadEclipseGradleBuildsJob;
-import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 /**
@@ -109,7 +107,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
             // flatten the tree of Gradle projects to a list, similar
             // to how Eclipse projects look in the Eclipse Project explorer
             List<ProjectNode> allProjectNodes = Lists.newArrayList();
-            collectProjectNodesRecursively(gradleBuild.getRootEclipseProject(), gradleBuild.getRootProject(), null, allProjectNodes);
+            collectProjectNodesRecursively(gradleBuild.getRootEclipseProject(), null, allProjectNodes);
             return allProjectNodes;
         }
     }
@@ -119,16 +117,12 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         List<org.gradle.tooling.events.ProgressListener> noTypedProgressListeners = ImmutableList.of();
         CancellationToken cancellationToken = GradleConnector.newCancellationTokenSource().token();
         TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, null, null, null, noProgressListeners, noTypedProgressListeners, cancellationToken);
-        ModelRepository repository = this.modelRepositoryProvider.getModelRepository(fixedRequestAttributes);
+        SimpleModelRepository repository = this.modelRepositoryProvider.getModelRepository(fixedRequestAttributes);
         return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FROM_CACHE_ONLY);
     }
 
-    private void collectProjectNodesRecursively(OmniEclipseProject eclipseProject, OmniGradleProject gradleRootProject, ProjectNode parentProjectNode,
-                                                List<ProjectNode> allProjectNodes) {
-        // find the Gradle project corresponding to the Eclipse project
-        // (there will always be exactly one match)
-        Path gradleProjectPath = eclipseProject.getPath();
-        OmniGradleProject gradleProject = gradleRootProject.tryFind(Specs.gradleProjectMatchesProjectPath(gradleProjectPath)).get();
+    private void collectProjectNodesRecursively(OmniEclipseProject eclipseProject, ProjectNode parentProjectNode, List<ProjectNode> allProjectNodes) {
+        OmniGradleProject gradleProject = eclipseProject.getGradleProject();
 
         // find the corresponding Eclipse project in the workspace
         // (find by location rather than by name since the Eclipse project name does not always correspond to the Gradle project name)
@@ -138,7 +132,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         ProjectNode projectNode = new ProjectNode(parentProjectNode, eclipseProject, gradleProject, workspaceProject);
         allProjectNodes.add(projectNode);
         for (OmniEclipseProject childProject : eclipseProject.getChildren()) {
-            collectProjectNodesRecursively(childProject, gradleRootProject, projectNode, allProjectNodes);
+            collectProjectNodesRecursively(childProject, projectNode, allProjectNodes);
         }
     }
 

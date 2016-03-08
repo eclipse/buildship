@@ -45,7 +45,6 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
 import org.eclipse.buildship.core.util.predicate.Predicates;
 import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler;
@@ -158,7 +157,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), new SubProgressMonitor(monitor, 1));
 
             // mark derived folders
-            markDerivedFolders(project, gradleBuild, workspaceProject, new SubProgressMonitor(monitor, 1));
+            markDerivedFolders(project, workspaceProject, new SubProgressMonitor(monitor, 1));
 
             if (isJavaProject(project)) {
                 IJavaProject javaProject;
@@ -247,8 +246,8 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         }).toList();
     }
 
-    private void markDerivedFolders(OmniEclipseProject gradleProject, OmniEclipseGradleBuild gradleBuild, IProject workspaceProject, IProgressMonitor monitor) throws CoreException {
-        IFolder buildDirectory = getBuildDirectory(gradleBuild, gradleProject, workspaceProject);
+    private void markDerivedFolders(OmniEclipseProject gradleProject, IProject workspaceProject, IProgressMonitor monitor) throws CoreException {
+        IFolder buildDirectory = getBuildDirectory(gradleProject, workspaceProject);
         if (buildDirectory.exists()) {
             CorePlugin.workspaceOperations().markAsDerived(buildDirectory, monitor);
             CorePlugin.workspaceOperations().markAsBuildFolder(buildDirectory);
@@ -260,9 +259,9 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         }
     }
 
-    private IFolder getBuildDirectory(OmniEclipseGradleBuild eclipseGradleBuild, OmniEclipseProject project, IProject workspaceProject) {
-        Optional<OmniGradleProject> gradleProject = eclipseGradleBuild.getRootProject().tryFind(Specs.gradleProjectMatchesProjectPath(project.getPath()));
-        Maybe<File> buildDirectory = gradleProject.get().getBuildDirectory();
+    private IFolder getBuildDirectory(OmniEclipseProject project, IProject workspaceProject) {
+       OmniGradleProject gradleProject = project.getGradleProject();
+        Maybe<File> buildDirectory = gradleProject.getBuildDirectory();
         if (buildDirectory.isPresent() && buildDirectory.get() != null) {
             IPath relativePath = RelativePathUtils.getRelativePath(workspaceProject.getLocation(), new Path(buildDirectory.get().getPath()));
             return workspaceProject.getFolder(relativePath);
