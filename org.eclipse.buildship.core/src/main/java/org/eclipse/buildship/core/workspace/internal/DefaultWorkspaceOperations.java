@@ -55,7 +55,8 @@ import org.eclipse.buildship.core.workspace.WorkspaceOperations;
  */
 public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
-    private static final QualifiedName BUILD_FOLDER_PROPERTY = new QualifiedName(CorePlugin.PLUGIN_ID, "buildFolder");
+    private static final QualifiedName BUILD_FOLDER_PROPERTY_KEY = new QualifiedName(CorePlugin.PLUGIN_ID, "buildFolder");
+    private static final String BUILD_FOLDER_PROPERTY_VALUE = "true";
 
     @Override
     public ImmutableList<IProject> getAllProjects() {
@@ -486,7 +487,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         try {
             resource.setDerived(true, new SubProgressMonitor(monitor, 1));
         } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(String.format("Could not mark resource %s as derived", resource.getFullPath()), e);
+            throw new GradlePluginsRuntimeException(String.format("Could not mark resource %s as derived.", resource.getFullPath()), e);
         } finally {
             monitor.done();
         }
@@ -495,18 +496,19 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     @Override
     public void markAsBuildFolder(IFolder folder) {
         try {
-            folder.setPersistentProperty(BUILD_FOLDER_PROPERTY, "true");
+            folder.setPersistentProperty(BUILD_FOLDER_PROPERTY_KEY, BUILD_FOLDER_PROPERTY_VALUE);
         } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(String.format("Could not mark folder %s as a Gradle build folder", folder.getFullPath()), e);
+            throw new GradlePluginsRuntimeException(String.format("Could not mark folder %s as a build folder.", folder.getFullPath()), e);
         }
     }
 
     @Override
     public boolean isBuildFolder(IFolder folder) {
         try {
-            return folder.exists() && "true".equals(folder.getPersistentProperty(BUILD_FOLDER_PROPERTY));
+            return folder.exists() && BUILD_FOLDER_PROPERTY_VALUE.equals(folder.getPersistentProperty(BUILD_FOLDER_PROPERTY_KEY));
         } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(String.format("Could not check whether folder %s is a Gradle build folder", folder.getFullPath()), e);
+            throw new GradlePluginsRuntimeException(String.format("Could not check whether folder %s is a build folder.", folder.getFullPath()), e);
         }
     }
+
 }
