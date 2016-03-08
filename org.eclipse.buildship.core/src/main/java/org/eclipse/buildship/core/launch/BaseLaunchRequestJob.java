@@ -23,7 +23,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingclient.Request;
 import com.gradleware.tooling.toolingclient.SimpleRequest;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
@@ -49,7 +48,7 @@ import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 
 /**
- * Base class to execute {@link Request} instances in job.
+ * Base class to execute {@link SimpleRequest} instances in job.
  */
 public abstract class BaseLaunchRequestJob extends ToolingApiJob {
 
