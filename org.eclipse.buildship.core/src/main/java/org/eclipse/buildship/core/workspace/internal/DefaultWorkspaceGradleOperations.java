@@ -138,7 +138,9 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     private void synchronizeOpenWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, IProject workspaceProject, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) throws CoreException {
         monitor.beginTask(String.format("Synchronize Gradle project %s that is open in the workspace", project.getName()), 11);
         try {
+            // sync the Eclipse project with the file system first
             CorePlugin.workspaceOperations().refreshProject(workspaceProject, new SubProgressMonitor(monitor, 1));
+
             // add Gradle nature, if needed
             CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
 
@@ -149,7 +151,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             }
 
             // update filters
-            List<File> filteredSubFolders = getFilteredSubFolders(project, gradleBuild);
+            List<File> filteredSubFolders = getFilteredSubFolders(project);
             ResourceFilter.updateFilters(workspaceProject, filteredSubFolders, new SubProgressMonitor(monitor, 1));
 
             // update linked resources
@@ -234,16 +236,12 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         }
     }
 
-    private List<File> getFilteredSubFolders(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild) {
-        return collectChildProjectLocations(project);
-    }
-
-    private List<File> collectChildProjectLocations(OmniEclipseProject project) {
+    private List<File> getFilteredSubFolders(OmniEclipseProject project) {
         return FluentIterable.from(project.getChildren()).transform(new Function<OmniEclipseProject, File>() {
 
             @Override
-            public File apply(OmniEclipseProject project) {
-                return project.getProjectDirectory();
+            public File apply(OmniEclipseProject childProject) {
+                return childProject.getProjectDirectory();
             }
         }).toList();
     }
@@ -254,14 +252,11 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             CorePlugin.workspaceOperations().markAsDerived(buildDirectory, monitor);
             CorePlugin.workspaceOperations().markAsBuildFolder(buildDirectory);
         }
-        IFolder dotGradle = getDotGradleFolder(workspaceProject);
+
+        IFolder dotGradle = workspaceProject.getFolder(".gradle");
         if (dotGradle.exists()) {
             CorePlugin.workspaceOperations().markAsDerived(dotGradle, monitor);
         }
-    }
-
-    private IFolder getDotGradleFolder(IProject workspaceProject) {
-        return workspaceProject.getFolder(".gradle");
     }
 
     private IFolder getBuildDirectory(OmniEclipseGradleBuild eclipseGradleBuild, OmniEclipseProject project, IProject workspaceProject) {
