@@ -31,8 +31,7 @@ class DefaultProjectConfigurationPersistenceTest extends WorkspaceSpecification 
     @Subject
     DefaultProjectConfigurationPersistence persistence = new DefaultProjectConfigurationPersistence()
 
-        IProject project
-
+    IProject project
 
     def setup() {
         project = newProject("sample-project")
