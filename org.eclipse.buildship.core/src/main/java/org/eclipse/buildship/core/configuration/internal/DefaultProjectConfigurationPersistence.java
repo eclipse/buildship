@@ -12,17 +12,11 @@
 package org.eclipse.buildship.core.configuration.internal;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Properties;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ProjectScope;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
@@ -59,32 +53,19 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
     }
 
     private static ProjectConfiguration loadFromPreferencesApi(IProject project) {
-        IEclipsePreferences preferences = getEclipsePreferences(project);
-        String projectPath = readPreference(preferences, PREF_KEY_PROJECT_PATH);
-        String projectDir = readPreference(preferences, PREF_KEY_CONNECTION_PROJECT_DIR);
-        String gradleUserHome = readPreference(preferences, PREF_KEY_CONNECTION_GRADLE_USER_HOME);
-        String gradleDistribution = readPreference(preferences, PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
-        String javaHome = readPreference(preferences, PREF_KEY_CONNECTION_JAVA_HOME);
-        String jvmArguments = readPreference(preferences, PREF_KEY_CONNECTION_JVM_ARGUMENTS);
-        String arguments = readPreference(preferences, PREF_KEY_CONNECTION_ARGUMENTS);
+        PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
+        return readProjectConfiguration(project, preferences);
+    }
+
+    private static ProjectConfiguration readProjectConfiguration(IProject project, PreferenceStore preferences) {
+        String projectPath = preferences.read(PREF_KEY_PROJECT_PATH);
+        String projectDir = preferences.read(PREF_KEY_CONNECTION_PROJECT_DIR);
+        String gradleUserHome = preferences.read(PREF_KEY_CONNECTION_GRADLE_USER_HOME);
+        String gradleDistribution = preferences.read(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
+        String javaHome = preferences.read(PREF_KEY_CONNECTION_JAVA_HOME);
+        String jvmArguments = preferences.read(PREF_KEY_CONNECTION_JVM_ARGUMENTS);
+        String arguments = preferences.read(PREF_KEY_CONNECTION_ARGUMENTS);
         return ProjectConfigurationProperties.from(projectPath, projectDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments).toProjectConfiguration(project);
-    }
-
-    private static IEclipsePreferences getEclipsePreferences(IProject project) {
-        ProjectScope scope = new ProjectScope(project);
-        IEclipsePreferences preferences = scope.getNode(PREF_NODE);
-        return preferences;
-    }
-
-    private static String readPreference(IEclipsePreferences preferences, String key) {
-        String value = preferences.get(key, null);
-        if ("null".equals(value)) {
-            return null;
-        } else if (value != null) {
-            return value;
-        } else {
-            throw new GradlePluginsRuntimeException(String.format("No value is found for key %s in project-scoped preference node %s", key, PREF_NODE));
-        }
     }
 
     private static ProjectConfiguration loadFromPropertiesFile(IProject project) throws IOException {
@@ -92,45 +73,12 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
         // Eclipse resource API; in that case we fall back to raw IO operations
         // a similar approach is used in JDT core to load the .classpath file
         // see org.eclipse.jdt.internal.core.JavaProject.readFileEntriesWithException(Map)
-        InputStreamReader reader = null;
-        try {
-            File propertiesFile = getProjectPrefsFile(project, PREF_NODE);
-            reader = new InputStreamReader(new FileInputStream(propertiesFile), Charsets.UTF_8);
-            Properties properties = new Properties();
-            properties.load(reader);
-            String projectPath = readProperty(properties, PREF_KEY_PROJECT_PATH);
-            String projectDir = readProperty(properties, PREF_KEY_CONNECTION_PROJECT_DIR);
-            String gradleUserHome = readProperty(properties, PREF_KEY_CONNECTION_GRADLE_USER_HOME);
-            String gradleDistribution = readProperty(properties, PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
-            String javaHome = readProperty(properties, PREF_KEY_CONNECTION_JAVA_HOME);
-            String jvmArguments = readProperty(properties, PREF_KEY_CONNECTION_JVM_ARGUMENTS);
-            String arguments = readProperty(properties, PREF_KEY_CONNECTION_ARGUMENTS);
-            return ProjectConfigurationProperties.from(projectPath, projectDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments)
-                    .toProjectConfiguration(project);
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (IOException e) {
-                // ignore
-            }
-        }
+        PreferenceStore preferences = PreferenceStore.forPreferenceFile(getProjectPrefsFile(project, PREF_NODE));
+        return readProjectConfiguration(project, preferences);
     }
 
     private static File getProjectPrefsFile(IProject project, String node) {
         return new File(project.getLocation().toFile(), ".settings/" + node + ".prefs");
-    }
-
-    private static String readProperty(Properties properties, String key) {
-        String value = properties.getProperty(key, null);
-        if ("null".equals(value)) {
-            return null;
-        } else if (value != null) {
-            return value;
-        } else {
-            throw new GradlePluginsRuntimeException(String.format("No value is found for key %s in properties", key));
-        }
     }
 
     @Override
@@ -141,23 +89,18 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
 
         ProjectConfigurationProperties properties = ProjectConfigurationProperties.from(project, projectConfiguration);
         try {
-            IEclipsePreferences preferences = getEclipsePreferences(project);
-            writePreference(preferences, PREF_KEY_PROJECT_PATH, properties.getProjectPath());
-            writePreference(preferences, PREF_KEY_CONNECTION_PROJECT_DIR, properties.getProjectDir());
-            writePreference(preferences, PREF_KEY_CONNECTION_GRADLE_USER_HOME, properties.getGradleUserHome());
-            writePreference(preferences, PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, properties.getGradleDistribution());
-            writePreference(preferences, PREF_KEY_CONNECTION_JAVA_HOME, properties.getJavaHome());
-            writePreference(preferences, PREF_KEY_CONNECTION_JVM_ARGUMENTS, properties.getJvmArguments());
-            writePreference(preferences, PREF_KEY_CONNECTION_ARGUMENTS, properties.getArguments());
+            PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
+            preferences.write(PREF_KEY_PROJECT_PATH, properties.getProjectPath());
+            preferences.write(PREF_KEY_CONNECTION_PROJECT_DIR, properties.getProjectDir());
+            preferences.write(PREF_KEY_CONNECTION_GRADLE_USER_HOME, properties.getGradleUserHome());
+            preferences.write(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, properties.getGradleDistribution());
+            preferences.write(PREF_KEY_CONNECTION_JAVA_HOME, properties.getJavaHome());
+            preferences.write(PREF_KEY_CONNECTION_JVM_ARGUMENTS, properties.getJvmArguments());
+            preferences.write(PREF_KEY_CONNECTION_ARGUMENTS, properties.getArguments());
             preferences.flush();
         } catch (Exception e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot store project-scope preferences %s in project %s", project.getName()), e);
         }
-    }
-
-    private static void writePreference(IEclipsePreferences preferences, String key, String value) {
-        String rawValue = value == null ? "null" : value;
-        preferences.put(key, rawValue);
     }
 
     @Override
@@ -166,14 +109,14 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
         Preconditions.checkArgument(project.isAccessible());
 
         try {
-            IEclipsePreferences preferences = getEclipsePreferences(project);
-            preferences.remove(PREF_KEY_PROJECT_PATH);
-            preferences.remove(PREF_KEY_CONNECTION_PROJECT_DIR);
-            preferences.remove(PREF_KEY_CONNECTION_GRADLE_USER_HOME);
-            preferences.remove(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
-            preferences.remove(PREF_KEY_CONNECTION_JAVA_HOME);
-            preferences.remove(PREF_KEY_CONNECTION_JVM_ARGUMENTS);
-            preferences.remove(PREF_KEY_CONNECTION_ARGUMENTS);
+            PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
+            preferences.delete(PREF_KEY_PROJECT_PATH);
+            preferences.delete(PREF_KEY_CONNECTION_PROJECT_DIR);
+            preferences.delete(PREF_KEY_CONNECTION_GRADLE_USER_HOME);
+            preferences.delete(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
+            preferences.delete(PREF_KEY_CONNECTION_JAVA_HOME);
+            preferences.delete(PREF_KEY_CONNECTION_JVM_ARGUMENTS);
+            preferences.delete(PREF_KEY_CONNECTION_ARGUMENTS);
             preferences.flush();
         } catch (Exception e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot delete project-scope preferences in project %s", project.getName()), e);
