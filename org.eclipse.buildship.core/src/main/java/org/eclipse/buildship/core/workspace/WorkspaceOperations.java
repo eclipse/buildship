@@ -180,22 +180,25 @@ public interface WorkspaceOperations {
 
     /**
      * Marks the given resource as a derived resource.
+     *
      * @param resource the resource to mark
      * @param monitor the monitor to report the progress on
      */
     void markAsDerived(IResource resource, IProgressMonitor monitor);
 
     /**
-     * Marks the given folder as a Gradle build folder.
+     * Marks the given folder as a build folder.
+     *
      * @param folder the folder to mark
-     * @param monitor the monitor to report the progress on
      */
     void markAsBuildFolder(IFolder folder);
 
     /**
-     * Returns whether the given folder is the build folder of it's corresponding project.
+     * Returns whether the given folder is a build folder.
+     *
      * @param folder the folder to check
-     * @return true if this folder is the build folder
+     * @return true if this folder is a build folder
      */
     boolean isBuildFolder(IFolder folder);
+
 }
