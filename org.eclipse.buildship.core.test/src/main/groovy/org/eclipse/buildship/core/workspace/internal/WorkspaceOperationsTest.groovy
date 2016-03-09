@@ -19,6 +19,7 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.ProjectConfiguration
+import org.eclipse.buildship.core.test.fixtures.EclipseProjects;
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
@@ -462,7 +463,54 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
         thrown NullPointerException
     }
 
+    def "Can rename a project"() {
+        setup:
+        IProject sampleProject = createSampleProject()
+
+        expect:
+        CorePlugin.workspaceOperations().allProjects.size() == 1
+        CorePlugin.workspaceOperations().findProjectByName('sample-project').isPresent()
+
+        when:
+        workspaceOperations.renameProject(sampleProject, 'new-name', new NullProgressMonitor())
+
+        then:
+        CorePlugin.workspaceOperations().allProjects.size() == 1
+        CorePlugin.workspaceOperations().findProjectByName('new-name').isPresent()
+    }
+
+    def "Renaming fails with RuntimeException if project is in the default location"() {
+        setup:
+        IProject sampleProject = createSampleProjectInWorkspace()
+
+        expect:
+        CorePlugin.workspaceOperations().allProjects.size() == 1
+        CorePlugin.workspaceOperations().findProjectByName('sample-project').isPresent()
+
+        when:
+        workspaceOperations.renameProject(sampleProject, 'new-name', new NullProgressMonitor())
+
+        then:
+        thrown(GradlePluginsRuntimeException)
+    }
+
+    def "Renaming fails with RuntimeException if target name is already taken" () {
+        setup:
+        IProject projectA = newProject('project-a')
+        IProject projectB = newProject('project-b')
+
+        when:
+        workspaceOperations.renameProject(projectA, 'project-b', new NullProgressMonitor())
+
+        then:
+        thrown(GradlePluginsRuntimeException)
+    }
+
     private IProject createSampleProject() {
         newProject("sample-project")
+    }
+
+    private IProject createSampleProjectInWorkspace() {
+        EclipseProjects.newProject("sample-project")
     }
 }

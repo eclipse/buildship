@@ -17,7 +17,11 @@ import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure
 import com.gradleware.tooling.toolingmodel.util.Pair
 
-import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;;
+import org.eclipse.core.resources.IProject
+import org.eclipse.jdt.core.IJavaProject
+import org.eclipse.jdt.core.JavaCore
+
+import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 
 class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification {
 
@@ -93,6 +97,39 @@ class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification
         allProjects().size() == 2
         findProject('app')
         findProject('custom-sub')
+    }
+
+    def "Dependencies on projects with custom names are resolved correctly"() {
+        setup:
+        def root = dir('root') {
+            file 'settings.gradle', "include 'a', 'b'"
+            a {
+                file 'build.gradle', '''
+                    apply plugin: 'java'
+                    dependencies {
+                        compile project(':b')
+                    }
+                '''
+            }
+            b {
+                file 'build.gradle', '''
+                    apply plugin: 'java'
+                    apply plugin: 'eclipse'
+                    eclipse.project.name = "c"
+                '''
+            }
+        }
+
+
+        when:
+        importAndWait(root)
+
+        then:
+        IProject sub = findProject("a")
+        IJavaProject javaProject = JavaCore.create(sub)
+        javaProject.getResolvedClasspath(true).find {
+            it.path.toString() == "/c"
+        }
     }
 
     def "Custom project naming is not honored in the preview"() {

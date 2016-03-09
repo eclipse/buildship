@@ -45,6 +45,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
 import org.eclipse.buildship.core.util.predicate.Predicates;
 import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler;
@@ -135,8 +136,10 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     }
 
     private void synchronizeOpenWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, IProject workspaceProject, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask(String.format("Synchronize Gradle project %s that is open in the workspace", project.getName()), 11);
+        monitor.beginTask(String.format("Synchronize Gradle project %s that is open in the workspace", project.getName()), 12);
         try {
+            workspaceProject = updateName(workspaceProject, project, gradleBuild, new SubProgressMonitor(monitor, 1));
+
             // sync the Eclipse project with the file system first
             CorePlugin.workspaceOperations().refreshProject(workspaceProject, new SubProgressMonitor(monitor, 1));
 
@@ -184,6 +187,43 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         }
     }
 
+    private IProject updateName(IProject workspaceProject, OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
+        String newName = calculateName(project);
+        if (newName.equals(workspaceProject.getName())) {
+            monitor.worked(1);
+            return workspaceProject;
+        } else {
+            ensureNameIsFree(newName, gradleBuild, monitor);
+            return CorePlugin.workspaceOperations().renameProject(workspaceProject, newName, monitor);
+        }
+    }
+
+    private void ensureNameIsFree(String newName, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
+        Optional<IProject> possibleDuplicate = CorePlugin.workspaceOperations().findProjectByName(newName);
+        if (possibleDuplicate.isPresent()) {
+            IProject duplicate = possibleDuplicate.get();
+            if (isScheduledForRenaming(duplicate, gradleBuild)) {
+                renameTemporarily(duplicate, monitor);
+            } else {
+                throw new GradlePluginsRuntimeException("A project with the name " + newName + " already exists");
+            }
+        }
+    }
+
+    private boolean isScheduledForRenaming(IProject duplicate, OmniEclipseGradleBuild gradleBuild) {
+        Optional<OmniEclipseProject> possibleDuplicate = gradleBuild.getRootEclipseProject().tryFind(Specs.eclipseProjectMatchesProjectDir(duplicate.getLocation().toFile()));
+        if (!possibleDuplicate.isPresent()) {
+            return false;
+        }
+        OmniEclipseProject duplicateEclipseProject = possibleDuplicate.get();
+        String newName = calculateName(duplicateEclipseProject);
+        return !newName.equals(duplicate.getName());
+    }
+
+    private void renameTemporarily(IProject duplicate, IProgressMonitor monitor) {
+        CorePlugin.workspaceOperations().renameProject(duplicate, duplicate.getName() + "-" + duplicate.getName().hashCode(), monitor);
+    }
+
     private void synchronizeClosedWorkspaceProject() {
         // do not modify closed projects
     }
@@ -215,8 +255,9 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     }
 
     private IProject addExistingEclipseProjectToWorkspace(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, IProjectDescription projectDescription, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask(String.format("Add existing Eclipse project %s for Gradle project %s to the workspace", projectDescription.getName(), project.getName()), 2);
+        monitor.beginTask(String.format("Add existing Eclipse project %s for Gradle project %s to the workspace", projectDescription.getName(), project.getName()), 3);
         try {
+            ensureNameIsFree(calculateName(project), gradleBuild, new SubProgressMonitor(monitor, 1));
             IProject workspaceProject = CorePlugin.workspaceOperations().includeProject(projectDescription, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 1));
             synchronizeOpenWorkspaceProject(project, gradleBuild, workspaceProject, rootRequestAttributes, new SubProgressMonitor(monitor, 1));
             return workspaceProject;
@@ -226,14 +267,19 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     }
 
     private IProject addNewEclipseProjectToWorkspace(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask(String.format("Add new Eclipse project for Gradle project %s to the workspace", project.getName()), 2);
+        monitor.beginTask(String.format("Add new Eclipse project for Gradle project %s to the workspace", project.getName()), 3);
         try {
+            ensureNameIsFree(calculateName(project), gradleBuild, new SubProgressMonitor(monitor, 1));
             IProject workspaceProject = CorePlugin.workspaceOperations().createProject(project.getName(), project.getProjectDirectory(), ImmutableList.<String>of(), new SubProgressMonitor(monitor, 1));
             synchronizeOpenWorkspaceProject(project, gradleBuild, workspaceProject, rootRequestAttributes, new SubProgressMonitor(monitor, 1));
             return workspaceProject;
         } finally {
             monitor.done();
         }
+    }
+
+    private String calculateName(OmniEclipseProject project) {
+        return CorePlugin.workspaceOperations().calculateProjectName(project.getName(), project.getProjectDirectory());
     }
 
     private List<File> getChildProjectDirectories(OmniEclipseProject project) {

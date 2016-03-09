@@ -491,4 +491,39 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         }
     }
 
+    @Override
+    public IProject renameProject(IProject project, String newName, IProgressMonitor monitor) {
+        Preconditions.checkNotNull(project);
+        Preconditions.checkNotNull(newName);
+        Preconditions.checkArgument(project.isAccessible(), "Project must be open.");
+
+        if (project.getName().equals(newName)) {
+            return project;
+        }
+
+        IPath location = project.getLocation();
+        if (location != null && isDirectChildOfWorkspaceRootFolder(location.toFile())) {
+            throw new GradlePluginsRuntimeException(String.format("Project %s cannot be renamed, because it is in the default location.", project.getName()));
+        }
+
+        if (findProjectByName(newName).isPresent()) {
+            throw new GradlePluginsRuntimeException(String.format("Workspace already contains a project with name %s.", newName));
+        }
+
+        monitor = monitor != null ? monitor : new NullProgressMonitor();
+        monitor.beginTask(String.format("Rename project %s to %s", project.getName(), newName), 1);
+
+        try {
+            IProjectDescription description = project.getDescription();
+            description.setName(newName);
+            project.move(description, false, new SubProgressMonitor(monitor,1));
+        } catch (Exception e) {
+            String message = String.format("Cannot rename project %s to %s", project.getName(), newName);
+            throw new GradlePluginsRuntimeException(message, e);
+        } finally {
+            monitor.done();
+        }
+        return ResourcesPlugin.getWorkspace().getRoot().getProject(newName);
+    }
+
 }

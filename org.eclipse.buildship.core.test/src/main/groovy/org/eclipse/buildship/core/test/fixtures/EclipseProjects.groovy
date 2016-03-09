@@ -34,7 +34,7 @@ abstract class EclipseProjects {
     static IProject newProject(String name, File location) {
         def workspace = LegacyEclipseSpockTestHelper.workspace
         IProjectDescription projectDescription = workspace.newProjectDescription(name)
-        projectDescription.setLocation(new Path(location.absolutePath))
+        projectDescription.setLocation(location == null ? null : new Path(location.absolutePath))
         IProject project = workspace.getRoot().getProject(name)
         project.create(projectDescription, null)
         project.open(null)

@@ -203,4 +203,20 @@ public interface WorkspaceOperations {
      */
     String normalizeProjectName(String desiredName, File location);
 
+    /**
+     * Renames the project. Has no effect if the project already has the given name. Projects
+     * in the default location (directly contained in the workspace root) cannot be renamed.
+     * Renaming will also fail if there already is a project with the given name.
+     *
+     * Important note: The passed in project instance is no longer valid after this operation.
+     * Use the returned project instance to work with the renamed project.
+     *
+     * @param project the target project
+     * @param newName the name to rename the project to
+     * @param monitor the monitor to report progress on
+     * @return the renamed project
+     * @throws org.eclipse.buildship.core.GradlePluginsRuntimeException if the project cannot be renamed
+     */
+    IProject renameProject(IProject project, String newName, IProgressMonitor monitor);
+
 }
