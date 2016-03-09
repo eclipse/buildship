@@ -55,7 +55,7 @@ final class ClasspathContainerPersistence {
         content.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         content.append("<classpath>\n");
         for (IClasspathEntry entry : entries) {
-            content.append(this.javaProject.encodeClasspathEntry(entry)).append("\n");
+            content.append(this.javaProject.encodeClasspathEntry(entry));
         }
         content.append("</classpath>\n");
         File stateLocation = getStateLocation();
