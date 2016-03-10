@@ -182,7 +182,6 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
 
         @Override
         public void afterImport(IProject project, OmniEclipseProject projectModel) {
-            // TODO Auto-generated method stub
         }
 
         private void askUser() {
