@@ -438,30 +438,6 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
         workspaceOperations.isBuildFolder(build)
     }
 
-    def "Projects in the workspace root get their default name"() {
-        expect:
-        workspaceOperations.getActualProjectName("foo", workspaceDir("bar")) == "bar"
-    }
-
-    def "Projects in an external location can have custom names"() {
-        expect:
-        workspaceOperations.getActualProjectName("foo", dir("bar")) == "foo"
-    }
-
-    def "A project name cannot be calculated with null arguments"() {
-        when:
-        workspaceOperations.getActualProjectName("foo", null)
-
-        then:
-        thrown NullPointerException
-
-        when:
-        workspaceOperations.getActualProjectName(null, dir("bar"))
-
-        then:
-        thrown NullPointerException
-    }
-
     private IProject createSampleProject() {
         newProject("sample-project")
     }

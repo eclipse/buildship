@@ -12,31 +12,23 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.util.List;
-
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
-
+import org.eclipse.buildship.core.gradle.Specs;
+import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IClasspathContainer;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.gradle.Specs;
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
+import java.util.List;
 
 /**
  * Updates the classpath container of the target project.
@@ -77,8 +69,7 @@ final class ClasspathContainerUpdater {
                     public IClasspathEntry apply(OmniEclipseProjectDependency dependency) {
                         OmniEclipseProject dependentProject = ClasspathContainerUpdater.this.gradleProject.getRoot()
                                 .tryFind(Specs.eclipseProjectMatchesProjectDir(dependency.getTargetProjectDir())).get();
-                        String actualName = CorePlugin.workspaceOperations().getActualProjectName(dependentProject.getName(), dependentProject.getProjectDirectory());
-                        Path path = new Path("/" + actualName);
+                        IPath path = new Path("/" + dependentProject.getName());
                         return JavaCore.newProjectEntry(path, dependency.isExported());
                     }
                 }).toList();

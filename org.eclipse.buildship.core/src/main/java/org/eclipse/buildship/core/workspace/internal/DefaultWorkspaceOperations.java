@@ -139,7 +139,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             Preconditions.checkState(!findProjectByName(name).isPresent(), String.format("Workspace already contains a project with name %s.", name));
 
             // calculate the name and the project location
-            String projectName = getActualProjectName(name, location);
+            String projectName = resolveProjectName(name, location);
             IPath projectLocation = resolveProjectLocation(location);
 
             // get an IProject instance and create the project
@@ -304,11 +304,12 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         }
     }
 
-    @Override
-    public String getActualProjectName(String desiredName, File location) {
-        Preconditions.checkNotNull(desiredName);
-        Preconditions.checkNotNull(location);
-        return isDirectChildOfWorkspaceRootFolder(location) ? location.getName() : desiredName;
+    private String resolveProjectName(String nameInGradleModel, File location) {
+        // if an Eclipse project is imported from the workspace folder it has to have the same name
+        // as the folder name (even when the project is renamed the underlying folder is also renamed)
+        // consequently, for this use case, we have to ignore the name provided by the Gradle model
+        // and instead use the folder name
+        return isDirectChildOfWorkspaceRootFolder(location) ? location.getName() : nameInGradleModel;
     }
 
     private IPath resolveProjectLocation(File location) {
