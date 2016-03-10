@@ -101,8 +101,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         }).toList();
     }
 
-    @Override
-    public void synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, NewProjectHandler newProjectHandler, IProgressMonitor monitor) {
+    private void synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, NewProjectHandler newProjectHandler, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Synchronize Gradle project %s with workspace project", project.getName()), 1);
         try {
             // check if a project already exists in the workspace at the location of the Gradle project to import
@@ -351,8 +350,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         }
     }
 
-    @Override
-    public void uncoupleWorkspaceProjectFromGradle(IProject workspaceProject, IProgressMonitor monitor) {
+    private void uncoupleWorkspaceProjectFromGradle(IProject workspaceProject, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Uncouple workspace project %s from Gradle", workspaceProject.getName()), 2);
         try {
             ResourceFilter.detachAllFilters(workspaceProject, new SubProgressMonitor(monitor, 1));

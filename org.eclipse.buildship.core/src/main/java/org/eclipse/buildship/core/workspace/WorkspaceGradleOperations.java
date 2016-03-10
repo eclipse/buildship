@@ -11,13 +11,9 @@
 
 package org.eclipse.buildship.core.workspace;
 
-import java.util.List;
-
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
@@ -31,28 +27,14 @@ public interface WorkspaceGradleOperations {
      * <p/>
      * <ol>
      * <li>Uncouple all open workspace projects for which there is no corresponding Gradle project in the Gradle build anymore
-     * <ul>
-     * <li>As outlined in {@link #uncoupleWorkspaceProjectFromGradle(IProject, IProgressMonitor)}</li>
-     * </ul>
+     * <ol>
+     * <li>the Gradle resource filter is removed</li>
+     * <li>the Gradle nature is removed</li>
+     * <li>the Gradle settings file is removed</li>
+     * </ol>
      * </li>
      * <li>Synchronize all Gradle projects of the Gradle build with the Eclipse workspace project counterparts:
      * <ul>
-     * <li>As outlined in {@link #synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject, OmniEclipseGradleBuild, FixedRequestAttributes, List, NewProjectHandler, IProgressMonitor)}</li>
-     * </ul>
-     * </li>
-     * </ol>
-     *
-     * @param gradleBuild               the Gradle build to synchronize
-     * @param rootRequestAttributes     the preferences used to query the Gradle build
-     * @param newProjectHandler whether to keep or delete existing .project files
-     * @param monitor                   the monitor to report the progress on
-     */
-    void synchronizeGradleBuildWithWorkspace(OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, NewProjectHandler newProjectHandler, IProgressMonitor monitor);
-
-    /**
-     * Synchronizes the given Gradle project with its Eclipse workspace project counterpart. The algorithm is as follows:
-     * <p/>
-     * <ol>
      * <li>
      * If there is a project in the workspace at the location of the Gradle project, the synchronization is as follows:
      * <ol>
@@ -86,28 +68,14 @@ public interface WorkspaceGradleOperations {
      * then the {@link NewProjectHandler} decides whether to import it.
      * The imported project is then synchronized as specified above.
      * </li>
+     * </ul>
+     * </li>
      * </ol>
      *
-     * @param project                   the backing Gradle project
-     * @param gradleBuild               the Gradle build to which the Gradle project belongs
+     * @param gradleBuild               the Gradle build to synchronize
      * @param rootRequestAttributes     the preferences used to query the Gradle build
-     * @param newProjectHandler         what to do with projects that were not yet in the workspace
+     * @param newProjectHandler whether to keep or delete existing .project files
      * @param monitor                   the monitor to report the progress on
      */
-    void synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, NewProjectHandler newProjectHandler, IProgressMonitor monitor);
-
-    /**
-     * Uncouples the given Eclipse workspace project from Gradle. The algorithm is as follows:
-     *
-     * <ol>
-     * <li>the Gradle resource filter is removed</li>
-     * <li>the Gradle nature is removed</li>
-     * <li>the Gradle settings file is removed</li>
-     * </ol>
-     *
-     * @param workspaceProject        the project from which to remove all Gradle specific parts
-     * @param monitor                 the monitor to report the progress on
-     */
-    void uncoupleWorkspaceProjectFromGradle(IProject workspaceProject, IProgressMonitor monitor);
-
+    void synchronizeGradleBuildWithWorkspace(OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, NewProjectHandler newProjectHandler, IProgressMonitor monitor);
 }
