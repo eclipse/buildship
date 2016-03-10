@@ -139,7 +139,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             Preconditions.checkState(!findProjectByName(name).isPresent(), String.format("Workspace already contains a project with name %s.", name));
 
             // calculate the name and the project location
-            String projectName = calculateProjectName(name, location);
+            String projectName = getActualProjectName(name, location);
             IPath projectLocation = resolveProjectLocation(location);
 
             // get an IProject instance and create the project
@@ -305,7 +305,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
-    public String calculateProjectName(String desiredName, File location) {
+    public String getActualProjectName(String desiredName, File location) {
         Preconditions.checkNotNull(desiredName);
         Preconditions.checkNotNull(location);
         return isDirectChildOfWorkspaceRootFolder(location) ? location.getName() : desiredName;

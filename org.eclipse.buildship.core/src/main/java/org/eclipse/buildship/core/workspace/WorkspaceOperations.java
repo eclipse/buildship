@@ -201,6 +201,6 @@ public interface WorkspaceOperations {
      * @param location the location of the project
      * @return the name the project should have
      */
-    String calculateProjectName(String desiredName, File location);
+    String getActualProjectName(String desiredName, File location);
 
 }
