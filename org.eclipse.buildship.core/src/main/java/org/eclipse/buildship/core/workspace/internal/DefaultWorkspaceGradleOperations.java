@@ -111,6 +111,8 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             } else {
                 if (newProjectHandler.shouldImport(project)) {
                     synchronizeNonWorkspaceProject(project, gradleBuild, rootRequestAttributes, newProjectHandler, new SubProgressMonitor(monitor, 1));
+                } else {
+                    monitor.worked(1);
                 }
             }
         } catch (CoreException e) {
