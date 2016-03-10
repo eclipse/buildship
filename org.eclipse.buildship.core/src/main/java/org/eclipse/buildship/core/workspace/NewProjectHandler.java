@@ -17,8 +17,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 
 /**
- * This handler decides whether existing .project files should be overwritten when importing a
- * Gradle project.
+ * Decides what to do when new projects are discovered during a Gradle synchronize operation.
  */
 public interface NewProjectHandler {
 
