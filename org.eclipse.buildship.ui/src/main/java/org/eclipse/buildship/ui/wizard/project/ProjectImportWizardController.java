@@ -191,6 +191,11 @@ public class ProjectImportWizardController {
         return true;
     }
 
+    /**
+     * A delegating {@link NewProjectHandler} which adds workingsets to the imported projects.
+     *
+     * @author Stefan Oehme
+     */
     private static class WorkingSetsAdapter implements NewProjectHandler {
         private final NewProjectHandler delegate;
         private final ProjectImportConfiguration configuration;
@@ -212,6 +217,7 @@ public class ProjectImportWizardController {
 
         @Override
         public void afterImport(IProject project, OmniEclipseProject projectModel) {
+            this.delegate.afterImport(project, projectModel);
             List<String> workingSetNames = this.configuration.getApplyWorkingSets().getValue() ? ImmutableList.copyOf(this.configuration.getWorkingSets().getValue()) : ImmutableList.<String>of();
             IWorkingSetManager workingSetManager = PlatformUI.getWorkbench().getWorkingSetManager();
             IWorkingSet[] workingSets = WorkingSetUtils.toWorkingSets(workingSetNames);
