@@ -9,7 +9,9 @@ import org.eclipse.core.resources.IMarker
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IncrementalProjectBuilder
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
 
@@ -98,8 +100,7 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
 
         when:
         importAndWait(location, distribution)
-
-        rebuildWorkspaceAndIndividualProjects('moduleA', 'moduleB')
+        waitForBuild()
 
         then:
         !projectContainsErrorMarkers('moduleA', 'moduleB');
@@ -115,19 +116,8 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
         }
     }
 
-    private def rebuildWorkspaceAndIndividualProjects(String... projectNames) {
-        // rebuild all and then the projects like it is done for the BuilderTests in JDT
-        int previous = org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE
-        workspace.build(IncrementalProjectBuilder.FULL_BUILD, null)
-        org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = 1 // reduce the lot size
-        workspace.build(IncrementalProjectBuilder.CLEAN_BUILD, null)
-        workspace.build(IncrementalProjectBuilder.FULL_BUILD, null)
-        projectNames.each { projectName ->
-            def project = findProject(projectName)
-            project.build(IncrementalProjectBuilder.CLEAN_BUILD, null)
-            project.build(IncrementalProjectBuilder.FULL_BUILD, null)
-        }
-        org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = previous
+    private def waitForBuild() {
+        workspace.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null)
     }
 
     private File multiProjectWithSpringTransitiveDependency() {
