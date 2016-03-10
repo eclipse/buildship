@@ -103,17 +103,16 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
         waitForBuild()
 
         then:
-        !projectContainsErrorMarkers('moduleA', 'moduleB');
+        errorMarkers(findProject("moduleA")) == []
+        errorMarkers(findProject("moduleB")) == []
 
         where:
         distribution << [ GradleDistribution.forVersion('2.1'), GradleDistribution.forVersion('2.6') ]
     }
 
-    private def projectContainsErrorMarkers(String... projectNames) {
-        projectNames.find { projectName ->
-            IMarker[] markers = findProject(projectName).findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)
-            markers.length >= 0 && markers.find { it.getAttribute(IMarker.SEVERITY) == IMarker.SEVERITY_ERROR }
-        }
+    private List<String> errorMarkers(IProject project) {
+        IMarker[] markers = project.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)
+        markers.findAll { it.getAttribute(IMarker.SEVERITY) == IMarker.SEVERITY_ERROR }.collect { it.getAttribute(IMarker.MESSAGE) }
     }
 
     private def waitForBuild() {
