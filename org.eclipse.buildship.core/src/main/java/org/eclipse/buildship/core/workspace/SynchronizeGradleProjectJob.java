@@ -45,19 +45,19 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
 
     private final FixedRequestAttributes rootRequestAttributes;
     private final ImmutableList<String> workingSets;
-    private final ExistingDescriptorHandler existingDescriptorHandler;
+    private final NewProjectHandler newProjectHandler;
     private final AsyncHandler initializer;
 
     public SynchronizeGradleProjectJob(FixedRequestAttributes rootRequestAttributes, List<String> workingSets, AsyncHandler initializer) {
-        this(rootRequestAttributes, workingSets, ExistingDescriptorHandler.ALWAYS_KEEP, initializer);
+        this(rootRequestAttributes, workingSets, NewProjectHandler.IMPORT_AND_MERGE, initializer);
     }
 
-    public SynchronizeGradleProjectJob(FixedRequestAttributes rootRequestAttributes, List<String> workingSets, ExistingDescriptorHandler existingDescriptorHandler, AsyncHandler initializer) {
+    public SynchronizeGradleProjectJob(FixedRequestAttributes rootRequestAttributes, List<String> workingSets, NewProjectHandler newProjectHandler, AsyncHandler initializer) {
         super(String.format("Synchronize Gradle root project at %s with workspace", Preconditions.checkNotNull(rootRequestAttributes).getProjectDir().getAbsolutePath()), false);
 
         this.rootRequestAttributes = Preconditions.checkNotNull(rootRequestAttributes);
         this.workingSets = ImmutableList.copyOf(workingSets);
-        this.existingDescriptorHandler = Preconditions.checkNotNull(existingDescriptorHandler);
+        this.newProjectHandler = Preconditions.checkNotNull(newProjectHandler);
         this.initializer = Preconditions.checkNotNull(initializer);
 
         // explicitly show a dialog with the progress while the project synchronization is in process
@@ -79,7 +79,7 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
         manager.beginRule(workspaceRoot, monitor);
         try {
             OmniEclipseGradleBuild gradleBuild = forceReloadEclipseGradleBuild(this.rootRequestAttributes, new SubProgressMonitor(monitor, 40));
-            CorePlugin.workspaceGradleOperations().synchronizeGradleBuildWithWorkspace(gradleBuild, this.rootRequestAttributes, this.workingSets, this.existingDescriptorHandler, new SubProgressMonitor(monitor, 50));
+            CorePlugin.workspaceGradleOperations().synchronizeGradleBuildWithWorkspace(gradleBuild, this.rootRequestAttributes, this.workingSets, this.newProjectHandler, new SubProgressMonitor(monitor, 50));
         } finally {
             manager.endRule(workspaceRoot);
         }
@@ -120,7 +120,7 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
      *  <li> A synchronizes the same Gradle build as B </li>
      *  <li> A adds a superset of B's working sets </li>
      *  <li> A and B have the same {@link AsyncHandler} or B's {@link AsyncHandler} is a no-op </li>
-     *  <li> A and B have the same {@link ExistingDescriptorHandler} </li>
+     *  <li> A and B have the same {@link NewProjectHandler} </li>
      * </ul>
      */
     @Override
@@ -134,7 +134,7 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
     }
 
     private boolean isCoveredBy(SynchronizeGradleProjectJob other) {
-        return Objects.equal(this.existingDescriptorHandler, other.existingDescriptorHandler)
+        return Objects.equal(this.newProjectHandler, other.newProjectHandler)
             && (this.initializer == AsyncHandler.NO_OP || Objects.equal(this.initializer, other.initializer))
             && Objects.equal(this.rootRequestAttributes, other.rootRequestAttributes)
             && other.workingSets.containsAll(this.workingSets);

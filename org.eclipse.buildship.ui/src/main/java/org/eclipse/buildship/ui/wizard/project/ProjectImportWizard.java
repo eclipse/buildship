@@ -13,6 +13,7 @@ package org.eclipse.buildship.ui.wizard.project;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 import com.gradleware.tooling.toolingmodel.util.Pair;
 import org.eclipse.buildship.core.CorePlugin;
@@ -20,10 +21,12 @@ import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
 import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
-import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler;
+import org.eclipse.buildship.core.workspace.NewProjectHandler;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
+
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -160,16 +163,26 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
     /**
      * Asks the user whether he wants to keep .project files or overwrite them. Asks only once per multi-project build and remembers the decision.
      */
-    private final class UserDelegatedDescriptorHandler implements ExistingDescriptorHandler {
+    private final class UserDelegatedDescriptorHandler implements NewProjectHandler {
 
         private Boolean overwriteDescriptors;
 
         @Override
-        public boolean shouldOverwriteDescriptor(IProjectDescription project) {
+        public boolean shouldImport(OmniEclipseProject projectModel) {
+            return true;
+        }
+
+        @Override
+        public boolean shouldOverwriteDescriptor(IProjectDescription descriptor, OmniEclipseProject projectModel) {
             if (this.overwriteDescriptors == null) {
                 askUser();
             }
             return this.overwriteDescriptors;
+        }
+
+        @Override
+        public void afterImport(IProject project, OmniEclipseProject projectModel) {
+            // TODO Auto-generated method stub
         }
 
         private void askUser() {

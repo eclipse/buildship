@@ -16,13 +16,13 @@ import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
-import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler
+import org.eclipse.buildship.core.workspace.NewProjectHandler
 import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectJob
 import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectsJob
 
 abstract class ProjectSynchronizationSpecification extends WorkspaceSpecification {
-    protected def synchronizeAndWait(File location, ExistingDescriptorHandler existingDescriptorHandler = ExistingDescriptorHandler.ALWAYS_KEEP) {
-        def job = newSynchronizationJob(location, GradleDistribution.fromBuild(), existingDescriptorHandler)
+    protected def synchronizeAndWait(File location, NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
+        def job = newSynchronizationJob(location, GradleDistribution.fromBuild(), newProjectHandler)
         job.schedule()
         job.join()
     }
@@ -34,14 +34,14 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
     }
 
     protected def importAndWait(File location, GradleDistribution distribution = GradleDistribution.fromBuild()) {
-        def job = newSynchronizationJob(location, distribution, ExistingDescriptorHandler.ALWAYS_KEEP)
+        def job = newSynchronizationJob(location, distribution, NewProjectHandler.IMPORT_AND_MERGE)
         job.schedule()
         job.join()
     }
 
-    protected SynchronizeGradleProjectJob newSynchronizationJob(File location, GradleDistribution distribution = GradleDistribution.fromBuild(), ExistingDescriptorHandler existingDescriptorHandler = ExistingDescriptorHandler.ALWAYS_KEEP) {
+    protected SynchronizeGradleProjectJob newSynchronizationJob(File location, GradleDistribution distribution = GradleDistribution.fromBuild(), NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
         def attributes = new FixedRequestAttributes(location, null, distribution, null, [], [])
-        new SynchronizeGradleProjectJob(attributes, [], existingDescriptorHandler, AsyncHandler.NO_OP)
+        new SynchronizeGradleProjectJob(attributes, [], newProjectHandler, AsyncHandler.NO_OP)
     }
 
     protected def previewAndWait(File location, FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler) {

@@ -25,7 +25,7 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.util.predicate.Predicates;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
-import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler;
+import org.eclipse.buildship.core.workspace.NewProjectHandler;
 import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectJob;
 
 /**
@@ -69,7 +69,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
     private void updateFromGradleProject(IJavaProject project) {
         ProjectConfiguration config = CorePlugin.projectConfigurationManager().readProjectConfiguration(project.getProject());
-        new SynchronizeGradleProjectJob(config.getRequestAttributes(), Lists.<String>newArrayList(), ExistingDescriptorHandler.ALWAYS_KEEP, AsyncHandler.NO_OP).schedule();
+        new SynchronizeGradleProjectJob(config.getRequestAttributes(), Lists.<String>newArrayList(), NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP).schedule();
     }
 
 }

@@ -66,7 +66,7 @@ public final class SynchronizeGradleProjectsJob extends Job {
         try {
             final CountDownLatch latch = new CountDownLatch(rootRequestAttributes.size());
             for (FixedRequestAttributes requestAttributes : rootRequestAttributes) {
-                Job synchronizeJob = new SynchronizeGradleProjectJob(requestAttributes, ImmutableList.<String>of(), ExistingDescriptorHandler.ALWAYS_KEEP, AsyncHandler.NO_OP);
+                Job synchronizeJob = new SynchronizeGradleProjectJob(requestAttributes, ImmutableList.<String>of(), NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP);
                 synchronizeJob.addJobChangeListener(new JobChangeAdapter() {
 
                     @SuppressWarnings("ThrowableResultOfMethodCallIgnored")

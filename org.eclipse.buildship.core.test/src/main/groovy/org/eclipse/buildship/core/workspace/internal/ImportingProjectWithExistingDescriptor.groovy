@@ -7,7 +7,7 @@ import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationPer
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
-import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler
+import org.eclipse.buildship.core.workspace.NewProjectHandler
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResourceFilterDescription
@@ -51,7 +51,7 @@ class ImportingProjectWithExistingDescriptor extends SingleProjectSynchronizatio
         }
 
         when:
-        synchronizeAndWait(projectDir, ExistingDescriptorHandler.ALWAYS_OVERWRITE)
+        synchronizeAndWait(projectDir, NewProjectHandler.IMPORT_AND_OVERWRITE)
 
         then:
         !project.hasNature(JavaCore.NATURE_ID)
@@ -87,13 +87,13 @@ class ImportingProjectWithExistingDescriptor extends SingleProjectSynchronizatio
         def projectDir = dir('sample-project') {
             file 'settings.gradle', "include 'subproject-a', 'subproject-b'"
         }
-        ExistingDescriptorHandler handler = Mock(ExistingDescriptorHandler)
+        NewProjectHandler handler = Mock(NewProjectHandler)
 
         when:
         synchronizeAndWait(projectDir, handler)
 
         then:
-        2 * handler.shouldOverwriteDescriptor(_)
+        2 * handler.shouldOverwriteDescriptor(*_)
     }
 
     @Override

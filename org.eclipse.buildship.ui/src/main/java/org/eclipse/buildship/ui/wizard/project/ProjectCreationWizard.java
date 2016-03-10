@@ -22,7 +22,7 @@ import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
-import org.eclipse.buildship.core.workspace.ExistingDescriptorHandler;
+import org.eclipse.buildship.core.workspace.NewProjectHandler;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
@@ -175,7 +175,7 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
 
     @Override
     public boolean performFinish() {
-        return this.importController.performImportProject(new NewGradleProjectInitializer(this.importController.getConfiguration()), ExistingDescriptorHandler.ALWAYS_KEEP);
+        return this.importController.performImportProject(new NewGradleProjectInitializer(this.importController.getConfiguration()), NewProjectHandler.IMPORT_AND_MERGE);
     }
 
     @Override
