@@ -111,7 +111,9 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             if (workspaceProject.isPresent()) {
                 synchronizeWorkspaceProject(project, gradleBuild, workspaceProject.get(), rootRequestAttributes, new SubProgressMonitor(monitor, 1));
             } else {
-                synchronizeNonWorkspaceProject(project, gradleBuild, rootRequestAttributes, workingSets, newProjectHandler, new SubProgressMonitor(monitor, 1));
+                if (newProjectHandler.shouldImport(project)) {
+                    synchronizeNonWorkspaceProject(project, gradleBuild, rootRequestAttributes, workingSets, newProjectHandler, new SubProgressMonitor(monitor, 1));
+                }
             }
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot synchronize Gradle project %s with workspace project.", project.getName()), e);

@@ -134,9 +134,9 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
     }
 
     private boolean isCoveredBy(SynchronizeGradleProjectJob other) {
-        return Objects.equal(this.newProjectHandler, other.newProjectHandler)
+        return Objects.equal(this.rootRequestAttributes, other.rootRequestAttributes)
+            && (this.newProjectHandler == NewProjectHandler.NO_OP || Objects.equal(this.newProjectHandler, other.newProjectHandler))
             && (this.initializer == AsyncHandler.NO_OP || Objects.equal(this.initializer, other.initializer))
-            && Objects.equal(this.rootRequestAttributes, other.rootRequestAttributes)
             && other.workingSets.containsAll(this.workingSets);
     }
 

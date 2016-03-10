@@ -80,11 +80,12 @@ public interface WorkspaceGradleOperations {
      * </li>
      * <li>
      * If there is an Eclipse project at the location of the Gradle project, i.e. there is a .project file in that folder, then
-     * the {@link NewProjectHandler} decides whether to keep or overwrite that existing .project file. The project is imported
-     * into the workspace and then synchronized as specified above.
+     * the {@link NewProjectHandler} decides whether to import it and whether to keep or overwrite that existing .project file.
+     * The imported project is then synchronized as specified above.
      * </li>
-     * <li>If the there is no project in the workspace, nor an Eclipse project at the location of the Gradle build, the project is imported
-     * into the workspace and then synchronized as specified above.
+     * <li>If the there is no project in the workspace, nor an Eclipse project at the location of the Gradle build,
+     * then the {@link NewProjectHandler} decides whether to import it.
+     * The imported project is then synchronized as specified above.
      * </li>
      * </ol>
      *
@@ -92,7 +93,7 @@ public interface WorkspaceGradleOperations {
      * @param gradleBuild               the Gradle build to which the Gradle project belongs
      * @param rootRequestAttributes     the preferences used to query the Gradle build
      * @param workingSets               the working set to assign the imported projects to
-     * @param newProjectHandler whether to delete or keep existing .project files
+     * @param newProjectHandler         what to do with projects that were not yet in the workspace
      * @param monitor                   the monitor to report the progress on
      */
     void synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, NewProjectHandler newProjectHandler, IProgressMonitor monitor);

@@ -93,6 +93,7 @@ class ImportingProjectWithExistingDescriptor extends SingleProjectSynchronizatio
         synchronizeAndWait(projectDir, handler)
 
         then:
+        3 * handler.shouldImport(_) >> true
         2 * handler.shouldOverwriteDescriptor(*_)
     }
 
