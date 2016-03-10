@@ -41,7 +41,7 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
 
     protected SynchronizeGradleProjectJob newSynchronizationJob(File location, GradleDistribution distribution = GradleDistribution.fromBuild(), NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
         def attributes = new FixedRequestAttributes(location, null, distribution, null, [], [])
-        new SynchronizeGradleProjectJob(attributes, [], newProjectHandler, AsyncHandler.NO_OP)
+        new SynchronizeGradleProjectJob(attributes, newProjectHandler, AsyncHandler.NO_OP)
     }
 
     protected def previewAndWait(File location, FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler) {

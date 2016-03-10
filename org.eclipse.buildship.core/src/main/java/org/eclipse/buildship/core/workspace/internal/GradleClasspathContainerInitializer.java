@@ -11,8 +11,6 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import com.google.common.collect.Lists;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
@@ -69,7 +67,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
     private void updateFromGradleProject(IJavaProject project) {
         ProjectConfiguration config = CorePlugin.projectConfigurationManager().readProjectConfiguration(project.getProject());
-        new SynchronizeGradleProjectJob(config.getRequestAttributes(), Lists.<String>newArrayList(), NewProjectHandler.NO_OP, AsyncHandler.NO_OP).schedule();
+        new SynchronizeGradleProjectJob(config.getRequestAttributes(), NewProjectHandler.NO_OP, AsyncHandler.NO_OP).schedule();
     }
 
 }

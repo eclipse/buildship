@@ -44,11 +44,10 @@ public interface WorkspaceGradleOperations {
      *
      * @param gradleBuild               the Gradle build to synchronize
      * @param rootRequestAttributes     the preferences used to query the Gradle build
-     * @param workingSets               the working set to assign the imported projects to
      * @param newProjectHandler whether to keep or delete existing .project files
      * @param monitor                   the monitor to report the progress on
      */
-    void synchronizeGradleBuildWithWorkspace(OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, NewProjectHandler newProjectHandler, IProgressMonitor monitor);
+    void synchronizeGradleBuildWithWorkspace(OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, NewProjectHandler newProjectHandler, IProgressMonitor monitor);
 
     /**
      * Synchronizes the given Gradle project with its Eclipse workspace project counterpart. The algorithm is as follows:
@@ -92,11 +91,10 @@ public interface WorkspaceGradleOperations {
      * @param project                   the backing Gradle project
      * @param gradleBuild               the Gradle build to which the Gradle project belongs
      * @param rootRequestAttributes     the preferences used to query the Gradle build
-     * @param workingSets               the working set to assign the imported projects to
      * @param newProjectHandler         what to do with projects that were not yet in the workspace
      * @param monitor                   the monitor to report the progress on
      */
-    void synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, List<String> workingSets, NewProjectHandler newProjectHandler, IProgressMonitor monitor);
+    void synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, NewProjectHandler newProjectHandler, IProgressMonitor monitor);
 
     /**
      * Uncouples the given Eclipse workspace project from Gradle. The algorithm is as follows:

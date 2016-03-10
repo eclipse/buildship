@@ -29,7 +29,6 @@ import org.eclipse.buildship.ui.util.predicate.Predicates;
 import org.eclipse.buildship.ui.util.selection.ContextActivatingSelectionListener;
 import org.eclipse.buildship.ui.util.selection.ContextActivatingWindowListener;
 import org.eclipse.buildship.ui.view.execution.ExecutionShowingLaunchRequestListener;
-import org.eclipse.buildship.ui.wizard.project.WorkingSetsAddingProjectCreatedListener;
 import org.eclipse.buildship.ui.workspace.RefreshProjectCommandExecutionListener;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jface.resource.ImageRegistry;
@@ -64,7 +63,6 @@ public final class UiPlugin extends AbstractUIPlugin {
     private ServiceRegistration gradleLaunchConfigurationService;
     private ConsoleShowingLaunchListener consoleShowingLaunchListener;
     private ExecutionShowingLaunchRequestListener executionShowingLaunchRequestListener;
-    private WorkingSetsAddingProjectCreatedListener workingSetsAddingProjectCreatedListener;
     private ContextActivatingSelectionListener contextActivatingSelectionListener;
     private ContextActivatingWindowListener contextActivatingWindowListener;
     private RefreshProjectCommandExecutionListener refreshCommandExecutionListener;
@@ -137,9 +135,6 @@ public final class UiPlugin extends AbstractUIPlugin {
         this.executionShowingLaunchRequestListener = new ExecutionShowingLaunchRequestListener();
         CorePlugin.listenerRegistry().addEventListener(this.executionShowingLaunchRequestListener);
 
-        this.workingSetsAddingProjectCreatedListener = new WorkingSetsAddingProjectCreatedListener();
-        CorePlugin.listenerRegistry().addEventListener(this.workingSetsAddingProjectCreatedListener);
-
         this.contextActivatingSelectionListener = new ContextActivatingSelectionListener(UiPluginConstants.GRADLE_NATURE_CONTEXT_ID, Predicates.hasGradleNature(), getWorkbench());
         IWorkbenchWindow[] workbenchWindows = getWorkbench().getWorkbenchWindows();
         for (IWorkbenchWindow workbenchWindow : workbenchWindows) {
@@ -174,7 +169,6 @@ public final class UiPlugin extends AbstractUIPlugin {
             }
         }
 
-        CorePlugin.listenerRegistry().removeEventListener(this.workingSetsAddingProjectCreatedListener);
         CorePlugin.listenerRegistry().removeEventListener(this.executionShowingLaunchRequestListener);
         DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(this.consoleShowingLaunchListener);
     }
