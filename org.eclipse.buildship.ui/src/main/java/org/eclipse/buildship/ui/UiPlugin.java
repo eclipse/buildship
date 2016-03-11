@@ -15,6 +15,16 @@ package org.eclipse.buildship.ui;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
+
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.ui.commands.ICommandService;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
+
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.Logger;
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
@@ -25,21 +35,8 @@ import org.eclipse.buildship.ui.console.ConsoleProcessStreamsProvider;
 import org.eclipse.buildship.ui.launch.ConsoleShowingLaunchListener;
 import org.eclipse.buildship.ui.launch.UiGradleLaunchConfigurationManager;
 import org.eclipse.buildship.ui.notification.DialogUserNotification;
-import org.eclipse.buildship.ui.util.predicate.Predicates;
-import org.eclipse.buildship.ui.util.selection.ContextActivatingSelectionListener;
-import org.eclipse.buildship.ui.util.selection.ContextActivatingWindowListener;
 import org.eclipse.buildship.ui.view.execution.ExecutionShowingLaunchRequestListener;
 import org.eclipse.buildship.ui.workspace.RefreshProjectCommandExecutionListener;
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.jface.resource.ImageRegistry;
-import org.eclipse.ui.ISelectionService;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.commands.ICommandService;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
 
 /**
  * The plug-in runtime class for the Gradle integration plug-in containing the UI-related elements.
@@ -63,8 +60,6 @@ public final class UiPlugin extends AbstractUIPlugin {
     private ServiceRegistration gradleLaunchConfigurationService;
     private ConsoleShowingLaunchListener consoleShowingLaunchListener;
     private ExecutionShowingLaunchRequestListener executionShowingLaunchRequestListener;
-    private ContextActivatingSelectionListener contextActivatingSelectionListener;
-    private ContextActivatingWindowListener contextActivatingWindowListener;
     private RefreshProjectCommandExecutionListener refreshCommandExecutionListener;
 
     @Override
@@ -135,18 +130,6 @@ public final class UiPlugin extends AbstractUIPlugin {
         this.executionShowingLaunchRequestListener = new ExecutionShowingLaunchRequestListener();
         CorePlugin.listenerRegistry().addEventListener(this.executionShowingLaunchRequestListener);
 
-        this.contextActivatingSelectionListener = new ContextActivatingSelectionListener(UiPluginConstants.GRADLE_NATURE_CONTEXT_ID, Predicates.hasGradleNature(), getWorkbench());
-        IWorkbenchWindow[] workbenchWindows = getWorkbench().getWorkbenchWindows();
-        for (IWorkbenchWindow workbenchWindow : workbenchWindows) {
-            ISelectionService selectionService = workbenchWindow.getSelectionService();
-            if (selectionService != null) {
-                selectionService.addSelectionListener(this.contextActivatingSelectionListener);
-            }
-        }
-
-        this.contextActivatingWindowListener = new ContextActivatingWindowListener(this.contextActivatingSelectionListener);
-        getWorkbench().addWindowListener(this.contextActivatingWindowListener);
-
         this.refreshCommandExecutionListener = new RefreshProjectCommandExecutionListener();
         ICommandService commandService = (ICommandService) getWorkbench().getService(ICommandService.class);
         commandService.addExecutionListener(this.refreshCommandExecutionListener);
@@ -157,16 +140,6 @@ public final class UiPlugin extends AbstractUIPlugin {
         ICommandService commandService = (ICommandService) getWorkbench().getService(ICommandService.class);
         if (commandService != null) {
             commandService.removeExecutionListener(this.refreshCommandExecutionListener);
-        }
-
-        getWorkbench().removeWindowListener(this.contextActivatingWindowListener);
-
-        IWorkbenchWindow[] workbenchWindows = getWorkbench().getWorkbenchWindows();
-        for (IWorkbenchWindow workbenchWindow : workbenchWindows) {
-            ISelectionService selectionService = workbenchWindow.getSelectionService();
-            if (selectionService != null) {
-                selectionService.removeSelectionListener(this.contextActivatingSelectionListener);
-            }
         }
 
         CorePlugin.listenerRegistry().removeEventListener(this.executionShowingLaunchRequestListener);

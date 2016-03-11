@@ -11,14 +11,11 @@
 
 package org.eclipse.buildship.ui.workspace;
 
-import org.eclipse.buildship.ui.UiPluginConstants;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IExecutionListener;
 import org.eclipse.core.commands.NotHandledException;
 import org.eclipse.ui.IWorkbenchCommandConstants;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.contexts.IContextService;
 
 /**
  * Listens for the default Eclipse Refresh command, and in case the command is triggered
@@ -38,7 +35,7 @@ public final class RefreshProjectCommandExecutionListener implements IExecutionL
     @Override
     public void postExecuteSuccess(String commandId, Object returnValue) {
         // if applicable, call the Gradle project refresh after file refresh
-        if (isFileRefreshCommand(commandId) && isGradleNatureContextEnabled()) {
+        if (isFileRefreshCommand(commandId)) {
             refreshGradleProject(this.event);
         }
     }
@@ -46,7 +43,7 @@ public final class RefreshProjectCommandExecutionListener implements IExecutionL
     @Override
     public void postExecuteFailure(String commandId, ExecutionException exception) {
         // if applicable, call the Gradle project refresh even if the file refresh failed
-        if (isFileRefreshCommand(commandId) && isGradleNatureContextEnabled()) {
+        if (isFileRefreshCommand(commandId)) {
             refreshGradleProject(this.event);
         }
     }
@@ -58,12 +55,6 @@ public final class RefreshProjectCommandExecutionListener implements IExecutionL
 
     private boolean isFileRefreshCommand(String commandId) {
         return commandId.equals(IWorkbenchCommandConstants.FILE_REFRESH);
-    }
-
-    @SuppressWarnings({"cast", "RedundantCast"})
-    private boolean isGradleNatureContextEnabled() {
-        IContextService contextService = (IContextService) PlatformUI.getWorkbench().getService(IContextService.class);
-        return contextService.getActiveContextIds().contains(UiPluginConstants.GRADLE_NATURE_CONTEXT_ID);
     }
 
     private void refreshGradleProject(ExecutionEvent event) {
