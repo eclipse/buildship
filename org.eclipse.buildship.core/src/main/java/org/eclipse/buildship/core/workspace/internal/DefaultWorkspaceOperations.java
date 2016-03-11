@@ -523,7 +523,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         } finally {
             monitor.done();
         }
-        return ResourcesPlugin.getWorkspace().getRoot().getProject(newName);
+        return findProjectByName(newName).get();
     }
 
 }

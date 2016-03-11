@@ -189,24 +189,34 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
 
     private IProject updateName(IProject workspaceProject, OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
         String newName = calculateName(project);
-        if (newName.equals(workspaceProject.getName())) {
-            monitor.worked(1);
-            return workspaceProject;
-        } else {
-            ensureNameIsFree(newName, gradleBuild, monitor);
-            return CorePlugin.workspaceOperations().renameProject(workspaceProject, newName, monitor);
+        monitor.beginTask(String.format("Updating name of project '%s' to '%s'", workspaceProject.getName(), newName), 2);
+        try {
+            if (newName.equals(workspaceProject.getName())) {
+                monitor.worked(2);
+                return workspaceProject;
+            } else {
+                ensureNameIsFree(newName, gradleBuild, new SubProgressMonitor(monitor, 1));
+                return CorePlugin.workspaceOperations().renameProject(workspaceProject, newName, new SubProgressMonitor(monitor, 1));
+            }
+        } finally {
+            monitor.done();
         }
     }
 
     private void ensureNameIsFree(String newName, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
-        Optional<IProject> possibleDuplicate = CorePlugin.workspaceOperations().findProjectByName(newName);
-        if (possibleDuplicate.isPresent()) {
-            IProject duplicate = possibleDuplicate.get();
-            if (isScheduledForRenaming(duplicate, gradleBuild)) {
-                renameTemporarily(duplicate, monitor);
-            } else {
-                throw new GradlePluginsRuntimeException("A project with the name " + newName + " already exists");
+        monitor.beginTask("Ensuring that name '%s' is free", 1);
+        try {
+            Optional<IProject> possibleDuplicate = CorePlugin.workspaceOperations().findProjectByName(newName);
+            if (possibleDuplicate.isPresent()) {
+                IProject duplicate = possibleDuplicate.get();
+                if (isScheduledForRenaming(duplicate, gradleBuild)) {
+                    renameTemporarily(duplicate, new SubProgressMonitor(monitor, 1));
+                } else {
+                    throw new GradlePluginsRuntimeException("A project with the name " + newName + " already exists");
+                }
             }
+        } finally {
+            monitor.done();
         }
     }
 
