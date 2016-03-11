@@ -4,7 +4,6 @@ import spock.lang.Specification
 
 import org.eclipse.jdt.internal.launching.StandardVMType
 import org.eclipse.jdt.launching.IVMInstall
-import org.eclipse.jdt.launching.IVMInstallType
 import org.eclipse.jdt.launching.JavaRuntime
 
 
@@ -12,10 +11,8 @@ import org.eclipse.jdt.launching.JavaRuntime
 class EclipseVmUtilTest extends Specification {
 
     def "Can find an existing VM"() {
-        given:
-
         when:
-        def vm = EclipseVmUtil.findOrRegisterVM('1.7', new File("foo"))
+        EclipseVmUtil.findOrRegisterVM('1.7', new File("foo"))
 
         then:
         allVms().size() == old(allVms().size())
