@@ -99,7 +99,7 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
             preferences.write(PREF_KEY_CONNECTION_ARGUMENTS, properties.getArguments());
             preferences.flush();
         } catch (Exception e) {
-            throw new GradlePluginsRuntimeException(String.format("Cannot store project-scope preferences %s in project %s", project.getName()), e);
+            throw new GradlePluginsRuntimeException(String.format("Cannot store project-scope preferences in project %s", project.getName()), e);
         }
     }
 
