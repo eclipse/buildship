@@ -63,7 +63,6 @@ class RefreshUiTest extends SwtBotSpecification {
 
         then:
         bot.waitUntil(FileExistsCondition.create(project.getFile('newFile')), 5000, 500)
-
     }
 
     private static def newProjectImportJob(File location) {
@@ -84,7 +83,7 @@ class RefreshUiTest extends SwtBotSpecification {
         treeItem.select().pressShortcut(0, SWT.F5, (char) 0)
     }
 
-    private static class FileExistsCondition extends DefaultCondition {
+    private static final class FileExistsCondition extends DefaultCondition {
 
         private IFile file
 
@@ -98,4 +97,5 @@ class RefreshUiTest extends SwtBotSpecification {
         @Override
         public String getFailureMessage() { "File ${file} does not exist" }
     }
+
 }
