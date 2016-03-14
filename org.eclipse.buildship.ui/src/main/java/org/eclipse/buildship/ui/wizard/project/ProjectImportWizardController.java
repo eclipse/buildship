@@ -177,7 +177,7 @@ public class ProjectImportWizardController {
 
     public boolean performImportProject(AsyncHandler initializer, NewProjectHandler newProjectHandler) {
         FixedRequestAttributes rootRequestAttributes = this.configuration.toFixedAttributes();
-        SynchronizeGradleProjectJob synchronizeJob = new SynchronizeGradleProjectJob(rootRequestAttributes, new WorkingSetsAdapter(newProjectHandler, this.configuration), initializer);
+        SynchronizeGradleProjectJob synchronizeJob = new SynchronizeGradleProjectJob(rootRequestAttributes, new WorkingSetsAddingNewProjectHandler(newProjectHandler, this.configuration), initializer);
         synchronizeJob.addJobChangeListener(new JobChangeAdapter() {
 
             @Override
@@ -196,11 +196,11 @@ public class ProjectImportWizardController {
      *
      * @author Stefan Oehme
      */
-    private static class WorkingSetsAdapter implements NewProjectHandler {
+    private static class WorkingSetsAddingNewProjectHandler implements NewProjectHandler {
         private final NewProjectHandler delegate;
         private final ProjectImportConfiguration configuration;
 
-        public WorkingSetsAdapter(NewProjectHandler delegate, ProjectImportConfiguration configuration) {
+        public WorkingSetsAddingNewProjectHandler(NewProjectHandler delegate, ProjectImportConfiguration configuration) {
             this.delegate = delegate;
             this.configuration = configuration;
         }
@@ -218,6 +218,7 @@ public class ProjectImportWizardController {
         @Override
         public void afterImport(IProject project, OmniEclipseProject projectModel) {
             this.delegate.afterImport(project, projectModel);
+
             List<String> workingSetNames = this.configuration.getApplyWorkingSets().getValue() ? ImmutableList.copyOf(this.configuration.getWorkingSets().getValue()) : ImmutableList.<String>of();
             IWorkingSetManager workingSetManager = PlatformUI.getWorkbench().getWorkingSetManager();
             IWorkingSet[] workingSets = WorkingSetUtils.toWorkingSets(workingSetNames);
