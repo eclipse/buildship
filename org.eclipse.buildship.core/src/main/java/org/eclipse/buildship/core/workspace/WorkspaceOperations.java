@@ -191,7 +191,7 @@ public interface WorkspaceOperations {
     boolean isBuildFolder(IFolder folder);
 
     /**
-     * Finds the correct name for an Eclipse project, given a desired name and a location.
+     * Normalizes the name of an Eclipse project based on the project's location.
      * <p/>
      * In general, Eclipse projects can have a name that is different from their folder name.
      * However, projects that are directly contained in the workspace root directory (also known as
@@ -201,6 +201,6 @@ public interface WorkspaceOperations {
      * @param location the location of the project
      * @return the name the project should have
      */
-    String getActualProjectName(String desiredName, File location);
+    String normalizeProjectName(String desiredName, File location);
 
 }

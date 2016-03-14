@@ -102,7 +102,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
         try {
             // calculate the project location
-            IPath projectLocation = resolveProjectLocation(location);
+            IPath projectLocation = normalizeProjectLocation(location);
 
             // get, configure, and return the project description
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -139,8 +139,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             Preconditions.checkState(!findProjectByName(name).isPresent(), String.format("Workspace already contains a project with name %s.", name));
 
             // calculate the name and the project location
-            String projectName = getActualProjectName(name, location);
-            IPath projectLocation = resolveProjectLocation(location);
+            String projectName = normalizeProjectName(name, location);
+            IPath projectLocation = normalizeProjectLocation(location);
 
             // get an IProject instance and create the project
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -305,15 +305,17 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
-    public String getActualProjectName(String desiredName, File location) {
+    public String normalizeProjectName(String desiredName, File location) {
         Preconditions.checkNotNull(desiredName);
         Preconditions.checkNotNull(location);
         return isDirectChildOfWorkspaceRootFolder(location) ? location.getName() : desiredName;
     }
 
-    private IPath resolveProjectLocation(File location) {
-        // in Eclipse <4.4, the LocationValidator throws an exception in some scenarios
-        // see also an in-depth explanation in https://github.com/eclipse/buildship/pull/130
+    /*
+     * To put a project in the 'default location' (direct child of the workspace root),
+     * its location attribute must be set to null. Otherwise Eclipse <4.4 will throw a validation error.
+     */
+    private IPath normalizeProjectLocation(File location) {
         return isDirectChildOfWorkspaceRootFolder(location) ? null : Path.fromOSString(location.getPath());
     }
 

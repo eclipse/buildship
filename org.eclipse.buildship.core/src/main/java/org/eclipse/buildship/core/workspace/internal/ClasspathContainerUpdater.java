@@ -77,7 +77,7 @@ final class ClasspathContainerUpdater {
                     public IClasspathEntry apply(OmniEclipseProjectDependency dependency) {
                         OmniEclipseProject dependentProject = ClasspathContainerUpdater.this.gradleProject.getRoot()
                                 .tryFind(Specs.eclipseProjectMatchesProjectDir(dependency.getTargetProjectDir())).get();
-                        String actualName = CorePlugin.workspaceOperations().getActualProjectName(dependentProject.getName(), dependentProject.getProjectDirectory());
+                        String actualName = CorePlugin.workspaceOperations().normalizeProjectName(dependentProject.getName(), dependentProject.getProjectDirectory());
                         Path path = new Path("/" + actualName);
                         return JavaCore.newProjectEntry(path, dependency.isExported());
                     }
