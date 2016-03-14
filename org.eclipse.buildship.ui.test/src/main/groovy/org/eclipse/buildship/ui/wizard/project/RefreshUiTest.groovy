@@ -56,7 +56,7 @@ class RefreshUiTest extends SwtBotSpecification {
         waitForGradleJobsToFinish()
 
         then:
-        bot.waitUntil(FileExistsCondition.create(project.getFile('newFile')), 5000, 500)
+        bot.waitUntil(FileExistsCondition.create(project.getFile('newFile')), 10000, 500)
     }
 
     private static def newProjectImportJob(File location) {
