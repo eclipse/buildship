@@ -11,34 +11,28 @@
 
 package org.eclipse.buildship.ui.wizard.project
 
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
+import spock.lang.Ignore
+
 import com.gradleware.tooling.toolingclient.GradleDistribution
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
-import org.eclipse.buildship.core.util.progress.AsyncHandler
-import org.eclipse.buildship.core.workspace.NewProjectHandler;
-import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectJob
-import org.eclipse.buildship.ui.test.fixtures.LegacyEclipseSpockTestHelper
-import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification
-import org.eclipse.buildship.ui.wizard.project.RefreshUiTest.FileExistsCondition
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 
 import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IProject
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.SWT
-import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences
-import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
+import org.eclipse.swtbot.swt.finder.waits.DefaultCondition
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import org.osgi.framework.Bundle
-import spock.lang.Ignore
 
+import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.util.progress.AsyncHandler
+import org.eclipse.buildship.core.workspace.NewProjectHandler
+import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectJob
+import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification
 
-@Ignore
 class RefreshUiTest extends SwtBotSpecification {
 
     @Rule
@@ -51,7 +45,6 @@ class RefreshUiTest extends SwtBotSpecification {
     def "default Eclipse behaviour is not hindered"() {
         setup:
         File projectFolder = tempFolder.newFolder('project-name')
-        new File(projectFolder, 'build.gradle') << ''
         new File(projectFolder, 'settings.gradle') << ''
         newProjectImportJob(projectFolder).schedule()
         waitForGradleJobsToFinish()
@@ -67,12 +60,8 @@ class RefreshUiTest extends SwtBotSpecification {
     }
 
     private static def newProjectImportJob(File location) {
-        ProjectImportConfiguration configuration = new ProjectImportConfiguration()
-        configuration.gradleDistribution = GradleDistributionWrapper.from(GradleDistribution.fromBuild())
-        configuration.projectDir = location
-        configuration.applyWorkingSets = true
-        configuration.workingSets = []
-        new SynchronizeGradleProjectJob(configuration.toFixedAttributes(), NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP)
+        def attributes = new FixedRequestAttributes(location, null, GradleDistribution.fromBuild(), null, [], [])
+        new SynchronizeGradleProjectJob(attributes, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP)
     }
 
     private static def performDefaultEclipseRefresh() {

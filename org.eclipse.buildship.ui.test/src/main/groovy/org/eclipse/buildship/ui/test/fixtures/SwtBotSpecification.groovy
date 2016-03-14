@@ -94,11 +94,6 @@ abstract class SwtBotSpecification extends Specification {
         })
     }
 
-    protected static void cancelGradleJobsAndWait() {
-        Job.jobManager.cancel(CorePlugin.GRADLE_JOB_FAMILY)
-        waitForGradleJobsToFinish()
-    }
-
     protected static void waitForGradleJobsToFinish() {
         Job.jobManager.join(CorePlugin.GRADLE_JOB_FAMILY, null)
     }

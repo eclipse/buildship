@@ -60,10 +60,6 @@ class ProjectImportWizardUiTest extends SwtBotSpecification {
 
         then:
         project.hasNature(JavaCore.NATURE_ID)
-
-        cleanup:
-        cancelGradleJobsAndWait()
-        project.delete(true, null)
     }
 
     private static def IProject createOpenProject(String name) {
