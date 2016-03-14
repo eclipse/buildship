@@ -510,7 +510,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             throw new GradlePluginsRuntimeException(String.format("Workspace already contains a project with name %s.", newName));
         }
 
-        monitor = monitor != null ? monitor : new NullProgressMonitor();
+        monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
         monitor.beginTask(String.format("Rename project %s to %s", project.getName(), newName), 1);
 
         try {
