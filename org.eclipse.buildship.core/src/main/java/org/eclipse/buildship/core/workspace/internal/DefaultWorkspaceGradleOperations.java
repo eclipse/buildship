@@ -35,6 +35,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -63,15 +64,15 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         List<OmniEclipseProject> allGradleProjects = gradleBuild.getRootEclipseProject().getAll();
         List<IProject> decoupledWorkspaceProjects = collectOpenWorkspaceProjectsRemovedFromGradleBuild(allGradleProjects, rootRequestAttributes);
 
-        monitor.beginTask("Synchronize Gradle build with workspace", decoupledWorkspaceProjects.size() + allGradleProjects.size());
+        SubMonitor subMonitor = SubMonitor.convert(monitor, "Synchronize Gradle build with workspace", decoupledWorkspaceProjects.size() + allGradleProjects.size());
         try {
             // uncouple the open workspace projects that do not have a corresponding Gradle project anymore
             for (IProject project : decoupledWorkspaceProjects) {
-                uncoupleWorkspaceProjectFromGradle(project, new SubProgressMonitor(monitor, 1));
+                uncoupleWorkspaceProjectFromGradle(project, subMonitor.newChild(1));
             }
             // synchronize the Gradle projects with their corresponding workspace projects
             for (OmniEclipseProject gradleProject : allGradleProjects) {
-                synchronizeGradleProjectWithWorkspaceProject(gradleProject, gradleBuild, rootRequestAttributes, newProjectHandler, new SubProgressMonitor(monitor, 1));
+                synchronizeGradleProjectWithWorkspaceProject(gradleProject, gradleBuild, rootRequestAttributes, newProjectHandler, subMonitor.newChild(1));
             }
         } finally {
             monitor.done();
@@ -101,16 +102,17 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         }).toList();
     }
 
-    private void synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, NewProjectHandler newProjectHandler, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Synchronize Gradle project %s with workspace project", project.getName()), 1);
+    private void synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, NewProjectHandler newProjectHandler, SubMonitor monitor) {
+        monitor.setWorkRemaining(1);
+        monitor.subTask(String.format("Synchronize Gradle project %s with workspace project", project.getName()));
         try {
             // check if a project already exists in the workspace at the location of the Gradle project to import
             Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(project.getProjectDirectory());
             if (workspaceProject.isPresent()) {
-                synchronizeWorkspaceProject(project, gradleBuild, workspaceProject.get(), rootRequestAttributes, new SubProgressMonitor(monitor, 1));
+                synchronizeWorkspaceProject(project, gradleBuild, workspaceProject.get(), rootRequestAttributes, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
             } else {
                 if (newProjectHandler.shouldImport(project)) {
-                    synchronizeNonWorkspaceProject(project, gradleBuild, rootRequestAttributes, newProjectHandler, new SubProgressMonitor(monitor, 1));
+                    synchronizeNonWorkspaceProject(project, gradleBuild, rootRequestAttributes, newProjectHandler, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
                 } else {
                     monitor.worked(1);
                 }
@@ -352,11 +354,12 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         }
     }
 
-    private void uncoupleWorkspaceProjectFromGradle(IProject workspaceProject, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Uncouple workspace project %s from Gradle", workspaceProject.getName()), 2);
+    private void uncoupleWorkspaceProjectFromGradle(IProject workspaceProject, SubMonitor monitor) {
+        monitor.setWorkRemaining(2);
+        monitor.subTask(String.format("Uncouple workspace project %s from Gradle", workspaceProject.getName()));
         try {
-            ResourceFilter.detachAllFilters(workspaceProject, new SubProgressMonitor(monitor, 1));
-            CorePlugin.workspaceOperations().removeNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
+            ResourceFilter.detachAllFilters(workspaceProject, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
+            CorePlugin.workspaceOperations().removeNature(workspaceProject, GradleProjectNature.ID, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
             CorePlugin.projectConfigurationManager().deleteProjectConfiguration(workspaceProject);
         } finally {
             monitor.done();
