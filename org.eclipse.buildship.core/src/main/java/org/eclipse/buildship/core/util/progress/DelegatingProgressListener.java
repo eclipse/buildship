@@ -11,33 +11,17 @@
 
 package org.eclipse.buildship.core.util.progress;
 
-import org.gradle.tooling.ProgressEvent;
-import org.gradle.tooling.ProgressListener;
-
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 
 /**
- * {@link ProgressListener} implementation which delegates all Gradle {@link ProgressEvent}s to a
- * target Eclipse monitor.
+ * ProgressListener implementation which delegates all Gradle ProgressEvents to a target Eclipse monitor.
  * <p>
- * While there is no target progress monitor set, the most recent progress message is preserved and
- * automatically assigned once a monitor is set.
- *
  * @see IProgressMonitor
  */
-public final class DelegatingProgressListener implements ProgressListener {
+public final class DelegatingProgressListener implements org.gradle.tooling.ProgressListener, org.gradle.tooling.events.ProgressListener {
 
-    public final Object LOCK = new Object();
-
-    private IProgressMonitor monitor;
-    private String lastMessage;
-
-    /**
-     * Creates a new progress listener without an initial target Eclipse monitor.
-     */
-    public DelegatingProgressListener() {
-        this.monitor = null;
-    }
+    private final SubMonitor monitor;
 
     /**
      * Creates a new progress listener with the given Eclipse target monitor.
@@ -45,21 +29,26 @@ public final class DelegatingProgressListener implements ProgressListener {
      * @param monitor the Eclipse target monitor to delegate to
      */
     public DelegatingProgressListener(IProgressMonitor monitor) {
-        this.monitor = monitor;
+        this.monitor = SubMonitor.convert(monitor);
     }
 
     /**
-     * Sets the given Eclipse target monitor.
+     * Delegates the event to the current Eclipse target monitor.
      *
-     * @param monitor the Eclipse target monitor to delegate to
+     * Will only delegate start events and report their descriptor name
+     * to match the UI metaphors of Eclipse (reporting what is in progress instead of what happened).
+     *
+     * @param event the event to delegate
      */
-    public void setMonitor(IProgressMonitor monitor) {
-        synchronized (this.LOCK) {
-            this.monitor = monitor;
-            if (this.monitor != null && !this.monitor.isCanceled()) {
-                this.monitor.subTask(this.lastMessage);
-            }
+    @Override
+    public void statusChanged(org.gradle.tooling.events.ProgressEvent event) {
+        if (!(event instanceof org.gradle.tooling.events.StartEvent)) {
+            return;
         }
+        if (this.monitor.isCanceled()) {
+            return;
+        }
+        this.monitor.subTask(event.getDescriptor().getName());
     }
 
     /**
@@ -68,16 +57,11 @@ public final class DelegatingProgressListener implements ProgressListener {
      * @param event the event to delegate
      */
     @Override
-    public void statusChanged(ProgressEvent event) {
-        synchronized (this.LOCK) {
-            if (this.monitor != null && !this.monitor.isCanceled()) {
-                // if the monitor is present, then create a sub task for each progress event
-                this.monitor.subTask(event.getDescription());
-            } else {
-                // if a monitor is not present, preserve the last event
-                this.lastMessage = event.getDescription();
-            }
+    public void statusChanged(org.gradle.tooling.ProgressEvent event) {
+        if (this.monitor.isCanceled()) {
+            return;
         }
+        this.monitor.subTask(event.getDescription());
     }
 
 }

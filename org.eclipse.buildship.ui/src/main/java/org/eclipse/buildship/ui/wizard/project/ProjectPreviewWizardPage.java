@@ -297,10 +297,6 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     }
 
     private void scheduleProjectPreviewJob() {
-        final CountDownLatch latch = new CountDownLatch(1);
-        final DelegatingProgressListener listener = new DelegatingProgressListener();
-        final Job job = this.projectPreviewLoader.loadPreview(new ProjectPreviewJobResultHandler(latch), ImmutableList.<ProgressListener> of(listener));
-
         try {
             // once cancellation has been requested by the user, do not block any longer
             // this way, the user can continue with the import wizard even if the preview is still
@@ -310,7 +306,9 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
                 @Override
                 public void run(IProgressMonitor monitor) throws InterruptedException {
                     monitor.beginTask("Loading project preview", IProgressMonitor.UNKNOWN); //$NON-NLS-1$
-                    listener.setMonitor(monitor);
+                    final CountDownLatch latch = new CountDownLatch(1);
+                    final DelegatingProgressListener listener = new DelegatingProgressListener(monitor);
+                    final Job job = ProjectPreviewWizardPage.this.projectPreviewLoader.loadPreview(new ProjectPreviewJobResultHandler(latch), ImmutableList.<ProgressListener> of(listener));
                     while (!latch.await(500, TimeUnit.MILLISECONDS)) {
                         // regularly check if the job was cancelled until
                         // the job has either finished successfully or failed

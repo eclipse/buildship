@@ -13,7 +13,7 @@ package org.eclipse.buildship.core.workspace;
 
 import java.util.List;
 
-import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.events.ProgressListener;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -86,8 +86,8 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
         try {
             ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
             List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
-            TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), listeners,
-                    ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
+            TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(),
+                    ImmutableList.<org.gradle.tooling.ProgressListener >of(), listeners, getToken());
             SimpleModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(requestAttributes);
             return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FORCE_RELOAD);
         } finally {
