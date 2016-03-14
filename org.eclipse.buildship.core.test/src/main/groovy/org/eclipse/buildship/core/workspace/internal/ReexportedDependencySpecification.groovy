@@ -111,8 +111,12 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
     }
 
     private List<String> errorMarkers(IProject project) {
-        IMarker[] markers = project.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)
-        markers.findAll { it.exists() &&  it.getAttribute(IMarker.SEVERITY) == IMarker.SEVERITY_ERROR }.collect { it.getAttribute(IMarker.MESSAGE) }
+        def errors
+        workspace.run({
+            IMarker[] markers = project.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)
+            errors = markers.findAll { it.getAttribute(IMarker.SEVERITY) == IMarker.SEVERITY_ERROR }.collect { it.getAttribute(IMarker.MESSAGE) }
+        }, null)
+        return errors
     }
 
     private def waitForBuild() {
