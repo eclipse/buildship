@@ -11,7 +11,10 @@
 
 package org.eclipse.buildship.ui.view.task;
 
+import java.util.Set;
+
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -39,19 +42,28 @@ public final class WorkspaceProjectsChangeListener implements IResourceChangeLis
     public void resourceChanged(IResourceChangeEvent event) {
         // resource creation/deletion events are bundled in the POST_CHANGE type
         if (event.getType() == IResourceChangeEvent.POST_CHANGE) {
-            handleChangeRecursively(event.getDelta());
+            Set<IProject> addedProjects = Sets.newHashSet();
+            Set<IProject> deletedProjects = Sets.newHashSet();
+            collectChanges(event.getDelta(), addedProjects, deletedProjects);
+            if (!addedProjects.isEmpty()) {
+                notifyAboutProjectAdditions(addedProjects);
+            }
+            if (!deletedProjects.isEmpty()) {
+                notifyAboutProjectRemovals(deletedProjects);
+            }
         }
     }
 
-    private void handleChangeRecursively(IResourceDelta delta) {
+    private void collectChanges(IResourceDelta delta, Set<IProject> addedProjects, Set<IProject> deletedProjects) {
         IResource resource = delta.getResource();
         if (resource instanceof IProject) {
             int kind = delta.getKind();
+            IProject project = (IProject) resource;
             if (kind == IResourceDelta.ADDED) {
-                notifyAboutProjectAddition((IProject) resource);
+                addedProjects.add(project);
                 return;
             } else if (kind == IResourceDelta.REMOVED) {
-                notifyAboutProjectRemoval((IProject) resource);
+                deletedProjects.add(project);
                 return;
             }
         }
@@ -59,26 +71,26 @@ public final class WorkspaceProjectsChangeListener implements IResourceChangeLis
         // the resource delta object is hierarchical, thus we have to traverse its children to find
         // the project instances
         for (IResourceDelta child : delta.getAffectedChildren()) {
-            handleChangeRecursively(child);
+            collectChanges(child, addedProjects, deletedProjects);
         }
     }
 
-    private void notifyAboutProjectAddition(final IProject project) {
+    private void notifyAboutProjectAdditions(final Set<IProject> addedProjects) {
         PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
             @Override
             public void run() {
-                WorkspaceProjectsChangeListener.this.taskView.handleProjectAddition(project);
+                WorkspaceProjectsChangeListener.this.taskView.handleProjectAdditions(addedProjects);
             }
         });
     }
 
-    private void notifyAboutProjectRemoval(final IProject project) {
+    private void notifyAboutProjectRemovals(final Set<IProject> deletedProjects) {
         PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
             @Override
             public void run() {
-                WorkspaceProjectsChangeListener.this.taskView.handleProjectRemoval(project);
+                WorkspaceProjectsChangeListener.this.taskView.handleProjectRemovasl(deletedProjects);
             }
         });
     }

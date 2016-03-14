@@ -171,11 +171,11 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
         }
     }
 
-    public void handleProjectAddition(IProject project) {
+    public void handleProjectAdditions(Set<IProject> projects) {
         reload(FetchStrategy.LOAD_IF_NOT_CACHED);
     }
 
-    public void handleProjectRemoval(IProject project) {
+    public void handleProjectRemovasl(Set<IProject> projects) {
         reload(FetchStrategy.LOAD_IF_NOT_CACHED);
     }
 
