@@ -2,15 +2,19 @@ package org.eclipse.buildship.core.workspace.internal
 
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import spock.lang.Issue;
 
 import com.google.common.collect.ImmutableList
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace
 import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectBuilder
@@ -26,45 +30,62 @@ import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;;
 
 class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecification {
 
-    def "Can import deleted project located in default location"() {
-        setup:
-        def workspaceOperations = CorePlugin.workspaceOperations()
-        def workspaceRootLocation = workspace.root.location.toFile()
-        def location = new File(workspaceRootLocation, 'projectname')
-        location.mkdirs()
-
-        def project = workspaceOperations.createProject("projectname", location, ImmutableList.of(), new NullProgressMonitor())
-        project.delete(false, true, new NullProgressMonitor())
-
+    def "Can import project located in default location"() {
         when:
-        synchronizeAndWait(workspaceDir("projectname"))
+        synchronizeAndWait(newSampleProject())
 
         then:
-        workspaceOperations.allProjects.size() == 1
+        workspace.root.projects.length == 1
     }
 
+    @Issue("https://bugs.eclipse.org/bugs/show_bug.cgi?id=472223")
     def "Can import project located in workspace folder and with custom root name"() {
         setup:
-        File rootProject = newProjectWithCustomNameInWorkspaceFolder()
+        File rootProject = fileTree(newSampleProject()) {
+            file 'settings.gradle', "rootProject.name = 'my-project-name-is-different-than-the-folder'"
+        }
 
         when:
         synchronizeAndWait(rootProject)
 
-        then:
+        then : "The project is imported and stays in the same folder"
         workspace.root.projects.length == 1
         def project = workspace.root.projects[0]
-        def locationExpression = ExpressionUtils.encodeWorkspaceLocation(project)
-        def decodedLocation = ExpressionUtils.decode(locationExpression)
-        rootProject.equals(new File(decodedLocation))
-
-        cleanup:
-        rootProject.deleteDir()
+        project.location.toFile() == rootProject
     }
 
-    def File newProjectWithCustomNameInWorkspaceFolder() {
-        workspaceDir('Bug472223') {
-            file 'settings.gradle', "rootProject.name = 'my-project-name-is-different-than-the-folder'"
+    @Issue("https://bugs.eclipse.org/bugs/show_bug.cgi?id=476921")
+    def "Can depend on project located in workspace folder and with custom root name"() {
+        setup:
+        File rootProject = fileTree(newSampleProject()) {
+            file 'settings.gradle', """
+                rootProject.name = 'my-project-name-is-different-than-the-folder'
+                include 'sub'
+            """
+            file 'build.gradle', "apply plugin: 'java'"
+            dir('sub') {
+                file 'build.gradle', """
+                    apply plugin: 'java'
+                    dependencies {
+                        compile rootProject
+                    }
+                """
+            }
         }
+
+        when:
+        synchronizeAndWait(rootProject)
+
+        then :
+        IProject sub = findProject("sub")
+        IJavaProject javaProject = JavaCore.create(sub)
+        javaProject.getResolvedClasspath(true).find {
+            it.path.toString() == "/sample"
+        }
+    }
+
+    def File newSampleProject() {
+        workspaceDir('sample')
     }
 
 }
