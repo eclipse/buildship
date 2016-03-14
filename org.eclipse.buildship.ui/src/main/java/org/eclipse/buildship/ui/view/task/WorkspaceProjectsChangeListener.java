@@ -90,7 +90,7 @@ public final class WorkspaceProjectsChangeListener implements IResourceChangeLis
 
             @Override
             public void run() {
-                WorkspaceProjectsChangeListener.this.taskView.handleProjectRemovasl(deletedProjects);
+                WorkspaceProjectsChangeListener.this.taskView.handleProjectRemovals(deletedProjects);
             }
         });
     }
