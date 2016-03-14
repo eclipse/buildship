@@ -55,12 +55,7 @@ class ImportingProjectWithExistingDescriptor extends SingleProjectSynchronizatio
 
         then:
         !project.hasNature(JavaCore.NATURE_ID)
-
-        when:
-        JavaCore.create(project).rawClasspath
-
-        then:
-        thrown JavaModelException
+        !project.getFile(".classpath").exists()
     }
 
     def "If the project descriptor is merged on import, then existing settings are kept"() {
