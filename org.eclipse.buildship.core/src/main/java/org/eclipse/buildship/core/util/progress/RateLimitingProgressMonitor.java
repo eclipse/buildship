@@ -8,12 +8,10 @@
 
 package org.eclipse.buildship.core.util.progress;
 
-import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
-
-import com.google.common.collect.EvictingQueue;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ProgressMonitorWrapper;
@@ -28,14 +26,14 @@ import org.eclipse.core.runtime.ProgressMonitorWrapper;
 public final class RateLimitingProgressMonitor extends ProgressMonitorWrapper {
 
     private final Timer timer;
-    private final Queue<String> subTasks;
+    private final AtomicReference<String> lastTask;
     private final long rate;
     private final TimeUnit rateUnit;
 
     public RateLimitingProgressMonitor(IProgressMonitor monitor, long rate, TimeUnit rateUnit) {
         super(monitor);
         this.timer = new Timer();
-        this.subTasks = EvictingQueue.create(1);
+        this.lastTask = new AtomicReference<String>();
         this.rate = rate;
         this.rateUnit = rateUnit;
     }
@@ -48,7 +46,7 @@ public final class RateLimitingProgressMonitor extends ProgressMonitorWrapper {
 
     @Override
     public void subTask(String name) {
-        this.subTasks.add(name);
+        this.lastTask.set(name);
     }
 
     @Override
@@ -62,7 +60,7 @@ public final class RateLimitingProgressMonitor extends ProgressMonitorWrapper {
 
             @Override
             public void run() {
-                String task = RateLimitingProgressMonitor.this.subTasks.poll();
+                String task = RateLimitingProgressMonitor.this.lastTask.get();
                 if (task != null) {
                     RateLimitingProgressMonitor.super.subTask(task);
                 }
