@@ -413,18 +413,6 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
         then:
         thrown(RuntimeException)
     }
-    def "Can mark a folder as derived" () {
-        setup:
-        def project = createSampleProject()
-        def build = project.getFolder("build")
-        build.create(true, true, null)
-
-        when:
-        workspaceOperations.markAsDerived(build, null)
-
-        then:
-        build.isDerived()
-    }
 
     def "A marked build folder can be identified"() {
         setup:

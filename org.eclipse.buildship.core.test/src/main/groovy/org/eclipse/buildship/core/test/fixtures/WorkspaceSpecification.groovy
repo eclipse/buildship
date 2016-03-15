@@ -42,11 +42,11 @@ abstract class WorkspaceSpecification extends Specification {
 
     private File externalTestDir
 
-    def setup() {
+    void setup() {
         externalTestDir = tempFolderProvider.newFolder('external')
     }
 
-    def cleanup() {
+    void cleanup() {
         deleteAllProjects(true)
     }
 

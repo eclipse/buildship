@@ -21,26 +21,27 @@ class ImportingMultiProjectBuild extends ProjectSynchronizationSpecification {
         importAndWait(createSampleProject())
     }
 
-    def "Imported parent projects have filters to hide the content of the children"() {
+    def "Subproject folders are marked as derived"() {
         expect:
-        def filters = findProject("sample").getFilters()
-        filters.length == 2
-        (filters[0].fileInfoMatcherDescription.arguments as String).endsWith('moduleA')
-        (filters[1].fileInfoMatcherDescription.arguments as String).endsWith('moduleB')
+        def root = findProject("sample")
+        root.getFolder("moduleA").isDerived()
+        root.getFolder("moduleB").isDerived()
     }
 
-    def "Importing a project twice won't result in duplicate filters"() {
+    def "Removing a subproject removes the derived marker"() {
         setup:
-        deleteAllProjects(false)
+        fileTree(sampleDir) {
+            file('settings.gradle').text = """
+                include 'moduleA'
+            """
+        }
 
         when:
         synchronizeAndWait(sampleDir)
 
         then:
-        def filters = findProject("sample").getFilters()
-        filters.length == 2
-        (filters[0].fileInfoMatcherDescription.arguments as String).endsWith('moduleA')
-        (filters[1].fileInfoMatcherDescription.arguments as String).endsWith('moduleB')
+        def root = findProject("sample")
+        !root.getFolder("moduleB").isDerived()
     }
 
     def "If a new project is added to the Gradle build, it is imported into the workspace"() {

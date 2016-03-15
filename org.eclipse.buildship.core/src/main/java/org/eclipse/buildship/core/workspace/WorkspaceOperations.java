@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableList;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -168,14 +167,6 @@ public interface WorkspaceOperations {
     void removeBuildCommand(IProject project, String name, IProgressMonitor monitor);
 
     /**
-     * Marks the given resource as a derived resource.
-     *
-     * @param resource the resource to mark
-     * @param monitor the monitor to report the progress on
-     */
-    void markAsDerived(IResource resource, IProgressMonitor monitor);
-
-    /**
      * Marks the given folder as a build folder.
      *
      * @param folder the folder to mark
@@ -219,4 +210,18 @@ public interface WorkspaceOperations {
      */
     IProject renameProject(IProject project, String newName, IProgressMonitor monitor);
 
+    /**
+     * Marks the given folder as a sub project.
+     *
+     * @param folder the folder to mark
+     */
+    void markAsSubProject(IFolder folder);
+
+    /**
+     * Returns whether the given folder is a sub project.
+     *
+     * @param folder the folder to check
+     * @return true if this folder is a sub project
+     */
+    boolean isSubProject(IFolder folder);
 }

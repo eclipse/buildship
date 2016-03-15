@@ -28,8 +28,8 @@ public interface WorkspaceGradleOperations {
      * <ol>
      * <li>Uncouple all open workspace projects for which there is no corresponding Gradle project in the Gradle build anymore
      * <ol>
-     * <li>the Gradle resource filter is removed</li>
      * <li>the Gradle nature is removed</li>
+     * <li>the derived resource markers are removed</li>
      * <li>the Gradle settings file is removed</li>
      * </ol>
      * </li>
@@ -44,8 +44,8 @@ public interface WorkspaceGradleOperations {
      * <li>the project name is updated</li>
      * <li>the Gradle nature is set</li>
      * <li>the Gradle settings file is written</li>
-     * <li>the Gradle resource filter is set</li>
      * <li>the linked resources are set</li>
+     * <li>the derived resources are marked</li>
      * <li>the project natures and build commands are set</li>
      * <li>if the Gradle project is a Java project
      * <ul>

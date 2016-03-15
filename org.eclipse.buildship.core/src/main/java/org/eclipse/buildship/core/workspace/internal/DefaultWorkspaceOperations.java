@@ -23,7 +23,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
@@ -56,7 +55,8 @@ import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
     private static final QualifiedName BUILD_FOLDER_PROPERTY_KEY = new QualifiedName(CorePlugin.PLUGIN_ID, "buildFolder");
-    private static final String BUILD_FOLDER_PROPERTY_VALUE = "true";
+    private static final QualifiedName SUB_PROJECT_PROPERTY_KEY = new QualifiedName(CorePlugin.PLUGIN_ID, "subProject");
+    private static final String PROPERTY_TRUE = "true";
 
     @Override
     public ImmutableList<IProject> getAllProjects() {
@@ -461,22 +461,9 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
-    public void markAsDerived(IResource resource, IProgressMonitor monitor) {
-        monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
-        monitor.beginTask(String.format("Marking %s as derived", resource.getFullPath()), 1);
-        try {
-            resource.setDerived(true, new SubProgressMonitor(monitor, 1));
-        } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(String.format("Could not mark resource %s as derived.", resource.getFullPath()), e);
-        } finally {
-            monitor.done();
-        }
-    }
-
-    @Override
     public void markAsBuildFolder(IFolder folder) {
         try {
-            folder.setPersistentProperty(BUILD_FOLDER_PROPERTY_KEY, BUILD_FOLDER_PROPERTY_VALUE);
+            folder.setPersistentProperty(BUILD_FOLDER_PROPERTY_KEY, PROPERTY_TRUE);
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(String.format("Could not mark folder %s as a build folder.", folder.getFullPath()), e);
         }
@@ -485,9 +472,27 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     @Override
     public boolean isBuildFolder(IFolder folder) {
         try {
-            return folder.exists() && BUILD_FOLDER_PROPERTY_VALUE.equals(folder.getPersistentProperty(BUILD_FOLDER_PROPERTY_KEY));
+            return folder.exists() && PROPERTY_TRUE.equals(folder.getPersistentProperty(BUILD_FOLDER_PROPERTY_KEY));
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(String.format("Could not check whether folder %s is a build folder.", folder.getFullPath()), e);
+        }
+    }
+
+    @Override
+    public void markAsSubProject(IFolder folder) {
+        try {
+            folder.setPersistentProperty(SUB_PROJECT_PROPERTY_KEY, PROPERTY_TRUE);
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(String.format("Could not mark folder %s as a sub project.", folder.getFullPath()), e);
+        }
+    }
+
+    @Override
+    public boolean isSubProject(IFolder folder) {
+        try {
+            return folder.exists() && PROPERTY_TRUE.equals(folder.getPersistentProperty(SUB_PROJECT_PROPERTY_KEY));
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(String.format("Could not check whether folder %s is a sub project.", folder.getFullPath()), e);
         }
     }
 

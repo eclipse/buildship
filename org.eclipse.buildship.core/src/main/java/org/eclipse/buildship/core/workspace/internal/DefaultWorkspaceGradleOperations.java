@@ -12,16 +12,38 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.io.File;
+import java.util.List;
+import java.util.Set;
+
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
+
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.launching.JavaRuntime;
+
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
@@ -31,19 +53,6 @@ import org.eclipse.buildship.core.util.predicate.Predicates;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.launching.JavaRuntime;
-
-import java.io.File;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Default implementation of the {@link WorkspaceGradleOperations} interface.
@@ -161,10 +170,6 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
                 CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, workspaceProject);
             }
 
-            // update filters
-            List<File> filteredSubFolders = getChildProjectDirectories(project);
-            ResourceFilter.updateFilters(workspaceProject, filteredSubFolders, new SubProgressMonitor(monitor, 1));
-
             // update linked resources
             LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), new SubProgressMonitor(monitor, 1));
 
@@ -248,27 +253,36 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         }
     }
 
-    private List<File> getChildProjectDirectories(OmniEclipseProject project) {
-        return FluentIterable.from(project.getChildren()).transform(new Function<OmniEclipseProject, File>() {
-
+    private List<IFolder> getSubProjectFolders(OmniEclipseProject project, final IProject workspaceProject) {
+        return FluentIterable.from(project.getChildren()).transform(new Function<OmniEclipseProject, IFolder>() {
             @Override
-            public File apply(OmniEclipseProject childProject) {
-                return childProject.getProjectDirectory();
+            public IFolder apply(OmniEclipseProject childProject) {
+                File dir = childProject.getProjectDirectory();
+                IPath relativePath = RelativePathUtils.getRelativePath(workspaceProject.getLocation(), new Path(dir.getPath()));
+                return workspaceProject.getFolder(relativePath);
             }
         }).toList();
     }
 
     private void markDerivedFolders(OmniEclipseProject gradleProject, IProject workspaceProject, IProgressMonitor monitor) throws CoreException {
+        List<String> derivedResources = Lists.newArrayList();
+
+        derivedResources.add(".gradle");
+
         IFolder buildDirectory = getBuildDirectory(gradleProject, workspaceProject);
+        derivedResources.add(buildDirectory.getName());
         if (buildDirectory.exists()) {
-            CorePlugin.workspaceOperations().markAsDerived(buildDirectory, monitor);
             CorePlugin.workspaceOperations().markAsBuildFolder(buildDirectory);
         }
 
-        IFolder dotGradle = workspaceProject.getFolder(".gradle");
-        if (dotGradle.exists()) {
-            CorePlugin.workspaceOperations().markAsDerived(dotGradle, monitor);
+        for (IFolder subProjectFolder : getSubProjectFolders(gradleProject, workspaceProject)) {
+            derivedResources.add(subProjectFolder.getName());
+            if (subProjectFolder.exists()) {
+                CorePlugin.workspaceOperations().markAsSubProject(subProjectFolder);
+            }
         }
+
+        DerivedResourcesUpdater.update(workspaceProject, derivedResources, monitor);
     }
 
     private IFolder getBuildDirectory(OmniEclipseProject project, IProject workspaceProject) {
@@ -298,8 +312,8 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         monitor.setWorkRemaining(2);
         monitor.subTask(String.format("Uncouple workspace project %s from Gradle", workspaceProject.getName()));
         try {
-            ResourceFilter.detachAllFilters(workspaceProject, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
             CorePlugin.workspaceOperations().removeNature(workspaceProject, GradleProjectNature.ID, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
+            DerivedResourcesUpdater.clear(workspaceProject, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
             CorePlugin.projectConfigurationManager().deleteProjectConfiguration(workspaceProject);
         } finally {
             monitor.done();

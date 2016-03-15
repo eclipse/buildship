@@ -419,6 +419,13 @@
              description="Hides the build folder of Gradle projects"
              enabled="true">
        </filter>
+       <filter
+             id="org.eclipse.buildship.ui.packageexplorer.filter.gradle.subProject"
+             class="org.eclipse.buildship.ui.navigator.SubProjectViewerFilter"
+             name="Gradle sub projects"
+             description="Hides Gradle sub project folders from their parent project"
+             enabled="true">
+       </filter>
     </extension>
     <extension
           point="org.eclipse.ui.navigator.navigatorContent">
@@ -430,6 +437,14 @@
              activeByDefault="true"
              visibleInUI="true">
        </commonFilter>
+       <commonFilter
+             id="org.eclipse.buildship.ui.navigator.filter.gradle.subProject"
+             class="org.eclipse.buildship.ui.navigator.SubProjectViewerFilter"
+             name="Gradle sub projects"
+             description="Hides Gradle sub project folders from their parent project"
+             activeByDefault="true"
+             visibleInUI="true">
+       </commonFilter>
     </extension>
     <extension
           point="org.eclipse.ui.navigator.viewer">
@@ -438,6 +453,9 @@
           <includes>
              <contentExtension
                    pattern="org.eclipse.buildship.ui.navigator.filter.gradle.buildfolder">
+             </contentExtension>
+             <contentExtension
+                   pattern="org.eclipse.buildship.ui.navigator.filter.gradle.subProject">
              </contentExtension>
           </includes>
        </viewerContentBinding>
