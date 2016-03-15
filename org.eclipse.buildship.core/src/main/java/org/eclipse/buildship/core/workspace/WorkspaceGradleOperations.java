@@ -15,7 +15,6 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
 /**
  * Provides operations related to querying and modifying the Gradle specific parts of
@@ -74,7 +73,7 @@ public interface WorkspaceGradleOperations {
      * </ol>
      *
      * <p/>
-     * This method changes resources. It will acquire the workspace {@link ISchedulingRule} to ensure an atomic operation.
+     * This method changes resources. It will acquire the workspace scheduling rule to ensure an atomic operation.
      *
      * @param gradleBuild               the Gradle build to synchronize
      * @param rootRequestAttributes     the preferences used to query the Gradle build
