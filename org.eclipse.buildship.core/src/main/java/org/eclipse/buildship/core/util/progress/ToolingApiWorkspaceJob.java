@@ -11,6 +11,8 @@
 
 package org.eclipse.buildship.core.util.progress;
 
+import java.util.concurrent.TimeUnit;
+
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.GradleConnector;
@@ -70,12 +72,13 @@ public abstract class ToolingApiWorkspaceJob extends WorkspaceJob {
     @Override
     public final IStatus runInWorkspace(final IProgressMonitor monitor) throws CoreException {
         ToolingApiInvoker invoker = new ToolingApiInvoker(this.workName, this.notifyUserAboutBuildFailures);
+        final IProgressMonitor efficientMonitor = new RateLimitingProgressMonitor(monitor, 500, TimeUnit.MILLISECONDS);
         return invoker.invoke(new ToolingApiCommand() {
             @Override
             public void run() throws Exception {
-                runToolingApiJobInWorkspace(monitor);
+                runToolingApiJobInWorkspace(efficientMonitor);
             }
-        }, monitor);
+        }, efficientMonitor);
     }
 
     /**

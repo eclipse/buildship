@@ -31,7 +31,7 @@ public final class DelegatingProgressListener implements ProgressListener {
 
     /**
      * Creates a new {@link ProgressListener} that will forward all progress messages to the
-     * provided {@link IProgressMonitor}
+     * provided {@link IProgressMonitor}.
      *
      * @param monitor the monitor to delegate to, may be null
      * @return the progress listener, never null
@@ -42,7 +42,7 @@ public final class DelegatingProgressListener implements ProgressListener {
 
     /**
      * Creates a new {@link ProgressListener} that will forward a filtered set of
-     * progress messages to the provided {@link IProgressMonitor}
+     * progress messages to the provided {@link IProgressMonitor}.
      *
      * The progress stream from Gradle contains a lot of duplicate log messages.
      * For instance, between configuring each subproject, Gradle inserts a
