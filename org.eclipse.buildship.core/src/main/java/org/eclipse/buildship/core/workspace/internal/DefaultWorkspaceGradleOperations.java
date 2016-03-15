@@ -31,6 +31,7 @@ import com.gradleware.tooling.toolingmodel.util.Maybe;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -59,11 +60,24 @@ import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;
 public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOperations {
 
     @Override
-    public void synchronizeGradleBuildWithWorkspace(OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, NewProjectHandler newProjectHandler, IProgressMonitor monitor) {
+    public void synchronizeGradleBuildWithWorkspace(final OmniEclipseGradleBuild gradleBuild, final FixedRequestAttributes rootRequestAttributes, final NewProjectHandler newProjectHandler, IProgressMonitor monitor) {
+        try {
+            JavaCore.run(new IWorkspaceRunnable() {
+                @Override
+                public void run(IProgressMonitor monitor) throws CoreException {
+                    atomicallySynchronizeGradleBuildWithWorkspace(gradleBuild, rootRequestAttributes, newProjectHandler, monitor);
+                }
+            }, monitor);
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(e);
+        }
+    }
+
+    private void atomicallySynchronizeGradleBuildWithWorkspace(OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes,
+            NewProjectHandler newProjectHandler, IProgressMonitor monitor) {
         // collect Gradle projects and Eclipse workspace projects to sync
         List<OmniEclipseProject> allGradleProjects = gradleBuild.getRootEclipseProject().getAll();
         List<IProject> decoupledWorkspaceProjects = collectOpenWorkspaceProjectsRemovedFromGradleBuild(allGradleProjects, rootRequestAttributes);
-
         SubMonitor subMonitor = SubMonitor.convert(monitor, "Synchronize Gradle build with workspace", decoupledWorkspaceProjects.size() + allGradleProjects.size());
         try {
             // uncouple the open workspace projects that do not have a corresponding Gradle project anymore

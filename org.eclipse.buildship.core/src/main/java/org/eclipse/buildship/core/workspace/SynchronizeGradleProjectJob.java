@@ -25,11 +25,9 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
@@ -56,6 +54,8 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
 
         // explicitly show a dialog with the progress while the project synchronization is in process
         setUser(true);
+        //guarantee sequential order of synchronize jobs
+        setRule(ResourcesPlugin.getWorkspace().getRoot());
     }
 
     @Override
@@ -64,19 +64,8 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
 
         this.initializer.run(new SubProgressMonitor(monitor, 10), getToken());
 
-        // all Java operations use the workspace root as a scheduling rule
-        // see org.eclipse.jdt.internal.core.JavaModelOperation#getSchedulingRule()
-        // if this rule ends during the import then other projects jobs see an
-        // inconsistent workspace state, consequently we keep the rule for the whole import
-        IJobManager manager = Job.getJobManager();
-        IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-        manager.beginRule(workspaceRoot, monitor);
-        try {
-            OmniEclipseGradleBuild gradleBuild = forceReloadEclipseGradleBuild(this.rootRequestAttributes, new SubProgressMonitor(monitor, 40));
-            CorePlugin.workspaceGradleOperations().synchronizeGradleBuildWithWorkspace(gradleBuild, this.rootRequestAttributes, this.newProjectHandler, new SubProgressMonitor(monitor, 50));
-        } finally {
-            manager.endRule(workspaceRoot);
-        }
+        OmniEclipseGradleBuild gradleBuild = forceReloadEclipseGradleBuild(this.rootRequestAttributes, new SubProgressMonitor(monitor, 40));
+        CorePlugin.workspaceGradleOperations().synchronizeGradleBuildWithWorkspace(gradleBuild, this.rootRequestAttributes, this.newProjectHandler, new SubProgressMonitor(monitor, 50));
 
         // monitor is closed by caller in super class
     }
