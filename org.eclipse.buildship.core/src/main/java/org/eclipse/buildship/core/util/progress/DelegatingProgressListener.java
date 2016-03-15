@@ -11,43 +11,68 @@
 
 package org.eclipse.buildship.core.util.progress;
 
+import java.util.Queue;
+
 import org.gradle.tooling.ProgressEvent;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.google.common.collect.EvictingQueue;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
 /**
- * {@link ProgressListener} implementation which delegates all Gradle {@link ProgressEvent} to a target Eclipse
- * monitor.
- * <p>
- *
- * @see IProgressMonitor
+ * {@link ProgressListener} implementation which delegates all Gradle {@link ProgressEvent} to a
+ * target {@link IProgressMonitor}.
  */
 public final class DelegatingProgressListener implements ProgressListener {
 
-    private final SubMonitor monitor;
-    private final Predicate<ProgressEvent> eventFilter;
-
     /**
-     * Creates a new progress listener that will forward all events.
+     * Creates a new {@link ProgressListener} that will forward all progress messages to the
+     * provided {@link IProgressMonitor}
      *
-     * @param monitor the Eclipse target monitor to delegate to
+     * @param monitor the monitor to delegate to, may be null
+     * @return the progress listener, never null
      */
-    public DelegatingProgressListener(IProgressMonitor monitor) {
-        this(monitor, Predicates.<ProgressEvent> alwaysTrue());
+    public static ProgressListener withFullOutput(IProgressMonitor monitor) {
+        return new DelegatingProgressListener(monitor, Predicates.alwaysTrue());
     }
 
     /**
-     * Creates a new progress listener that will forward the events matched by the given filter.
+     * Creates a new {@link ProgressListener} that will forward a filtered set of
+     * progress messages to the provided {@link IProgressMonitor}
      *
-     * @param monitor the Eclipse target monitor to delegate to
-     * @param eventFilter a filter for which progress events to forward
+     * The progress stream from Gradle contains a lot of duplicate log messages.
+     * For instance, between configuring each subproject, Gradle inserts a
+     * "configuring projects" message.
+     *
+     * Such duplicate lifecycle messages will not be forwarded by this listener.
+     *
+     * @param monitor the monitor to delegate to, may be null
+     * @return the progress listener, never null
+     *
      */
-    public DelegatingProgressListener(IProgressMonitor monitor, Predicate<ProgressEvent> eventFilter) {
+    public static ProgressListener withoutDuplicateLifecycleEvents(IProgressMonitor monitor) {
+        Predicate<ProgressEvent> withoutDuplicates = new Predicate<ProgressEvent>() {
+            final Queue<String> recentlySeen = EvictingQueue.create(10);
+
+            @Override
+            public boolean apply(ProgressEvent event) {
+                String description = event.getDescription();
+                boolean shouldShow = !this.recentlySeen.contains(description);
+                this.recentlySeen.add(description);
+                return shouldShow;
+            }
+        };
+        return new DelegatingProgressListener(monitor, withoutDuplicates);
+    }
+
+    private final SubMonitor monitor;
+    private final Predicate<? super ProgressEvent> eventFilter;
+
+    private DelegatingProgressListener(IProgressMonitor monitor, Predicate<? super ProgressEvent> eventFilter) {
         this.monitor = SubMonitor.convert(monitor);
         this.eventFilter = eventFilter;
     }
@@ -67,5 +92,4 @@ public final class DelegatingProgressListener implements ProgressListener {
         }
         this.monitor.subTask(event.getDescription());
     }
-
 }

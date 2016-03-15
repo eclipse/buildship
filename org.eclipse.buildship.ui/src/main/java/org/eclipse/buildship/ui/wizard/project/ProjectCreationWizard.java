@@ -282,7 +282,7 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
                         List<String> jvmArguments = this.fixedAttributes.getJvmArguments();
                         List<String> arguments = this.fixedAttributes.getArguments();
                         ProgressListener[] progressListeners = this.listeners.isPresent() ? this.listeners.get().toArray(new ProgressListener[this.listeners.get().size()]) :
-                                new ProgressListener[]{new DelegatingProgressListener(monitor)};
+                                new ProgressListener[]{DelegatingProgressListener.withFullOutput(monitor)};
 
                         // configure the request
                         BuildLaunchRequest request = CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(tasks));

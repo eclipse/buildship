@@ -307,7 +307,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
                 public void run(IProgressMonitor monitor) throws InterruptedException {
                     monitor.beginTask("Loading project preview", IProgressMonitor.UNKNOWN); //$NON-NLS-1$
                     final CountDownLatch latch = new CountDownLatch(1);
-                    final DelegatingProgressListener listener = new DelegatingProgressListener(monitor);
+                    final ProgressListener listener = DelegatingProgressListener.withFullOutput(monitor);
                     final Job job = ProjectPreviewWizardPage.this.projectPreviewLoader.loadPreview(new ProjectPreviewJobResultHandler(latch), ImmutableList.<ProgressListener> of(listener));
                     while (!latch.await(500, TimeUnit.MILLISECONDS)) {
                         // regularly check if the job was cancelled until

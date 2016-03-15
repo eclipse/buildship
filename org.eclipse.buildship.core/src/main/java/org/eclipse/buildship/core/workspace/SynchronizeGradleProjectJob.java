@@ -12,15 +12,11 @@
 package org.eclipse.buildship.core.workspace;
 
 import java.util.List;
-import java.util.Queue;
 
-import org.gradle.tooling.ProgressEvent;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
@@ -89,7 +85,7 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
         monitor.beginTask(String.format("Force reload of Gradle root project at %s", requestAttributes.getProjectDir().getAbsolutePath()), IProgressMonitor.UNKNOWN);
         try {
             ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-            List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor, getProgressFilter()));
+            List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(DelegatingProgressListener.withoutDuplicateLifecycleEvents(monitor));
             TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(),
                     listeners, ImmutableList.<org.gradle.tooling.events.ProgressListener >of(), getToken());
             SimpleModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(requestAttributes);
@@ -97,28 +93,6 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
         } finally {
             monitor.done();
         }
-    }
-
-    /*
-     * The progress stream from Gradle contains a lot of duplicate, uninteresting log
-     * messages that just put pressure on the UI thread without adding user value.
-     * For instance, between configuring each subproject, the progress stream inserts a
-     * "configuring projects" message.
-     *
-     * This filter removes such duplicates by keeping track of the last few messages logged.
-     */
-    private Predicate<ProgressEvent> getProgressFilter() {
-        final Queue<String> recentlySeen = EvictingQueue.create(10);
-        return new Predicate<ProgressEvent>() {
-
-            @Override
-            public boolean apply(ProgressEvent event) {
-                String description = event.getDescription();
-                boolean shouldShow = !recentlySeen.contains(description);
-                recentlySeen.add(description);
-                return shouldShow;
-            }
-        };
     }
 
     @Override

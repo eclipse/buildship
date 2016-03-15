@@ -70,7 +70,7 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
         ProcessStreams processStreams = CorePlugin.processStreamsProvider().createProcessStreams(processDescription);
 
         // fetch build environment
-        List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(new DelegatingProgressListener(monitor));
+        List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(DelegatingProgressListener.withFullOutput(monitor));
         TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, processStreams.getOutput(), processStreams.getError(), processStreams.getInput(),
                 listeners, ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
 
