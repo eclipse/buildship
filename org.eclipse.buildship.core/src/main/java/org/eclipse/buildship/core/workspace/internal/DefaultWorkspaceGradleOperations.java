@@ -52,6 +52,7 @@ import org.eclipse.buildship.core.util.file.RelativePathUtils;
 import org.eclipse.buildship.core.util.predicate.Predicates;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
+import org.eclipse.buildship.core.workspace.ProjectCreatedEvent;
 import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;
 
 /**
@@ -288,6 +289,10 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             } else {
                 workspaceProject = addNewEclipseProjectToWorkspace(project, gradleBuild, rootRequestAttributes, new SubProgressMonitor(monitor, 1));
             }
+
+            // notify the listeners that a new IProject is available in the workspace
+            ProjectCreatedEvent event = new DefaultProjectCreatedEvent(workspaceProject);
+            CorePlugin.listenerRegistry().dispatch(event);
         } finally {
             monitor.done();
         }
