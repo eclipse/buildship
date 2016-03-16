@@ -47,7 +47,7 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
             try {
                 return loadFromPropertiesFile(project);
             } catch (IOException e2) {
-                throw new GradlePluginsRuntimeException(String.format("Cannot load project configuration for project %s", project.getName()), e2);
+                throw new GradlePluginsRuntimeException(String.format("Cannot load project configuration for project %s.", project.getName()), e2);
             }
         }
     }
@@ -99,7 +99,7 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
             preferences.write(PREF_KEY_CONNECTION_ARGUMENTS, properties.getArguments());
             preferences.flush();
         } catch (Exception e) {
-            throw new GradlePluginsRuntimeException(String.format("Cannot store project-scope preferences in project %s", project.getName()), e);
+            throw new GradlePluginsRuntimeException(String.format("Cannot store project-scope preferences in project %s.", project.getName()), e);
         }
     }
 
@@ -119,7 +119,7 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
             preferences.delete(PREF_KEY_CONNECTION_ARGUMENTS);
             preferences.flush();
         } catch (Exception e) {
-            throw new GradlePluginsRuntimeException(String.format("Cannot delete project-scope preferences in project %s", project.getName()), e);
+            throw new GradlePluginsRuntimeException(String.format("Cannot delete project-scope preferences in project %s.", project.getName()), e);
         }
     }
 

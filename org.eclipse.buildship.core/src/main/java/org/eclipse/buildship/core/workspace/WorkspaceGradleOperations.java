@@ -64,8 +64,8 @@ public interface WorkspaceGradleOperations {
      * the {@link NewProjectHandler} decides whether to import it and whether to keep or overwrite that existing .project file.
      * The imported project is then synchronized as specified above.
      * </li>
-     * <li>If the there is no project in the workspace, nor an Eclipse project at the location of the Gradle build,
-     * then the {@link NewProjectHandler} decides whether to import it.
+     * <li>If there is no project in the workspace, nor an Eclipse project at the location of the Gradle build, then
+     * the {@link NewProjectHandler} decides whether to import it.
      * The imported project is then synchronized as specified above.
      * </li>
      * </ul>

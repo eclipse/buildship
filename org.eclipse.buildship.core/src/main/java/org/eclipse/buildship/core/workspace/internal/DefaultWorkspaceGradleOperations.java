@@ -156,10 +156,10 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     private void synchronizeOpenWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, IProject workspaceProject, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) throws CoreException {
         monitor.beginTask(String.format("Synchronize Gradle project %s that is open in the workspace", project.getName()), 12);
         try {
-
             // sync the Eclipse project with the file system first
             CorePlugin.workspaceOperations().refreshProject(workspaceProject, new SubProgressMonitor(monitor, 1));
 
+            // update the project name in case the Gradle project name has changed
             workspaceProject = updateProjectName(workspaceProject, project, gradleBuild, new SubProgressMonitor(monitor, 1));
 
             // add Gradle nature, if needed
@@ -274,8 +274,9 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
 
     private void synchronizeNonWorkspaceProject(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, NewProjectHandler newProjectHandler, IProgressMonitor monitor) throws CoreException {
         monitor.beginTask(String.format("Synchronize Gradle project %s that is not yet in the workspace", project.getName()), 2);
-        IProject workspaceProject = null;
         try {
+            IProject workspaceProject;
+
             // check if an Eclipse project already exists at the location of the Gradle project to import
             Optional<IProjectDescription> projectDescription = CorePlugin.workspaceOperations().findProjectInFolder(project.getProjectDirectory(), new SubProgressMonitor(monitor, 1));
             if (projectDescription.isPresent()) {
@@ -288,10 +289,11 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             } else {
                 workspaceProject = addNewEclipseProjectToWorkspace(project, gradleBuild, rootRequestAttributes, new SubProgressMonitor(monitor, 1));
             }
+
+            newProjectHandler.afterImport(workspaceProject, project);
         } finally {
             monitor.done();
         }
-        newProjectHandler.afterImport(workspaceProject, project);
     }
 
     private IProject addExistingEclipseProjectToWorkspace(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, IProjectDescription projectDescription, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) throws CoreException {

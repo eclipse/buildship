@@ -197,10 +197,11 @@ public class ProjectImportWizardController {
      * @author Stefan Oehme
      */
     private static final class WorkingSetsAddingNewProjectHandler implements NewProjectHandler {
+
         private final NewProjectHandler delegate;
         private final ProjectImportConfiguration configuration;
 
-        public WorkingSetsAddingNewProjectHandler(NewProjectHandler delegate, ProjectImportConfiguration configuration) {
+        private WorkingSetsAddingNewProjectHandler(NewProjectHandler delegate, ProjectImportConfiguration configuration) {
             this.delegate = delegate;
             this.configuration = configuration;
         }

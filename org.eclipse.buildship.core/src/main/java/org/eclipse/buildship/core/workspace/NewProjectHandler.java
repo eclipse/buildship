@@ -38,7 +38,7 @@ public interface NewProjectHandler {
 
         @Override
         public void afterImport(IProject project, OmniEclipseProject projectModel) {
-        };
+        }
     };
 
     /**
@@ -58,7 +58,7 @@ public interface NewProjectHandler {
 
         @Override
         public void afterImport(IProject project, OmniEclipseProject projectModel) {
-        };
+        }
     };
 
     /**
@@ -78,7 +78,7 @@ public interface NewProjectHandler {
 
         @Override
         public void afterImport(IProject project, OmniEclipseProject projectModel) {
-        };
+        }
     };
 
     /**

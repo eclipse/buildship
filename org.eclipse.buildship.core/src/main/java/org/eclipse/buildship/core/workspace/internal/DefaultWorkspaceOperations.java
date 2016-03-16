@@ -518,7 +518,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             description.setName(newName);
             project.move(description, false, new SubProgressMonitor(monitor,1));
         } catch (Exception e) {
-            String message = String.format("Cannot rename project %s to %s", project.getName(), newName);
+            String message = String.format("Cannot rename project %s to %s.", project.getName(), newName);
             throw new GradlePluginsRuntimeException(message, e);
         } finally {
             monitor.done();

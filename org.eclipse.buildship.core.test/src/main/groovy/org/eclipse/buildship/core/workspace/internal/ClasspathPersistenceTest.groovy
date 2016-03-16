@@ -38,7 +38,6 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         javaProject.getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
     }
 
-
     def "The container initializer does not import new subprojects"() {
         setup:
         def projectDir = dir('sample-project') {
@@ -60,7 +59,6 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         then:
         workspace.root.projects.length == 1
     }
-
 
     private reimportWithoutSynchronization(IProject project) {
         def descriptor = project.description
