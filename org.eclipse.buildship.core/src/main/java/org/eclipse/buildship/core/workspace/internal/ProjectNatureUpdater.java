@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature;
 
@@ -49,8 +50,8 @@ final class ProjectNatureUpdater {
         monitor.beginTask("Updating project natures", 2);
         try {
             StringSetProjectProperty knownNatures = StringSetProjectProperty.from(this.project, PROJECT_PROPERTY_KEY_GRADLE_NATURES);
-            addNaturesNewInGradleModel(knownNatures, new SubProgressMonitor(monitor, 1));
             removeNaturesRemovedFromGradleModel(knownNatures, new SubProgressMonitor(monitor, 1));
+            addNaturesNewInGradleModel(knownNatures, new SubProgressMonitor(monitor, 1));
         } catch (CoreException e) {
             CorePlugin.logger().error(String.format("Cannot update project natures on %s.", this.project.getName()), e);
         } finally {
@@ -61,11 +62,13 @@ final class ProjectNatureUpdater {
     private void addNaturesNewInGradleModel(StringSetProjectProperty knownNatures, IProgressMonitor monitor) {
         monitor.beginTask("Add new natures", this.natures.size());
         try {
+            Set<String> newNatureNames = Sets.newLinkedHashSet();
             for (OmniEclipseProjectNature nature : this.natures) {
                 String natureId = nature.getId();
                 CorePlugin.workspaceOperations().addNature(this.project, natureId, new SubProgressMonitor(monitor, 1));
-                knownNatures.add(natureId);
+                newNatureNames.add(natureId);
             }
+            knownNatures.set(newNatureNames);
         } finally {
             monitor.done();
         }
@@ -78,7 +81,6 @@ final class ProjectNatureUpdater {
             for (String knownNatureId : knownNatureIds) {
                 if (!natureIdExistsInGradleModel(knownNatureId)) {
                     CorePlugin.workspaceOperations().removeNature(this.project, knownNatureId, new SubProgressMonitor(monitor, 1));
-                    knownNatures.remove(knownNatureId);
                 } else {
                     monitor.worked(1);
                 }

@@ -13,6 +13,7 @@ import java.util.Set;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -58,8 +59,8 @@ public final class DerivedResourcesUpdater {
         StringSetProjectProperty knownDerivedResources = getKnownDerivedResources(this.project);
         for (String resourceName : this.derivedResources) {
             setDerived(resourceName, true, progress.newChild(1));
-            knownDerivedResources.add(resourceName);
         }
+        knownDerivedResources.set(Sets.newLinkedHashSet(this.derivedResources));
     }
 
     private void removePreviousMarkers(SubMonitor progress) throws CoreException {
@@ -69,7 +70,6 @@ public final class DerivedResourcesUpdater {
 
         for (String resourceName : previouslyKnownDerivedResources) {
             setDerived(resourceName, false, progress.newChild(1));
-            knownDerivedResources.remove(resourceName);
         }
     }
 

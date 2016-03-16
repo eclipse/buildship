@@ -11,22 +11,26 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
+
 import com.gradleware.tooling.toolingmodel.OmniEclipseBuildCommand;
-import org.eclipse.buildship.core.CorePlugin;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.eclipse.buildship.core.CorePlugin;
 
 /**
  * Updates the build commands on the target project.
@@ -47,8 +51,8 @@ final class BuildCommandUpdater {
         monitor.beginTask("Updating build commands", 2);
         try {
             StringSetProjectProperty knownCommands = StringSetProjectProperty.from(this.project, PROJECT_PROPERTY_KEY_GRADLE_BUILD_COMMANDS);
-            addBuildCommandsNewInGradleModel(knownCommands, new SubProgressMonitor(monitor, 1));
             removeBuildCommandsRemovedFromGradleModel(knownCommands, new SubProgressMonitor(monitor, 1));
+            addBuildCommandsNewInGradleModel(knownCommands, new SubProgressMonitor(monitor, 1));
         } catch (CoreException e) {
             CorePlugin.logger().error(String.format("Cannot update build commands on %s.", this.project.getName()), e);
         } finally {
@@ -59,12 +63,14 @@ final class BuildCommandUpdater {
     private void addBuildCommandsNewInGradleModel(StringSetProjectProperty knownCommands, IProgressMonitor monitor) {
         monitor.beginTask("Add new build commands", this.buildCommands.size());
         try {
+            Set<String> newCommandNames = Sets.newLinkedHashSet();
             for (OmniEclipseBuildCommand buildCommand : this.buildCommands) {
                 String name = buildCommand.getName();
                 Map<String, String> arguments = buildCommand.getArguments();
                 CorePlugin.workspaceOperations().addBuildCommand(this.project, name, arguments, new SubProgressMonitor(monitor, 1));
-                knownCommands.add(name);
+                newCommandNames.add(name);
             }
+            knownCommands.set(newCommandNames);
         } finally {
             monitor.done();
         }
@@ -77,7 +83,6 @@ final class BuildCommandUpdater {
             for (String buildCommand : buildCommands) {
                 if (!buildCommandExistsInGradleModel(buildCommand)) {
                     CorePlugin.workspaceOperations().removeBuildCommand(this.project, buildCommand, new SubProgressMonitor(monitor, 1));
-                    knownCommands.remove(buildCommand);
                 } else {
                     monitor.worked(1);
                 }
