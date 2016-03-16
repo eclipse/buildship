@@ -53,7 +53,7 @@ final class StringSetProjectProperty {
     }
 
     /**
-     * Replaces the entries with the given new set
+     * Replaces the entries with the given new set.
      *
      * @param entries the new entries of this property
      */
