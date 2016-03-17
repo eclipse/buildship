@@ -12,16 +12,12 @@
 
 package org.eclipse.buildship.ui.view.task;
 
+import java.util.Set;
+
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.ui.external.viewer.FilteredTree;
-import org.eclipse.buildship.ui.external.viewer.PatternFilter;
-import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
-import org.eclipse.buildship.ui.util.nodeselection.NodeSelectionProvider;
-import org.eclipse.buildship.ui.util.nodeselection.SelectionHistoryManager;
+
 import org.eclipse.core.resources.IProject;
-import org.eclipse.jface.viewers.ILabelDecorator;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.swt.SWT;
@@ -34,11 +30,16 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
 
-import java.util.Set;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.ui.external.viewer.FilteredTree;
+import org.eclipse.buildship.ui.external.viewer.PatternFilter;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelectionProvider;
+import org.eclipse.buildship.ui.util.nodeselection.SelectionHistoryManager;
 
 /**
  * A view displaying the Gradle tasks of the Gradle projects in the workspace.
@@ -101,11 +102,8 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
         this.treeViewer.setContentProvider(new TaskViewContentProvider(this, CorePlugin.modelRepositoryProvider(), CorePlugin.processStreamsProvider(), CorePlugin
                 .workspaceOperations()));
 
-        // add columns to the tree and configure label providers
-        ILabelDecorator labelDecorator = PlatformUI.getWorkbench().getDecoratorManager().getLabelDecorator();
-
         TreeViewerColumn treeViewerNameColumn = new TreeViewerColumn(this.treeViewer, SWT.LEFT);
-        treeViewerNameColumn.setLabelProvider(new TaskDecoratingStyledCellLabelProvider(new TaskNameLabelProvider(), labelDecorator, null));
+        treeViewerNameColumn.setLabelProvider(new DelegatingStyledCellLabelProvider(new TaskNameLabelProvider()));
         final TreeColumn taskNameColumn = treeViewerNameColumn.getColumn();
         taskNameColumn.setText(TaskViewMessages.Tree_Column_Name_Text);
         taskNameColumn.setWidth(this.state.getHeaderNameColumnWidth());

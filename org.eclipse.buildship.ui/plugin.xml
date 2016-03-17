@@ -336,12 +336,10 @@
                 Adds an icon decoration to all Gradle projects
             </description>
             <enablement>
-                <and>
-                    <objectState
-                            name="nature"
-                            value="org.eclipse.buildship.core.gradleprojectnature">
-                    </objectState>
-                </and>
+                <objectState
+                        name="nature"
+                        value="org.eclipse.buildship.core.gradleprojectnature">
+                </objectState>
             </enablement>
         </decorator>
     </extension>

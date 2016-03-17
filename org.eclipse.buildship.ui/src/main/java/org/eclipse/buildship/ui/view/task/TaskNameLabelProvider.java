@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
+import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
@@ -32,10 +33,10 @@ import org.eclipse.buildship.ui.PluginImages;
  */
 public final class TaskNameLabelProvider extends LabelProvider implements IStyledLabelProvider {
 
-    private final WorkbenchLabelProvider workbenchLabelProvider;
+    private final ILabelProvider workbenchLabelProvider;
 
     public TaskNameLabelProvider() {
-        this.workbenchLabelProvider = new WorkbenchLabelProvider();
+        this.workbenchLabelProvider = WorkbenchLabelProvider.getDecoratingWorkbenchLabelProvider();
     }
 
     @Override
@@ -45,9 +46,7 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
 
     @Override
     public StyledString getStyledText(Object element) {
-        if (element instanceof IProject) {
-            return new StyledString(((IProject) element).getName());
-        } else if (element instanceof ProjectTaskNode) {
+        if (element instanceof ProjectTaskNode) {
             return getProjectTaskText((ProjectTaskNode) element);
         } else if (element instanceof TaskSelectorNode) {
             return getTaskSelectorText((TaskSelectorNode) element);
@@ -60,9 +59,7 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
 
     @Override
     public Image getImage(Object element) {
-        if (element instanceof IProject) {
-            return this.workbenchLabelProvider.getImage(element);
-        } else if (element instanceof ProjectTaskNode) {
+        if (element instanceof ProjectTaskNode) {
             return getProjectTaskImage((ProjectTaskNode) element);
         } else if (element instanceof TaskSelectorNode) {
             return getTaskSelectorImage((TaskSelectorNode) element);
