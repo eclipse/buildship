@@ -1,6 +1,7 @@
 package org.eclipse.buildship.core.workspace.internal
 
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.Logger;
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
@@ -17,7 +18,7 @@ class ImportingMultiProjectBuild extends ProjectSynchronizationSpecification {
     File moduleADir
     File moduleBDir
 
-    def setup() {
+    void setup() {
         importAndWait(createSampleProject())
     }
 
@@ -81,6 +82,23 @@ class ImportingMultiProjectBuild extends ProjectSynchronizationSpecification {
 
         then:
         GradleProjectNature.INSTANCE.isPresentOn(project)
+    }
+
+    def "Nonexisting sub projects are ignored"() {
+        setup:
+        fileTree(sampleDir).file('settings.gradle').text = """
+           include 'moduleA'
+           include 'moduleB'
+           include 'moduleC'
+        """
+        def logger = Mock(Logger)
+        environment.registerService(Logger, logger)
+
+        when:
+        synchronizeAndWait(findProject('sample'))
+
+        then:
+        0 * logger.error(_)
     }
 
     private File createSampleProject() {
