@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.launching.StandardVMType;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.IVMInstallType;
 import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jdt.launching.VMStandin;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 
 /**
@@ -103,13 +104,11 @@ final class EclipseVmUtil {
         // both the id and the name have to be unique for the registration
         String vmId = generateUniqueVMId(installType);
 
-        // instantiate the VM and notify Eclipse about the creation
-        IVMInstall vm = installType.createVMInstall(vmId);
+        // create the VM without firing events on individual method calls
+        VMStandin vm = new VMStandin(installType, vmId);
         vm.setName(name);
         vm.setInstallLocation(location);
-        JavaRuntime.fireVMAdded(vm);
-
-        return vm;
+        return vm.convertToRealVM();
     }
 
     private static String generateUniqueVMId(IVMInstallType type) {
