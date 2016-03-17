@@ -55,7 +55,7 @@ public final class ExceptionDetailsDialog extends Dialog {
     private final String details;
     private final ArrayList<Throwable> throwables;
 
-    private Image image;
+    private final Image image;
     private Button detailsButton;
     private Composite stackTraceAreaControl;
     private Label singleErrorMessageLabel;
@@ -69,7 +69,7 @@ public final class ExceptionDetailsDialog extends Dialog {
     private StackLayout stackLayout;
 
     public ExceptionDetailsDialog(Shell shell, String title, String message, String details, int severity, Throwable throwable) {
-        super(new SameShellProvider(shell));
+        super(new SameShellProvider(Preconditions.checkNotNull(shell)));
         this.title = Preconditions.checkNotNull(title);
         this.message = Preconditions.checkNotNull(message);
         this.details = Preconditions.checkNotNull(details);

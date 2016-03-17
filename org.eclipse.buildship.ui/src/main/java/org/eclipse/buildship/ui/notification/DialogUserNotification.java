@@ -31,6 +31,9 @@ public final class DialogUserNotification implements UserNotification {
             @Override
             public void run() {
                 Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
+                if (shell == null) {
+                    return;
+                }
                 if (noDialogVisible()) {
                     createAndOpenDialog(shell, headline, message, details, severity, throwable);
                 } else {
