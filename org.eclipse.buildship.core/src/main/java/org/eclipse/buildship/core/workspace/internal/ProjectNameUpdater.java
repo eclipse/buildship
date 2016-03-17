@@ -22,9 +22,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
 /**
- * Inspects and tries to ensure certain constraints related to project names.
+ * Updates project names to match the Gradle model. Moves other projects out of the way if necessary.
  */
-final class ProjectNameInspector {
+final class ProjectNameUpdater {
 
     /**
      * Updates the name of the Eclipse project to match the name of the corresponding Gradle project.

@@ -150,7 +150,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             CorePlugin.workspaceOperations().refreshProject(workspaceProject, new SubProgressMonitor(monitor, 1));
 
             // update the project name in case the Gradle project name has changed
-            workspaceProject = ProjectNameInspector.updateProjectName(workspaceProject, project, gradleBuild, new SubProgressMonitor(monitor, 1));
+            workspaceProject = ProjectNameUpdater.updateProjectName(workspaceProject, project, gradleBuild, new SubProgressMonitor(monitor, 1));
 
             // add Gradle nature, if needed
             CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
@@ -227,7 +227,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     private IProject addExistingEclipseProjectToWorkspace(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, IProjectDescription projectDescription, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) throws CoreException {
         monitor.beginTask(String.format("Add existing Eclipse project %s for Gradle project %s to the workspace", projectDescription.getName(), project.getName()), 3);
         try {
-            ProjectNameInspector.ensureProjectNameIsFree(project, gradleBuild, new SubProgressMonitor(monitor, 1));
+            ProjectNameUpdater.ensureProjectNameIsFree(project, gradleBuild, new SubProgressMonitor(monitor, 1));
             IProject workspaceProject = CorePlugin.workspaceOperations().includeProject(projectDescription, ImmutableList.<String>of(), new SubProgressMonitor(monitor, 1));
             synchronizeOpenWorkspaceProject(project, gradleBuild, workspaceProject, rootRequestAttributes, new SubProgressMonitor(monitor, 1));
             return workspaceProject;
@@ -239,7 +239,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
     private IProject addNewEclipseProjectToWorkspace(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, IProgressMonitor monitor) throws CoreException {
         monitor.beginTask(String.format("Add new Eclipse project for Gradle project %s to the workspace", project.getName()), 3);
         try {
-            ProjectNameInspector.ensureProjectNameIsFree(project, gradleBuild, new SubProgressMonitor(monitor, 1));
+            ProjectNameUpdater.ensureProjectNameIsFree(project, gradleBuild, new SubProgressMonitor(monitor, 1));
             IProject workspaceProject = CorePlugin.workspaceOperations().createProject(project.getName(), project.getProjectDirectory(), ImmutableList.<String>of(), new SubProgressMonitor(monitor, 1));
             synchronizeOpenWorkspaceProject(project, gradleBuild, workspaceProject, rootRequestAttributes, new SubProgressMonitor(monitor, 1));
             return workspaceProject;
