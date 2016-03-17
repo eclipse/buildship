@@ -129,7 +129,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
                         TreeColumn column = page.nameColumn.getColumn();
                         int columnWidth = column.getWidth();
                         if (columnWidth != newWidth) {
-                            page.nameColumn.getColumn().setWidth(newWidth);
+                            column.setWidth(newWidth);
                         }
                     }
                 }
