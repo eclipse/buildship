@@ -16,6 +16,7 @@ import com.google.common.base.Optional;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchListener;
 import org.eclipse.ui.IWorkbenchPage;
@@ -52,15 +53,19 @@ public final class ConsoleShowingLaunchListener implements ILaunchListener {
     }
 
     private Optional<GradleRunConfigurationAttributes> convertToGradleRunConfigurationAttributes(ILaunch launch) {
+        ILaunchConfiguration launchConfiguration = launch.getLaunchConfiguration();
+        if (launchConfiguration == null) {
+            return Optional.absent();
+        }
         ILaunchConfigurationType type;
         try {
-            type = launch.getLaunchConfiguration().getType();
+            type = launchConfiguration.getType();
         } catch (CoreException e) {
             UiPlugin.logger().error("Unable to determine launch configuration type", e);
             return Optional.absent();
         }
         if (GradleRunConfigurationDelegate.ID.equals(type.getIdentifier())) {
-            return Optional.of(GradleRunConfigurationAttributes.from(launch.getLaunchConfiguration()));
+            return Optional.of(GradleRunConfigurationAttributes.from(launchConfiguration));
         }
         return Optional.absent();
     }
