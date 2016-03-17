@@ -57,8 +57,8 @@ public final class WorkspaceProjectsChangeListener implements IResourceChangeLis
     private void collectChanges(IResourceDelta delta, Set<IProject> addedProjects, Set<IProject> deletedProjects) {
         IResource resource = delta.getResource();
         if (resource instanceof IProject) {
-            int kind = delta.getKind();
             IProject project = (IProject) resource;
+            int kind = delta.getKind();
             if (kind == IResourceDelta.ADDED) {
                 addedProjects.add(project);
                 return;

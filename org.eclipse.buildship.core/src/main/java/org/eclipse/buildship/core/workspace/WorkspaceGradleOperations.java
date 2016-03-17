@@ -81,4 +81,5 @@ public interface WorkspaceGradleOperations {
      * @param monitor                   the monitor to report the progress on
      */
     void synchronizeGradleBuildWithWorkspace(OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes rootRequestAttributes, NewProjectHandler newProjectHandler, IProgressMonitor monitor);
+
 }
