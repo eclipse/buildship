@@ -60,9 +60,9 @@ public final class RateLimitingProgressMonitor extends ProgressMonitorWrapper {
 
             @Override
             public void run() {
-                String task = RateLimitingProgressMonitor.this.lastTask.get();
-                if (task != null) {
-                    RateLimitingProgressMonitor.super.subTask(task);
+                String taskName = RateLimitingProgressMonitor.this.lastTask.getAndSet(null);
+                if (taskName != null) {
+                    RateLimitingProgressMonitor.super.subTask(taskName);
                 }
             }
         };
