@@ -53,6 +53,7 @@ import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IActionBars;
 
 import com.google.common.base.Predicate;
@@ -125,7 +126,11 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
                 ExecutionsView view = (ExecutionsView) getSite().getViewSite().getPart();
                 for (ExecutionPage page : FluentIterable.from(view.getPages()).filter(ExecutionPage.class)) {
                     if (page != ExecutionPage.this) {
-                        page.nameColumn.getColumn().setWidth(newWidth);
+                        TreeColumn column = page.nameColumn.getColumn();
+                        int columnWidth = column.getWidth();
+                        if (columnWidth != newWidth) {
+                            page.nameColumn.getColumn().setWidth(newWidth);
+                        }
                     }
                 }
             }
@@ -140,7 +145,11 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
                 ExecutionsView view = (ExecutionsView) getSite().getViewSite().getPart();
                 for (ExecutionPage page : FluentIterable.from(view.getPages()).filter(ExecutionPage.class)) {
                     if (page != ExecutionPage.this) {
-                        page.durationColumn.getColumn().setWidth(newWidth);
+                        TreeColumn column = page.durationColumn.getColumn();
+                        int columnWidth = column.getWidth();
+                        if (columnWidth != newWidth) {
+                            column.setWidth(newWidth);
+                        }
                     }
                 }
             }
