@@ -82,7 +82,7 @@ public final class LoadEclipseGradleBuildJob extends ToolingApiJob {
         monitor.beginTask("Load Eclipse Project", IProgressMonitor.UNKNOWN);
         try {
             ProcessStreams stream = this.processStreamsProvider.getBackgroundJobProcessStreams();
-            List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(DelegatingProgressListener.withFullOutput(monitor));
+            List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(DelegatingProgressListener.withoutDuplicateLifecycleEvents(monitor));
             TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, stream.getOutput(), stream.getError(), null, listeners,
                     ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
             SimpleModelRepository repository = this.modelRepositoryProvider.getModelRepository(this.configuration.getRequestAttributes());
