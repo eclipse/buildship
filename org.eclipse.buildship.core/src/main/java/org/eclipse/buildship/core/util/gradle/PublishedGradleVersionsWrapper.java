@@ -12,70 +12,40 @@
 package org.eclipse.buildship.core.util.gradle;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.gradle.util.GradleVersion;
-
-import com.google.common.collect.ImmutableList;
-
-import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
-import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions.LookupStrategy;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
 
+import org.gradle.util.GradleVersion;
+
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+
+import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
+
 /**
- * Wraps the {@link PublishedGradleVersions} functionality in a background job that handles all
- * exceptions gracefully. If an exception occurs while calling the underlying
- * {@link PublishedGradleVersions} instance, default version information is provided. This handles,
- * for example, those scenarios where the versions cannot be retrieved because the user is behind a
- * proxy or offline.
+ * Wraps the {@link PublishedGradleVersions} functionality to handle all exceptions gracefully. If an exception occurs while
+ * calling the underlying {@link PublishedGradleVersions} instance, empty version information is provided. This handles, for
+ * example, those scenarios where the versions cannot be retrieved because the user is behind a proxy or offline.
  */
 public final class PublishedGradleVersionsWrapper {
 
-    private final AtomicReference<PublishedGradleVersions> publishedGradleVersions;
+    private final Optional<PublishedGradleVersions> publishedGradleVersions;
 
     public PublishedGradleVersionsWrapper() {
-        this.publishedGradleVersions = new AtomicReference<PublishedGradleVersions>();
-        startLoading();
+        this.publishedGradleVersions = create();
     }
 
-    private void startLoading() {
-        new LoadVersionsJob().schedule();
+    private Optional<PublishedGradleVersions> create() {
+        try {
+            return Optional.of(PublishedGradleVersions.create(true));
+        } catch (Exception e) {
+            CorePlugin.logger().warn("Cannot retrieve published Gradle version.", e);
+            return  Optional.absent();
+        }
     }
 
     public List<GradleVersion> getVersions() {
-        PublishedGradleVersions versions = this.publishedGradleVersions.get();
-        return versions != null ? versions.getVersions() : ImmutableList.of(GradleVersion.current());
-    }
-
-    private final class LoadVersionsJob extends Job {
-
-        public LoadVersionsJob() {
-            super("Loading available Gradle versions");
-            setSystem(true);
-        }
-
-        @Override
-        protected IStatus run(IProgressMonitor monitor) {
-            try {
-                PublishedGradleVersions versions = PublishedGradleVersions.create(LookupStrategy.REMOTE_IF_NOT_CACHED);
-                PublishedGradleVersionsWrapper.this.publishedGradleVersions.set(versions);
-            } catch (RuntimeException e) {
-                CorePlugin.logger().warn("Could not load Gradle version information", e);
-            }
-            return Status.OK_STATUS;
-        }
-
-        @Override
-        protected void canceling() {
-            Thread.currentThread().interrupt();
-        }
-
+        return this.publishedGradleVersions.isPresent() ? this.publishedGradleVersions.get().getVersions() : ImmutableList.<GradleVersion> of(GradleVersion.current());
     }
 
 }
