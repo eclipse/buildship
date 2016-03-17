@@ -27,6 +27,31 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 final class ProjectNameInspector {
 
     /**
+     * Updates the name of the Eclipse project to match the name of the corresponding Gradle project.
+     *
+     * @param workspaceProject the Eclipse project whose name to update
+     * @param project          the Gradle project corresponding to the Eclipse project
+     * @param gradleBuild      the build to which the Gradle project belongs
+     * @param monitor          the monitor to report progress on
+     * @return the new project reference in case the project name has changed, the incoming project instance otherwise
+     */
+    static IProject updateProjectName(IProject workspaceProject, OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
+        String newName = normalizeProjectName(project);
+        monitor.beginTask(String.format("Updating name of project '%s' to '%s'", workspaceProject.getName(), newName), 2);
+        try {
+            if (newName.equals(workspaceProject.getName())) {
+                monitor.worked(2);
+                return workspaceProject;
+            } else {
+                ensureProjectNameIsFree(newName, gradleBuild, new SubProgressMonitor(monitor, 1));
+                return CorePlugin.workspaceOperations().renameProject(workspaceProject, newName, new SubProgressMonitor(monitor, 1));
+            }
+        } finally {
+            monitor.done();
+        }
+    }
+
+    /**
      * If there is already a project with the name of the given project in the workspace, we will try to move it out of the way.
      * <p/>
      * Moving the other project is possible if:
@@ -47,23 +72,7 @@ final class ProjectNameInspector {
         ensureProjectNameIsFree(name, gradleBuild, monitor);
     }
 
-    /**
-     * If there is already a project with the desired name in the workspace, we will try to move it out of the way.
-     * <p/>
-     * Moving the other project is possible if:
-     * <p/>
-     * - it is part of the same synchronize operation
-     * - it has a different name in the Gradle model, so it would be renamed anyway
-     * - it is not in the default location (otherwise it can't be renamed)
-     * - it is open
-     * <p/>
-     * If any of these conditions are not met, we fail because of a name conflict.
-     *
-     * @param normalizedProjectName the normalized name of the project
-     * @param gradleBuild           the build to which the project belongs
-     * @param monitor               the monitor to report progress on
-     */
-    static void ensureProjectNameIsFree(String normalizedProjectName, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
+    private static void ensureProjectNameIsFree(String normalizedProjectName, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
         monitor.beginTask(String.format("Ensure project name '%s' is free", normalizedProjectName), 1);
         try {
             Optional<IProject> possibleDuplicate = CorePlugin.workspaceOperations().findProjectByName(normalizedProjectName);

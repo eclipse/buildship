@@ -150,7 +150,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             CorePlugin.workspaceOperations().refreshProject(workspaceProject, new SubProgressMonitor(monitor, 1));
 
             // update the project name in case the Gradle project name has changed
-            workspaceProject = updateProjectName(workspaceProject, project, gradleBuild, new SubProgressMonitor(monitor, 1));
+            workspaceProject = ProjectNameInspector.updateProjectName(workspaceProject, project, gradleBuild, new SubProgressMonitor(monitor, 1));
 
             // add Gradle nature, if needed
             CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, new SubProgressMonitor(monitor, 1));
@@ -191,22 +191,6 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
             // set project natures and build commands
             ProjectNatureUpdater.update(workspaceProject, project.getProjectNatures(), new SubProgressMonitor(monitor, 1));
             BuildCommandUpdater.update(workspaceProject, project.getBuildCommands(), new SubProgressMonitor(monitor, 1));
-        } finally {
-            monitor.done();
-        }
-    }
-
-    private IProject updateProjectName(IProject workspaceProject, OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
-        String newName = CorePlugin.workspaceOperations().normalizeProjectName(project.getName(), project.getProjectDirectory());
-        monitor.beginTask(String.format("Updating name of project '%s' to '%s'", workspaceProject.getName(), newName), 2);
-        try {
-            if (newName.equals(workspaceProject.getName())) {
-                monitor.worked(2);
-                return workspaceProject;
-            } else {
-                ProjectNameInspector.ensureProjectNameIsFree(newName, gradleBuild, new SubProgressMonitor(monitor, 1));
-                return CorePlugin.workspaceOperations().renameProject(workspaceProject, newName, new SubProgressMonitor(monitor, 1));
-            }
         } finally {
             monitor.done();
         }
