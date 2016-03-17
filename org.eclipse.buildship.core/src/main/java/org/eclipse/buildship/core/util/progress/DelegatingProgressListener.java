@@ -13,6 +13,7 @@ package org.eclipse.buildship.core.util.progress;
 
 import java.util.Queue;
 
+import com.google.common.base.Preconditions;
 import org.gradle.tooling.ProgressEvent;
 import org.gradle.tooling.ProgressListener;
 
@@ -28,6 +29,30 @@ import org.eclipse.core.runtime.SubMonitor;
  * target {@link IProgressMonitor}.
  */
 public final class DelegatingProgressListener implements ProgressListener {
+
+    private final SubMonitor monitor;
+    private final Predicate<? super ProgressEvent> eventFilter;
+
+    private DelegatingProgressListener(IProgressMonitor monitor, Predicate<? super ProgressEvent> eventFilter) {
+        this.monitor = SubMonitor.convert(monitor);
+        this.eventFilter = Preconditions.checkNotNull(eventFilter);
+    }
+
+    /**
+     * Delegates the event to the current Eclipse target monitor.
+     *
+     * @param event the event to delegate
+     */
+    @Override
+    public void statusChanged(ProgressEvent event) {
+        if (this.monitor.isCanceled()) {
+            return;
+        }
+        if (!this.eventFilter.apply(event)) {
+            return;
+        }
+        this.monitor.subTask(event.getDescription());
+    }
 
     /**
      * Creates a new {@link ProgressListener} that will forward all progress messages to the
@@ -69,27 +94,4 @@ public final class DelegatingProgressListener implements ProgressListener {
         return new DelegatingProgressListener(monitor, withoutDuplicates);
     }
 
-    private final SubMonitor monitor;
-    private final Predicate<? super ProgressEvent> eventFilter;
-
-    private DelegatingProgressListener(IProgressMonitor monitor, Predicate<? super ProgressEvent> eventFilter) {
-        this.monitor = SubMonitor.convert(monitor);
-        this.eventFilter = eventFilter;
-    }
-
-    /**
-     * Delegates the event to the current Eclipse target monitor.
-     *
-     * @param event the event to delegate
-     */
-    @Override
-    public void statusChanged(ProgressEvent event) {
-        if (this.monitor.isCanceled()) {
-            return;
-        }
-        if (!this.eventFilter.apply(event)) {
-            return;
-        }
-        this.monitor.subTask(event.getDescription());
-    }
 }
