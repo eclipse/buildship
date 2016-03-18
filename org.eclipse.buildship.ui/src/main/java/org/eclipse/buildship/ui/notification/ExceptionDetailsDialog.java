@@ -58,10 +58,7 @@ public final class ExceptionDetailsDialog extends Dialog {
     private final Image image;
     private Button detailsButton;
     private Composite stackTraceAreaControl;
-    private Label singleErrorMessageLabel;
     private TableViewer exceptionsViewer;
-    private Label singleErrorDetailsLabel;
-    private Label multiErrorMessageLabel;
     private Clipboard clipboard;
     private Text stacktraceAreaText;
     private Composite singleErrorContainer;
@@ -113,20 +110,20 @@ public final class ExceptionDetailsDialog extends Dialog {
         this.stackLayout.topControl = this.singleErrorContainer;
 
         // single error label
-        this.singleErrorMessageLabel = new Label(this.singleErrorContainer, SWT.WRAP);
+        Label singleErrorMessageLabel = new Label(this.singleErrorContainer, SWT.WRAP);
         GridData messageLabelGridData = new GridData();
         messageLabelGridData.verticalAlignment = SWT.TOP;
         messageLabelGridData.grabExcessHorizontalSpace = true;
-        this.singleErrorMessageLabel.setLayoutData(messageLabelGridData);
-        this.singleErrorMessageLabel.setText(this.message);
+        singleErrorMessageLabel.setLayoutData(messageLabelGridData);
+        singleErrorMessageLabel.setText(this.message);
 
         // single error details
-        this.singleErrorDetailsLabel = new Label(this.singleErrorContainer, SWT.WRAP);
+        Label singleErrorDetailsLabel = new Label(this.singleErrorContainer, SWT.WRAP);
         GridData detailsLabelGridData = new GridData();
         detailsLabelGridData.verticalAlignment = SWT.TOP;
         detailsLabelGridData.grabExcessHorizontalSpace = true;
-        this.singleErrorDetailsLabel.setLayoutData(detailsLabelGridData);
-        this.singleErrorDetailsLabel.setText(this.details);
+        singleErrorDetailsLabel.setLayoutData(detailsLabelGridData);
+        singleErrorDetailsLabel.setText(this.details);
 
         // multi error container
         this.multiErrorContainer = new Composite(stackLayoutContainer, SWT.NONE);
@@ -135,9 +132,9 @@ public final class ExceptionDetailsDialog extends Dialog {
         this.multiErrorContainer.setLayout(multiErrorContainerLayout);
 
         // multi error label
-        this.multiErrorMessageLabel = new Label(this.multiErrorContainer, SWT.WRAP);
-        this.multiErrorMessageLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-        this.multiErrorMessageLabel.setText(this.message);
+        Label multiErrorMessageLabel = new Label(this.multiErrorContainer, SWT.WRAP);
+        multiErrorMessageLabel.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+        multiErrorMessageLabel.setText(this.message);
 
         // multi error messages displayed in a list viewer
         GridData multiErrorExceptionListGridData = new GridData();
