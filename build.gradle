@@ -1,6 +1,7 @@
 import eclipsebuild.*
 import org.gradle.api.logging.LogLevel
 import org.gradle.internal.os.OperatingSystem
+import java.util.regex.*
 
 apply plugin: eclipsebuild.BuildDefinitionPlugin
 
@@ -363,6 +364,44 @@ task incrementVersion << {
         throw new IllegalStateException("Unparseable version: $oldVersion.")
     }
     exec { commandLine('./incrementVersion.sh', oldVersion, newVersion) }
+}
+
+// updates tooling-commons in the target definition files and in the Oomph setup model
+// example usage
+if (hasProperty('TOOLING_COMMONS_P2_ZIP_URL') && hasProperty('TOOLING_COMMONS_VERSION') && hasProperty('TOOLING_API_VERSION') && hasProperty('VERSION_QUALIFIER')) {
+    task updateToolingCommons << {
+        // collect variables to write in the files
+        String p2RepositoryUrl  = getProperty('TOOLING_COMMONS_P2_ZIP_URL')
+        String toolingCommonsVersion = getProperty('TOOLING_COMMONS_VERSION')
+        String toolingApiVersion = getProperty('TOOLING_API_VERSION')
+        String qualifier = getProperty('VERSION_QUALIFIER')
+        String toolingApiBundleVersion = "${toolingApiVersion}.v${qualifier}"
+        String toolingCommonsBundleVersion = "${toolingCommonsVersion}.v${qualifier}"
+
+        // update target definition files
+        Pattern toolingApiPattern = Pattern.compile('(?<=<unit id="org.gradle.toolingapi" version=")[^"]+(?="/>)')
+        Pattern toolingCommmonsPattern = Pattern.compile('(?<=<unit id="com.gradleware.tooling.(utils|client|model)" version=")[^"]+(?="/>)')
+        Pattern p2RepositoryPattern = Pattern.compile('(?<=<repository location="jar:)https://repo.gradle.org[^"]+p2-repository-[^"]+.zip(?=!/"/>)')
+        for (targetDefinitionFile in ['36', '37', '42', '43', '44', '45'].collect { file("tooling-e${it}.target") }) {
+            replacePatternsInFile(targetDefinitionFile, [(toolingApiPattern)      : toolingApiBundleVersion, 
+                                                         (toolingCommmonsPattern) : toolingCommonsBundleVersion, 
+                                                         (p2RepositoryPattern)    : p2RepositoryUrl])
+        }
+
+        // update Oomph setup definition
+        toolingCommmonsPattern = Pattern.compile('(?<=<requirement\\r?\\n? {10}name="com.gradleware.tooling.(utils|client|model)"\\r?\\n? {10}versionRange=")0.12.0(?="/>)')
+        p2RepositoryPattern = Pattern.compile('(?<=url="jar:)https://repo.gradle.org[^"]+p2-repository-[^"]+.zip(?=!/"/>)')
+        replacePatternsInFile(file('buildship.setup'), [(toolingCommmonsPattern) : toolingCommonsVersion, 
+                                                        (p2RepositoryPattern)    : p2RepositoryUrl])
+    }
+}
+
+void replacePatternsInFile(File file, Map<Pattern, String> patternAndReplacement) {
+    String fileText = file.text
+    patternAndReplacement.each { Pattern pattern, String replacement ->
+        fileText = pattern.matcher(fileText).replaceAll(replacement)
+    }
+    file.text = fileText
 }
 
 void killAllGradleDaemons() {
