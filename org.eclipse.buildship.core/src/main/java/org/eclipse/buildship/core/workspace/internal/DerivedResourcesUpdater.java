@@ -43,7 +43,8 @@ final class DerivedResourcesUpdater {
             removePreviousMarkers(progress.newChild(1));
             addNewMarkers(progress.newChild(1));
         } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(String.format("Could not update derived resources on project ", this.project.getName()), e);
+            String message = String.format("Could not update derived resources on project %s.", this.project.getName());
+            throw new GradlePluginsRuntimeException(message, e);
         } finally {
             if (monitor != null) {
                 monitor.done();
