@@ -34,6 +34,7 @@ public final class DialogUserNotification implements UserNotification {
                 if (shell == null) {
                     return;
                 }
+
                 if (noDialogVisible()) {
                     createAndOpenDialog(shell, headline, message, details, severity, throwable);
                 } else {
