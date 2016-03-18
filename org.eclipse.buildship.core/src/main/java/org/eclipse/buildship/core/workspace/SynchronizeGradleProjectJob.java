@@ -45,6 +45,11 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
     private final NewProjectHandler newProjectHandler;
     private final AsyncHandler initializer;
 
+    //For STS Gradle Plugin, don't remove!
+    public SynchronizeGradleProjectJob(FixedRequestAttributes rootRequestAttributes, List<String> unused, AsyncHandler initializer) {
+        this(rootRequestAttributes, NewProjectHandler.IMPORT_AND_MERGE, initializer);
+    }
+
     public SynchronizeGradleProjectJob(FixedRequestAttributes rootRequestAttributes, NewProjectHandler newProjectHandler, AsyncHandler initializer) {
         super(String.format("Synchronize Gradle root project at %s with workspace", Preconditions.checkNotNull(rootRequestAttributes).getProjectDir().getAbsolutePath()), false);
 
