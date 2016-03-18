@@ -78,15 +78,7 @@ final class LegacyCleaningProjectConfigurationPersistence implements ProjectConf
     }
 
     private static ProjectConfigurationProperties readLegacyConfiguration(IProject project) {
-        File gradlePrefsFile = getLegacyConfigurationFile(project);
-        Map<String, Map<String, String>> parsedJson = null;
-        try {
-            String json = Files.toString(gradlePrefsFile, Charsets.UTF_8);
-            Gson gson = new GsonBuilder().create();
-            parsedJson = gson.fromJson(json, createMapTypeToken());
-        } catch (Exception e) {
-            throw new GradlePluginsRuntimeException(String.format("Cannot retrieve legacy project configuration for project %s.", project.getName()), e);
-        }
+        Map<String, Map<String, String>> parsedJson = parseLegacyConfigurationFile(project);
         Map<String, String> config = parsedJson.get("1.0");
 
         String projectPath = config.get("project_path");
@@ -99,6 +91,24 @@ final class LegacyCleaningProjectConfigurationPersistence implements ProjectConf
         return ProjectConfigurationProperties.from(projectPath, projectDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments);
     }
 
+    private static Map<String, Map<String, String>> parseLegacyConfigurationFile(IProject project) {
+        File gradlePrefsFile = getLegacyConfigurationFile(project);
+        String malformedFileMessage = String.format("Project %s contains a malformed gradle.prefs file. Please re-run the import wizard.", project.getName());
+
+        Map<String, Map<String, String>> parsedJson = null;
+        try {
+            String json = Files.toString(gradlePrefsFile, Charsets.UTF_8);
+            Gson gson = new GsonBuilder().create();
+            parsedJson = gson.fromJson(json, createMapTypeToken());
+        } catch (Exception e) {
+            throw new GradlePluginsRuntimeException(malformedFileMessage, e);
+        }
+        if (parsedJson == null) {
+            throw new GradlePluginsRuntimeException(malformedFileMessage);
+        }
+        return parsedJson;
+    }
+
     @SuppressWarnings("serial")
     private static Type createMapTypeToken() {
         return new TypeToken<Map<String, Map<String, String>>>() {}.getType();
@@ -109,11 +119,15 @@ final class LegacyCleaningProjectConfigurationPersistence implements ProjectConf
         Preconditions.checkArgument(project.isAccessible());
 
         if (hasLegacyConfiguration(project)) {
+            String couldNotDeleteMessage = String.format("Cannot clean up legacy project configuration for project %s.", project.getName());
             try {
                 ensureNoProjectPreferencesLoadedFrom(project);
-                getLegacyConfigurationFile(project).delete();
+                boolean deleted = getLegacyConfigurationFile(project).delete();
+                if (!deleted) {
+                    throw new GradlePluginsRuntimeException(couldNotDeleteMessage);
+                }
             } catch (Exception e) {
-                throw new GradlePluginsRuntimeException(String.format("Cannot clean up legacy project configuration for project %s.", project.getName()), e);
+                throw new GradlePluginsRuntimeException(couldNotDeleteMessage, e);
             }
         }
     }
