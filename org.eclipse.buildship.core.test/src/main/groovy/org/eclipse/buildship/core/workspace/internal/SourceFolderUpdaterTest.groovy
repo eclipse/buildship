@@ -141,6 +141,7 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         project.rawClasspath[0].getInclusionPatterns()[0].toString() == "manual-inclusion-pattern"
         project.rawClasspath[0].getExclusionPatterns()[0].toString() == "manual-exclusion-pattern"
     }
+
     def "Classpath inclusion/exclusion patterns on non-model source folders are preserved when becoming model source folders"() {
         given:
         def project = javaProject('name': 'project-name', 'model-source-folders': [], 'manual-source-folders': ['src'], 'manual-inclusion-pattern': (IPath[])[new Path("manual-inclusion-pattern")], 'manual-exclusion-pattern': (IPath[])[new Path("manual-exclusion-pattern")])
@@ -152,6 +153,26 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         then:
         project.rawClasspath[0].getInclusionPatterns()[0].toString() == "manual-inclusion-pattern"
         project.rawClasspath[0].getExclusionPatterns()[0].toString() == "manual-exclusion-pattern"
+    }
+
+    def "The project root can be a source folder"() {
+        given:
+        def project = javaProject('name': 'project-name', 'model-source-folders': [], 'manual-source-folders': [])
+        def newModelSourceFolders = gradleSourceFolders(['.'])
+
+        expect:
+        project.rawClasspath.length == 0
+
+        when:
+        SourceFolderUpdater.update(project, newModelSourceFolders, null)
+
+        then:
+        project.rawClasspath.length == 1
+        project.rawClasspath[0].entryKind == IClasspathEntry.CPE_SOURCE
+        project.rawClasspath[0].path.toPortableString() == "/project-name"
+        project.rawClasspath[0].extraAttributes.length == 1
+        project.rawClasspath[0].extraAttributes[0].name == SourceFolderUpdater.CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL
+
     }
 
     private List<OmniEclipseSourceDirectory> gradleSourceFolders(List<String> folderPaths) {

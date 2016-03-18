@@ -27,11 +27,11 @@ import com.google.common.collect.ImmutableSet;
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
 
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -95,7 +95,7 @@ final class SourceFolderUpdater {
     private Optional<IClasspathEntry> createSourceFolderEntry(OmniEclipseSourceDirectory directory, List<IClasspathEntry> rawClasspath) throws CoreException {
         // pre-condition: in case of linked resources, the linked folder must have been created already
         Optional<IFolder> linkedFolder = getLinkedFolderIfExists(directory.getDirectory());
-        IFolder sourceDirectory = linkedFolder.isPresent() ? linkedFolder.get() : SourceFolderUpdater.this.project.getProject().getFolder(Path.fromOSString(directory.getPath()));
+        IResource sourceDirectory = linkedFolder.isPresent() ? linkedFolder.get() : getFolderOrProjectRoot(directory);
         if (!sourceDirectory.exists()) {
             return Optional.absent();
         }
@@ -123,6 +123,19 @@ final class SourceFolderUpdater {
                 new IClasspathAttribute[]{fromGradleModel}   // the source folder is loaded from the current Gradle model
         ));
         // @formatter:on
+    }
+
+    /*
+     * The project root directory itself is a valid source folder.
+     */
+    private IResource getFolderOrProjectRoot(OmniEclipseSourceDirectory directory) {
+        IProject project = this.project.getProject();
+        IPath path = project.getFullPath().append(directory.getPath());
+        if (path.segmentCount() == 1) {
+            return project;
+        } else {
+            return project.getFolder(path.removeFirstSegments(1));
+        }
     }
 
     private Optional<IFolder> getLinkedFolderIfExists(final File directory) throws CoreException {
