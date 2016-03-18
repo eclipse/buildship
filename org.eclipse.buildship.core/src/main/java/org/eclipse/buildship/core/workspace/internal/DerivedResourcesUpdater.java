@@ -8,20 +8,18 @@
  */
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.util.List;
-import java.util.Set;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Updates the derived resource markers of a project. Stores the last state in the preferences, so
@@ -29,7 +27,7 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
  *
  * @author Stefan Oehme
  */
-public final class DerivedResourcesUpdater {
+final class DerivedResourcesUpdater {
 
     private final IProject project;
     private final ImmutableList<String> derivedResources;
@@ -53,6 +51,17 @@ public final class DerivedResourcesUpdater {
         }
     }
 
+    private void removePreviousMarkers(SubMonitor progress) throws CoreException {
+        StringSetProjectProperty knownDerivedResources = getKnownDerivedResources(this.project);
+        Set<String> previouslyKnownDerivedResources = knownDerivedResources.get();
+
+        progress.setWorkRemaining(previouslyKnownDerivedResources.size());
+
+        for (String resourceName : previouslyKnownDerivedResources) {
+            setDerived(resourceName, false, progress.newChild(1));
+        }
+    }
+
     private void addNewMarkers(SubMonitor progress) throws CoreException {
         progress.setWorkRemaining(this.derivedResources.size());
 
@@ -61,16 +70,6 @@ public final class DerivedResourcesUpdater {
             setDerived(resourceName, true, progress.newChild(1));
         }
         knownDerivedResources.set(Sets.newLinkedHashSet(this.derivedResources));
-    }
-
-    private void removePreviousMarkers(SubMonitor progress) throws CoreException {
-        StringSetProjectProperty knownDerivedResources = getKnownDerivedResources(this.project);
-        Set<String> previouslyKnownDerivedResources = knownDerivedResources.get();
-        progress.setWorkRemaining(previouslyKnownDerivedResources.size());
-
-        for (String resourceName : previouslyKnownDerivedResources) {
-            setDerived(resourceName, false, progress.newChild(1));
-        }
     }
 
     private void setDerived(String resourceName, boolean derived, SubMonitor progress) throws CoreException {
@@ -84,11 +83,12 @@ public final class DerivedResourcesUpdater {
         return StringSetProjectProperty.from(project, "derived.resources");
     }
 
-    public static void update(IProject project, List<String> derivedResources, IProgressMonitor monitor) {
+    static void update(IProject project, List<String> derivedResources, IProgressMonitor monitor) {
         new DerivedResourcesUpdater(project, derivedResources).update(monitor);
     }
 
-    public static void clear(IProject project, IProgressMonitor monitor) {
-        new DerivedResourcesUpdater(project, ImmutableList.<String> of()).update(monitor);
+    static void clear(IProject project, IProgressMonitor monitor) {
+        new DerivedResourcesUpdater(project, ImmutableList.<String>of()).update(monitor);
     }
+
 }
