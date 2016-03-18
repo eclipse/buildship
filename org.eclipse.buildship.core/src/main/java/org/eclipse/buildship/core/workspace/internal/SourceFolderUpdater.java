@@ -99,30 +99,47 @@ final class SourceFolderUpdater {
         if (!sourceDirectory.exists()) {
             return Optional.absent();
         }
-        final IPackageFragmentRoot root = SourceFolderUpdater.this.project.getPackageFragmentRoot(sourceDirectory);
 
-        // find the source folder among the sources currently configured on the project
-        Optional<IClasspathEntry> currentClasspathEntry = FluentIterable.from(rawClasspath).firstMatch(new Predicate<IClasspathEntry>() {
+        //default settings
+        IPath outputLocation = null;
+        IPath[] includes = new IPath[0];
+        IPath[] excludes = new IPath[0];
+        IClasspathAttribute[] extraAttributes = new IClasspathAttribute[0];
+
+        // preserve the previous settings by the user
+        final IPackageFragmentRoot root = SourceFolderUpdater.this.project.getPackageFragmentRoot(sourceDirectory);
+        Optional<IClasspathEntry> possibleExistingEntry = FluentIterable.from(rawClasspath).firstMatch(new Predicate<IClasspathEntry>() {
 
             @Override
             public boolean apply(IClasspathEntry entry) {
                 return root.getPath().equals(entry.getPath());
             }
         });
+        if (possibleExistingEntry.isPresent()) {
+            IClasspathEntry existingEntry = possibleExistingEntry.get();
+            includes = existingEntry.getInclusionPatterns();
+            excludes = existingEntry.getExclusionPatterns();
+            outputLocation = existingEntry.getOutputLocation();
+            extraAttributes = existingEntry.getExtraAttributes();
+        }
 
-        // preserve the includes/excludes defined by the user
-        IPath[] includes = currentClasspathEntry.isPresent() ? currentClasspathEntry.get().getInclusionPatterns() : new IPath[] {};
-        IPath[] excludes = currentClasspathEntry.isPresent() ? currentClasspathEntry.get().getExclusionPatterns() : new IPath[] {};
+        extraAttributes = markAsFromGradleModel(extraAttributes);
 
-        // @formatter:off
+        return Optional.of(JavaCore.newSourceEntry(root.getPath(), includes, excludes, outputLocation, extraAttributes));
+    }
+
+    private IClasspathAttribute[] markAsFromGradleModel(IClasspathAttribute[] extraAttributes) {
+        for (IClasspathAttribute attribute : extraAttributes) {
+            if (CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL.equals(attribute.getName())) {
+                return extraAttributes;
+            }
+        }
+
+        IClasspathAttribute[] newAttributes = new IClasspathAttribute[extraAttributes.length + 1];
+        System.arraycopy(extraAttributes, 0, newAttributes, 0, extraAttributes.length);
         IClasspathAttribute fromGradleModel = JavaCore.newClasspathAttribute(CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL, "true");
-        return Optional.of(JavaCore.newSourceEntry(root.getPath(),
-                includes,                                    // use manually defined inclusion patterns, include all if none exist
-                excludes,                                    // use manually defined exclusion patterns, exclude none if none exist
-                null,                                        // use the same output folder as defined on the project
-                new IClasspathAttribute[]{fromGradleModel}   // the source folder is loaded from the current Gradle model
-        ));
-        // @formatter:on
+        newAttributes[newAttributes.length - 1] = fromGradleModel;
+        return newAttributes;
     }
 
     /*

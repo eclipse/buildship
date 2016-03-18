@@ -2,6 +2,7 @@ package org.eclipse.buildship.core.workspace.internal
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
@@ -123,30 +124,36 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         javaProject.rawClasspath[0].extraAttributes[0].name == SourceFolderUpdater.CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL
     }
 
-    def "Classpath inclusion/exclusion patterns on model source folders are preserved"() {
+    def "Manual adjustments on model source folders are preserved"() {
         given:
-        addSourceFolder("src", ['manual-inclusion-pattern'], ['manual-exclusion-pattern'], null, attributes(fromGradleModel()))
+        addSourceFolder("src", ['manual-inclusion-pattern'], ['manual-exclusion-pattern'], "foo", attributes(["foo" : "bar"] << fromGradleModel()))
         def newModelSourceFolders = gradleSourceFolders(['src'])
 
         when:
         SourceFolderUpdater.update(javaProject, newModelSourceFolders, null)
 
         then:
-        javaProject.rawClasspath[0].getInclusionPatterns()[0].toString() == "manual-inclusion-pattern"
-        javaProject.rawClasspath[0].getExclusionPatterns()[0].toString() == "manual-exclusion-pattern"
+        IClasspathEntry entryAfterUpdate = javaProject.rawClasspath[0]
+        entryAfterUpdate.getInclusionPatterns()[0].toString() == "manual-inclusion-pattern"
+        entryAfterUpdate.getExclusionPatterns()[0].toString() == "manual-exclusion-pattern"
+        entryAfterUpdate.extraAttributes as List == attributes(["foo" : "bar"] << fromGradleModel()) as List
+        entryAfterUpdate.outputLocation.toString() == "/project-name/foo"
     }
 
-    def "Classpath inclusion/exclusion patterns on non-model source folders are preserved when becoming model source folders"() {
+    def "Manual adjustments on non-model source folders are preserved when becoming model source folders"() {
         given:
-        addSourceFolder("src", ['manual-inclusion-pattern'], ['manual-exclusion-pattern'], null)
+        addSourceFolder("src", ['manual-inclusion-pattern'], ['manual-exclusion-pattern'], "foo", attributes(["foo" : "bar"]))
         def newModelSourceFolders = gradleSourceFolders(['src'])
 
         when:
         SourceFolderUpdater.update(javaProject, newModelSourceFolders, null)
 
         then:
-        javaProject.rawClasspath[0].getInclusionPatterns()[0].toString() == "manual-inclusion-pattern"
-        javaProject.rawClasspath[0].getExclusionPatterns()[0].toString() == "manual-exclusion-pattern"
+        IClasspathEntry entryAfterUpdate = javaProject.rawClasspath[0]
+        entryAfterUpdate.getInclusionPatterns()[0].toString() == "manual-inclusion-pattern"
+        entryAfterUpdate.getExclusionPatterns()[0].toString() == "manual-exclusion-pattern"
+        entryAfterUpdate.extraAttributes as List == attributes(["foo" : "bar"] << fromGradleModel()) as List
+        entryAfterUpdate.outputLocation.toString() == "/project-name/foo"
     }
 
     def "The project root can be a source folder"() {
@@ -174,14 +181,15 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
     }
 
     private void addSourceFolder(String path, List<String> inclusionPatterns = [], List<String> exclusionPatterns = [], String outputLocation = null, IClasspathAttribute[] extraAttributes = []) {
-        def folder = javaProject.project.getFolder(path)
+        IFolder folder = javaProject.project.getFolder(path)
+        IPath fullOutputPath = outputLocation == null ? null : javaProject.project.getFolder(outputLocation).fullPath
         FileUtils.ensureFolderHierarchyExists(folder)
         def root = javaProject.getPackageFragmentRoot(folder)
         def entry = JavaCore.newSourceEntry(
             root.path,
             paths(inclusionPatterns),
             paths(exclusionPatterns),
-            outputLocation == null ? null : new Path(outputLocation),
+            fullOutputPath,
             extraAttributes
         )
         javaProject.setRawClasspath((javaProject.rawClasspath + entry) as IClasspathEntry[], new NullProgressMonitor())
