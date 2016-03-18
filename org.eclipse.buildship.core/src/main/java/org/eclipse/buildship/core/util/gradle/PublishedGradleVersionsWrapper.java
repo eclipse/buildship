@@ -53,6 +53,10 @@ public final class PublishedGradleVersionsWrapper {
         return versions != null ? versions.getVersions() : ImmutableList.of(GradleVersion.current());
     }
 
+    /**
+     * Loads the published Gradle versions in the background.
+     * @author Stefan Oehme
+     */
     private final class LoadVersionsJob extends Job {
 
         public LoadVersionsJob() {
