@@ -54,10 +54,24 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         project.rawClasspath[0].extraAttributes[0].name == SourceFolderUpdater.CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL
     }
 
+    def "Source folders that don't physically exist are ignored."() {
+        given:
+        def project = javaProject('name': 'project-name', 'model-source-folders': [], 'manual-source-folders': [])
+        def newModelSourceFolders = gradleSourceFolders(['src-not-there'])
+
+        when:
+        SourceFolderUpdater.update(project, newModelSourceFolders, null)
+
+        then:
+        project.rawClasspath.length == 0
+    }
+
     def "Previous model source folders are removed if they no longer exist in the Gradle model"() {
         given:
         def project = javaProject('name': 'project-name', 'model-source-folders': ['src-old'], 'manual-source-folders': [])
-        def newModelSourceFolders = gradleSourceFolders(['src-new'])
+        def srcNew = project.project.getFolder('src-new')
+        srcNew.create(true, true, null)
+        def newModelSourceFolders = gradleSourceFolders([srcNew.name])
 
         when:
         SourceFolderUpdater.update(project, newModelSourceFolders, null)
@@ -73,7 +87,9 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
     def "Non-model source folders are preserved even if they are not part of the Gradle model"() {
         given:
         def project = javaProject('name': 'project-name', 'model-source-folders': [], 'manual-source-folders': ['src'])
-        def newModelSourceFolders = gradleSourceFolders(['src-gradle'])
+        def srcGradle = project.project.getFolder('src-gradle')
+        srcGradle.create(true, true, null)
+        def newModelSourceFolders = gradleSourceFolders([srcGradle.name])
 
         expect:
         project.rawClasspath.length == 1

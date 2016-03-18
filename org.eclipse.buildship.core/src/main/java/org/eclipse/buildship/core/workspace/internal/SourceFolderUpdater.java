@@ -39,8 +39,6 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-import org.eclipse.buildship.core.util.file.FileUtils;
-
 /**
  * Updates the source folders of the target project.
  * <p/>
@@ -83,7 +81,10 @@ final class SourceFolderUpdater {
         // collect the paths of all source folders of the new Gradle model and keep any user-defined filters
         ImmutableList.Builder<IClasspathEntry> sourceFolderEntries = ImmutableList.builder();
         for (OmniEclipseSourceDirectory sourceFolder : this.sourceFolders) {
-            sourceFolderEntries.add(createSourceFolderEntry(sourceFolder, rawClasspath));
+            Optional<IClasspathEntry> entry = createSourceFolderEntry(sourceFolder, rawClasspath);
+            if (entry.isPresent()) {
+                sourceFolderEntries.add(entry.get());
+            }
         }
 
         // remove duplicate source folders since JDT (IJavaProject#setRawClasspath) does not allow
@@ -91,11 +92,13 @@ final class SourceFolderUpdater {
         return ImmutableSet.copyOf(sourceFolderEntries.build()).asList();
     }
 
-    private IClasspathEntry createSourceFolderEntry(OmniEclipseSourceDirectory directory, List<IClasspathEntry> rawClasspath) throws CoreException {
+    private Optional<IClasspathEntry> createSourceFolderEntry(OmniEclipseSourceDirectory directory, List<IClasspathEntry> rawClasspath) throws CoreException {
         // pre-condition: in case of linked resources, the linked folder must have been created already
         Optional<IFolder> linkedFolder = getLinkedFolderIfExists(directory.getDirectory());
         IFolder sourceDirectory = linkedFolder.isPresent() ? linkedFolder.get() : SourceFolderUpdater.this.project.getProject().getFolder(Path.fromOSString(directory.getPath()));
-        FileUtils.ensureFolderHierarchyExists(sourceDirectory);
+        if (!sourceDirectory.exists()) {
+            return Optional.absent();
+        }
         final IPackageFragmentRoot root = SourceFolderUpdater.this.project.getPackageFragmentRoot(sourceDirectory);
 
         // find the source folder among the sources currently configured on the project
@@ -113,12 +116,12 @@ final class SourceFolderUpdater {
 
         // @formatter:off
         IClasspathAttribute fromGradleModel = JavaCore.newClasspathAttribute(CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL, "true");
-        return JavaCore.newSourceEntry(root.getPath(),
+        return Optional.of(JavaCore.newSourceEntry(root.getPath(),
                 includes,                                    // use manually defined inclusion patterns, include all if none exist
                 excludes,                                    // use manually defined exclusion patterns, exclude none if none exist
                 null,                                        // use the same output folder as defined on the project
                 new IClasspathAttribute[]{fromGradleModel}   // the source folder is loaded from the current Gradle model
-        );
+        ));
         // @formatter:on
     }
 
