@@ -40,6 +40,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -297,11 +298,15 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     }
 
     private void scheduleProjectPreviewJob() {
+        IWizardContainer container = getContainer();
+        if (container == null) {
+            return;
+        }
         try {
             // once cancellation has been requested by the user, do not block any longer
             // this way, the user can continue with the import wizard even if the preview is still
             // loading a no-longer-of-interest model in the background
-            getContainer().run(true, true, new IRunnableWithProgress() {
+            container.run(true, true, new IRunnableWithProgress() {
 
                 @Override
                 public void run(IProgressMonitor monitor) throws InterruptedException {
