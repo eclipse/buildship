@@ -26,7 +26,10 @@ import org.eclipse.core.runtime.SubMonitor;
 
 /**
  * {@link ProgressListener} implementation which delegates all Gradle {@link ProgressEvent} to a
- * target {@link IProgressMonitor}.
+ * target {@link IProgressMonitor}. The Tooling API does not provide up-front information about how
+ * many work units will be needed. To give the user some perceived progress, this class will use a
+ * logarithmic approach. Every new message will lead to 1/100 of the remaining progress to be consumed.
+ * As a result, the bar will start out reasonably fast and slow down towards the end for bigger projects.
  */
 public final class DelegatingProgressListener implements ProgressListener {
 
@@ -51,6 +54,8 @@ public final class DelegatingProgressListener implements ProgressListener {
         if (!this.eventFilter.apply(event)) {
             return;
         }
+        this.monitor.setWorkRemaining(100);
+        this.monitor.worked(1);
         this.monitor.subTask(event.getDescription());
     }
 
