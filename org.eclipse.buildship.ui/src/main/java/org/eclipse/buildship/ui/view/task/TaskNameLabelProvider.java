@@ -22,6 +22,8 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.IDE.SharedImages;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 
 import org.eclipse.buildship.ui.PluginImage.ImageState;
@@ -91,7 +93,11 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
 
     private Image getProjectImage(ProjectNode project) {
         Optional<IProject> workspaceProject = project.getWorkspaceProject();
-        return workspaceProject.isPresent() ? this.workbenchLabelProvider.getImage(workspaceProject.get()) : null;
+        if (workspaceProject.isPresent()) {
+            return this.workbenchLabelProvider.getImage(workspaceProject.get());
+        } else {
+            return PlatformUI.getWorkbench().getSharedImages().getImage(SharedImages.IMG_OBJ_PROJECT_CLOSED);
+        }
     }
 
     private Image getProjectTaskImage(ProjectTaskNode projectTask) {
