@@ -22,7 +22,6 @@ import org.osgi.framework.ServiceRegistration;
 
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jface.resource.ImageRegistry;
-import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import org.eclipse.buildship.core.CorePlugin;
@@ -36,7 +35,6 @@ import org.eclipse.buildship.ui.launch.ConsoleShowingLaunchListener;
 import org.eclipse.buildship.ui.launch.UiGradleLaunchConfigurationManager;
 import org.eclipse.buildship.ui.notification.DialogUserNotification;
 import org.eclipse.buildship.ui.view.execution.ExecutionShowingLaunchRequestListener;
-import org.eclipse.buildship.ui.workspace.RefreshProjectCommandExecutionListener;
 
 /**
  * The plug-in runtime class for the Gradle integration plug-in containing the UI-related elements.
@@ -60,7 +58,6 @@ public final class UiPlugin extends AbstractUIPlugin {
     private ServiceRegistration gradleLaunchConfigurationService;
     private ConsoleShowingLaunchListener consoleShowingLaunchListener;
     private ExecutionShowingLaunchRequestListener executionShowingLaunchRequestListener;
-    private RefreshProjectCommandExecutionListener refreshCommandExecutionListener;
 
     @Override
     public void start(BundleContext context) throws Exception {
@@ -129,19 +126,10 @@ public final class UiPlugin extends AbstractUIPlugin {
 
         this.executionShowingLaunchRequestListener = new ExecutionShowingLaunchRequestListener();
         CorePlugin.listenerRegistry().addEventListener(this.executionShowingLaunchRequestListener);
-
-        this.refreshCommandExecutionListener = new RefreshProjectCommandExecutionListener();
-        ICommandService commandService = (ICommandService) getWorkbench().getService(ICommandService.class);
-        commandService.addExecutionListener(this.refreshCommandExecutionListener);
     }
 
     @SuppressWarnings({"cast", "RedundantCast"})
     private void unregisterListeners() {
-        ICommandService commandService = (ICommandService) getWorkbench().getService(ICommandService.class);
-        if (commandService != null) {
-            commandService.removeExecutionListener(this.refreshCommandExecutionListener);
-        }
-
         CorePlugin.listenerRegistry().removeEventListener(this.executionShowingLaunchRequestListener);
         DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(this.consoleShowingLaunchListener);
     }
