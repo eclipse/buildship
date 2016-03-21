@@ -28,7 +28,7 @@ import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 import com.gradleware.tooling.toolingmodel.util.Pair;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
@@ -75,35 +75,21 @@ public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
 
     @Override
     protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
-        monitor.beginTask("Load Gradle project preview", 20);
-
-        this.initializer.run(new SubProgressMonitor(monitor, 10), getToken());
-
-        OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(new SubProgressMonitor(monitor, 2));
-        OmniGradleBuildStructure gradleBuildStructure = fetchGradleBuildStructure(new SubProgressMonitor(monitor, 8));
+        SubMonitor progress = SubMonitor.convert(monitor, 20);
+        this.initializer.run(progress.newChild(1), getToken());
+        OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(progress.newChild(2));
+        OmniGradleBuildStructure gradleBuildStructure = fetchGradleBuildStructure(progress.newChild(8));
         this.result = new Pair<OmniBuildEnvironment, OmniGradleBuildStructure>(buildEnvironment, gradleBuildStructure);
-
-        // monitor is closed by caller in super class
     }
 
     private OmniBuildEnvironment fetchBuildEnvironment(IProgressMonitor monitor) {
-        monitor.beginTask("Load Gradle Build Environment", IProgressMonitor.UNKNOWN);
-        try {
-            SimpleModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(this.fixedAttributes);
-            return repository.fetchBuildEnvironment(this.transientAttributes, FetchStrategy.FORCE_RELOAD);
-        } finally {
-            monitor.done();
-        }
+        SimpleModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(this.fixedAttributes);
+        return repository.fetchBuildEnvironment(this.transientAttributes, FetchStrategy.FORCE_RELOAD);
     }
 
     private OmniGradleBuildStructure fetchGradleBuildStructure(IProgressMonitor monitor) {
-        monitor.beginTask("Load Gradle Project Structure", IProgressMonitor.UNKNOWN);
-        try {
-            SimpleModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(this.fixedAttributes);
-            return repository.fetchGradleBuildStructure(this.transientAttributes, FetchStrategy.FORCE_RELOAD);
-        } finally {
-            monitor.done();
-        }
+        SimpleModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(this.fixedAttributes);
+        return repository.fetchGradleBuildStructure(this.transientAttributes, FetchStrategy.FORCE_RELOAD);
     }
 
 }
