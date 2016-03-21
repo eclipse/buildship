@@ -150,7 +150,9 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
      * Triggers a refresh of the view.
      */
     public void refresh() {
-        this.treeViewer.refresh(true);
+        if (!this.treeViewer.getTree().isDisposed()) {
+            this.treeViewer.refresh(true);
+        }
     }
 
     /**
