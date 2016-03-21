@@ -58,14 +58,13 @@ public interface WorkspaceOperations {
     Optional<IProject> findProjectByLocation(File location);
 
     /**
-     * Returns the Eclipse project at the given physical location, if it exists. Looks for a <i>.project</i>
-     * file in the given folder.
+     * Returns the Eclipse project descriptor at the given physical location, if it exists.
      *
      * @param location the physical location where to look for an existing Eclipse project
      * @param monitor  the monitor to report progress on
      * @return the found Eclipse project, otherwise {@link Optional#absent()}
      */
-    Optional<IProjectDescription> findProjectInFolder(File location, IProgressMonitor monitor);
+    Optional<IProjectDescription> findProjectDescriptor(File location, IProgressMonitor monitor);
 
     /**
      * Deletes the .project and .classpath files of the project at the given location.

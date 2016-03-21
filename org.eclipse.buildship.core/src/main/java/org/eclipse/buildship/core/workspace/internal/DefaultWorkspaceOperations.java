@@ -12,7 +12,6 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +42,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
@@ -90,29 +90,14 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
-    public Optional<IProjectDescription> findProjectInFolder(File location, IProgressMonitor monitor) {
-        if (location == null || !location.exists()) {
-            return Optional.absent();
-        }
-
-        File dotProjectFile = new File(location, ".project");
-        if (!dotProjectFile.exists() || !dotProjectFile.isFile()) {
-            return Optional.absent();
-        }
-
+    public Optional<IProjectDescription> findProjectDescriptor(File location, IProgressMonitor monitor) {
+        IPath descriptorLocation = Path.fromOSString(location.getPath()).append(".project");
+        IWorkspace workspace = ResourcesPlugin.getWorkspace();
         try {
-            // calculate the project location
-            IPath projectLocation = normalizeProjectLocation(location);
-
-            // get, configure, and return the project description
-            IWorkspace workspace = ResourcesPlugin.getWorkspace();
-            FileInputStream dotProjectStream = new FileInputStream(dotProjectFile);
-            IProjectDescription projectDescription = workspace.loadProjectDescription(dotProjectStream);
-            projectDescription.setLocation(projectLocation);
+            IProjectDescription projectDescription = workspace.loadProjectDescription(descriptorLocation);
             return Optional.of(projectDescription);
-        } catch (Exception e) {
-            String message = String.format("Cannot open existing Eclipse project from %s.", dotProjectFile.getAbsolutePath());
-            throw new GradlePluginsRuntimeException(message, e);
+        } catch (CoreException e) {
+            return Optional.absent();
         }
     }
 
@@ -129,15 +114,12 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         Preconditions.checkNotNull(location);
         Preconditions.checkNotNull(natureIds);
         Preconditions.checkArgument(!name.isEmpty(), "Project name must not be empty.");
-        Preconditions.checkArgument(location.exists(), String.format("Project location %s must exist.", location));
         Preconditions.checkArgument(location.isDirectory(), String.format("Project location %s must be a directory.", location));
+        Preconditions.checkState(!findProjectByName(name).isPresent(), String.format("Workspace already contains a project with name %s.", name));
 
         monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
         monitor.beginTask(String.format("Create Eclipse project %s", name), 3 + natureIds.size());
         try {
-            // check project name is unique in workspace
-            Preconditions.checkState(!findProjectByName(name).isPresent(), String.format("Workspace already contains a project with name %s.", name));
-
             // calculate the name and the project location
             String projectName = normalizeProjectName(name, location);
             IPath projectLocation = normalizeProjectLocation(location);
@@ -161,9 +143,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
             // return the created, open project
             return project;
-        } catch (Exception e) {
-            String message = String.format("Cannot create Eclipse project %s.", name);
-            throw new GradlePluginsRuntimeException(message, e);
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(e);
         } finally {
             monitor.done();
         }
@@ -175,13 +156,11 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         Preconditions.checkNotNull(projectDescription);
         Preconditions.checkNotNull(extraNatureIds);
         String projectName = projectDescription.getName();
+        Preconditions.checkState(!findProjectByName(projectName).isPresent(), String.format("Workspace already contains a project with name %s.", projectName));
 
         monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
         monitor.beginTask(String.format("Include existing non-workspace Eclipse project %s", projectName), 3 + extraNatureIds.size());
         try {
-            // check project name is unique in workspace
-            Preconditions.checkState(!findProjectByName(projectName).isPresent(), String.format("Workspace already contains a project with name %s.", projectName));
-
             // include the project in the workspace
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
             IProject project = workspace.getRoot().getProject(projectName);
@@ -198,9 +177,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
             // return the included, open project
             return project;
-        } catch (Exception e) {
-            String message = String.format("Cannot include existing Eclipse project %s.", projectName);
-            throw new GradlePluginsRuntimeException(message, e);
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(e);
         } finally {
             monitor.done();
         }
@@ -235,9 +213,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
             // return the created Java project
             return javaProject;
-        } catch (Exception e) {
-            String message = String.format("Cannot create Eclipse Java project %s.", project.getName());
-            throw new GradlePluginsRuntimeException(message, e);
+        } catch (JavaModelException e) {
+            throw new GradlePluginsRuntimeException(e);
         } finally {
             monitor.done();
         }
@@ -251,9 +228,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
                 outputFolder.create(true, true, new SubProgressMonitor(monitor, 1));
             }
             return outputFolder;
-        } catch (Exception e) {
-            String message = String.format("Cannot create output folder for Eclipse project %s.", project.getName());
-            throw new GradlePluginsRuntimeException(message, e);
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(e);
         } finally {
             monitor.done();
         }
@@ -278,9 +254,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             // assign the whole classpath at once to the project
             List<IClasspathEntry> entriesArray = entries.build();
             javaProject.setRawClasspath(entriesArray.toArray(new IClasspathEntry[entriesArray.size()]), new SubProgressMonitor(monitor, 6));
-        } catch (Exception e) {
-            String message = String.format("Cannot configure sources and classpath for Eclipse project %s.", javaProject.getProject().getName());
-            throw new GradlePluginsRuntimeException(message, e);
+        } catch (JavaModelException e) {
+            throw new GradlePluginsRuntimeException(e);
         } finally {
             monitor.done();
         }
@@ -296,9 +271,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         monitor.beginTask(String.format("Refresh Eclipse project %s", project.getName()), 1);
         try {
             project.refreshLocal(IProject.DEPTH_INFINITE, new SubProgressMonitor(monitor, 1));
-        } catch (Exception e) {
-            String message = String.format("Cannot refresh Eclipse project %s.", project.getName());
-            throw new GradlePluginsRuntimeException(message, e);
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(e);
         } finally {
             monitor.done();
         }
@@ -522,9 +496,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             IProjectDescription description = project.getDescription();
             description.setName(newName);
             project.move(description, false, new SubProgressMonitor(monitor,1));
-        } catch (Exception e) {
-            String message = String.format("Cannot rename project %s to %s.", project.getName(), newName);
-            throw new GradlePluginsRuntimeException(message, e);
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(e);
         } finally {
             monitor.done();
         }

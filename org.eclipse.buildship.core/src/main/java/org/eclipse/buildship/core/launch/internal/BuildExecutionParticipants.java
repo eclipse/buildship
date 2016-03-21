@@ -16,6 +16,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleException;
 
 /**
  * Helper class to activate plugins which contribute to the {@code executionparticipants} extension point.
@@ -42,7 +43,7 @@ public final class BuildExecutionParticipants {
                 if (Bundle.ACTIVE != bundle.getState()) {
                     bundle.start(Bundle.START_TRANSIENT);
                 }
-            } catch (Exception e) {
+            } catch (BundleException e) {
                 String message = String.format("Failed to activate plugin %s referenced in extension point 'executionparticipants'.", pluginId);
                 CorePlugin.logger().error(message, e);
             }

@@ -109,7 +109,7 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
         workspaceOperations.createProject("projectname", projectFolder, ImmutableList.of(), new NullProgressMonitor())
 
         then:
-        thrown(GradlePluginsRuntimeException.class)
+        thrown IllegalStateException
     }
 
     def "Project name can't be empty when created"() {

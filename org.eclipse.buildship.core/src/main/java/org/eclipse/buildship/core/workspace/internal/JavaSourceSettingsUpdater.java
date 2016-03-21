@@ -37,8 +37,6 @@ import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 
-import org.eclipse.buildship.core.CorePlugin;
-
 /**
  * Updates the Java source settings on the target project.
  */
@@ -135,8 +133,6 @@ final class JavaSourceSettingsUpdater {
                 try {
                     project.build(IncrementalProjectBuilder.FULL_BUILD, JavaCore.BUILDER_ID, Collections.<String, String>emptyMap(), monitor);
                     return Status.OK_STATUS;
-                } catch (Exception e) {
-                    return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, String.format("Cannot perform a full build on project %s.", project.getName()), e);
                 } finally {
                     monitor.done();
                 }

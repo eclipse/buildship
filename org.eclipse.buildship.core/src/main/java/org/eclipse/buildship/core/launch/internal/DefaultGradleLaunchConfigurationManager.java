@@ -78,7 +78,7 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
 
             // persist the launch configuration and return it
             return launchConfiguration.doSave();
-        } catch (Exception e) {
+        } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot create Gradle launch configuration %s.", launchConfigurationName), e);
         }
     }
@@ -88,7 +88,7 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
 
         try {
             return this.launchManager.getLaunchConfigurations(launchConfigurationType);
-        } catch (Exception e) {
+        } catch (CoreException e) {
             throw new GradlePluginsRuntimeException("Cannot get Gradle launch configurations.", e);
         }
     }

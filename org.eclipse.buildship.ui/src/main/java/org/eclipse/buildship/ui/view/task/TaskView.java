@@ -163,7 +163,7 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
             Set<ProjectConfiguration> rootProjectConfigs = CorePlugin.projectConfigurationManager().getRootProjectConfigurations();
             this.pages.showPage(rootProjectConfigs.isEmpty() ? this.emptyInputPage : this.nonEmptyInputPage);
             this.treeViewer.setInput(new TaskViewContent(rootProjectConfigs, modelFetchStrategy));
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             CorePlugin.logger().error("Failed to reload task view content.", e); //$NON-NLS-1$
             this.pages.showPage(this.errorInputPage);
         }
