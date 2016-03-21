@@ -11,24 +11,29 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
+
 import com.gradleware.tooling.toolingmodel.OmniEclipseLinkedResource;
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.QualifiedName;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import org.eclipse.buildship.core.CorePlugin;
 
 /**
  * Updates the linked sources of the target project.
