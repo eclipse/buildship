@@ -52,7 +52,9 @@ public final class ToggleShowTreeHeaderAction extends Action {
             @Override
             public void run() {
                 Tree tree = ToggleShowTreeHeaderAction.this.treeViewer.getTree();
-                tree.setHeaderVisible(ToggleShowTreeHeaderAction.this.treeViewerState.isShowTreeHeader());
+                if (!tree.isDisposed()) {
+                    tree.setHeaderVisible(ToggleShowTreeHeaderAction.this.treeViewerState.isShowTreeHeader());
+                }
             }
         });
     }

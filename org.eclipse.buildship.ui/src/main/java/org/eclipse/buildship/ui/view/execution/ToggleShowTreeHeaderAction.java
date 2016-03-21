@@ -56,7 +56,9 @@ public final class ToggleShowTreeHeaderAction extends Action {
                 boolean showTreeHeader = ToggleShowTreeHeaderAction.this.treeViewerState.isShowTreeHeader();
                 for (ExecutionPage executionPage : FluentIterable.from(ToggleShowTreeHeaderAction.this.multiPageView.getPages()).filter(ExecutionPage.class)) {
                     Tree tree = executionPage.getPageControl().getViewer().getTree();
-                    tree.setHeaderVisible(showTreeHeader);
+                    if (!tree.isDisposed()) {
+                        tree.setHeaderVisible(showTreeHeader);
+                    }
                 }
             }
         });
