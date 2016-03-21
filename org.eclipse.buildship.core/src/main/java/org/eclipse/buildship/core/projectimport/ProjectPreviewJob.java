@@ -76,7 +76,7 @@ public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
     @Override
     protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws Exception {
         SubMonitor progress = SubMonitor.convert(monitor, 20);
-        this.initializer.run(progress.newChild(1), getToken());
+        this.initializer.run(progress.newChild(10), getToken());
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(progress.newChild(2));
         OmniGradleBuildStructure gradleBuildStructure = fetchGradleBuildStructure(progress.newChild(8));
         this.result = new Pair<OmniBuildEnvironment, OmniGradleBuildStructure>(buildEnvironment, gradleBuildStructure);
