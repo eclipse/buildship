@@ -202,8 +202,6 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
     private IClasspathAttribute[] attributes(Map<String, String> attributes) {
         return attributes.entrySet().collect {
             attribute(it.key, it.value)
-        }.unique(false) { left, right ->
-            left.name <=> right.name
         }
     }
 
