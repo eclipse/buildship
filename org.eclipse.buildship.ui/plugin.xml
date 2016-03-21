@@ -348,43 +348,33 @@
     <extension
             point="org.eclipse.ui.menus">
         <menuContribution
-                allPopups="true"
-                locationURI="popup:org.eclipse.jdt.ui.PackageExplorer?after=additions">
+                locationURI="popup:org.eclipse.ui.popup.any?after=additions">
             <menu
                     id="org.eclipse.buildship.ui.contextmenuentry"
                     label="Gradle">
                 <command
                         commandId="org.eclipse.buildship.ui.commands.refreshproject"
                         style="push">
-                    <visibleWhen
-                            checkEnabled="false">
-                        <with
-                                variable="activeMenuSelection">
-                            <iterate
-                                    operator="or"
-                                    ifEmpty="false">
-                                <adapt
-                                        type="org.eclipse.core.resources.IProject">
-                                    <test
-                                            forcePluginActivation="true"
-                                            property="org.eclipse.core.resources.projectNature"
-                                            value="org.eclipse.buildship.core.gradleprojectnature">
-                                    </test>
-                                </adapt>
-                            </iterate>
-                        </with>
-                    </visibleWhen>
                 </command>
+                <visibleWhen>
+                    <with
+                            variable="activeMenuSelection">
+                        <iterate
+                                operator="or"
+                                ifEmpty="false">
+                            <adapt
+                                    type="org.eclipse.core.resources.IProject">
+                                <test
+                                        forcePluginActivation="true"
+                                        property="org.eclipse.core.resources.projectNature"
+                                        value="org.eclipse.buildship.core.gradleprojectnature">
+                                </test>
+                            </adapt>
+                        </iterate>
+                    </with>
+                </visibleWhen>
             </menu>
         </menuContribution>
-        <menuContribution
-             allPopups="true"
-             locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions">
-          <menu
-                id="org.eclipse.buildship.ui.contextmenuentry"
-                label="Gradle">
-          </menu>
-       </menuContribution>
     </extension>
 
     <!-- extension point to register plugins that need to be activated (if not already activated) when a build execution starts -->
