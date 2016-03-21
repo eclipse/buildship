@@ -17,6 +17,7 @@
 <unit id="org.slf4j.api" version="1.7.2.v20121108-1250"/>
 <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars/"/>
 </location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.gradle.toolingapi" version="2.12.0.v20160320230031"/>
 <unit id="com.gradleware.tooling.utils" version="0.12.0.v20160320230031"/>
 <unit id="com.gradleware.tooling.client" version="0.12.0.v20160320230031"/>
