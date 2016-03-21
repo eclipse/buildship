@@ -19,7 +19,7 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 
 /**
  * Updates project names to match the Gradle model. Moves other projects out of the way if necessary.
@@ -37,17 +37,12 @@ final class ProjectNameUpdater {
      */
     static IProject updateProjectName(IProject workspaceProject, OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
         String newName = normalizeProjectName(project);
-        monitor.beginTask(String.format("Updating name of project '%s' to '%s'", workspaceProject.getName(), newName), 2);
-        try {
-            if (newName.equals(workspaceProject.getName())) {
-                monitor.worked(2);
-                return workspaceProject;
-            } else {
-                ensureProjectNameIsFree(newName, gradleBuild, new SubProgressMonitor(monitor, 1));
-                return CorePlugin.workspaceOperations().renameProject(workspaceProject, newName, new SubProgressMonitor(monitor, 1));
-            }
-        } finally {
-            monitor.done();
+        SubMonitor progress = SubMonitor.convert(monitor, 2);
+        if (newName.equals(workspaceProject.getName())) {
+            return workspaceProject;
+        } else {
+            ensureProjectNameIsFree(newName, gradleBuild, progress.newChild(1));
+            return CorePlugin.workspaceOperations().renameProject(workspaceProject, newName, progress.newChild(1));
         }
     }
 
@@ -73,20 +68,15 @@ final class ProjectNameUpdater {
     }
 
     private static void ensureProjectNameIsFree(String normalizedProjectName, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Ensure project name '%s' is free", normalizedProjectName), 1);
-        try {
-            Optional<IProject> possibleDuplicate = CorePlugin.workspaceOperations().findProjectByName(normalizedProjectName);
-            if (possibleDuplicate.isPresent()) {
-                IProject duplicate = possibleDuplicate.get();
-                if (isScheduledForRenaming(duplicate, gradleBuild)) {
-                    renameTemporarily(duplicate, new SubProgressMonitor(monitor, 1));
-                } else {
-                    String message = String.format("A project with the name %s already exists.", normalizedProjectName);
-                    throw new GradlePluginsRuntimeException(message);
-                }
+        Optional<IProject> possibleDuplicate = CorePlugin.workspaceOperations().findProjectByName(normalizedProjectName);
+        if (possibleDuplicate.isPresent()) {
+            IProject duplicate = possibleDuplicate.get();
+            if (isScheduledForRenaming(duplicate, gradleBuild)) {
+                renameTemporarily(duplicate, monitor);
+            } else {
+                String message = String.format("A project with the name %s already exists.", normalizedProjectName);
+                throw new GradlePluginsRuntimeException(message);
             }
-        } finally {
-            monitor.done();
         }
     }
 

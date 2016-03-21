@@ -26,7 +26,6 @@ import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
@@ -74,22 +73,16 @@ public final class LoadEclipseGradleBuildJob extends ToolingApiJob {
 
     @Override
     protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
-        monitor.beginTask(String.format("Load tasks of project located at %s", this.configuration.getRequestAttributes().getProjectDir().getName()), 1);
-        this.result = fetchEclipseGradleBuild(new SubProgressMonitor(monitor, 1));
+        this.result = fetchEclipseGradleBuild(monitor);
     }
 
     private OmniEclipseGradleBuild fetchEclipseGradleBuild(IProgressMonitor monitor) {
-        monitor.beginTask("Load Eclipse Project", IProgressMonitor.UNKNOWN);
-        try {
-            ProcessStreams stream = this.processStreamsProvider.getBackgroundJobProcessStreams();
-            List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(DelegatingProgressListener.withoutDuplicateLifecycleEvents(monitor));
-            TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, stream.getOutput(), stream.getError(), null, listeners,
-                    ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
-            SimpleModelRepository repository = this.modelRepositoryProvider.getModelRepository(this.configuration.getRequestAttributes());
-            return repository.fetchEclipseGradleBuild(transientAttributes, this.modelFetchStrategy);
-        } finally {
-            monitor.done();
-        }
+        ProcessStreams stream = this.processStreamsProvider.getBackgroundJobProcessStreams();
+        List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(DelegatingProgressListener.withoutDuplicateLifecycleEvents(monitor));
+        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, stream.getOutput(), stream.getError(), null, listeners,
+                ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
+        SimpleModelRepository repository = this.modelRepositoryProvider.getModelRepository(this.configuration.getRequestAttributes());
+        return repository.fetchEclipseGradleBuild(transientAttributes, this.modelFetchStrategy);
     }
 
     @Override

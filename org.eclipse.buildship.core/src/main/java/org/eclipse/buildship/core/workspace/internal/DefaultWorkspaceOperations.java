@@ -35,10 +35,9 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -46,7 +45,6 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.util.object.MoreObjects;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 /**
@@ -117,8 +115,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         Preconditions.checkArgument(location.isDirectory(), String.format("Project location %s must be a directory.", location));
         Preconditions.checkState(!findProjectByName(name).isPresent(), String.format("Workspace already contains a project with name %s.", name));
 
-        monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
-        monitor.beginTask(String.format("Create Eclipse project %s", name), 3 + natureIds.size());
+        SubMonitor progress = SubMonitor.convert(monitor, 3);
         try {
             // calculate the name and the project location
             String projectName = normalizeProjectName(name, location);
@@ -130,23 +127,22 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             projectDescription.setLocation(projectLocation);
             projectDescription.setComment(String.format("Project %s created by Buildship.", projectName));
             IProject project = workspace.getRoot().getProject(projectName);
-            project.create(projectDescription, new SubProgressMonitor(monitor, 1));
+            project.create(projectDescription, progress.newChild(1));
 
             // open the project
-            project.open(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1));
+            project.open(IResource.BACKGROUND_REFRESH, progress.newChild(1));
 
             // add project natures separately to trigger IProjectNature#configure
             // the project needs to be open while the natures are added
+            SubMonitor natureProgress = progress.newChild(1).setWorkRemaining(natureIds.size());
             for (String natureId : natureIds) {
-                addNature(project, natureId, new SubProgressMonitor(monitor, 1));
+                addNature(project, natureId, natureProgress.newChild(1));
             }
 
             // return the created, open project
             return project;
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(e);
-        } finally {
-            monitor.done();
         }
     }
 
@@ -158,21 +154,21 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         String projectName = projectDescription.getName();
         Preconditions.checkState(!findProjectByName(projectName).isPresent(), String.format("Workspace already contains a project with name %s.", projectName));
 
-        monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
-        monitor.beginTask(String.format("Include existing non-workspace Eclipse project %s", projectName), 3 + extraNatureIds.size());
+        SubMonitor progress = SubMonitor.convert(monitor, 3);
         try {
             // include the project in the workspace
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
             IProject project = workspace.getRoot().getProject(projectName);
-            project.create(projectDescription, new SubProgressMonitor(monitor, 1));
+            project.create(projectDescription, progress.newChild(1));
 
             // open the project
-            project.open(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1));
+            project.open(IResource.BACKGROUND_REFRESH, progress.newChild(1));
 
             // add project natures separately to trigger IProjectNature#configure
             // the project needs to be open while the natures are added
+            SubMonitor natureProgress = progress.newChild(1).setWorkRemaining(extraNatureIds.size());
             for (String natureId : extraNatureIds) {
-                addNature(project, natureId, new SubProgressMonitor(monitor, 1));
+                addNature(project, natureId, natureProgress.newChild(1));
             }
 
             // return the included, open project
@@ -191,73 +187,62 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         Preconditions.checkNotNull(jrePath);
         Preconditions.checkArgument(project.isAccessible(), "Project must be open.");
 
-        monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
-        monitor.beginTask(String.format("Create Eclipse Java project %s", project.getName()), 17);
+        SubMonitor progress = SubMonitor.convert(monitor, 11);
         try {
             // add Java nature
-            addNature(project, JavaCore.NATURE_ID, new SubProgressMonitor(monitor, 2));
+            addNature(project, JavaCore.NATURE_ID, progress.newChild(2));
 
             // create the Eclipse Java project from the plain Eclipse project
             IJavaProject javaProject = JavaCore.create(project);
-            monitor.worked(5);
 
             // set up initial classpath container on project
-            setClasspathOnProject(javaProject, jrePath, classpathContainer, new SubProgressMonitor(monitor, 5));
+            setClasspathOnProject(javaProject, jrePath, classpathContainer, progress.newChild(5));
 
             // set up output location
-            IFolder outputFolder = createOutputFolder(project, new SubProgressMonitor(monitor, 1));
-            javaProject.setOutputLocation(outputFolder.getFullPath(), new SubProgressMonitor(monitor, 1));
+            IFolder outputFolder = createOutputFolder(project, progress.newChild(1));
+            javaProject.setOutputLocation(outputFolder.getFullPath(), progress.newChild(1));
 
             // save the project configuration
-            javaProject.save(new SubProgressMonitor(monitor, 2), true);
+            javaProject.save(progress.newChild(2), true);
 
             // return the created Java project
             return javaProject;
         } catch (JavaModelException e) {
             throw new GradlePluginsRuntimeException(e);
-        } finally {
-            monitor.done();
         }
     }
 
-    private IFolder createOutputFolder(IProject project, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Create output folder for Eclipse project %s", project.getName()), 1);
+    private IFolder createOutputFolder(IProject project, SubMonitor progress) {
+        progress.setWorkRemaining(1);
         try {
             IFolder outputFolder = project.getFolder("bin");
             if (!outputFolder.exists()) {
-                outputFolder.create(true, true, new SubProgressMonitor(monitor, 1));
+                outputFolder.create(true, true, progress.newChild(1));
             }
             return outputFolder;
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(e);
-        } finally {
-            monitor.done();
         }
     }
 
-    private void setClasspathOnProject(IJavaProject javaProject, IPath jrePath, IClasspathEntry classpathContainerEntry, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Configure sources and classpath for Eclipse project %s", javaProject.getProject().getName()), 10);
+    private void setClasspathOnProject(IJavaProject javaProject, IPath jrePath, IClasspathEntry classpathContainerEntry, SubMonitor progress) {
         try {
             // create a new holder for all classpath entries
             Builder<IClasspathEntry> entries = ImmutableList.builder();
 
             // add the library with the JRE dependencies
             entries.add(JavaCore.newContainerEntry(jrePath));
-            monitor.worked(1);
 
             // add classpath definition of where to store the source/project/external dependencies, the classpath
             // will be populated lazily by the org.eclipse.jdt.core.classpathContainerInitializer
             // extension point (see GradleClasspathContainerInitializer)
             entries.add(classpathContainerEntry);
-            monitor.worked(1);
 
             // assign the whole classpath at once to the project
             List<IClasspathEntry> entriesArray = entries.build();
-            javaProject.setRawClasspath(entriesArray.toArray(new IClasspathEntry[entriesArray.size()]), new SubProgressMonitor(monitor, 6));
+            javaProject.setRawClasspath(entriesArray.toArray(new IClasspathEntry[entriesArray.size()]), progress);
         } catch (JavaModelException e) {
             throw new GradlePluginsRuntimeException(e);
-        } finally {
-            monitor.done();
         }
     }
 
@@ -266,15 +251,10 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         // validate arguments
         Preconditions.checkNotNull(project);
         Preconditions.checkArgument(project.isAccessible(), "Project must be open.");
-
-        monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
-        monitor.beginTask(String.format("Refresh Eclipse project %s", project.getName()), 1);
         try {
-            project.refreshLocal(IProject.DEPTH_INFINITE, new SubProgressMonitor(monitor, 1));
+            project.refreshLocal(IProject.DEPTH_INFINITE, monitor);
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(e);
-        } finally {
-            monitor.done();
         }
     }
 
@@ -302,7 +282,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
     @Override
     public void addNature(IProject project, String natureId, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Add nature %s to Eclipse project %s", natureId, project.getName()), 1);
+        SubMonitor progress = SubMonitor.convert(monitor, 1);
         try {
             // get the description
             IProjectDescription description = project.getDescription();
@@ -318,12 +298,10 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             description.setNatureIds(newIds.toArray(new String[newIds.size()]));
 
             // save the updated description
-            project.setDescription(description, new SubProgressMonitor(monitor, 1));
+            project.setDescription(description, progress.newChild(1));
         } catch (CoreException e) {
             String message = String.format("Cannot add nature %s to Eclipse project %s.", natureId, project.getName());
             throw new GradlePluginsRuntimeException(message, e);
-        } finally {
-            monitor.done();
         }
     }
 
@@ -335,7 +313,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
     @Override
     public void removeNature(IProject project, String natureId, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Remove nature %s from Eclipse project %s", natureId, project.getName()), 1);
+        SubMonitor progress = SubMonitor.convert(monitor, 1);
         try {
             // get the description
             IProjectDescription description = project.getDescription();
@@ -352,18 +330,16 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             description.setNatureIds(newIds.toArray(new String[newIds.size()]));
 
             // save the updated description
-            project.setDescription(description, new SubProgressMonitor(monitor, 1));
+            project.setDescription(description, progress.newChild(1));
         } catch (CoreException e) {
             String message = String.format("Cannot remove nature %s from Eclipse project %s.", natureId, project.getName());
             throw new GradlePluginsRuntimeException(message, e);
-        } finally {
-            monitor.done();
         }
     }
 
     @Override
     public void addBuildCommand(IProject project, String name, Map<String, String> arguments, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Add build command %s to Eclipse project %s", name, project.getName()), 1);
+        SubMonitor progress = SubMonitor.convert(monitor, 1);
         try {
             IProjectDescription description = project.getDescription();
             List<ICommand> buildCommands = Lists.newArrayList(description.getBuildSpec());
@@ -374,7 +350,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
                         return;
                     } else {
                         buildCommands.set(i, createCommand(description, name, arguments));
-                        setNewBuildCommands(project, description, buildCommands, new SubProgressMonitor(monitor, 1));
+                        setNewBuildCommands(project, description, buildCommands, progress.newChild(1));
                         return;
                     }
                 }
@@ -382,12 +358,10 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
             // if the build command didn't exist before then create a new command instance and assign it to the project
             buildCommands.add(createCommand(description, name, arguments));
-            setNewBuildCommands(project, description, buildCommands, new SubProgressMonitor(monitor, 1));
+            setNewBuildCommands(project, description, buildCommands, progress.newChild(1));
         } catch (CoreException e) {
             String message = String.format("Cannot add build command %s with arguments %s to Eclipse project %s.", name, arguments, project.getName());
             throw new GradlePluginsRuntimeException(message, e);
-        } finally {
-            monitor.done();
         }
     }
 
@@ -398,14 +372,14 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         return command;
     }
 
-    private void setNewBuildCommands(IProject project, IProjectDescription description, List<ICommand> buildCommands, SubProgressMonitor monitor) throws CoreException {
+    private void setNewBuildCommands(IProject project, IProjectDescription description, List<ICommand> buildCommands, IProgressMonitor monitor) throws CoreException {
         description.setBuildSpec(buildCommands.toArray(new ICommand[buildCommands.size()]));
         project.setDescription(description, monitor);
     }
 
     @Override
     public void removeBuildCommand(IProject project, final String name, IProgressMonitor monitor) {
-        monitor.beginTask(String.format("Remove build command %s from Eclipse project %s", name, project.getName()), 1);
+        SubMonitor progress = SubMonitor.convert(monitor, 1);
         try {
             IProjectDescription description = project.getDescription();
             ImmutableList<ICommand> existingCommands = ImmutableList.copyOf(description.getBuildSpec());
@@ -420,17 +394,14 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             }).toList();
 
             // only update the project description if the build command to remove exists
+            SubMonitor updateProgress = progress.newChild(1);
             if (existingCommands.size() != updatedCommands.size()) {
                 description.setBuildSpec(updatedCommands.toArray(new ICommand[updatedCommands.size()]));
-                project.setDescription(description, new SubProgressMonitor(monitor, 1));
-            } else {
-                monitor.worked(1);
+                project.setDescription(description, updateProgress);
             }
         } catch (CoreException e) {
             String message = String.format("Cannot remove build command %s from Eclipse project %s.", name, project.getName());
             throw new GradlePluginsRuntimeException(message, e);
-        } finally {
-            monitor.done();
         }
     }
 
@@ -476,6 +447,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         Preconditions.checkNotNull(newName);
         Preconditions.checkArgument(project.isAccessible(), "Project must be open.");
 
+        SubMonitor progress = SubMonitor.convert(monitor, 1);
+
         if (project.getName().equals(newName)) {
             return project;
         }
@@ -489,17 +462,12 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             throw new GradlePluginsRuntimeException(String.format("Workspace already contains a project with name %s.", newName));
         }
 
-        monitor = MoreObjects.firstNonNull(monitor, new NullProgressMonitor());
-        monitor.beginTask(String.format("Rename project %s to %s", project.getName(), newName), 1);
-
         try {
             IProjectDescription description = project.getDescription();
             description.setName(newName);
-            project.move(description, false, new SubProgressMonitor(monitor,1));
+            project.move(description, false, progress.newChild(1));
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(e);
-        } finally {
-            monitor.done();
         }
         return findProjectByName(newName).get();
     }

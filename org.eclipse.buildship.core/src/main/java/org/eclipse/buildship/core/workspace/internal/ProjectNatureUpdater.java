@@ -27,7 +27,7 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 
 import org.eclipse.buildship.core.CorePlugin;
 
@@ -47,46 +47,31 @@ final class ProjectNatureUpdater {
     }
 
     private void updateNatures(IProgressMonitor monitor) {
-        monitor.beginTask("Updating project natures", 2);
-        try {
-            StringSetProjectProperty knownNatures = StringSetProjectProperty.from(this.project, PROJECT_PROPERTY_KEY_GRADLE_NATURES);
-            removeNaturesRemovedFromGradleModel(knownNatures, new SubProgressMonitor(monitor, 1));
-            addNaturesNewInGradleModel(knownNatures, new SubProgressMonitor(monitor, 1));
-        } catch (CoreException e) {
-            CorePlugin.logger().error(String.format("Cannot update project natures on %s.", this.project.getName()), e);
-        } finally {
-            monitor.done();
-        }
+        SubMonitor progress = SubMonitor.convert(monitor, 2);
+        StringSetProjectProperty knownNatures = StringSetProjectProperty.from(this.project, PROJECT_PROPERTY_KEY_GRADLE_NATURES);
+        removeNaturesRemovedFromGradleModel(knownNatures, progress.newChild(1));
+        addNaturesNewInGradleModel(knownNatures, progress.newChild(1));
     }
 
-    private void addNaturesNewInGradleModel(StringSetProjectProperty knownNatures, IProgressMonitor monitor) {
-        monitor.beginTask("Add new natures", this.natures.size());
-        try {
-            Set<String> newNatureNames = Sets.newLinkedHashSet();
-            for (OmniEclipseProjectNature nature : this.natures) {
-                String natureId = nature.getId();
-                CorePlugin.workspaceOperations().addNature(this.project, natureId, new SubProgressMonitor(monitor, 1));
-                newNatureNames.add(natureId);
-            }
-            knownNatures.set(newNatureNames);
-        } finally {
-            monitor.done();
+    private void addNaturesNewInGradleModel(StringSetProjectProperty knownNatures, SubMonitor progress) {
+        progress.setWorkRemaining(this.natures.size());
+        Set<String> newNatureNames = Sets.newLinkedHashSet();
+        for (OmniEclipseProjectNature nature : this.natures) {
+            String natureId = nature.getId();
+            CorePlugin.workspaceOperations().addNature(this.project, natureId, progress.newChild(1));
+            newNatureNames.add(natureId);
         }
+        knownNatures.set(newNatureNames);
     }
 
-    private void removeNaturesRemovedFromGradleModel(StringSetProjectProperty knownNatures, IProgressMonitor monitor) throws CoreException {
+    private void removeNaturesRemovedFromGradleModel(StringSetProjectProperty knownNatures, SubMonitor progress) {
         Set<String> knownNatureIds = knownNatures.get();
-        monitor.beginTask("Remove old natures", knownNatureIds.size());
-        try {
-            for (String knownNatureId : knownNatureIds) {
-                if (!natureIdExistsInGradleModel(knownNatureId)) {
-                    CorePlugin.workspaceOperations().removeNature(this.project, knownNatureId, new SubProgressMonitor(monitor, 1));
-                } else {
-                    monitor.worked(1);
-                }
+        progress.setWorkRemaining(knownNatureIds.size());
+        for (String knownNatureId : knownNatureIds) {
+            SubMonitor childProgress = progress.newChild(1);
+            if (!natureIdExistsInGradleModel(knownNatureId)) {
+                CorePlugin.workspaceOperations().removeNature(this.project, knownNatureId, childProgress);
             }
-        } finally {
-            monitor.done();
         }
     }
 

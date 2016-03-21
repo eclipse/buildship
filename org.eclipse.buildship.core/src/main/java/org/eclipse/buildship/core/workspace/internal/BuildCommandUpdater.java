@@ -28,7 +28,7 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseBuildCommand;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 
 import org.eclipse.buildship.core.CorePlugin;
 
@@ -48,47 +48,32 @@ final class BuildCommandUpdater {
     }
 
     private void updateBuildCommands(IProgressMonitor monitor) {
-        monitor.beginTask("Updating build commands", 2);
-        try {
-            StringSetProjectProperty knownCommands = StringSetProjectProperty.from(this.project, PROJECT_PROPERTY_KEY_GRADLE_BUILD_COMMANDS);
-            removeBuildCommandsRemovedFromGradleModel(knownCommands, new SubProgressMonitor(monitor, 1));
-            addBuildCommandsNewInGradleModel(knownCommands, new SubProgressMonitor(monitor, 1));
-        } catch (CoreException e) {
-            CorePlugin.logger().error(String.format("Cannot update build commands on %s.", this.project.getName()), e);
-        } finally {
-            monitor.done();
-        }
+        SubMonitor progress = SubMonitor.convert(monitor, 2);
+        StringSetProjectProperty knownCommands = StringSetProjectProperty.from(this.project, PROJECT_PROPERTY_KEY_GRADLE_BUILD_COMMANDS);
+        removeBuildCommandsRemovedFromGradleModel(knownCommands, progress.newChild(1));
+        addBuildCommandsNewInGradleModel(knownCommands, progress.newChild(1));
     }
 
-    private void addBuildCommandsNewInGradleModel(StringSetProjectProperty knownCommands, IProgressMonitor monitor) {
-        monitor.beginTask("Add new build commands", this.buildCommands.size());
-        try {
-            Set<String> newCommandNames = Sets.newLinkedHashSet();
-            for (OmniEclipseBuildCommand buildCommand : this.buildCommands) {
-                String name = buildCommand.getName();
-                Map<String, String> arguments = buildCommand.getArguments();
-                CorePlugin.workspaceOperations().addBuildCommand(this.project, name, arguments, new SubProgressMonitor(monitor, 1));
-                newCommandNames.add(name);
-            }
-            knownCommands.set(newCommandNames);
-        } finally {
-            monitor.done();
+    private void addBuildCommandsNewInGradleModel(StringSetProjectProperty knownCommands, SubMonitor progress) {
+        progress.setWorkRemaining(this.buildCommands.size());
+        Set<String> newCommandNames = Sets.newLinkedHashSet();
+        for (OmniEclipseBuildCommand buildCommand : this.buildCommands) {
+            String name = buildCommand.getName();
+            Map<String, String> arguments = buildCommand.getArguments();
+            CorePlugin.workspaceOperations().addBuildCommand(this.project, name, arguments, progress.newChild(1));
+            newCommandNames.add(name);
         }
+        knownCommands.set(newCommandNames);
     }
 
-    private void removeBuildCommandsRemovedFromGradleModel(StringSetProjectProperty knownCommands, IProgressMonitor monitor) throws CoreException {
+    private void removeBuildCommandsRemovedFromGradleModel(StringSetProjectProperty knownCommands, SubMonitor progress) {
         Set<String> buildCommands = knownCommands.get();
-        monitor.beginTask("Remove old build commands", buildCommands.size());
-        try {
-            for (String buildCommand : buildCommands) {
-                if (!buildCommandExistsInGradleModel(buildCommand)) {
-                    CorePlugin.workspaceOperations().removeBuildCommand(this.project, buildCommand, new SubProgressMonitor(monitor, 1));
-                } else {
-                    monitor.worked(1);
-                }
+        progress.setWorkRemaining(buildCommands.size());
+        for (String buildCommand : buildCommands) {
+            SubMonitor childProgress = progress.newChild(1);
+            if (!buildCommandExistsInGradleModel(buildCommand)) {
+                CorePlugin.workspaceOperations().removeBuildCommand(this.project, buildCommand, childProgress);
             }
-        } finally {
-            monitor.done();
         }
     }
 

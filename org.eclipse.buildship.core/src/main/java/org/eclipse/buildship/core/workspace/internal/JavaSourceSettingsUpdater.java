@@ -28,7 +28,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -43,32 +43,26 @@ import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 final class JavaSourceSettingsUpdater {
 
     public static void update(IJavaProject project, OmniJavaSourceSettings sourceSettings, IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask("Update Java source settings", 2);
-        try {
-            String sourceVersion = sourceSettings.getSourceLanguageLevel().getName();
-            String targetVersion = sourceSettings.getTargetBytecodeLevel().getName();
-            File vmLocation = sourceSettings.getTargetRuntime().getHomeDirectory();
+        SubMonitor progress = SubMonitor.convert(monitor, 1);
+        String sourceVersion = sourceSettings.getSourceLanguageLevel().getName();
+        String targetVersion = sourceSettings.getTargetBytecodeLevel().getName();
+        File vmLocation = sourceSettings.getTargetRuntime().getHomeDirectory();
 
-            IVMInstall vm = EclipseVmUtil.findOrRegisterStandardVM(targetVersion, vmLocation);
-            Optional<IExecutionEnvironment> executionEnvironment = EclipseVmUtil.findExecutionEnvironment(targetVersion);
-            if (executionEnvironment.isPresent()) {
-                addExecutionEnvironmentToClasspath(project, executionEnvironment.get(), new SubProgressMonitor(monitor, 1));
-            } else {
-                addVmToClasspath(project, vm, new SubProgressMonitor(monitor, 1));
-            }
+        IVMInstall vm = EclipseVmUtil.findOrRegisterStandardVM(targetVersion, vmLocation);
+        Optional<IExecutionEnvironment> executionEnvironment = EclipseVmUtil.findExecutionEnvironment(targetVersion);
+        if (executionEnvironment.isPresent()) {
+            addExecutionEnvironmentToClasspath(project, executionEnvironment.get(), progress.newChild(1));
+        } else {
+            addVmToClasspath(project, vm, progress.newChild(1));
+        }
 
-            boolean compilerOptionChanged = false;
-            compilerOptionChanged |= updateJavaProjectOptionIfNeeded(project, JavaCore.COMPILER_COMPLIANCE, sourceVersion);
-            compilerOptionChanged |= updateJavaProjectOptionIfNeeded(project, JavaCore.COMPILER_SOURCE, sourceVersion);
-            compilerOptionChanged |= updateJavaProjectOptionIfNeeded(project, JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, targetVersion);
+        boolean compilerOptionChanged = false;
+        compilerOptionChanged |= updateJavaProjectOptionIfNeeded(project, JavaCore.COMPILER_COMPLIANCE, sourceVersion);
+        compilerOptionChanged |= updateJavaProjectOptionIfNeeded(project, JavaCore.COMPILER_SOURCE, sourceVersion);
+        compilerOptionChanged |= updateJavaProjectOptionIfNeeded(project, JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, targetVersion);
 
-            if (compilerOptionChanged && isProjectAutoBuildingEnabled()) {
-                scheduleJdtBuild(project.getProject());
-            } else {
-                monitor.worked(1);
-            }
-        } finally {
-            monitor.done();
+        if (compilerOptionChanged && isProjectAutoBuildingEnabled()) {
+            scheduleJdtBuild(project.getProject());
         }
     }
 

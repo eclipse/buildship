@@ -18,6 +18,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.gradleware.tooling.toolingmodel.OmniEclipseLinkedResource;
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
