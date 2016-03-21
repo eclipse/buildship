@@ -12,10 +12,10 @@
 package org.eclipse.buildship.core.util.predicate;
 
 import com.google.common.base.Predicate;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
+
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
+
+import org.eclipse.buildship.core.configuration.GradleProjectNature;
 
 /**
  * Supplies some useful {@link Predicate} instances.
@@ -30,11 +30,7 @@ public final class Predicates {
 
             @Override
             public boolean apply(IProject project) {
-                try {
-                    return project.isAccessible() && project.hasNature(GradleProjectNature.ID);
-                } catch (CoreException e) {
-                    throw new GradlePluginsRuntimeException(e);
-                }
+                return GradleProjectNature.INSTANCE.isPresentOn(project);
             }
         };
     }

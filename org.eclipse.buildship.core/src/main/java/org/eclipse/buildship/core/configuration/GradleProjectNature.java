@@ -15,7 +15,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
  * Project nature for Gradle projects.
@@ -34,16 +33,13 @@ public enum GradleProjectNature {
      * @return {@code true} if the specified project has the nature applied
      */
     public boolean isPresentOn(IProject project) {
-        // abort if the project is not open since we can only investigate open projects
         if (!project.isOpen()) {
-            throw new GradlePluginsRuntimeException(String.format("Cannot investigate Gradle nature on closed project %s.", project));
+            return false;
         }
-
-        // check if the Gradle nature is applied
         try {
             return project.hasNature(ID);
         } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(String.format("Cannot check for Gradle nature on project %s.", project), e);
+            return false;
         }
     }
 
