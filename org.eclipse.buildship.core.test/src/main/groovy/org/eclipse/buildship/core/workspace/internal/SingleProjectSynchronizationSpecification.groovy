@@ -107,6 +107,30 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         0* logger.error(*_)
     }
 
+    def "The build folder can be a linked resource"() {
+        setup:
+        prepareProject('sample-project')
+        def projectDir = dir('sample-project') {
+            file 'build.gradle',
+            '''
+                apply plugin: "java"
+                apply plugin: 'eclipse'
+                buildDir = "../another-project/build"
+                eclipse.project.linkedResource name:'build', type:'2', location: file('../another-project/build').path
+            '''
+            dir '../another-project/build'
+        }
+
+        when:
+        synchronizeAndWait(projectDir)
+
+        then:
+        def project = findProject('sample-project')
+        def build = project.getFolder('build')
+        build.isLinked()
+        build.isDerived()
+    }
+
     def "Linked resources are set"() {
         setup:
         prepareProject('sample-project')

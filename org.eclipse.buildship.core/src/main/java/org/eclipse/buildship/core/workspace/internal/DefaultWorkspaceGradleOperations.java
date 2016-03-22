@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
+import com.gradleware.tooling.toolingmodel.OmniEclipseLinkedResource;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
@@ -256,20 +257,35 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         DerivedResourcesUpdater.update(workspaceProject, derivedResources, progress);
     }
 
+    /*
+     * If no build directory is available via the TAPI, use 'build'.
+     * If build directory is physically contained in the project, use that folder.
+     * If build directory is a linked resource, use the linked folder.
+     * Optional.absent() if all of the above fail.
+     */
     private Optional<IFolder> getBuildDirectory(OmniEclipseProject project, IProject workspaceProject) {
         OmniGradleProject gradleProject = project.getGradleProject();
         Maybe<File> buildDirectory = gradleProject.getBuildDirectory();
         if (buildDirectory.isPresent() && buildDirectory.get() != null) {
-            IPath projectLocation = workspaceProject.getLocation();
             Path buildDirLocation = new Path(buildDirectory.get().getPath());
-            if (projectLocation.isPrefixOf(buildDirLocation)) {
-                IPath relativePath = RelativePathUtils.getRelativePath(projectLocation, buildDirLocation);
-                return Optional.of(workspaceProject.getFolder(relativePath));
-            } else {
-                return Optional.absent();
-            }
+            return normalizeBuildDirectory(buildDirLocation, workspaceProject, project);
         } else {
             return Optional.of(workspaceProject.getFolder("build"));
+        }
+    }
+
+    private Optional<IFolder> normalizeBuildDirectory(Path buildDirLocation, IProject workspaceProject, OmniEclipseProject project) {
+        IPath projectLocation = workspaceProject.getLocation();
+        if (projectLocation.isPrefixOf(buildDirLocation)) {
+            IPath relativePath = RelativePathUtils.getRelativePath(projectLocation, buildDirLocation);
+            return Optional.of(workspaceProject.getFolder(relativePath));
+        } else {
+            for (OmniEclipseLinkedResource linkedResource : project.getLinkedResources()) {
+                if (buildDirLocation.toString().equals(linkedResource.getLocation())) {
+                    return Optional.of(workspaceProject.getFolder(linkedResource.getName()));
+                }
+            }
+            return Optional.absent();
         }
     }
 
