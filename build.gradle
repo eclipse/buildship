@@ -5,8 +5,8 @@ import java.util.regex.*
 
 apply plugin: eclipsebuild.BuildDefinitionPlugin
 
-ext.toolingCommonsBundleVersion = toolingCommonsVersion + ".0"
-ext.toolingApiBundleVersion = toolingApiVersion + ".0"
+ext.toolingCommonsBundleVersion = getBundleVersion(toolingCommonsVersion)
+ext.toolingApiBundleVersion = getBundleVersion(toolingApiVersion)
 
 // define version mapping for the 3rd-party dependencies that are not specific to a particular Eclipse version
 def eclipseVersionAgnosticDependencies = [
@@ -472,4 +472,16 @@ String getVersion(def baseVersion) {
     } else {
         baseVersion + '.v' + new Date().format('yyyyMMdd', TimeZone.getTimeZone('GMT')) + suffix
     }
+}
+
+def getBundleVersion(String version) {
+  def matcher = version =~ /(\d+)\.(\d+)(?:-.*|\.(\d+)(?:-.*)?)?/
+  if (matcher.matches()) {
+    def major = matcher.group(1)
+    def minor = matcher.group(2)
+    def service = matcher.group(3) ?: '0'
+    return "$major.$minor.$service"
+  } else {
+    throw new IllegalArgumentException("Invalid bundle version:")
+  }
 }
