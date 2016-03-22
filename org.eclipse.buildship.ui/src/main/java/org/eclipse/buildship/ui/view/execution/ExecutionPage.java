@@ -251,6 +251,9 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
 
     public FluentIterable<OperationItem> filterTreeNodes(Predicate<OperationItem> predicate) {
         OperationItem root = (OperationItem) getPageControl().getViewer().getInput();
+        if (root == null) {
+            return FluentIterable.from(ImmutableList.<OperationItem>of());
+        }
         return new TreeTraverser<OperationItem>() {
 
             @Override
