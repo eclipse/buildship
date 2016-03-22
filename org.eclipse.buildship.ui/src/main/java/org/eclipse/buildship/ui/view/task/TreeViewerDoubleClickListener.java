@@ -20,7 +20,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.IHandlerService;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 
 /**
@@ -47,17 +46,14 @@ public final class TreeViewerDoubleClickListener implements IDoubleClickListener
     }
 
     private boolean isEnabledFor(NodeSelection node) {
-        return TaskViewActionStateRules.taskScopedTaskExecutionActionsEnabledFor(node) ||
-                TaskViewActionStateRules.projectScopedTaskExecutionActionsEnabledFor(node);
+        return TaskNodeSelectionUtils.isValidRunConfiguration(node);
     }
 
     private void run() {
         try {
             getHandlerService().executeCommand(this.commandId, null);
         } catch (Exception e) {
-            String message = String.format("Cannot execute command '%s'.", this.commandId);
-            UiPlugin.logger().error(message, e);
-            throw new GradlePluginsRuntimeException(message, e);
+            throw new GradlePluginsRuntimeException(String.format("Cannot execute command '%s'.", this.commandId), e);
         }
     }
 
