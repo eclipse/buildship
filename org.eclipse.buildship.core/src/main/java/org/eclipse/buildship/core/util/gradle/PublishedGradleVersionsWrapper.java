@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.gradle.util.GradleVersion;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
@@ -69,8 +70,11 @@ public final class PublishedGradleVersionsWrapper {
             try {
                 PublishedGradleVersions versions = PublishedGradleVersions.create(LookupStrategy.REMOTE_IF_NOT_CACHED);
                 PublishedGradleVersionsWrapper.this.publishedGradleVersions.set(versions);
-            } catch (RuntimeException e) {
-                CorePlugin.logger().warn("Could not load Gradle version information", e);
+            } catch (Throwable t) {
+                if (t instanceof VirtualMachineError) {
+                    Throwables.propagate(t);
+                }
+                CorePlugin.logger().warn("Could not load Gradle version information", t);
             }
             return Status.OK_STATUS;
         }
