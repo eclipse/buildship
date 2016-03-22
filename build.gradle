@@ -388,7 +388,7 @@ task updateToolingCommons << {
     }
 
     // update Oomph setup definition
-    toolingCommmonsPattern = Pattern.compile('(?<=<requirement\\r?\\n? {10}name="com.gradleware.tooling.(utils|client|model)"\\r?\\n? {10}versionRange=")0.12.0(?="/>)')
+    toolingCommmonsPattern = Pattern.compile('(?<=<requirement\\r?\\n? {10}name="com.gradleware.tooling.(utils|client|model)"\\r?\\n? {10}versionRange=")[^"]+(?="/>)')
     p2RepositoryPattern = Pattern.compile('(?<=url="jar:)https://repo.gradle.org[^"]+p2-repository-[^"]+.zip(?=!/"/>)')
     replacePatternsInFile(file('buildship.setup'), [(toolingCommmonsPattern) : toolingCommonsVersion, 
                                                     (p2RepositoryPattern)    : p2RepositoryUrl])
