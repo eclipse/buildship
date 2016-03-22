@@ -45,7 +45,7 @@ public final class DialogUserNotification implements UserNotification {
     }
 
     private boolean noDialogVisible() {
-        return this.dialog == null || this.dialog.getShell().isDisposed();
+        return this.dialog == null || this.dialog.getShell() == null || this.dialog.getShell().isDisposed();
     }
 
     private void createAndOpenDialog(Shell shell, final String title, final String message, final String details, final int severity, final Throwable throwable) {
