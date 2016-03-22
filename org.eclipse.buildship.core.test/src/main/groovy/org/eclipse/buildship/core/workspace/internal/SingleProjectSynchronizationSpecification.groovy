@@ -3,6 +3,7 @@ package org.eclipse.buildship.core.workspace.internal
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
 
+import org.eclipse.buildship.core.Logger;
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigurationPersistence
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
@@ -86,6 +87,24 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         def project = findProject('sample-project')
         project.getFolder("build").isDerived()
         project.getFolder(".gradle").isDerived()
+    }
+
+    def "Invalid build folders are ignored"() {
+        setup:
+        prepareProject('sample-project')
+        def projectDir = dir('sample-project') {
+            file 'build.gradle', """
+                buildDir = "../build"
+            """
+        }
+        Logger logger = Mock(Logger)
+        environment.registerService(Logger, logger)
+
+        when:
+        synchronizeAndWait(projectDir)
+
+        then:
+        0* logger.error(*_)
     }
 
     def "Linked resources are set"() {

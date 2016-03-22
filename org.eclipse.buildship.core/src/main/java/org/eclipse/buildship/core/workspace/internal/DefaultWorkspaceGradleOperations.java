@@ -237,10 +237,13 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
 
         derivedResources.add(".gradle");
 
-        IFolder buildDirectory = getBuildDirectory(gradleProject, workspaceProject);
-        derivedResources.add(buildDirectory.getName());
-        if (buildDirectory.exists()) {
-            CorePlugin.workspaceOperations().markAsBuildFolder(buildDirectory);
+        Optional<IFolder> possibleBuildDirectory = getBuildDirectory(gradleProject, workspaceProject);
+        if (possibleBuildDirectory.isPresent()) {
+            IFolder buildDirectory = possibleBuildDirectory.get();
+            derivedResources.add(buildDirectory.getName());
+            if (buildDirectory.exists()) {
+                CorePlugin.workspaceOperations().markAsBuildFolder(buildDirectory);
+            }
         }
 
         for (IFolder subProjectFolder : getSubProjectFolders(gradleProject, workspaceProject)) {
@@ -253,14 +256,20 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         DerivedResourcesUpdater.update(workspaceProject, derivedResources, progress);
     }
 
-    private IFolder getBuildDirectory(OmniEclipseProject project, IProject workspaceProject) {
+    private Optional<IFolder> getBuildDirectory(OmniEclipseProject project, IProject workspaceProject) {
         OmniGradleProject gradleProject = project.getGradleProject();
         Maybe<File> buildDirectory = gradleProject.getBuildDirectory();
         if (buildDirectory.isPresent() && buildDirectory.get() != null) {
-            IPath relativePath = RelativePathUtils.getRelativePath(workspaceProject.getLocation(), new Path(buildDirectory.get().getPath()));
-            return workspaceProject.getFolder(relativePath);
+            IPath projectLocation = workspaceProject.getLocation();
+            Path buildDirLocation = new Path(buildDirectory.get().getPath());
+            if (projectLocation.isPrefixOf(buildDirLocation)) {
+                IPath relativePath = RelativePathUtils.getRelativePath(projectLocation, buildDirLocation);
+                return Optional.of(workspaceProject.getFolder(relativePath));
+            } else {
+                return Optional.absent();
+            }
         } else {
-            return workspaceProject.getFolder("build");
+            return Optional.of(workspaceProject.getFolder("build"));
         }
     }
 
