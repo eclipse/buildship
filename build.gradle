@@ -381,7 +381,7 @@ task updateToolingCommons << {
     Pattern toolingApiPattern = Pattern.compile('(?<=<unit id="org.gradle.toolingapi" version=")[^"]+(?="/>)')
     Pattern toolingCommmonsPattern = Pattern.compile('(?<=<unit id="com.gradleware.tooling.(utils|client|model)" version=")[^"]+(?="/>)')
     Pattern p2RepositoryPattern = Pattern.compile('(?<=<repository location="jar:)https://repo.gradle.org[^"]+p2-repository-[^"]+.zip(?=!/"/>)')
-    for (targetDefinitionFile in ['36', '37', '42', '43', '44', '45'].collect { file("tooling-e${it}.target") }) {
+    file('.').eachFileMatch(~/.*\.target/) { targetDefinitionFile ->
         replacePatternsInFile(targetDefinitionFile, [(toolingApiPattern)      : toolingApiBundleVersion, 
                                                      (toolingCommmonsPattern) : toolingCommonsBundleVersion, 
                                                      (p2RepositoryPattern)    : p2RepositoryUrl])
