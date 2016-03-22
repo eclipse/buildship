@@ -51,7 +51,11 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
     }
 
     public SynchronizeGradleProjectJob(FixedRequestAttributes rootRequestAttributes, NewProjectHandler newProjectHandler, AsyncHandler initializer) {
-        super(String.format("Synchronize Gradle root project at %s with workspace", Preconditions.checkNotNull(rootRequestAttributes).getProjectDir().getAbsolutePath()), false);
+        this(rootRequestAttributes, newProjectHandler, initializer, false);
+    }
+
+    public SynchronizeGradleProjectJob(FixedRequestAttributes rootRequestAttributes, NewProjectHandler newProjectHandler, AsyncHandler initializer, boolean showUserNotifications) {
+        super(String.format("Synchronize Gradle root project at %s with workspace", Preconditions.checkNotNull(rootRequestAttributes).getProjectDir().getAbsolutePath()), showUserNotifications);
 
         this.rootRequestAttributes = Preconditions.checkNotNull(rootRequestAttributes);
         this.newProjectHandler = Preconditions.checkNotNull(newProjectHandler);

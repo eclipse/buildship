@@ -177,7 +177,7 @@ public class ProjectImportWizardController {
 
     public boolean performImportProject(AsyncHandler initializer, NewProjectHandler newProjectHandler) {
         FixedRequestAttributes rootRequestAttributes = this.configuration.toFixedAttributes();
-        SynchronizeGradleProjectJob synchronizeJob = new SynchronizeGradleProjectJob(rootRequestAttributes, new WorkingSetsAddingNewProjectHandler(newProjectHandler, this.configuration), initializer);
+        SynchronizeGradleProjectJob synchronizeJob = new SynchronizeGradleProjectJob(rootRequestAttributes, new WorkingSetsAddingNewProjectHandler(newProjectHandler, this.configuration), initializer, true);
         synchronizeJob.addJobChangeListener(new JobChangeAdapter() {
 
             @Override
