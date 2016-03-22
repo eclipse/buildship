@@ -24,8 +24,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
@@ -111,7 +113,8 @@ final class LegacyCleaningProjectConfigurationPersistence implements ProjectConf
 
     @SuppressWarnings("serial")
     private static Type createMapTypeToken() {
-        return new TypeToken<Map<String, Map<String, String>>>() {}.getType();
+        return new TypeToken<Map<String, Map<String, String>>>() {
+        }.getType();
     }
 
     private static void cleanupLegacyConfiguration(IProject project) {
@@ -119,30 +122,49 @@ final class LegacyCleaningProjectConfigurationPersistence implements ProjectConf
         Preconditions.checkArgument(project.isAccessible());
 
         if (hasLegacyConfiguration(project)) {
-            String couldNotDeleteMessage = String.format("Cannot clean up legacy project configuration for project %s.", project.getName());
-            try {
-                ensureNoProjectPreferencesLoadedFrom(project);
-                boolean deleted = getLegacyConfigurationFile(project).delete();
-                if (!deleted) {
-                    throw new GradlePluginsRuntimeException(couldNotDeleteMessage);
-                }
-            } catch (Exception e) {
-                throw new GradlePluginsRuntimeException(couldNotDeleteMessage, e);
+            //remove preferences by descending order of abstraction layer
+            removeLegacyPreferencesFromPreferenceStore(project);
+            deleteLegacyPreferencesFromEclipseFileSystem(project);
+            deleteLegacyPreferenceFileFromJavaIoFileSystem(project);
+        }
+    }
+
+    private static void removeLegacyPreferencesFromPreferenceStore(IProject project) {
+        try {
+            ProjectScope projectScope = new ProjectScope(project);
+            IEclipsePreferences node = projectScope.getNode(LEGACY_GRADLE_PREFERENCES_FILE_NAME_WITHOUT_EXTENSION);
+            if (node != null) {
+                node.removeNode();
+            }
+        } catch (BackingStoreException e) {
+            throw new GradlePluginsRuntimeException(getCouldNotDeleteMessage(project), e);
+        }
+    }
+
+    private static void deleteLegacyPreferencesFromEclipseFileSystem(IProject project) {
+        try {
+            IFile legacyConfigurationFile = project.getFile(LEGACY_GRADLE_PREFERENCES_LOCATION);
+            if (legacyConfigurationFile.exists()) {
+                legacyConfigurationFile.delete(true, null);
+            }
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(getCouldNotDeleteMessage(project), e);
+        }
+    }
+
+    private static void deleteLegacyPreferenceFileFromJavaIoFileSystem(IProject project) {
+        File legacyConfigurationFile = getLegacyConfigurationFile(project);
+        if (legacyConfigurationFile.exists()) {
+            boolean deleted = legacyConfigurationFile.delete();
+            if (!deleted) {
+                throw new GradlePluginsRuntimeException(getCouldNotDeleteMessage(project));
             }
         }
     }
 
-    /*
-     * The ${project_name}/.settings/gradle.prefs file is automatically loaded as project
-     * preferences by the core runtime since the fie extension is '.prefs'. If the preferences
-     * are loaded, then deleting the prefs file results in a BackingStoreException.
-     */
-    private static void ensureNoProjectPreferencesLoadedFrom(IProject project) throws BackingStoreException {
-        ProjectScope projectScope = new ProjectScope(project);
-        IEclipsePreferences node = projectScope.getNode(LEGACY_GRADLE_PREFERENCES_FILE_NAME_WITHOUT_EXTENSION);
-        if (node != null) {
-            node.removeNode();
-        }
+    private static String getCouldNotDeleteMessage(IProject project) {
+        String couldNotDeleteMessage = String.format("Cannot clean up legacy project configuration for project %s.", project.getName());
+        return couldNotDeleteMessage;
     }
 
 }
