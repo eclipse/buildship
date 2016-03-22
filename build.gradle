@@ -375,7 +375,7 @@ task updateToolingCommons << {
     String qualifier = toolingCommonsBuildTimestamp
     String qualifiedToolingApiBundleVersion = "${toolingApiBundleVersion}.v${qualifier}"
     String qualifiedToolingCommonsBundleVersion = "${toolingCommonsBundleVersion}.v${qualifier}"
-    String p2RepositoryUrl  = "https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/${toolingCommonsVersion}-${qualifier}/p2-repository-${toolingCommonsVersion}-${qualifier}.zip"
+    String p2RepositoryUrl  = "https://repo.gradle.org/gradle/tooling-libs-${toolingCommonsRepoType}-local/com/gradleware/tooling/p2-repository/${toolingCommonsVersion}-${qualifier}/p2-repository-${toolingCommonsVersion}-${qualifier}.zip"
 
     // update target definition files
     Pattern toolingApiPattern = Pattern.compile('(?<=<unit id="org.gradle.toolingapi" version=")[^"]+(?="/>)')
