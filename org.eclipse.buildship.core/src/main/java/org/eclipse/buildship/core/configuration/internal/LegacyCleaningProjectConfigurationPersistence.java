@@ -163,8 +163,7 @@ final class LegacyCleaningProjectConfigurationPersistence implements ProjectConf
     }
 
     private static String getCouldNotDeleteMessage(IProject project) {
-        String couldNotDeleteMessage = String.format("Cannot clean up legacy project configuration for project %s.", project.getName());
-        return couldNotDeleteMessage;
+        return String.format("Cannot clean up legacy project configuration for project %s.", project.getName());
     }
 
 }
