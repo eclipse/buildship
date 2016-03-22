@@ -34,6 +34,23 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         eclipseFolder.location.toFile().equals(externalDir)
     }
 
+    def "Can define a linked resource even if the resource does not exist"() {
+        given:
+            File externalDir = getDir('another')
+            IProject project = newProject('project-name')
+            OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource(externalDir.name, externalDir)
+
+            when:
+            LinkedResourcesUpdater.update(project, [linkedResource], new NullProgressMonitor())
+
+            then:
+            project.members().findAll { it.isLinked() }.size() == 1
+            IFolder eclipseFolder = project.getFolder('another')
+            eclipseFolder.exists()
+            eclipseFolder.isLinked() == true
+            eclipseFolder.location.toFile().equals(externalDir)
+    }
+
     def "Defining a linked resource is idempotent" () {
         given:
         File externalDir = dir('another')
