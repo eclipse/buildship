@@ -104,7 +104,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         synchronizeAndWait(projectDir)
 
         then:
-        0* logger.error(*_)
+        0 * logger.error(*_)
     }
 
     def "The build folder can be a linked resource"() {
