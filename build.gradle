@@ -370,10 +370,10 @@ task incrementVersion << {
 // example usage
 task updateToolingCommons << {
     // collect variables to write in the files
-    String p2RepositoryUrl  = getProperty('TOOLING_COMMONS_P2_ZIP_URL')
-    String toolingCommonsVersion = getProperty('TOOLING_COMMONS_VERSION')
-    String toolingApiVersion = getProperty('TOOLING_API_VERSION')
-    String qualifier = getProperty('VERSION_QUALIFIER')
+    String p2RepositoryUrl  = getProperty('toolingCommonsP2ZipUrl')
+    String toolingCommonsVersion = getProperty('toolingCommonsP2Version')
+    String toolingApiVersion = getProperty('toolingCommonsP2ToolingApiVersion')
+    String qualifier = getProperty('toolingCommonsP2VersionQualifier')
     String toolingApiBundleVersion = "${toolingApiVersion}.v${qualifier}"
     String toolingCommonsBundleVersion = "${toolingCommonsVersion}.v${qualifier}"
 
