@@ -482,6 +482,6 @@ def getBundleVersion(String version) {
     def service = matcher.group(3) ?: '0'
     return "$major.$minor.$service"
   } else {
-    throw new IllegalArgumentException("Invalid bundle version:")
+    throw new IllegalArgumentException("Invalid bundle version: $version")
   }
 }
