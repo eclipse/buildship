@@ -30,7 +30,7 @@ public final class DialogUserNotification implements UserNotification {
 
             @Override
             public void run() {
-                Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
+                Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
                 if (shell == null) {
                     return;
                 }
