@@ -9,12 +9,16 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.Set;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.FluentIterable;
 
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
 
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
@@ -41,7 +45,17 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
 
     @Override
     public void synchronizeProjects(Set<IProject> projects, NewProjectHandler newProjectHandler) {
-        new SynchronizeGradleProjectsJob(projects, newProjectHandler).schedule();
+        new SynchronizeGradleProjectsJob(getBuilds(projects), newProjectHandler).schedule();
+    }
+
+    private Set<FixedRequestAttributes> getBuilds(Set<IProject> projects) {
+        return FluentIterable.from(projects).filter(GradleProjectNature.isPresentOn()).transform(new Function<IProject, FixedRequestAttributes>() {
+
+            @Override
+            public FixedRequestAttributes apply(IProject project) {
+                return CorePlugin.projectConfigurationManager().readProjectConfiguration(project).getRequestAttributes();
+            }
+        }).toSet();
     }
 
 }

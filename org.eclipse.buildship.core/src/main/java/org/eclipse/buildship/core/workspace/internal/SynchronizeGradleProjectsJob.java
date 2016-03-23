@@ -13,73 +13,68 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.FluentIterable;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobGroup;
 
 import org.eclipse.buildship.core.AggregateException;
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
-import org.eclipse.buildship.core.util.progress.ToolingApiCommand;
-import org.eclipse.buildship.core.util.progress.ToolingApiInvoker;
+import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
- * Finds the Gradle root projects for the given set of Eclipse projects and then synchronizes
- * each Gradle root project with the Eclipse workspace via {@link SynchronizeGradleProjectJob}.
+ * Synchronizes each of the given Gradle Builds using {@link SynchronizeGradleProjectJob} and
+ * reports problems to the user in bulk.
  */
-final class SynchronizeGradleProjectsJob extends Job {
+final class SynchronizeGradleProjectsJob extends ToolingApiJob {
 
-    private final Set<IProject> projects;
     private final NewProjectHandler newProjectHandler;
+    private final ImmutableSet<FixedRequestAttributes> builds;
+    private final JobGroup jobGroup;
 
-    public SynchronizeGradleProjectsJob(Set<IProject> projects, NewProjectHandler newProjectHandler) {
-        super("Synchronize workspace projects with Gradle counterparts");
-        this.projects = ImmutableSet.copyOf(projects);
+    public SynchronizeGradleProjectsJob(Set<FixedRequestAttributes> builds, NewProjectHandler newProjectHandler) {
+        super("Synchronize workspace projects with Gradle counterparts", true);
+        this.builds = ImmutableSet.copyOf(builds);
         this.newProjectHandler = Preconditions.checkNotNull(newProjectHandler);
+        this.jobGroup = new JobGroup(getName(), 0, this.builds.size());
     }
 
     @Override
-    protected IStatus run(final IProgressMonitor monitor) {
-        ToolingApiInvoker invoker = new ToolingApiInvoker(getName(), true);
-        return invoker.invoke(new ToolingApiCommand() {
-            @Override
-            public void run() throws Throwable {
-                scheduleSynchronizeJobs(monitor);
-            }
-        }, monitor);
-    }
-
-    private void scheduleSynchronizeJobs(final IProgressMonitor monitor) throws Throwable {
-        // find all the unique root projects for the given list of projects and
-        // reload the workspace project configuration for each of them (incl. their respective child projects)
-        Set<FixedRequestAttributes> rootRequestAttributes = getUniqueRootAttributes(this.projects);
-        JobGroup group = new JobGroup(getName(), 0, rootRequestAttributes.size());
-        for (FixedRequestAttributes requestAttributes : rootRequestAttributes) {
-            Job synchronizeJob = new SynchronizeGradleProjectJob(requestAttributes, this.newProjectHandler, AsyncHandler.NO_OP);
-            synchronizeJob.setJobGroup(group);
+    protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
+        for (FixedRequestAttributes build : this.builds) {
+            Job synchronizeJob = new SynchronizeGradleProjectJob(build, this.newProjectHandler, AsyncHandler.NO_OP);
+            synchronizeJob.setJobGroup(this.jobGroup);
             synchronizeJob.schedule();
         }
-        group.join(0, monitor);
-        handleAggregateResult(group);
+        this.jobGroup.join(0, monitor);
+        handleResult(this.jobGroup);
     }
 
-    private void handleAggregateResult(JobGroup group) throws Throwable {
-        if (group.getResult() != null) {
-            final List<Throwable> errors = new CopyOnWriteArrayList<Throwable>();
-            for (IStatus status : group.getResult().getChildren()) {
+    /*
+     * TODO this is a poor man's version of what CoreException + MultiStatus already provide out of
+     * the box We should refactor to remove this completely
+     */
+    private void handleResult(JobGroup group) {
+        MultiStatus result = group.getResult();
+        if (result != null) {
+            if (result.matches(IStatus.CANCEL)) {
+                throw new OperationCanceledException();
+            }
+            List<Throwable> errors = Lists.newArrayList();
+            for (IStatus status : result.getChildren()) {
                 if (!status.isOK()) {
                     Throwable error = status.getException();
                     if (error != null) {
@@ -87,23 +82,15 @@ final class SynchronizeGradleProjectsJob extends Job {
                     }
                 }
             }
-            rethrowExceptionsIfAny(errors);
+            propagate(errors);
         }
     }
 
-    private Set<FixedRequestAttributes> getUniqueRootAttributes(Set<IProject> projects) {
-        return FluentIterable.from(projects).filter(GradleProjectNature.isPresentOn()).transform(new Function<IProject, FixedRequestAttributes>() {
-
-            @Override
-            public FixedRequestAttributes apply(IProject project) {
-                return CorePlugin.projectConfigurationManager().readProjectConfiguration(project).getRequestAttributes();
-            }
-        }).toSet();
-    }
-
-    private void rethrowExceptionsIfAny(List<Throwable> errors) throws Throwable {
+    private void propagate(List<Throwable> errors) {
         if (errors.size() == 1) {
-            throw errors.get(0);
+            Throwable e = errors.get(0);
+            Throwables.propagateIfPossible(e);
+            throw new GradlePluginsRuntimeException(e);
         } else if (errors.size() > 1) {
             throw new AggregateException(errors);
         }
@@ -116,8 +103,7 @@ final class SynchronizeGradleProjectsJob extends Job {
 
     @Override
     protected void canceling() {
-        // cancel all running SynchronizeGradleProjectJob instances
-        Job.getJobManager().cancel(SynchronizeGradleProjectJob.class.getName());
+        this.jobGroup.cancel();
     }
 
 }

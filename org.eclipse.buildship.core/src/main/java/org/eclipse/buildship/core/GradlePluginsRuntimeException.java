@@ -33,7 +33,7 @@ public class GradlePluginsRuntimeException extends RuntimeException {
      * @param message the detail message
      * @param cause the cause
      */
-    public GradlePluginsRuntimeException(String message, Exception cause) {
+    public GradlePluginsRuntimeException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -42,7 +42,7 @@ public class GradlePluginsRuntimeException extends RuntimeException {
      *
      * @param cause the cause
      */
-    public GradlePluginsRuntimeException(Exception cause) {
+    public GradlePluginsRuntimeException(Throwable cause) {
         super(cause);
     }
 
