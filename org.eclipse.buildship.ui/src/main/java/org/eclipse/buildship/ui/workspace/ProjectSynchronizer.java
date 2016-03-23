@@ -13,11 +13,11 @@
 
 package org.eclipse.buildship.ui.workspace;
 
+import java.util.Set;
+
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import org.eclipse.buildship.core.util.collections.AdapterFunction;
-import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectsJob;
-import org.eclipse.buildship.ui.util.predicate.Predicates;
+import com.google.common.collect.ImmutableSet;
+
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Platform;
@@ -25,7 +25,10 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import java.util.List;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.util.collections.AdapterFunction;
+import org.eclipse.buildship.core.workspace.NewProjectHandler;
+import org.eclipse.buildship.ui.util.predicate.Predicates;
 
 /**
  * Collects all selected, Gradle-aware {@link IProject} instances and schedules a
@@ -36,27 +39,26 @@ import java.util.List;
 public final class ProjectSynchronizer {
 
     public static void execute(final ExecutionEvent event) {
-        List<IProject> selectedProjects = collectSelectedProjects(event);
+        Set<IProject> selectedProjects = collectSelectedProjects(event);
         if (selectedProjects.isEmpty()) {
             return;
         }
 
-        SynchronizeGradleProjectsJob synchronizeJob = new SynchronizeGradleProjectsJob(selectedProjects);
-        synchronizeJob.schedule();
+        CorePlugin.gradleWorkspaceManager().synchronizeProjects(selectedProjects, NewProjectHandler.IMPORT_AND_MERGE);
     }
 
-    private static List<IProject> collectSelectedProjects(ExecutionEvent event) {
+    private static Set<IProject> collectSelectedProjects(ExecutionEvent event) {
         ISelection currentSelection = HandlerUtil.getCurrentSelection(event);
         if (currentSelection instanceof IStructuredSelection) {
             IStructuredSelection selection = (IStructuredSelection) currentSelection;
             @SuppressWarnings("unchecked")
-            ImmutableList<IProject> selectedProjects = FluentIterable.from(selection.toList())
+            ImmutableSet<IProject> selectedProjects = FluentIterable.from(selection.toList())
                     .transform(new AdapterFunction<IProject>(IProject.class, Platform.getAdapterManager()))
                     .filter(com.google.common.base.Predicates.notNull())
-                    .filter(Predicates.hasGradleNature()).toList();
+                    .filter(Predicates.hasGradleNature()).toSet();
             return selectedProjects;
         } else {
-            return ImmutableList.of();
+            return ImmutableSet.of();
         }
     }
 

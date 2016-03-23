@@ -3,7 +3,6 @@ package org.eclipse.buildship.core.workspace.internal
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
-import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectsJob
 
 import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.IClasspathContainer

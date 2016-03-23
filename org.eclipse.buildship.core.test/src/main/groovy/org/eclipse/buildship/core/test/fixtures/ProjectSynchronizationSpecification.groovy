@@ -17,34 +17,29 @@ import org.eclipse.buildship.core.projectimport.ProjectPreviewJob
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.NewProjectHandler
-import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectJob
-import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectsJob
 
 abstract class ProjectSynchronizationSpecification extends WorkspaceSpecification {
-    protected def synchronizeAndWait(File location, NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
-        def job = newSynchronizationJob(location, GradleDistribution.fromBuild(), newProjectHandler)
-        job.schedule()
-        job.join()
+    protected void synchronizeAndWait(File location, NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
+        startSynchronization(location, GradleDistribution.fromBuild(), newProjectHandler)
+        waitForGradleJobsToFinish()
     }
 
-    protected def synchronizeAndWait(IProject... projects) {
-        def job = new SynchronizeGradleProjectsJob(projects as List)
-        job.schedule()
-        job.join()
+    protected void importAndWait(File location, GradleDistribution distribution = GradleDistribution.fromBuild()) {
+        startSynchronization(location, distribution, NewProjectHandler.IMPORT_AND_MERGE)
+        waitForGradleJobsToFinish()
     }
 
-    protected def importAndWait(File location, GradleDistribution distribution = GradleDistribution.fromBuild()) {
-        def job = newSynchronizationJob(location, distribution, NewProjectHandler.IMPORT_AND_MERGE)
-        job.schedule()
-        job.join()
-    }
-
-    protected SynchronizeGradleProjectJob newSynchronizationJob(File location, GradleDistribution distribution = GradleDistribution.fromBuild(), NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
+    protected void startSynchronization(File location, GradleDistribution distribution = GradleDistribution.fromBuild(), NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
         def attributes = new FixedRequestAttributes(location, null, distribution, null, [], [])
-        new SynchronizeGradleProjectJob(attributes, newProjectHandler, AsyncHandler.NO_OP)
+        CorePlugin.gradleWorkspaceManager().synchronizeGradleBuild(attributes, newProjectHandler)
     }
 
-    protected def previewAndWait(File location, FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler) {
+    protected void synchronizeAndWait(IProject... projects) {
+        CorePlugin.gradleWorkspaceManager().synchronizeProjects(projects as Set, NewProjectHandler.IMPORT_AND_MERGE)
+        waitForGradleJobsToFinish()
+    }
+
+    protected void previewAndWait(File location, FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler) {
         def job = newProjectPreviewJob(location, GradleDistribution.fromBuild(), resultHandler)
         job.schedule()
         job.join()

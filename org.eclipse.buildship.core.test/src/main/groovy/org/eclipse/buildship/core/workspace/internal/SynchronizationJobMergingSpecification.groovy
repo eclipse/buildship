@@ -31,12 +31,11 @@ class SynchronizationJobMergingSpecification extends ProjectSynchronizationSpeci
         File projectLocation = dir("sample-project") {
             file 'settings.gradle'
         }
-        def jobs = (1..5).collect { newSynchronizationJob(projectLocation) }
         WorkspaceGradleOperations workspaceOperations = Mock(WorkspaceGradleOperations)
         registerService(WorkspaceGradleOperations, workspaceOperations)
+        5.times { startSynchronization(projectLocation) }
 
         when:
-        jobs.each { it.schedule() }
         waitForGradleJobsToFinish()
 
         then:

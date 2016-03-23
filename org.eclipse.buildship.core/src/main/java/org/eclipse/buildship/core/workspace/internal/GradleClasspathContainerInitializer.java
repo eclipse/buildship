@@ -11,6 +11,8 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import com.google.common.collect.ImmutableSet;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
@@ -21,10 +23,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
-import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectJob;
 
 /**
  * Updates the Gradle classpath container of the given Java workspace project.
@@ -66,8 +65,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
     }
 
     private void updateFromGradleProject(IJavaProject project) {
-        ProjectConfiguration config = CorePlugin.projectConfigurationManager().readProjectConfiguration(project.getProject());
-        new SynchronizeGradleProjectJob(config.getRequestAttributes(), NewProjectHandler.NO_OP, AsyncHandler.NO_OP).schedule();
+        CorePlugin.gradleWorkspaceManager().synchronizeProjects(ImmutableSet.of(project.getProject()), NewProjectHandler.NO_OP);
     }
 
 }

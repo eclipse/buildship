@@ -1,21 +1,15 @@
 /*
- * Copyright 2016 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2016 the original author or authors.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  */
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.Set;
+
+import com.google.common.base.Preconditions;
 
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
@@ -25,30 +19,29 @@ import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
-
 /**
- * @author Stefan Oehme
+ * Default implementation of {@link GradleWorkspaceManager}.
  *
+ * @author Stefan Oehme
  */
 public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
 
     @Override
-    public void importGradleBuild(FixedRequestAttributes attributes, NewProjectHandler newProjectHandler) {
-        // TODO Auto-generated method stub
-        
+    public void synchronizeGradleBuild(FixedRequestAttributes attributes, NewProjectHandler newProjectHandler) {
+        Preconditions.checkArgument(newProjectHandler != NewProjectHandler.NO_OP, "Can't import projects with a no-op handler");
+        new SynchronizeGradleProjectJob(attributes, newProjectHandler, AsyncHandler.NO_OP, true).schedule();
     }
 
     @Override
     public void createGradleBuild(FixedRequestAttributes attributes, NewProjectHandler newProjectHandler, AsyncHandler initializer) {
-        // TODO Auto-generated method stub
-        
+        Preconditions.checkArgument(initializer != AsyncHandler.NO_OP, "Can't create projects with a no-op initializer");
+        Preconditions.checkArgument(newProjectHandler != NewProjectHandler.NO_OP, "Can't import projects with a no-op handler");
+        new SynchronizeGradleProjectJob(attributes, newProjectHandler, initializer, true).schedule();
     }
 
     @Override
     public void synchronizeProjects(Set<IProject> projects, NewProjectHandler newProjectHandler) {
-        // TODO Auto-generated method stub
-        
+        new SynchronizeGradleProjectsJob(projects, newProjectHandler).schedule();
     }
-
 
 }

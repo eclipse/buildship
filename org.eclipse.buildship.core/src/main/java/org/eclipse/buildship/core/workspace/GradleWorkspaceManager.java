@@ -33,20 +33,20 @@ import org.eclipse.buildship.core.util.progress.AsyncHandler;
 public interface GradleWorkspaceManager {
 
     /**
-     * Attempts to import the given Gradle project.
+     * Attempts to synchronize the given Gradle build.
      * <p/>
-     * The import happens asynchronously. In case of a
-     * failure, the user will be notified.
+     * The synchronization happens asynchronously. In case of a failure, the user will be notified.
      *
-     * @param attributes the configuration of the project to import
+     * @param attributes the configuration of the build to synchronize
      * @param newProjectHandler how to handle newly added projects
      */
-    public void importGradleBuild(FixedRequestAttributes attributes, NewProjectHandler newProjectHandler);
+    public void synchronizeGradleBuild(FixedRequestAttributes attributes, NewProjectHandler newProjectHandler);
 
     /**
      * Attempts to create and import the given Gradle project.
      *
-     * <p/>The import happens asynchronously. In case of a failure, the user will be notified.
+     * <p/>
+     * The import happens asynchronously. In case of a failure, the user will be notified.
      *
      * @param attributes the configuration of the project to create
      * @param newProjectHandler how to handle newly added projects
@@ -55,7 +55,7 @@ public interface GradleWorkspaceManager {
     public void createGradleBuild(FixedRequestAttributes attributes, NewProjectHandler newProjectHandler, AsyncHandler initializer);
 
     /**
-     * Synchronizes the given workspace projects with their Gradle counterpart.
+     * Attempts to synchronize the given workspace projects with their Gradle counterpart.
      * <p/>
      * Determines the Gradle builds that the given projects belong to and resynchronizes these
      * builds with the workspace. The synchronization happens asynchronously. In case of a failure,

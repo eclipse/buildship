@@ -9,25 +9,24 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.workspace;
+package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.core.runtime.jobs.JobGroup;
 
 import org.eclipse.buildship.core.AggregateException;
 import org.eclipse.buildship.core.CorePlugin;
@@ -35,18 +34,21 @@ import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.ToolingApiCommand;
 import org.eclipse.buildship.core.util.progress.ToolingApiInvoker;
+import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
  * Finds the Gradle root projects for the given set of Eclipse projects and then synchronizes
  * each Gradle root project with the Eclipse workspace via {@link SynchronizeGradleProjectJob}.
  */
-public final class SynchronizeGradleProjectsJob extends Job {
+final class SynchronizeGradleProjectsJob extends Job {
 
-    private final List<IProject> projects;
+    private final Set<IProject> projects;
+    private final NewProjectHandler newProjectHandler;
 
-    public SynchronizeGradleProjectsJob(List<IProject> projects) {
+    public SynchronizeGradleProjectsJob(Set<IProject> projects, NewProjectHandler newProjectHandler) {
         super("Synchronize workspace projects with Gradle counterparts");
-        this.projects = ImmutableList.copyOf(projects);
+        this.projects = ImmutableSet.copyOf(projects);
+        this.newProjectHandler = Preconditions.checkNotNull(newProjectHandler);
     }
 
     @Override
@@ -64,37 +66,32 @@ public final class SynchronizeGradleProjectsJob extends Job {
         // find all the unique root projects for the given list of projects and
         // reload the workspace project configuration for each of them (incl. their respective child projects)
         Set<FixedRequestAttributes> rootRequestAttributes = getUniqueRootAttributes(this.projects);
-        monitor.beginTask("Synchronizing workspace projects with Gradle counterparts", rootRequestAttributes.size());
-        final List<Throwable> errors = new CopyOnWriteArrayList<Throwable>();
-        try {
-            final CountDownLatch latch = new CountDownLatch(rootRequestAttributes.size());
-            for (FixedRequestAttributes requestAttributes : rootRequestAttributes) {
-                Job synchronizeJob = new SynchronizeGradleProjectJob(requestAttributes, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP);
-                synchronizeJob.addJobChangeListener(new JobChangeAdapter() {
+        JobGroup group = new JobGroup(getName(), 0, rootRequestAttributes.size());
+        for (FixedRequestAttributes requestAttributes : rootRequestAttributes) {
+            Job synchronizeJob = new SynchronizeGradleProjectJob(requestAttributes, this.newProjectHandler, AsyncHandler.NO_OP);
+            synchronizeJob.setJobGroup(group);
+            synchronizeJob.schedule();
+        }
+        group.join(0, monitor);
+        handleAggregateResult(group);
+    }
 
-                    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-                    @Override
-                    public void done(IJobChangeEvent event) {
-                        if (!event.getResult().isOK()) {
-                            Throwable error = event.getResult().getException();
-                            if (error != null) {
-                                errors.add(error);
-                            }
-                        }
-                        monitor.worked(1);
-                        latch.countDown();
+    private void handleAggregateResult(JobGroup group) throws Throwable {
+        if (group.getResult() != null) {
+            final List<Throwable> errors = new CopyOnWriteArrayList<Throwable>();
+            for (IStatus status : group.getResult().getChildren()) {
+                if (!status.isOK()) {
+                    Throwable error = status.getException();
+                    if (error != null) {
+                        errors.add(error);
                     }
-                });
-                synchronizeJob.schedule();
+                }
             }
-            latch.await();
-        } finally {
-            monitor.done();
             rethrowExceptionsIfAny(errors);
         }
     }
 
-    private Set<FixedRequestAttributes> getUniqueRootAttributes(List<IProject> projects) {
+    private Set<FixedRequestAttributes> getUniqueRootAttributes(Set<IProject> projects) {
         return FluentIterable.from(projects).filter(GradleProjectNature.isPresentOn()).transform(new Function<IProject, FixedRequestAttributes>() {
 
             @Override
@@ -110,6 +107,11 @@ public final class SynchronizeGradleProjectsJob extends Job {
         } else if (errors.size() > 1) {
             throw new AggregateException(errors);
         }
+    }
+
+    @Override
+    public boolean belongsTo(Object family) {
+        return CorePlugin.GRADLE_JOB_FAMILY.equals(family);
     }
 
     @Override
