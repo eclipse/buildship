@@ -12,6 +12,7 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.io.File;
 import java.util.List;
 
 import com.google.common.base.Function;
@@ -88,17 +89,18 @@ final class ClasspathContainerUpdater {
 
             @Override
             public boolean apply(OmniExternalDependency dependency) {
-                // Eclipse only accepts archives as external dependencies (but not, for example, a DLL)
-                String name = dependency.getFile().getName();
-                return name.endsWith(".jar") || name.endsWith(".zip");
+                File file = dependency.getFile();
+                String name = file.getName();
+                // Eclipse only accepts folders and archives as external dependencies (but not, for example, a DLL)
+                return file.isDirectory() || name.endsWith(".jar") || name.endsWith(".zip");
             }
         }).transform(new Function<OmniExternalDependency, IClasspathEntry>() {
 
             @Override
             public IClasspathEntry apply(OmniExternalDependency dependency) {
-                IPath jar = org.eclipse.core.runtime.Path.fromOSString(dependency.getFile().getAbsolutePath());
-                IPath sourceJar = dependency.getSource() != null ? org.eclipse.core.runtime.Path.fromOSString(dependency.getSource().getAbsolutePath()) : null;
-                return JavaCore.newLibraryEntry(jar, sourceJar, null, dependency.isExported());
+                IPath file = org.eclipse.core.runtime.Path.fromOSString(dependency.getFile().getAbsolutePath());
+                IPath sources = dependency.getSource() != null ? org.eclipse.core.runtime.Path.fromOSString(dependency.getSource().getAbsolutePath()) : null;
+                return JavaCore.newLibraryEntry(file, sources, null, dependency.isExported());
             }
         }).toList();
 
