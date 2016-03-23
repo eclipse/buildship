@@ -20,8 +20,8 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.util.predicate.Predicates;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 import org.eclipse.buildship.core.workspace.SynchronizeGradleProjectJob;
@@ -49,7 +49,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
     private void loadClasspath(IJavaProject javaProject) {
         IProject project = javaProject.getProject();
-        if (!Predicates.accessibleGradleProject().apply(project)) {
+        if (!GradleProjectNature.isPresentOn(project)) {
             return;
         }
 

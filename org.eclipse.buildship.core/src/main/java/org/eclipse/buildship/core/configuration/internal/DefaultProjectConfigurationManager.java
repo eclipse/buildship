@@ -45,7 +45,7 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
         // project with a Gradle nature for the Gradle root project it belongs to
         ImmutableSet.Builder<ProjectConfiguration> rootConfigurations = ImmutableSet.builder();
         for (IProject workspaceProject : this.workspaceOperations.getAllProjects()) {
-            if (workspaceProject.isOpen() && GradleProjectNature.INSTANCE.isPresentOn(workspaceProject)) {
+            if (workspaceProject.isOpen() && GradleProjectNature.isPresentOn(workspaceProject)) {
                 // calculate the root configuration to which the current configuration belongs
                 ProjectConfiguration projectConfiguration = this.projectConfigurationPersistence.readProjectConfiguration(workspaceProject);
                 ProjectConfiguration rootProjectConfiguration = ProjectConfiguration.from(projectConfiguration.getRequestAttributes(), Path.from(":"));
@@ -76,7 +76,7 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
         // collect all the Gradle project configurations in the workspace
         ImmutableSet.Builder<ProjectConfiguration> allConfigurations = ImmutableSet.builder();
         for (IProject workspaceProject : this.workspaceOperations.getAllProjects()) {
-            if (workspaceProject.isOpen() && GradleProjectNature.INSTANCE.isPresentOn(workspaceProject)) {
+            if (workspaceProject.isOpen() && GradleProjectNature.isPresentOn(workspaceProject)) {
                 ProjectConfiguration projectConfiguration = this.projectConfigurationPersistence.readProjectConfiguration(workspaceProject);
                 allConfigurations.add(projectConfiguration);
             }

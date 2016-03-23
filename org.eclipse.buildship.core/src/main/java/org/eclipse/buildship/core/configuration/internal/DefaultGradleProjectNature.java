@@ -39,12 +39,12 @@ public final class DefaultGradleProjectNature implements IProjectNature {
 
     @Override
     public void configure() {
-        GradleProjectBuilder.INSTANCE.configureOnProject(this.project);
+        GradleProjectBuilder.configureOnProject(this.project);
     }
 
     @Override
     public void deconfigure() {
-        GradleProjectBuilder.INSTANCE.deconfigureOnProject(this.project);
+        GradleProjectBuilder.deconfigureOnProject(this.project);
     }
 
 }

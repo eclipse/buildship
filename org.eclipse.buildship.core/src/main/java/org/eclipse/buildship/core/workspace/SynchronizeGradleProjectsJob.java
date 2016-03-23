@@ -11,16 +11,17 @@
 
 package org.eclipse.buildship.core.workspace;
 
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import org.eclipse.buildship.core.AggregateException;
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.util.predicate.Predicates;
-import org.eclipse.buildship.core.util.progress.AsyncHandler;
-import org.eclipse.buildship.core.util.progress.ToolingApiCommand;
-import org.eclipse.buildship.core.util.progress.ToolingApiInvoker;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -28,10 +29,12 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
+import org.eclipse.buildship.core.AggregateException;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.util.progress.AsyncHandler;
+import org.eclipse.buildship.core.util.progress.ToolingApiCommand;
+import org.eclipse.buildship.core.util.progress.ToolingApiInvoker;
 
 /**
  * Finds the Gradle root projects for the given set of Eclipse projects and then synchronizes
@@ -92,7 +95,7 @@ public final class SynchronizeGradleProjectsJob extends Job {
     }
 
     private Set<FixedRequestAttributes> getUniqueRootAttributes(List<IProject> projects) {
-        return FluentIterable.from(projects).filter(Predicates.accessibleGradleProject()).transform(new Function<IProject, FixedRequestAttributes>() {
+        return FluentIterable.from(projects).filter(GradleProjectNature.isPresentOn()).transform(new Function<IProject, FixedRequestAttributes>() {
 
             @Override
             public FixedRequestAttributes apply(IProject project) {

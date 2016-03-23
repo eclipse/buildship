@@ -16,10 +16,6 @@ import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
 class ConfiguringGradleBuilderOnBrokenProject extends WorkspaceSpecification {
 
-    @Shared
-    @Subject
-    GradleProjectBuilder builder = GradleProjectBuilder.INSTANCE
-
     IProject brokenProject = Stub(IProject) {
         isOpen() >> true
         getDescription() >> { throw new CoreException(new Status(IStatus.ERROR, "unknown", "thrown on purpose")) }
@@ -31,7 +27,7 @@ class ConfiguringGradleBuilderOnBrokenProject extends WorkspaceSpecification {
         registerService(Logger, logger)
 
         when:
-        builder.configureOnProject(brokenProject)
+        GradleProjectBuilder.configureOnProject(brokenProject)
 
         then:
         1 * logger.error(_)
@@ -43,7 +39,7 @@ class ConfiguringGradleBuilderOnBrokenProject extends WorkspaceSpecification {
         registerService(Logger, logger)
 
         when:
-        builder.deconfigureOnProject(brokenProject)
+        GradleProjectBuilder.deconfigureOnProject(brokenProject)
 
         then:
         1 * logger.error(_)

@@ -31,8 +31,7 @@ import org.eclipse.buildship.core.CorePlugin;
  * Project builder for Gradle projects.
  */
 public enum GradleProjectBuilder {
-
-    INSTANCE;
+    ;
 
     // the builder ID has to be in the following format: ${PLUGIN_ID}.${BUILDER_ID}
     public static final String ID = CorePlugin.PLUGIN_ID + ".gradleprojectbuilder";
@@ -44,7 +43,7 @@ public enum GradleProjectBuilder {
      *
      * @param project the target project
      */
-    public void configureOnProject(IProject project) {
+    public static void configureOnProject(IProject project) {
         try {
             Preconditions.checkState(project.isOpen());
 
@@ -79,7 +78,7 @@ public enum GradleProjectBuilder {
      *
      * @param project the target project
      */
-    public void deconfigureOnProject(IProject project) {
+    public static void deconfigureOnProject(IProject project) {
         try {
             Preconditions.checkState(project.isOpen());
 

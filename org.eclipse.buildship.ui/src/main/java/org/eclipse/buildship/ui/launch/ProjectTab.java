@@ -197,7 +197,7 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
 
             @Override
             public boolean apply(IProject project) {
-                return project.isOpen() && GradleProjectNature.INSTANCE.isPresentOn(project);
+                return project.isOpen() && GradleProjectNature.isPresentOn(project);
             }
         }).toArray(IProject.class);
     }

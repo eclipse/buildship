@@ -16,10 +16,6 @@ import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
 class ConfiguringGradleBuilderOnRegularProject extends WorkspaceSpecification {
 
-    @Shared
-    @Subject
-    GradleProjectBuilder builder = GradleProjectBuilder.INSTANCE
-
     IProject project
 
     def setup() {
@@ -28,7 +24,7 @@ class ConfiguringGradleBuilderOnRegularProject extends WorkspaceSpecification {
 
     def "Can configure builder"() {
         when:
-        builder.configureOnProject(project)
+        GradleProjectBuilder.configureOnProject(project)
 
         then:
         builderNames(project) == [GradleProjectBuilder.ID]
@@ -36,10 +32,10 @@ class ConfiguringGradleBuilderOnRegularProject extends WorkspaceSpecification {
 
     def "Builder configuration is idempotent"() {
         given:
-        builder.configureOnProject(project)
+        GradleProjectBuilder.configureOnProject(project)
 
         when:
-        builder.configureOnProject(project)
+        GradleProjectBuilder.configureOnProject(project)
 
         then:
         builderNames(project) == [GradleProjectBuilder.ID]
@@ -47,10 +43,10 @@ class ConfiguringGradleBuilderOnRegularProject extends WorkspaceSpecification {
 
     def "Can deconfigure builder"() {
         given:
-        builder.configureOnProject(project)
+        GradleProjectBuilder.configureOnProject(project)
 
         when:
-        builder.deconfigureOnProject(project)
+        GradleProjectBuilder.deconfigureOnProject(project)
 
         then:
         builderNames(project).empty
@@ -58,7 +54,7 @@ class ConfiguringGradleBuilderOnRegularProject extends WorkspaceSpecification {
 
     def "Deconfiguring is a no-op if builder is not present"() {
         when:
-        builder.deconfigureOnProject(project)
+        GradleProjectBuilder.deconfigureOnProject(project)
 
         then:
         builderNames(project).empty

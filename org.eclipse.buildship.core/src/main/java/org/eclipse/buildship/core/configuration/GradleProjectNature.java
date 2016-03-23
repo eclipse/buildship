@@ -11,6 +11,8 @@
 
 package org.eclipse.buildship.core.configuration;
 
+import com.google.common.base.Predicate;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 
@@ -20,11 +22,24 @@ import org.eclipse.buildship.core.CorePlugin;
  * Project nature for Gradle projects.
  */
 public enum GradleProjectNature {
-
-    INSTANCE;
+    ;
 
     // the nature ID has to be in the following format: ${PLUGIN_ID}.${NATURE_ID}
     public static final String ID = CorePlugin.PLUGIN_ID + ".gradleprojectnature";
+
+    /**
+     * A predicate that can be used to filter projects based on whether they have the Gradle nature.
+     * @return the predicate
+     */
+    public static Predicate<IProject> isPresentOn() {
+        return new Predicate<IProject>() {
+
+            @Override
+            public boolean apply(IProject project) {
+                return GradleProjectNature.isPresentOn(project);
+            }
+        };
+    }
 
     /**
      * Determines if the target project has the Gradle nature applied.
@@ -32,7 +47,7 @@ public enum GradleProjectNature {
      * @param project the project to verify
      * @return {@code true} if the specified project has the nature applied
      */
-    public boolean isPresentOn(IProject project) {
+    public static boolean isPresentOn(IProject project) {
         if (!project.isOpen()) {
             return false;
         }

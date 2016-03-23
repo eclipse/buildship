@@ -54,7 +54,7 @@ public final class Predicates {
     }
 
     private static boolean hasGradleNature(IProject project) {
-        return project.isOpen() && GradleProjectNature.INSTANCE.isPresentOn(project);
+        return GradleProjectNature.isPresentOn(project);
     }
 
 }

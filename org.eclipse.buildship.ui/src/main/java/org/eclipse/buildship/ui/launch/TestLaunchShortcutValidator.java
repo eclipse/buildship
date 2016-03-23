@@ -97,7 +97,7 @@ public final class TestLaunchShortcutValidator {
         }
 
         // the container project has the Gradle nature
-        if (!project.isAccessible() || !GradleProjectNature.INSTANCE.isPresentOn(project)) {
+        if (!project.isAccessible() || !GradleProjectNature.isPresentOn(project)) {
             return false;
         }
 

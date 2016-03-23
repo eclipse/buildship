@@ -65,7 +65,7 @@ class ImportingMultiProjectBuild extends ProjectSynchronizationSpecification {
         then:
         IProject project = findProject('moduleC')
         project != null
-        GradleProjectNature.INSTANCE.isPresentOn(project)
+        GradleProjectNature.isPresentOn(project)
     }
 
     def "An existing workspace project is transformed to a Gradle project when included in a Gradle build"() {
@@ -81,7 +81,7 @@ class ImportingMultiProjectBuild extends ProjectSynchronizationSpecification {
         synchronizeAndWait(findProject('sample'))
 
         then:
-        GradleProjectNature.INSTANCE.isPresentOn(project)
+        GradleProjectNature.isPresentOn(project)
     }
 
     def "Nonexisting sub projects are ignored"() {

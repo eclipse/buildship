@@ -49,7 +49,6 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
-import org.eclipse.buildship.core.util.predicate.Predicates;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;
@@ -100,7 +99,7 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         }).toSet();
 
         ImmutableList<IProject> allWorkspaceProjects = CorePlugin.workspaceOperations().getAllProjects();
-        return FluentIterable.from(allWorkspaceProjects).filter(Predicates.accessibleGradleProject()).filter(new Predicate<IProject>() {
+        return FluentIterable.from(allWorkspaceProjects).filter(GradleProjectNature.isPresentOn()).filter(new Predicate<IProject>() {
 
             @Override
             public boolean apply(IProject project) {
