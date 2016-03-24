@@ -157,6 +157,7 @@ final class BundleMavenDeployer {
         }
       }
     } finally {
+      executor.cleanup()
       logger.info('Finished deploying artifacts')
     }
   }
