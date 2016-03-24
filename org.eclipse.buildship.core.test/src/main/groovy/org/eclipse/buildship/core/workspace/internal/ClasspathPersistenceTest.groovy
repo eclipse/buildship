@@ -6,7 +6,7 @@ import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations
+import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
@@ -21,8 +21,8 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         }
         importAndWait(projectDir)
 
-        WorkspaceGradleOperations workspaceOperations = Mock(WorkspaceGradleOperations)
-        registerService(WorkspaceGradleOperations, workspaceOperations)
+        GradleWorkspaceManager workspaceManager = Mock(GradleWorkspaceManager)
+        registerService(GradleWorkspaceManager, workspaceManager)
 
         IJavaProject javaProject = JavaCore.create(findProject("sample-project"))
         IProject project = javaProject.project
@@ -34,7 +34,7 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         reimportWithoutSynchronization(project)
 
         then:
-        0 * workspaceOperations.synchronizeGradleBuildWithWorkspace(*_)
+        0 * workspaceManager._
         javaProject.getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
     }
 

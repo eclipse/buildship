@@ -43,11 +43,9 @@ import org.eclipse.buildship.core.notification.internal.ConsoleUserNotification;
 import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.util.logging.EclipseLogger;
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
-import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 import org.eclipse.buildship.core.workspace.internal.DefaultWorkspaceOperations;
 import org.eclipse.buildship.core.workspace.internal.DefaultGradleWorkspaceManager;
-import org.eclipse.buildship.core.workspace.internal.DefaultWorkspaceGradleOperations;
 
 /**
  * The plug-in runtime class for the Gradle integration plugin containing the non-UI elements.
@@ -134,7 +132,6 @@ public final class CorePlugin extends Plugin {
         this.toolingClientServiceTracker = createServiceTracker(context, ToolingClient.class);
         this.modelRepositoryProviderServiceTracker = createServiceTracker(context, ModelRepositoryProvider.class);
         this.workspaceOperationsServiceTracker = createServiceTracker(context, WorkspaceOperations.class);
-        this.workspaceGradleOperationsServiceTracker = createServiceTracker(context, WorkspaceGradleOperations.class);
         this.gradleWorkspaceManagerServiceTracker = createServiceTracker(context, GradleWorkspaceManager.class);
         this.projectConfigurationManagerServiceTracker = createServiceTracker(context, ProjectConfigurationManager.class);
         this.processStreamsProviderServiceTracker = createServiceTracker(context, ProcessStreamsProvider.class);
@@ -148,7 +145,6 @@ public final class CorePlugin extends Plugin {
         this.toolingClientService = registerService(context, ToolingClient.class, createToolingClient(), preferences);
         this.modelRepositoryProviderService = registerService(context, ModelRepositoryProvider.class, createModelRepositoryProvider(), preferences);
         this.workspaceOperationsService = registerService(context, WorkspaceOperations.class, createWorkspaceOperations(), preferences);
-        this.workspaceGradleOperationsService = registerService(context, WorkspaceGradleOperations.class, createWorkspaceGradleOperations(), preferences);
         this.gradleWorkspaceManagerService = registerService(context, GradleWorkspaceManager.class, createGradleWorkspaceManager(), preferences);
         this.projectConfigurationManagerService = registerService(context, ProjectConfigurationManager.class, createProjectConfigurationManager(), preferences);
         this.processStreamsProviderService = registerService(context, ProcessStreamsProvider.class, createProcessStreamsProvider(), preferences);
@@ -186,10 +182,6 @@ public final class CorePlugin extends Plugin {
 
     private WorkspaceOperations createWorkspaceOperations() {
         return new DefaultWorkspaceOperations();
-    }
-
-    private WorkspaceGradleOperations createWorkspaceGradleOperations() {
-        return new DefaultWorkspaceGradleOperations();
     }
 
     private GradleWorkspaceManager createGradleWorkspaceManager() {
@@ -267,10 +259,6 @@ public final class CorePlugin extends Plugin {
 
     public static WorkspaceOperations workspaceOperations() {
         return (WorkspaceOperations) getInstance().workspaceOperationsServiceTracker.getService();
-    }
-
-    public static WorkspaceGradleOperations workspaceGradleOperations() {
-        return (WorkspaceGradleOperations) getInstance().workspaceGradleOperationsServiceTracker.getService();
     }
 
     public static GradleWorkspaceManager gradleWorkspaceManager() {

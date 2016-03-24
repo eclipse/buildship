@@ -26,7 +26,6 @@ import org.eclipse.buildship.core.test.fixtures.TestEnvironment
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.util.variable.ExpressionUtils
-import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;;
 
 class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecification {
 

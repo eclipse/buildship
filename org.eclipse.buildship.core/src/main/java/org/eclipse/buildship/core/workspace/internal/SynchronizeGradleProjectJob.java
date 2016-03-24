@@ -46,11 +46,6 @@ public class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
     private final NewProjectHandler newProjectHandler;
     private final AsyncHandler initializer;
 
-    //For STS Gradle Plugin, don't remove!
-    public SynchronizeGradleProjectJob(FixedRequestAttributes rootRequestAttributes, List<String> unused, AsyncHandler initializer) {
-        this(rootRequestAttributes, NewProjectHandler.IMPORT_AND_MERGE, initializer);
-    }
-
     public SynchronizeGradleProjectJob(FixedRequestAttributes rootRequestAttributes, NewProjectHandler newProjectHandler, AsyncHandler initializer) {
         this(rootRequestAttributes, newProjectHandler, initializer, false);
     }
@@ -75,7 +70,7 @@ public class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
 
         this.initializer.run(progress.newChild(1), getToken());
         OmniEclipseGradleBuild gradleBuild = forceReloadEclipseGradleBuild(this.rootRequestAttributes, progress.newChild(4));
-        CorePlugin.workspaceGradleOperations().synchronizeGradleBuildWithWorkspace(gradleBuild, this.rootRequestAttributes, this.newProjectHandler, progress.newChild(5));
+        new SynchronizeGradleBuildOperation().synchronizeGradleBuildWithWorkspace(gradleBuild, this.rootRequestAttributes, this.newProjectHandler, progress.newChild(5));
     }
 
     private OmniEclipseGradleBuild forceReloadEclipseGradleBuild(FixedRequestAttributes requestAttributes, SubMonitor monitor) {

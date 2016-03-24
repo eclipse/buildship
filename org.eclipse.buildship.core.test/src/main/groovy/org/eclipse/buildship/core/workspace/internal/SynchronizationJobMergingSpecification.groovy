@@ -22,7 +22,7 @@ import org.eclipse.buildship.core.test.fixtures.TestEnvironment
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.util.variable.ExpressionUtils
-import org.eclipse.buildship.core.workspace.WorkspaceGradleOperations;;
+import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 class SynchronizationJobMergingSpecification extends ProjectSynchronizationSpecification {
 
@@ -31,15 +31,15 @@ class SynchronizationJobMergingSpecification extends ProjectSynchronizationSpeci
         File projectLocation = dir("sample-project") {
             file 'settings.gradle'
         }
-        WorkspaceGradleOperations workspaceOperations = Mock(WorkspaceGradleOperations)
-        registerService(WorkspaceGradleOperations, workspaceOperations)
-        5.times { startSynchronization(projectLocation) }
+        def requestAttributes = new FixedRequestAttributes(projectLocation, null, GradleDistribution.fromBuild(), null, [], [])
+        def jobs = (1..5).collect { new SynchronizeGradleProjectJob(requestAttributes, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP) }
 
         when:
+        jobs.each { it.schedule() }
         waitForGradleJobsToFinish()
 
         then:
-        1 * workspaceOperations.synchronizeGradleBuildWithWorkspace(*_)
+        jobs.findAll { it.result != null }.size() == 1
     }
 
 }
