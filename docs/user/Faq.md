@@ -22,3 +22,12 @@ __A.__ Not from the UI, because the Gradle project configuration is always kept 
 
     apply plugin: 'eclipse'
     eclipse.classpath.plusConfigurations = []
+
+
+### Q. Can my build folder be outside of the project?
+
+__A.__ Yes, but unlike with source folders, you have to set up the link yourself at the moment:
+
+    apply plugin: 'eclipse'
+    buildDir = "../some-other-place"
+    eclipse.project.linkedResource name:'build', type:'2', location: file('../some-other-place').path
