@@ -17,7 +17,10 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 
-//For STS Gradle Plugin, don't remove!
+/**
+ * For STS, don't remove!
+ * @author Stefan Oehme
+ */
 public final class SynchronizeGradleProjectJob extends org.eclipse.buildship.core.workspace.internal.SynchronizeGradleBuildJob {
 
     public SynchronizeGradleProjectJob(FixedRequestAttributes rootRequestAttributes, List<String> unused, AsyncHandler initializer) {

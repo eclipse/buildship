@@ -16,12 +16,6 @@ import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 
-/**
- * Manages the Gradle builds that are contained in the current Eclipse workspace.
- *
- * @author Stefan Oehme
- */
-
 /*
  * TODO The methods in this class highlight some problems with our current job-centric design: -
  * callers can't decide for themselves how they want to handle errors - callers cannot embed any of
@@ -29,6 +23,11 @@ import org.eclipse.buildship.core.util.progress.AsyncHandler;
  * when the operations finish This API should evolve into a set of synchronous operations that
  * provide progress, cancellation and throw CoreExceptions with detailed IStatus, which will allow
  * any problems to be displayed to the user in the most accurate fashion.
+ */
+/**
+ * Manages the Gradle builds that are contained in the current Eclipse workspace.
+ *
+ * @author Stefan Oehme
  */
 public interface GradleWorkspaceManager {
 
