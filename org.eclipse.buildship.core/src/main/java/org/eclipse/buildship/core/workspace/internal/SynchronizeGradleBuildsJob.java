@@ -14,7 +14,6 @@ package org.eclipse.buildship.core.workspace.internal;
 import java.util.List;
 import java.util.Set;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -23,58 +22,63 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.jobs.JobGroup;
 
 import org.eclipse.buildship.core.AggregateException;
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
- * Synchronizes each of the given Gradle builds using {@link SynchronizeGradleBuildJob} and
- * reports problems to the user in bulk.
+ * Synchronizes each of the given Gradle builds using {@link SynchronizeGradleBuildJob} and reports
+ * problems to the user in bulk.
  */
 final class SynchronizeGradleBuildsJob extends ToolingApiJob {
 
-    private final NewProjectHandler newProjectHandler;
-    private final ImmutableSet<FixedRequestAttributes> builds;
-    private final JobGroup jobGroup;
+    private final ImmutableSet<SynchronizeGradleBuildJob> jobs;
 
     public SynchronizeGradleBuildsJob(Set<FixedRequestAttributes> builds, NewProjectHandler newProjectHandler) {
         super("Synchronize Gradle builds", true);
-        this.builds = ImmutableSet.copyOf(builds);
-        this.newProjectHandler = Preconditions.checkNotNull(newProjectHandler);
-        this.jobGroup = new JobGroup(getName(), 0, this.builds.size());
+        ImmutableSet.Builder<SynchronizeGradleBuildJob> jobs = ImmutableSet.builder();
+        for (FixedRequestAttributes build : builds) {
+            jobs.add(new SynchronizeGradleBuildJob(build, newProjectHandler, AsyncHandler.NO_OP));
+        }
+        this.jobs = jobs.build();
     }
 
     @Override
     protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
-        for (FixedRequestAttributes build : this.builds) {
-            Job synchronizeJob = new SynchronizeGradleBuildJob(build, this.newProjectHandler, AsyncHandler.NO_OP);
-            synchronizeJob.setJobGroup(this.jobGroup);
-            synchronizeJob.schedule();
+        scheduleJobs();
+        waitForJobsToFinish();
+        handleResults();
+    }
+
+    private void scheduleJobs() {
+        for (SynchronizeGradleBuildJob job : this.jobs) {
+            job.schedule();
         }
-        this.jobGroup.join(0, monitor);
-        handleResult(this.jobGroup);
+    }
+
+
+    private void waitForJobsToFinish() throws InterruptedException {
+        for (SynchronizeGradleBuildJob job : this.jobs) {
+            job.join();
+        }
     }
 
     /*
      * TODO this is a poor man's version of what CoreException + MultiStatus already provide out of
      * the box We should refactor to remove this completely
      */
-    private void handleResult(JobGroup group) {
-        MultiStatus result = group.getResult();
-        if (result != null) {
-            if (result.matches(IStatus.CANCEL)) {
-                throw new OperationCanceledException();
-            }
-            List<Throwable> errors = Lists.newArrayList();
-            for (IStatus status : result.getChildren()) {
+    private void handleResults() {
+        List<Throwable> errors = Lists.newArrayList();
+        for (SynchronizeGradleBuildJob job : this.jobs) {
+            IStatus status = job.getResult();
+            if (status != null) {
+                if (status.matches(IStatus.CANCEL)) {
+                    throw new OperationCanceledException();
+                }
                 if (!status.isOK()) {
                     Throwable error = status.getException();
                     if (error != null) {
@@ -82,8 +86,8 @@ final class SynchronizeGradleBuildsJob extends ToolingApiJob {
                     }
                 }
             }
-            propagate(errors);
         }
+        propagate(errors);
     }
 
     private void propagate(List<Throwable> errors) {
@@ -97,13 +101,10 @@ final class SynchronizeGradleBuildsJob extends ToolingApiJob {
     }
 
     @Override
-    public boolean belongsTo(Object family) {
-        return CorePlugin.GRADLE_JOB_FAMILY.equals(family);
-    }
-
-    @Override
     protected void canceling() {
-        this.jobGroup.cancel();
+        for (SynchronizeGradleBuildJob job : this.jobs) {
+            job.cancel();
+        }
     }
 
 }
