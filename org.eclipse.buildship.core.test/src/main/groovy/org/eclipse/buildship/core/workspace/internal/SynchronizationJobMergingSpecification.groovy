@@ -32,7 +32,7 @@ class SynchronizationJobMergingSpecification extends ProjectSynchronizationSpeci
             file 'settings.gradle'
         }
         def requestAttributes = new FixedRequestAttributes(projectLocation, null, GradleDistribution.fromBuild(), null, [], [])
-        def jobs = (1..5).collect { new SynchronizeGradleProjectJob(requestAttributes, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP) }
+        def jobs = (1..5).collect { new SynchronizeGradleBuildJob(requestAttributes, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP) }
 
         when:
         jobs.each { it.schedule() }

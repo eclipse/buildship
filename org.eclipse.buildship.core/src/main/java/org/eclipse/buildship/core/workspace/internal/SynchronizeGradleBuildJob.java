@@ -38,20 +38,20 @@ import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
- * Forces the reload of the given Gradle (multi-)project and synchronizes it with the Eclipse workspace.
+ * Forces the reload of the given Gradle build and synchronizes it with the Eclipse workspace.
  */
-public class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
+public class SynchronizeGradleBuildJob extends ToolingApiWorkspaceJob {
 
     private final FixedRequestAttributes rootRequestAttributes;
     private final NewProjectHandler newProjectHandler;
     private final AsyncHandler initializer;
 
-    public SynchronizeGradleProjectJob(FixedRequestAttributes rootRequestAttributes, NewProjectHandler newProjectHandler, AsyncHandler initializer) {
+    public SynchronizeGradleBuildJob(FixedRequestAttributes rootRequestAttributes, NewProjectHandler newProjectHandler, AsyncHandler initializer) {
         this(rootRequestAttributes, newProjectHandler, initializer, false);
     }
 
-    public SynchronizeGradleProjectJob(FixedRequestAttributes rootRequestAttributes, NewProjectHandler newProjectHandler, AsyncHandler initializer, boolean showUserNotifications) {
-        super(String.format("Synchronize Gradle root project at %s with workspace", Preconditions.checkNotNull(rootRequestAttributes).getProjectDir().getAbsolutePath()), showUserNotifications);
+    public SynchronizeGradleBuildJob(FixedRequestAttributes rootRequestAttributes, NewProjectHandler newProjectHandler, AsyncHandler initializer, boolean showUserNotifications) {
+        super(String.format("Synchronize Gradle build at %s with workspace", Preconditions.checkNotNull(rootRequestAttributes).getProjectDir().getAbsolutePath()), showUserNotifications);
 
         this.rootRequestAttributes = Preconditions.checkNotNull(rootRequestAttributes);
         this.newProjectHandler = Preconditions.checkNotNull(newProjectHandler);
@@ -90,11 +90,11 @@ public class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
     }
 
     private String getJobFamily() {
-        return SynchronizeGradleProjectJob.class.getName();
+        return SynchronizeGradleBuildJob.class.getName();
     }
 
     /**
-     * A {@link SynchronizeGradleProjectJob} is only scheduled if there is not already another one that fully covers it.
+     * A {@link SynchronizeGradleBuildJob} is only scheduled if there is not already another one that fully covers it.
      * <p/>
      * A job A fully covers a job B if all of these conditions are met:
      * <ul>
@@ -106,14 +106,14 @@ public class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
     @Override
     public boolean shouldSchedule() {
         for (Job job : Job.getJobManager().find(getJobFamily())) {
-            if (job instanceof SynchronizeGradleProjectJob && isCoveredBy((SynchronizeGradleProjectJob) job)) {
+            if (job instanceof SynchronizeGradleBuildJob && isCoveredBy((SynchronizeGradleBuildJob) job)) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean isCoveredBy(SynchronizeGradleProjectJob other) {
+    private boolean isCoveredBy(SynchronizeGradleBuildJob other) {
         return Objects.equal(this.rootRequestAttributes, other.rootRequestAttributes)
             && (this.newProjectHandler == NewProjectHandler.NO_OP || Objects.equal(this.newProjectHandler, other.newProjectHandler))
             && (this.initializer == AsyncHandler.NO_OP || Objects.equal(this.initializer, other.initializer));

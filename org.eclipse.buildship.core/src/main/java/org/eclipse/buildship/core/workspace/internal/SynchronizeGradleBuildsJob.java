@@ -36,17 +36,17 @@ import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
- * Synchronizes each of the given Gradle Builds using {@link SynchronizeGradleProjectJob} and
+ * Synchronizes each of the given Gradle builds using {@link SynchronizeGradleBuildJob} and
  * reports problems to the user in bulk.
  */
-final class SynchronizeGradleProjectsJob extends ToolingApiJob {
+final class SynchronizeGradleBuildsJob extends ToolingApiJob {
 
     private final NewProjectHandler newProjectHandler;
     private final ImmutableSet<FixedRequestAttributes> builds;
     private final JobGroup jobGroup;
 
-    public SynchronizeGradleProjectsJob(Set<FixedRequestAttributes> builds, NewProjectHandler newProjectHandler) {
-        super("Synchronize workspace projects with Gradle counterparts", true);
+    public SynchronizeGradleBuildsJob(Set<FixedRequestAttributes> builds, NewProjectHandler newProjectHandler) {
+        super("Synchronize Gradle builds", true);
         this.builds = ImmutableSet.copyOf(builds);
         this.newProjectHandler = Preconditions.checkNotNull(newProjectHandler);
         this.jobGroup = new JobGroup(getName(), 0, this.builds.size());
@@ -55,7 +55,7 @@ final class SynchronizeGradleProjectsJob extends ToolingApiJob {
     @Override
     protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
         for (FixedRequestAttributes build : this.builds) {
-            Job synchronizeJob = new SynchronizeGradleProjectJob(build, this.newProjectHandler, AsyncHandler.NO_OP);
+            Job synchronizeJob = new SynchronizeGradleBuildJob(build, this.newProjectHandler, AsyncHandler.NO_OP);
             synchronizeJob.setJobGroup(this.jobGroup);
             synchronizeJob.schedule();
         }
