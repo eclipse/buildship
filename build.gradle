@@ -364,6 +364,13 @@ task incrementVersion << {
         def serviceSegment = Integer.parseInt(matcher.group(3)) + 1
         newVersion = matcher.group(1) + "." + matcher.group(2) + "." + serviceSegment
         file('version.txt').text = newVersion
+
+        Pattern bundleVersionPattern = Pattern.compile('(?<=Bundle-Version: )\\d+\\.\\d+\\.\\d+(?=\\.qualifier)')
+        file('.').eachFileRecurse { file ->
+            if(file.name == 'MANIFEST.MF') {
+                replacePatternsInFile(file, [(bundleVersionPattern) : newVersion])
+            }
+        }
     } else {
         throw new IllegalStateException("Unparseable version: $oldVersion.")
     }
