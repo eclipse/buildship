@@ -351,10 +351,11 @@ gradle.buildFinished {
 // tag the HEAD of the current branch and push the new tag
 task tag << {
     def tagVersion = file('version.txt').text.trim()
-    // create and push tag
-    exec { commandLine('./tag.sh', tagVersion) }
+    exec { commandLine 'git', 'tag', '-a', "REL_$tagVersion", '-m', "\"Create tag REL_$tagVersion\"" }
+    exec { commandLine 'git', 'push', githubAuthenticatedHost, 'master'}
 }
 
+// increment the service segment in the version number and push it to master
 task incrementVersion << {
     def oldVersion = file('version.txt').text.trim()
     def newVersion = ""
@@ -366,7 +367,8 @@ task incrementVersion << {
     } else {
         throw new IllegalStateException("Unparseable version: $oldVersion.")
     }
-    exec { commandLine('./incrementVersion.sh', oldVersion, newVersion) }
+    exec { commandLine 'git', 'commit', '-a', "-m\"Increment version from $oldVersion to $newVersion\""}
+    exec { commandLine 'git', 'push', githubAuthenticatedHost, 'master'}
 }
 
 // updates tooling-commons in the target definition files and in the Oomph setup model
