@@ -384,7 +384,6 @@ task updateToolingCommons << {
     String qualifier = toolingCommonsBuildTimestamp
     String qualifiedToolingApiBundleVersion = "${toolingApiBundleVersion}.v${qualifier}"
     String qualifiedToolingCommonsBundleVersion = "${toolingCommonsBundleVersion}.v${qualifier}"
-    String p2RepositoryUrl  = "https://repo.gradle.org/gradle/tooling-libs-${toolingCommonsRepoType}-local/com/gradleware/tooling/p2-repository/${toolingCommonsVersion}-${qualifier}/p2-repository-${toolingCommonsVersion}-${qualifier}.zip"
 
     // update target definition files
     Pattern toolingApiPattern = Pattern.compile('(?<=<unit id="org.gradle.toolingapi" version=")[^"]+(?="/>)')
@@ -393,14 +392,14 @@ task updateToolingCommons << {
     file('.').eachFileMatch(~/.*\.target/) { targetDefinitionFile ->
         replacePatternsInFile(targetDefinitionFile, [(toolingApiPattern)      : qualifiedToolingApiBundleVersion, 
                                                      (toolingCommmonsPattern) : qualifiedToolingCommonsBundleVersion, 
-                                                     (p2RepositoryPattern)    : p2RepositoryUrl])
+                                                     (p2RepositoryPattern)    : toolingCommonsRepo])
     }
 
     // update Oomph setup definition
     toolingCommmonsPattern = Pattern.compile('(?<=<requirement\\r?\\n? {10}name="com.gradleware.tooling.(utils|client|model)"\\r?\\n? {10}versionRange=")[^"]+(?="/>)')
     p2RepositoryPattern = Pattern.compile('(?<=url="jar:)https://repo.gradle.org[^"]+p2-repository-[^"]+.zip(?=!/"/>)')
     replacePatternsInFile(file('buildship.setup'), [(toolingCommmonsPattern) : toolingCommonsBundleVersion, 
-                                                    (p2RepositoryPattern)    : p2RepositoryUrl])
+                                                    (p2RepositoryPattern)    : toolingCommonsRepo])
 }
 
 void replacePatternsInFile(File file, Map<Pattern, String> patternAndReplacement) {
