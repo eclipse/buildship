@@ -176,7 +176,7 @@ public class ProjectImportWizardController {
 
     public boolean performImportProject(AsyncHandler initializer, NewProjectHandler newProjectHandler) {
         FixedRequestAttributes rootRequestAttributes = this.configuration.toFixedAttributes();
-        WorkingSetsAddingNewProjectHandler workingSetsAddingNewProjectHandler = new WorkingSetsAddingNewProjectHandler(newProjectHandler, this.configuration);
+        ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler = new ImportWizardNewProjectHandler(newProjectHandler, this.configuration);
         if (initializer == AsyncHandler.NO_OP) {
             CorePlugin.gradleWorkspaceManager().synchronizeGradleBuild(rootRequestAttributes, workingSetsAddingNewProjectHandler);
         } else {
@@ -186,17 +186,17 @@ public class ProjectImportWizardController {
     }
 
     /**
-     * A delegating {@link NewProjectHandler} which adds workingsets to the imported projects.
+     * A delegating {@link NewProjectHandler} which adds workingsets to the imported projects and ensures that the Gradle views are visible.
      *
      * @author Stefan Oehme
      */
-    private static final class WorkingSetsAddingNewProjectHandler implements NewProjectHandler {
+    private static final class ImportWizardNewProjectHandler implements NewProjectHandler {
 
         private final NewProjectHandler delegate;
         private final ProjectImportConfiguration configuration;
-        private volatile boolean workingSetsVisible;
+        private volatile boolean gradleViewsVisible;
 
-        private WorkingSetsAddingNewProjectHandler(NewProjectHandler delegate, ProjectImportConfiguration configuration) {
+        private ImportWizardNewProjectHandler(NewProjectHandler delegate, ProjectImportConfiguration configuration) {
             this.delegate = delegate;
             this.configuration = configuration;
         }
@@ -231,8 +231,8 @@ public class ProjectImportWizardController {
 
                 @Override
                 public void run() {
-                    if (!WorkingSetsAddingNewProjectHandler.this.workingSetsVisible) {
-                        WorkingSetsAddingNewProjectHandler.this.workingSetsVisible = true;
+                    if (!ImportWizardNewProjectHandler.this.gradleViewsVisible) {
+                        ImportWizardNewProjectHandler.this.gradleViewsVisible = true;
                         WorkbenchUtils.showView(TaskView.ID, null, IWorkbenchPage.VIEW_ACTIVATE);
                         WorkbenchUtils.showView(ExecutionsView.ID, null, IWorkbenchPage.VIEW_VISIBLE);
                     }
@@ -240,6 +240,5 @@ public class ProjectImportWizardController {
             });
         }
     }
-
 
 }
