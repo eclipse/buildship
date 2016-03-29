@@ -83,17 +83,6 @@ public class SynchronizeGradleBuildJob extends ToolingApiWorkspaceJob {
         return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FORCE_RELOAD);
     }
 
-    @Override
-    public boolean belongsTo(Object family) {
-        // associate with a family so we can cancel all builds of
-        // this type at once through the Eclipse progress manager
-        return super.belongsTo(family) || getJobFamily().equals(family);
-    }
-
-    private String getJobFamily() {
-        return SynchronizeGradleBuildJob.class.getName();
-    }
-
     /**
      * A {@link SynchronizeGradleBuildJob} is only scheduled if there is not already another one that fully covers it.
      * <p/>
@@ -106,7 +95,7 @@ public class SynchronizeGradleBuildJob extends ToolingApiWorkspaceJob {
      */
     @Override
     public boolean shouldSchedule() {
-        for (Job job : Job.getJobManager().find(getJobFamily())) {
+        for (Job job : Job.getJobManager().find(CorePlugin.GRADLE_JOB_FAMILY)) {
             if (job instanceof SynchronizeGradleBuildJob && isCoveredBy((SynchronizeGradleBuildJob) job)) {
                 return false;
             }

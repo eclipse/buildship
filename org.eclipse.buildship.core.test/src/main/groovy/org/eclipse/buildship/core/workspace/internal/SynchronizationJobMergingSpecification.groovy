@@ -26,13 +26,29 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 class SynchronizationJobMergingSpecification extends ProjectSynchronizationSpecification {
 
-    def "Mutliple jobs with the same configuration are merged"() {
+    def "Mutliple synchronization jobs with the same configuration are merged"() {
         setup:
         File projectLocation = dir("sample-project") {
             file 'settings.gradle'
         }
         def requestAttributes = new FixedRequestAttributes(projectLocation, null, GradleDistribution.fromBuild(), null, [], [])
         def jobs = (1..5).collect { new SynchronizeGradleBuildJob(requestAttributes, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP) }
+
+        when:
+        jobs.each { it.schedule() }
+        waitForGradleJobsToFinish()
+
+        then:
+        jobs.findAll { it.result != null }.size() == 1
+    }
+
+    def "Mutliple aggregating jobs with the same configuration are merged"() {
+        setup:
+        File projectLocation = dir("sample-project") {
+            file 'settings.gradle'
+        }
+        def requestAttributes = new FixedRequestAttributes(projectLocation, null, GradleDistribution.fromBuild(), null, [], [])
+        def jobs = (1..5).collect { new SynchronizeGradleBuildsJob([requestAttributes] as Set, NewProjectHandler.IMPORT_AND_MERGE) }
 
         when:
         jobs.each { it.schedule() }
