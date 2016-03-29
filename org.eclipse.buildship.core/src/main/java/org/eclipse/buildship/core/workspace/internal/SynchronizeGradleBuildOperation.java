@@ -275,14 +275,16 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
     }
 
     private List<IFolder> getSubProjectFolders(OmniEclipseProject project, final IProject workspaceProject) {
-        return FluentIterable.from(project.getChildren()).transform(new Function<OmniEclipseProject, IFolder>() {
-            @Override
-            public IFolder apply(OmniEclipseProject childProject) {
-                File dir = childProject.getProjectDirectory();
-                IPath relativePath = RelativePathUtils.getRelativePath(workspaceProject.getLocation(), new Path(dir.getPath()));
-                return workspaceProject.getFolder(relativePath);
+        List<IFolder> subProjectFolders = Lists.newArrayList();
+        final IPath parentPath = workspaceProject.getLocation();
+        for (OmniEclipseProject child : project.getChildren()) {
+            IPath childPath = Path.fromOSString(child.getProjectDirectory().getPath());
+            if (parentPath.isPrefixOf(childPath)) {
+                IPath relativePath = RelativePathUtils.getRelativePath(parentPath, childPath);
+                subProjectFolders.add(workspaceProject.getFolder(relativePath));
             }
-        }).toList();
+        }
+        return subProjectFolders;
     }
 
     private void markDerivedFolders(OmniEclipseProject gradleProject, IProject workspaceProject, SubMonitor progress) {
