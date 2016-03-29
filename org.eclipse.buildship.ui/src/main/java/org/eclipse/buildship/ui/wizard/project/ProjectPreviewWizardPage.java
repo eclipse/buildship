@@ -302,6 +302,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         if (container == null) {
             return;
         }
+
         try {
             // once cancellation has been requested by the user, do not block any longer
             // this way, the user can continue with the import wizard even if the preview is still

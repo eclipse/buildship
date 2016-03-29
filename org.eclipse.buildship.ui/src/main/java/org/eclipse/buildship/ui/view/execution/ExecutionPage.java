@@ -254,6 +254,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         if (root == null) {
             return FluentIterable.from(ImmutableList.<OperationItem>of());
         }
+
         return new TreeTraverser<OperationItem>() {
 
             @Override
