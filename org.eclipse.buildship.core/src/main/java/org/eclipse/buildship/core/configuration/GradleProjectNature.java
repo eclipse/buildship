@@ -21,8 +21,7 @@ import org.eclipse.buildship.core.CorePlugin;
 /**
  * Project nature for Gradle projects.
  */
-public enum GradleProjectNature {
-    ;
+public final class GradleProjectNature {
 
     // the nature ID has to be in the following format: ${PLUGIN_ID}.${NATURE_ID}
     public static final String ID = CorePlugin.PLUGIN_ID + ".gradleprojectnature";
@@ -51,11 +50,15 @@ public enum GradleProjectNature {
         if (!project.isOpen()) {
             return false;
         }
+
         try {
             return project.hasNature(ID);
         } catch (CoreException e) {
             return false;
         }
+    }
+
+    private GradleProjectNature() {
     }
 
 }

@@ -30,8 +30,7 @@ import org.eclipse.buildship.core.CorePlugin;
 /**
  * Project builder for Gradle projects.
  */
-public enum GradleProjectBuilder {
-    ;
+public final class GradleProjectBuilder {
 
     // the builder ID has to be in the following format: ${PLUGIN_ID}.${BUILDER_ID}
     public static final String ID = CorePlugin.PLUGIN_ID + ".gradleprojectbuilder";
@@ -103,4 +102,7 @@ public enum GradleProjectBuilder {
         }
     }
 
+    private GradleProjectBuilder() {
+    }
+    
 }
