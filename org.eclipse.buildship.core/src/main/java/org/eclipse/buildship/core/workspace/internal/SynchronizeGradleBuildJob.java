@@ -26,6 +26,7 @@ import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
@@ -65,12 +66,12 @@ public class SynchronizeGradleBuildJob extends ToolingApiWorkspaceJob {
     }
 
     @Override
-    protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) {
+    protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) throws CoreException {
         SubMonitor progress = SubMonitor.convert(monitor, 10);
 
         this.initializer.run(progress.newChild(1), getToken());
         OmniEclipseGradleBuild gradleBuild = forceReloadEclipseGradleBuild(this.rootRequestAttributes, progress.newChild(4));
-        new SynchronizeGradleBuildOperation().synchronizeGradleBuildWithWorkspace(gradleBuild, this.rootRequestAttributes, this.newProjectHandler, progress.newChild(5));
+        new SynchronizeGradleBuildOperation(gradleBuild, this.rootRequestAttributes, this.newProjectHandler).run(progress.newChild(5));
     }
 
     private OmniEclipseGradleBuild forceReloadEclipseGradleBuild(FixedRequestAttributes requestAttributes, SubMonitor monitor) {
