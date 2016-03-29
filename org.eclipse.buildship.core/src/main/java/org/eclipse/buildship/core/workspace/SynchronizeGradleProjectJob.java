@@ -71,7 +71,6 @@ public final class SynchronizeGradleProjectJob extends ToolingApiWorkspaceJob {
     @Override
     protected void runToolingApiJobInWorkspace(IProgressMonitor monitor) {
         SubMonitor progress = SubMonitor.convert(monitor, 10);
-
         this.initializer.run(progress.newChild(1), getToken());
         OmniEclipseGradleBuild gradleBuild = forceReloadEclipseGradleBuild(this.rootRequestAttributes, progress.newChild(4));
         CorePlugin.workspaceGradleOperations().synchronizeGradleBuildWithWorkspace(gradleBuild, this.rootRequestAttributes, this.newProjectHandler, progress.newChild(5));

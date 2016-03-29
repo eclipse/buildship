@@ -41,10 +41,6 @@ public final class PublishedGradleVersionsWrapper {
 
     public PublishedGradleVersionsWrapper() {
         this.publishedGradleVersions = new AtomicReference<PublishedGradleVersions>();
-        startLoading();
-    }
-
-    private void startLoading() {
         new LoadVersionsJob().schedule();
     }
 

@@ -77,10 +77,12 @@ public final class DefaultWorkspaceGradleOperations implements WorkspaceGradleOp
         List<OmniEclipseProject> allGradleProjects = gradleBuild.getRootEclipseProject().getAll();
         List<IProject> decoupledWorkspaceProjects = collectOpenWorkspaceProjectsRemovedFromGradleBuild(allGradleProjects, rootRequestAttributes);
         SubMonitor progress = SubMonitor.convert(monitor, decoupledWorkspaceProjects.size() + allGradleProjects.size());
+
         // uncouple the open workspace projects that do not have a corresponding Gradle project anymore
         for (IProject project : decoupledWorkspaceProjects) {
             uncoupleWorkspaceProjectFromGradle(project, progress.newChild(1));
         }
+
         // synchronize the Gradle projects with their corresponding workspace projects
         for (OmniEclipseProject gradleProject : allGradleProjects) {
             synchronizeGradleProjectWithWorkspaceProject(gradleProject, gradleBuild, rootRequestAttributes, newProjectHandler, progress.newChild(1));
