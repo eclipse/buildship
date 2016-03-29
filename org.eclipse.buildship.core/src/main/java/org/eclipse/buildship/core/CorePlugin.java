@@ -76,7 +76,6 @@ public final class CorePlugin extends Plugin {
     private ServiceRegistration toolingClientService;
     private ServiceRegistration modelRepositoryProviderService;
     private ServiceRegistration workspaceOperationsService;
-    private ServiceRegistration workspaceGradleOperationsService;
     private ServiceRegistration gradleWorkspaceManagerService;
     private ServiceRegistration projectConfigurationManagerService;
     private ServiceRegistration processStreamsProviderService;
@@ -91,7 +90,6 @@ public final class CorePlugin extends Plugin {
     private ServiceTracker toolingClientServiceTracker;
     private ServiceTracker modelRepositoryProviderServiceTracker;
     private ServiceTracker workspaceOperationsServiceTracker;
-    private ServiceTracker workspaceGradleOperationsServiceTracker;
     private ServiceTracker gradleWorkspaceManagerServiceTracker;
     private ServiceTracker projectConfigurationManagerServiceTracker;
     private ServiceTracker processStreamsProviderServiceTracker;
@@ -216,7 +214,6 @@ public final class CorePlugin extends Plugin {
         this.processStreamsProviderService.unregister();
         this.projectConfigurationManagerService.unregister();
         this.gradleWorkspaceManagerService.unregister();
-        this.workspaceGradleOperationsService.unregister();
         this.workspaceOperationsService.unregister();
         this.modelRepositoryProviderService.unregister();
         this.toolingClientService.unregister();
@@ -229,7 +226,6 @@ public final class CorePlugin extends Plugin {
         this.processStreamsProviderServiceTracker.close();
         this.projectConfigurationManagerServiceTracker.close();
         this.gradleWorkspaceManagerServiceTracker.close();
-        this.workspaceGradleOperationsServiceTracker.close();
         this.workspaceOperationsServiceTracker.close();
         this.modelRepositoryProviderServiceTracker.close();
         this.toolingClientServiceTracker.close();
