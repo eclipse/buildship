@@ -32,7 +32,6 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
 
     @Override
     public void synchronizeGradleBuild(FixedRequestAttributes attributes, NewProjectHandler newProjectHandler) {
-        Preconditions.checkArgument(newProjectHandler != NewProjectHandler.NO_OP, "Can't import projects with a no-op handler");
         new SynchronizeGradleBuildJob(attributes, newProjectHandler, AsyncHandler.NO_OP, true).schedule();
     }
 
