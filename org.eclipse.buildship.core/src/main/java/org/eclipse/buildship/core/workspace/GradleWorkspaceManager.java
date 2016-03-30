@@ -10,20 +10,12 @@ package org.eclipse.buildship.core.workspace;
 
 import java.util.Set;
 
+import com.google.common.base.Optional;
+
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
 
-import org.eclipse.buildship.core.util.progress.AsyncHandler;
-
-/*
- * TODO The methods in this class highlight some problems with our current job-centric design: -
- * callers can't decide for themselves how they want to handle errors - callers cannot embed any of
- * the operations in another operation (providing cancellation etc.) - callers do not know if and
- * when the operations finish This API should evolve into a set of synchronous operations that
- * provide progress, cancellation and throw CoreExceptions with detailed IStatus, which will allow
- * any problems to be displayed to the user in the most accurate fashion.
- */
 /**
  * Manages the Gradle builds that are contained in the current Eclipse workspace.
  *
@@ -32,37 +24,31 @@ import org.eclipse.buildship.core.util.progress.AsyncHandler;
 public interface GradleWorkspaceManager {
 
     /**
-     * Attempts to synchronize the given Gradle build.
-     * <p/>
-     * The synchronization happens asynchronously. In case of a failure, the user will be notified.
+     * Returns the {@link GradleBuild} represented by the given request attributes.
      *
-     * @param attributes the configuration of the build to synchronize
-     * @param newProjectHandler how to handle newly added projects
+     * @param attributes the request attributes, must not be null
+     * @return the Gradle build, never null
      */
-    public void synchronizeGradleBuild(FixedRequestAttributes attributes, NewProjectHandler newProjectHandler);
+    public GradleBuild getGradleBuild(FixedRequestAttributes attributes);
 
     /**
-     * Attempts to create and import the given Gradle project.
-     *
+     * Returns the {@link GradleBuild} that contains the given project.
      * <p/>
-     * The import happens asynchronously. In case of a failure, the user will be notified.
+     * If the given project is not a Gradle project, {@link Optional#absent()} is returned.
      *
-     * @param attributes the configuration of the project to create
-     * @param newProjectHandler how to handle newly added projects
-     * @param initializer the initializer to run on the project before importing it
+     * @param project the project, must not be null
+     * @return the Gradle build or {@link Optional#absent()}
      */
-    public void createGradleBuild(FixedRequestAttributes attributes, NewProjectHandler newProjectHandler, AsyncHandler initializer);
+    public Optional<GradleBuild> getGradleBuild(IProject project);
 
     /**
-     * Attempts to synchronize the given workspace projects with their Gradle counterpart.
+     * Returns the minimal set of {@link GradleBuild}s that contain all given projects.
      * <p/>
-     * Determines the Gradle builds that the given projects belong to and resynchronizes these
-     * builds with the workspace. The synchronization happens asynchronously. In case of a failure,
-     * the user will be notified.
+     * Non-Gradle projects are ignored.
      *
-     * @param projects the projects to refresh
-     * @param newProjectHandler how to handle newly added sub-projects
+     * @param projects the projects for which to find the corresponding builds
+     * @return the set of builds, never null
      */
-    public void synchronizeProjects(Set<IProject> projects, NewProjectHandler newProjectHandler);
+    public Set<GradleBuild> getGradleBuilds(Set<IProject> projects);
 
 }

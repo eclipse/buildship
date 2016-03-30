@@ -10,8 +10,10 @@ package org.eclipse.buildship.core.workspace.internal;
 import java.util.Set;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
+import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
@@ -19,9 +21,8 @@ import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.util.progress.AsyncHandler;
+import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
-import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
  * Default implementation of {@link GradleWorkspaceManager}.
@@ -31,20 +32,27 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
 public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
 
     @Override
-    public void synchronizeGradleBuild(FixedRequestAttributes attributes, NewProjectHandler newProjectHandler) {
-        new SynchronizeGradleBuildJob(attributes, newProjectHandler, AsyncHandler.NO_OP, true).schedule();
+    public GradleBuild getGradleBuild(FixedRequestAttributes attributes) {
+        return new DefaultGradleBuild(attributes);
     }
 
     @Override
-    public void createGradleBuild(FixedRequestAttributes attributes, NewProjectHandler newProjectHandler, AsyncHandler initializer) {
-        Preconditions.checkArgument(initializer != AsyncHandler.NO_OP, "Can't create projects with a no-op initializer");
-        Preconditions.checkArgument(newProjectHandler != NewProjectHandler.NO_OP, "Can't import projects with a no-op handler");
-        new SynchronizeGradleBuildJob(attributes, newProjectHandler, initializer, true).schedule();
+    public Optional<GradleBuild> getGradleBuild(IProject project) {
+        Set<GradleBuild> builds = getGradleBuilds(ImmutableSet.of(project));
+        if (builds.isEmpty()) {
+            return Optional.absent();
+        } else {
+            return Optional.of(builds.iterator().next());
+        }
     }
 
     @Override
-    public void synchronizeProjects(Set<IProject> projects, NewProjectHandler newProjectHandler) {
-        new SynchronizeGradleBuildsJob(getBuilds(projects), newProjectHandler).schedule();
+    public Set<GradleBuild> getGradleBuilds(Set<IProject> projects) {
+        Set<GradleBuild> gradleBuilds = Sets.newHashSet();
+        for (FixedRequestAttributes build : getBuilds(projects)) {
+            gradleBuilds.add(getGradleBuild(build));
+        }
+        return gradleBuilds;
     }
 
     private Set<FixedRequestAttributes> getBuilds(Set<IProject> projects) {

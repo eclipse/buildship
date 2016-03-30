@@ -27,6 +27,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.collections.AdapterFunction;
+import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 import org.eclipse.buildship.ui.util.predicate.Predicates;
 
@@ -43,8 +44,10 @@ public final class ProjectSynchronizer {
         if (selectedProjects.isEmpty()) {
             return;
         }
-
-        CorePlugin.gradleWorkspaceManager().synchronizeProjects(selectedProjects, NewProjectHandler.IMPORT_AND_MERGE);
+        Set<GradleBuild> gradleBuilds = CorePlugin.gradleWorkspaceManager().getGradleBuilds(selectedProjects);
+        for (GradleBuild gradleBuild : gradleBuilds) {
+            gradleBuild.synchronize(NewProjectHandler.IMPORT_AND_MERGE);
+        }
     }
 
     private static Set<IProject> collectSelectedProjects(ExecutionEvent event) {

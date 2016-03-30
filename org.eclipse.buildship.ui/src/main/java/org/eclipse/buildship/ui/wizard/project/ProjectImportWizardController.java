@@ -42,6 +42,7 @@ import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
+import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
@@ -177,10 +178,11 @@ public class ProjectImportWizardController {
     public boolean performImportProject(AsyncHandler initializer, NewProjectHandler newProjectHandler) {
         FixedRequestAttributes rootRequestAttributes = this.configuration.toFixedAttributes();
         ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler = new ImportWizardNewProjectHandler(newProjectHandler, this.configuration);
+        GradleBuild build = CorePlugin.gradleWorkspaceManager().getGradleBuild(rootRequestAttributes);
         if (initializer == AsyncHandler.NO_OP) {
-            CorePlugin.gradleWorkspaceManager().synchronizeGradleBuild(rootRequestAttributes, workingSetsAddingNewProjectHandler);
+            build.synchronize(workingSetsAddingNewProjectHandler);
         } else {
-            CorePlugin.gradleWorkspaceManager().createGradleBuild(rootRequestAttributes, workingSetsAddingNewProjectHandler, initializer);
+            build.create(workingSetsAddingNewProjectHandler, initializer);
         }
         return true;
     }

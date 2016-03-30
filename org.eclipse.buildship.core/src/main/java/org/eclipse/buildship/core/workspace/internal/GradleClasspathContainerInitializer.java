@@ -11,8 +11,6 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import com.google.common.collect.ImmutableSet;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
@@ -65,7 +63,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
     }
 
     private void updateFromGradleProject(IJavaProject project) {
-        CorePlugin.gradleWorkspaceManager().synchronizeProjects(ImmutableSet.of(project.getProject()), NewProjectHandler.NO_OP);
+        CorePlugin.gradleWorkspaceManager().getGradleBuild(project.getProject()).get().synchronize(NewProjectHandler.NO_OP);
     }
 
 }
