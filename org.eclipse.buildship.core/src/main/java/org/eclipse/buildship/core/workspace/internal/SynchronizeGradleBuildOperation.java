@@ -274,7 +274,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         return workspaceProject;
     }
 
-    private List<IFolder> getSubProjectFolders(OmniEclipseProject project, final IProject workspaceProject) {
+    private List<IFolder> getNestedSubProjectFolders(OmniEclipseProject project, final IProject workspaceProject) {
         List<IFolder> subProjectFolders = Lists.newArrayList();
         final IPath parentPath = workspaceProject.getLocation();
         for (OmniEclipseProject child : project.getChildren()) {
@@ -301,7 +301,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
             }
         }
 
-        for (IFolder subProjectFolder : getSubProjectFolders(gradleProject, workspaceProject)) {
+        for (IFolder subProjectFolder : getNestedSubProjectFolders(gradleProject, workspaceProject)) {
             derivedResources.add(subProjectFolder.getName());
             if (subProjectFolder.exists()) {
                 CorePlugin.workspaceOperations().markAsSubProject(subProjectFolder);
