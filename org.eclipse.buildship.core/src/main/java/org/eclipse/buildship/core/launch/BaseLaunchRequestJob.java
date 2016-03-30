@@ -27,8 +27,6 @@ import com.gradleware.tooling.toolingclient.SimpleRequest;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository;
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
@@ -46,6 +44,7 @@ import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
+import org.eclipse.buildship.core.workspace.ModelProvider;
 
 /**
  * Base class to execute {@link SimpleRequest} instances in job.
@@ -71,8 +70,6 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
 
         // fetch build environment
         List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(DelegatingProgressListener.withFullOutput(monitor));
-        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, processStreams.getOutput(), processStreams.getError(), processStreams.getInput(),
-                listeners, ImmutableList.<org.gradle.tooling.events.ProgressListener>of(), getToken());
 
         // apply the fixed attributes on the request o
         SimpleRequest<Void> request = createRequest();
@@ -88,7 +85,7 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
 
         // print the applied run configuration settings at the beginning of the console output
         OutputStreamWriter writer = new OutputStreamWriter(processStreams.getConfiguration());
-        writeFixedRequestAttributes(fixedAttributes, transientAttributes, writer, monitor);
+        writeFixedRequestAttributes(fixedAttributes, writer, monitor);
 
         // notify the listeners before executing the build launch request
         Event event = new DefaultExecuteLaunchRequestEvent(processDescription, request);
@@ -109,8 +106,8 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
         return new FixedRequestAttributes(workingDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments);
     }
 
-    private void writeFixedRequestAttributes(FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientAttributes, OutputStreamWriter writer, IProgressMonitor monitor) {
-        OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(fixedAttributes, transientAttributes, monitor);
+    private void writeFixedRequestAttributes(FixedRequestAttributes fixedAttributes, OutputStreamWriter writer, IProgressMonitor monitor) {
+        OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(fixedAttributes, monitor);
         // should the user not specify values for the gradleUserHome and javaHome, their default
         // values will not be specified in the launch configurations
         // as such, these attributes are retrieved separately from the build environment
@@ -150,16 +147,9 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
         return string != null ? string : defaultMessage;
     }
 
-    private OmniBuildEnvironment fetchBuildEnvironment(FixedRequestAttributes fixedRequestAttributes, TransientRequestAttributes transientRequestAttributes,
-                                                       IProgressMonitor monitor) {
-        monitor.beginTask("Load Gradle Build Environment", IProgressMonitor.UNKNOWN);
-        try {
-            SimpleModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(fixedRequestAttributes);
-            return repository.fetchBuildEnvironment(transientRequestAttributes, FetchStrategy.FORCE_RELOAD);
-        } finally {
-            monitor.done();
-        }
-
+    private OmniBuildEnvironment fetchBuildEnvironment(FixedRequestAttributes fixedRequestAttributes, IProgressMonitor monitor) {
+        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(fixedRequestAttributes).getModelProvider();
+        return modelProvider.fetchBuildEnvironment(FetchStrategy.FORCE_RELOAD, monitor, getToken());
     }
 
     /**

@@ -40,6 +40,8 @@ import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 /**
  * A job that fetches the models required for the project import preview.
  */
+//TODO this job is a clear candidate to be turned into a synchronous operation instead
+//then we could make use of our new ModelProvider very easily
 public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
 
     private final FixedRequestAttributes fixedAttributes;

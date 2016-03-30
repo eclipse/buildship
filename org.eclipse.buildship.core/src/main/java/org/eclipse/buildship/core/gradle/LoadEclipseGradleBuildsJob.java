@@ -16,11 +16,10 @@ import java.util.concurrent.CountDownLatch;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-
 import com.google.common.util.concurrent.FutureCallback;
+
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -31,7 +30,6 @@ import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.console.ProcessStreamsProvider;
 
 /**
  * Loads the {@link OmniEclipseGradleBuild} models for all given {@link org.eclipse.buildship.core.configuration.ProjectConfiguration}
@@ -42,17 +40,12 @@ import org.eclipse.buildship.core.console.ProcessStreamsProvider;
  */
 public final class LoadEclipseGradleBuildsJob extends Job {
 
-    private final ModelRepositoryProvider modelRepositoryProvider;
-    private final ProcessStreamsProvider processStreamsProvider;
     private final FetchStrategy modelFetchStrategy;
     private final ImmutableSet<ProjectConfiguration> configurations;
     private final FutureCallback<OmniEclipseGradleBuild> resultHandler;
 
-    public LoadEclipseGradleBuildsJob(ModelRepositoryProvider modelRepositoryProvider, ProcessStreamsProvider processStreamsProvider, FetchStrategy modelFetchStrategy,
-            Set<ProjectConfiguration> configurations, FutureCallback<OmniEclipseGradleBuild> resultHandler) {
+    public LoadEclipseGradleBuildsJob(FetchStrategy modelFetchStrategy, Set<ProjectConfiguration> configurations, FutureCallback<OmniEclipseGradleBuild> resultHandler) {
         super("Loading tasks of all projects");
-        this.modelRepositoryProvider = Preconditions.checkNotNull(modelRepositoryProvider);
-        this.processStreamsProvider = Preconditions.checkNotNull(processStreamsProvider);
         this.modelFetchStrategy = Preconditions.checkNotNull(modelFetchStrategy);
         this.configurations = ImmutableSet.copyOf(configurations);
         this.resultHandler = Preconditions.checkNotNull(resultHandler);
@@ -76,8 +69,7 @@ public final class LoadEclipseGradleBuildsJob extends Job {
 
             // in parallel, run a job for each project configuration to load
             for (ProjectConfiguration configuration : this.configurations) {
-                LoadEclipseGradleBuildJob loadProjectJob = new LoadEclipseGradleBuildJob(this.modelRepositoryProvider, this.processStreamsProvider, this.modelFetchStrategy,
-                        configuration, this.resultHandler);
+                LoadEclipseGradleBuildJob loadProjectJob = new LoadEclipseGradleBuildJob(this.modelFetchStrategy, configuration, this.resultHandler);
                 loadProjectJob.addJobChangeListener(jobListener);
                 loadProjectJob.schedule();
             }

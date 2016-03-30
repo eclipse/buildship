@@ -11,19 +11,12 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.util.List;
-
-import org.gradle.tooling.ProgressListener;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository;
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -32,10 +25,9 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
-import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
+import org.eclipse.buildship.core.workspace.ModelProvider;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
@@ -70,17 +62,9 @@ public class SynchronizeGradleBuildJob extends ToolingApiWorkspaceJob {
         SubMonitor progress = SubMonitor.convert(monitor, 10);
 
         this.initializer.run(progress.newChild(1), getToken());
-        OmniEclipseGradleBuild gradleBuild = forceReloadEclipseGradleBuild(this.rootRequestAttributes, progress.newChild(4));
+        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.rootRequestAttributes).getModelProvider();
+        OmniEclipseGradleBuild gradleBuild = modelProvider.fetchEclipseGradleBuild(FetchStrategy.FORCE_RELOAD, progress.newChild(4), getToken());
         new SynchronizeGradleBuildOperation(gradleBuild, this.rootRequestAttributes, this.newProjectHandler).run(progress.newChild(5));
-    }
-
-    private OmniEclipseGradleBuild forceReloadEclipseGradleBuild(FixedRequestAttributes requestAttributes, SubMonitor monitor) {
-        ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-        List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(DelegatingProgressListener.withoutDuplicateLifecycleEvents(monitor));
-        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(),
-                listeners, ImmutableList.<org.gradle.tooling.events.ProgressListener >of(), getToken());
-        SimpleModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(requestAttributes);
-        return repository.fetchEclipseGradleBuild(transientAttributes, FetchStrategy.FORCE_RELOAD);
     }
 
     /**

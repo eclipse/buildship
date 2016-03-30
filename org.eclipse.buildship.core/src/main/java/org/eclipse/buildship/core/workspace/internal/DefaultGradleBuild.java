@@ -8,18 +8,15 @@
  */
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.util.Set;
-
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
 
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.GradleBuild;
+import org.eclipse.buildship.core.workspace.ModelProvider;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
-
 
 /**
  * Default implementation of {@link GradleBuild}.
@@ -47,8 +44,8 @@ public class DefaultGradleBuild implements GradleBuild {
     }
 
     @Override
-    public <T> Set<T> getModels(Class<T> modelType, FetchStrategy fetchStrategy) {
-        return Sets.newHashSet();
+    public ModelProvider getModelProvider() {
+        return new DefaultModelprovider(CorePlugin.modelRepositoryProvider().getModelRepository(this.attributes));
     }
 
 }

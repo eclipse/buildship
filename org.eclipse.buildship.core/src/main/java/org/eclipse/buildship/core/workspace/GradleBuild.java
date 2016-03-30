@@ -8,10 +8,6 @@
  */
 package org.eclipse.buildship.core.workspace;
 
-import java.util.Set;
-
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 
 /*
@@ -54,10 +50,9 @@ public interface GradleBuild {
     void synchronize(NewProjectHandler newProjectHandler);
 
     /**
-     * Fetches the models of the given type from this build. If the model is hierarchical, a flattened view view will be returned.
-     * @param modelType the type of model to fetch
-     * @param fetchStrategy the caching strategy
-     * @return the set of models, never null
+     * Returns the {@link ModelProvider} for this build.
+     *
+     * @return the model provider, never null
      */
-    <T> Set<T> getModels(Class<T> modelType, FetchStrategy fetchStrategy);
+    ModelProvider getModelProvider();
 }
