@@ -13,7 +13,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
@@ -22,6 +21,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.workspace.GradleBuild;
+import org.eclipse.buildship.core.workspace.GradleBuilds;
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
 
 /**
@@ -38,21 +38,17 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
 
     @Override
     public Optional<GradleBuild> getGradleBuild(IProject project) {
-        Set<GradleBuild> builds = getGradleBuilds(ImmutableSet.of(project));
+        Set<FixedRequestAttributes> builds = getBuilds(ImmutableSet.of(project));
         if (builds.isEmpty()) {
             return Optional.absent();
         } else {
-            return Optional.of(builds.iterator().next());
+            return Optional.of(getGradleBuild(builds.iterator().next()));
         }
     }
 
     @Override
-    public Set<GradleBuild> getGradleBuilds(Set<IProject> projects) {
-        Set<GradleBuild> gradleBuilds = Sets.newHashSet();
-        for (FixedRequestAttributes build : getBuilds(projects)) {
-            gradleBuilds.add(getGradleBuild(build));
-        }
-        return gradleBuilds;
+    public GradleBuilds getGradleBuilds(Set<IProject> projects) {
+        return new DefaultGradleBuilds(getBuilds(projects));
     }
 
     private Set<FixedRequestAttributes> getBuilds(Set<IProject> projects) {
