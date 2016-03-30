@@ -42,7 +42,7 @@ class SynchronizationJobMergingSpecification extends ProjectSynchronizationSpeci
         jobs.findAll { it.result != null }.size() == 1
     }
 
-    def "Mutliple aggregating jobs with the same configuration are merged"() {
+    def "Multiple aggregating jobs with the same configuration are merged"() {
         setup:
         File projectLocation = dir("sample-project") {
             file 'settings.gradle'
