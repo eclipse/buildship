@@ -11,6 +11,7 @@ package org.eclipse.buildship.core.workspace.internal;
 import com.google.common.base.Preconditions;
 
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
@@ -45,7 +46,8 @@ public class DefaultGradleBuild implements GradleBuild {
 
     @Override
     public ModelProvider getModelProvider() {
-        return new DefaultModelprovider(CorePlugin.modelRepositoryProvider().getModelRepository(this.attributes));
+        SimpleModelRepository modelRepository = CorePlugin.modelRepositoryProvider().getModelRepository(this.attributes);
+        return new DefaultModelprovider(modelRepository);
     }
 
 }

@@ -39,7 +39,6 @@ class DefaultModelprovider implements ModelProvider {
     private final SimpleModelRepository repository;
 
     DefaultModelprovider(SimpleModelRepository repository) {
-        super();
         this.repository = repository;
     }
 
