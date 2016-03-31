@@ -9,6 +9,7 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository;
@@ -36,12 +37,12 @@ public class DefaultGradleBuild implements GradleBuild {
     public void create(NewProjectHandler newProjectHandler, AsyncHandler initializer) {
         Preconditions.checkArgument(initializer != AsyncHandler.NO_OP, "Can't create projects with a no-op initializer");
         Preconditions.checkArgument(newProjectHandler != NewProjectHandler.NO_OP, "Can't import projects with a no-op handler");
-        new SynchronizeGradleBuildJob(this.attributes, newProjectHandler, initializer, true).schedule();
+        new SynchronizeGradleBuildsJob(ImmutableSet.of(this.attributes), newProjectHandler, initializer).schedule();
     }
 
     @Override
     public void synchronize(NewProjectHandler newProjectHandler) {
-        new SynchronizeGradleBuildJob(this.attributes, newProjectHandler, AsyncHandler.NO_OP, true).schedule();
+        new SynchronizeGradleBuildsJob(ImmutableSet.of(this.attributes), newProjectHandler, AsyncHandler.NO_OP).schedule();
     }
 
     @Override

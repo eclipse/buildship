@@ -11,23 +11,27 @@
 
 package org.eclipse.buildship.core.util.progress;
 
-import com.google.common.base.*;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Lists;
-import org.eclipse.buildship.core.AggregateException;
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.util.string.StringUtils;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Status;
+import java.util.List;
+
 import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.BuildException;
 import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.TestExecutionException;
 
-import java.util.List;
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Status;
+
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.util.string.StringUtils;
 
 /**
  * Invokes the Tooling API and handles any thrown exceptions as specifically as possible.
@@ -64,8 +68,6 @@ public final class ToolingApiInvoker {
             return handleGradleConnectionFailed(e);
         } catch (GradlePluginsRuntimeException e) {
             return handlePluginFailed(e);
-        } catch (AggregateException e) {
-            return handleMultiException(e);
         } catch (Throwable t) {
             return handleUnknownFailed(t);
         } finally {
@@ -133,25 +135,6 @@ public final class ToolingApiInvoker {
             CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(t), IStatus.ERROR, t);
         }
         return createInfoStatus(message, t);
-    }
-
-    private IStatus handleMultiException(AggregateException e) {
-        // log all exceptions and notify the user about the first one
-        String message = String.format("%s failed due to multiple errors.", this.workName);
-        for (Throwable t : e.getCauses()) {
-            CorePlugin.logger().error(message, t);
-        }
-        Optional<Throwable> firstError = FluentIterable.from(e.getCauses()).firstMatch(new Predicate<Throwable>() {
-
-            @Override
-            public boolean apply(Throwable t) {
-                return shouldSendUserNotification(t);
-            }
-        });
-        if (firstError.isPresent()) {
-            CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(firstError.get()), IStatus.ERROR, firstError.get());
-        }
-        return createInfoStatus(message, e);
     }
 
     @SuppressWarnings("SimplifiableIfStatement")

@@ -11,108 +11,66 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.util.List;
 import java.util.Set;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 
+import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
-import org.eclipse.buildship.core.AggregateException;
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
+import org.eclipse.buildship.core.workspace.ModelProvider;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
- * Synchronizes each of the given Gradle builds using {@link SynchronizeGradleBuildJob} and reports
- * problems to the user in bulk.
+ * Synchronizes each of the given Gradle builds with the workspace.
  */
-final class SynchronizeGradleBuildsJob extends ToolingApiJob {
+public class SynchronizeGradleBuildsJob extends ToolingApiJob {
 
     private final ImmutableSet<FixedRequestAttributes> builds;
     private final NewProjectHandler newProjectHandler;
-    private final ImmutableSet<SynchronizeGradleBuildJob> jobs;
+    private final AsyncHandler initializer;
 
-    public SynchronizeGradleBuildsJob(Set<FixedRequestAttributes> builds, NewProjectHandler newProjectHandler) {
-        super("Synchronize Gradle builds", true);
+    public SynchronizeGradleBuildsJob(Set<FixedRequestAttributes> builds, NewProjectHandler newProjectHandler, AsyncHandler initializer) {
+        super("Synchronize Gradle builds with workspace", true);
         this.builds = ImmutableSet.copyOf(builds);
         this.newProjectHandler = Preconditions.checkNotNull(newProjectHandler);
-        ImmutableSet.Builder<SynchronizeGradleBuildJob> jobs = ImmutableSet.builder();
-        for (FixedRequestAttributes build : builds) {
-            jobs.add(new SynchronizeGradleBuildJob(build, newProjectHandler, AsyncHandler.NO_OP));
-        }
-        this.jobs = jobs.build();
+        this.initializer = Preconditions.checkNotNull(initializer);
+
+        // explicitly show a dialog with the progress while the project synchronization is in process
+        setUser(true);
+
+        // guarantee sequential order of synchronize jobs
+        setRule(ResourcesPlugin.getWorkspace().getRoot());
     }
 
     @Override
     protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
-        scheduleJobs();
-        waitForJobsToFinish();
-        handleResults();
-    }
+        SubMonitor progress = SubMonitor.convert(monitor, this.builds.size() + 1);
 
-    private void scheduleJobs() {
-        for (SynchronizeGradleBuildJob job : this.jobs) {
-            job.schedule();
+        this.initializer.run(progress.newChild(1), getToken());
+
+        for (FixedRequestAttributes build : this.builds) {
+            synchronizeBuild(build, progress.newChild(1));
         }
     }
 
-
-    private void waitForJobsToFinish() throws InterruptedException {
-        for (SynchronizeGradleBuildJob job : this.jobs) {
-            job.join();
-        }
-    }
-
-    /*
-     * TODO this is a poor man's version of what CoreException + MultiStatus already provide out of
-     * the box We should refactor to remove this completely
-     */
-    private void handleResults() {
-        List<Throwable> errors = Lists.newArrayList();
-        for (SynchronizeGradleBuildJob job : this.jobs) {
-            IStatus status = job.getResult();
-            if (status != null) {
-                if (status.matches(IStatus.CANCEL)) {
-                    throw new OperationCanceledException();
-                }
-                if (!status.isOK()) {
-                    Throwable error = status.getException();
-                    if (error != null) {
-                        errors.add(error);
-                    }
-                }
-            }
-        }
-        propagate(errors);
-    }
-
-    private void propagate(List<Throwable> errors) {
-        if (errors.size() == 1) {
-            Throwable e = errors.get(0);
-            Throwables.propagateIfPossible(e);
-            throw new GradlePluginsRuntimeException(e);
-        } else if (errors.size() > 1) {
-            throw new AggregateException(errors);
-        }
-    }
-
-    @Override
-    protected void canceling() {
-        for (SynchronizeGradleBuildJob job : this.jobs) {
-            job.cancel();
-        }
+    private void synchronizeBuild(FixedRequestAttributes build, SubMonitor progress) throws CoreException {
+        progress.setWorkRemaining(2);
+        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(build).getModelProvider();
+        OmniEclipseGradleBuild gradleBuild = modelProvider.fetchEclipseGradleBuild(FetchStrategy.FORCE_RELOAD, progress.newChild(1), getToken());
+        new SynchronizeGradleBuildOperation(gradleBuild, build, this.newProjectHandler).run(progress.newChild(1));
     }
 
     /**
@@ -122,6 +80,7 @@ final class SynchronizeGradleBuildsJob extends ToolingApiJob {
      * <ul>
      *  <li> A synchronizes the same Gradle builds as B </li>
      *  <li> A and B have the same {@link NewProjectHandler} or B's {@link NewProjectHandler} is a no-op </li>
+     *  <li> A and B have the same {@link AsyncHandler} or B's {@link AsyncHandler} is a no-op </li>
      * </ul>
      */
     @Override
@@ -136,7 +95,8 @@ final class SynchronizeGradleBuildsJob extends ToolingApiJob {
 
     private boolean isCoveredBy(SynchronizeGradleBuildsJob other) {
         return Objects.equal(this.builds, other.builds)
-            && (this.newProjectHandler == NewProjectHandler.NO_OP || Objects.equal(this.newProjectHandler, other.newProjectHandler));
+            && (this.newProjectHandler == NewProjectHandler.NO_OP || Objects.equal(this.newProjectHandler, other.newProjectHandler))
+            && (this.initializer == AsyncHandler.NO_OP || Objects.equal(this.initializer, other.initializer));
     }
 
 }

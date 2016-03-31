@@ -13,6 +13,8 @@ package org.eclipse.buildship.core.workspace;
 
 import java.util.List;
 
+import com.google.common.collect.ImmutableSet;
+
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
@@ -21,10 +23,10 @@ import org.eclipse.buildship.core.util.progress.AsyncHandler;
  * For STS, don't remove!
  * @author Stefan Oehme
  */
-public final class SynchronizeGradleProjectJob extends org.eclipse.buildship.core.workspace.internal.SynchronizeGradleBuildJob {
+public final class SynchronizeGradleProjectJob extends org.eclipse.buildship.core.workspace.internal.SynchronizeGradleBuildsJob {
 
     public SynchronizeGradleProjectJob(FixedRequestAttributes rootRequestAttributes, List<String> unused, AsyncHandler initializer) {
-        super(rootRequestAttributes, NewProjectHandler.IMPORT_AND_MERGE, initializer);
+        super(ImmutableSet.of(rootRequestAttributes), NewProjectHandler.IMPORT_AND_MERGE, initializer);
     }
 
 }

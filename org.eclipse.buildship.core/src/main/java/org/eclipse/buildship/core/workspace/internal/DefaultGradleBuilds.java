@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableSet.Builder;
 
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
+import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.GradleBuilds;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
@@ -41,7 +42,7 @@ public class DefaultGradleBuilds implements GradleBuilds {
 
     @Override
     public void synchronize(NewProjectHandler newProjectHandler) {
-        new SynchronizeGradleBuildsJob(this.attributes, newProjectHandler).schedule();
+        new SynchronizeGradleBuildsJob(this.attributes, newProjectHandler, AsyncHandler.NO_OP).schedule();
     }
 
     @Override
