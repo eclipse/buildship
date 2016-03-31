@@ -18,7 +18,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.FutureCallback;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
@@ -29,6 +28,8 @@ import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
@@ -69,7 +70,8 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         // the only way to set the input is
         // through TaskView#setInput(TaskViewContent)
         TaskViewContent content = TaskViewContent.class.cast(newInput);
-        LoadEclipseGradleBuildsJob loadEclipseGradleBuildsJob = new LoadEclipseGradleBuildsJob(content.getModelFetchStrategy(), content.getRootProjectConfigurations(), new LoadEclipseGradleBuildPostProcess(this.taskView));
+        LoadEclipseGradleBuildsJob loadEclipseGradleBuildsJob = new LoadEclipseGradleBuildsJob(content.getModelFetchStrategy(), content.getRootProjectConfigurations());
+        loadEclipseGradleBuildsJob.addJobChangeListener(new RefreshTasksViewAfterJobDone(this.taskView));
         loadEclipseGradleBuildsJob.schedule();
     }
 
@@ -159,36 +161,24 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
     /**
      * Refreshes the task view when invoked, regardless of whether the underlying operation was successful or not.
      */
-    private static final class LoadEclipseGradleBuildPostProcess implements FutureCallback<OmniEclipseGradleBuild> {
+    private static final class RefreshTasksViewAfterJobDone extends JobChangeAdapter {
 
         private final TaskView taskView;
 
-        private LoadEclipseGradleBuildPostProcess(TaskView taskView) {
+        private RefreshTasksViewAfterJobDone(TaskView taskView) {
             this.taskView = Preconditions.checkNotNull(taskView);
         }
 
-         @Override
-         public void onSuccess(OmniEclipseGradleBuild omniEclipseGradleBuild) {
-             refreshTaskView();
-         }
-
         @Override
-         public void onFailure(Throwable throwable) {
-            refreshTaskView();
-        }
-
-        private void refreshTaskView() {
-            // refresh the content of the task view to display the results
+        public void done(IJobChangeEvent event) {
             PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
                 @Override
                 public void run() {
-                    // todo (etst) only refresh the node that corresponds to the loaded Gradle build
-                    LoadEclipseGradleBuildPostProcess.this.taskView.refresh();
+                    RefreshTasksViewAfterJobDone.this.taskView.refresh();
                 }
             });
         }
-
     }
 
 }

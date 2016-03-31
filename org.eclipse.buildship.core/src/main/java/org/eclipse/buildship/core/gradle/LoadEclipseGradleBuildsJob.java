@@ -12,105 +12,55 @@
 package org.eclipse.buildship.core.gradle;
 
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.util.concurrent.FutureCallback;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.util.progress.ToolingApiJob;
+import org.eclipse.buildship.core.workspace.ModelProvider;
 
 /**
- * Loads the {@link OmniEclipseGradleBuild} models for all given {@link org.eclipse.buildship.core.configuration.ProjectConfiguration}
- * instances. Each model is loaded in parallel in a separate job. Canceling this job will cancel all
- * these jobs.
- *
- * It is ensured that only one instance of this job can run at any given time.
+ * Loads the {@link OmniEclipseGradleBuild} models for all given
+ * {@link org.eclipse.buildship.core.configuration.ProjectConfiguration}s into the cache. It is ensured
+ * that only one instance of this job can run at any given time.
  */
-public final class LoadEclipseGradleBuildsJob extends Job {
+public final class LoadEclipseGradleBuildsJob extends ToolingApiJob {
 
     private final FetchStrategy modelFetchStrategy;
     private final ImmutableSet<ProjectConfiguration> configurations;
-    private final FutureCallback<OmniEclipseGradleBuild> resultHandler;
 
-    public LoadEclipseGradleBuildsJob(FetchStrategy modelFetchStrategy, Set<ProjectConfiguration> configurations, FutureCallback<OmniEclipseGradleBuild> resultHandler) {
+    public LoadEclipseGradleBuildsJob(FetchStrategy modelFetchStrategy, Set<ProjectConfiguration> configurations) {
         super("Loading tasks of all projects");
         this.modelFetchStrategy = Preconditions.checkNotNull(modelFetchStrategy);
         this.configurations = ImmutableSet.copyOf(configurations);
-        this.resultHandler = Preconditions.checkNotNull(resultHandler);
     }
 
     @Override
-    protected IStatus run(final IProgressMonitor monitor) {
-        monitor.beginTask("Load tasks of all projects", this.configurations.size());
-        try {
-            // prepare a job listener that is notified for each job that has
-            // finished and then counts down the latch
-            final CountDownLatch latch = new CountDownLatch(this.configurations.size());
-            JobChangeAdapter jobListener = new JobChangeAdapter() {
-
-                @Override
-                public void done(IJobChangeEvent event) {
-                    latch.countDown();
-                    monitor.worked(1);
-                }
-            };
-
-            // in parallel, run a job for each project configuration to load
-            for (ProjectConfiguration configuration : this.configurations) {
-                LoadEclipseGradleBuildJob loadProjectJob = new LoadEclipseGradleBuildJob(this.modelFetchStrategy, configuration, this.resultHandler);
-                loadProjectJob.addJobChangeListener(jobListener);
-                loadProjectJob.schedule();
-            }
-
-            // block until all project load jobs have finished successfully or failed,
-            // canceling this job will trigger the cancellation of all jobs scheduled by this job
-            try {
-                latch.await();
-            } catch (InterruptedException e) {
-                return new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, "Loading the tasks of all projects failed.", e);
-            }
-
-            // everything went well
-            return monitor.isCanceled() ? Status.CANCEL_STATUS : Status.OK_STATUS;
-        } finally {
-            monitor.done();
+    protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
+        SubMonitor progress = SubMonitor.convert(monitor, this.configurations.size());
+        for (ProjectConfiguration configuration : this.configurations) {
+            ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(configuration.getRequestAttributes()).getModelProvider();
+            modelProvider.fetchEclipseGradleBuild(this.modelFetchStrategy, progress.newChild(1), getToken());
         }
     }
 
     @Override
-    protected void canceling() {
-        // cancel all running LoadEclipseGradleBuildJob instances,
-        // assuming all these 'child' jobs have been scheduled by this 'parent' job
-        Job.getJobManager().cancel(LoadEclipseGradleBuildJob.class.getName());
+    public boolean shouldSchedule() {
+        Job[] jobs = Job.getJobManager().find(CorePlugin.GRADLE_JOB_FAMILY);
+        for (Job job : jobs) {
+            if (job instanceof LoadEclipseGradleBuildsJob) {
+                return false;
+            }
+        }
+        return true;
     }
-
-    @Override
-    public boolean belongsTo(Object family) {
-        return getJobFamilyName().equals(family);
-    }
-
-    @Override
-    public boolean shouldRun() {
-        // if another job of this type is already scheduled, then
-        // we see 2 jobs by that name in the job manager
-        // (the current job gets registered before shouldRun() is called)
-        return Job.getJobManager().find(getJobFamilyName()).length <= 1;
-    }
-
-    private String getJobFamilyName() {
-        return LoadEclipseGradleBuildsJob.class.getName();
-    }
-
 }
