@@ -16,7 +16,6 @@ import java.util.Set;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -29,8 +28,7 @@ import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 
 /**
- * Loads the {@link OmniEclipseGradleBuild} models for all given
- * {@link org.eclipse.buildship.core.configuration.ProjectConfiguration}s into the cache. It is ensured
+ * Loads the gradle build models for all given projects into the cache. It is ensured
  * that only one instance of this job can run at any given time.
  */
 public final class LoadEclipseGradleBuildsJob extends ToolingApiJob {
