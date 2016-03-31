@@ -35,7 +35,7 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
     }
 
     protected void synchronizeAndWait(IProject... projects) {
-        CorePlugin.gradleWorkspaceManager().getGradleBuilds(projects as Set).each {
+        CorePlugin.gradleWorkspaceManager().getCompositeBuild(projects as Set).each {
             it.synchronize(NewProjectHandler.IMPORT_AND_MERGE)
         }
         waitForGradleJobsToFinish()

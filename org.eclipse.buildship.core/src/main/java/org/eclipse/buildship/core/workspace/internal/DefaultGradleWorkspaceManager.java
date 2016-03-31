@@ -21,7 +21,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.workspace.GradleBuild;
-import org.eclipse.buildship.core.workspace.GradleBuilds;
+import org.eclipse.buildship.core.workspace.CompositeGradleBuild;
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
 
 /**
@@ -47,7 +47,7 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
     }
 
     @Override
-    public GradleBuilds getGradleBuilds(Set<IProject> projects) {
+    public CompositeGradleBuild getCompositeBuild(Set<IProject> projects) {
         return new DefaultGradleBuilds(getBuilds(projects));
     }
 

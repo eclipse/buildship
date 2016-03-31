@@ -49,6 +49,6 @@ public interface GradleWorkspaceManager {
      * @param projects the projects for which to find the corresponding builds
      * @return the set of builds, never null
      */
-    public GradleBuilds getGradleBuilds(Set<IProject> projects);
+    public CompositeGradleBuild getCompositeBuild(Set<IProject> projects);
 
 }

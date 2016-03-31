@@ -9,14 +9,12 @@
 package org.eclipse.buildship.core.workspace;
 
 /**
- * A set of {@link GradleBuild}s.
- * <p/>
- * Using the methods on this class is preferable over iterating through the contained builds.
- *
+ * A set of {@link GradleBuild}s that are built together.
+
  * @author Stefan Oehme
  *
  */
-public interface GradleBuilds extends Iterable<GradleBuild> {
+public interface CompositeGradleBuild extends Iterable<GradleBuild> {
 
     /**
      * Attempts to synchronize all contained builds with the workspace.

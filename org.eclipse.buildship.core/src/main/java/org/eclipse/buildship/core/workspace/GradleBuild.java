@@ -21,7 +21,6 @@ import org.eclipse.buildship.core.util.progress.AsyncHandler;
  * any problems to be displayed to the user in the most accurate fashion.
  */
 //TODO this should eventually also contain the methods to launch tasks etc.
-//TODO for composite builds, we'll want to have a dedicated interface and then slowly move methods over there
 /**
  * A Gradle build.
  *

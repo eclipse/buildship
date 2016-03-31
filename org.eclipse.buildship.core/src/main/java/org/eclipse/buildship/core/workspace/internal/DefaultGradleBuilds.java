@@ -18,15 +18,15 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.GradleBuild;
-import org.eclipse.buildship.core.workspace.GradleBuilds;
+import org.eclipse.buildship.core.workspace.CompositeGradleBuild;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
- * Default implementation of {@link GradleBuilds}.
+ * Default implementation of {@link CompositeGradleBuild}.
  *
  * @author Stefan Oehme
  */
-public class DefaultGradleBuilds implements GradleBuilds {
+public class DefaultGradleBuilds implements CompositeGradleBuild {
 
     private final ImmutableSet<FixedRequestAttributes> attributes;
     private final ImmutableSet<GradleBuild> builds;

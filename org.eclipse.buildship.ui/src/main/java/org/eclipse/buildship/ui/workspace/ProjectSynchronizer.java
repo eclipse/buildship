@@ -43,7 +43,7 @@ public final class ProjectSynchronizer {
         if (selectedProjects.isEmpty()) {
             return;
         }
-        CorePlugin.gradleWorkspaceManager().getGradleBuilds(selectedProjects).synchronize(NewProjectHandler.IMPORT_AND_MERGE);
+        CorePlugin.gradleWorkspaceManager().getCompositeBuild(selectedProjects).synchronize(NewProjectHandler.IMPORT_AND_MERGE);
     }
 
     private static Set<IProject> collectSelectedProjects(ExecutionEvent event) {
