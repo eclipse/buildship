@@ -48,7 +48,7 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
 
     @Override
     public CompositeGradleBuild getCompositeBuild(Set<IProject> projects) {
-        return new DefaultGradleBuilds(getBuilds(projects));
+        return new DefaultCompositeGradleBuild(getBuilds(projects));
     }
 
     private Set<FixedRequestAttributes> getBuilds(Set<IProject> projects) {

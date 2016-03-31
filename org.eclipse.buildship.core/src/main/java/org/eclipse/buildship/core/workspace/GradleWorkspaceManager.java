@@ -42,12 +42,12 @@ public interface GradleWorkspaceManager {
     public Optional<GradleBuild> getGradleBuild(IProject project);
 
     /**
-     * Returns the minimal set of {@link GradleBuild}s that contain all given projects.
+     * Returns the smallest {@link CompositeGradleBuild} that contain all given projects.
      * <p/>
      * Non-Gradle projects are ignored.
      *
      * @param projects the projects for which to find the corresponding builds
-     * @return the set of builds, never null
+     * @return the composite build, never null
      */
     public CompositeGradleBuild getCompositeBuild(Set<IProject> projects);
 

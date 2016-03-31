@@ -26,12 +26,12 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
  *
  * @author Stefan Oehme
  */
-public class DefaultGradleBuilds implements CompositeGradleBuild {
+public class DefaultCompositeGradleBuild implements CompositeGradleBuild {
 
     private final ImmutableSet<FixedRequestAttributes> attributes;
     private final ImmutableSet<GradleBuild> builds;
 
-    public DefaultGradleBuilds(Set<FixedRequestAttributes> attributes) {
+    public DefaultCompositeGradleBuild(Set<FixedRequestAttributes> attributes) {
         this.attributes = ImmutableSet.copyOf(attributes);
         Builder<GradleBuild> builds = ImmutableSet.builder();
         for (FixedRequestAttributes attribute : attributes) {
