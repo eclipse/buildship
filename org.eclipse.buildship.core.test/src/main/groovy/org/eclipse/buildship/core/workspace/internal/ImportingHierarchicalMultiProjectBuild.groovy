@@ -22,27 +22,11 @@ class ImportingHierarchicalMultiProjectBuild extends ProjectSynchronizationSpeci
         importAndWait(createSampleProject())
     }
 
-    def "Subproject folders are marked as derived"() {
+    def "Subproject folders are marked "() {
         expect:
         def root = findProject("sample")
-        root.getFolder("moduleA").isDerived()
-        root.getFolder("moduleB").isDerived()
-    }
-
-    def "Removing a subproject removes the derived marker"() {
-        setup:
-        fileTree(sampleDir) {
-            file('settings.gradle').text = """
-                include 'moduleA'
-            """
-        }
-
-        when:
-        synchronizeAndWait(sampleDir)
-
-        then:
-        def root = findProject("sample")
-        !root.getFolder("moduleB").isDerived()
+        CorePlugin.workspaceOperations().isSubProject(root.getFolder("moduleA"))
+        CorePlugin.workspaceOperations().isSubProject(root.getFolder("moduleB"))
     }
 
     def "If a new project is added to the Gradle build, it is imported into the workspace"() {

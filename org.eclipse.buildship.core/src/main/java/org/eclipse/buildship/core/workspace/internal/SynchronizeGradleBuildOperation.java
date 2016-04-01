@@ -211,7 +211,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), progress.newChild(1));
 
         // mark derived folders
-        markDerivedFolders(project, workspaceProject, progress.newChild(1));
+        markGradleSpecificFolders(project, workspaceProject, progress.newChild(1));
 
         SubMonitor javaProgress = progress.newChild(4);
         if (isJavaProject(project)) {
@@ -287,9 +287,14 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         return subProjectFolders;
     }
 
-    private void markDerivedFolders(OmniEclipseProject gradleProject, IProject workspaceProject, SubMonitor progress) {
-        List<String> derivedResources = Lists.newArrayList();
+    private void markGradleSpecificFolders(OmniEclipseProject gradleProject, IProject workspaceProject, SubMonitor progress) {
+        for (IFolder subProjectFolder : getNestedSubProjectFolders(gradleProject, workspaceProject)) {
+            if (subProjectFolder.exists()) {
+                CorePlugin.workspaceOperations().markAsSubProject(subProjectFolder);
+            }
+        }
 
+        List<String> derivedResources = Lists.newArrayList();
         derivedResources.add(".gradle");
 
         Optional<IFolder> possibleBuildDirectory = getBuildDirectory(gradleProject, workspaceProject);
@@ -298,13 +303,6 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
             derivedResources.add(buildDirectory.getName());
             if (buildDirectory.exists()) {
                 CorePlugin.workspaceOperations().markAsBuildFolder(buildDirectory);
-            }
-        }
-
-        for (IFolder subProjectFolder : getNestedSubProjectFolders(gradleProject, workspaceProject)) {
-            derivedResources.add(subProjectFolder.getName());
-            if (subProjectFolder.exists()) {
-                CorePlugin.workspaceOperations().markAsSubProject(subProjectFolder);
             }
         }
 
