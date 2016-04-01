@@ -299,7 +299,7 @@ subprojects {
         dependencies {
             bundled "org.spockframework:spock-core:$spockLibVersion"
             bundled "cglib:cglib-nodep:$cglibLibVersion"
-            bundled ("com.gradleware.tooling:testing-junit:$commonsLibVersion") {
+            bundled ("com.gradleware.tooling:testing-junit:$toolingCommonsVersion") {
                 exclude module: "junit-dep"
             }
             bundled "org.slf4j:slf4j-simple:$slf4jLibVersion"
