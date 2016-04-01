@@ -35,6 +35,8 @@ public final class TaskDescriptionLabelProvider extends ColumnLabelProvider {
             return getProjectTaskText((ProjectTaskNode) element);
         } else if (element instanceof TaskSelectorNode) {
             return getTaskSelectorText((TaskSelectorNode) element);
+        } else if (element instanceof TaskGroupNode) {
+            return getTaskGroupText((TaskGroupNode) element);
         } else {
             throw new IllegalStateException(String.format("Unknown element type of element %s.", element));
         }
@@ -42,6 +44,10 @@ public final class TaskDescriptionLabelProvider extends ColumnLabelProvider {
 
     private String getProjectTaskText(ProjectNode projectNode) {
         return projectNode.getEclipseProject().getDescription();
+    }
+
+    private String getTaskGroupText(TaskGroupNode taskGroup) {
+        return "";
     }
 
     private String getProjectTaskText(ProjectTaskNode projectTask) {

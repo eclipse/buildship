@@ -12,12 +12,14 @@
 package org.eclipse.buildship.ui.view.task;
 
 import java.util.List;
+import java.util.Set;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
@@ -26,6 +28,7 @@ import com.gradleware.tooling.toolingmodel.OmniProjectTask;
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.util.Maybe;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -124,23 +127,55 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
 
     @Override
     public boolean hasChildren(Object element) {
-        return element instanceof ProjectNode;
+        return element instanceof ProjectNode || element instanceof TaskGroupNode;
     }
 
     @Override
     public Object[] getChildren(Object parent) {
-        return parent instanceof ProjectNode ? childrenOf((ProjectNode) parent) : NO_CHILDREN;
+        if (parent instanceof ProjectNode) {
+            return childrenOf((ProjectNode) parent);
+        } else if (parent instanceof TaskGroupNode){
+            return childrenOf((TaskGroupNode) parent);
+        } else {
+            return NO_CHILDREN;
+        }
     }
 
     private Object[] childrenOf(ProjectNode projectNode) {
-        ImmutableList.Builder<TaskNode> result = ImmutableList.builder();
+        List<TaskNode> taskNodes = Lists.newArrayList();
+        Set<TaskGroupNode> groupNodes = Sets.newHashSet();
+
         for (OmniProjectTask projectTask : projectNode.getGradleProject().getProjectTasks()) {
-            result.add(new ProjectTaskNode(projectNode, projectTask));
+            taskNodes.add(new ProjectTaskNode(projectNode, projectTask));
+            if (projectTask.getGroup().isPresent()) {
+                groupNodes.add(new TaskGroupNode(projectNode, projectTask.getGroup().get()));
+            }
         }
+
         for (OmniTaskSelector taskSelector : projectNode.getGradleProject().getTaskSelectors()) {
-            result.add(new TaskSelectorNode(projectNode, taskSelector));
+            taskNodes.add(new TaskSelectorNode(projectNode, taskSelector));
         }
-        return FluentIterable.from(result.build()).toArray(TaskNode.class);
+        //TODO Donát return GroupNodes here if enabled
+        return taskNodes.toArray();
+    }
+
+    private Object[] childrenOf(TaskGroupNode groupNode) {
+        ProjectNode projectNode = groupNode.getProjectNode();
+        List<TaskNode> taskNodes = Lists.newArrayList();
+        for (OmniProjectTask projectTask : projectNode.getGradleProject().getProjectTasks()) {
+            Maybe<String> taskGroup = projectTask.getGroup();
+            if (taskGroup.isPresent() && Objects.equal(taskGroup.get(), groupNode.getGroup())) {
+                taskNodes.add(new ProjectTaskNode(projectNode, projectTask));
+            }
+        }
+
+        for (OmniTaskSelector taskSelector : projectNode.getGradleProject().getTaskSelectors()) {
+            Maybe<String> taskGroup = taskSelector.getGroup();
+            if (taskGroup.isPresent() && Objects.equal(taskGroup.get(), groupNode.getGroup())) {
+                taskNodes.add(new TaskSelectorNode(projectNode, taskSelector));
+            }
+        }
+        return taskNodes.toArray();
     }
 
     @Override
@@ -149,6 +184,8 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
             return ((ProjectNode) element).getParentProjectNode();
         } else if (element instanceof TaskNode) {
             return ((TaskNode) element).getParentProjectNode();
+        } else if (element instanceof TaskGroupNode) {
+            return ((TaskGroupNode) element).getProjectNode();
         } else {
             return null;
         }

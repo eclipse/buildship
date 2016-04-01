@@ -27,6 +27,7 @@ import org.eclipse.ui.ide.IDE.SharedImages;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 
 import org.eclipse.buildship.ui.PluginImage.ImageState;
+import org.eclipse.buildship.core.util.string.StringUtils;
 import org.eclipse.buildship.ui.PluginImageWithState;
 import org.eclipse.buildship.ui.PluginImages;
 
@@ -54,10 +55,13 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
             return getTaskSelectorText((TaskSelectorNode) element);
         } else if (element instanceof ProjectNode) {
             return getProjectText((ProjectNode) element);
+        } else if (element instanceof TaskGroupNode) {
+            return getGroupText((TaskGroupNode) element);
         } else {
             throw new IllegalStateException(String.format("Unknown element type of element %s.", element));
         }
     }
+
 
     @Override
     public Image getImage(Object element) {
@@ -67,6 +71,8 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
             return getTaskSelectorImage((TaskSelectorNode) element);
         } else if (element instanceof ProjectNode) {
             return getProjectImage((ProjectNode) element);
+        } else if (element instanceof TaskGroupNode) {
+            return getGroupImage((TaskGroupNode) element);
         } else {
             throw new IllegalStateException(String.format("Unknown element type of element %s.", element));
         }
@@ -78,6 +84,12 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
 
     private StyledString getProjectTaskText(ProjectTaskNode projectTask) {
         return new StyledString(projectTask.getProjectTask().getName());
+    }
+
+    private StyledString getGroupText(TaskGroupNode group) {
+        String groupName = group.getGroup();
+        String displayName = (groupName != null ? StringUtils.capitalize(groupName) : "Other") + " tasks";
+        return new StyledString(displayName);
     }
 
     private StyledString getProjectText(ProjectNode project) {
@@ -100,12 +112,16 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
         }
     }
 
+    private Image getGroupImage(TaskGroupNode element) {
+        return null;
+    }
+
     private Image getProjectTaskImage(ProjectTaskNode projectTask) {
-            return getOverlayImageForProjectTask(projectTask);
+        return getOverlayImageForProjectTask(projectTask);
     }
 
     private Image getTaskSelectorImage(TaskSelectorNode taskSelector) {
-            return getOverlayImageForTaskSelector(taskSelector);
+        return getOverlayImageForTaskSelector(taskSelector);
     }
 
     private Image getOverlayImageForProjectTask(ProjectTaskNode projectTask) {
