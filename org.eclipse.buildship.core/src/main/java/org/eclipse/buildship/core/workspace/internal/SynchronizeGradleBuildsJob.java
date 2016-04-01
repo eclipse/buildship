@@ -67,6 +67,7 @@ public class SynchronizeGradleBuildsJob extends ToolingApiJob {
     }
 
     private void synchronizeBuild(FixedRequestAttributes build, SubMonitor progress) throws CoreException {
+        progress.setTaskName(String.format("Synchronizing Gradle build at %s with workspace", build.getProjectDir()));
         progress.setWorkRemaining(2);
         ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(build).getModelProvider();
         OmniEclipseGradleBuild gradleBuild = modelProvider.fetchEclipseGradleBuild(FetchStrategy.FORCE_RELOAD, progress.newChild(1), getToken());

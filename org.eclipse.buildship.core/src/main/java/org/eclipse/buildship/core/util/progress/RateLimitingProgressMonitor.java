@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ProgressMonitorWrapper;
 
 /**
- * A progress monitor that only publishes the most recent sub task at a given rate. Can be used to
+ * A progress monitor that only publishes the most recent task and sub task at a given rate. Can be used to
  * reduce pressure on the UI thread if an operation produces a lot of progress messages in a short
  * amount of time, without loosing the benefit of informing the user.
  *
@@ -27,6 +27,7 @@ public final class RateLimitingProgressMonitor extends ProgressMonitorWrapper {
 
     private final Timer timer;
     private final AtomicReference<String> lastTask;
+    private final AtomicReference<String> lastSubTask;
     private final long rate;
     private final TimeUnit rateUnit;
 
@@ -34,6 +35,7 @@ public final class RateLimitingProgressMonitor extends ProgressMonitorWrapper {
         super(monitor);
         this.timer = new Timer();
         this.lastTask = new AtomicReference<String>();
+        this.lastSubTask = new AtomicReference<String>();
         this.rate = rate;
         this.rateUnit = rateUnit;
     }
@@ -45,8 +47,13 @@ public final class RateLimitingProgressMonitor extends ProgressMonitorWrapper {
     }
 
     @Override
-    public void subTask(String name) {
+    public void setTaskName(String name) {
         this.lastTask.set(name);
+    }
+
+    @Override
+    public void subTask(String name) {
+        this.lastSubTask.set(name);
     }
 
     @Override
@@ -62,7 +69,11 @@ public final class RateLimitingProgressMonitor extends ProgressMonitorWrapper {
             public void run() {
                 String taskName = RateLimitingProgressMonitor.this.lastTask.getAndSet(null);
                 if (taskName != null) {
-                    RateLimitingProgressMonitor.super.subTask(taskName);
+                    RateLimitingProgressMonitor.super.setTaskName(taskName);
+                }
+                String subTaskName = RateLimitingProgressMonitor.this.lastSubTask.getAndSet(null);
+                if (subTaskName != null) {
+                    RateLimitingProgressMonitor.super.subTask(subTaskName);
                 }
             }
         };
