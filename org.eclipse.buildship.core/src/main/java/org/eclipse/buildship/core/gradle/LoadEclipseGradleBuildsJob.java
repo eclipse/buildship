@@ -17,6 +17,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
@@ -37,7 +38,7 @@ public final class LoadEclipseGradleBuildsJob extends ToolingApiJob {
     private final ImmutableSet<ProjectConfiguration> configurations;
 
     public LoadEclipseGradleBuildsJob(FetchStrategy modelFetchStrategy, Set<ProjectConfiguration> configurations) {
-        super("Loading tasks of all projects");
+        super("Loading model of all Gradle builds");
         this.modelFetchStrategy = Preconditions.checkNotNull(modelFetchStrategy);
         this.configurations = ImmutableSet.copyOf(configurations);
     }
@@ -46,7 +47,9 @@ public final class LoadEclipseGradleBuildsJob extends ToolingApiJob {
     protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
         SubMonitor progress = SubMonitor.convert(monitor, this.configurations.size());
         for (ProjectConfiguration configuration : this.configurations) {
-            ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(configuration.getRequestAttributes()).getModelProvider();
+            FixedRequestAttributes build = configuration.getRequestAttributes();
+            progress.setTaskName(String.format("Loading model of Gradle build at %s", build.getProjectDir()));
+            ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(build).getModelProvider();
             modelProvider.fetchEclipseGradleBuild(this.modelFetchStrategy, progress.newChild(1), getToken());
         }
     }
