@@ -12,7 +12,7 @@
     Purpose:
 
     _Java Facet_: The Java facet allows the user to more easily set a project’s Java version, and also acts as a version constraint for other facets. For instance, the Dynamic Web facet with version 3.0 requires a Java facet with a version of at least 1.7. The Java Facet is necessary, as the Dynamic Web Facet depends on the existence of the Java facet.
-    
+
     _Dynamic Web Facet_: The Dynamic Web Facet is necessary, as it is required by server adapters. Without the Dynamic Web facet, it wouldn’t be possible to deploy a project. The Dynamic Web Facet adds a /WebContent web application directory by default. All the deployment configuration is configured under .settings/org.eclipse.wst.common.component. The Web Facet enables different Web validators on the project. Additionally the Javascript Facet is automatically added along the Web Facet, which in turn enables javascript validators.
 
 - Add Utility Facet to deployable project dependencies
@@ -23,7 +23,7 @@
 
     Purpose: Certain dependencies shouldn’t be deployed, such as test dependencies and provided dependencies. The classpath entries, and classpath container entries, need to be marked as deployable or non-deployable. During deployment, if the dependency is an archive, then it is copied into the runtime-path of the deployment area. If it’s a project, an archive will be assembled, depending on the .component configuration of that project, then copied over the runtime path.
 
-## Story - Define internal project configuration API
+## Story - Define internal synchronization participant API
 
 ### Motivation
 
@@ -31,26 +31,26 @@ Ad hoc functionality will be defined by plugins separate from Buildship core, bu
 
 ### The (internal) API
 
-The `IProjectConfigurator` will be the interface that is implemented by all configurators that add an extension to the extension point.
-- canConfigure determines whether the configurator should be applied
-- configure invokes the configurators configuration routine
-- getWeight returns this configurators weight. Configurators may have prerequisite configurators, and as such Buildship needs to know the order to apply these configurators. (lower weight = greater priority)
+The `SynchronizationParticipant` will be the interface that is implemented by all participants that add an extension to the extension point.
+- wrapSynchronization allows the participant to wrap the whole synchronization operation, e.g. to turn it into a JDT transaction
+- configure invokes the participants configuration routine
+- deconfigure allows a participant to clean up configuration if a project is no longer part of the Gradle model
+- the extension point will allow participants to specify other participants that must run before them
 
 ```
-interface IProjectConfigurator {
-    boolean canConfigure(ProjectConfigurationRequest);
-    IStatus configure(ProjectConfigurationRequest);
-    int getWeight();
+interface SynchronizationParticipant {
+    IWorkspaceRunnable wrapSynchronization(IWorkspaceRunnable synchronization);
+    void configure(ProjectConfigurationRequest) throws CoreException;
+    void deconfigure(ProjectConfigurationRequest) throws CoreException;
 }
 ```
 
 The `ProjectConfigurationRequest` class contains all information necessary for project configuration. The purpose of having this class is to make the api more extensible.
 
 ```
-class ProjectConfigurationRequest {
+class ProjectSynchronizationRequest {
     IProject getWorkspaceProject();
-    OmniEclipseProject getProject();
-    WorkspaceOperations getWorkspaceOperations();
+    OmniEclipseProject getGradleProject();
 }
 ```
 
@@ -58,7 +58,7 @@ class ProjectConfigurationRequest {
 
 - Define extension point
 - Define schema
-- Define `IProjectConfigurator` interface
+- Define `SynchronizationParticipant` interface
 - Define `ProjectConfigurationRequest` class
 - Implement project configurator API in Buildship project synchronization
     - Add extension point reader
@@ -67,15 +67,17 @@ class ProjectConfigurationRequest {
 ### Test Cases
 
 - Configurator can be invoked by using extension point
-- Configurator only applied if `canConfigure` returns true
-- Configurator weight respected (lesser weight configured first)
+- Configurator dependencies respected
+- If a configurator fails, log an error and continue (failing completely would make Buildship look bad
+  and rollback is unrealistic. If the participant was not implemented well enough to roll forward,
+  why should we trust that it can do something as complex as a rollback?)
 
 ### Open Questions
 
 The test cases seem to be dependent on the existence of a configurator, and the configurator is dependent on the existence of the internal configurator API.
 Should the test cases be implemented after the two separate stories are complete?
-
-What should Buildship do upon an error in a configurator?
+There should be an API to register custom models to be injected into builds.
+There should be an API to request custom models from the sync request.
 
 ## Story - Define WTP plugins and features
 
@@ -96,11 +98,7 @@ Buildship core is meant to be a plugin for the Java distribution of Eclipse. A W
 ### Test Cases
 - Configuration only invoked on web application projects
 
-Once WTP configuration is complete, we can add the feature to the update site. 
-
-### Open questions
-
-If a configurator returns an error in the IStatus, should the configurator operations be rolled back? Should we have some sort of `rollback` function that a configurator must implement?
+Once WTP configuration is complete, we can add the feature to the update site.
 
 ## Story - Add Java Facet and Dynamic Web Facet to project
 
@@ -158,4 +156,3 @@ Are we able to add attributes to the `wb-resource`?
 ### Notes
 
 The default Dynamic Web Facet version is 2.5, as it allows for a missing web.xml file, and doesn't have a strong constraint on the Java version (at least Java 5).
-
