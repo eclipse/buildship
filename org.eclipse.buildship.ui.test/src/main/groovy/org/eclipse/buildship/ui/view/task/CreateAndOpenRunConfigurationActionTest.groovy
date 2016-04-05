@@ -141,7 +141,7 @@ class CreateAndOpenRunConfigurationActionTest extends ViewSpecification {
         !createAction.isEnabledFor(selection)
     }
 
-    def "Create action is visible but disabled when task selectors on a standard flat sub-project are selected"() {
+    def "Create action is visible and enabled when task selectors on a standard flat sub-project are selected"() {
         setup:
         TestEnvironment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(false))
 
