@@ -14,6 +14,11 @@ package org.eclipse.buildship.ui.view.task;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
+
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 
 /**
@@ -56,8 +61,24 @@ public final class TaskViewActionStateRules {
 
         // enable action if all selected nodes are task nodes of the same concrete type and they
         // belong to the same parent
-        return (nodeSelection.hasAllNodesOfType(ProjectTaskNode.class) || nodeSelection.hasAllNodesOfType(TaskSelectorNode.class))
+        return (nodeSelection.hasAllNodesOfType(ProjectTaskNode.class) || nodeSelection.hasAllNodesOfType(TaskSelectorNode.class) && gradleCanFindTheRootProject(nodeSelection))
                 && taskNodesBelongToSameParentProjectNode(nodeSelection);
+    }
+
+    //see https://docs.gradle.org/current/userguide/build_lifecycle.html#sec:initialization
+    private static boolean gradleCanFindTheRootProject(NodeSelection nodeSelection) {
+        return nodeSelection.allMatch(new Predicate<Object>() {
+
+            @Override
+            public boolean apply(Object input) {
+                TaskNode node = (TaskNode) input;
+                OmniEclipseProject project = node.getParentProjectNode().getEclipseProject();
+                Path projectPath = new Path(project.getProjectDirectory().getPath());
+                IPath masterPath = projectPath.removeLastSegments(1).append("master");
+                Path rootPath = new Path(project.getRoot().getProjectDirectory().getPath());
+                return rootPath.isPrefixOf(projectPath) || rootPath.equals(masterPath);
+            }
+        });
     }
 
     private static boolean taskNodesBelongToSameParentProjectNode(NodeSelection nodeSelection) {

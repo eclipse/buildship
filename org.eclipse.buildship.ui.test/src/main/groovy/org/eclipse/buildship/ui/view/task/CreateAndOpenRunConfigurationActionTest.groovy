@@ -127,6 +127,48 @@ class CreateAndOpenRunConfigurationActionTest extends ViewSpecification {
         runConfigurationAlreadyExists << [true, false]
     }
 
+    def "Create action is visible but disabled when task selectors on a non-standard flat sub-project are selected"() {
+        setup:
+        TestEnvironment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(false))
+
+        def rootNode = newProjectNode(null, '/root')
+        def subProjectNode = newProjectNode(rootNode, '/sub')
+        def taskSelectorNode = newTaskSelectorNode(subProjectNode)
+        def selection = NodeSelection.from(new StructuredSelection(taskSelectorNode))
+
+        expect:
+        createAction.isVisibleFor(selection)
+        !createAction.isEnabledFor(selection)
+    }
+
+    def "Create action is visible but disabled when task selectors on a standard flat sub-project are selected"() {
+        setup:
+        TestEnvironment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(false))
+
+        def rootNode = newProjectNode(null, '/master')
+        def subProjectNode = newProjectNode(rootNode, '/sub')
+        def taskSelectorNode = newTaskSelectorNode(subProjectNode)
+        def selection = NodeSelection.from(new StructuredSelection(taskSelectorNode))
+
+        expect:
+        createAction.isVisibleFor(selection)
+        createAction.isEnabledFor(selection)
+    }
+
+    def "Create action is visible and enabled when project tasks on a non-standard flat sub-project are selected"() {
+        setup:
+        TestEnvironment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(false))
+
+        def rootNode = newProjectNode(null, '/root')
+        def subProjectNode = newProjectNode(rootNode, '/sub')
+        def taskNode = newProjectTaskNode(subProjectNode, ':sub:foo')
+        def selection = NodeSelection.from(new StructuredSelection(taskNode))
+
+        expect:
+        createAction.isVisibleFor(selection)
+        createAction.isEnabledFor(selection)
+    }
+
     def "No action is visible nor enabled when a project and tasks from multiple projects are selected"(boolean runConfigurationAlreadyExists) {
         setup:
         TestEnvironment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(runConfigurationAlreadyExists))

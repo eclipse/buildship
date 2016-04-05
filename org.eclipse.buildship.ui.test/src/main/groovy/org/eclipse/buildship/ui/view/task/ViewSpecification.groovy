@@ -1,12 +1,14 @@
 package org.eclipse.buildship.ui.view.task
 
+import spock.lang.Specification
+
 import com.google.common.base.Optional
+
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject
 import com.gradleware.tooling.toolingmodel.OmniGradleProject
 import com.gradleware.tooling.toolingmodel.OmniProjectTask
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector
 import com.gradleware.tooling.toolingmodel.Path
-import spock.lang.Specification
 
 /**
  * Base class for tests related to Gradle Views.
@@ -14,28 +16,31 @@ import spock.lang.Specification
 abstract class ViewSpecification extends Specification {
 
   protected def newProjectNode(ProjectNode parent, String projectLocation) {
-    return new ProjectNode(parent, newEclipseProject(projectLocation), newGradleProject(), Optional.absent())
+    return new ProjectNode(parent, newEclipseProject(parent, projectLocation), newGradleProject(), Optional.absent())
   }
 
   protected ProjectTaskNode newProjectTaskNode(ProjectNode parent, String taskPath) {
-    OmniProjectTask projectTask = Mock(OmniProjectTask)
-    projectTask.getPath() >> Path.from(taskPath)
+    OmniProjectTask projectTask = Stub(OmniProjectTask) {
+        getPath() >> Path.from(taskPath)
+    }
     new ProjectTaskNode(parent, projectTask)
   }
 
   protected TaskSelectorNode newTaskSelectorNode(ProjectNode parent) {
-    OmniTaskSelector taskSelector = Mock(OmniTaskSelector)
+    OmniTaskSelector taskSelector = Stub(OmniTaskSelector)
     new TaskSelectorNode(parent, taskSelector)
   }
 
-  private OmniEclipseProject newEclipseProject(String path) {
-    OmniEclipseProject project = Mock(OmniEclipseProject)
-    project.getProjectDirectory() >> new File(path)
-    project
+  private OmniEclipseProject newEclipseProject(ProjectNode parentNode, String path) {
+    OmniEclipseProject eclipseProject = Stub(OmniEclipseProject) {
+        getProjectDirectory() >> new File(path)
+        getParent() >> parentNode?.eclipseProject
+        getRoot() >> (parentNode?.eclipseProject?.root ?: it)
+    }
   }
 
   private OmniGradleProject newGradleProject() {
-    Mock(OmniGradleProject)
+    Stub(OmniGradleProject)
   }
 
 }
