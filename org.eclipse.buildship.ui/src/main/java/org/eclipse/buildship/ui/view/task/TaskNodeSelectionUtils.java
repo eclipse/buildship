@@ -147,17 +147,20 @@ public final class TaskNodeSelectionUtils {
 
     private static String getProjectDirectoryExpression(NodeSelection selection) {
         if (TaskViewActionStateRules.taskScopedTaskExecutionActionsEnabledFor(selection)) {
-            // task selectors need to be run from the direct parent directory, project tasks can be run
-            // from any directory as long as the tasks are fully qualified
             TaskNode taskNode = selection.getFirstElement(TaskNode.class);
-            return getProjectDirectoryExpression(taskNode.getParentProjectNode());
+            if (taskNode instanceof ProjectTaskNode) {
+                //project tasks should be run from the root directory to support flat project layouts
+                return getProjectDirectoryExpression(taskNode.getParentProjectNode().getRootProjectNode());
+            } else if (taskNode instanceof TaskSelectorNode) {
+                //task selectors need to be run from the project containing the selector
+                return getProjectDirectoryExpression(taskNode.getParentProjectNode());
+            }
         } else if (TaskViewActionStateRules.projectScopedTaskExecutionActionsEnabledFor(selection)) {
-            // the default tasks of a project must be run from the direct parent directory (obviously)
+            // the default tasks of a project must be run from that project's directory
             ProjectNode projectNode = selection.getFirstElement(ProjectNode.class);
             return getProjectDirectoryExpression(projectNode);
-        } else {
-            throw new IllegalStateException("Unsupported selection: " + selection);
         }
+        throw new IllegalStateException("Unsupported selection: " + selection);
     }
 
     private static String getProjectDirectoryExpression(ProjectNode projectNode) {
