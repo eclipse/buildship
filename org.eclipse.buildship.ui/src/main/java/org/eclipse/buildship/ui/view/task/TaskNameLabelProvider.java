@@ -86,9 +86,15 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
         return new StyledString(projectTask.getProjectTask().getName());
     }
 
+    //applies the same pretty-printing as `gradle tasks`
     private StyledString getGroupText(TaskGroupNode group) {
-        String groupName = group.getGroup();
-        String displayName = (groupName != null ? StringUtils.capitalize(groupName) : "Other") + " tasks";
+        Optional<String> groupName = group.getGroup();
+        String displayName;
+        if (groupName.isPresent()) {
+            displayName = StringUtils.capitalize(groupName.get()) + " tasks";
+        } else {
+            displayName = "Other tasks";
+        }
         return new StyledString(displayName);
     }
 

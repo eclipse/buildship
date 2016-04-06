@@ -147,8 +147,9 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
 
         for (OmniProjectTask projectTask : projectNode.getGradleProject().getProjectTasks()) {
             taskNodes.add(new ProjectTaskNode(projectNode, projectTask));
-            if (projectTask.getGroup().isPresent()) {
-                groupNodes.add(new TaskGroupNode(projectNode, projectTask.getGroup().get()));
+            Maybe<String> group = projectTask.getGroup();
+            if (group.isPresent()) {
+                groupNodes.add(new TaskGroupNode(projectNode, Optional.fromNullable(group.get())));
             }
         }
 
@@ -169,14 +170,14 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         List<TaskNode> taskNodes = Lists.newArrayList();
         for (OmniProjectTask projectTask : projectNode.getGradleProject().getProjectTasks()) {
             Maybe<String> taskGroup = projectTask.getGroup();
-            if (taskGroup.isPresent() && Objects.equal(taskGroup.get(), groupNode.getGroup())) {
+            if (taskGroup.isPresent() && Objects.equal(taskGroup.get(), groupNode.getGroup().orNull())) {
                 taskNodes.add(new ProjectTaskNode(projectNode, projectTask));
             }
         }
 
         for (OmniTaskSelector taskSelector : projectNode.getGradleProject().getTaskSelectors()) {
             Maybe<String> taskGroup = taskSelector.getGroup();
-            if (taskGroup.isPresent() && Objects.equal(taskGroup.get(), groupNode.getGroup())) {
+            if (taskGroup.isPresent() && Objects.equal(taskGroup.get(), groupNode.getGroup().orNull())) {
                 taskNodes.add(new TaskSelectorNode(projectNode, taskSelector));
             }
         }
