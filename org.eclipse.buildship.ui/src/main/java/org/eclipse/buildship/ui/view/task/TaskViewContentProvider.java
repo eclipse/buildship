@@ -155,8 +155,13 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         for (OmniTaskSelector taskSelector : projectNode.getGradleProject().getTaskSelectors()) {
             taskNodes.add(new TaskSelectorNode(projectNode, taskSelector));
         }
-        //TODO Donát return GroupNodes here if enabled
-        return taskNodes.toArray();
+
+        if (this.taskView.getState().isGroupTasksByTaskGroup()) {
+            return groupNodes.toArray();
+        } else {
+            return taskNodes.toArray();
+        }
+
     }
 
     private Object[] childrenOf(TaskGroupNode groupNode) {

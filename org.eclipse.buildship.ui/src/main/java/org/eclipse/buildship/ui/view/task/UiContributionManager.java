@@ -35,6 +35,7 @@ public final class UiContributionManager {
     private static final String TOOLBAR_TREE_GROUP = "toolbarTreeGroup";
     private static final String MENU_SORTING_GROUP = "toolbarSortingGroup";
     private static final String MENU_FILTERING_GROUP = "menuFilteringGroup";
+    private static final String MENU_GROUPING_GROUP = "menuGroupingGroup";
     private static final String MENU_MISC_GROUP = "menuMiscGroup";
 
     private final TaskView taskView;
@@ -111,6 +112,9 @@ public final class UiContributionManager {
         manager.add(new Separator(MENU_SORTING_GROUP));
         manager.appendToGroup(MENU_SORTING_GROUP, new SortTasksByTypeAction(this.taskView));
         manager.appendToGroup(MENU_SORTING_GROUP, new SortTasksByVisibilityAction(this.taskView));
+        manager.add(new Separator(MENU_GROUPING_GROUP));
+        manager.appendToGroup(MENU_GROUPING_GROUP, new GroupTasksByTaskTypeAction(this.taskView));
+        manager.appendToGroup(MENU_GROUPING_GROUP, new GroupTasksByTaskGroupAction(this.taskView));
         manager.add(new Separator(MENU_MISC_GROUP));
         manager.appendToGroup(MENU_MISC_GROUP, new ToggleShowTreeHeaderAction(this.taskView.getTreeViewer(), this.taskView.getState()));
     }

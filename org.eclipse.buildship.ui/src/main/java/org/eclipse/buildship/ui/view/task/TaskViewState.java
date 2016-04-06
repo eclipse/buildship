@@ -34,6 +34,7 @@ public final class TaskViewState implements TreeViewerState {
     private static final String PREF_SHOW_TREE_HEADER = "tasksView.showTreeHeader";
     private static final String PREF_HEADER_NAME_COLUMN_WIDTH = "tasksView.headerNameColumnWidth";
     private static final String PREF_HEADER_DESCRIPTION_COLUMN_WIDTH = "tasksView.headerDescriptionColumnWidth";
+    private static final String PREF_GROUP_BY_TASK_GROUP = "groupByTaskGroup";
 
     private boolean projectTasksVisible;
     private boolean taskSelectorsVisible;
@@ -44,6 +45,7 @@ public final class TaskViewState implements TreeViewerState {
     private boolean showTreeHeader;
     private int headerNameColumnWidth;
     private int headerDescriptionColumnWidth;
+    private boolean groupTasksByTaskGroup;
 
     public void load() {
         IEclipsePreferences prefs = EclipsePreferencesUtils.getInstanceScope().getNode(UiPlugin.PLUGIN_ID);
@@ -56,6 +58,7 @@ public final class TaskViewState implements TreeViewerState {
         this.showTreeHeader = prefs.getBoolean(PREF_SHOW_TREE_HEADER, false);
         this.headerNameColumnWidth = prefs.getInt(PREF_HEADER_NAME_COLUMN_WIDTH, 200);
         this.headerDescriptionColumnWidth = prefs.getInt(PREF_HEADER_DESCRIPTION_COLUMN_WIDTH, 400);
+        this.groupTasksByTaskGroup = prefs.getBoolean(PREF_GROUP_BY_TASK_GROUP, true);
     }
 
     public void save() {
@@ -69,6 +72,7 @@ public final class TaskViewState implements TreeViewerState {
         prefs.putBoolean(PREF_SHOW_TREE_HEADER, this.showTreeHeader);
         prefs.putInt(PREF_HEADER_NAME_COLUMN_WIDTH, this.headerNameColumnWidth);
         prefs.putInt(PREF_HEADER_DESCRIPTION_COLUMN_WIDTH, this.headerDescriptionColumnWidth);
+        prefs.putBoolean(PREF_GROUP_BY_TASK_GROUP, this.groupTasksByTaskGroup);
 
         try {
             prefs.flush();
@@ -149,6 +153,14 @@ public final class TaskViewState implements TreeViewerState {
 
     public void setHeaderDescriptionColumnWidth(int headerDescriptionColumnWidth) {
         this.headerDescriptionColumnWidth = headerDescriptionColumnWidth;
+    }
+
+    public boolean isGroupTasksByTaskGroup() {
+        return this.groupTasksByTaskGroup;
+    }
+
+    public void setGroupTasksByTaskGroup(boolean groupTasksByTaskGroup) {
+        this.groupTasksByTaskGroup = groupTasksByTaskGroup;
     }
 
     public void dispose() {
