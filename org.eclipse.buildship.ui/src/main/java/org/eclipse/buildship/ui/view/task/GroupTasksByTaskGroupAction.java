@@ -13,14 +13,14 @@ import com.google.common.base.Preconditions;
 import org.eclipse.jface.action.Action;
 
 /**
- * An action on the {@link TaskView} to present the tasks grouped by their task groups.
+ * An action on the {@link TaskView} whether to present the tasks grouped by their task groups.
  */
 public final class GroupTasksByTaskGroupAction extends Action {
 
     private TaskView taskView;
 
     public GroupTasksByTaskGroupAction(TaskView taskView) {
-        super(null, AS_RADIO_BUTTON);
+        super(null, AS_CHECK_BOX);
         this.taskView = Preconditions.checkNotNull(taskView);
 
         setText(TaskViewMessages.Action_GroupTasksByTaskGroup_Text);
@@ -29,10 +29,8 @@ public final class GroupTasksByTaskGroupAction extends Action {
 
     @Override
     public void run() {
-        if (isChecked()) {
-            this.taskView.getState().setGroupTasksByTaskGroup(true);
-            this.taskView.refresh();
-        }
+        this.taskView.getState().setGroupTasksByTaskGroup(isChecked());
+        this.taskView.refresh();
     }
 
 }
