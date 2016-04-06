@@ -11,11 +11,11 @@
 
 package org.eclipse.buildship.core.util.string;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-
 import java.util.Deque;
 import java.util.List;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 /**
  * Contains helper methods related to String  operations.
@@ -49,21 +49,6 @@ public final class StringUtils {
      */
     public static String valueOf(Object value) {
         return value == null ? null : value.toString();
-    }
-
-    /**
-     * Replaces the first character in the given String with its upper-case version.
-     * @param s the string to capitalize, must not be null
-     * @return the capitalized String, never null
-     */
-    public static String capitalize(String s) {
-        if (s.length() == 0 || Character.isUpperCase(s.charAt(0))) {
-            return s;
-        }
-        if (s.length() == 1) {
-            return s.toUpperCase();
-        }
-        return s.substring(0, 1).toUpperCase() + s.substring(1);
     }
 
 }

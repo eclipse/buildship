@@ -27,7 +27,6 @@ import org.eclipse.ui.ide.IDE.SharedImages;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 
 import org.eclipse.buildship.ui.PluginImage.ImageState;
-import org.eclipse.buildship.core.util.string.StringUtils;
 import org.eclipse.buildship.ui.PluginImageWithState;
 import org.eclipse.buildship.ui.PluginImages;
 
@@ -86,14 +85,14 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
         return new StyledString(projectTask.getProjectTask().getName());
     }
 
-    //applies the same pretty-printing as `gradle tasks`
     private StyledString getGroupText(TaskGroupNode group) {
         Optional<String> groupName = group.getGroup();
         String displayName;
         if (groupName.isPresent()) {
-            displayName = StringUtils.capitalize(groupName.get()) + " tasks";
+            //see https://issues.gradle.org/browse/GRADLE-3429
+            displayName = groupName.get().toLowerCase();
         } else {
-            displayName = "Other tasks";
+            displayName = "other";
         }
         return new StyledString(displayName);
     }
