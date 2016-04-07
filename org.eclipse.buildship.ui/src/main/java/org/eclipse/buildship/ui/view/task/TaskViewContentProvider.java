@@ -156,11 +156,11 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         // create a group node for each entries
         Set<String> groupNames = getTaskGroupNames(projectNode.getGradleProject());
         for (String groupName : groupNames) {
-            result.add(new TaskGroupNode(projectNode, Optional.of(groupName)));
+            result.add(new TaskGroupNode(projectNode, groupName));
         }
         // add an extra group node for groupless tasks
         if(groupNames.contains(GROUP_NAME_FOR_GROUPLESS_TASKS)) {
-            result.add(new TaskGroupNode(projectNode, Optional.of(GROUP_NAME_FOR_GROUPLESS_TASKS)));
+            result.add(new TaskGroupNode(projectNode, GROUP_NAME_FOR_GROUPLESS_TASKS));
         }
         return result;
     }
@@ -216,11 +216,11 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
     }
 
     private boolean isDefaultNode(Maybe<String> taskGroupName, TaskGroupNode node) {
-        return node.getGroup().get().equals(GROUP_NAME_FOR_GROUPLESS_TASKS) && (!taskGroupName.isPresent() || taskGroupName.get() == null);
+        return node.getGroup().equals(GROUP_NAME_FOR_GROUPLESS_TASKS) && (!taskGroupName.isPresent() || taskGroupName.get() == null);
     }
 
     private boolean hasSameName(Maybe<String> taskGroupName, TaskGroupNode node) {
-        return taskGroupName.isPresent() && taskGroupName.get() != null && taskGroupName.get().equals(node.getGroup().get());
+        return taskGroupName.isPresent() && taskGroupName.get() != null && taskGroupName.get().equals(node.getGroup());
     }
 
     @Override

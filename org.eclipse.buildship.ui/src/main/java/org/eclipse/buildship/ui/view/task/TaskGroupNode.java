@@ -8,7 +8,6 @@
 package org.eclipse.buildship.ui.view.task;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 /**
@@ -17,24 +16,24 @@ import com.google.common.base.Preconditions;
 public final class TaskGroupNode {
 
     private final ProjectNode projectNode;
-    private final Optional<String> group;
+    private final String group;
 
-    public TaskGroupNode(ProjectNode projectNode, Optional<String> group) {
+    public TaskGroupNode(ProjectNode projectNode, String group) {
         this.projectNode = Preconditions.checkNotNull(projectNode);
-        this.group = group;
+        this.group = Preconditions.checkNotNull(group);
     }
 
     public ProjectNode getProjectNode() {
         return this.projectNode;
     }
 
-    public Optional<String> getGroup() {
+    public String getGroup() {
         return this.group;
     }
 
     @Override
     public String toString() {
-        return "Task group '" + this.group.or("null") + "'";
+        return "Task group '" + this.group + "'";
     }
 
     @Override
