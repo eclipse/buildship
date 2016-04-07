@@ -14,13 +14,11 @@ package org.eclipse.buildship.ui.view.task;
 import java.util.List;
 import java.util.Set;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicates;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
@@ -54,7 +52,6 @@ import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 public final class TaskViewContentProvider implements ITreeContentProvider {
 
     private static final Object[] NO_CHILDREN = new Object[0];
-    private static final String GROUP_NAME_FOR_GROUPLESS_TASKS = "Other tasks";
 
     private final TaskView taskView;
     private final WorkspaceOperations workspaceOperations;
@@ -151,16 +148,13 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         }
     }
 
-    private List<TaskGroupNode> groupNodesFor(ProjectNode projectNode) {
-        List<TaskGroupNode> result = Lists.newArrayList();
-        // create a group node for each entries
-        Set<String> groupNames = getTaskGroupNames(projectNode.getGradleProject());
-        for (String groupName : groupNames) {
-            result.add(new TaskGroupNode(projectNode, groupName));
-        }
-        // add an extra group node for groupless tasks
-        if(!groupNames.contains(GROUP_NAME_FOR_GROUPLESS_TASKS)) {
-            result.add(new TaskGroupNode(projectNode, GROUP_NAME_FOR_GROUPLESS_TASKS));
+    private Set<TaskGroupNode> groupNodesFor(ProjectNode projectNode) {
+        Set<TaskGroupNode> result = Sets.newHashSet();
+        for (OmniProjectTask projectTask : projectNode.getGradleProject().getProjectTasks()) {
+            Maybe<String> group = projectTask.getGroup();
+            if (group.isPresent()) {
+                result.add(new TaskGroupNode(projectNode, group.get()));
+            }
         }
         return result;
     }
@@ -176,51 +170,21 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         return taskNodes;
     }
 
-    private Set<String> getTaskGroupNames(OmniGradleProject project) {
-        return FluentIterable.from(project.getProjectTasks()).transform(new Function<OmniProjectTask, String>() {
-
-            @Override
-            public String apply(OmniProjectTask task) {
-                return task.getGroup().isPresent() ? task.getGroup().get() : null;
-            }
-        }).filter(Predicates.notNull()).toSet();
-    }
-
     private Object[] childrenOf(TaskGroupNode groupNode) {
         ProjectNode projectNode = groupNode.getProjectNode();
         List<TaskNode> taskNodes = Lists.newArrayList();
         for (OmniProjectTask projectTask : projectNode.getGradleProject().getProjectTasks()) {
-            if (projectTaskBelongsToGroupNode(projectTask, groupNode)) {
+            if (groupNode.contains(projectTask)) {
                 taskNodes.add(new ProjectTaskNode(projectNode, projectTask));
             }
         }
 
         for (OmniTaskSelector taskSelector : projectNode.getGradleProject().getTaskSelectors()) {
-            if (taskSelectorBelongsToGroupNode(taskSelector, groupNode)) {
+            if (groupNode.contains(taskSelector)) {
                 taskNodes.add(new TaskSelectorNode(projectNode, taskSelector));
             }
         }
         return taskNodes.toArray();
-    }
-
-    private boolean projectTaskBelongsToGroupNode(OmniProjectTask task, TaskGroupNode node) {
-        return taskBelongsToGroupNode(task.getGroup(), node);
-    }
-
-    private boolean taskSelectorBelongsToGroupNode(OmniTaskSelector task, TaskGroupNode node) {
-        return taskBelongsToGroupNode(task.getGroup(), node);
-    }
-
-    private boolean taskBelongsToGroupNode(Maybe<String> taskGroupName, TaskGroupNode node) {
-        return isDefaultNode(taskGroupName, node) || hasSameName(taskGroupName, node);
-    }
-
-    private boolean isDefaultNode(Maybe<String> taskGroupName, TaskGroupNode node) {
-        return node.getGroup().equals(GROUP_NAME_FOR_GROUPLESS_TASKS) && (!taskGroupName.isPresent() || taskGroupName.get() == null);
-    }
-
-    private boolean hasSameName(Maybe<String> taskGroupName, TaskGroupNode node) {
-        return taskGroupName.isPresent() && taskGroupName.get() != null && taskGroupName.get().equals(node.getGroup());
     }
 
     @Override

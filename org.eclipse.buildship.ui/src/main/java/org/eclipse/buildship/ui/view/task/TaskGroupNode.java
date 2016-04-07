@@ -10,30 +10,60 @@ package org.eclipse.buildship.ui.view.task;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
+import com.gradleware.tooling.toolingmodel.OmniProjectTask;
+import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
+import com.gradleware.tooling.toolingmodel.util.Maybe;
+
 /**
  * Tree node in the {@link TaskView} representing a task group.
  */
 public final class TaskGroupNode {
 
-    private final ProjectNode projectNode;
-    private final String group;
+    private static final String DEFAULT_NAME = "other";
 
-    public TaskGroupNode(ProjectNode projectNode, String group) {
+    private final ProjectNode projectNode;
+    private final String name;
+
+    public TaskGroupNode(ProjectNode projectNode, String name) {
         this.projectNode = Preconditions.checkNotNull(projectNode);
-        this.group = Preconditions.checkNotNull(group);
+        this.name = name != null ? name : DEFAULT_NAME;
     }
 
     public ProjectNode getProjectNode() {
         return this.projectNode;
     }
 
-    public String getGroup() {
-        return this.group;
+    public String getName() {
+        return this.name;
+    }
+
+    public boolean contains(OmniProjectTask projectTask) {
+        return matches(projectTask.getGroup());
+    }
+
+    public boolean contains(OmniTaskSelector taskSelector) {
+        return matches(taskSelector.getGroup());
+    }
+
+    private boolean matches(Maybe<String> group) {
+        if (!group.isPresent()) {
+            return false;
+        }
+        String name = group.get();
+        if (name == null) {
+            return isDefault();
+        } else {
+            return name.equals(this.name);
+        }
+    }
+
+    private boolean isDefault() {
+        return DEFAULT_NAME.equals(this.name);
     }
 
     @Override
     public String toString() {
-        return "Task group '" + this.group + "'";
+        return "Task group '" + this.name + "'";
     }
 
     @Override
@@ -46,12 +76,12 @@ public final class TaskGroupNode {
         }
 
         TaskGroupNode that = (TaskGroupNode) other;
-        return Objects.equal(this.projectNode, that.projectNode) && Objects.equal(this.group, that.group);
+        return Objects.equal(this.projectNode, that.projectNode) && Objects.equal(this.name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.projectNode, this.group);
+        return Objects.hashCode(this.projectNode, this.name);
     }
 
 }
