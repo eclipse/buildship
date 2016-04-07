@@ -12,6 +12,9 @@ import com.google.common.base.Preconditions;
 
 import org.eclipse.jface.action.Action;
 
+import org.eclipse.buildship.ui.PluginImage;
+import org.eclipse.buildship.ui.PluginImages;
+
 /**
  * An action on the {@link TaskView} that toggles task grouping.
  */
@@ -24,6 +27,7 @@ public final class GroupTasksAction extends Action {
         this.taskView = Preconditions.checkNotNull(taskView);
 
         setText(TaskViewMessages.Action_GroupTasks_Text);
+        setImageDescriptor(PluginImages.TASK_GROUP.withState(PluginImage.ImageState.ENABLED).getImageDescriptor());
         setChecked(this.taskView.getState().isGroupTasks());
     }
 
