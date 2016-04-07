@@ -27,7 +27,6 @@ import com.gradleware.tooling.toolingmodel.OmniProjectTask;
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.util.Maybe;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -142,21 +141,17 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
 
     private Object[] childrenOf(ProjectNode projectNode) {
         if (this.taskView.getState().isGroupTasksByTaskGroup()) {
-            Set<TaskGroupNode> groups = groupNodesFor(projectNode);
-            if (!groups.isEmpty()) {
-                return groups.toArray();
-            }
+            return groupNodesFor(projectNode).toArray();
+        } else {
+            return taskNodesFor(projectNode).toArray();
         }
-        return taskNodesFor(projectNode).toArray();
     }
 
     private Set<TaskGroupNode> groupNodesFor(ProjectNode projectNode) {
         Set<TaskGroupNode> result = Sets.newHashSet();
+        result.add(TaskGroupNode.getDefault(projectNode));
         for (OmniProjectTask projectTask : projectNode.getGradleProject().getProjectTasks()) {
-            Maybe<String> group = projectTask.getGroup();
-            if (group.isPresent()) {
-                result.add(new TaskGroupNode(projectNode, group.get()));
-            }
+            result.add(TaskGroupNode.forName(projectNode, projectTask.getGroup()));
         }
         return result;
     }

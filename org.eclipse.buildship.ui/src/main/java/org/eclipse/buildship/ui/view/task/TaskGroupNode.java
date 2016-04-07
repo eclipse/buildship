@@ -21,12 +21,28 @@ public final class TaskGroupNode {
 
     private static final String DEFAULT_NAME = "other";
 
+    public static TaskGroupNode getDefault(ProjectNode projectNode) {
+        return new TaskGroupNode(projectNode, DEFAULT_NAME);
+    }
+
+    public static TaskGroupNode forName(ProjectNode projectNode, Maybe<String> groupName) {
+        Preconditions.checkNotNull(groupName);
+        String name = null;
+        if (groupName.isPresent()) {
+            name = groupName.get();
+        }
+        if (name == null) {
+            name = TaskGroupNode.DEFAULT_NAME;
+        }
+        return new TaskGroupNode(projectNode, name);
+    }
+
     private final ProjectNode projectNode;
     private final String name;
 
-    public TaskGroupNode(ProjectNode projectNode, String name) {
+    private TaskGroupNode(ProjectNode projectNode, String name) {
         this.projectNode = Preconditions.checkNotNull(projectNode);
-        this.name = name != null ? name : DEFAULT_NAME;
+        this.name = Preconditions.checkNotNull(name);
     }
 
     public ProjectNode getProjectNode() {
@@ -47,7 +63,7 @@ public final class TaskGroupNode {
 
     private boolean matches(Maybe<String> group) {
         if (!group.isPresent()) {
-            return false;
+            return isDefault();
         }
         String name = group.get();
         if (name == null) {
