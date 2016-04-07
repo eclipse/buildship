@@ -13,6 +13,7 @@ package org.eclipse.buildship.ui.view.task;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.google.common.collect.FluentIterable;
 
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
@@ -22,10 +23,12 @@ import org.eclipse.jface.viewers.ViewerFilter;
  */
 public final class TaskNodeViewerFilter extends ViewerFilter {
 
-    private final Predicate<TaskNode> predicate;
+    private final Predicate<TaskNode> taskNodePredicate;
+    private final Predicate<TaskGroupNode> taskGroupNodePredicate;
 
-    private TaskNodeViewerFilter(Predicate<TaskNode> predicate) {
-        this.predicate = predicate;
+    private TaskNodeViewerFilter(Predicate<TaskNode> taskNodePredicate, Predicate<TaskGroupNode> taskGroupNodePredicate) {
+        this.taskNodePredicate = taskNodePredicate;
+        this.taskGroupNodePredicate = taskGroupNodePredicate;
     }
 
     @Override
@@ -33,7 +36,10 @@ public final class TaskNodeViewerFilter extends ViewerFilter {
         // we filter only tasks
         if (element instanceof TaskNode) {
             TaskNode taskNode = (TaskNode) element;
-            return this.predicate.apply(taskNode);
+            return this.taskNodePredicate.apply(taskNode);
+        } else if (element instanceof TaskGroupNode) {
+            TaskGroupNode taskGroupNode = (TaskGroupNode) element;
+            return this.taskGroupNodePredicate.apply(taskGroupNode);
         } else {
             return true;
         }
@@ -48,11 +54,12 @@ public final class TaskNodeViewerFilter extends ViewerFilter {
      * @return the new filter instance
      */
     public static ViewerFilter createFor(TaskViewState state) {
-        Predicate<TaskNode> predicate = createCompositeFilter(state);
-        return new TaskNodeViewerFilter(predicate);
+        Predicate<TaskNode> taskNodeFilter = createTaskNodeFilter(state);
+        Predicate<TaskGroupNode> taskGroupNodeFilter = createGroupTaskNodeFiter(taskNodeFilter);
+        return new TaskNodeViewerFilter(taskNodeFilter, taskGroupNodeFilter);
     }
 
-    private static Predicate<TaskNode> createCompositeFilter(final TaskViewState state) {
+    private static Predicate<TaskNode> createTaskNodeFilter(final TaskViewState state) {
         Predicate<TaskNode> projectTasks = new Predicate<TaskNode>() {
 
             @Override
@@ -78,6 +85,16 @@ public final class TaskNodeViewerFilter extends ViewerFilter {
         };
 
         return Predicates.and(Predicates.or(projectTasks, taskSelectors), privateTasks);
+    }
+
+    private static Predicate<TaskGroupNode> createGroupTaskNodeFiter(final Predicate<TaskNode> taskNodeFilter) {
+        return new Predicate<TaskGroupNode>() {
+
+            @Override
+            public boolean apply(TaskGroupNode taskGroupNode) {
+                return !FluentIterable.from(taskGroupNode.getTaskNodes()).filter(taskNodeFilter).toList().isEmpty();
+            }
+        };
     }
 
 }

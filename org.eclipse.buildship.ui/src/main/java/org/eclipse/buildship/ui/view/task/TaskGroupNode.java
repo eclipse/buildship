@@ -7,8 +7,11 @@
  */
 package org.eclipse.buildship.ui.view.task;
 
+import java.util.List;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 import com.gradleware.tooling.toolingmodel.OmniProjectTask;
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
@@ -20,6 +23,8 @@ import com.gradleware.tooling.toolingmodel.util.Maybe;
 public final class TaskGroupNode {
 
     private static final String DEFAULT_NAME = "other";
+
+    private final List<TaskNode> taskNodes;
 
     public static TaskGroupNode getDefault(ProjectNode projectNode) {
         return new TaskGroupNode(projectNode, DEFAULT_NAME);
@@ -43,6 +48,38 @@ public final class TaskGroupNode {
     private TaskGroupNode(ProjectNode projectNode, String name) {
         this.projectNode = Preconditions.checkNotNull(projectNode);
         this.name = Preconditions.checkNotNull(name);
+        this.taskNodes = createTaskNodes(projectNode);
+    }
+
+    private List<TaskNode> createTaskNodes(ProjectNode projectNode) {
+        List<TaskNode> taskNodes = Lists.newArrayList();
+        for (OmniProjectTask projectTask : getProjectTasks()) {
+            taskNodes.add(new ProjectTaskNode(projectNode, projectTask));
+        }
+        for (OmniTaskSelector taskSelector : getTaskSelectors()) {
+            taskNodes.add(new TaskSelectorNode(projectNode, taskSelector));
+        }
+        return taskNodes;
+    }
+
+    private List<OmniProjectTask> getProjectTasks() {
+        List<OmniProjectTask> projectTasks = Lists.newArrayList();
+        for (OmniProjectTask projectTask : this.getProjectNode().getGradleProject().getProjectTasks()) {
+            if (this.contains(projectTask)) {
+                projectTasks.add(projectTask);
+            }
+        }
+        return projectTasks;
+    }
+
+    private List<OmniTaskSelector> getTaskSelectors() {
+        List<OmniTaskSelector> taskSelectors = Lists.newArrayList();
+        for (OmniTaskSelector taskSelector : this.getProjectNode().getGradleProject().getTaskSelectors()) {
+            if (this.contains(taskSelector)) {
+                taskSelectors.add(taskSelector);
+            }
+        }
+        return taskSelectors;
     }
 
     public ProjectNode getProjectNode() {
@@ -72,6 +109,10 @@ public final class TaskGroupNode {
             return name.equals(this.name);
         }
     }
+
+    public List<TaskNode> getTaskNodes() {
+        return this.taskNodes;
+    };
 
     private boolean isDefault() {
         return DEFAULT_NAME.equals(this.name);

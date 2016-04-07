@@ -168,20 +168,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
     }
 
     private Object[] childrenOf(TaskGroupNode groupNode) {
-        ProjectNode projectNode = groupNode.getProjectNode();
-        List<TaskNode> taskNodes = Lists.newArrayList();
-        for (OmniProjectTask projectTask : projectNode.getGradleProject().getProjectTasks()) {
-            if (groupNode.contains(projectTask)) {
-                taskNodes.add(new ProjectTaskNode(projectNode, projectTask));
-            }
-        }
-
-        for (OmniTaskSelector taskSelector : projectNode.getGradleProject().getTaskSelectors()) {
-            if (groupNode.contains(taskSelector)) {
-                taskNodes.add(new TaskSelectorNode(projectNode, taskSelector));
-            }
-        }
-        return taskNodes.toArray();
+        return groupNode.getTaskNodes().toArray();
     }
 
     @Override
