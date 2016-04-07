@@ -159,7 +159,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
             result.add(new TaskGroupNode(projectNode, groupName));
         }
         // add an extra group node for groupless tasks
-        if(groupNames.contains(GROUP_NAME_FOR_GROUPLESS_TASKS)) {
+        if(!groupNames.contains(GROUP_NAME_FOR_GROUPLESS_TASKS)) {
             result.add(new TaskGroupNode(projectNode, GROUP_NAME_FOR_GROUPLESS_TASKS));
         }
         return result;
