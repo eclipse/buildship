@@ -112,7 +112,7 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
     }
 
     private Image getGroupImage(TaskGroupNode element) {
-        return null;
+        return PluginImages.TASK_GROUP.withState(ImageState.ENABLED).getImage();
     }
 
     private Image getProjectTaskImage(ProjectTaskNode projectTask) {
