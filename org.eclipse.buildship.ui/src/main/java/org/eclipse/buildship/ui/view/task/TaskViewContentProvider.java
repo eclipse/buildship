@@ -142,10 +142,12 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
 
     private Object[] childrenOf(ProjectNode projectNode) {
         if (this.taskView.getState().isGroupTasksByTaskGroup()) {
-            return groupNodesFor(projectNode).toArray();
-        } else {
-            return taskNodesFor(projectNode).toArray();
+            Set<TaskGroupNode> groups = groupNodesFor(projectNode);
+            if (!groups.isEmpty()) {
+                return groups.toArray();
+            }
         }
+        return taskNodesFor(projectNode).toArray();
     }
 
     private Set<TaskGroupNode> groupNodesFor(ProjectNode projectNode) {
