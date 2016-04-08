@@ -8,7 +8,6 @@
  */
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.util.Iterator;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
@@ -17,8 +16,8 @@ import com.google.common.collect.ImmutableSet.Builder;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
-import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.CompositeGradleBuild;
+import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
@@ -46,8 +45,8 @@ public class DefaultCompositeGradleBuild implements CompositeGradleBuild {
     }
 
     @Override
-    public Iterator<GradleBuild> iterator() {
-        return this.builds.iterator();
+    public Set<GradleBuild> getParticipantBuilds() {
+        return this.builds;
     }
 
 }

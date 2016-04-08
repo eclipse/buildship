@@ -8,13 +8,15 @@
  */
 package org.eclipse.buildship.core.workspace;
 
+import java.util.Set;
+
 /**
  * A set of {@link GradleBuild}s that are built together.
 
  * @author Stefan Oehme
  *
  */
-public interface CompositeGradleBuild extends Iterable<GradleBuild> {
+public interface CompositeGradleBuild {
 
     /**
      * Attempts to synchronize all contained builds with the workspace.
@@ -25,4 +27,10 @@ public interface CompositeGradleBuild extends Iterable<GradleBuild> {
      * @param newProjectHandler how to handle newly added projects
      */
     void synchronize(NewProjectHandler newProjectHandler);
+
+    /**
+     * Returns the builds participating in this composite.
+     * @return the builds, never null
+     */
+    Set<GradleBuild> getParticipantBuilds();
 }
