@@ -149,7 +149,7 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
 
     private OmniBuildEnvironment fetchBuildEnvironment(FixedRequestAttributes fixedRequestAttributes, IProgressMonitor monitor) {
         ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(fixedRequestAttributes).getModelProvider();
-        return modelProvider.fetchBuildEnvironment(FetchStrategy.FORCE_RELOAD, monitor, getToken());
+        return modelProvider.fetchBuildEnvironment(FetchStrategy.FORCE_RELOAD, getToken(), monitor);
     }
 
     /**

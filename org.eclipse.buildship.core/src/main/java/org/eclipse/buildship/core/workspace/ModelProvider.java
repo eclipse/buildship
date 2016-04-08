@@ -28,19 +28,19 @@ public interface ModelProvider {
      * Fetches the {@link OmniEclipseGradleBuild}.
      *
      * @param fetchStrategy the caching strategy
-     * @param monitor the monitor to report progress on
-     * @param token the cancellation token
+     * @param token the cancellation token or null if cancellation is not required
+     * @param monitor the monitor to report progress on or null if progress reporting is not required
      * @return the model or null if caching was disabled and no value was cached
      */
-    OmniEclipseGradleBuild fetchEclipseGradleBuild(FetchStrategy fetchStrategy, IProgressMonitor monitor, CancellationToken token);
+    OmniEclipseGradleBuild fetchEclipseGradleBuild(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor);
 
     /**
      * Fetches the {@link OmniBuildEnvironment}.
      *
      * @param fetchStrategy the caching strategy
-     * @param monitor the monitor to report progress on
-     * @param token the cancellation token
+     * @param token the cancellation token or null if cancellation is not required
+     * @param monitor the monitor to report progress on or null if progress reporting is not required
      * @return the model or null if caching was disabled and no value was cached
      */
-    OmniBuildEnvironment fetchBuildEnvironment(FetchStrategy fetchStrategy, IProgressMonitor monitor, CancellationToken token);
+    OmniBuildEnvironment fetchBuildEnvironment(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor);
 }

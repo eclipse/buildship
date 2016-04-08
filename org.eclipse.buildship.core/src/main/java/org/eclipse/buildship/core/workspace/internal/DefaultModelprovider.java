@@ -43,16 +43,16 @@ class DefaultModelprovider implements ModelProvider {
     }
 
     @Override
-    public OmniEclipseGradleBuild fetchEclipseGradleBuild(FetchStrategy fetchStrategy, IProgressMonitor monitor, CancellationToken token) {
-        return this.repository.fetchEclipseGradleBuild(getTransientRequestAttributes(monitor, token), fetchStrategy);
+    public OmniEclipseGradleBuild fetchEclipseGradleBuild(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor) {
+        return this.repository.fetchEclipseGradleBuild(getTransientRequestAttributes(token, monitor), fetchStrategy);
     }
 
     @Override
-    public OmniBuildEnvironment fetchBuildEnvironment(FetchStrategy fetchStrategy, IProgressMonitor monitor, CancellationToken token) {
-        return this.repository.fetchBuildEnvironment(getTransientRequestAttributes(monitor, token), fetchStrategy);
+    public OmniBuildEnvironment fetchBuildEnvironment(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor) {
+        return this.repository.fetchBuildEnvironment(getTransientRequestAttributes(token, monitor), fetchStrategy);
     }
 
-    private TransientRequestAttributes getTransientRequestAttributes(IProgressMonitor monitor, CancellationToken token) {
+    private TransientRequestAttributes getTransientRequestAttributes(CancellationToken token, IProgressMonitor monitor) {
         ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
         List<ProgressListener> progressListeners = ImmutableList.<ProgressListener> of(DelegatingProgressListener.withoutDuplicateLifecycleEvents(monitor));
         ImmutableList<org.gradle.tooling.events.ProgressListener> noEventListeners = ImmutableList.<org.gradle.tooling.events.ProgressListener> of();

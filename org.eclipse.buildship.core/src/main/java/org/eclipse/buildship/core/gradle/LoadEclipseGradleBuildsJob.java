@@ -50,7 +50,7 @@ public final class LoadEclipseGradleBuildsJob extends ToolingApiJob {
             FixedRequestAttributes build = configuration.getRequestAttributes();
             progress.setTaskName(String.format("Loading model of Gradle build at %s", build.getProjectDir()));
             ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(build).getModelProvider();
-            modelProvider.fetchEclipseGradleBuild(this.modelFetchStrategy, progress.newChild(1), getToken());
+            modelProvider.fetchEclipseGradleBuild(this.modelFetchStrategy, getToken(), progress.newChild(1));
         }
     }
 
