@@ -16,6 +16,7 @@ import java.util.Set;
  * @author Stefan Oehme
  *
  */
+//TODO use composite build infrastructure instead of iterating over the builds internally
 public interface CompositeGradleBuild {
 
     /**
@@ -32,5 +33,6 @@ public interface CompositeGradleBuild {
      * Returns the builds participating in this composite.
      * @return the builds, never null
      */
+    //TODO remove as soon as composite build can handle everything you can do with a single build
     Set<GradleBuild> getParticipantBuilds();
 }
