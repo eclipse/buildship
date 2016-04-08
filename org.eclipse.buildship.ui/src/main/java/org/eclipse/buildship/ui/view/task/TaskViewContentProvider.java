@@ -39,7 +39,6 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.gradle.LoadEclipseGradleBuildsJob;
 import org.eclipse.buildship.core.workspace.ModelProvider;
-import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 /**
  * Content provider for the {@link TaskView}.
@@ -53,11 +52,9 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
     private static final Object[] NO_CHILDREN = new Object[0];
 
     private final TaskView taskView;
-    private final WorkspaceOperations workspaceOperations;
 
-    public TaskViewContentProvider(TaskView taskView, WorkspaceOperations workspaceOperations) {
+    public TaskViewContentProvider(TaskView taskView) {
         this.taskView = Preconditions.checkNotNull(taskView);
-        this.workspaceOperations = Preconditions.checkNotNull(workspaceOperations);
     }
 
     @Override
@@ -113,7 +110,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
 
         // find the corresponding Eclipse project in the workspace
         // (find by location rather than by name since the Eclipse project name does not always correspond to the Gradle project name)
-        Optional<IProject> workspaceProject = TaskViewContentProvider.this.workspaceOperations.findProjectByLocation(eclipseProject.getProjectDirectory());
+        Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(eclipseProject.getProjectDirectory());
 
         // create a new node for the given Eclipse project and then recurse into the children
         ProjectNode projectNode = new ProjectNode(parentProjectNode, eclipseProject, gradleProject, workspaceProject);

@@ -99,7 +99,7 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
         // set filter, comparator, and content provider
         this.treeViewer.addFilter(TaskNodeViewerFilter.createFor(getState()));
         this.treeViewer.setComparator(TaskNodeViewerSorter.createFor(this.state));
-        this.treeViewer.setContentProvider(new TaskViewContentProvider(this, CorePlugin.workspaceOperations()));
+        this.treeViewer.setContentProvider(new TaskViewContentProvider(this));
 
         TreeViewerColumn treeViewerNameColumn = new TreeViewerColumn(this.treeViewer, SWT.LEFT);
         treeViewerNameColumn.setLabelProvider(new DelegatingStyledCellLabelProvider(new TaskNameLabelProvider()));
