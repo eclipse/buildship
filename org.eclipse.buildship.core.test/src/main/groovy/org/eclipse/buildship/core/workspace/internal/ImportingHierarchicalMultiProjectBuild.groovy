@@ -14,9 +14,8 @@ import org.eclipse.jdt.core.JavaCore
 
 class ImportingHierarchicalMultiProjectBuild extends ProjectSynchronizationSpecification {
 
-    File sampleDir
+    File rootDir
     File moduleADir
-    File moduleBDir
 
     void setup() {
         importAndWait(createSampleProject())
@@ -26,43 +25,40 @@ class ImportingHierarchicalMultiProjectBuild extends ProjectSynchronizationSpeci
         expect:
         def root = findProject("sample")
         CorePlugin.workspaceOperations().isSubProject(root.getFolder("moduleA"))
-        CorePlugin.workspaceOperations().isSubProject(root.getFolder("moduleB"))
     }
 
     def "If a new project is added to the Gradle build, it is imported into the workspace"() {
         setup:
-        fileTree(sampleDir) {
+        fileTree(rootDir) {
             file('settings.gradle').text = """
                include 'moduleA'
                include 'moduleB'
-               include 'moduleC'
             """
-            moduleC {
+            moduleB {
                 file 'build.gradle', "apply plugin: 'java'"
                 dir 'src/main/java'
             }
         }
 
         when:
-        synchronizeAndWait(findProject('moduleB'))
+        synchronizeAndWait(rootDir)
 
         then:
-        IProject project = findProject('moduleC')
+        IProject project = findProject('moduleB')
         project != null
         GradleProjectNature.isPresentOn(project)
     }
 
     def "An existing workspace project is transformed to a Gradle project when included in a Gradle build"() {
         setup:
-        fileTree(sampleDir).file('settings.gradle').text = """
+        fileTree(rootDir).file('settings.gradle').text = """
            include 'moduleA'
            include 'moduleB'
-           include 'moduleC'
         """
-        def project = EclipseProjects.newProject("moduleC", new File(sampleDir, "moduleC"))
+        def project = EclipseProjects.newProject("moduleB", new File(rootDir, "moduleB"))
 
         when:
-        synchronizeAndWait(findProject('sample'))
+        synchronizeAndWait(rootDir)
 
         then:
         GradleProjectNature.isPresentOn(project)
@@ -70,23 +66,22 @@ class ImportingHierarchicalMultiProjectBuild extends ProjectSynchronizationSpeci
 
     def "Nonexisting sub projects are ignored"() {
         setup:
-        fileTree(sampleDir).file('settings.gradle').text = """
+        fileTree(rootDir).file('settings.gradle').text = """
            include 'moduleA'
            include 'moduleB'
-           include 'moduleC'
         """
         def logger = Mock(Logger)
         environment.registerService(Logger, logger)
 
         when:
-        synchronizeAndWait(findProject('sample'))
+        synchronizeAndWait(rootDir)
 
         then:
         0 * logger.error(_)
     }
 
     private File createSampleProject() {
-        sampleDir = dir('sample') {
+        rootDir = dir('sample') {
             file 'build.gradle', '''
                 allprojects {
                     repositories { mavenCentral() }
@@ -95,13 +90,8 @@ class ImportingHierarchicalMultiProjectBuild extends ProjectSynchronizationSpeci
             '''
             file 'settings.gradle', """
                 include 'moduleA'
-                include 'moduleB'
             """
             moduleADir = moduleA {
-                file 'build.gradle', "apply plugin: 'java'"
-                dir 'src/main/java'
-            }
-            moduleBDir = moduleB {
                 file 'build.gradle', "apply plugin: 'java'"
                 dir 'src/main/java'
             }
