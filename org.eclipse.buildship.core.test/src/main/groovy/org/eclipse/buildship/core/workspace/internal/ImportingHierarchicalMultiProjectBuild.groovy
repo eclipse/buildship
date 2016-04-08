@@ -24,7 +24,9 @@ class ImportingHierarchicalMultiProjectBuild extends ProjectSynchronizationSpeci
     def "Subproject folders are marked "() {
         expect:
         def root = findProject("sample")
-        CorePlugin.workspaceOperations().isSubProject(root.getFolder("moduleA"))
+        def moduleA = root.getFolder("moduleA")
+        !moduleA.isDerived()
+        CorePlugin.workspaceOperations().isSubProject(moduleA)
     }
 
     def "If a new project is added to the Gradle build, it is imported into the workspace"() {
