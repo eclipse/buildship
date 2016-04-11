@@ -63,7 +63,7 @@ public class SynchronizeGradleBuildsJob extends ToolingApiJob {
         this.initializer.run(progress.newChild(1), getToken());
 
         Iterator<FixedRequestAttributes> iterator = this.builds.iterator();
-        while(!monitor.isCanceled() && iterator.hasNext()) {
+        while(iterator.hasNext() && !monitor.isCanceled()) {
             synchronizeBuild(iterator.next(), progress.newChild(1));
         }
     }

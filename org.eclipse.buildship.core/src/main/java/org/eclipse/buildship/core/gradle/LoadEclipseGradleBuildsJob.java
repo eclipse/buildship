@@ -53,9 +53,9 @@ public final class LoadEclipseGradleBuildsJob extends ToolingApiJob {
         List<Exception> exceptions = Lists.newArrayList();
         Iterator<ProjectConfiguration> iterator = this.configurations.iterator();
 
-        while(!monitor.isCanceled() && iterator.hasNext()) {
+        while(iterator.hasNext() && !monitor.isCanceled()) {
             try {
-                fetchEclipseGradleBuildModel(progress, iterator.next());
+                fetchEclipseGradleBuildModel(iterator.next(), progress);
             } catch (Exception e) {
                 exceptions.add(e);
             }
@@ -66,7 +66,7 @@ public final class LoadEclipseGradleBuildsJob extends ToolingApiJob {
         }
     }
 
-    private void fetchEclipseGradleBuildModel(SubMonitor progress, ProjectConfiguration configuration) throws Exception {
+    private void fetchEclipseGradleBuildModel(ProjectConfiguration configuration, SubMonitor progress) throws Exception {
         FixedRequestAttributes build = configuration.getRequestAttributes();
         progress.setTaskName(String.format("Loading model of Gradle build at %s", build.getProjectDir()));
         ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(build).getModelProvider();
