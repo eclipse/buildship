@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.core.gradle;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -50,13 +51,16 @@ public final class LoadEclipseGradleBuildsJob extends ToolingApiJob {
     protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
         SubMonitor progress = SubMonitor.convert(monitor, this.configurations.size());
         List<Exception> exceptions = Lists.newArrayList();
-        for (ProjectConfiguration configuration : this.configurations) {
+        Iterator<ProjectConfiguration> iterator = this.configurations.iterator();
+
+        while(!monitor.isCanceled() && iterator.hasNext()) {
             try {
-                fetchEclipseGradleBuildModel(progress, configuration);
+                fetchEclipseGradleBuildModel(progress, iterator.next());
             } catch (Exception e) {
                 exceptions.add(e);
             }
         }
+
         if (!exceptions.isEmpty()) {
             throw new AggregateException(exceptions);
         }

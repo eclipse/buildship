@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import com.google.common.base.Objects;
@@ -61,8 +62,9 @@ public class SynchronizeGradleBuildsJob extends ToolingApiJob {
 
         this.initializer.run(progress.newChild(1), getToken());
 
-        for (FixedRequestAttributes build : this.builds) {
-            synchronizeBuild(build, progress.newChild(1));
+        Iterator<FixedRequestAttributes> iterator = this.builds.iterator();
+        while(!monitor.isCanceled() && iterator.hasNext()) {
+            synchronizeBuild(iterator.next(), progress.newChild(1));
         }
     }
 
