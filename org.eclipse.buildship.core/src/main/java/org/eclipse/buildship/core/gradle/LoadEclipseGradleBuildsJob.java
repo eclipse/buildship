@@ -11,10 +11,12 @@
 
 package org.eclipse.buildship.core.gradle;
 
+import java.util.List;
 import java.util.Set;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
@@ -23,6 +25,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
+import org.eclipse.buildship.core.AggregateException;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
@@ -46,12 +49,24 @@ public final class LoadEclipseGradleBuildsJob extends ToolingApiJob {
     @Override
     protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
         SubMonitor progress = SubMonitor.convert(monitor, this.configurations.size());
+        List<Exception> exceptions = Lists.newArrayList();
         for (ProjectConfiguration configuration : this.configurations) {
-            FixedRequestAttributes build = configuration.getRequestAttributes();
-            progress.setTaskName(String.format("Loading model of Gradle build at %s", build.getProjectDir()));
-            ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(build).getModelProvider();
-            modelProvider.fetchEclipseGradleBuild(this.modelFetchStrategy, getToken(), progress.newChild(1));
+            try {
+                fetchEclipseGradleBuildModel(progress, configuration);
+            } catch (Exception e) {
+                exceptions.add(e);
+            }
         }
+        if (!exceptions.isEmpty()) {
+            throw new AggregateException(exceptions);
+        }
+    }
+
+    private void fetchEclipseGradleBuildModel(SubMonitor progress, ProjectConfiguration configuration) throws Exception {
+        FixedRequestAttributes build = configuration.getRequestAttributes();
+        progress.setTaskName(String.format("Loading model of Gradle build at %s", build.getProjectDir()));
+        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(build).getModelProvider();
+        modelProvider.fetchEclipseGradleBuild(this.modelFetchStrategy, getToken(), progress.newChild(1));
     }
 
     @Override
