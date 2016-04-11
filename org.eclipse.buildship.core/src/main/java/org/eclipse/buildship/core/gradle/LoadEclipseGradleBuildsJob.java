@@ -14,6 +14,8 @@ package org.eclipse.buildship.core.gradle;
 import java.util.List;
 import java.util.Set;
 
+import org.gradle.tooling.BuildCancelledException;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -57,6 +59,8 @@ public final class LoadEclipseGradleBuildsJob extends ToolingApiJob {
             }
             try {
                 fetchEclipseGradleBuildModel(configuration, progress);
+            } catch (BuildCancelledException e) {
+                throw e;
             } catch (Exception e) {
                 exceptions.add(e);
             }
