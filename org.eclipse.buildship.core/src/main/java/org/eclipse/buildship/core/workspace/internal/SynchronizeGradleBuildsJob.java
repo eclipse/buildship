@@ -11,7 +11,6 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.util.Iterator;
 import java.util.Set;
 
 import com.google.common.base.Objects;
@@ -25,6 +24,7 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
@@ -62,9 +62,11 @@ public class SynchronizeGradleBuildsJob extends ToolingApiJob {
 
         this.initializer.run(progress.newChild(1), getToken());
 
-        Iterator<FixedRequestAttributes> iterator = this.builds.iterator();
-        while(iterator.hasNext() && !monitor.isCanceled()) {
-            synchronizeBuild(iterator.next(), progress.newChild(1));
+        for (FixedRequestAttributes build : this.builds){
+            if (monitor.isCanceled()) {
+                throw new OperationCanceledException();
+            }
+            synchronizeBuild(build, progress);
         }
     }
 

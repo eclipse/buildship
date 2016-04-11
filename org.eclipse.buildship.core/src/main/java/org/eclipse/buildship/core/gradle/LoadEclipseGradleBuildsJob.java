@@ -11,7 +11,6 @@
 
 package org.eclipse.buildship.core.gradle;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -23,6 +22,7 @@ import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
@@ -51,16 +51,16 @@ public final class LoadEclipseGradleBuildsJob extends ToolingApiJob {
     protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
         SubMonitor progress = SubMonitor.convert(monitor, this.configurations.size());
         List<Exception> exceptions = Lists.newArrayList();
-        Iterator<ProjectConfiguration> iterator = this.configurations.iterator();
-
-        while(iterator.hasNext() && !monitor.isCanceled()) {
+        for (ProjectConfiguration configuration : this.configurations) {
+            if (monitor.isCanceled()) {
+                throw new OperationCanceledException();
+            }
             try {
-                fetchEclipseGradleBuildModel(iterator.next(), progress);
+                fetchEclipseGradleBuildModel(configuration, progress);
             } catch (Exception e) {
                 exceptions.add(e);
             }
         }
-
         if (!exceptions.isEmpty()) {
             throw new AggregateException(exceptions);
         }
