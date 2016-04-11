@@ -58,7 +58,7 @@ public final class LoadEclipseGradleBuildsJob extends ToolingApiJob {
                 throw new OperationCanceledException();
             }
             try {
-                fetchEclipseGradleBuildModel(configuration, progress);
+                fetchEclipseGradleBuildModel(configuration, progress.newChild(1));
             } catch (BuildCancelledException e) {
                 throw e;
             } catch (Exception e) {
@@ -74,7 +74,7 @@ public final class LoadEclipseGradleBuildsJob extends ToolingApiJob {
         FixedRequestAttributes build = configuration.getRequestAttributes();
         progress.setTaskName(String.format("Loading model of Gradle build at %s", build.getProjectDir()));
         ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(build).getModelProvider();
-        modelProvider.fetchEclipseGradleBuild(this.modelFetchStrategy, getToken(), progress.newChild(1));
+        modelProvider.fetchEclipseGradleBuild(this.modelFetchStrategy, getToken(), progress);
     }
 
     @Override
