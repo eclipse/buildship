@@ -25,23 +25,6 @@ public final class TaskGroupNode {
     private static final String DEFAULT_NAME = "other";
 
     private final List<TaskNode> taskNodes;
-
-    public static TaskGroupNode getDefault(ProjectNode projectNode) {
-        return new TaskGroupNode(projectNode, DEFAULT_NAME);
-    }
-
-    public static TaskGroupNode forName(ProjectNode projectNode, Maybe<String> groupName) {
-        Preconditions.checkNotNull(groupName);
-        String name = null;
-        if (groupName.isPresent()) {
-            name = groupName.get();
-        }
-        if (name == null) {
-            name = TaskGroupNode.DEFAULT_NAME;
-        }
-        return new TaskGroupNode(projectNode, name);
-    }
-
     private final ProjectNode projectNode;
     private final String name;
 
@@ -106,7 +89,7 @@ public final class TaskGroupNode {
         if (name == null) {
             return isDefault();
         } else {
-            return name.equals(this.name);
+            return normalizeGroupName(name).equals(this.name);
         }
     }
 
@@ -141,4 +124,24 @@ public final class TaskGroupNode {
         return Objects.hashCode(this.projectNode, this.name);
     }
 
+    public static TaskGroupNode getDefault(ProjectNode projectNode) {
+        return new TaskGroupNode(projectNode, DEFAULT_NAME);
+    }
+
+    public static TaskGroupNode forName(ProjectNode projectNode, Maybe<String> groupName) {
+        Preconditions.checkNotNull(groupName);
+        String name = null;
+        if (groupName.isPresent()) {
+            name = groupName.get();
+        }
+        if (name == null) {
+            name = TaskGroupNode.DEFAULT_NAME;
+        }
+        return new TaskGroupNode(projectNode, normalizeGroupName(name));
+    }
+
+    private static String normalizeGroupName(String groupName) {
+        //see https://issues.gradle.org/browse/GRADLE-3429
+        return groupName.toLowerCase();
+    }
 }

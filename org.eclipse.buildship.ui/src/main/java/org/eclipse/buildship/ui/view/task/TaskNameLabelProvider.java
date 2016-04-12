@@ -86,9 +86,7 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
     }
 
     private StyledString getGroupText(TaskGroupNode group) {
-        //see https://issues.gradle.org/browse/GRADLE-3429
-        String displayName = group.getName().toLowerCase();
-        return new StyledString(displayName);
+        return new StyledString(group.getName());
     }
 
     private StyledString getProjectText(ProjectNode project) {
