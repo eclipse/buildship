@@ -225,8 +225,7 @@ eclipseBuild {
 }
 
 // read the current version from an external file and add a timestamp suffix if requested by the caller
-ext.baseVersion = file('version.txt').text.trim()
-version = getVersion(baseVersion)
+version = getVersion(file('version.txt').text.trim())
 
 // delete the org.eclipse.core.runtime.compatibility.registry plugin from the target platform
 // it causes classpath issues when the the Spock tests are running with Groovy 2.4; only
