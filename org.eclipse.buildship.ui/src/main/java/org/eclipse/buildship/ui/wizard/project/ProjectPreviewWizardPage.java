@@ -23,6 +23,7 @@ import org.gradle.util.GradleVersion;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
@@ -83,6 +84,8 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     private Label gradleVersionLabel;
     private Label gradleVersionWarningLabel;
     private Label javaHomeLabel;
+    private Label jvmArgumentsLabel;
+    private Label argumentsLabel;
     private Tree projectPreviewTree;
 
     public ProjectPreviewWizardPage(ProjectImportConfiguration configuration, ProjectPreviewLoader previewLoader) {
@@ -166,6 +169,14 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
         uiBuilderFactory.newLabel(container).text(ProjectWizardMessages.Label_JavaHome + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
         this.javaHomeLabel = uiBuilderFactory.newLabel(container).alignFillHorizontal().disabled().font(this.valueFont).control();
+
+        uiBuilderFactory.newLabel(container).text(ProjectWizardMessages.Label_JvmArguments + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
+        this.jvmArgumentsLabel = uiBuilderFactory.newLabel(container).alignFillHorizontal().disabled().font(this.valueFont).control();
+
+        createSpacingRow(container, 2);
+
+        uiBuilderFactory.newLabel(container).text(ProjectWizardMessages.Label_ProgramArguments + ":").font(this.keyFont).alignLeft(); //$NON-NLS-1$
+        this.argumentsLabel = uiBuilderFactory.newLabel(container).alignFillHorizontal().disabled().font(this.valueFont).control();
     }
 
     private void createPreviewGroup(Composite container) {
@@ -207,6 +218,13 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         updateGradleVersionWarningLabel();
         updateFileLabel(this.gradleUserHomeLabel, configuration.getGradleUserHome(), CoreMessages.Value_UseGradleDefault);
         updateFileLabel(this.javaHomeLabel, configuration.getJavaHome(), CoreMessages.Value_UseGradleDefault);
+        updateStringLabel(this.jvmArgumentsLabel, configuration.getJvmArguments(), CoreMessages.Value_None);
+        updateStringLabel(this.argumentsLabel, configuration.getArguments(), CoreMessages.Value_None);
+    }
+
+    private void updateStringLabel(Label target, Property<String> source, String defaultMessage) {
+        String string = Strings.emptyToNull(source.getValue());
+        target.setText(string != null ? string : defaultMessage);
     }
 
     private void updateFileLabel(Label target, Property<File> source, String defaultMessage) {
