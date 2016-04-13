@@ -10,12 +10,8 @@ import org.eclipse.buildship.core.test.fixtures.TestEnvironment
 @Ignore('Enable when composite build feature is added')
 class ImportingProjectWithClashingNames extends ProjectSynchronizationSpecification {
 
-    def "Same root name is not accepted"() {
+    def "Root project names name deduped with enumeration"() {
         setup:
-        UserNotification userNotification = Mock(UserNotification)
-        environment.registerService(UserNotification, userNotification)
-        environment.registerService(Logger, Mock(Logger))
-
         def firstProject = dir('first') { file 'settings.gradle', "rootProject.name = 'root'" }
         def secondProject = dir('second') { file 'settings.gradle', "rootProject.name = 'root'" }
 
@@ -24,7 +20,9 @@ class ImportingProjectWithClashingNames extends ProjectSynchronizationSpecificat
         importAndWait(secondProject)
 
         then:
-        1 * userNotification.errorOccurred(*_)
+        allProjects().size() == 2
+        findProject('root')
+        findProject('root2')
     }
 
     def "Same subproject names are deduped"() {
