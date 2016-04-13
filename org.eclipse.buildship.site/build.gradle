@@ -104,12 +104,6 @@ def releaseStream() {
     "${matcher[0][1]}.x"
 }
 
-def firstTwoVersionSegments() {
-    // crop the major.minor segment from the version number
-    def matcher = version =~ /(\d+\.\d+)\.\d+\..*/
-    matcher[0][1]
-}
-
 private boolean eclipseVersionSupportsSignedUpdateSite() {
     return !(eclipsebuild.Config.on(project).targetPlatform.eclipseVersion in ["36", "37"])
 }
