@@ -10,13 +10,11 @@ buildscript {
 
 updateSite {
     extraResources = files('epl-v10.html', 'notice.html', 'p2.index')
-    if (eclipseVersionSupportsSignedUpdateSite()) {
-        signing { File unsignedFolder, File signedFolder ->
-            if (gradle.taskGraph.hasTask(uploadUpdateSite)) {
-                signByEclipseService(signedFolder, unsignedFolder)
-            } else {
-                signLocally(unsignedFolder, signedFolder)
-            }
+    signing { File unsignedFolder, File signedFolder ->
+        if (gradle.taskGraph.hasTask(uploadUpdateSite)) {
+            signByEclipseService(signedFolder, unsignedFolder)
+        } else {
+            signLocally(unsignedFolder, signedFolder)
         }
     }
     mutateArtifactsXml { Node artifactsXml ->
@@ -102,10 +100,6 @@ def releaseStream() {
     // crop the major segment from the version number
     def matcher = version =~ /(\d+)\.\d+\.\d+\..*/
     "${matcher[0][1]}.x"
-}
-
-private boolean eclipseVersionSupportsSignedUpdateSite() {
-    return !(eclipsebuild.Config.on(project).targetPlatform.eclipseVersion in ["36", "37"])
 }
 
 private void signByEclipseService(signedFolder, unsignedFolder) {
