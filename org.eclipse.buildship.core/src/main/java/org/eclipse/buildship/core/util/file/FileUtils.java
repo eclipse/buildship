@@ -12,11 +12,19 @@
 package org.eclipse.buildship.core.util.file;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
@@ -95,6 +103,18 @@ public final class FileUtils {
     }
 
     /**
+     * Ensures the given folder's parent hierarchy is created if they do not already exist.
+     *
+     * @param folder the folder whose parent's hierarchy to ensure to exist
+     */
+    public static void ensureParentFolderHierarchyExists(IFolder folder) {
+        IContainer parent = folder.getParent();
+        if (parent instanceof IFolder) {
+            ensureFolderHierarchyExists((IFolder) parent);
+        }
+    }
+
+    /**
      * Deletes the given file or directory. In case of a directory, all its content is deleted recursively.
      *
      * @param file the file or directory to be deleted
@@ -112,6 +132,30 @@ public final class FileUtils {
         } else {
             return file.delete();
         }
+    }
+
+    /**
+     * Collects all folders under a project.
+     *
+     * @param project the target project
+     * @return the project folders
+     * @throws CoreException if listing the project members fail
+     * @see IContainer#members()
+     */
+    public static Collection<IFolder> collectAllProjectFolders(IProject project) throws CoreException {
+        Preconditions.checkNotNull(project);
+        Preconditions.checkArgument(project.isAccessible());
+        return collectFoldersRecursively(Arrays.asList(project.members()), Lists.<IFolder> newArrayList());
+    }
+
+    private static Collection<IFolder> collectFoldersRecursively(List<IResource> resources, Collection<IFolder> result) throws CoreException {
+        for (IResource resource : resources) {
+            if (resource instanceof IFolder) {
+                result.add((IFolder) resource);
+                collectFoldersRecursively(Arrays.asList(((IFolder) resource).members()), result);
+            }
+        }
+        return result;
     }
 
 }

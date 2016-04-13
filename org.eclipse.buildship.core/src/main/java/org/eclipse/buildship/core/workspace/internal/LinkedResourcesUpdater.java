@@ -12,7 +12,6 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -34,6 +33,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.QualifiedName;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.util.file.FileUtils;
 
 /**
  * Updates the linked sources of the target project.
@@ -80,7 +80,7 @@ final class LinkedResourcesUpdater {
     }
 
     private List<IFolder> collectLinkedFoldersNoLongerInGradleModel() throws CoreException {
-        return FluentIterable.from(Arrays.asList(this.project.members())).filter(IFolder.class).filter(new Predicate<IFolder>() {
+        return FluentIterable.from(FileUtils.collectAllProjectFolders(this.project)).filter(new Predicate<IFolder>() {
 
             @Override
             public boolean apply(IFolder folder) {
@@ -91,7 +91,7 @@ final class LinkedResourcesUpdater {
     }
 
     private List<IFolder> collectLinkedFoldersDefinedManuallyAndAlsoInGradleModel() throws CoreException {
-        return FluentIterable.from(Arrays.asList(this.project.members())).filter(IFolder.class).filter(new Predicate<IFolder>() {
+        return FluentIterable.from(FileUtils.collectAllProjectFolders(this.project)).filter(new Predicate<IFolder>() {
 
             @Override
             public boolean apply(IFolder folder) {
@@ -137,7 +137,7 @@ final class LinkedResourcesUpdater {
     }
 
     private Set<File> collectCurrentLinkedFolders() throws CoreException {
-        return FluentIterable.from(Arrays.asList(this.project.members())).filter(IFolder.class).filter(new Predicate<IFolder>() {
+        return FluentIterable.from(FileUtils.collectAllProjectFolders(this.project)).filter(new Predicate<IFolder>() {
 
             @Override
             public boolean apply(IFolder folder) {
@@ -166,6 +166,7 @@ final class LinkedResourcesUpdater {
         for (OmniEclipseLinkedResource linkedResource : linkedResources) {
             IPath resourcePath = new Path(linkedResource.getLocation());
             IFolder folder = toNewFolder(linkedResource.getName());
+            FileUtils.ensureParentFolderHierarchyExists(folder);
             folder.createLink(resourcePath, IResource.BACKGROUND_REFRESH | IResource.ALLOW_MISSING_LOCAL, null);
             markFolderFromGradleModel(folder);
         }
