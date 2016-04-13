@@ -1,19 +1,15 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import com.google.common.io.Files;
-
 import com.gradleware.tooling.toolingmodel.OmniEclipseLinkedResource
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
+
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import spock.lang.Specification
+
+import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
 class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
 
@@ -25,13 +21,13 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
 
         when:
         LinkedResourcesUpdater.update(project, [linkedResource], new NullProgressMonitor())
+        Collection<IFolder> linkedFolders = linkedFolders(project)
 
         then:
-        project.members().findAll { it.isLinked() }.size() == 1
-        IFolder eclipseFolder = project.getFolder('another')
-        eclipseFolder.exists()
-        eclipseFolder.isLinked() == true
-        eclipseFolder.location.toFile().equals(externalDir)
+        linkedFolders.size() == 1
+        linkedFolders[0].name == 'another'
+        linkedFolders[0].exists()
+        linkedFolders[0].location.toFile().equals(externalDir)
     }
 
     def "Can define a linked resource even if the resource does not exist"() {
@@ -42,30 +38,37 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
 
             when:
             LinkedResourcesUpdater.update(project, [linkedResource], new NullProgressMonitor())
+            Collection<IFolder> linkedFolders = linkedFolders(project)
 
             then:
-            project.members().findAll { it.isLinked() }.size() == 1
-            IFolder eclipseFolder = project.getFolder('another')
-            eclipseFolder.exists()
-            eclipseFolder.isLinked() == true
-            eclipseFolder.location.toFile().equals(externalDir)
+            linkedFolders.size() == 1
+            linkedFolders[0].name == 'another'
+            linkedFolders[0].exists()
+            linkedFolders[0].location.toFile().equals(externalDir)
     }
 
     def "Defining a linked resource is idempotent" () {
         given:
         File externalDir = dir('another')
         IProject project = newProject('project-name')
-        OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource(externalDir.name, externalDir)
+        OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource(linkName, externalDir)
 
         when:
         LinkedResourcesUpdater.update(project, [linkedResource], new NullProgressMonitor())
         linkedResource = newFolderLinkedResource(externalDir.name, externalDir)
         LinkedResourcesUpdater.update(project, [linkedResource], new NullProgressMonitor())
+        Collection<IFolder> linkedFolders = linkedFolders(project)
 
         then:
-        project.members().findAll { it.isLinked() }.size() == 1
-    }
+        linkedFolders.size() == 1
+        linkedFolders[0].name == expectedFolderName
+        linkedFolders[0].fullPath.toPortableString() == expectedFolderPath
 
+        where:
+        linkName  | expectedFolderName | expectedFolderPath
+        'another' | 'another'          | '/project-name/another'
+        'a/b/c'   | 'c'                | '/project-name/a/b/c'
+    }
 
     def "Only local folder linked resources are set on the project" () {
         given:
@@ -80,7 +83,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         LinkedResourcesUpdater.update(project, [localFile, localFolder, virtualResource], new NullProgressMonitor())
 
         then:
-        project.members().findAll { it.isLinked() }.size() == 1
+        linkedFolders(project).size() == 1
     }
 
     def "A folder can be linked even if a local folder already exists with the same name" () {
@@ -92,12 +95,12 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
 
         when:
         LinkedResourcesUpdater.update(project, [linkedResource], new NullProgressMonitor())
+        Collection<IFolder> linkedFolders = linkedFolders(project)
 
         then:
-        project.members().findAll { it.isLinked() }.size() == 1
-        def IFolder linkedFolder = project.members().find { it.isLinked() }
-        linkedFolder.getName().contains('foldername')
-        !linkedFolder.getName().equals('foldername')
+        linkedFolders.size() == 1
+        linkedFolders[0].name.contains('foldername')
+        linkedFolders[0].name != 'foldername'
     }
 
     def "A linked resource is deleted if no longer part of the Gradle model"() {
@@ -105,20 +108,23 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         File externalDirA = dir('another1')
         File externalDirB = dir('another2')
         IProject project = newProject('project-name')
-        OmniEclipseLinkedResource linkedResourceA =  newFolderLinkedResource(externalDirB.name, externalDirB)
+        OmniEclipseLinkedResource linkedResourceA =  newFolderLinkedResource(linkName, externalDirA)
         OmniEclipseLinkedResource linkedResourceB =  newFolderLinkedResource(externalDirB.name, externalDirB)
 
         when:
         LinkedResourcesUpdater.update(project, [linkedResourceA], new NullProgressMonitor())
         LinkedResourcesUpdater.update(project, [linkedResourceB], new NullProgressMonitor())
+        Collection<IFolder> linkedFolders = linkedFolders(project)
 
         then:
-        project.members().findAll { it.isLinked() }.size() == 1
-        !project.getFolder('another1').exists()
-        IFolder eclipseFolder = project.getFolder('another2')
-        eclipseFolder.exists()
-        eclipseFolder.isLinked() == true
-        eclipseFolder.location.toFile().equals(externalDirB)
+        !project.getFolder(linkName).exists()
+        linkedFolders.size() == 1
+        linkedFolders[0].name == 'another2'
+        linkedFolders[0].exists()
+        linkedFolders[0].location.toFile().equals(externalDirB)
+
+        where:
+        linkName << ['another', 'a/b/c']
     }
 
     def "Model linked resources that were previously defined manually are transformed to model linked resources"() {
@@ -142,6 +148,20 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         then:
         project.getFolder('another').isLinked()
         project.getFolder('another').getPersistentProperty(LinkedResourcesUpdater.RESOURCE_PROPERTY_FROM_GRADLE_MODEL) == 'true'
+    }
+
+    def "Can create linked resources in the subfolders" () {
+        given:
+        File externalDir = dir('ext')
+        IProject project = newProject('project-name')
+        OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource('links/link-to-ext', externalDir)
+
+        when:
+        LinkedResourcesUpdater.update(project, [linkedResource], new NullProgressMonitor())
+
+        then:
+        linkedFolders(project).size() == 1
+        project.getFolder('links/link-to-ext').isLinked()
     }
 
     private def newFolderLinkedResource(String name, File location) {
@@ -170,6 +190,23 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         linkedResource.location >> file.path
         linkedResource.locationUri >> null
         linkedResource
+    }
+
+    private def linkedFolders(IProject project) {
+        collectLinkedFolders(project.members() as List)
+    }
+
+    private def collectLinkedFolders(Collection resources, Collection result = []) {
+        resources.each { resource ->
+            if (resource instanceof IFolder) {
+                if (resource.linked) {
+                    result.add(resource)
+                } else {
+                    collectLinkedFolders(resource.members() as List, result)
+                }
+            }
+        }
+        result
     }
 
 }
