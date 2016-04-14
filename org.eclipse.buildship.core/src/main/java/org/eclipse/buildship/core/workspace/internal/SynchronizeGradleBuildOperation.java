@@ -109,12 +109,12 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
 final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
 
     private final OmniEclipseWorkspace workspaceModel;
-    private final FixedRequestAttributes requestAttributes;
+    private final FixedRequestAttributes build;
     private final NewProjectHandler newProjectHandler;
 
-    SynchronizeGradleBuildOperation(OmniEclipseWorkspace workspaceModel, FixedRequestAttributes requestAttributes, NewProjectHandler newProjectHandler) {
+    SynchronizeGradleBuildOperation(OmniEclipseWorkspace workspaceModel, FixedRequestAttributes build, NewProjectHandler newProjectHandler) {
         this.workspaceModel = workspaceModel;
-        this.requestAttributes = requestAttributes;
+        this.build = build;
         this.newProjectHandler = newProjectHandler;
     }
 
@@ -124,6 +124,8 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         List<OmniEclipseProject> allGradleProjects = getAllGradleProjects();
         List<IProject> decoupledWorkspaceProjects = getOpenWorkspaceProjectsRemovedFromGradleBuild();
         SubMonitor progress = SubMonitor.convert(monitor, decoupledWorkspaceProjects.size() + allGradleProjects.size());
+
+        progress.setTaskName(String.format("Synchronizing Gradle build at %s", this.build.getProjectDir()));
 
         // uncouple the open workspace projects that do not have a corresponding Gradle project anymore
         for (IProject project : decoupledWorkspaceProjects) {
@@ -153,7 +155,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
             @Override
             public boolean apply(IProject project) {
                 ProjectConfiguration projectConfiguration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
-                return projectConfiguration.getRequestAttributes().getProjectDir().equals(SynchronizeGradleBuildOperation.this.requestAttributes.getProjectDir()) &&
+                return projectConfiguration.getRequestAttributes().getProjectDir().equals(SynchronizeGradleBuildOperation.this.build.getProjectDir()) &&
                         (project.getLocation() == null || !gradleProjectDirectories.contains(project.getLocation().toFile()));
             }
         }).toList();
@@ -194,8 +196,8 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, progress.newChild(1));
 
         // persist the Gradle-specific configuration in the Eclipse project's .settings folder, if the configuration is available
-        if (this.requestAttributes != null) {
-            ProjectConfiguration configuration = ProjectConfiguration.from(this.requestAttributes, project);
+        if (this.build != null) {
+            ProjectConfiguration configuration = ProjectConfiguration.from(this.build, project);
             CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, workspaceProject);
         }
 
@@ -355,7 +357,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
     }
 
     private List<OmniEclipseProject> getAllGradleProjects() {
-        return this.workspaceModel.filter(Specs.isSubProjectOf(this.requestAttributes.getProjectDir()));
+        return this.workspaceModel.filter(Specs.isSubProjectOf(this.build.getProjectDir()));
     }
 
 }

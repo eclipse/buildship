@@ -55,10 +55,14 @@ final class SynchronizeCompositeBuildJob extends ToolingApiJob {
         SubMonitor progress = SubMonitor.convert(monitor, 3);
 
         this.initializer.run(progress.newChild(1), getToken());
-
-        CompositeModelProvider modelProvider = this.build.getModelProvider();
-        OmniEclipseWorkspace workspaceModel = modelProvider.fetchEclipseWorkspace(FetchStrategy.FORCE_RELOAD, getToken(), progress.newChild(1));
+        OmniEclipseWorkspace workspaceModel = fetchWorkspaceModel(progress.newChild(1));
         new SynchronizeCompositeBuildOperation(workspaceModel, this.build.getBuilds(), this.newProjectHandler).run(progress.newChild(1));
+    }
+
+    private OmniEclipseWorkspace fetchWorkspaceModel(SubMonitor progress) {
+        progress.setTaskName("Loading Gradle project models");
+        CompositeModelProvider modelProvider = this.build.getModelProvider();
+        return modelProvider.fetchEclipseWorkspace(FetchStrategy.FORCE_RELOAD, getToken(), progress);
     }
 
     /**
