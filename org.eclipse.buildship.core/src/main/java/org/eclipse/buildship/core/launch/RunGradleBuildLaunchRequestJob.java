@@ -15,7 +15,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
-import com.gradleware.tooling.toolingclient.SimpleRequest;
+import com.gradleware.tooling.toolingclient.SingleBuildRequest;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessDescription;
@@ -69,7 +69,7 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob {
     }
 
     @Override
-    protected SimpleRequest<Void> createRequest() {
+    protected SingleBuildRequest<Void> createRequest() {
         return CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(this.configurationAttributes.getTasks()));
     }
 
