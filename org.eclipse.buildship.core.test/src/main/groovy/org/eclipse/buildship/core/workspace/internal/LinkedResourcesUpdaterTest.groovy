@@ -55,7 +55,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
 
         when:
         LinkedResourcesUpdater.update(project, [linkedResource], new NullProgressMonitor())
-        linkedResource = newFolderLinkedResource(externalDir.name, externalDir)
+        linkedResource = newFolderLinkedResource(linkName, externalDir)
         LinkedResourcesUpdater.update(project, [linkedResource], new NullProgressMonitor())
         Collection<IFolder> linkedFolders = linkedFolders(project)
 
@@ -139,7 +139,8 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
 
         then:
         project.getFolder('another').isLinked()
-        project.getFolder('another').getPersistentProperty(LinkedResourcesUpdater.RESOURCE_PROPERTY_FROM_GRADLE_MODEL) == null
+        StringSetProjectProperty linkedFolders = StringSetProjectProperty.from(project, 'linked.resources')
+        !linkedFolders.get().contains('another')
 
         when:
         OmniEclipseLinkedResource linkedResource = newFolderLinkedResource(externalDir.name, externalDir)
@@ -147,7 +148,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
 
         then:
         project.getFolder('another').isLinked()
-        project.getFolder('another').getPersistentProperty(LinkedResourcesUpdater.RESOURCE_PROPERTY_FROM_GRADLE_MODEL) == 'true'
+        linkedFolders.get().contains('another')
     }
 
     def "Can create linked resources in the subfolders" () {
