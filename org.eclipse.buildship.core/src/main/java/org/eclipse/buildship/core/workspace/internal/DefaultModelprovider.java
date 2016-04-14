@@ -19,7 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.SimpleModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.SingleBuildModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -30,15 +30,15 @@ import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 
 /**
- * {@link ModelProvider} implementation backed by a {@link SimpleModelRepository}.
+ * {@link ModelProvider} implementation backed by a {@link SingleBuildModelRepository}.
  *
  * @author Stefan Oehme
  */
 class DefaultModelprovider implements ModelProvider {
 
-    private final SimpleModelRepository repository;
+    private final SingleBuildModelRepository repository;
 
-    DefaultModelprovider(SimpleModelRepository repository) {
+    DefaultModelprovider(SingleBuildModelRepository repository) {
         this.repository = repository;
     }
 

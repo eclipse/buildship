@@ -23,7 +23,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingclient.SimpleRequest;
+import com.gradleware.tooling.toolingclient.SingleBuildRequest;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
@@ -47,7 +47,7 @@ import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 
 /**
- * Base class to execute {@link SimpleRequest} instances in job.
+ * Base class to execute {@link SingleBuildRequest} instances in job.
  */
 public abstract class BaseLaunchRequestJob extends ToolingApiJob {
 
@@ -72,7 +72,7 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
         List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(DelegatingProgressListener.withFullOutput(monitor));
 
         // apply the fixed attributes on the request o
-        SimpleRequest<Void> request = createRequest();
+        SingleBuildRequest<Void> request = createRequest();
         FixedRequestAttributes fixedAttributes = createFixedAttributes();
         fixedAttributes.apply(request);
 
@@ -174,11 +174,11 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
     protected abstract ProcessDescription createProcessDescription();
 
     /**
-     * Creates a new {@link SimpleRequest} object to execute in the job.
+     * Creates a new {@link SingleBuildRequest} object to execute in the job.
      *
      * @return the new request object
      */
-    protected abstract SimpleRequest<Void> createRequest();
+    protected abstract SingleBuildRequest<Void> createRequest();
 
     /**
      * Writes extra information on the configuration console.
