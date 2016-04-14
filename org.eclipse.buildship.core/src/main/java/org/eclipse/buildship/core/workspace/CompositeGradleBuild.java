@@ -8,8 +8,6 @@
  */
 package org.eclipse.buildship.core.workspace;
 
-import java.util.Set;
-
 /**
  * A set of {@link GradleBuild}s that are built together.
 
@@ -28,11 +26,4 @@ public interface CompositeGradleBuild {
      * @param newProjectHandler how to handle newly added projects
      */
     void synchronize(NewProjectHandler newProjectHandler);
-
-    /**
-     * Returns the builds participating in this composite.
-     * @return the builds, never null
-     */
-    //TODO remove as soon as composite build can handle everything you can do with a single build
-    Set<GradleBuild> getParticipantBuilds();
 }

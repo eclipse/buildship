@@ -11,13 +11,11 @@ package org.eclipse.buildship.core.workspace.internal;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSet.Builder;
 
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.CompositeGradleBuild;
-import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
@@ -28,25 +26,13 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
 public class DefaultCompositeGradleBuild implements CompositeGradleBuild {
 
     private final ImmutableSet<FixedRequestAttributes> attributes;
-    private final ImmutableSet<GradleBuild> builds;
 
     public DefaultCompositeGradleBuild(Set<FixedRequestAttributes> attributes) {
         this.attributes = ImmutableSet.copyOf(attributes);
-        Builder<GradleBuild> builds = ImmutableSet.builder();
-        for (FixedRequestAttributes attribute : attributes) {
-            builds.add(new DefaultGradleBuild(attribute));
-        }
-        this.builds = builds.build();
     }
 
     @Override
     public void synchronize(NewProjectHandler newProjectHandler) {
         new SynchronizeGradleBuildsJob(this.attributes, newProjectHandler, AsyncHandler.NO_OP).schedule();
     }
-
-    @Override
-    public Set<GradleBuild> getParticipantBuilds() {
-        return this.builds;
-    }
-
 }
