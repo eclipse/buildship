@@ -13,15 +13,17 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.CompositeGradleBuild;
+import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
 
 /**
@@ -47,8 +49,9 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
     }
 
     @Override
-    public CompositeGradleBuild getCompositeBuild(Set<IProject> projects) {
-        return new DefaultCompositeGradleBuild(getBuilds(projects));
+    public CompositeGradleBuild getCompositeBuild() {
+        Set<IProject> allProjects = Sets.newHashSet(ResourcesPlugin.getWorkspace().getRoot().getProjects());
+        return new DefaultCompositeGradleBuild(getBuilds(allProjects));
     }
 
     private Set<FixedRequestAttributes> getBuilds(Set<IProject> projects) {

@@ -8,8 +8,6 @@
 
 package org.eclipse.buildship.core.workspace;
 
-import java.util.Set;
-
 import com.google.common.base.Optional;
 
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
@@ -42,13 +40,11 @@ public interface GradleWorkspaceManager {
     public Optional<GradleBuild> getGradleBuild(IProject project);
 
     /**
-     * Returns the smallest {@link CompositeGradleBuild} that contain all given projects.
+     * Returns the composite build containing all Gradle builds in the workspace.
      * <p/>
-     * Non-Gradle projects are ignored.
      *
-     * @param projects the projects for which to find the corresponding builds
      * @return the composite build, never null
      */
-    public CompositeGradleBuild getCompositeBuild(Set<IProject> projects);
+    public CompositeGradleBuild getCompositeBuild();
 
 }
