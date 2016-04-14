@@ -15,11 +15,10 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseLinkedResource;
 
@@ -30,9 +29,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.core.runtime.SubMonitor;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.file.FileUtils;
 
 /**
@@ -42,159 +40,111 @@ import org.eclipse.buildship.core.util.file.FileUtils;
  */
 final class LinkedResourcesUpdater {
 
-    // magic number to select folders when checking OmniEclipseLinkedResource#getType()
-    private static final String LINKED_RESOURCE_TYPE_FOLDER = "2";
-
-    // value to assign to a linked folder if it comes from the Gradle model
-    private static final QualifiedName RESOURCE_PROPERTY_FROM_GRADLE_MODEL = new QualifiedName(CorePlugin.PLUGIN_ID, "FROM_GRADLE_MODEL");
-
     private final IProject project;
     private final List<OmniEclipseLinkedResource> linkedResources;
 
     private LinkedResourcesUpdater(IProject project, List<OmniEclipseLinkedResource> linkedResources) {
         this.project = Preconditions.checkNotNull(project);
-        this.linkedResources = Preconditions.checkNotNull(linkedResources);
+        this.linkedResources = FluentIterable.from(linkedResources).filter(new LinkedResourcesWithValidLocation()).toList();
     }
 
     private void updateLinkedResources(IProgressMonitor monitor) throws CoreException {
-        monitor.beginTask("Update linked resources", IProgressMonitor.UNKNOWN);
+        SubMonitor progress = SubMonitor.convert(monitor, 2);
         try {
-            removeOldLinkedResources();
-            updateExistingLinkedResources();
-            createNewLinkedResources();
+            StringSetProjectProperty knownLinkedResources = getKnownLinkedResources(this.project);
+            removeOldLinkedResources(knownLinkedResources, progress.newChild(1));
+            createLinkedResources(knownLinkedResources, progress.newChild(1));
         } finally {
             monitor.done();
         }
     }
 
-    private void removeOldLinkedResources() throws CoreException {
+    private StringSetProjectProperty getKnownLinkedResources(IProject project) {
+        return StringSetProjectProperty.from(project, "linked.resources");
+    }
+
+    private void removeOldLinkedResources(StringSetProjectProperty knownLinkedResources, SubMonitor progress) throws CoreException {
         // check all potential linked folders which might have been created by this class and
         // delete the ones which are no longer part of the Gradle model
-        List<IFolder> folders = collectLinkedFoldersNoLongerInGradleModel();
-        deleteFolders(folders);
-    }
-
-    private void updateExistingLinkedResources() throws CoreException {
-        List<IFolder> folders = collectLinkedFoldersDefinedManuallyAndAlsoInGradleModel();
-        markFoldersFromGradleModel(folders);
-    }
-
-    private List<IFolder> collectLinkedFoldersNoLongerInGradleModel() throws CoreException {
-        return FluentIterable.from(FileUtils.collectAllProjectFolders(this.project)).filter(new Predicate<IFolder>() {
-
-            @Override
-            public boolean apply(IFolder folder) {
-                return folder.isLinked() && folder.getLocation() != null && !isLocationPartOfCurrentGradleModel(folder.getLocation().toFile()) && isFromGradleModel(folder);
+        Set<String> resourceNames = knownLinkedResources.get();
+        progress.setWorkRemaining(resourceNames.size());
+        for (String resourceName : resourceNames) {
+            progress.newChild(1);
+            IFolder folder = this.project.getFolder(resourceName);
+            if (!partOfCurrentGradleModel(folder)) {
+                folder.delete(false, null);
             }
-
-        }).toList();
+        }
     }
 
-    private List<IFolder> collectLinkedFoldersDefinedManuallyAndAlsoInGradleModel() throws CoreException {
-        return FluentIterable.from(FileUtils.collectAllProjectFolders(this.project)).filter(new Predicate<IFolder>() {
-
-            @Override
-            public boolean apply(IFolder folder) {
-                return folder.isLinked() && folder.getLocation() != null && isLocationPartOfCurrentGradleModel(folder.getLocation().toFile());
-            }
-
-        }).toList();
-    }
-
-
-    private boolean isLocationPartOfCurrentGradleModel(final File location) {
-        return FluentIterable.from(this.linkedResources).firstMatch(new Predicate<OmniEclipseLinkedResource>() {
-
-            @Override
-            public boolean apply(OmniEclipseLinkedResource linkedResource) {
-                return isLinkedResourceFolder(linkedResource) && location.equals(new File(linkedResource.getLocation()));
-            }
-        }).isPresent();
-    }
-
-    private boolean isFromGradleModel(IFolder folder)  {
-        try {
-            return Optional.fromNullable(folder.getPersistentProperty(RESOURCE_PROPERTY_FROM_GRADLE_MODEL)).or("false").equals("true");
-        } catch (CoreException e) {
+    private boolean partOfCurrentGradleModel(IFolder folder) {
+        if (!linkedWithValidLocation(folder)) {
             return false;
         }
-    }
-
-    private void markFoldersFromGradleModel(List<IFolder> folders) throws CoreException {
-        for (IFolder folder : folders) {
-            markFolderFromGradleModel(folder);
-        }
-    }
-
-    private void markFolderFromGradleModel(IFolder folder) throws CoreException {
-        folder.setPersistentProperty(RESOURCE_PROPERTY_FROM_GRADLE_MODEL, "true");
-    }
-
-    private void createNewLinkedResources() throws CoreException {
-        Set<File> currentLinkedFolders = collectCurrentLinkedFolders();
-        List<OmniEclipseLinkedResource> newLinkedResources = collectNewLinkedResources(currentLinkedFolders);
-        createLinkedResources(newLinkedResources);
-    }
-
-    private Set<File> collectCurrentLinkedFolders() throws CoreException {
-        return FluentIterable.from(FileUtils.collectAllProjectFolders(this.project)).filter(new Predicate<IFolder>() {
-
-            @Override
-            public boolean apply(IFolder folder) {
-                return folder.isLinked() && folder.getLocation() != null;
+        for (OmniEclipseLinkedResource linkedResource : this.linkedResources) {
+            if (hasSameLocation(folder, linkedResource)) {
+                return true;
             }
-        }).transform(new Function<IFolder, File>() {
+        }
+        return false;
+    }
 
-            @Override
-            public File apply(IFolder folder) {
-                return folder.getLocation().toFile();
+    private boolean linkedWithValidLocation(IFolder folder) {
+        return folder.exists() && folder.isLinked() && folder.getLocation() != null;
+    }
+
+    private boolean hasSameLocation(IFolder folder, OmniEclipseLinkedResource linkedResource) {
+        return folder.getLocation().toFile().equals(new File(linkedResource.getLocation()));
+    }
+
+    private void createLinkedResources(StringSetProjectProperty knownLinkedResources, SubMonitor progress) throws CoreException {
+        progress.setWorkRemaining(this.linkedResources.size());
+        Set<String> resourceNames = Sets.newHashSet();
+        for (OmniEclipseLinkedResource linkedResource : this.linkedResources) {
+            progress.newChild(1);
+            IFolder linkedResourceFolder = findlLinkedResourceFolder(linkedResource.getName(), linkedResource);
+            if (!linkedResourceFolder.exists()) {
+                createLinkedResourceFolder(linkedResourceFolder, linkedResource);
             }
-        }).toSet();
-    }
-
-    private List<OmniEclipseLinkedResource> collectNewLinkedResources(final Set<File> currentLinkedFolders) throws CoreException {
-        return FluentIterable.from(this.linkedResources).filter(new Predicate<OmniEclipseLinkedResource>() {
-
-            @Override
-            public boolean apply(OmniEclipseLinkedResource linkedResource) {
-                return isLinkedResourceFolder(linkedResource) && !currentLinkedFolders.contains(new File(linkedResource.getLocation()));
-            }
-        }).toList();
-    }
-
-    private void createLinkedResources(List<OmniEclipseLinkedResource> linkedResources) throws CoreException {
-        for (OmniEclipseLinkedResource linkedResource : linkedResources) {
-            IPath resourcePath = new Path(linkedResource.getLocation());
-            IFolder folder = toNewFolder(linkedResource.getName());
-            FileUtils.ensureParentFolderHierarchyExists(folder);
-            folder.createLink(resourcePath, IResource.BACKGROUND_REFRESH | IResource.ALLOW_MISSING_LOCAL, null);
-            markFolderFromGradleModel(folder);
+            resourceNames.add(projectRelativePath(linkedResourceFolder));
         }
+        knownLinkedResources.set(resourceNames);
     }
 
-    private IFolder toNewFolder(String folderName) throws CoreException {
-        // if a folder with the same name already exists then create the location with a '_' appended to the name
-        IFolder folder = this.project.getFolder(folderName);
-        if (folder.exists()) {
-            return toNewFolder(folderName + "_");
-        } else {
-            return folder;
-        }
+    private IFolder findlLinkedResourceFolder(String name, OmniEclipseLinkedResource linkedResource) {
+       IFolder folder = this.project.getFolder(name);
+       if (!folder.exists() || (linkedWithValidLocation(folder) && hasSameLocation(folder, linkedResource))) {
+           return folder;
+       } else {
+           // if a folder with the same name already exists then create the location with a '_' appended to the name
+           return findlLinkedResourceFolder(name + '_', linkedResource);
+       }
     }
 
-    private boolean isLinkedResourceFolder(OmniEclipseLinkedResource linkedResource) {
-        return linkedResource.getLocation() != null && linkedResource.getType().equals(LINKED_RESOURCE_TYPE_FOLDER);
+    private void createLinkedResourceFolder(IFolder folder, OmniEclipseLinkedResource linkedResource) throws CoreException {
+        IPath resourcePath = new Path(linkedResource.getLocation());
+        FileUtils.ensureParentFolderHierarchyExists(folder);
+        folder.createLink(resourcePath, IResource.BACKGROUND_REFRESH | IResource.ALLOW_MISSING_LOCAL, null);
     }
 
-    private static void deleteFolders(List<IFolder> folders) throws CoreException {
-        for (IFolder folder : folders) {
-            folder.delete(false, null);
-        }
+    private String projectRelativePath(IFolder folder) {
+        return folder.getFullPath().makeRelativeTo(this.project.getFullPath()).toPortableString();
     }
 
     public static void update(IProject project, List<OmniEclipseLinkedResource> linkedResources, IProgressMonitor monitor) throws CoreException {
         LinkedResourcesUpdater updater = new LinkedResourcesUpdater(project, linkedResources);
         updater.updateLinkedResources(monitor);
+    }
+
+    private static final class LinkedResourcesWithValidLocation implements Predicate<OmniEclipseLinkedResource> {
+
+        // magic number to select folders when checking OmniEclipseLinkedResource#getType()
+        private static final String LINKED_RESOURCE_TYPE_FOLDER = "2";
+
+        @Override
+        public boolean apply(OmniEclipseLinkedResource linkedResource) {
+            return linkedResource.getLocation() != null && linkedResource.getType().equals(LINKED_RESOURCE_TYPE_FOLDER);
+        }
     }
 
 }
