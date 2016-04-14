@@ -14,31 +14,33 @@ package org.eclipse.buildship.ui.view.task;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
+import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.OmniProjectTask;
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.gradle.LoadEclipseGradleBuildsJob;
-import org.eclipse.buildship.core.workspace.ModelProvider;
+import org.eclipse.buildship.core.gradle.Specs;
+import org.eclipse.buildship.core.util.progress.ToolingApiJob;
+import org.eclipse.buildship.core.workspace.CompositeModelProvider;
 
 /**
  * Content provider for the {@link TaskView}.
@@ -68,7 +70,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         // the only way to set the input is
         // through TaskView#setInput(TaskViewContent)
         TaskViewContent content = TaskViewContent.class.cast(newInput);
-        LoadEclipseGradleBuildsJob loadEclipseGradleBuildsJob = new LoadEclipseGradleBuildsJob(content.getModelFetchStrategy(), content.getRootProjectConfigurations());
+        LoadTasksJob loadEclipseGradleBuildsJob = new LoadTasksJob(content.getModelFetchStrategy());
         loadEclipseGradleBuildsJob.addJobChangeListener(new RefreshTasksViewAfterJobDone(this.taskView));
         loadEclipseGradleBuildsJob.schedule();
     }
@@ -77,17 +79,14 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
     public Object[] getElements(Object input) {
         ImmutableList.Builder<Object> result = ImmutableList.builder();
         if (input instanceof TaskViewContent) {
-            TaskViewContent content = (TaskViewContent) input;
-            for (ProjectConfiguration projectConfiguration : content.getRootProjectConfigurations()) {
-                result.addAll(createTopLevelProjectNodes(projectConfiguration));
-            }
+            result.addAll(createTopLevelProjectNodes());
         }
         return result.build().toArray();
     }
 
-    private List<ProjectNode> createTopLevelProjectNodes(ProjectConfiguration projectConfiguration) {
-        OmniEclipseGradleBuild gradleBuild = fetchCachedEclipseGradleBuild(projectConfiguration.getRequestAttributes());
-        if (gradleBuild == null) {
+    private List<ProjectNode> createTopLevelProjectNodes() {
+        OmniEclipseWorkspace workspaceModel = fetchCachedEclipseWorkspace();
+        if (workspaceModel == null) {
             // no Gradle projects are cached yet, meaning the async job
             // to load the projects is still running, thus nothing to show
             return ImmutableList.of();
@@ -95,14 +94,16 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
             // flatten the tree of Gradle projects to a list, similar
             // to how Eclipse projects look in the Eclipse Project explorer
             List<ProjectNode> allProjectNodes = Lists.newArrayList();
-            collectProjectNodesRecursively(gradleBuild.getRootEclipseProject(), null, allProjectNodes);
+            for (OmniEclipseProject rootProject : workspaceModel.filter(Specs.isRootProject())) {
+                collectProjectNodesRecursively(rootProject, null, allProjectNodes);
+            }
             return allProjectNodes;
         }
     }
 
-    private OmniEclipseGradleBuild fetchCachedEclipseGradleBuild(FixedRequestAttributes fixedRequestAttributes) {
-        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(fixedRequestAttributes).getModelProvider();
-        return modelProvider.fetchEclipseGradleBuild(FetchStrategy.FROM_CACHE_ONLY, null, null);
+    private OmniEclipseWorkspace fetchCachedEclipseWorkspace() {
+        CompositeModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getCompositeBuild().getModelProvider();
+        return modelProvider.fetchEclipseWorkspace(FetchStrategy.FROM_CACHE_ONLY, null, null);
     }
 
     private void collectProjectNodesRecursively(OmniEclipseProject eclipseProject, ProjectNode parentProjectNode, List<ProjectNode> allProjectNodes) {
@@ -183,6 +184,41 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
 
     @Override
     public void dispose() {
+    }
+
+    /**
+     * Loads the tasks for all projects into the cache.
+     */
+    private static final class LoadTasksJob extends ToolingApiJob {
+
+        private final FetchStrategy modelFetchStrategy;
+
+        public LoadTasksJob(FetchStrategy modelFetchStrategy) {
+            super("Loading tasks of all Gradle projects");
+            this.modelFetchStrategy = Preconditions.checkNotNull(modelFetchStrategy);
+        }
+
+        @Override
+        protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
+            CompositeModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getCompositeBuild().getModelProvider();
+            modelProvider.fetchEclipseWorkspace(this.modelFetchStrategy, getToken(), monitor);
+        }
+
+        /**
+         * If there is already a {@link LoadTasksJob} scheduled with the same fetch strategy, then
+         * this job does not need to run.
+         */
+        @Override
+        public boolean shouldSchedule() {
+            Job[] jobs = Job.getJobManager().find(CorePlugin.GRADLE_JOB_FAMILY);
+            for (Job job : jobs) {
+                if (job instanceof LoadTasksJob) {
+                    LoadTasksJob other = (LoadTasksJob) job;
+                    return !Objects.equal(this.modelFetchStrategy, other.modelFetchStrategy);
+                }
+            }
+            return true;
+        }
     }
 
     /**
