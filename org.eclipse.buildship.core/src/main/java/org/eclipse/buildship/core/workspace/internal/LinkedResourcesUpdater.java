@@ -136,6 +136,9 @@ final class LinkedResourcesUpdater {
         updater.updateLinkedResources(monitor);
     }
 
+    /**
+     * Predicate matching to the {@link OmniEclipseLinkedResource} instances the updater can handle.
+     */
     private static final class LinkedResourcesWithValidLocation implements Predicate<OmniEclipseLinkedResource> {
 
         // magic number to select folders when checking OmniEclipseLinkedResource#getType()
