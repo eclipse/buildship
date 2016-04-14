@@ -21,7 +21,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
  * Updates the Gradle classpath container of the given Java workspace project.
@@ -63,7 +62,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
     }
 
     private void updateFromGradleProject(IJavaProject project) {
-        CorePlugin.gradleWorkspaceManager().getGradleBuild(project.getProject()).get().synchronize(NewProjectHandler.NO_OP);
+        CorePlugin.gradleWorkspaceManager().getCompositeBuild().synchronize();
     }
 
 }

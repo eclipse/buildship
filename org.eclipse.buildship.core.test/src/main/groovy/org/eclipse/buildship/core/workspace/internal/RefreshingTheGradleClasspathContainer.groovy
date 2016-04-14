@@ -41,24 +41,6 @@ class RefreshingTheGradleClasspathContainer extends ProjectSynchronizationSpecif
         hasLocalGroovyDependencyDefinedInClasspathContainer(subProject)
     }
 
-    def "Update doesn't change the classpath of unrelated projects"() {
-        setup:
-        File unrelatedProjectLocation = importNewSimpleProject('unrelatedproject')
-        File location = importNewSimpleProject('simpleproject')
-        IJavaProject unrelatedProject = findJavaProject('unrelatedproject')
-        IJavaProject project = findJavaProject('simpleproject')
-
-        defineLocalGroovyDependency(new File(location, 'build.gradle'))
-        defineLocalGroovyDependency(new File(unrelatedProjectLocation, 'build.gradle'))
-
-        when:
-        synchronizeAndWait(project.project)
-
-        then:
-        hasLocalGroovyDependencyDefinedInClasspathContainer(project)
-        !hasLocalGroovyDependencyDefinedInClasspathContainer(unrelatedProject)
-    }
-
     def "Updates multiple project roots at the same time"() {
         setup:
         File firstLocation = importNewSimpleProject('first')

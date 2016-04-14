@@ -12,14 +12,17 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import com.google.common.base.Optional;
-import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
+
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.gradle.Specs;
+import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.gradle.Specs;
 
 /**
  * Updates project names to match the Gradle model. Moves other projects out of the way if necessary.
@@ -31,17 +34,17 @@ final class ProjectNameUpdater {
      *
      * @param workspaceProject the Eclipse project whose name to update
      * @param project          the Gradle project corresponding to the Eclipse project
-     * @param gradleBuild      the build to which the Gradle project belongs
+     * @param workspaceModel the workspace model to which the project belongs
      * @param monitor          the monitor to report progress on
      * @return the new project reference in case the project name has changed, the incoming project instance otherwise
      */
-    static IProject updateProjectName(IProject workspaceProject, OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
+    static IProject updateProjectName(IProject workspaceProject, OmniEclipseProject project, OmniEclipseWorkspace workspaceModel, IProgressMonitor monitor) {
         String newName = normalizeProjectName(project);
         SubMonitor progress = SubMonitor.convert(monitor, 2);
         if (newName.equals(workspaceProject.getName())) {
             return workspaceProject;
         } else {
-            ensureProjectNameIsFree(newName, gradleBuild, progress.newChild(1));
+            ensureProjectNameIsFree(newName, workspaceModel, progress.newChild(1));
             return CorePlugin.workspaceOperations().renameProject(workspaceProject, newName, progress.newChild(1));
         }
     }
@@ -59,19 +62,19 @@ final class ProjectNameUpdater {
      * If any of these conditions are not met, we fail because of a name conflict.
      *
      * @param project     the project whose name is to be verified
-     * @param gradleBuild the build to which the project belongs
+     * @param workspaceModel the workspace model to which the project belongs
      * @param monitor     the monitor to report progress on
      */
-    static void ensureProjectNameIsFree(OmniEclipseProject project, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
+    static void ensureProjectNameIsFree(OmniEclipseProject project, OmniEclipseWorkspace workspaceModel, IProgressMonitor monitor) {
         String name = normalizeProjectName(project);
-        ensureProjectNameIsFree(name, gradleBuild, monitor);
+        ensureProjectNameIsFree(name, workspaceModel, monitor);
     }
 
-    private static void ensureProjectNameIsFree(String normalizedProjectName, OmniEclipseGradleBuild gradleBuild, IProgressMonitor monitor) {
+    private static void ensureProjectNameIsFree(String normalizedProjectName, OmniEclipseWorkspace workspaceModel, IProgressMonitor monitor) {
         Optional<IProject> possibleDuplicate = CorePlugin.workspaceOperations().findProjectByName(normalizedProjectName);
         if (possibleDuplicate.isPresent()) {
             IProject duplicate = possibleDuplicate.get();
-            if (isScheduledForRenaming(duplicate, gradleBuild)) {
+            if (isScheduledForRenaming(duplicate, workspaceModel)) {
                 renameTemporarily(duplicate, monitor);
             } else {
                 String message = String.format("A project with the name %s already exists.", normalizedProjectName);
@@ -80,12 +83,12 @@ final class ProjectNameUpdater {
         }
     }
 
-    private static boolean isScheduledForRenaming(IProject duplicate, OmniEclipseGradleBuild gradleBuild) {
+    private static boolean isScheduledForRenaming(IProject duplicate, OmniEclipseWorkspace workspaceModel) {
         if (!duplicate.isOpen()) {
             return false;
         }
 
-        Optional<OmniEclipseProject> duplicateEclipseProject = gradleBuild.getRootEclipseProject().tryFind(Specs.eclipseProjectMatchesProjectDir(duplicate.getLocation().toFile()));
+        Optional<OmniEclipseProject> duplicateEclipseProject = workspaceModel.tryFind(Specs.eclipseProjectMatchesProjectDir(duplicate.getLocation().toFile()));
         if (!duplicateEclipseProject.isPresent()) {
             return false;
         }

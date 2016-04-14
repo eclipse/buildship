@@ -7,8 +7,7 @@ import org.eclipse.buildship.core.notification.UserNotification
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.test.fixtures.TestEnvironment
 
-@Ignore('Enable when composite build feature is added')
-class ImportingProjectWithClashingNames extends ProjectSynchronizationSpecification {
+class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpecification {
 
     def "Root project names name deduped with enumeration"() {
         setup:
@@ -21,58 +20,37 @@ class ImportingProjectWithClashingNames extends ProjectSynchronizationSpecificat
 
         then:
         allProjects().size() == 2
-        findProject('root')
+        findProject('root1')
         findProject('root2')
     }
 
     def "Same subproject names are deduped"() {
         setup:
         def firstProject = dir('first') {
-            dir 'sub'
-            file 'settings.gradle', "include 'sub'"
-        }
-        def secondProject = dir('second') {
-            dir 'sub'
-            file 'settings.gradle', "include 'sub'"
-        }
-
-        when:
-        importAndWait(firstProject)
-        importAndWait(secondProject)
-
-        then:
-        allProjects().size() == 4
-        findProject('first')
-        findProject('first-sub')
-        findProject('second')
-        findProject('second-sub')
-    }
-
-    def "Clashing deduped names are further deduped"() {
-        setup:
-        def firstProject = dir('first') {
-            dir 'sub-subsub'
-            file 'settings.gradle', "include 'sub-subsub'"
+            dir 'sub/subsub'
+            file 'settings.gradle', "include 'sub:subsub'"
         }
         def secondProject = dir('second') {
             dir 'sub/subsub'
-            file 'settings.gradle', "include 'sub'; include 'sub:subsub' "
+            file 'settings.gradle', "include 'sub:subsub' "
         }
 
         when:
         importAndWait(firstProject)
 
         then:
-        allProjects().size() == 2
+        allProjects().size() == 3
         findProject('first')
-        findProject('sub-subsub')
+        findProject('sub')
+        findProject('subsub')
 
         when:
         importAndWait(secondProject)
 
         then:
-        allProjects().size() == 5
+        allProjects().size() == 6
         findProject('first')
+        findProject('first-sub')
         findProject('first-sub-subsub')
         findProject('second')
         findProject('second-sub')

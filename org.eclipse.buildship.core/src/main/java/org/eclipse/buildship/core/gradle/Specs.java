@@ -60,6 +60,24 @@ public final class Specs {
         };
     }
 
+
+    /**
+     * Returns a spec that matches if the the project directory of a {@code OmniEclipseProject}'s root project
+     *  matches the given root directory.
+     *
+     * @param rootDir the root directory to match
+     * @return the spec
+     */
+    public static Spec<OmniEclipseProject> isSubProjectOf(final File rootDir) {
+        return new Spec<OmniEclipseProject>() {
+
+            @Override
+            public boolean isSatisfiedBy(OmniEclipseProject candidate) {
+                return candidate.getRoot().getProjectDirectory().equals(rootDir);
+            }
+        };
+    }
+
     /**
      * Returns a spec that matches if the the project path of a {@code OmniGradleProject} instance
      * matches the given project path.

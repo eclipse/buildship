@@ -75,6 +75,23 @@ class SynchronizingRenamedProject extends ProjectSynchronizationSpecification {
         findProject("b").location.lastSegment() == "a"
     }
 
+    def "Projects can be renamed in cycles across the workspace"() {
+        setup:
+        def firstProject = dir('first') { file 'settings.gradle'}
+        def secondProject = dir('second') { file 'settings.gradle'}
+        importAndWait(firstProject)
+        importAndWait(secondProject)
+        fileTree(firstProject) { file 'settings.gradle', "rootProject.name = 'second'"}
+        fileTree(secondProject) { file 'settings.gradle', "rootProject.name = 'first'"}
+
+        when:
+        synchronizeAndWait()
+
+        then:
+        findProject('first').location.lastSegment() == "second"
+        findProject('second').location.lastSegment() == "first"
+    }
+
     def "Cyclic renaming also works for new subprojects"() {
         def root = dir('root') {
             dir 'a'
