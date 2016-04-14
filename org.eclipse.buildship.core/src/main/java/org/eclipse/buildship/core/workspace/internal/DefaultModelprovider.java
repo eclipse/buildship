@@ -8,25 +8,17 @@
  */
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.util.List;
-
 import org.gradle.tooling.CancellationToken;
-import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.ProgressListener;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.base.Preconditions;
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.SingleBuildModelRepository;
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.console.ProcessStreams;
-import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 
 /**
@@ -34,12 +26,12 @@ import org.eclipse.buildship.core.workspace.ModelProvider;
  *
  * @author Stefan Oehme
  */
-class DefaultModelprovider implements ModelProvider {
+final class DefaultModelprovider extends AbstractModelProvider implements ModelProvider {
 
     private final SingleBuildModelRepository repository;
 
     DefaultModelprovider(SingleBuildModelRepository repository) {
-        this.repository = repository;
+        this.repository = Preconditions.checkNotNull(repository);
     }
 
     @Override
@@ -50,16 +42,6 @@ class DefaultModelprovider implements ModelProvider {
     @Override
     public OmniBuildEnvironment fetchBuildEnvironment(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor) {
         return this.repository.fetchBuildEnvironment(getTransientRequestAttributes(token, monitor), fetchStrategy);
-    }
-
-    private TransientRequestAttributes getTransientRequestAttributes(CancellationToken token, IProgressMonitor monitor) {
-        ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-        List<ProgressListener> progressListeners = ImmutableList.<ProgressListener> of(DelegatingProgressListener.withoutDuplicateLifecycleEvents(monitor));
-        ImmutableList<org.gradle.tooling.events.ProgressListener> noEventListeners = ImmutableList.<org.gradle.tooling.events.ProgressListener> of();
-        if (token == null) {
-            token = GradleConnector.newCancellationTokenSource().token();
-        }
-        return new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), progressListeners, noEventListeners, token);
     }
 
 }

@@ -10,11 +10,11 @@ package org.eclipse.buildship.core.workspace;
 
 /**
  * A set of {@link GradleBuild}s that are built together.
-
+ *
  * @author Stefan Oehme
  *
  */
-//TODO use composite build infrastructure instead of iterating over the builds internally
+// TODO use composite build infrastructure instead of iterating over the builds internally
 public interface CompositeGradleBuild {
 
     /**
@@ -26,4 +26,11 @@ public interface CompositeGradleBuild {
      * @param newProjectHandler how to handle newly added projects
      */
     void synchronize(NewProjectHandler newProjectHandler);
+
+    /**
+     * Returns the model provider for this composite build.
+     *
+     * @return the model provider, never null
+     */
+    CompositeModelProvider getModelProvider();
 }

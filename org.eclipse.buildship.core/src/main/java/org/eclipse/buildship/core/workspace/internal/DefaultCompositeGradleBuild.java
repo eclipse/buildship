@@ -12,10 +12,13 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 
+import com.gradleware.tooling.toolingmodel.repository.CompositeBuildModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.CompositeGradleBuild;
+import org.eclipse.buildship.core.workspace.CompositeModelProvider;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
@@ -34,5 +37,11 @@ public class DefaultCompositeGradleBuild implements CompositeGradleBuild {
     @Override
     public void synchronize(NewProjectHandler newProjectHandler) {
         new SynchronizeGradleBuildsJob(this.attributes, newProjectHandler, AsyncHandler.NO_OP).schedule();
+    }
+
+    @Override
+    public CompositeModelProvider getModelProvider() {
+        CompositeBuildModelRepository modelRepository = CorePlugin.modelRepositoryProvider().getCompositeModelRepository(this.attributes);
+        return new DefaultCompositeModelprovider(modelRepository);
     }
 }
