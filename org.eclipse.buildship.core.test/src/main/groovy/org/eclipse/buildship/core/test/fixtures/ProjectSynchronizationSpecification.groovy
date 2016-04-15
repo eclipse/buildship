@@ -9,6 +9,8 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 import com.gradleware.tooling.toolingmodel.util.Pair
 
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IWorkspace
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.Path
 import org.eclipse.core.runtime.jobs.Job
 
@@ -36,13 +38,16 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
     }
 
     protected void importExistingAndWait(File location) {
-        workspace.run({
+        try {
+            Job.jobManager.beginRule(workspace.root, null)
             def description = workspace.newProjectDescription(location.name)
-                    description.setLocation(new Path(location.path))
-                    def project = workspace.root.getProject(location.name)
-                    project.create(description, null)
-                    project.open(null)
-        }, null)
+            description.setLocation(new Path(location.path))
+            def project = workspace.root.getProject(location.name)
+            project.create(description, null)
+            project.open(null)
+        } finally {
+            Job.jobManager.endRule(workspace.root)
+        }
         waitForGradleJobsToFinish()
     }
 
