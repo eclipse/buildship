@@ -48,6 +48,7 @@ abstract class WorkspaceSpecification extends Specification {
 
     void cleanup() {
         deleteAllProjects(true)
+        waitForGradleJobsToFinish()
     }
 
     protected void deleteAllProjects(boolean includingContent) {
@@ -56,6 +57,10 @@ abstract class WorkspaceSpecification extends Specification {
                 project.delete(includingContent, true, null);
             }
         }, null)
+    }
+
+    protected void waitForGradleJobsToFinish() {
+        Job.jobManager.join(CorePlugin.GRADLE_JOB_FAMILY, null)
     }
 
     protected <T> void registerService(Class<T> serviceType, T implementation) {

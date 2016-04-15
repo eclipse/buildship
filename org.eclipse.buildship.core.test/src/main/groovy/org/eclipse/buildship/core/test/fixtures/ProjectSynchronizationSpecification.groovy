@@ -71,7 +71,4 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         new ProjectPreviewJob(configuration, [], AsyncHandler.NO_OP, resultHandler)
     }
 
-    protected def waitForGradleJobsToFinish() {
-        Job.jobManager.join(CorePlugin.GRADLE_JOB_FAMILY, null)
-    }
 }
