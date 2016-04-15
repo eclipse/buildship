@@ -50,13 +50,9 @@ final class LinkedResourcesUpdater {
 
     private void updateLinkedResources(IProgressMonitor monitor) throws CoreException {
         SubMonitor progress = SubMonitor.convert(monitor, 2);
-        try {
-            StringSetProjectProperty knownLinkedResources = getKnownLinkedResources(this.project);
-            removeOldLinkedResources(knownLinkedResources, progress.newChild(1));
-            createLinkedResources(knownLinkedResources, progress.newChild(1));
-        } finally {
-            monitor.done();
-        }
+        StringSetProjectProperty knownLinkedResources = getKnownLinkedResources(this.project);
+        removeOldLinkedResources(knownLinkedResources, progress.newChild(1));
+        createLinkedResources(knownLinkedResources, progress.newChild(1));
     }
 
     private StringSetProjectProperty getKnownLinkedResources(IProject project) {
