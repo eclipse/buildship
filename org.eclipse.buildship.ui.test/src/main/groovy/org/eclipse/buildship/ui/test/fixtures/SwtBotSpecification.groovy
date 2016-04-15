@@ -44,6 +44,7 @@ abstract class SwtBotSpecification extends Specification {
 
     def cleanup() {
         deleteAllProjects(true)
+        waitForGradleJobsToFinish()
     }
 
     protected void deleteAllProjects(boolean includingContent) {
