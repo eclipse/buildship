@@ -33,6 +33,7 @@ class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpe
 
         when:
         findProject('root2').delete(false, false, null)
+        waitForResourceChangeEvents()
         waitForGradleJobsToFinish()
 
         then:
