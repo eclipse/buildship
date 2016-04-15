@@ -51,9 +51,11 @@ abstract class WorkspaceSpecification extends Specification {
     }
 
     protected void deleteAllProjects(boolean includingContent) {
-        for (IProject project : CorePlugin.workspaceOperations().allProjects) {
-            project.delete(includingContent, true, null);
-        }
+        workspace.run({
+            for (IProject project : CorePlugin.workspaceOperations().allProjects) {
+                project.delete(includingContent, true, null);
+            }
+        }, null)
     }
 
     protected <T> void registerService(Class<T> serviceType, T implementation) {

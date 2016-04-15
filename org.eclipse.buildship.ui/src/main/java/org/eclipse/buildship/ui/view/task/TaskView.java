@@ -16,7 +16,6 @@ import java.util.Set;
 
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
@@ -168,14 +167,6 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
             CorePlugin.logger().error("Failed to reload task view content.", e); //$NON-NLS-1$
             this.pages.showPage(this.errorInputPage);
         }
-    }
-
-    public void handleProjectAdditions(Set<IProject> projects) {
-        reload(FetchStrategy.LOAD_IF_NOT_CACHED);
-    }
-
-    public void handleProjectRemovals(Set<IProject> projects) {
-        reload(FetchStrategy.LOAD_IF_NOT_CACHED);
     }
 
     @Override

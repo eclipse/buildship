@@ -18,6 +18,11 @@ import com.google.common.collect.Sets;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 
 import org.eclipse.buildship.core.CorePlugin;
@@ -31,7 +36,7 @@ import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
  *
  * @author Stefan Oehme
  */
-public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
+public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager, IResourceChangeListener {
 
     @Override
     public GradleBuild getGradleBuild(FixedRequestAttributes attributes) {
@@ -62,6 +67,36 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
                 return CorePlugin.projectConfigurationManager().readProjectConfiguration(project).getRequestAttributes();
             }
         }).toSet();
+    }
+
+    public void startListeningTo(IWorkspace workspace) {
+        workspace.addResourceChangeListener(this, IResourceChangeEvent.POST_CHANGE);
+    }
+
+    public void stopListeningTo(IWorkspace workspace) {
+        workspace.removeResourceChangeListener(this);
+    }
+
+    @Override
+    public void resourceChanged(IResourceChangeEvent event) {
+        if (hasListOfProjectsChanged(event.getDelta())) {
+            getCompositeBuild().synchronize();
+        }
+    }
+
+    private boolean hasListOfProjectsChanged(IResourceDelta delta) {
+        IResource resource = delta.getResource();
+        if (resource instanceof IProject) {
+            int kind = delta.getKind();
+            return kind == IResourceDelta.ADDED || kind == IResourceDelta.REMOVED;
+        }
+
+        for (IResourceDelta child : delta.getAffectedChildren()) {
+            if (hasListOfProjectsChanged(child)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
