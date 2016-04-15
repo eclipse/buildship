@@ -46,6 +46,7 @@ class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpe
         importAndWait(firstProject)
         importAndWait(secondProject)
         findProject('root2').delete(false, true, null)
+        waitForResourceChangeEvents()
         waitForGradleJobsToFinish()
 
         when:

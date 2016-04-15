@@ -38,16 +38,12 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
     }
 
     protected void importExistingAndWait(File location) {
-        try {
-            Job.jobManager.beginRule(workspace.root, null)
-            def description = workspace.newProjectDescription(location.name)
-            description.setLocation(new Path(location.path))
-            def project = workspace.root.getProject(location.name)
-            project.create(description, null)
-            project.open(null)
-        } finally {
-            Job.jobManager.endRule(workspace.root)
-        }
+        def description = workspace.newProjectDescription(location.name)
+        description.setLocation(new Path(location.path))
+        def project = workspace.root.getProject(location.name)
+        project.create(description, null)
+        project.open(null)
+        waitForResourceChangeEvents()
         waitForGradleJobsToFinish()
     }
 

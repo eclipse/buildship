@@ -63,6 +63,10 @@ abstract class WorkspaceSpecification extends Specification {
         Job.jobManager.join(CorePlugin.GRADLE_JOB_FAMILY, null)
     }
 
+    protected void waitForResourceChangeEvents() {
+        workspace.run({}, null)
+    }
+
     protected <T> void registerService(Class<T> serviceType, T implementation) {
         environment.registerService(serviceType, implementation)
     }
