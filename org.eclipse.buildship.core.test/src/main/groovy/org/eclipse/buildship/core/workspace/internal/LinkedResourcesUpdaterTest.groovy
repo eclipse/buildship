@@ -86,7 +86,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         linkedFolders(project).size() == 1
     }
 
-    def "A folder can be linked even if a local folder already exists with the same name" () {
+    def "If a linked resource name matches to an existing folder, then the folder is replaced" () {
         given:
         IProject project = newProject('project-name')
         project.getFolder('foldername').create(true, true, null)
@@ -99,8 +99,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
 
         then:
         linkedFolders.size() == 1
-        linkedFolders[0].name.contains('foldername')
-        linkedFolders[0].name != 'foldername'
+        linkedFolders[0].name == 'foldername'
     }
 
     def "A linked resource is deleted if no longer part of the Gradle model"() {
