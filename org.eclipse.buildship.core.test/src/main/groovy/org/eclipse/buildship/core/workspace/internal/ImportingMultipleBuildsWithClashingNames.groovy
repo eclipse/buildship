@@ -24,6 +24,21 @@ class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpe
         findProject('root2')
     }
 
+    def "Names are reverted if the conflicting project is removed"() {
+        setup:
+        def firstProject = dir('first') { file 'settings.gradle', "rootProject.name = 'root'" }
+        def secondProject = dir('second') { file 'settings.gradle', "rootProject.name = 'root'" }
+        importAndWait(firstProject)
+        importAndWait(secondProject)
+
+        when:
+        findProject('root2').delete(false, false, null)
+        waitForGradleJobsToFinish()
+
+        then:
+        findProject('root')
+    }
+
     def "Same subproject names are deduped"() {
         setup:
         def firstProject = dir('first') {
