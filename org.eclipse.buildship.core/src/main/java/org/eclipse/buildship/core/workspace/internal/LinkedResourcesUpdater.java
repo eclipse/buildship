@@ -71,30 +71,27 @@ final class LinkedResourcesUpdater {
         for (String resourceName : resourceNames) {
             SubMonitor childProgress = progress.newChild(1);
             IFolder folder = this.project.getFolder(resourceName);
-            if (!partOfCurrentGradleModel(folder)) {
+            if (shouldDelete(folder)) {
                 folder.delete(false, childProgress);
             }
         }
     }
 
-    private boolean partOfCurrentGradleModel(IFolder folder) {
-        if (!linkedWithValidLocation(folder)) {
-            return false;
-        }
-        for (OmniEclipseLinkedResource linkedResource : this.linkedResources) {
-            if (hasSameLocation(folder, linkedResource)) {
-                return true;
-            }
-        }
-        return false;
+    private boolean shouldDelete(IFolder folder) {
+        return linkedWithValidLocation(folder) && !partOfCurrentGradleModel(folder);
     }
 
     private boolean linkedWithValidLocation(IFolder folder) {
         return folder.exists() && folder.isLinked() && folder.getLocation() != null;
     }
 
-    private boolean hasSameLocation(IFolder folder, OmniEclipseLinkedResource linkedResource) {
-        return folder.getLocation().toFile().equals(new File(linkedResource.getLocation()));
+    private boolean partOfCurrentGradleModel(IFolder folder) {
+        for (OmniEclipseLinkedResource linkedResource : this.linkedResources) {
+            if (folder.getLocation().toFile().equals(new File(linkedResource.getLocation()))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void createLinkedResources(StringSetProjectProperty knownLinkedResources, SubMonitor progress) throws CoreException {
