@@ -126,6 +126,25 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         linkName << ['another', 'a/b/c']
     }
 
+    def "Only linked resources are removed from the project"() {
+        given:
+        File externalDirA = dir('another1')
+        File externalDirB = dir('another2')
+        IProject project = newProject('project-name')
+        OmniEclipseLinkedResource linkedResourceA =  newFolderLinkedResource(externalDirA.name, externalDirA)
+        OmniEclipseLinkedResource linkedResourceB =  newFolderLinkedResource(externalDirB.name, externalDirB)
+
+        when:
+        LinkedResourcesUpdater.update(project, [linkedResourceA], new NullProgressMonitor())
+        project.getFolder('another1').delete(false, new NullProgressMonitor())
+        project.getFolder('another1').create(true, true, new NullProgressMonitor())
+        LinkedResourcesUpdater.update(project, [linkedResourceB], new NullProgressMonitor())
+        Collection<IFolder> linkedFolders = linkedFolders(project)
+
+        then:
+        project.getFolder('another1').exists()
+    }
+
     def "Model linked resources that were previously defined manually are transformed to model linked resources"() {
         given:
         File externalDir = dir('another')
