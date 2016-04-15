@@ -10,7 +10,7 @@ package org.eclipse.buildship.core.workspace;
 import org.eclipse.buildship.core.event.Event;
 
 /**
- * An event indicatting that the {@link CompositeGradleBuild} has been synchronized with the
+ * An event indicating that the {@link CompositeGradleBuild} has been synchronized with the
  * workspace.
  *
  * @author Stefan Oehme
