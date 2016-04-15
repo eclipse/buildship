@@ -183,15 +183,15 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
 
     def "error thrown when projects of same multi-project build have different shared project configurations"() {
         given:
-        // create root project and use Gradle version 2.0 in the persisted configuration
         IProject rootProject = workspaceOperations.createProject("root-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
+        IProject childProject = workspaceOperations.createProject("child-project", dir("child-project"), Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
+
+        // use Gradle version 2.0 in the persisted configuration
         def requestAttributes = new FixedRequestAttributes(testDir, null, GradleDistribution.forVersion("2.0"), null,
                 ImmutableList.copyOf("-Xmx256M"), ImmutableList.copyOf("foo"))
         def projectConfiguration = ProjectConfiguration.from(requestAttributes, Path.from(":"))
         configurationManager.saveProjectConfiguration(projectConfiguration, rootProject)
-
-        // create child project and use Gradle version 1.0 in the persisted configuration
-        IProject childProject = workspaceOperations.createProject("child-project", dir("child-project"), Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
+        // use Gradle version 1.0 in the persisted configuration
         def childRequestAttributes = new FixedRequestAttributes(testDir, null, GradleDistribution.forVersion("1.0"), null,
                 ImmutableList.copyOf("-Xmx256M"), ImmutableList.copyOf("foo"))
         def childProjectConfiguration = ProjectConfiguration.from(childRequestAttributes, Path.from(":child"))
