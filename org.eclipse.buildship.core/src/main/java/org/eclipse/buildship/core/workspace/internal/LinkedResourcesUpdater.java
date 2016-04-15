@@ -110,19 +110,10 @@ final class LinkedResourcesUpdater {
 
     private IFolder createLinkedResourceFolder(String name, OmniEclipseLinkedResource linkedResource, SubMonitor progress) throws CoreException {
        IFolder folder = this.project.getFolder(name);
-       if (canCreateLinkedFolderAt(linkedResource, folder)) {
-           IPath resourcePath = new Path(linkedResource.getLocation());
-           FileUtils.ensureParentFolderHierarchyExists(folder);
-           folder.createLink(resourcePath, IResource.BACKGROUND_REFRESH | IResource.ALLOW_MISSING_LOCAL | IResource.REPLACE, progress);
-           return folder;
-       } else {
-           // if the target folder is already a linked resource but points to a different location, then add a suffix to the folder name
-           return createLinkedResourceFolder(name + '_', linkedResource, progress);
-       }
-    }
-
-    private boolean canCreateLinkedFolderAt(OmniEclipseLinkedResource linkedResource, IFolder target) {
-        return !linkedWithValidLocation(target) || hasSameLocation(target, linkedResource);
+       IPath resourcePath = new Path(linkedResource.getLocation());
+       FileUtils.ensureParentFolderHierarchyExists(folder);
+       folder.createLink(resourcePath, IResource.BACKGROUND_REFRESH | IResource.ALLOW_MISSING_LOCAL | IResource.REPLACE, progress);
+       return folder;
     }
 
     private String projectRelativePath(IFolder folder) {
