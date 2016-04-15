@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Buildship, Eclipse Plug-ins for Gradle
 Bundle-SymbolicName: org.eclipse.buildship.branding
-Bundle-Version: 1.0.14.qualifier
+Bundle-Version: 1.0.15.qualifier
 Bundle-Vendor: Eclipse Buildship
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ClassPath: .
