@@ -102,29 +102,27 @@ final class LinkedResourcesUpdater {
         Set<String> resourceNames = Sets.newHashSet();
         for (OmniEclipseLinkedResource linkedResource : this.linkedResources) {
             progress.newChild(1);
-            IFolder linkedResourceFolder = findlLinkedResourceFolder(linkedResource.getName(), linkedResource);
-            if (!linkedResourceFolder.exists()) {
-                createLinkedResourceFolder(linkedResourceFolder, linkedResource);
-            }
+            IFolder linkedResourceFolder = createLinkedResourceFolder(linkedResource.getName(), linkedResource);
             resourceNames.add(projectRelativePath(linkedResourceFolder));
         }
         knownLinkedResources.set(resourceNames);
     }
 
-    private IFolder findlLinkedResourceFolder(String name, OmniEclipseLinkedResource linkedResource) {
+    private IFolder createLinkedResourceFolder(String name, OmniEclipseLinkedResource linkedResource) throws CoreException {
        IFolder folder = this.project.getFolder(name);
-       if (!folder.exists() || (linkedWithValidLocation(folder) && hasSameLocation(folder, linkedResource))) {
+       if (canCreateLinkedFolderAt(linkedResource, folder)) {
+           IPath resourcePath = new Path(linkedResource.getLocation());
+           FileUtils.ensureParentFolderHierarchyExists(folder);
+           folder.createLink(resourcePath, IResource.BACKGROUND_REFRESH | IResource.ALLOW_MISSING_LOCAL | IResource.REPLACE, null);
            return folder;
        } else {
-           // if a folder with the same name already exists then create the location with a '_' appended to the name
-           return findlLinkedResourceFolder(name + '_', linkedResource);
+           // if the target folder is already a linked resource but points to a different location, then add a suffix to the folder name
+           return createLinkedResourceFolder(name + '_', linkedResource);
        }
     }
 
-    private void createLinkedResourceFolder(IFolder folder, OmniEclipseLinkedResource linkedResource) throws CoreException {
-        IPath resourcePath = new Path(linkedResource.getLocation());
-        FileUtils.ensureParentFolderHierarchyExists(folder);
-        folder.createLink(resourcePath, IResource.BACKGROUND_REFRESH | IResource.ALLOW_MISSING_LOCAL, null);
+    private boolean canCreateLinkedFolderAt(OmniEclipseLinkedResource linkedResource, IFolder target) {
+        return !linkedWithValidLocation(target) || hasSameLocation(target, linkedResource);
     }
 
     private String projectRelativePath(IFolder folder) {
