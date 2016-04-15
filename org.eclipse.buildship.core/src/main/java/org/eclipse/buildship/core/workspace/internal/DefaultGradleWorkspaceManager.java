@@ -79,20 +79,22 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager, IR
 
     @Override
     public void resourceChanged(IResourceChangeEvent event) {
-        if (hasListOfProjectsChanged(event.getDelta())) {
+        if (containsProjectChanges(event.getDelta())) {
             getCompositeBuild().synchronize();
         }
     }
 
-    private boolean hasListOfProjectsChanged(IResourceDelta delta) {
+    private boolean containsProjectChanges(IResourceDelta delta) {
         IResource resource = delta.getResource();
         if (resource instanceof IProject) {
             int kind = delta.getKind();
-            return kind == IResourceDelta.ADDED || kind == IResourceDelta.REMOVED;
+            boolean addedOrRemoved = kind == IResourceDelta.ADDED || kind == IResourceDelta.REMOVED;
+            boolean openedOrClosed = (delta.getFlags() & IResourceDelta.OPEN) != 0;
+            return addedOrRemoved || openedOrClosed;
         }
 
         for (IResourceDelta child : delta.getAffectedChildren()) {
-            if (hasListOfProjectsChanged(child)) {
+            if (containsProjectChanges(child)) {
                 return true;
             }
         }
