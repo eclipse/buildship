@@ -69,10 +69,10 @@ final class LinkedResourcesUpdater {
         Set<String> resourceNames = knownLinkedResources.get();
         progress.setWorkRemaining(resourceNames.size());
         for (String resourceName : resourceNames) {
-            progress.newChild(1);
+            SubMonitor childProgress = progress.newChild(1);
             IFolder folder = this.project.getFolder(resourceName);
             if (!partOfCurrentGradleModel(folder)) {
-                folder.delete(false, null);
+                folder.delete(false, childProgress);
             }
         }
     }
@@ -101,23 +101,23 @@ final class LinkedResourcesUpdater {
         progress.setWorkRemaining(this.linkedResources.size());
         Set<String> resourceNames = Sets.newHashSet();
         for (OmniEclipseLinkedResource linkedResource : this.linkedResources) {
-            progress.newChild(1);
-            IFolder linkedResourceFolder = createLinkedResourceFolder(linkedResource.getName(), linkedResource);
+            SubMonitor childProgress = progress.newChild(1);
+            IFolder linkedResourceFolder = createLinkedResourceFolder(linkedResource.getName(), linkedResource, childProgress);
             resourceNames.add(projectRelativePath(linkedResourceFolder));
         }
         knownLinkedResources.set(resourceNames);
     }
 
-    private IFolder createLinkedResourceFolder(String name, OmniEclipseLinkedResource linkedResource) throws CoreException {
+    private IFolder createLinkedResourceFolder(String name, OmniEclipseLinkedResource linkedResource, SubMonitor progress) throws CoreException {
        IFolder folder = this.project.getFolder(name);
        if (canCreateLinkedFolderAt(linkedResource, folder)) {
            IPath resourcePath = new Path(linkedResource.getLocation());
            FileUtils.ensureParentFolderHierarchyExists(folder);
-           folder.createLink(resourcePath, IResource.BACKGROUND_REFRESH | IResource.ALLOW_MISSING_LOCAL | IResource.REPLACE, null);
+           folder.createLink(resourcePath, IResource.BACKGROUND_REFRESH | IResource.ALLOW_MISSING_LOCAL | IResource.REPLACE, progress);
            return folder;
        } else {
            // if the target folder is already a linked resource but points to a different location, then add a suffix to the folder name
-           return createLinkedResourceFolder(name + '_', linkedResource);
+           return createLinkedResourceFolder(name + '_', linkedResource, progress);
        }
     }
 
