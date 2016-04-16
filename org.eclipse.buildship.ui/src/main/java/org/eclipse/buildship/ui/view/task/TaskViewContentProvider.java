@@ -151,6 +151,9 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         for (OmniProjectTask projectTask : projectNode.getGradleProject().getProjectTasks()) {
             result.add(TaskGroupNode.forName(projectNode, projectTask.getGroup()));
         }
+        for (OmniTaskSelector taskSelector : projectNode.getGradleProject().getTaskSelectors()) {
+            result.add(TaskGroupNode.forName(projectNode, taskSelector.getGroup()));
+        }
         return result;
     }
 
