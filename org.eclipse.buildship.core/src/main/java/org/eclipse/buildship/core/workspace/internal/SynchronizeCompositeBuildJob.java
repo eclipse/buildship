@@ -57,7 +57,6 @@ final class SynchronizeCompositeBuildJob extends ToolingApiJob {
         this.initializer.run(progress.newChild(1), getToken());
         OmniEclipseWorkspace workspaceModel = fetchWorkspaceModel(progress.newChild(1));
         new SynchronizeCompositeBuildOperation(workspaceModel, this.build.getBuilds(), this.newProjectHandler).run(progress.newChild(1));
-        CorePlugin.listenerRegistry().dispatch(new DefaultCompositeBuildSynchronizedEvent(this.build));
     }
 
     private OmniEclipseWorkspace fetchWorkspaceModel(SubMonitor progress) {

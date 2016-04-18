@@ -22,7 +22,6 @@ import spock.lang.Specification
 import com.google.common.io.Files
 
 import org.eclipse.core.resources.IProject
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.jdt.core.IJavaProject;
@@ -49,24 +48,12 @@ abstract class WorkspaceSpecification extends Specification {
 
     void cleanup() {
         deleteAllProjects(true)
-        waitForResourceChangeEvents()
-        waitForGradleJobsToFinish()
     }
 
     protected void deleteAllProjects(boolean includingContent) {
-        workspace.run({
-            for (IProject project : CorePlugin.workspaceOperations().allProjects) {
-                project.delete(includingContent, true, null);
-            }
-        }, null)
-    }
-
-    protected void waitForGradleJobsToFinish() {
-        Job.jobManager.join(CorePlugin.GRADLE_JOB_FAMILY, null)
-    }
-
-    protected void waitForResourceChangeEvents() {
-        workspace.run({}, null, IResource.NONE, null);
+        for (IProject project : CorePlugin.workspaceOperations().allProjects) {
+            project.delete(includingContent, true, null);
+        }
     }
 
     protected <T> void registerService(Class<T> serviceType, T implementation) {

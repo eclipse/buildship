@@ -13,16 +13,6 @@ package org.eclipse.buildship.ui.view.task;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-
-import org.eclipse.jface.action.GroupMarker;
-import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.swt.widgets.Menu;
-
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.ui.UiPluginConstants;
 import org.eclipse.buildship.ui.util.nodeselection.ActionEnablingSelectionChangedListener;
 import org.eclipse.buildship.ui.util.nodeselection.ActionShowingContextMenuListener;
@@ -31,6 +21,10 @@ import org.eclipse.buildship.ui.util.selection.ContextActivatingViewPartListener
 import org.eclipse.buildship.ui.view.CollapseTreeNodesAction;
 import org.eclipse.buildship.ui.view.ExpandTreeNodesAction;
 import org.eclipse.buildship.ui.view.ShowFilterAction;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.jface.action.*;
+import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.swt.widgets.Menu;
 
 /**
  * Adds UI contributions to the {@link TaskView}.
@@ -54,7 +48,7 @@ public final class UiContributionManager {
     private final TreeViewerDoubleClickListener treeViewerDoubleClickListener;
     private final ContextActivatingViewPartListener contextActivatingViewPartListener;
     private final WorkbenchSelectionListener workbenchSelectionListener;
-    private final TaskViewRefreshingCompositeChangeListener taskViewRefreshingCompositeChangeListener;
+    private final WorkspaceProjectsChangeListener workspaceProjectsChangeListener;
 
     public UiContributionManager(TaskView taskView) {
         this.taskView = Preconditions.checkNotNull(taskView);
@@ -84,7 +78,7 @@ public final class UiContributionManager {
         this.treeViewerDoubleClickListener = new TreeViewerDoubleClickListener(UiPluginConstants.RUN_TASKS_COMMAND_ID, taskView.getTreeViewer());
         this.contextActivatingViewPartListener = new ContextActivatingViewPartListener(UiPluginConstants.TASKVIEW_CONTEXT_ID, taskView);
         this.workbenchSelectionListener = new WorkbenchSelectionListener(taskView);
-        this.taskViewRefreshingCompositeChangeListener = new TaskViewRefreshingCompositeChangeListener(taskView);
+        this.workspaceProjectsChangeListener = new WorkspaceProjectsChangeListener(taskView);
     }
 
     /**
@@ -140,7 +134,7 @@ public final class UiContributionManager {
         this.taskView.getTreeViewer().addDoubleClickListener(this.treeViewerDoubleClickListener);
         this.taskView.getSite().getPage().addPartListener(this.contextActivatingViewPartListener);
         this.taskView.getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(this.workbenchSelectionListener);
-        CorePlugin.listenerRegistry().addEventListener(this.taskViewRefreshingCompositeChangeListener);
+        this.workspaceProjectsChangeListener.startListeningTo(ResourcesPlugin.getWorkspace());
     }
 
     public void dispose() {
@@ -149,7 +143,7 @@ public final class UiContributionManager {
         this.taskView.getTreeViewer().removeDoubleClickListener(this.treeViewerDoubleClickListener);
         this.taskView.getSite().getPage().removePartListener(this.contextActivatingViewPartListener);
         this.taskView.getSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(this.workbenchSelectionListener);
-        CorePlugin.listenerRegistry().removeEventListener(this.taskViewRefreshingCompositeChangeListener);
+        this.workspaceProjectsChangeListener.stopListeningTo(ResourcesPlugin.getWorkspace());
     }
 
 }

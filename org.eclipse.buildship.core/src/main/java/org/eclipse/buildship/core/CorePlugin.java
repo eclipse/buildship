@@ -27,7 +27,6 @@ import com.gradleware.tooling.toolingmodel.repository.Environment;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProviderFactory;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 
@@ -104,12 +103,10 @@ public final class CorePlugin extends Plugin {
         plugin = this;
         ensureProxySettingsApplied();
         registerServices(bundleContext);
-        registerListeners();
     }
 
     @Override
     public void stop(BundleContext context) throws Exception {
-        unRegisterListeners();
         toolingClient().stop(CleanUpStrategy.GRACEFULLY);
         unregisterServices();
         plugin = null;
@@ -208,14 +205,6 @@ public final class CorePlugin extends Plugin {
 
     private UserNotification createUserNotification() {
         return new ConsoleUserNotification();
-    }
-
-    private void registerListeners() {
-        ((DefaultGradleWorkspaceManager) gradleWorkspaceManager()).startListeningTo(ResourcesPlugin.getWorkspace());
-    }
-
-    private void unRegisterListeners() {
-        ((DefaultGradleWorkspaceManager) gradleWorkspaceManager()).stopListeningTo(ResourcesPlugin.getWorkspace());
     }
 
     private void unregisterServices() {

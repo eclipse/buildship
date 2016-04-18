@@ -9,9 +9,6 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 import com.gradleware.tooling.toolingmodel.util.Pair
 
 import org.eclipse.core.resources.IProject
-import org.eclipse.core.resources.IWorkspace
-import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.runtime.Path
 import org.eclipse.core.runtime.jobs.Job
 
 import org.eclipse.buildship.core.CorePlugin;
@@ -32,19 +29,9 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         waitForGradleJobsToFinish()
     }
 
-    private void startSynchronization(File location, GradleDistribution distribution = GradleDistribution.fromBuild(), NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
+    protected void startSynchronization(File location, GradleDistribution distribution = GradleDistribution.fromBuild(), NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
         FixedRequestAttributes attributes = new FixedRequestAttributes(location, null, distribution, null, [], [])
         CorePlugin.gradleWorkspaceManager().getCompositeBuild().withBuild(attributes).synchronize(newProjectHandler)
-    }
-
-    protected void importExistingAndWait(File location) {
-        def description = workspace.newProjectDescription(location.name)
-        description.setLocation(new Path(location.path))
-        def project = workspace.root.getProject(location.name)
-        project.create(description, null)
-        project.open(null)
-        waitForResourceChangeEvents()
-        waitForGradleJobsToFinish()
     }
 
     protected void synchronizeAndWait(IProject... projects) {
@@ -67,4 +54,7 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         new ProjectPreviewJob(configuration, [], AsyncHandler.NO_OP, resultHandler)
     }
 
+    protected def waitForGradleJobsToFinish() {
+        Job.jobManager.join(CorePlugin.GRADLE_JOB_FAMILY, null)
+    }
 }
