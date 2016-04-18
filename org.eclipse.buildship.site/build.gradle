@@ -112,7 +112,7 @@ private void signByEclipseService(signedFolder, unsignedFolder) {
   ssh.run {
     session(remotes.eclipseDotOrg) {
       // the remote folder where the jars are signed
-      def remoteFolder = "${ECLIPSE_ORG_TEMP_PATH}/${signedFolder.name}"
+      def remoteFolder = "${ECLIPSE_ORG_TEMP_PATH}/${signedFolder.name}/${project.version}"
 
       // clean up the folder used for signing if the previous build failed
       execute """rm -rf $remoteFolder
