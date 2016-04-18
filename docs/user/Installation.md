@@ -2,7 +2,7 @@
 
 ## Requirements
 
-Buildship can be used with Eclipse 4.2.0 or newer. Older versions might work but have not been tested explicitly. Depending on the
+Buildship can be used with Eclipse 3.6.x or newer. Older versions might work but have not been tested explicitly. Depending on the
 version of Gradle that Buildship interacts with, certain features of Buildship may not be available.
 
 
@@ -28,6 +28,12 @@ Kepler (4.3)    | release   | `http://download.eclipse.org/buildship/updates/e43
 Juno (4.2)      | release   | `http://download.eclipse.org/buildship/updates/e42/releases/1.0`
                 | milestone | `http://download.eclipse.org/buildship/updates/e42/milestones/1.0`
                 | snapshot  | `http://download.eclipse.org/buildship/updates/e42/snapshots/1.0`
+Indigo (3.7)    | release   | `http://download.eclipse.org/buildship/updates/e37/releases/1.0`
+                | milestone | `http://download.eclipse.org/buildship/updates/e37/milestones/1.0`
+                | snapshot  | `http://download.eclipse.org/buildship/updates/e37/snapshots/1.0`
+Helios (3.6)    | release   | `http://download.eclipse.org/buildship/updates/e36/releases/1.0`
+                | milestone | `http://download.eclipse.org/buildship/updates/e36/milestones/1.0`
+                | snapshot  | `http://download.eclipse.org/buildship/updates/e36/snapshots/1.0`
 
 The continuous integration server generates nightly snapshot releases each day 23:00 CET which instantly become
 available at the snapshot update sites above. In regular intervals, the Buildship team also creates new
@@ -55,6 +61,8 @@ are available for all the supported Eclipse versions:
   * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse44Build/.lastSuccessful/update-site` (latest 4.4 development snapshot)
   * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse43Build/.lastSuccessful/update-site` (latest 4.3 development snapshot)
   * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse42Build/.lastSuccessful/update-site` (latest 4.2 development snapshot)
+  * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse37Build/.lastSuccessful/update-site` (latest 3.7 development snapshot)
+  * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse36Build/.lastSuccessful/update-site` (latest 3.6 development snapshot)
 
 Apply the following instructions to install the latest snapshot of Buildship into your version of Eclipse.
 
