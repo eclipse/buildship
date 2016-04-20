@@ -44,7 +44,7 @@ class OpenBuildScriptActionTest extends ViewSpecification {
 
   def "Action is not visible nor enabled when a task node is selected"() {
     setup:
-    def taskNode = newProjectTaskNode(newProjectNode(null, '/location1'), '/path')
+    def taskNode = newProjectTaskNode(newProjectNode(null, '/location1'), ':path')
     def selection = NodeSelection.from(new StructuredSelection(taskNode))
 
     expect:
@@ -55,7 +55,7 @@ class OpenBuildScriptActionTest extends ViewSpecification {
   def "Action is not visible nor enabled when a project and a task node is selected"() {
     setup:
     def projectNode = newProjectNode(null, '/location1')
-    def taskNode = newProjectTaskNode(projectNode, '/path')
+    def taskNode = newProjectTaskNode(projectNode, ':path')
     def selection = NodeSelection.from(new StructuredSelection([projectNode, taskNode]))
 
     expect:
