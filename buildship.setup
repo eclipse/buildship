@@ -294,7 +294,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
         <repository
-             url="jar:https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/0.12.0-20160414120543/p2-repository-0.12.0-20160414120543.zip!/"/>
+             url="jar:https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/0.12.0-20160420132627/p2-repository-0.12.0-20160420132627.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Luna">
@@ -303,7 +303,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
         <repository
-             url="jar:https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/0.12.0-20160414120543/p2-repository-0.12.0-20160414120543.zip!/"/>
+             url="jar:https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/0.12.0-20160420132627/p2-repository-0.12.0-20160420132627.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Kepler">
@@ -312,7 +312,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
         <repository
-             url="jar:https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/0.12.0-20160414120543/p2-repository-0.12.0-20160414120543.zip!/"/>
+             url="jar:https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/0.12.0-20160420132627/p2-repository-0.12.0-20160420132627.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Juno">
@@ -321,7 +321,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
         <repository
-             url="jar:https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/0.12.0-20160414120543/p2-repository-0.12.0-20160414120543.zip!/"/>
+             url="jar:https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/0.12.0-20160420132627/p2-repository-0.12.0-20160420132627.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Indigo">
@@ -330,7 +330,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
         <repository
-             url="jar:https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/0.12.0-20160414120543/p2-repository-0.12.0-20160414120543.zip!/"/>
+             url="jar:https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/0.12.0-20160420132627/p2-repository-0.12.0-20160420132627.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Helios">
@@ -339,7 +339,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
         <repository
-             url="jar:https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/0.12.0-20160414120543/p2-repository-0.12.0-20160414120543.zip!/"/>
+             url="jar:https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/0.12.0-20160420132627/p2-repository-0.12.0-20160420132627.zip!/"/>
       </repositoryList>
     </targlet>
     <targlet
