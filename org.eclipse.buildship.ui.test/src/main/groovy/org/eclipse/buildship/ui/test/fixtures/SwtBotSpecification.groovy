@@ -30,7 +30,7 @@ import org.eclipse.ui.PlatformUI
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.ui.UiPlugin
 
-abstract class SwtBotSpecification extends Specification {
+abstract class SwtBotSpecification extends ProjectSynchronizationSpecification {
 
     protected static SWTWorkbenchBot bot = new SWTWorkbenchBot()
 
@@ -38,11 +38,11 @@ abstract class SwtBotSpecification extends Specification {
         closeWelcomePageIfAny()
     }
 
-    def setup() {
+    void setup() {
         closeAllShellsExceptTheApplicationShellAndForceShellActivation()
     }
 
-    def cleanup() {
+    void cleanup() {
         deleteAllProjects(true)
         waitForGradleJobsToFinish()
     }
@@ -93,14 +93,6 @@ abstract class SwtBotSpecification extends Specification {
                 PlatformUI.workbench.activeWorkbenchWindow.shell.equals(swtBotShell.widget)
             }
         })
-    }
-
-    protected static void waitForGradleJobsToFinish() {
-        Job.jobManager.join(CorePlugin.GRADLE_JOB_FAMILY, null)
-    }
-
-    private IProject findProject(String name) {
-        CorePlugin.workspaceOperations().findProjectByName(name).orNull()
     }
 
 }

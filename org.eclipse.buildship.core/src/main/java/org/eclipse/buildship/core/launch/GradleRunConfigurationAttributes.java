@@ -20,6 +20,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -184,6 +185,16 @@ public final class GradleRunConfigurationAttributes {
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot read Gradle launch configuration %s.", launchConfiguration), e);
         }
+    }
+
+    public FixedRequestAttributes toFixedRequestAttributes() {
+        File workingDir = getWorkingDir();
+        File gradleUserHome = getGradleUserHome();
+        GradleDistribution gradleDistribution = getGradleDistribution();
+        File javaHome = getJavaHome();
+        ImmutableList<String> jvmArguments = getJvmArguments();
+        ImmutableList<String> arguments = getArguments();
+        return new FixedRequestAttributes(workingDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments);
     }
 
     public void apply(ILaunchConfigurationWorkingCopy launchConfiguration) {
