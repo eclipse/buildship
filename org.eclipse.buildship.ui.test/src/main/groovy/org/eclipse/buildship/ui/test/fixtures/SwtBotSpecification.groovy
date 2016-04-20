@@ -34,16 +34,12 @@ abstract class SwtBotSpecification extends ProjectSynchronizationSpecification {
 
     protected static SWTWorkbenchBot bot = new SWTWorkbenchBot()
 
-    def setupSpec() {
+    void setupSpec() {
         closeWelcomePageIfAny()
     }
 
     void setup() {
         closeAllShellsExceptTheApplicationShellAndForceShellActivation()
-    }
-
-    void cleanup() {
-        deleteAllProjects(true)
     }
 
     protected void deleteAllProjects(boolean includingContent) {
