@@ -34,7 +34,7 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
 
     private void startSynchronization(File location, GradleDistribution distribution = GradleDistribution.fromBuild(), NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
         FixedRequestAttributes attributes = new FixedRequestAttributes(location, null, distribution, null, [], [])
-        CorePlugin.gradleWorkspaceManager().getCompositeBuild().withBuild(attributes).synchronize(newProjectHandler)
+        CorePlugin.gradleWorkspaceManager().getGradleBuild(attributes).synchronize(newProjectHandler)
     }
 
     protected void importExistingAndWait(File location) {
