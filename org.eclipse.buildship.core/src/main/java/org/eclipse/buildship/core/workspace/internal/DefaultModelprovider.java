@@ -14,6 +14,7 @@ import com.google.common.base.Preconditions;
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
+import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.SingleBuildModelRepository;
 
@@ -32,6 +33,11 @@ final class DefaultModelprovider extends AbstractModelProvider implements ModelP
 
     DefaultModelprovider(SingleBuildModelRepository repository) {
         this.repository = Preconditions.checkNotNull(repository);
+    }
+
+    @Override
+    public OmniGradleBuild fetchGradleBuild(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor) {
+        return this.repository.fetchGradleBuild(getTransientRequestAttributes(token, monitor), fetchStrategy);
     }
 
     @Override

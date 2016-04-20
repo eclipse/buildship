@@ -1,5 +1,9 @@
 package org.eclipse.buildship.ui.view.task
 
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
+import spock.lang.AutoCleanup;
+
 import com.google.common.base.Optional
 import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager
 import org.eclipse.buildship.ui.UiPluginConstants
@@ -13,13 +17,12 @@ class CreateAndOpenRunConfigurationActionTest extends ViewSpecification {
     CreateRunConfigurationAction createAction
     OpenRunConfigurationAction openAction
 
+    @AutoCleanup
+    TestEnvironment environment = TestEnvironment.INSTANCE
+
     def setup() {
         createAction = new CreateRunConfigurationAction(UiPluginConstants.OPEN_RUN_CONFIGURATION_COMMAND_ID)
         openAction = new OpenRunConfigurationAction(UiPluginConstants.OPEN_RUN_CONFIGURATION_COMMAND_ID)
-    }
-
-    def cleanup() {
-        TestEnvironment.cleanup()
     }
 
     def "No action is visible when the nothing is selected"() {
@@ -35,7 +38,7 @@ class CreateAndOpenRunConfigurationActionTest extends ViewSpecification {
 
     def "Only one action is visible and enabled when a task node is selected"(boolean runConfigurationAlreadyExists) {
         setup:
-        TestEnvironment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(runConfigurationAlreadyExists))
+        environment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(runConfigurationAlreadyExists))
 
         def rootNode = newProjectNode(null, '/root')
         def taskNode = newProjectTaskNode(rootNode, ':a')
@@ -53,7 +56,7 @@ class CreateAndOpenRunConfigurationActionTest extends ViewSpecification {
 
     def "Only one action is visible and enabled when multiple task nodes are selected from the same project"(boolean runConfigurationAlreadyExists) {
         setup:
-        TestEnvironment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(runConfigurationAlreadyExists))
+        environment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(runConfigurationAlreadyExists))
 
         def rootNode = newProjectNode(null, '/root')
         def taskNode1 = newProjectTaskNode(rootNode, ':a')
@@ -72,7 +75,7 @@ class CreateAndOpenRunConfigurationActionTest extends ViewSpecification {
 
     def "Only one action is visible and enabled when a project node is selected"(boolean runConfigurationAlreadyExists) {
         setup:
-        TestEnvironment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(runConfigurationAlreadyExists))
+        environment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(runConfigurationAlreadyExists))
 
         def rootNode = newProjectNode(null, '/root')
         def selection = NodeSelection.from(new StructuredSelection(rootNode))
@@ -89,7 +92,7 @@ class CreateAndOpenRunConfigurationActionTest extends ViewSpecification {
 
     def "Create action is visible but disabled when multiple projects nodes are selected"(boolean runConfigurationAlreadyExists) {
         setup:
-        TestEnvironment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(runConfigurationAlreadyExists))
+        environment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(runConfigurationAlreadyExists))
 
         def rootNode = newProjectNode(null, '/root')
         def projectNode1 = newProjectNode(rootNode, '/root/a')
@@ -108,7 +111,7 @@ class CreateAndOpenRunConfigurationActionTest extends ViewSpecification {
 
     def "Create action is visible but disabled when task nodes from multiple projects are selected"(boolean runConfigurationAlreadyExists) {
         setup:
-        TestEnvironment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(runConfigurationAlreadyExists))
+        environment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(runConfigurationAlreadyExists))
 
         def rootNode = newProjectNode(null, '/root')
         def projectNode1 = newProjectNode(rootNode, '/root/a')
@@ -129,7 +132,7 @@ class CreateAndOpenRunConfigurationActionTest extends ViewSpecification {
 
     def "Create action is visible but disabled when task selectors on a non-standard flat sub-project are selected"() {
         setup:
-        TestEnvironment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(false))
+        environment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(false))
 
         def rootNode = newProjectNode(null, '/root')
         def subProjectNode = newProjectNode(rootNode, '/sub')
@@ -143,7 +146,7 @@ class CreateAndOpenRunConfigurationActionTest extends ViewSpecification {
 
     def "Create action is visible and enabled when task selectors on a standard flat sub-project are selected"() {
         setup:
-        TestEnvironment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(false))
+        environment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(false))
 
         def rootNode = newProjectNode(null, '/master')
         def subProjectNode = newProjectNode(rootNode, '/sub')
@@ -157,7 +160,7 @@ class CreateAndOpenRunConfigurationActionTest extends ViewSpecification {
 
     def "Create action is visible and enabled when project tasks on a non-standard flat sub-project are selected"() {
         setup:
-        TestEnvironment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(false))
+        environment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(false))
 
         def rootNode = newProjectNode(null, '/root')
         def subProjectNode = newProjectNode(rootNode, '/sub')
@@ -171,7 +174,7 @@ class CreateAndOpenRunConfigurationActionTest extends ViewSpecification {
 
     def "No action is visible nor enabled when a project and tasks from multiple projects are selected"(boolean runConfigurationAlreadyExists) {
         setup:
-        TestEnvironment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(runConfigurationAlreadyExists))
+        environment.registerService(GradleLaunchConfigurationManager, newTestLaunchConfigurationManager(runConfigurationAlreadyExists))
 
         def rootNode = newProjectNode(null, '/root')
         def taskNode = newProjectTaskNode(rootNode, ':a:one')

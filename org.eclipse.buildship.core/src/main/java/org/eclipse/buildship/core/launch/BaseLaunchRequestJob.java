@@ -22,7 +22,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
-import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingclient.SingleBuildRequest;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
@@ -73,7 +72,7 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
 
         // apply the fixed attributes on the request o
         SingleBuildRequest<Void> request = createRequest();
-        FixedRequestAttributes fixedAttributes = createFixedAttributes();
+        FixedRequestAttributes fixedAttributes = getConfigurationAttributes().toFixedRequestAttributes();
         fixedAttributes.apply(request);
 
         // configure the request's transient attributes
@@ -93,17 +92,6 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
 
         // launch the build
         request.executeAndWait();
-    }
-
-    private FixedRequestAttributes createFixedAttributes() {
-        GradleRunConfigurationAttributes configurationAttributes = getConfigurationAttributes();
-        File workingDir = configurationAttributes.getWorkingDir();
-        File gradleUserHome = configurationAttributes.getGradleUserHome();
-        GradleDistribution gradleDistribution = configurationAttributes.getGradleDistribution();
-        File javaHome = configurationAttributes.getJavaHome();
-        ImmutableList<String> jvmArguments = configurationAttributes.getJvmArguments();
-        ImmutableList<String> arguments = configurationAttributes.getArguments();
-        return new FixedRequestAttributes(workingDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments);
     }
 
     private void writeFixedRequestAttributes(FixedRequestAttributes fixedAttributes, OutputStreamWriter writer, IProgressMonitor monitor) {
