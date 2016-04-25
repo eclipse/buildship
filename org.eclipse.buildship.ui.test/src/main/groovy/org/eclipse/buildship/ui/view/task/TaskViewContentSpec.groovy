@@ -41,30 +41,16 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
     def "Task are grouped by default"() {
         when:
         def project = dir("root") {
-            file 'settings.gradle'
+            file 'build.gradle', """
+                task foo() {
+                    group = 'custom'
+                }
+            """
         }
         importAndWait(project)
 
         then:
-        taskTree == [
-            'root' : [
-                'build setup' : [
-                    'init',
-                    'wrapper',
-                ],
-                'help' : [
-                    'buildEnvironment',
-                    'components',
-                    'dependencies',
-                    'dependencyInsight',
-                    'help',
-                    'model',
-                    'projects',
-                    'properties',
-                    'tasks',
-                ],
-            ]
-        ]
+        taskTree.root.custom.contains('foo')
     }
 
     def "Task selectors are aggregated from subprojects"() {
@@ -72,60 +58,18 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
         def project = dir("root") {
             file 'settings.gradle', "include 'a'"
             a {
-                file 'build.gradle', "apply plugin: 'base'"
+                file 'build.gradle', """
+                    task foo() {
+                        group = 'custom'
+                    }
+                """
             }
         }
         importAndWait(project)
 
         then:
-        taskTree == [
-            'root' : [
-                'build' : [
-                    'assemble',
-                    'build',
-                    'clean'
-                 ],
-                'build setup' : [
-                    'init',
-                    'wrapper',
-                ],
-                'help' : [
-                    'buildEnvironment',
-                    'components',
-                    'dependencies',
-                    'dependencyInsight',
-                    'help',
-                    'model',
-                    'projects',
-                    'properties',
-                    'tasks',
-                ],
-                'verification' : [
-                    'check'
-                ]
-            ],
-            'a' : [
-                'build' : [
-                    'assemble',
-                    'build',
-                    'clean'
-                 ],
-                'help' : [
-                    'buildEnvironment',
-                    'components',
-                    'dependencies',
-                    'dependencyInsight',
-                    'help',
-                    'model',
-                    'projects',
-                    'properties',
-                    'tasks',
-                ],
-                'verification' : [
-                    'check'
-                ]
-            ]
-        ]
+        taskTree.root.custom.contains('foo')
+        taskTree.a.custom.contains('foo')
     }
 
     private def getTaskTree() {
