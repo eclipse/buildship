@@ -164,6 +164,9 @@ eclipseBuild {
 ext.baseVersion = file('version.txt').text.trim()
 version = getVersion(baseVersion)
 
+// ensure that the assembleTargetPlatform is executed when the gradle.properties file is changed
+project.assembleTargetPlatform.inputs.file file('gradle.properties')
+
 // delete the org.eclipse.core.runtime.compatibility.registry plugin from the target platform
 // it causes classpath issues when the the Spock tests are running with Groovy 2.4; only
 // contains files to provide 2.x compatibility hence it's safe to remove
