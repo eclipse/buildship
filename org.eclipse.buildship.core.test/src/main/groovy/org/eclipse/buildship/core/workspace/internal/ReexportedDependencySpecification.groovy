@@ -8,6 +8,7 @@ import com.gradleware.tooling.toolingclient.GradleDistribution
 import org.eclipse.core.resources.IMarker
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
+import org.eclipse.core.resources.IWorkspaceRunnable
 import org.eclipse.core.resources.IncrementalProjectBuilder
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException
@@ -115,7 +116,7 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
         workspace.run({
             IMarker[] markers = project.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE)
             errors = markers.findAll { it.getAttribute(IMarker.SEVERITY) == IMarker.SEVERITY_ERROR }.collect { it.getAttribute(IMarker.MESSAGE) }
-        }, null)
+        } as IWorkspaceRunnable, null)
         return errors
     }
 
