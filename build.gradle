@@ -158,6 +158,13 @@ eclipseBuild {
             "$swtPluginId"                          : "3.104.0"
         ] + eclipseVersionAgnosticDependencies
     }
+
+    targetPlatform {
+        eclipseVersion = '46'
+        targetDefinition = file('tooling-e46.target')
+        // TODO define version mapping similarly as above; it makes dependency resolution faster
+        versionMapping = eclipseVersionAgnosticDependencies
+    }
 }
 
 // read the current version from an external file and add a timestamp suffix if requested by the caller
