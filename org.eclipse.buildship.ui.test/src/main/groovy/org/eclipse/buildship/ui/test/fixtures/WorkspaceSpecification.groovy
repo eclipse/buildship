@@ -23,7 +23,8 @@ import com.google.common.io.Files
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspace
+import org.eclipse.core.resources.IWorkspaceRunnable
 import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.jdt.core.IJavaProject;
 
@@ -58,7 +59,7 @@ abstract class WorkspaceSpecification extends Specification {
             for (IProject project : CorePlugin.workspaceOperations().allProjects) {
                 project.delete(includingContent, true, null);
             }
-        }, null)
+        } as IWorkspaceRunnable, null)
     }
 
     protected void waitForGradleJobsToFinish() {
@@ -66,7 +67,7 @@ abstract class WorkspaceSpecification extends Specification {
     }
 
     protected void waitForResourceChangeEvents() {
-        workspace.run({}, null, IResource.NONE, null);
+        workspace.run({} as IWorkspaceRunnable, null, IResource.NONE, null);
     }
 
     protected <T> void registerService(Class<T> serviceType, T implementation) {
