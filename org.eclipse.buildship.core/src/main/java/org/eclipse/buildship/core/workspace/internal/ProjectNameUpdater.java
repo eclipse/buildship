@@ -11,10 +11,12 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.util.Set;
+
 import com.google.common.base.Optional;
+import com.google.common.collect.Iterables;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -22,7 +24,7 @@ import org.eclipse.core.runtime.SubMonitor;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.gradle.Specs;
+import org.eclipse.buildship.core.gradle.Predicates;
 
 /**
  * Updates project names to match the Gradle model. Moves other projects out of the way if necessary.
@@ -38,13 +40,13 @@ final class ProjectNameUpdater {
      * @param monitor          the monitor to report progress on
      * @return the new project reference in case the project name has changed, the incoming project instance otherwise
      */
-    static IProject updateProjectName(IProject workspaceProject, OmniEclipseProject project, OmniEclipseWorkspace workspaceModel, IProgressMonitor monitor) {
+    static IProject updateProjectName(IProject workspaceProject, OmniEclipseProject project, Set<OmniEclipseProject> allProjects, IProgressMonitor monitor) {
         String newName = normalizeProjectName(project);
         SubMonitor progress = SubMonitor.convert(monitor, 2);
         if (newName.equals(workspaceProject.getName())) {
             return workspaceProject;
         } else {
-            ensureProjectNameIsFree(newName, workspaceModel, progress.newChild(1));
+            ensureProjectNameIsFree(newName, allProjects, progress.newChild(1));
             return CorePlugin.workspaceOperations().renameProject(workspaceProject, newName, progress.newChild(1));
         }
     }
@@ -65,16 +67,16 @@ final class ProjectNameUpdater {
      * @param workspaceModel the workspace model to which the project belongs
      * @param monitor     the monitor to report progress on
      */
-    static void ensureProjectNameIsFree(OmniEclipseProject project, OmniEclipseWorkspace workspaceModel, IProgressMonitor monitor) {
+    static void ensureProjectNameIsFree(OmniEclipseProject project, Set<OmniEclipseProject> allProjects, IProgressMonitor monitor) {
         String name = normalizeProjectName(project);
-        ensureProjectNameIsFree(name, workspaceModel, monitor);
+        ensureProjectNameIsFree(name, allProjects, monitor);
     }
 
-    private static void ensureProjectNameIsFree(String normalizedProjectName, OmniEclipseWorkspace workspaceModel, IProgressMonitor monitor) {
+    private static void ensureProjectNameIsFree(String normalizedProjectName, Set<OmniEclipseProject> allProjects, IProgressMonitor monitor) {
         Optional<IProject> possibleDuplicate = CorePlugin.workspaceOperations().findProjectByName(normalizedProjectName);
         if (possibleDuplicate.isPresent()) {
             IProject duplicate = possibleDuplicate.get();
-            if (isScheduledForRenaming(duplicate, workspaceModel)) {
+            if (isScheduledForRenaming(duplicate, allProjects)) {
                 renameTemporarily(duplicate, monitor);
             } else {
                 String message = String.format("A project with the name %s already exists.", normalizedProjectName);
@@ -83,17 +85,17 @@ final class ProjectNameUpdater {
         }
     }
 
-    private static boolean isScheduledForRenaming(IProject duplicate, OmniEclipseWorkspace workspaceModel) {
+    private static boolean isScheduledForRenaming(IProject duplicate, Set<OmniEclipseProject> allProjects) {
         if (!duplicate.isOpen()) {
             return false;
         }
 
-        Optional<OmniEclipseProject> duplicateEclipseProject = workspaceModel.tryFind(Specs.eclipseProjectMatchesProjectDir(duplicate.getLocation().toFile()));
-        if (!duplicateEclipseProject.isPresent()) {
+        OmniEclipseProject duplicateEclipseProject = Iterables.find(allProjects, Predicates.eclipseProjectMatchesProjectDir(duplicate.getLocation().toFile()));
+        if (duplicateEclipseProject == null) {
             return false;
         }
 
-        String newName = normalizeProjectName(duplicateEclipseProject.get());
+        String newName = normalizeProjectName(duplicateEclipseProject);
         return !newName.equals(duplicate.getName());
     }
 

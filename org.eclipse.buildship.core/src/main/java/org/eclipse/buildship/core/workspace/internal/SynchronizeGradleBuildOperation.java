@@ -21,11 +21,11 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseLinkedResource;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
@@ -47,7 +47,7 @@ import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.gradle.Specs;
+import org.eclipse.buildship.core.gradle.Predicates;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
@@ -108,12 +108,12 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
  */
 final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
 
-    private final OmniEclipseWorkspace workspaceModel;
+    private final Set<OmniEclipseProject> allProjects;
     private final FixedRequestAttributes build;
     private final NewProjectHandler newProjectHandler;
 
-    SynchronizeGradleBuildOperation(OmniEclipseWorkspace workspaceModel, FixedRequestAttributes build, NewProjectHandler newProjectHandler) {
-        this.workspaceModel = workspaceModel;
+    SynchronizeGradleBuildOperation(Set<OmniEclipseProject> allProjects, FixedRequestAttributes build, NewProjectHandler newProjectHandler) {
+        this.allProjects = allProjects;
         this.build = build;
         this.newProjectHandler = newProjectHandler;
     }
@@ -121,9 +121,9 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
     @Override
     public void run(IProgressMonitor monitor) throws CoreException {
         // collect Gradle projects and Eclipse workspace projects to sync
-        List<OmniEclipseProject> allGradleProjects = getAllGradleProjects();
+        List<OmniEclipseProject> projectsInThisBuild = getProjectsInThisBuild();
         List<IProject> decoupledWorkspaceProjects = getOpenWorkspaceProjectsRemovedFromGradleBuild();
-        SubMonitor progress = SubMonitor.convert(monitor, decoupledWorkspaceProjects.size() + allGradleProjects.size());
+        SubMonitor progress = SubMonitor.convert(monitor, decoupledWorkspaceProjects.size() + projectsInThisBuild.size());
 
         progress.setTaskName(String.format("Synchronizing Gradle build at %s", this.build.getProjectDir()));
 
@@ -133,7 +133,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         }
 
         // synchronize the Gradle projects with their corresponding workspace projects
-        for (OmniEclipseProject gradleProject : allGradleProjects) {
+        for (OmniEclipseProject gradleProject : projectsInThisBuild) {
             synchronizeGradleProjectWithWorkspaceProject(gradleProject, progress.newChild(1));
         }
     };
@@ -141,7 +141,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
     private List<IProject> getOpenWorkspaceProjectsRemovedFromGradleBuild() {
         // in the workspace, find all projects with a Gradle nature that belong to the same Gradle build (based on the root project directory) but
         // which do not match the location of one of the Gradle projects of that build
-        final Set<File> gradleProjectDirectories = FluentIterable.from(getAllGradleProjects()).transform(new Function<OmniEclipseProject, File>() {
+        final Set<File> gradleProjectDirectories = FluentIterable.from(getProjectsInThisBuild()).transform(new Function<OmniEclipseProject, File>() {
 
             @Override
             public File apply(OmniEclipseProject gradleProject) {
@@ -190,7 +190,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         CorePlugin.workspaceOperations().refreshProject(workspaceProject, progress.newChild(1));
 
         // update the project name in case the Gradle project name has changed
-        workspaceProject = ProjectNameUpdater.updateProjectName(workspaceProject, project, this.workspaceModel, progress.newChild(1));
+        workspaceProject = ProjectNameUpdater.updateProjectName(workspaceProject, project, this.allProjects, progress.newChild(1));
 
         // add Gradle nature, if needed
         CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, progress.newChild(1));
@@ -220,7 +220,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
             }
             JavaSourceSettingsUpdater.update(javaProject, project.getJavaSourceSettings().get(), javaProgress.newChild(1));
             SourceFolderUpdater.update(javaProject, project.getSourceDirectories(), javaProgress.newChild(1));
-            ClasspathContainerUpdater.updateFromModel(javaProject, project, javaProgress.newChild(1));
+            ClasspathContainerUpdater.updateFromModel(javaProject, project, this.allProjects, javaProgress.newChild(1));
         }
 
         // set project natures and build commands
@@ -254,7 +254,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
 
     private IProject addExistingEclipseProjectToWorkspace(OmniEclipseProject project, IProjectDescription projectDescription, SubMonitor progress) throws CoreException {
         progress.setWorkRemaining(3);
-        ProjectNameUpdater.ensureProjectNameIsFree(project, this.workspaceModel, progress.newChild(1));
+        ProjectNameUpdater.ensureProjectNameIsFree(project, this.allProjects, progress.newChild(1));
         IProject workspaceProject = CorePlugin.workspaceOperations().includeProject(projectDescription, ImmutableList.<String>of(), progress.newChild(1));
         synchronizeOpenWorkspaceProject(project, workspaceProject, progress.newChild(1));
         return workspaceProject;
@@ -262,7 +262,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
 
     private IProject addNewEclipseProjectToWorkspace(OmniEclipseProject project, SubMonitor progress) throws CoreException {
         progress.setWorkRemaining(3);
-        ProjectNameUpdater.ensureProjectNameIsFree(project, this.workspaceModel, progress.newChild(1));
+        ProjectNameUpdater.ensureProjectNameIsFree(project, this.allProjects, progress.newChild(1));
         IProject workspaceProject = CorePlugin.workspaceOperations().createProject(project.getName(), project.getProjectDirectory(), ImmutableList.<String>of(), progress.newChild(1));
         synchronizeOpenWorkspaceProject(project, workspaceProject, progress.newChild(1));
         return workspaceProject;
@@ -356,8 +356,8 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         CorePlugin.projectConfigurationManager().deleteProjectConfiguration(workspaceProject);
     }
 
-    private List<OmniEclipseProject> getAllGradleProjects() {
-        return this.workspaceModel.filter(Specs.isSubProjectOf(this.build.getProjectDir()));
+    private List<OmniEclipseProject> getProjectsInThisBuild() {
+        return ImmutableList.copyOf(Iterables.<OmniEclipseProject>filter(this.allProjects, Predicates.isSubProjectOf(this.build.getProjectDir())));
     }
 
 }

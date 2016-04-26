@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.core;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.google.common.base.Preconditions;
@@ -25,7 +26,7 @@ public final class AggregateException extends RuntimeException {
 
     private final List<Throwable> causes;
 
-    public AggregateException(List<? extends Throwable> causes) {
+    public AggregateException(Collection<? extends Throwable> causes) {
         Preconditions.checkNotNull(causes);
         Preconditions.checkState(!causes.isEmpty());
         this.causes = ImmutableList.copyOf(causes);

@@ -11,11 +11,8 @@
 
 package org.eclipse.buildship.core.gradle;
 
-import java.io.File;
-
 import org.gradle.api.specs.Spec;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.Path;
 
@@ -25,57 +22,6 @@ import com.gradleware.tooling.toolingmodel.Path;
 public final class Specs {
 
     private Specs() {
-    }
-
-    /**
-     * Returns a spec that matches the project if it is a root project.
-     *
-     * @return the spec, never null
-     */
-    public static Spec<OmniEclipseProject> isRootProject() {
-        return new Spec<OmniEclipseProject>() {
-
-            @Override
-            public boolean isSatisfiedBy(OmniEclipseProject project) {
-                return project.getParent() == null;
-            }
-
-        };
-    }
-
-    /**
-     * Returns a spec that matches if the the project directory of a {@code OmniEclipseProject}
-     * instance matches the given project directory.
-     *
-     * @param projectDir the project directory to match
-     * @return the spec
-     */
-    public static Spec<OmniEclipseProject> eclipseProjectMatchesProjectDir(final File projectDir) {
-        return new Spec<OmniEclipseProject>() {
-
-            @Override
-            public boolean isSatisfiedBy(OmniEclipseProject candidate) {
-                return candidate.getProjectDirectory().equals(projectDir);
-            }
-        };
-    }
-
-
-    /**
-     * Returns a spec that matches if the the project directory of a {@code OmniEclipseProject}'s root project
-     *  matches the given root directory.
-     *
-     * @param rootDir the root directory to match
-     * @return the spec
-     */
-    public static Spec<OmniEclipseProject> isSubProjectOf(final File rootDir) {
-        return new Spec<OmniEclipseProject>() {
-
-            @Override
-            public boolean isSatisfiedBy(OmniEclipseProject candidate) {
-                return candidate.getRoot().getProjectDirectory().equals(rootDir);
-            }
-        };
     }
 
     /**

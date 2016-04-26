@@ -37,7 +37,7 @@ public final class Predicates {
 
             @Override
             public boolean apply(Object adaptable) {
-                @SuppressWarnings({"cast", "RedundantCast"})
+                @SuppressWarnings({ "cast", "RedundantCast" })
                 IProject project = (IProject) Platform.getAdapterManager().getAdapter(adaptable, IProject.class);
                 if (project != null) {
                     return hasGradleNature(project);

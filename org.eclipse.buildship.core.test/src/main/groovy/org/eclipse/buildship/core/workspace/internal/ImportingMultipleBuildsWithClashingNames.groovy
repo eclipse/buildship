@@ -9,7 +9,7 @@ import org.eclipse.buildship.core.test.fixtures.TestEnvironment
 
 class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpecification {
 
-    def "Root project names name deduped with enumeration"() {
+    def "Duplicate root project names are rejected"() {
         setup:
         def firstProject = dir('first') { file 'settings.gradle', "rootProject.name = 'root'" }
         def secondProject = dir('second') { file 'settings.gradle', "rootProject.name = 'root'" }
@@ -19,9 +19,8 @@ class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpe
         importAndWait(secondProject)
 
         then:
-        allProjects().size() == 2
-        findProject('root1')
-        findProject('root2')
+        allProjects().size() == 1
+        findProject('root')
     }
 
     def "Same subproject names are deduped"() {

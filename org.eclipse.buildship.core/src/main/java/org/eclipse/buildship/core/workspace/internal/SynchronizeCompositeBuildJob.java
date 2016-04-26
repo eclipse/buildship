@@ -11,10 +11,16 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.util.Set;
+
+import org.gradle.impldep.com.google.common.collect.Sets;
+import org.gradle.tooling.connection.ModelResult;
+import org.gradle.tooling.connection.ModelResults;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -22,6 +28,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
+import org.eclipse.buildship.core.AggregateException;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
@@ -55,14 +62,31 @@ final class SynchronizeCompositeBuildJob extends ToolingApiJob {
         SubMonitor progress = SubMonitor.convert(monitor, 3);
 
         this.initializer.run(progress.newChild(1), getToken());
-        OmniEclipseWorkspace workspaceModel = fetchWorkspaceModel(progress.newChild(1));
-        new SynchronizeCompositeBuildOperation(workspaceModel, this.build.getBuilds(), this.newProjectHandler).run(progress.newChild(1));
+        Set<OmniEclipseProject> allProjects = fetchEclipseProjects(progress.newChild(1));
+        new SynchronizeCompositeBuildOperation(allProjects, this.build.getBuilds(), this.newProjectHandler).run(progress.newChild(1));
     }
 
-    private OmniEclipseWorkspace fetchWorkspaceModel(SubMonitor progress) {
+    private Set<OmniEclipseProject> fetchEclipseProjects(SubMonitor progress) {
         progress.setTaskName("Loading Gradle project models");
         CompositeModelProvider modelProvider = this.build.getModelProvider();
-        return modelProvider.fetchEclipseWorkspace(FetchStrategy.FORCE_RELOAD, getToken(), progress);
+        ModelResults<OmniEclipseProject> results = modelProvider.fetchEclipseProjects(FetchStrategy.FORCE_RELOAD, getToken(), progress);
+
+        Set<OmniEclipseProject> allProjects = Sets.newHashSet();
+        Set<Exception> problems = Sets.newHashSet();
+
+        for (ModelResult<OmniEclipseProject> result : results) {
+            if (result.getFailure() == null) {
+                allProjects.add(result.getModel());
+            } else {
+                problems.add(result.getFailure());
+            }
+        }
+
+        if (problems.isEmpty()) {
+            return allProjects;
+        } else {
+            throw new AggregateException(problems);
+        }
     }
 
     /**

@@ -14,6 +14,9 @@ package org.eclipse.buildship.ui.view.task;
 import java.util.List;
 import java.util.Set;
 
+import org.gradle.tooling.connection.ModelResult;
+import org.gradle.tooling.connection.ModelResults;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -22,7 +25,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.OmniProjectTask;
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
@@ -38,7 +40,6 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.workspace.CompositeModelProvider;
 
@@ -85,8 +86,8 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
     }
 
     private List<ProjectNode> createTopLevelProjectNodes() {
-        OmniEclipseWorkspace workspaceModel = fetchCachedEclipseWorkspace();
-        if (workspaceModel == null) {
+        ModelResults<OmniEclipseProject> results = fetchCachedEclipseEclipseProjects();
+        if (results == null) {
             // no Gradle projects are cached yet, meaning the async job
             // to load the projects is still running, thus nothing to show
             return ImmutableList.of();
@@ -94,16 +95,22 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
             // flatten the tree of Gradle projects to a list, similar
             // to how Eclipse projects look in the Eclipse Project explorer
             List<ProjectNode> allProjectNodes = Lists.newArrayList();
-            for (OmniEclipseProject rootProject : workspaceModel.filter(Specs.isRootProject())) {
-                collectProjectNodesRecursively(rootProject, null, allProjectNodes);
+            for (ModelResult<OmniEclipseProject> result : results) {
+                if (result.getFailure() == null) {
+                    OmniEclipseProject project = result.getModel();
+                    if (project.getParent() == null) {
+                        collectProjectNodesRecursively(project, null, allProjectNodes);
+                    }
+                }
+
             }
             return allProjectNodes;
         }
     }
 
-    private OmniEclipseWorkspace fetchCachedEclipseWorkspace() {
+    private ModelResults<OmniEclipseProject> fetchCachedEclipseEclipseProjects() {
         CompositeModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getCompositeBuild().getModelProvider();
-        return modelProvider.fetchEclipseWorkspace(FetchStrategy.FROM_CACHE_ONLY, null, null);
+        return modelProvider.fetchEclipseProjects(FetchStrategy.FROM_CACHE_ONLY, null, null);
     }
 
     private void collectProjectNodesRecursively(OmniEclipseProject eclipseProject, ProjectNode parentProjectNode, List<ProjectNode> allProjectNodes) {
@@ -204,7 +211,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         @Override
         protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
             CompositeModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getCompositeBuild().getModelProvider();
-            modelProvider.fetchEclipseWorkspace(this.modelFetchStrategy, getToken(), monitor);
+            modelProvider.fetchEclipseProjects(this.modelFetchStrategy, getToken(), monitor);
         }
 
         /**

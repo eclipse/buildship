@@ -30,11 +30,13 @@ import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 
 class TaskViewContentSpec extends ProjectSynchronizationSpecification {
 
+    TaskView view
     TreeViewer tree
 
     void setup() {
         PlatformUI.workbench.display.syncExec {
-            tree = WorkbenchUtils.showView(TaskView.ID, null, IWorkbenchPage.VIEW_ACTIVATE).treeViewer
+            view = WorkbenchUtils.showView(TaskView.ID, null, IWorkbenchPage.VIEW_ACTIVATE)
+            tree = view.treeViewer
         }
     }
 
@@ -72,6 +74,28 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
         taskTree.a.custom.contains('foo')
     }
 
+    def "If one project has errors, tasks from other projects are still visible"() {
+        given:
+        def first = dir("a") {
+            file 'build.gradle'
+        }
+        def second = dir("b") {
+            file 'build.gradle'
+        }
+        importAndWait(first)
+        importAndWait(second)
+
+        when:
+        fileTree(second) {
+            file 'build.gradle', "foo"
+        }
+        reloadTaskView()
+
+        then:
+        taskTree.a
+        !taskTree.b
+    }
+
     private def getTaskTree() {
         def taskTree
         PlatformUI.workbench.display.syncExec {
@@ -91,5 +115,12 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
                 [(it.text) : getChildren(it) ]
             }
         }
+    }
+
+    private def reloadTaskView() {
+        PlatformUI.workbench.display.syncExec {
+            view.reload(FetchStrategy.FORCE_RELOAD)
+        }
+        waitForGradleJobsToFinish()
     }
 }

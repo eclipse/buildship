@@ -26,7 +26,7 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
         )
 
         when:
-        ClasspathContainerUpdater.updateFromModel(project, gradleProject, null)
+        ClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), null)
 
         then:
         resolvedClasspath[0].entryKind == IClasspathEntry.CPE_LIBRARY

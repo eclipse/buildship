@@ -14,7 +14,7 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.Set;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.resources.IWorkspaceRunnable;
@@ -36,12 +36,12 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
  */
 final class SynchronizeCompositeBuildOperation implements IWorkspaceRunnable {
 
-    private final OmniEclipseWorkspace workspaceModel;
+    private final Set<OmniEclipseProject> allProjects;
     private final Set<FixedRequestAttributes> builds;
     private final NewProjectHandler newProjectHandler;
 
-    SynchronizeCompositeBuildOperation(OmniEclipseWorkspace workspaceModel, Set<FixedRequestAttributes> builds, NewProjectHandler newProjectHandler) {
-        this.workspaceModel = workspaceModel;
+    SynchronizeCompositeBuildOperation(Set<OmniEclipseProject> allProjects, Set<FixedRequestAttributes> builds, NewProjectHandler newProjectHandler) {
+        this.allProjects = allProjects;
         this.builds = builds;
         this.newProjectHandler = newProjectHandler;
     }
@@ -60,7 +60,7 @@ final class SynchronizeCompositeBuildOperation implements IWorkspaceRunnable {
     private void synchronizeGradleBuilds(IProgressMonitor monitor) throws CoreException {
         SubMonitor progress = SubMonitor.convert(monitor, this.builds.size());
         for (FixedRequestAttributes build : this.builds) {
-            new SynchronizeGradleBuildOperation(this.workspaceModel, build, this.newProjectHandler).run(progress.newChild(1));
+            new SynchronizeGradleBuildOperation(this.allProjects, build, this.newProjectHandler).run(progress.newChild(1));
         }
     };
 

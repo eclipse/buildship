@@ -14,6 +14,7 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -21,6 +22,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
@@ -36,20 +38,20 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.gradle.Specs;
+import org.eclipse.buildship.core.gradle.Predicates;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
 /**
  * Updates the classpath container of the target project.
  * <p/>
- * The update is triggered via {@link #updateFromModel(IJavaProject, OmniEclipseProject, IProgressMonitor)}.
+ * The update is triggered via {@link #updateFromModel(IJavaProject, OmniEclipseProject, Set, IProgressMonitor)}.
  * The method executes synchronously and unprotected, without thread synchronization or job scheduling.
  * <p/>
  * The update logic composes a new classpath container containing all project and external
  * dependencies defined in the Gradle model. At the end of the execution the old classpath
  * container is replaced by the one being created.
  * <p/>
- * If an invalid external dependency is received (anything else, than a {@code .jar} file
+ * If an invalid external dependency is received (anything else, than a folder, {@code .jar} file
  * or {@code .zip} file) the given entry is omitted from the classpath container. Due to
  * performance reasons only the file extension is checked.
  */
@@ -57,10 +59,12 @@ final class ClasspathContainerUpdater {
 
     private final IJavaProject eclipseProject;
     private final OmniEclipseProject gradleProject;
+    private final Set<OmniEclipseProject> allGradleProjects;
 
-    private ClasspathContainerUpdater(IJavaProject eclipseProject, OmniEclipseProject gradleProject) {
+    private ClasspathContainerUpdater(IJavaProject eclipseProject, OmniEclipseProject gradleProject, Set<OmniEclipseProject> allGradleProjects) {
         this.eclipseProject = Preconditions.checkNotNull(eclipseProject);
         this.gradleProject = Preconditions.checkNotNull(gradleProject);
+        this.allGradleProjects = allGradleProjects;
     }
 
     private void updateClasspathContainer(IProgressMonitor monitor) throws JavaModelException {
@@ -76,9 +80,8 @@ final class ClasspathContainerUpdater {
 
                     @Override
                     public IClasspathEntry apply(OmniEclipseProjectDependency dependency) {
-                        OmniEclipseProject dependentProject = ClasspathContainerUpdater.this.gradleProject.getRoot()
-                                .tryFind(Specs.eclipseProjectMatchesProjectDir(dependency.getTargetProjectDir())).get();
-                        String actualName = CorePlugin.workspaceOperations().normalizeProjectName(dependentProject.getName(), dependentProject.getProjectDirectory());
+                        OmniEclipseProject targetProject = Iterables.find(ClasspathContainerUpdater.this.allGradleProjects, Predicates.eclipseProjectMatchesProjectDir(dependency.getTargetProjectDir()));
+                        String actualName = CorePlugin.workspaceOperations().normalizeProjectName(targetProject.getName(), targetProject.getProjectDirectory());
                         Path path = new Path("/" + actualName);
                         return JavaCore.newProjectEntry(path, dependency.isExported());
                     }
@@ -114,11 +117,12 @@ final class ClasspathContainerUpdater {
      *
      * @param eclipseProject         the target project to update the classpath container on
      * @param gradleProject          the Gradle model to read the dependencies from
+     * @param allGradleProjects      all other Gradle projects available as dependencies
      * @param monitor                the monitor to report progress on
      * @throws JavaModelException if the container assignment fails
      */
-    public static void updateFromModel(IJavaProject eclipseProject, OmniEclipseProject gradleProject, IProgressMonitor monitor) throws JavaModelException {
-        ClasspathContainerUpdater updater = new ClasspathContainerUpdater(eclipseProject, gradleProject);
+    public static void updateFromModel(IJavaProject eclipseProject, OmniEclipseProject gradleProject, Set<OmniEclipseProject> allGradleProjects, IProgressMonitor monitor) throws JavaModelException {
+        ClasspathContainerUpdater updater = new ClasspathContainerUpdater(eclipseProject, gradleProject, allGradleProjects);
         updater.updateClasspathContainer(monitor);
     }
 

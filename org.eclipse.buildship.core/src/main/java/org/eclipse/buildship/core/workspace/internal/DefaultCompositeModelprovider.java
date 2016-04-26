@@ -9,10 +9,11 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import org.gradle.tooling.CancellationToken;
+import org.gradle.tooling.connection.ModelResults;
 
 import com.google.common.base.Preconditions;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseWorkspace;
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.CompositeBuildModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
@@ -34,8 +35,8 @@ final class DefaultCompositeModelprovider extends AbstractModelProvider implemen
     }
 
     @Override
-    public OmniEclipseWorkspace fetchEclipseWorkspace(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor) {
-        return this.modelRepository.fetchEclipseWorkspace(getTransientRequestAttributes(token, monitor), fetchStrategy);
+    public ModelResults<OmniEclipseProject> fetchEclipseProjects(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor) {
+        return this.modelRepository.fetchEclipseProjects(getTransientRequestAttributes(token, monitor), fetchStrategy);
     }
 
 }
