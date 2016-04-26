@@ -280,9 +280,10 @@ subprojects {
     version = rootProject.version
 
     // for all Eclipse versions before Mars, the built plugins must be Java 6 compatible
-    // for Mars and later Eclipse versions, the minimum execution environment is Java 7 (https://www.eclipse.org/projects/project-plan.php?planurl=/eclipse/development/plans/eclipse_project_plan_4_5.xml)
+    // for Eclipse Mars, the minimum execution environment is Java 7 (https://www.eclipse.org/projects/project-plan.php?planurl=/eclipse/development/plans/eclipse_project_plan_4_5.xml)
+    // for later versions the minimum execution environment is Java 8
     // try to compile with the minimum required JDK if the location is specified by the caller or if it can be derived
-    plugins.withType(eclipsebuild.BundlePlugin) {
+    plugins.withType(JavaPlugin) {
         sourceCompatibility = 1.6
         String targetPlatformVersion = Config.on(project).targetPlatform.eclipseVersion
         if (targetPlatformVersion < '45') {
@@ -301,11 +302,11 @@ subprojects {
 
             if (OperatingSystem.current().isMacOsX()) {
                 // temorarily disable -Werror for Neon-based builds
-                if (Config.on(project).targetPlatform.eclipseVersion != '46') { options.compilerArgs << '-Werror' }
+                if (targetPlatformVersion != '46') { options.compilerArgs << '-Werror' }
                 options.forkOptions.executable = "/usr/libexec/java_home -v $targetCompatibility".execute().text.trim() + "/bin/javac"
             } else if (project.hasProperty('compiler.location')) {
                 // temorarily disable -Werror for Neon-based builds
-                if (Config.on(project).targetPlatform.eclipseVersion != '46') { options.compilerArgs << '-Werror' }
+                if (targetPlatformVersion != '46') { options.compilerArgs << '-Werror' }
                 // quotes required on TeamCity to pass property with spaces, e.g. a Windows file path
                 options.forkOptions.executable = project.property('compiler.location').replace('\"', '').replace('\'', '')
             }
