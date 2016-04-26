@@ -195,6 +195,9 @@
         defaultValue="Mars"
         label="Buildship Target Platform">
       <choice
+          value="Neon"
+          label="Eclipse Neon - 4.6"/>
+      <choice
           value="Mars"
           label="Eclipse Mars - 4.5"/>
       <choice
@@ -288,6 +291,15 @@
           name="com.gradleware.tooling.utils"
           versionRange="0.13.0"/>
       <repositoryList
+          name="Neon">
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/release-mars"/>
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/staging-neon"/>
+        <repository
+            url="jar:https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/0.12.0-20160420132627/p2-repository-0.12.0-20160420132627.zip!/"/>
+      </repositoryList>
+      <repositoryList
           name="Mars">
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/release-mars"/>
@@ -351,6 +363,13 @@
       <requirement
           name="org.eclipse.swtbot.eclipse.feature.group"
           versionRange="2.2.1"/>
+      <repositoryList
+          name="Neon">
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
+      </repositoryList>
       <repositoryList
           name="Mars">
         <repository
