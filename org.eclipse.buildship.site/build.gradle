@@ -50,6 +50,8 @@ dependencies {
 task uploadUpdateSite(dependsOn : createP2Repository) {
     description = "Uploads the generated update site to the eclipse.org server."
 
+    onlyIf { !['36', '37'].contains(eclipsebuild.Config.on(project).targetPlatform.eclipseVersion) }
+
     doLast {
         // folder structure
         // releases                    (main folder - composite update site if release repository)
