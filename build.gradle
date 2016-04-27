@@ -33,8 +33,8 @@ eclipseBuild {
 
     // TODO these are fake target platforms only to support the existing CI infrastructure
     // once we get rid of the e3.x-base dbuilds these definition should be deleted
-    targetPlatform { eclipseVersion = '36'; targetDefinition = file('tooling-e45.target') }
-    targetPlatform { eclipseVersion = '37'; targetDefinition = file('tooling-e45.target') }
+    targetPlatform { eclipseVersion = '36'; targetDefinition = file('tooling-e42.target') }
+    targetPlatform { eclipseVersion = '37'; targetDefinition = file('tooling-e42.target') }
 
     targetPlatform {
         eclipseVersion = '42'
