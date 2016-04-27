@@ -293,9 +293,9 @@
       <repositoryList
           name="Neon">
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/release-mars"/>
-        <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/staging-neon"/>
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
         <repository
             url="jar:https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/0.13.0-20160427101300/p2-repository-0.13.0-20160427101300.zip!/"/>
       </repositoryList>
