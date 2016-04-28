@@ -1,29 +1,29 @@
 # Frequently Asked Questions
 
-### Q. Importing my Gradle project with Buildship downloads a Gradle distribution, even though the distribution was already downloaded previously when building the project with the Gradle Wrapper from the command line. Does Buildship use a different Gradle distribution cache?
+### Q. Running Java compilation tasks fails with `Could not find tools.jar`, how can I fix this
 
-__A.__ No, if the Gradle Wrapper is specified during the import, then Buildship uses the same Gradle distribution cache as
-the command line. However, depending on which target Gradle version is used, there might be some differences. The wrapper
-contains an archive called `gradle-wrapper.jar` which is created along with `gradlew`. Buildship uses the latest version
-of the archive. The wrapper script on the other hand has the version of Gradle with which the script was generated.
+By default, Buildship uses whatever Java runtime you started Eclipse with. If that runtime is only a JRE, then no compiler is available. We recommend you specify your Java home in the `~/.gradle/gradle.properties` file, using the `org.gradle.java.home` property. This property will be honored both when running from Eclipse and when running from the command line.
 
-The `gradle-wrapper.jar` archive contains - amongst other things - the logic to calculate where to download the Gradle
-distribution from. The location calculation has [changed](https://github.com/gradle/gradle/commit/2e6659547e71bb3fca1c952d823ec660433ab5d9) in
-Gradle version 2.2. Consequently, Buildship does not find Gradle distributions that have been previously downloaded
-from the command line if the target Gradle version is <2.2 and downloads them again. Apart from this limitation, Buildship
-reuses cached Gradle distributions.
+### Q. How can I customize which dependencies are in the Gradle classpath container?
 
-If you are interested in the discussion of this topic, check out the issue in [Bugzilla](https://bugs.eclipse.org/bugs/show_bug.cgi?id=468466).
+__A.__ : Buildship consumes the dependencies defined in your build script. By default the `compileOnly`, `runtime`, `testCompileOnly` and `testRuntime` dependencies are added. This can be changed in the `eclipse.classpath` model. 
+
+The following snippet will add the `custom` dependency scope to your Eclipse classpath:
+
+    apply plugin: 'eclipse'
+    
+    configurations {
+        custom
+    }
+    
+    eclipse.classpath.plusConfigurations << custom
 
 
-### Q. Is it possible to disable the dependency management for a project?
-
-__A.__ Not from the UI, because the Gradle project configuration is always kept in sync with the Eclipse project. It can be done by adding the following snippet to the build script:
+And this one will remove all dependencies:
 
     apply plugin: 'eclipse'
     eclipse.classpath.plusConfigurations = []
-
-
+    
 ### Q. Can my build folder be outside of the project?
 
 __A.__ Yes, but unlike with source folders, you have to set up the link yourself at the moment:
