@@ -1,6 +1,6 @@
 # Frequently Asked Questions
 
-### Q. Running Java compilation tasks fails with `Could not find tools.jar`, how can I fix this
+### Q. Running Java compilation tasks fails with `Could not find tools.jar`, how can I fix this?
 
 By default, Buildship uses whatever Java runtime you started Eclipse with. If that runtime is only a JRE, then no compiler is available. We recommend you specify your Java home in the `~/.gradle/gradle.properties` file, using the `org.gradle.java.home` property. This property will be honored both when running from Eclipse and when running from the command line.
 
