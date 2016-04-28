@@ -41,6 +41,7 @@ public final class Limitations {
         addIfNeeded("2.10", "Language source level not set on Java projects", limitations);
         addIfNeeded("2.11", "Target bytecode version not set on Java projects", limitations);
         addIfNeeded("2.11", "Java runtime not set on Java projects", limitations);
+        addIfNeeded("2.13", "No performance improvements in Gradle when loading Gradle models", limitations);
         return limitations.build();
     }
 
