@@ -11,14 +11,15 @@
 
 package org.eclipse.buildship.core.gradle;
 
-import com.gradleware.tooling.toolingmodel.util.Pair;
-import org.gradle.util.GradleVersion;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.gradle.util.GradleVersion;
+import org.junit.Test;
+
+import com.gradleware.tooling.toolingmodel.util.Pair;
 
 /**
  * Limitations test.
@@ -28,34 +29,34 @@ import static org.junit.Assert.assertTrue;
  * package private and causes problems. To be investigate why it happens and how should be fixed.
  *
  */
-public class LimitationsTest {
+public class MissingFeaturesTest {
 
     @Test
     public void noLimitationsWhenUsingTheCurrentVersionUsedByBuildship() {
-        Limitations limitations = new Limitations(GradleVersion.current());
-        List<Pair<GradleVersion, String>> limitationDetails = limitations.getLimitations();
-        assertTrue(limitationDetails.isEmpty());
+        MissingFeatures missingFeatures = new MissingFeatures(GradleVersion.current());
+        List<Pair<GradleVersion, String>> details = missingFeatures.getMissingFeatures();
+        assertTrue(details.isEmpty());
     }
 
     @Test
     public void noLimitationsWhenUsingTheBaseVersionOfTheVersionUseByBuildship() {
-        Limitations limitations = new Limitations(GradleVersion.current().getBaseVersion());
-        List<Pair<GradleVersion, String>> limitationDetails = limitations.getLimitations();
-        assertTrue(limitationDetails.isEmpty());
+        MissingFeatures missingFeatures = new MissingFeatures(GradleVersion.current().getBaseVersion());
+        List<Pair<GradleVersion, String>> details = missingFeatures.getMissingFeatures();
+        assertTrue(details.isEmpty());
     }
 
     @Test
     public void someLimitationWhenUsingFinalVersionOf24() {
-        Limitations limitations = new Limitations(GradleVersion.version("2.4"));
-        List<Pair<GradleVersion, String>> limitationDetails = limitations.getLimitations();
-        assertEquals(limitationDetails.size(), 10);
+        MissingFeatures missingFeatures = new MissingFeatures(GradleVersion.version("2.4"));
+        List<Pair<GradleVersion, String>> details = missingFeatures.getMissingFeatures();
+        assertEquals(details.size(), 10);
     }
 
     @Test
     public void someLimitationWhenUsingSnapshotVersionOf24() {
-        Limitations limitations = new Limitations(GradleVersion.version("2.4-20150101053008+0000"));
-        List<Pair<GradleVersion, String>> limitationDetails = limitations.getLimitations();
-        assertEquals(limitationDetails.size(), 10);
+        MissingFeatures missingFeatures = new MissingFeatures(GradleVersion.version("2.4-20150101053008+0000"));
+        List<Pair<GradleVersion, String>> details = missingFeatures.getMissingFeatures();
+        assertEquals(details.size(), 10);
     }
 
 }

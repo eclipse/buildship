@@ -56,7 +56,7 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.gradle.Limitations;
+import org.eclipse.buildship.core.gradle.MissingFeatures;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
@@ -143,22 +143,22 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         this.gradleVersionWarningLabel = uiBuilderFactory.newLabel(gradleVersionContainer).alignLeft().control();
         this.gradleVersionWarningLabel.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK));
         this.gradleVersionWarningLabel.setCursor(gradleVersionContainer.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
-        this.gradleVersionWarningLabel.setToolTipText(ProjectWizardMessages.Limitations_Tooltip);
+        this.gradleVersionWarningLabel.setToolTipText(ProjectWizardMessages.Missing_Features_Tooltip);
         this.gradleVersionWarningLabel.addMouseListener(new MouseAdapter() {
 
             @Override
             public void mouseUp(MouseEvent e) {
                 String version = ProjectPreviewWizardPage.this.gradleVersionLabel.getText();
-                Limitations limitations = new Limitations(GradleVersion.version(version));
-                FluentIterable<String> limitationMessages = FluentIterable.from(limitations.getLimitations()).transform(new Function<Pair<GradleVersion, String>, String>() {
+                MissingFeatures limitations = new MissingFeatures(GradleVersion.version(version));
+                FluentIterable<String> limitationMessages = FluentIterable.from(limitations.getMissingFeatures()).transform(new Function<Pair<GradleVersion, String>, String>() {
 
                     @Override
                     public String apply(Pair<GradleVersion, String> limitation) {
                         return limitation.getSecond();
                     }
                 });
-                String message = NLS.bind(ProjectWizardMessages.Limitations_Details_0_1, version, Joiner.on('\n').join(limitationMessages));
-                MessageDialog.openInformation(getShell(), ProjectWizardMessages.Title_Dialog_Limitations, message);
+                String message = NLS.bind(ProjectWizardMessages.Missing_Features_Details_0_1, version, Joiner.on('\n').join(limitationMessages));
+                MessageDialog.openInformation(getShell(), ProjectWizardMessages.Title_Dialog_Missing_Features, message);
             }
         });
 
@@ -250,8 +250,8 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     private void updateGradleVersionWarningLabel() {
         try {
             GradleVersion version = GradleVersion.version(this.gradleVersionLabel.getText());
-            Limitations limitations = new Limitations(version);
-            this.gradleVersionWarningLabel.setVisible(!limitations.getLimitations().isEmpty());
+            MissingFeatures missingFeatures = new MissingFeatures(version);
+            this.gradleVersionWarningLabel.setVisible(!missingFeatures.getMissingFeatures().isEmpty());
         } catch (IllegalArgumentException e) {
             this.gradleVersionWarningLabel.setVisible(false);
         }
