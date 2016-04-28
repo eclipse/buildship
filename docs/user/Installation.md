@@ -57,6 +57,7 @@ We propose you install Buildship from eclipse.org. If, for any reason, you still
 from [builds.gradle.org](https://builds.gradle.org/project.html?projectId=Tooling_Buildship&tab=projectOverview), the following snapshot update sites
 are available for all the supported Eclipse versions:
 
+  * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse46Build/.lastSuccessful/update-site` (latest 4.6 development snapshot)
   * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse45Build/.lastSuccessful/update-site` (latest 4.5 development snapshot)
   * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse44Build/.lastSuccessful/update-site` (latest 4.4 development snapshot)
   * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse43Build/.lastSuccessful/update-site` (latest 4.3 development snapshot)
