@@ -264,6 +264,12 @@
         <operand
             xsi:type="predicates:NamePredicate"
             pattern="org\.eclipse\.buildship\.site"/>
+        <operand
+            xsi:type="predicates:NamePredicate"
+            pattern="org\.eclipse\.buildship\.stsmigration"/>
+        <operand
+            xsi:type="predicates:NamePredicate"
+            pattern="org\.eclipse\.buildship\.stsmigration\.test"/>
       </predicate>
     </sourceLocator>
   </setupTask>
