@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2015 the original author or authors.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.List;
@@ -20,6 +28,8 @@ import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
  * contents have that attribute. E.g. if dependencies inside the container are marked with
  * /WEB-INF/lib, the whole container needs to be marked with /WEB-INF/lib. This is a limitation in
  * WTP, as it does not understand/allow different deployment paths on individual dependencies.
+ *
+ * @author Stefan Oehme
  */
 final class WtpClasspathUpdater {
 
