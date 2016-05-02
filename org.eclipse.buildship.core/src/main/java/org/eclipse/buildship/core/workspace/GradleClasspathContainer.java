@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -49,6 +50,21 @@ public abstract class GradleClasspathContainer implements IClasspathContainer {
     public static IClasspathContainer newInstance(List<IClasspathEntry> classpathEntries) {
         Path containerPath = new Path(CONTAINER_ID);
         return new DefaultGradleClasspathContainer(containerPath, classpathEntries);
+    }
+
+    /**
+     * Creates a {@link IClasspathEntry} instance describing a Gradle classpath container. If the
+     * entry is assigned to a project classpath, it triggers the lazy classpath initialization via
+     * the {@code org.eclipse.jdt.core.classpathContainerInitializer} extension.
+     *
+     * @param extraAttributes the extra attributes to assign to this entry
+     * @return the classpath entry to assign to a project's classpath
+     * @throws JavaModelException
+     */
+    public static IClasspathEntry newClasspathEntry(IClasspathAttribute... extraAttributes) throws JavaModelException {
+        // http://www-01.ibm.com/support/knowledgecenter/SSZND2_6.0.0/org.eclipse.jdt.doc.isv/guide/jdt_api_classpath.htm?cp=SSZND2_6.0.0%2F3-1-1-0-0-2
+        Path containerPath = new Path(CONTAINER_ID);
+        return JavaCore.newContainerEntry(containerPath, null, extraAttributes, false);
     }
 
     /**

@@ -207,7 +207,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         // mark derived folders
         markGradleSpecificFolders(project, workspaceProject, progress.newChild(1));
 
-        SubMonitor javaProgress = progress.newChild(4);
+        SubMonitor javaProgress = progress.newChild(5);
         if (isJavaProject(project)) {
             IJavaProject javaProject;
             if (hasJavaNature(workspaceProject)) {
@@ -221,6 +221,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
             JavaSourceSettingsUpdater.update(javaProject, project.getJavaSourceSettings().get(), javaProgress.newChild(1));
             SourceFolderUpdater.update(javaProject, project.getSourceDirectories(), javaProgress.newChild(1));
             ClasspathContainerUpdater.updateFromModel(javaProject, project, this.allProjects, javaProgress.newChild(1));
+            WtpClasspathUpdater.update(javaProject, project, javaProgress.newChild(1));
         }
 
         // set project natures and build commands
