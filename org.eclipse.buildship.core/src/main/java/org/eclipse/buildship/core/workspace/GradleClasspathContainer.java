@@ -68,20 +68,6 @@ public abstract class GradleClasspathContainer implements IClasspathContainer {
     }
 
     /**
-     * Creates a {@link IClasspathEntry} instance describing a Gradle classpath container. If the
-     * entry is assigned to a project classpath, it triggers the lazy classpath initialization via
-     * the {@code org.eclipse.jdt.core.classpathContainerInitializer} extension.
-     *
-     * @return the classpath entry to assign to a project's classpath
-     * @throws JavaModelException
-     */
-    public static IClasspathEntry newClasspathEntry() throws JavaModelException {
-        // http://www-01.ibm.com/support/knowledgecenter/SSZND2_6.0.0/org.eclipse.jdt.doc.isv/guide/jdt_api_classpath.htm?cp=SSZND2_6.0.0%2F3-1-1-0-0-2
-        Path containerPath = new Path(CONTAINER_ID);
-        return JavaCore.newContainerEntry(containerPath);
-    }
-
-    /**
      * Updates the content of the Gradle classpath container asynchronously on the target project.
      * <p/>
      * This method finds the Gradle classpath container on the project and requests the content
