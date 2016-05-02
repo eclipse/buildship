@@ -22,6 +22,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
+import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
+import com.gradleware.tooling.toolingmodel.OmniClasspathEntry;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
@@ -29,6 +31,7 @@ import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -80,7 +83,7 @@ final class ClasspathContainerUpdater {
                                 .tryFind(Specs.eclipseProjectMatchesProjectDir(dependency.getTargetProjectDir())).get();
                         String actualName = CorePlugin.workspaceOperations().normalizeProjectName(dependentProject.getName(), dependentProject.getProjectDirectory());
                         Path path = new Path("/" + actualName);
-                        return JavaCore.newProjectEntry(path, dependency.isExported());
+                        return JavaCore.newProjectEntry(path, null, true, getClasspathAttributes(dependency), dependency.isExported());
                     }
                 }).toList();
 
@@ -100,12 +103,22 @@ final class ClasspathContainerUpdater {
             public IClasspathEntry apply(OmniExternalDependency dependency) {
                 IPath file = org.eclipse.core.runtime.Path.fromOSString(dependency.getFile().getAbsolutePath());
                 IPath sources = dependency.getSource() != null ? org.eclipse.core.runtime.Path.fromOSString(dependency.getSource().getAbsolutePath()) : null;
-                return JavaCore.newLibraryEntry(file, sources, null, dependency.isExported());
+                return JavaCore.newLibraryEntry(file, sources, null, null, getClasspathAttributes(dependency), dependency.isExported());
             }
         }).toList();
 
         // return all dependencies as a joined list - The order of the dependencies is important see Bug 473348
         return ImmutableList.<IClasspathEntry>builder().addAll(externalDependencies).addAll(projectDependencies).build();
+    }
+
+    private IClasspathAttribute[] getClasspathAttributes(OmniClasspathEntry entry) {
+        IClasspathAttribute[] classpathAttributes = new IClasspathAttribute[entry.getClasspathAttributes().size()];
+        List<OmniClasspathAttribute> attributes = entry.getClasspathAttributes();
+        for (int i = 0; i < attributes.size(); i++) {
+            OmniClasspathAttribute attribute = attributes.get(i);
+            classpathAttributes[i] = JavaCore.newClasspathAttribute(attribute.getName(), attribute.getValue());
+        }
+        return classpathAttributes;
     }
 
     /**
