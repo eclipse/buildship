@@ -17,6 +17,9 @@ package org.eclipse.buildship.ui.view.task
 
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Item
 import org.eclipse.swt.widgets.Widget;
@@ -50,6 +53,7 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
             """
         }
         importAndWait(project)
+        waitForTaskView()
 
         then:
         taskTree.root.custom.contains('foo')
@@ -68,6 +72,7 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
             }
         }
         importAndWait(project)
+        waitForTaskView()
 
         then:
         taskTree.root.custom.contains('foo')
@@ -112,12 +117,13 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
 
         when:
         findProject("b").delete(true, true, null)
-        waitForGradleJobsToFinish()
+        waitForTaskView()
 
         then:
         !taskTree.a
         !taskTree.b
     }
+
     private def getTaskTree() {
         def taskTree
         PlatformUI.workbench.display.syncExec {
@@ -143,6 +149,23 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
         PlatformUI.workbench.display.syncExec {
             view.reload(FetchStrategy.FORCE_RELOAD)
         }
+        waitForTaskView()
+    }
+
+    /*
+     * The task view is refreshed whenever a project is added/removed.
+     * So first we need to wait for this addition/removal event.
+     * The change listener then schedules an async runnable to call the
+     * reload method on the task view. So we need to wait until the display
+     * queue has been processed. Finally, the task view starts a synchronization
+     * job to get the latest model and that job then asynchronously updates the view.
+     * We need to wait for that job to finish and wait another time on the display
+     * queue before finally the task view is guaranteed to be up-to-date.
+     */
+    private waitForTaskView() {
+        waitForResourceChangeEvents()
+        PlatformUI.workbench.display.syncExec {}
         waitForGradleJobsToFinish()
+        PlatformUI.workbench.display.syncExec {}
     }
 }
