@@ -393,7 +393,7 @@ task incrementVersion << {
         throw new IllegalStateException("Unparseable version: $oldVersion.")
     }
     exec { commandLine 'git', 'commit', '-a', '-m', "Increment version from $oldVersion to $newVersion" }
-    exec { commandLine 'git', 'push', githubAuthenticatedHost, 'master' }
+    //exec { commandLine 'git', 'push', githubAuthenticatedHost, 'master' }
 }
 
 // updates tooling-commons in the target definition files and in the Oomph setup model
