@@ -71,7 +71,7 @@ public final class WorkspaceProjectsChangeListener implements IResourceChangeLis
 
             @Override
             public void run() {
-                WorkspaceProjectsChangeListener.this.taskView.reload(FetchStrategy.LOAD_IF_NOT_CACHED);
+                WorkspaceProjectsChangeListener.this.taskView.reload(FetchStrategy.FORCE_RELOAD);
             }
         });
     }

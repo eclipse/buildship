@@ -84,18 +84,40 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
         }
         importAndWait(first)
         importAndWait(second)
+        fileTree(first) {
+            file 'build.gradle', "error"
+        }
 
         when:
-        fileTree(second) {
-            file 'build.gradle', "foo"
-        }
         reloadTaskView()
 
         then:
-        taskTree.a
-        !taskTree.b
+        !taskTree.a
+        taskTree.b
     }
 
+    def "The task view is refreshed when projects are added/deleted"() {
+        given:
+        def first = dir("a") {
+            file 'build.gradle'
+        }
+        def second = dir("b") {
+            file 'build.gradle'
+        }
+        importAndWait(first)
+        importAndWait(second)
+        fileTree(first) {
+            file 'build.gradle', "error"
+        }
+
+        when:
+        findProject("b").delete(true, true, null)
+        waitForGradleJobsToFinish()
+
+        then:
+        !taskTree.a
+        !taskTree.b
+    }
     private def getTaskTree() {
         def taskTree
         PlatformUI.workbench.display.syncExec {

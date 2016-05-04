@@ -71,8 +71,8 @@ final class SynchronizeCompositeBuildJob extends ToolingApiJob {
         CompositeModelProvider modelProvider = this.build.getModelProvider();
         ModelResults<OmniEclipseProject> results = modelProvider.fetchEclipseProjects(FetchStrategy.FORCE_RELOAD, getToken(), progress);
 
-        Set<OmniEclipseProject> allProjects = Sets.newHashSet();
-        Set<Exception> problems = Sets.newHashSet();
+        Set<OmniEclipseProject> allProjects = Sets.newLinkedHashSet();
+        Set<Exception> problems = Sets.newLinkedHashSet();
 
         for (ModelResult<OmniEclipseProject> result : results) {
             if (result.getFailure() == null) {
