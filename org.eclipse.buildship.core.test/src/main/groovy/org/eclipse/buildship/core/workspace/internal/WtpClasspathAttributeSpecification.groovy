@@ -13,6 +13,7 @@ import org.eclipse.buildship.core.Logger
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 
+
 @Ignore("Not yet implemented")
 class WtpClasspathAttributeSpecification extends ProjectSynchronizationSpecification {
 
@@ -33,6 +34,28 @@ class WtpClasspathAttributeSpecification extends ProjectSynchronizationSpecifica
 
         when:
         importAndWait(root, GradleDistribution.forVersion('2.13'))
+
+        then:
+        def project = findProject('project')
+        IClasspathEntry dependency = resolvedClasspath(project).find { it.path.lastSegment() == 'junit-4.12.jar' }
+        IClasspathAttribute[] attributes = dependency.getExtraAttributes()
+        attributes.length == 0
+    }
+
+    def "No classpath attributes for non-web-projects"() {
+        setup:
+        File root = dir("project") {
+            file 'build.gradle', """
+                apply plugin: 'jar'
+                repositories.jcenter()
+                dependencies {
+                    compile "junit:junit:4.12"
+                }
+            """
+        }
+
+        when:
+        importAndWait(root)
 
         then:
         def project = findProject('project')
