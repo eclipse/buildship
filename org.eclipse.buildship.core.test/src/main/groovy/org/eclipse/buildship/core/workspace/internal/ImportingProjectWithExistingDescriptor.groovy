@@ -74,6 +74,22 @@ class ImportingProjectWithExistingDescriptor extends SingleProjectSynchronizatio
         JavaCore.create(project).rawClasspath
     }
 
+    def "If the Gradle classpath container is missing, it is added"() {
+        setup:
+        IProject project = newJavaProject('sample-project').project
+        deleteAllProjects(false)
+        def projectDir = dir('sample-project') {
+            file 'build.gradle', "apply plugin: 'java'"
+        }
+
+        when:
+        synchronizeAndWait(projectDir)
+
+        then:
+        project.hasNature(JavaCore.NATURE_ID)
+        JavaCore.create(project).rawClasspath.any { it.path.toString() == GradleClasspathContainer.CONTAINER_ID }
+    }
+
     def "All subprojects with existing .project files are handled by the ExistingDescriptorHandler"() {
         setup:
         EclipseProjects.newProject('subproject-a', dir('sample-project/subproject-a'))

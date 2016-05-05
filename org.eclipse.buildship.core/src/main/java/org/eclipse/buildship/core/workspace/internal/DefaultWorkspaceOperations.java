@@ -21,7 +21,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
@@ -38,10 +37,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
@@ -177,72 +172,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             throw new GradlePluginsRuntimeException(e);
         } finally {
             monitor.done();
-        }
-    }
-
-    @Override
-    public IJavaProject createJavaProject(IProject project, IPath jrePath, IClasspathEntry classpathContainer, IProgressMonitor monitor) {
-        // validate arguments
-        Preconditions.checkNotNull(project);
-        Preconditions.checkNotNull(jrePath);
-        Preconditions.checkArgument(project.isAccessible(), "Project must be open.");
-
-        SubMonitor progress = SubMonitor.convert(monitor, 11);
-        try {
-            // add Java nature
-            addNature(project, JavaCore.NATURE_ID, progress.newChild(2));
-
-            // create the Eclipse Java project from the plain Eclipse project
-            IJavaProject javaProject = JavaCore.create(project);
-
-            // set up initial classpath container on project
-            setClasspathOnProject(javaProject, jrePath, classpathContainer, progress.newChild(5));
-
-            // set up output location
-            IFolder outputFolder = createOutputFolder(project, progress.newChild(1));
-            javaProject.setOutputLocation(outputFolder.getFullPath(), progress.newChild(1));
-
-            // save the project configuration
-            javaProject.save(progress.newChild(2), true);
-
-            // return the created Java project
-            return javaProject;
-        } catch (JavaModelException e) {
-            throw new GradlePluginsRuntimeException(e);
-        }
-    }
-
-    private IFolder createOutputFolder(IProject project, SubMonitor progress) {
-        progress.setWorkRemaining(1);
-        try {
-            IFolder outputFolder = project.getFolder("bin");
-            if (!outputFolder.exists()) {
-                outputFolder.create(true, true, progress.newChild(1));
-            }
-            return outputFolder;
-        } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(e);
-        }
-    }
-
-    private void setClasspathOnProject(IJavaProject javaProject, IPath jrePath, IClasspathEntry classpathContainerEntry, SubMonitor progress) {
-        try {
-            // create a new holder for all classpath entries
-            Builder<IClasspathEntry> entries = ImmutableList.builder();
-
-            // add the library with the JRE dependencies
-            entries.add(JavaCore.newContainerEntry(jrePath));
-
-            // add classpath definition of where to store the source/project/external dependencies, the classpath
-            // will be populated lazily by the org.eclipse.jdt.core.classpathContainerInitializer
-            // extension point (see GradleClasspathContainerInitializer)
-            entries.add(classpathContainerEntry);
-
-            // assign the whole classpath at once to the project
-            List<IClasspathEntry> entriesArray = entries.build();
-            javaProject.setRawClasspath(entriesArray.toArray(new IClasspathEntry[entriesArray.size()]), progress);
-        } catch (JavaModelException e) {
-            throw new GradlePluginsRuntimeException(e);
         }
     }
 
