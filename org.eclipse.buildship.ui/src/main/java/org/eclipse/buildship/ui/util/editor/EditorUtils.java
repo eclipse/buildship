@@ -34,6 +34,7 @@ public final class EditorUtils {
     private EditorUtils() {
     }
 
+    @SuppressWarnings("deprecation")
     public static IEditorPart openInInternalEditor(IFile file, boolean activate) {
         IEditorDescriptor desc;
         try {
@@ -55,6 +56,7 @@ public final class EditorUtils {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public static IEditorPart openInInternalEditor(File file, boolean activate) {
         IEditorDescriptor desc;
         try {
