@@ -14,7 +14,6 @@ import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecificat
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 
 
-@Ignore("Not yet implemented")
 class WtpClasspathAttributeSpecification extends ProjectSynchronizationSpecification {
 
     private static final String NON_DEPLOYED = "org.eclipse.jst.component.nondependency"
@@ -46,7 +45,7 @@ class WtpClasspathAttributeSpecification extends ProjectSynchronizationSpecifica
         setup:
         File root = dir("project") {
             file 'build.gradle', """
-                apply plugin: 'jar'
+                apply plugin: 'java'
                 repositories.jcenter()
                 dependencies {
                     compile "junit:junit:4.12"
@@ -55,7 +54,7 @@ class WtpClasspathAttributeSpecification extends ProjectSynchronizationSpecifica
         }
 
         when:
-        importAndWait(root)
+        importAndWait(root, GradleDistribution.forVersion("2.14-20160505000028+0000"))
 
         then:
         def project = findProject('project')
@@ -77,7 +76,7 @@ class WtpClasspathAttributeSpecification extends ProjectSynchronizationSpecifica
         }
 
         when:
-        importAndWait(root)
+        importAndWait(root, GradleDistribution.forVersion("2.14-20160505000028+0000"))
 
         then:
         def project = findProject('project')
@@ -99,7 +98,7 @@ class WtpClasspathAttributeSpecification extends ProjectSynchronizationSpecifica
         }
 
         when:
-        importAndWait(root)
+        importAndWait(root, GradleDistribution.forVersion("2.14-20160505000028+0000"))
 
         then:
         def project = findProject('project')
@@ -121,7 +120,7 @@ class WtpClasspathAttributeSpecification extends ProjectSynchronizationSpecifica
         }
 
         when:
-        importAndWait(root)
+        importAndWait(root, GradleDistribution.forVersion("2.14-20160505000028+0000"))
 
         then:
         def project = findProject('project')
@@ -150,7 +149,7 @@ class WtpClasspathAttributeSpecification extends ProjectSynchronizationSpecifica
         environment.registerService(Logger, logger)
 
         when:
-        importAndWait(root)
+        importAndWait(root, GradleDistribution.forVersion("2.14-20160505000028+0000"))
 
         then:
         1 * logger.error(*_)
