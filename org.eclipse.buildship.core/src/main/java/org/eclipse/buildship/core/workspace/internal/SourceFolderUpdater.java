@@ -185,6 +185,21 @@ final class SourceFolderUpdater {
 
             @Override
             public boolean apply(IClasspathEntry entry) {
+                //keep everything that is not a source folder
+                if (entry.getEntryKind() != IClasspathEntry.CPE_SOURCE) {
+                    return true;
+                }
+
+                /*
+                 * JDT sets the project root as the source folder by default when converting
+                 * a project to a Java project. We remove this entry, as it would prevent creation
+                 * of any other source folder. If a user really wants the project root to be the only
+                 * source folder of the project, he/she can still do so in the Gradle build.
+                 */
+                if (entry.getPath().equals(SourceFolderUpdater.this.project.getPath())) {
+                    return false;
+                }
+
                 // if a source folder is part of the new Gradle model, always treat it as a Gradle
                 // source folder
                 if (gradleModelSourcePaths.contains(entry.getPath())) {

@@ -14,9 +14,8 @@ import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
 
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -59,18 +58,7 @@ final class WtpClasspathUpdater {
     }
 
     private static void updateDeploymentPath(IJavaProject javaProject, String deploymentPath, SubMonitor progress) throws JavaModelException {
-        IClasspathEntry[] oldClasspath = javaProject.getRawClasspath();
-        IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length];
-        for (int i = 0; i < oldClasspath.length; i++) {
-            IClasspathEntry entry = oldClasspath[i];
-            if (entry.getPath().equals(new Path(GradleClasspathContainer.CONTAINER_ID))) {
-                IClasspathEntry newContainer = GradleClasspathContainer.newClasspathEntry(JavaCore.newClasspathAttribute(DEPLOYMENT_ATTRIBUTE, deploymentPath));
-                newClasspath[i] = newContainer;
-            } else {
-                newClasspath[i] = entry;
-            }
-        }
-        javaProject.setRawClasspath(newClasspath, progress);
+        GradleClasspathContainer.update(javaProject, new IClasspathAttribute[]{JavaCore.newClasspathAttribute(DEPLOYMENT_ATTRIBUTE, deploymentPath)}, progress);
     }
 
 }

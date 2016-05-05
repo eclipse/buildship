@@ -11,31 +11,20 @@
 
 package org.eclipse.buildship.core.workspace.internal
 
+import spock.lang.Shared
+
 import com.google.common.collect.ImmutableList
-import com.gradleware.tooling.toolingclient.GradleDistribution
-import com.gradleware.tooling.toolingmodel.Path
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
+
+import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.jdt.core.JavaCore
+
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.configuration.ProjectConfiguration
-import org.eclipse.buildship.core.test.fixtures.EclipseProjects;
-import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
-import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification;
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer
+import org.eclipse.buildship.core.test.fixtures.EclipseProjects
+import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
-
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject
-import org.eclipse.core.resources.IProjectDescription
-import org.eclipse.core.runtime.NullProgressMonitor
-import org.eclipse.jdt.core.IJavaProject
-import org.eclipse.jdt.core.JavaCore
-import org.eclipse.jdt.launching.JavaRuntime
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import spock.lang.Shared
-import spock.lang.Specification
 
 class WorkspaceOperationsTest extends WorkspaceSpecification {
 
@@ -165,62 +154,6 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
     def "Null project can't be refreshed"() {
         when:
         workspaceOperations.refreshProject(null, new NullProgressMonitor())
-
-        then:
-        thrown(NullPointerException)
-    }
-
-    ///////////////////////////////////
-    // tests for createJavaProject() //
-    ///////////////////////////////////
-
-    def "Java project can be created"() {
-        setup:
-        def rootFolder = testDir
-        IProject project = workspaceOperations.createProject("sample-project", rootFolder, ImmutableList.of(), new NullProgressMonitor())
-        def attributes = new FixedRequestAttributes(rootFolder, null, GradleDistribution.fromBuild(), null, ImmutableList.<String> of(), ImmutableList.<String> of())
-        ProjectConfiguration projectConfiguration = ProjectConfiguration.from(attributes, Path.from(':'))
-        CorePlugin.projectConfigurationManager().saveProjectConfiguration(projectConfiguration, project)
-        def jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath()
-
-        when:
-        IJavaProject javaProject = workspaceOperations.createJavaProject(project, jrePath, GradleClasspathContainer.newClasspathEntry(), new NullProgressMonitor())
-
-        then:
-        javaProject != null
-        javaProject.getProject() == project
-    }
-
-    def "Java project can't be created from null project"() {
-        setup:
-        def jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath()
-
-        when:
-        workspaceOperations.createJavaProject(null, jrePath, GradleClasspathContainer.newClasspathEntry(), new NullProgressMonitor())
-
-        then:
-        thrown(NullPointerException)
-    }
-
-    def "Java project can't be created from not accessible project"() {
-        setup:
-        IProject project = Mock(IProject)
-        project.isAccessible() >> false
-        def jrePath = JavaRuntime.getDefaultJREContainerEntry().getPath()
-
-        when:
-        workspaceOperations.createJavaProject(project, jrePath, GradleClasspathContainer.newClasspathEntry(), new NullProgressMonitor())
-
-        then:
-        thrown(IllegalArgumentException)
-    }
-
-    def "Java project can't be created without JRE path"() {
-        setup:
-        IProject project = workspaceOperations.createProject("sample-project", testDir, ImmutableList.of(JavaCore.NATURE_ID), new NullProgressMonitor())
-
-        when:
-        workspaceOperations.createJavaProject(project, null, GradleClasspathContainer.newClasspathEntry(), new NullProgressMonitor())
 
         then:
         thrown(NullPointerException)
