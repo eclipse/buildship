@@ -243,15 +243,12 @@ subprojects {
             // enable all warnings except for different sourceCompatibility and targetCompatibility value
             options.compilerArgs << '-Xlint:all'
             options.compilerArgs << '-Xlint:-options'
+            options.compilerArgs << '-Werror'
             options.fork = true
 
             if (OperatingSystem.current().isMacOsX()) {
-                // temorarily disable -Werror for Neon-based builds
-                if (targetPlatformVersion != '46') { options.compilerArgs << '-Werror' }
                 options.forkOptions.executable = "/usr/libexec/java_home -v $targetCompatibility".execute().text.trim() + "/bin/javac"
             } else if (project.hasProperty('compiler.location')) {
-                // temorarily disable -Werror for Neon-based builds
-                if (targetPlatformVersion != '46') { options.compilerArgs << '-Werror' }
                 // quotes required on TeamCity to pass property with spaces, e.g. a Windows file path
                 options.forkOptions.executable = project.property('compiler.location').replace('\"', '').replace('\'', '')
             }
