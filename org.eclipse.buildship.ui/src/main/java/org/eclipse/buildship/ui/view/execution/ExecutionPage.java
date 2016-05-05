@@ -265,7 +265,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     }
 
     @Override
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Object getAdapter(Class adapter) {
         if (FilteredTree.class.equals(adapter)) {
             return getPageControl();
