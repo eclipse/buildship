@@ -47,6 +47,7 @@ public final class DirectoryDialogSelectionListener extends SelectionAdapter {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void widgetSelected(SelectionEvent e) {
         DirectoryDialog directoryDialog = new DirectoryDialog(this.shell, SWT.SHEET);
         directoryDialog.setText(this.title);

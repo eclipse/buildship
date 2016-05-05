@@ -23,6 +23,7 @@ import java.io.File;
  * Computes the project location from a given project name. By default, the project location is under the workspace root. If enabled,
  * a custom location is used.
  */
+@SuppressWarnings("rawtypes")
 public final class ProjectLocationComputedValue extends ComputedValue {
 
     private final IObservableValue projectName;

@@ -66,7 +66,7 @@ import com.gradleware.tooling.toolingclient.Request;
 /**
  * Displays the tree of a single build execution.
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"rawtypes", "unchecked"})
 public final class ExecutionPage extends BasePage<FilteredTree> implements NodeSelectionProvider {
 
     private final ProcessDescription processDescription;
@@ -265,7 +265,6 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     }
 
     @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Object getAdapter(Class adapter) {
         if (FilteredTree.class.equals(adapter)) {
             return getPageControl();

@@ -32,7 +32,7 @@ public final class ObservableMapCellWithIconLabelProvider extends ObservableMapC
     private final ImmutableMap<String, ColorDescriptor> customTextColoringMapping;
     private final ResourceManager resourceManager;
 
-    public ObservableMapCellWithIconLabelProvider(Map<String, ColorDescriptor> customTextColoringMapping, IObservableMap... attributeMaps) {
+    public ObservableMapCellWithIconLabelProvider(Map<String, ColorDescriptor> customTextColoringMapping, @SuppressWarnings("rawtypes") IObservableMap... attributeMaps) {
         super(attributeMaps);
         this.resourceManager = new LocalResourceManager(JFaceResources.getResources());
         this.customTextColoringMapping = ImmutableMap.copyOf(customTextColoringMapping);

@@ -22,6 +22,7 @@ import org.eclipse.core.databinding.property.list.IListProperty;
  * In case there are other types of nodes in a tree with different properties for their children, they can
  * be listed here.
  */
+@SuppressWarnings("rawtypes")
 public final class OperationItemChildrenListProperty extends DelegatingListProperty {
 
     @Override
