@@ -16,14 +16,14 @@ import com.google.common.collect.Ordering;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerSorter;
+import org.eclipse.jface.viewers.ViewerComparator;
 
 import org.eclipse.buildship.ui.view.task.TaskNode.TaskNodeType;
 
 /**
  * Sorts {@link TaskNode} instances based on their type and/or visibility.
  */
-public final class TaskNodeViewerSorter extends ViewerSorter {
+public final class TaskNodeViewerSorter extends ViewerComparator {
 
     private final Ordering<ProjectNode> projectNodeOrdering;
     private final Ordering<TaskNode> taskNodeOrdering;
