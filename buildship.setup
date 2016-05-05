@@ -76,7 +76,7 @@
           xsi:type="setup:PreferenceTask"
           id="buildship.preferences.compiler.goovycompilerlevel"
           key="instance/org.codehaus.groovy.eclipse.compilerResolver/groovy.compiler.level"
-          value="20">
+          value="24">
         <description>Align workspace Groovy compiler level to referenced libs</description>
       </setupTask>
       <setupTask
@@ -89,8 +89,8 @@
       <setupTask
           xsi:type="jdt:JRETask"
           id="buildship.preferences.compiler.jre"
-          version="JavaSE-1.6"
-          location="${jre.location-1.6}"/>
+          version="JavaSE-1.8"
+          location="${jre.location-1.8}"/>
     </setupTask>
     <setupTask
         xsi:type="setup:CompoundTask"
