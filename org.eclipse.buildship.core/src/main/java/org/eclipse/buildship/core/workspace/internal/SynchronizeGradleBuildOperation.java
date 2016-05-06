@@ -215,7 +215,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
     }
 
     private void synchronizeOpenJavaProject(OmniEclipseProject project, IProject workspaceProject, SubMonitor progress) throws JavaModelException, CoreException {
-        progress.setWorkRemaining(8);
+        progress.setWorkRemaining(6);
         //old Gradle versions did not expose natures, so we need to add the Java nature explicitly
         CorePlugin.workspaceOperations().addNature(workspaceProject, JavaCore.NATURE_ID, progress.newChild(1));
         IJavaProject javaProject = JavaCore.create(workspaceProject);

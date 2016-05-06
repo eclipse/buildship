@@ -87,7 +87,7 @@ class ImportingProjectWithExistingDescriptor extends SingleProjectSynchronizatio
 
         then:
         project.hasNature(JavaCore.NATURE_ID)
-        JavaCore.create(project).rawClasspath.any { it.path.toString() == GradleClasspathContainer.CONTAINER_ID }
+        JavaCore.create(project).rawClasspath.any { it.path == GradleClasspathContainer.CONTAINER_PATH }
     }
 
     def "All subprojects with existing .project files are handled by the ExistingDescriptorHandler"() {

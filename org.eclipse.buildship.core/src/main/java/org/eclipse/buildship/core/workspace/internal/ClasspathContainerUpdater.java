@@ -166,11 +166,7 @@ final class ClasspathContainerUpdater {
 
     private static void setClasspathContainer(IJavaProject eclipseProject, List<IClasspathEntry> classpathEntries, IProgressMonitor monitor) throws JavaModelException {
         IClasspathContainer classpathContainer = GradleClasspathContainer.newInstance(classpathEntries);
-        JavaCore.setClasspathContainer(createContainerPath(), new IJavaProject[]{eclipseProject}, new IClasspathContainer[]{classpathContainer}, monitor);
-    }
-
-    private static Path createContainerPath() {
-        return new Path(GradleClasspathContainer.CONTAINER_ID);
+        JavaCore.setClasspathContainer(GradleClasspathContainer.CONTAINER_PATH, new IJavaProject[]{eclipseProject}, new IClasspathContainer[]{classpathContainer}, monitor);
     }
 
 }

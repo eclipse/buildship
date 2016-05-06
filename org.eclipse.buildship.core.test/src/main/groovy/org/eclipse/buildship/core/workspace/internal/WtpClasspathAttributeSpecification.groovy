@@ -102,7 +102,7 @@ class WtpClasspathAttributeSpecification extends ProjectSynchronizationSpecifica
 
         then:
         def project = findProject('project')
-        IClasspathEntry dependency = rawClasspath(project).find { it.path.lastSegment() == GradleClasspathContainer.CONTAINER_ID }
+        IClasspathEntry dependency = rawClasspath(project).find { it.path == GradleClasspathContainer.CONTAINER_PATH }
         IClasspathAttribute deploymenAttribute = dependency.getExtraAttributes().find { it.name == DEPLOYED }
         deploymenAttribute.value == "/WEB-INF/lib"
     }
