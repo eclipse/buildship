@@ -215,6 +215,12 @@
              sequence="F5">
        </key>
        <key
+             commandId="org.eclipse.buildship.ui.commands.refreshproject"
+             contextId="org.eclipse.ui.contexts.window"
+             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+             sequence="F5">
+       </key>
+       <key
              commandId="org.eclipse.buildship.ui.shortcut.test.run"
              schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
              sequence="M1+M3+X G">
