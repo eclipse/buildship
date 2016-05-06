@@ -225,7 +225,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         def project = findProject('sample-project')
         JavaCore.create(project).rawClasspath.find{
             it.entryKind == IClasspathEntry.CPE_CONTAINER &&
-            it.path.toPortableString() == GradleClasspathContainer.CONTAINER_ID
+            it.path == GradleClasspathContainer.CONTAINER_PATH
         }
     }
 }

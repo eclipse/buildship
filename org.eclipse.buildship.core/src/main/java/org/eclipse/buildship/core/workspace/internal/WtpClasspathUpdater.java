@@ -58,7 +58,7 @@ final class WtpClasspathUpdater {
     }
 
     private static void updateDeploymentPath(IJavaProject javaProject, String deploymentPath, SubMonitor progress) throws JavaModelException {
-        GradleClasspathContainer.update(javaProject, new IClasspathAttribute[]{JavaCore.newClasspathAttribute(DEPLOYMENT_ATTRIBUTE, deploymentPath)}, progress);
+        GradleClasspathContainer.updateAttributes(javaProject, new IClasspathAttribute[]{JavaCore.newClasspathAttribute(DEPLOYMENT_ATTRIBUTE, deploymentPath)}, progress);
     }
 
 }

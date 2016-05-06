@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
@@ -37,13 +36,12 @@ import org.eclipse.buildship.core.workspace.internal.DefaultGradleClasspathConta
 public abstract class GradleClasspathContainer implements IClasspathContainer {
 
     /**
-     * Id and string representation of the path where all Gradle projects store their external
+     * The path where all Gradle projects store their external
      * dependencies. This path is added during the project import and the
      * {@code org.eclipse.jdt.core.classpathContainerInitializer} extension populates it with the
      * actual external (source and binary) jars.
      */
-    public static final String CONTAINER_ID = "org.eclipse.buildship.core.gradleclasspathcontainer";
-
+    public static final Path CONTAINER_PATH = new Path("org.eclipse.buildship.core.gradleclasspathcontainer");
     /**
      * Creates a new classpath container instance.
      *
@@ -51,8 +49,7 @@ public abstract class GradleClasspathContainer implements IClasspathContainer {
      * @return the classpath container references
      */
     public static IClasspathContainer newInstance(List<IClasspathEntry> classpathEntries) {
-        Path containerPath = new Path(CONTAINER_ID);
-        return new DefaultGradleClasspathContainer(containerPath, classpathEntries);
+        return new DefaultGradleClasspathContainer(CONTAINER_PATH, classpathEntries);
     }
 
     /**
@@ -65,7 +62,7 @@ public abstract class GradleClasspathContainer implements IClasspathContainer {
     public static void addIfNotPresent(IJavaProject javaProject, IProgressMonitor progress) throws JavaModelException {
         IClasspathEntry[] oldClasspath = javaProject.getRawClasspath();
         for (IClasspathEntry entry : oldClasspath) {
-            if (entry.getPath().equals(new Path(CONTAINER_ID))) {
+            if (entry.getPath().equals(CONTAINER_PATH)) {
                 return;
             }
         }
@@ -85,12 +82,12 @@ public abstract class GradleClasspathContainer implements IClasspathContainer {
      * @param progress the monitor to report progress on
      * @throws JavaModelException if the container cannot be updated
      */
-    public static void update(IJavaProject javaProject, IClasspathAttribute[] extraAttributes, SubMonitor progress) throws JavaModelException {
+    public static void updateAttributes(IJavaProject javaProject, IClasspathAttribute[] extraAttributes, SubMonitor progress) throws JavaModelException {
         IClasspathEntry[] oldClasspath = javaProject.getRawClasspath();
         IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length];
         for (int i = 0; i < oldClasspath.length; i++) {
             IClasspathEntry entry = oldClasspath[i];
-            if (entry.getPath().equals(new Path(GradleClasspathContainer.CONTAINER_ID))) {
+            if (entry.getPath().equals(CONTAINER_PATH)) {
                 IClasspathEntry newContainer = GradleClasspathContainer.newClasspathEntry(extraAttributes);
                 newClasspath[i] = newContainer;
             } else {
@@ -103,8 +100,7 @@ public abstract class GradleClasspathContainer implements IClasspathContainer {
     }
 
     private static IClasspathEntry newClasspathEntry(IClasspathAttribute... extraAttributes) throws JavaModelException {
-        Path containerPath = new Path(CONTAINER_ID);
-        return JavaCore.newContainerEntry(containerPath, null, extraAttributes, false);
+        return JavaCore.newContainerEntry(CONTAINER_PATH, null, extraAttributes, false);
     }
 
     /**
@@ -117,10 +113,9 @@ public abstract class GradleClasspathContainer implements IClasspathContainer {
      * @param project the target project
      */
     public static void requestUpdateOf(IJavaProject project) {
-        ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(CONTAINER_ID);
+        ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(CONTAINER_PATH.toString());
         try {
-            IPath containerPath = new Path(CONTAINER_ID);
-            initializer.requestClasspathContainerUpdate(containerPath, project, null);
+            initializer.requestClasspathContainerUpdate(CONTAINER_PATH, project, null);
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(e);
         }
