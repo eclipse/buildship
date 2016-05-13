@@ -43,9 +43,9 @@ public final class Predicates {
 
     /**
      * Returns a predicate that matches if the the project identifier of a {@code OmniEclipseProject}
-     * instance matches the given identifier
+     * instance matches the given identifier.
      *
-     * @param projectDir the project directory to match
+     * @param id the identifier to match
      * @return the predicate
      */
     public static Predicate<OmniEclipseProject> eclipseProjectMatchesIdentifier(final EclipseProjectIdentifier id) {
