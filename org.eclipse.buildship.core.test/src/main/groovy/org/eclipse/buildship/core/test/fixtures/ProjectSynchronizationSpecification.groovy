@@ -19,17 +19,20 @@ import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.NewProjectHandler
 
 abstract class ProjectSynchronizationSpecification extends WorkspaceSpecification {
+
+    private static final DEFAULT_DISTRIBUTION = GradleDistribution.fromBuild()
+
     protected void synchronizeAndWait(File location, NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
-        startSynchronization(location, GradleDistribution.fromBuild(), newProjectHandler)
+        startSynchronization(location, DEFAULT_DISTRIBUTION, newProjectHandler)
         waitForGradleJobsToFinish()
     }
 
-    protected void importAndWait(File location, GradleDistribution distribution = GradleDistribution.fromBuild()) {
+    protected void importAndWait(File location, GradleDistribution distribution = DEFAULT_DISTRIBUTION) {
         startSynchronization(location, distribution, NewProjectHandler.IMPORT_AND_MERGE)
         waitForGradleJobsToFinish()
     }
 
-    protected void startSynchronization(File location, GradleDistribution distribution = GradleDistribution.fromBuild(), NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
+    protected void startSynchronization(File location, GradleDistribution distribution = DEFAULT_DISTRIBUTION, NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
         FixedRequestAttributes attributes = new FixedRequestAttributes(location, null, distribution, null, [], [])
         CorePlugin.gradleWorkspaceManager().getCompositeBuild().withBuild(attributes).synchronize(newProjectHandler)
     }
@@ -40,7 +43,7 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
     }
 
     protected void previewAndWait(File location, FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler) {
-        def job = newProjectPreviewJob(location, GradleDistribution.fromBuild(), resultHandler)
+        def job = newProjectPreviewJob(location, DEFAULT_DISTRIBUTION, resultHandler)
         job.schedule()
         job.join()
     }
