@@ -13,12 +13,12 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.Set;
 
-import org.gradle.impldep.com.google.common.collect.Sets;
 import org.gradle.tooling.connection.ModelResult;
 import org.gradle.tooling.connection.ModelResults;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;

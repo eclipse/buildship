@@ -10,6 +10,8 @@ package org.eclipse.buildship.core.gradle;
 
 import java.io.File;
 
+import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
+
 import com.google.common.base.Predicate;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
@@ -35,6 +37,23 @@ public final class Predicates {
             @Override
             public boolean apply(OmniEclipseProject candidate) {
                 return candidate.getProjectDirectory().equals(projectDir);
+            }
+        };
+    }
+
+    /**
+     * Returns a predicate that matches if the the project identifier of a {@code OmniEclipseProject}
+     * instance matches the given identifier
+     *
+     * @param projectDir the project directory to match
+     * @return the predicate
+     */
+    public static Predicate<OmniEclipseProject> eclipseProjectMatchesIdentifier(final EclipseProjectIdentifier id) {
+        return new Predicate<OmniEclipseProject>() {
+
+            @Override
+            public boolean apply(OmniEclipseProject candidate) {
+                return candidate.getIdentifier().equals(id);
             }
         };
     }

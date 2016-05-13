@@ -83,7 +83,7 @@ final class ClasspathContainerUpdater {
 
                     @Override
                     public IClasspathEntry apply(OmniEclipseProjectDependency dependency) {
-                        OmniEclipseProject targetProject = Iterables.find(ClasspathContainerUpdater.this.allGradleProjects, Predicates.eclipseProjectMatchesProjectDir(dependency.getTargetProjectDir()));
+                        OmniEclipseProject targetProject = Iterables.find(ClasspathContainerUpdater.this.allGradleProjects, Predicates.eclipseProjectMatchesIdentifier(dependency.getTarget()));
                         String actualName = CorePlugin.workspaceOperations().normalizeProjectName(targetProject.getName(), targetProject.getProjectDirectory());
                         Path path = new Path("/" + actualName);
                         return JavaCore.newProjectEntry(path, null, true, getClasspathAttributes(dependency), dependency.isExported());

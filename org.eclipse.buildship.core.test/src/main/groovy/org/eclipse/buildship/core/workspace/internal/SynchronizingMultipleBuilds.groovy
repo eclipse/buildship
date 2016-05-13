@@ -1,11 +1,15 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import spock.lang.Ignore
+import org.gradle.util.GradleVersion
 
-import org.eclipse.buildship.core.Logger
-import org.eclipse.buildship.core.notification.UserNotification
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+
+import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.Path
+import org.eclipse.jdt.core.IClasspathEntry
+import org.eclipse.jdt.core.JavaCore
+
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.test.fixtures.TestEnvironment
 
 class SynchronizingMultipleBuilds extends ProjectSynchronizationSpecification {
 
@@ -45,5 +49,72 @@ class SynchronizingMultipleBuilds extends ProjectSynchronizationSpecification {
         then:
         findProject("first")
         !findProject("foo")
+    }
+
+    def "External dependencies are substituted for project dependencies if all projects use current version"() {
+        setup:
+        def firstProject = dir('first') {
+            file 'build.gradle', """
+                apply plugin: 'java'
+                dependencies {
+                    testCompile 'junit:junit:4.12'
+                }
+            """
+        }
+        def secondProject = dir('second') {
+            file 'settings.gradle', """
+                rootProject.name = 'junit'
+            """
+            file 'build.gradle', """
+                apply plugin: 'java'
+                group = 'junit'
+            """
+        }
+
+        when:
+        importAndWait(firstProject)
+        importAndWait(secondProject)
+
+        then:
+        allProjects().size() == 2
+        resolvedClasspath(findProject('first')).any {
+            it.path == new Path("/junit")
+        }
+    }
+
+    def "Dependency substitution is disabled for mixed Gradle versions in the workspace"() {
+        setup:
+        def firstProject = dir('first') {
+            file 'build.gradle', """
+                apply plugin: 'java'
+                dependencies {
+                    testCompile 'junit:junit:4.12'
+                }
+            """
+        }
+        def secondProject = dir('second') {
+            file 'settings.gradle', """
+                rootProject.name = 'junit'
+            """
+            file 'build.gradle', """
+                apply plugin: 'java'
+                group = 'junit'
+            """
+        }
+
+        when:
+        importAndWait(firstProject)
+        importAndWait(secondProject, GradleDistribution.forVersion("2.13"))
+
+        then:
+        allProjects().size() == 2
+        !resolvedClasspath(findProject('first')).any {
+            it.path == new Path("/junit")
+        }
+    }
+
+
+    private IClasspathEntry[] resolvedClasspath(IProject project) {
+        JavaCore.create(project).getResolvedClasspath(false)
     }
 }
