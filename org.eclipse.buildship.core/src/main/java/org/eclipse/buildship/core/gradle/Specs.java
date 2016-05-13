@@ -47,7 +47,7 @@ public final class Specs {
 
     /**
      * Returns a spec that matches if the the identifier of a {@code OmniEclipseProject} instance
-     * matches the given identifier
+     * matches the given identifier.
      *
      * @param identifier the identifier to match
      * @return the spec
