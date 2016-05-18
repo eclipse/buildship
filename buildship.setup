@@ -59,6 +59,11 @@
         name="Compiler">
       <setupTask
           xsi:type="setup:PreferenceTask"
+          id="buildship.preferences.compiler.unresolved.extension"
+          key="instance/org.eclipse.pde/compilers.p.unresolved-ex-points"
+          value="1"/>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
           id="buildship.preferences.compiler.source"
           key="instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.source"
           value="1.6"/>
