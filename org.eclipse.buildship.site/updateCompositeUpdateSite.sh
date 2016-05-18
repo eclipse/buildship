@@ -3,7 +3,7 @@
 # count the child directories and create a 'child' node for each one
 children=""
 numOfChildren=0
-for directory in */ ; do
+for directory in $(LIST_COMMAND) ; do
     children="$children<child location='$directory'/> "
     ((numOfChildren++))
 done

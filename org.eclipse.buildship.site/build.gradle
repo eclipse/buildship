@@ -68,6 +68,7 @@ task uploadUpdateSite(dependsOn : createP2Repository) {
         def compositeFolders = config.isRelease() ? [releaseTypeFolder, versionFolder]: [versionFolder]
 
         // upload the update site and update the composite descriptors
+        def directoriesInCompositeUpdateSite = eclipsebuild.BuildshipConfig.on(project).isSnapshot() ? 'ls -td -- */ | head -1' : 'ls -td -- */'
         ssh.run {
             session(remotes.eclipseDotOrg) {
                 // create the leaf directory if not exist
@@ -78,7 +79,7 @@ task uploadUpdateSite(dependsOn : createP2Repository) {
 
                 // recreate the compositeArtifacts.jar and the compositeContent.jar files
                 compositeFolders.each { execute("""cd ${it}
-                      ${file('updateCompositeUpdateSite.sh').text}""") }
+                      ${file('updateCompositeUpdateSite.sh').text.replace('LIST_COMMAND', directoriesInCompositeUpdateSite)}""") }
             }
         }
     }
