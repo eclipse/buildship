@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+    <extension point="org.eclipse.mylyn.tasks.bugs.support">
+        <product id="org.eclipse.buildship"
+            providerId="org.eclipse"
+            icon="icons/gradle-icon-32x32.png"
+            name="Buildship"
+            description="Eclipse Plug-ins for Gradle"
+            url="https://projects.eclipse.org/projects/tools.buildship"/>
+        <mapping namespace="org.eclipse.buildship" productId="org.eclipse.buildship">
+            <property name="product" value="Buildship"/>
+        </mapping>
+    </extension>
+</plugin>
