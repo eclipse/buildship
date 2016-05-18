@@ -51,7 +51,7 @@ class SynchronizingMultipleBuilds extends ProjectSynchronizationSpecification {
         !findProject("foo")
     }
 
-    def "External dependencies are substituted for project dependencies if all projects use current version"() {
+    def "External dependencies are substituted for project dependencies if all projects use same version"() {
         setup:
         def firstProject = dir('first') {
             file 'build.gradle', """
