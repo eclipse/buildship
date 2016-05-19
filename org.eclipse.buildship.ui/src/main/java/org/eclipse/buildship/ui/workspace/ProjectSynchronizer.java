@@ -25,7 +25,6 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorInput;
@@ -34,6 +33,7 @@ import org.eclipse.ui.part.FileEditorInput;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.util.collections.AdapterFunction;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
@@ -70,8 +70,9 @@ public final class ProjectSynchronizer {
 
     private static Set<IProject> collectGradleProjects(List<?> candidates) {
         Set<IProject> projects = Sets.newLinkedHashSet();
+        AdapterFunction<IResource> adapterFunction = AdapterFunction.forType(IResource.class);
         for (Object candidate : candidates) {
-            IResource resource = Platform.getAdapterManager().getAdapter(candidate, IResource.class);
+            IResource resource = adapterFunction.apply(candidate);
             if (resource != null) {
                 IProject project = resource.getProject();
                 if (project != null && GradleProjectNature.isPresentOn(project)) {
