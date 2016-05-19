@@ -180,18 +180,29 @@
             commandId="org.eclipse.buildship.ui.commands.refreshproject"
             class="org.eclipse.buildship.ui.workspace.RefreshProjectHandler">
          <activeWhen>
-            <iterate
-                    operator="or"
-                    ifEmpty="false">
-                <adapt
-                        type="org.eclipse.core.resources.IProject">
-                    <test
-                            forcePluginActivation="true"
-                            property="org.eclipse.core.resources.projectNature"
-                            value="org.eclipse.buildship.core.gradleprojectnature">
-                    </test>
-                </adapt>
-            </iterate>
+            <or>
+                <with variable="activeEditorId">
+                   <equals value="org.eclipse.buildship.ui.gradlebuildscripteditor"/>
+                </with>
+                <iterate
+                        operator="or"
+                        ifEmpty="false">
+                    <adapt
+                            type="org.eclipse.core.resources.IResource">
+                        <and>
+                            <test
+                                    forcePluginActivation="true"
+                                    property="org.eclipse.core.resources.projectNature"
+                                    value="org.eclipse.buildship.core.gradleprojectnature">
+                            </test>
+                            <test
+                                    forcePluginActivation="true"
+                                    property="org.eclipse.buildship.core.isGradleResource">
+                            </test>
+                         </and>
+                    </adapt>
+                </iterate>
+            </or>
          </activeWhen>
       </handler>
     </extension>
@@ -344,7 +355,9 @@
         </decorator>
     </extension>
 
-    <!-- register Gradle context menu item on Project Explorer and Package Explorer -->
+    <!-- 
+        Register Gradle context menu item on Project Explorer and Package Explorer 
+    -->
     <extension
             point="org.eclipse.ui.menus">
         <menuContribution
@@ -357,21 +370,32 @@
                         style="push">
                 </command>
                 <visibleWhen>
-                    <with
-                            variable="activeMenuSelection">
-                        <iterate
-                                operator="or"
-                                ifEmpty="false">
-                            <adapt
-                                    type="org.eclipse.core.resources.IProject">
-                                <test
-                                        forcePluginActivation="true"
-                                        property="org.eclipse.core.resources.projectNature"
-                                        value="org.eclipse.buildship.core.gradleprojectnature">
-                                </test>
-                            </adapt>
-                        </iterate>
-                    </with>
+                    <or>
+                        <with variable="activeEditorId">
+                           <equals value="org.eclipse.buildship.ui.gradlebuildscripteditor"/>
+                        </with>
+                        <with
+                                variable="activeMenuSelection">
+                            <iterate
+                                    operator="or"
+                                    ifEmpty="false">
+                                 <adapt
+                                            type="org.eclipse.core.resources.IResource">
+                                         <and>
+                                            <test
+                                                    forcePluginActivation="true"
+                                                    property="org.eclipse.core.resources.projectNature"
+                                                    value="org.eclipse.buildship.core.gradleprojectnature">
+                                            </test>
+                                            <test
+                                                    forcePluginActivation="true"
+                                                    property="org.eclipse.buildship.core.isGradleResource">
+                                            </test>
+                                         </and>
+                                </adapt>
+                            </iterate>
+                        </with>
+                    </or>
                 </visibleWhen>
             </menu>
         </menuContribution>
