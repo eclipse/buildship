@@ -14,6 +14,7 @@ package org.eclipse.buildship.core.util.collections;
 import com.google.common.base.Function;
 
 import org.eclipse.core.runtime.IAdapterManager;
+import org.eclipse.core.runtime.Platform;
 
 /**
  * Turns a given input object to a specific adapter.
@@ -22,10 +23,14 @@ import org.eclipse.core.runtime.IAdapterManager;
  */
 public final class AdapterFunction<T> implements Function<Object, T> {
 
+    public static <T> AdapterFunction<T> forType(Class<T> type) {
+        return new AdapterFunction<T>(type, Platform.getAdapterManager());
+    }
+
     private Class<T> adapter;
     private IAdapterManager adapterManager;
 
-    public AdapterFunction(Class<T> adapter, IAdapterManager adapterManager) {
+    private AdapterFunction(Class<T> adapter, IAdapterManager adapterManager) {
         this.adapter = adapter;
         this.adapterManager = adapterManager;
     }

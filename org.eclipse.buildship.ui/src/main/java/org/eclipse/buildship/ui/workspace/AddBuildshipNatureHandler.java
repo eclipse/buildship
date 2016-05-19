@@ -17,13 +17,13 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.util.collections.AdapterFunction;
 import org.eclipse.buildship.core.workspace.CompositeGradleBuild;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
@@ -48,8 +48,9 @@ public class AddBuildshipNatureHandler extends AbstractHandler{
 
     private Set<FixedRequestAttributes> collectGradleBuilds(List<?> elements) {
         Set<FixedRequestAttributes> builds = Sets.newLinkedHashSet();
+        AdapterFunction<IProject> adapterFunction = AdapterFunction.forType(IProject.class);
         for (Object element : elements) {
-            IProject project = Platform.getAdapterManager().getAdapter(element, IProject.class);
+            IProject project = adapterFunction.apply(element);
             if (project != null && !GradleProjectNature.isPresentOn(project)) {
                 IPath location = project.getLocation();
                 if (location != null) {
