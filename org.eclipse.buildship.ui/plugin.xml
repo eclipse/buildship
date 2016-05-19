@@ -139,6 +139,12 @@
             description="Refreshes all Gradle projects in the workspace">
       </command>
       <command
+            id="org.eclipse.buildship.ui.commands.addBuildshipNature"
+            categoryId="org.eclipse.buildship.ui.project"
+            name="Add Gradle Nature"
+            description="Adds the Gradle nature and synchronizes this project as if the Gradle Import wizard had been run on its location.">
+      </command>
+      <command
             id="org.eclipse.buildship.ui.shortcut.test.run"
             categoryId="org.eclipse.debug.ui.category.run"
             name="Run Gradle Test"
@@ -205,6 +211,26 @@
             </or>
          </activeWhen>
       </handler>
+      <handler
+            commandId="org.eclipse.buildship.ui.commands.addBuildshipNature"
+            class="org.eclipse.buildship.ui.workspace.AddBuildshipNatureHandler">
+         <activeWhen>
+            <iterate
+                    operator="or"
+                    ifEmpty="false">
+                <adapt
+                    type="org.eclipse.core.resources.IProject">
+                    <not>
+                        <test
+                                forcePluginActivation="true"
+                                property="org.eclipse.core.resources.projectNature"
+                                value="org.eclipse.buildship.core.gradleprojectnature">
+                        </test>
+                    </not>
+                </adapt>
+            </iterate>
+         </activeWhen>
+      </handler>
     </extension>
 
     <!-- integration of Gradle command accelerators -->
@@ -249,6 +275,10 @@
              commandId="org.eclipse.buildship.ui.commands.refreshproject"
              icon="icons/full/elcl16/refresh.gif"
              disabledIcon="icons/full/dlcl16/refresh.gif">
+       </image>
+       <image
+             commandId="org.eclipse.buildship.ui.commands.addBuildshipNature"
+             icon="icons/full/etool16/import_wiz.png">
        </image>
     </extension>
 
@@ -399,6 +429,29 @@
                 </visibleWhen>
             </menu>
         </menuContribution>
+        <menuContribution
+            locationURI="popup:org.eclipse.ui.projectConfigure?after=additions">
+         <command
+               commandId="org.eclipse.buildship.ui.commands.addBuildshipNature"
+               style="push">
+            <visibleWhen>
+                <iterate
+                        operator="or"
+                        ifEmpty="false">
+                    <adapt
+                        type="org.eclipse.core.resources.IProject">
+                        <not>
+                            <test
+                                forcePluginActivation="true"
+                                property="org.eclipse.core.resources.projectNature"
+                                value="org.eclipse.buildship.core.gradleprojectnature">
+                            </test>
+                        </not>
+                    </adapt>
+                </iterate>
+            </visibleWhen>
+         </command>
+      </menuContribution>
     </extension>
 
     <!-- extension point to register plugins that need to be activated (if not already activated) when a build execution starts -->
