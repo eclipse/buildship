@@ -17,11 +17,6 @@ package org.eclipse.buildship.core.configuration;
 public interface WorkspaceConfigurationManager {
 
     /**
-     * The preference key under which the Gradle User Home is stored.
-     */
-    String GRADLE_USER_HOME_PREFERENCE = "gradle.user.home";
-
-    /**
      * Loads the workspace configuration from the Eclipse preference store.
      *
      * @return the configuration, never null

@@ -25,10 +25,13 @@ import org.eclipse.buildship.core.configuration.WorkspaceConfigurationManager;
  */
 public class DefaultWorkspaceConfigurationManager implements WorkspaceConfigurationManager {
 
+
+    private static final String GRADLE_USER_HOME = "gradle.user.home";
+
     @Override
     public WorkspaceConfiguration loadWorkspaceConfiguration() {
         IEclipsePreferences preferences = getPreferences();
-        String userHome = preferences.get(GRADLE_USER_HOME_PREFERENCE, null);
+        String userHome = preferences.get(GRADLE_USER_HOME, null);
         return new WorkspaceConfiguration(userHome == null ? null : new File(userHome));
     }
 
@@ -36,7 +39,7 @@ public class DefaultWorkspaceConfigurationManager implements WorkspaceConfigurat
     public void saveWorkspaceConfiguration(WorkspaceConfiguration config) {
         Preconditions.checkNotNull(config);
         IEclipsePreferences preferences = getPreferences();
-        preferences.put(GRADLE_USER_HOME_PREFERENCE, config.getGradleUserHome() == null ? null : config.getGradleUserHome().getPath());
+        preferences.put(GRADLE_USER_HOME, config.getGradleUserHome() == null ? null : config.getGradleUserHome().getPath());
     }
 
     private IEclipsePreferences getPreferences() {
