@@ -20,6 +20,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
+import com.gradleware.tooling.toolingutils.binding.Property;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -68,7 +70,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
     }
 
     public GradleOptionsWizardPage(ProjectImportConfiguration configuration, PublishedGradleVersionsWrapper publishedGradleVersions, String title, String defaultMessage, String pageContextInformation) {
-        super("GradleOptions", title, defaultMessage, configuration, ImmutableList.of(configuration.getGradleDistribution(), configuration.getJavaHome(), configuration.getGradleUserHome(), configuration.getJvmArguments(), configuration.getArguments()));
+        super("GradleOptions", title, defaultMessage, configuration, ImmutableList.<Property<?>>of(configuration.getGradleDistribution()));
         this.publishedGradleVersions = publishedGradleVersions;
         this.pageContextInformation = pageContextInformation;
     }

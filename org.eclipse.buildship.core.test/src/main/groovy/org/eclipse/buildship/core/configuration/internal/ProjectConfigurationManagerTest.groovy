@@ -108,13 +108,11 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         then:
         rootProjectConfigurations == [
                 ProjectConfiguration.from(
-                        new FixedRequestAttributes(rootDir,
-                                null,
-                                GradleDistribution.fromBuild(),
-                                null,
-                                ImmutableList.of(),
-                                ImmutableList.of()),
-                        Path.from(':'))] as Set
+                    rootDir,
+                    GradleDistribution.fromBuild(),
+                    Path.from(':')
+                )
+            ] as Set
     }
 
     def "two Gradle root project configurations when two Gradle multi-project builds are imported"() {
@@ -164,37 +162,28 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         then:
         rootProjectConfigurations == [
                 ProjectConfiguration.from(
-                        new FixedRequestAttributes(rootDirOne,
-                                null,
-                                GradleDistribution.fromBuild(),
-                                null,
-                                ImmutableList.of(),
-                                ImmutableList.of()),
-                        Path.from(':')),
+                    rootDirOne,
+                    GradleDistribution.fromBuild(),
+                    Path.from(':')
+                ),
                 ProjectConfiguration.from(
-                        new FixedRequestAttributes(rootDirTwo,
-                                null,
-                                GradleDistribution.forVersion('1.12'),
-                                null,
-                                ImmutableList.of(),
-                                ImmutableList.of()),
-                        Path.from(':'))] as Set
+                    rootDirTwo,
+                    GradleDistribution.forVersion('1.12'),
+                    Path.from(':')
+                )
+            ] as Set
     }
 
     def "error thrown when projects of same multi-project build have different shared project configurations"() {
         given:
         // create root project and use Gradle version 2.0 in the persisted configuration
         IProject rootProject = workspaceOperations.createProject("root-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
-        def requestAttributes = new FixedRequestAttributes(testDir, null, GradleDistribution.forVersion("2.0"), null,
-                ImmutableList.copyOf("-Xmx256M"), ImmutableList.copyOf("foo"))
-        def projectConfiguration = ProjectConfiguration.from(requestAttributes, Path.from(":"))
+        def projectConfiguration = ProjectConfiguration.from(testDir, GradleDistribution.forVersion("2.0"), Path.from(":"))
         configurationManager.saveProjectConfiguration(projectConfiguration, rootProject)
 
         // create child project and use Gradle version 1.0 in the persisted configuration
         IProject childProject = workspaceOperations.createProject("child-project", dir("child-project"), Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
-        def childRequestAttributes = new FixedRequestAttributes(testDir, null, GradleDistribution.forVersion("1.0"), null,
-                ImmutableList.copyOf("-Xmx256M"), ImmutableList.copyOf("foo"))
-        def childProjectConfiguration = ProjectConfiguration.from(childRequestAttributes, Path.from(":child"))
+        def childProjectConfiguration = ProjectConfiguration.from(testDir, GradleDistribution.forVersion("1.0"), Path.from(":child"))
         configurationManager.saveProjectConfiguration(childProjectConfiguration, childProject)
 
         when:
@@ -208,9 +197,7 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         given:
         IProject project = workspaceOperations.createProject("sample-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
 
-        def requestAttributes = new FixedRequestAttributes(project.getLocation().toFile(), null, GradleDistribution.forVersion("1.12"), tempFolderProvider.newFolder(),
-                ImmutableList.copyOf("-Xmx256M"), ImmutableList.copyOf("foo"))
-        def projectConfiguration = ProjectConfiguration.from(requestAttributes, Path.from(":"))
+        def projectConfiguration = ProjectConfiguration.from(project.getLocation().toFile(), GradleDistribution.forVersion("1.12"), Path.from(":"))
 
         when:
         configurationManager.saveProjectConfiguration(projectConfiguration, project)
@@ -223,9 +210,7 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         given:
         IProject project = workspaceOperations.createProject("sample-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
 
-        def attributes = new FixedRequestAttributes(project.getLocation().toFile(), null, GradleDistribution.fromBuild(), null,
-                ImmutableList.of(), ImmutableList.of())
-        def projectConfiguration = ProjectConfiguration.from(attributes, Path.from(":"))
+        def projectConfiguration = ProjectConfiguration.from(project.location.toFile(), GradleDistribution.fromBuild(), Path.from(":"))
 
         when:
         configurationManager.saveProjectConfiguration(projectConfiguration, project)
@@ -238,9 +223,7 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         given:
         IProject project = workspaceOperations.createProject("sample-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
 
-        def attributes = new FixedRequestAttributes(project.getLocation().toFile(), null, GradleDistribution.fromBuild(), null,
-                ImmutableList.of(), ImmutableList.of())
-        def projectConfiguration = ProjectConfiguration.from(attributes, Path.from(":"))
+        def projectConfiguration = ProjectConfiguration.from(project.location.toFile(), GradleDistribution.fromBuild(), Path.from(":"))
         configurationManager.saveProjectConfiguration(projectConfiguration, project)
 
         def projectDescription = project.description
@@ -263,11 +246,7 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
           "1.0": {
              "project_path": ":",
              "connection_project_dir": ".",
-             "connection_gradle_user_home": null,
-             "connection_gradle_distribution": "GRADLE_DISTRIBUTION(WRAPPER)",
-             "connection_java_home": null,
-             "connection_jvm_arguments": "",
-             "connection_arguments": ""
+             "connection_gradle_distribution": "GRADLE_DISTRIBUTION(WRAPPER)"
           }
         }
         """
@@ -291,11 +270,7 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
           "1.0": {
              "project_path": ":",
              "connection_project_dir": "${projectDir}",
-             "connection_gradle_user_home": null,
-             "connection_gradle_distribution": "GRADLE_DISTRIBUTION(WRAPPER)",
-             "connection_java_home": null,
-             "connection_jvm_arguments": "",
-             "connection_arguments": ""
+             "connection_gradle_distribution": "GRADLE_DISTRIBUTION(WRAPPER)"
           }
         }
         """

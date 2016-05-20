@@ -11,16 +11,18 @@
 
 package org.eclipse.buildship.core.projectimport;
 
+import java.io.File;
+import java.util.Collections;
+import java.util.List;
+
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingutils.binding.Property;
 import com.gradleware.tooling.toolingutils.binding.Validator;
 import com.gradleware.tooling.toolingutils.binding.Validators;
-import org.eclipse.buildship.core.util.collections.CollectionsUtils;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 
-import java.io.File;
-import java.util.List;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 
 /**
  * Serves as the data model of the project import wizard.
@@ -29,28 +31,17 @@ public final class ProjectImportConfiguration {
 
     private final Property<File> projectDir;
     private final Property<GradleDistributionWrapper> gradleDistribution;
-    private final Property<File> gradleUserHome;
-    private final Property<File> javaHome;
-    private final Property<String> jvmArguments;
-    private final Property<String> arguments;
     private final Property<Boolean> applyWorkingSets;
     private final Property<List<String>> workingSets;
 
     public ProjectImportConfiguration() {
-        this(Validators.<File>noOp(), Validators.<GradleDistributionWrapper>noOp(), Validators.<File>noOp(), Validators.<File>noOp(),
-                Validators.<String>noOp(), Validators.<String>noOp(), Validators.<Boolean>noOp(), Validators.<List<String>>noOp());
+        this(Validators.<File> noOp(), Validators.<GradleDistributionWrapper> noOp(), Validators.<Boolean> noOp(), Validators.<List<String>> noOp());
     }
 
     public ProjectImportConfiguration(Validator<File> projectDirValidator, Validator<GradleDistributionWrapper> gradleDistributionValidator,
-                                      Validator<File> gradleUserHomeValidator, Validator<File> javaHomeValidator,
-                                      Validator<String> jvmArgumentsValidator, Validator<String> argumentsValidator,
-                                      Validator<Boolean> applyWorkingSetsValidator, Validator<List<String>> workingSetsValidators) {
+            Validator<Boolean> applyWorkingSetsValidator, Validator<List<String>> workingSetsValidators) {
         this.projectDir = Property.create(projectDirValidator);
         this.gradleDistribution = Property.create(gradleDistributionValidator);
-        this.gradleUserHome = Property.create(gradleUserHomeValidator);
-        this.javaHome = Property.create(javaHomeValidator);
-        this.jvmArguments = Property.create(jvmArgumentsValidator);
-        this.arguments = Property.create(argumentsValidator);
         this.applyWorkingSets = Property.create(applyWorkingSetsValidator);
         this.workingSets = Property.create(workingSetsValidators);
     }
@@ -69,38 +60,6 @@ public final class ProjectImportConfiguration {
 
     public void setGradleDistribution(GradleDistributionWrapper gradleDistribution) {
         this.gradleDistribution.setValue(gradleDistribution);
-    }
-
-    public Property<File> getGradleUserHome() {
-        return this.gradleUserHome;
-    }
-
-    public void setGradleUserHome(File gradleUserHome) {
-        this.gradleUserHome.setValue(gradleUserHome);
-    }
-
-    public Property<File> getJavaHome() {
-        return this.javaHome;
-    }
-
-    public void setJavaHome(File javaHome) {
-        this.javaHome.setValue(javaHome);
-    }
-
-    public Property<String> getJvmArguments() {
-        return this.jvmArguments;
-    }
-
-    public void setJvmArguments(String jvmArguments) {
-        this.jvmArguments.setValue(jvmArguments);
-    }
-
-    public Property<String> getArguments() {
-        return this.arguments;
-    }
-
-    public void setArguments(String arguments) {
-        this.arguments.setValue(arguments);
     }
 
     public Property<Boolean> getApplyWorkingSets() {
@@ -122,10 +81,10 @@ public final class ProjectImportConfiguration {
     public FixedRequestAttributes toFixedAttributes() {
         File projectDir = getProjectDir().getValue();
         GradleDistribution gradleDistribution = getGradleDistribution().getValue().toGradleDistribution();
-        File gradleUserHome = getGradleUserHome().getValue();
-        File javaHome = getJavaHome().getValue();
-        List<String> jvmArguments = CollectionsUtils.splitBySpace(getJvmArguments().getValue());
-        List<String> arguments = CollectionsUtils.splitBySpace(getArguments().getValue());
+        File gradleUserHome = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration().getGradleUserHome();
+        File javaHome = null;
+        List<String> jvmArguments = Collections.emptyList();
+        List<String> arguments = Collections.emptyList();
 
         return new FixedRequestAttributes(projectDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments);
     }

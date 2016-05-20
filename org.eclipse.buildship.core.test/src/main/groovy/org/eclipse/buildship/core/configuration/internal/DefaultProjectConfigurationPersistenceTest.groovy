@@ -33,7 +33,7 @@ class DefaultProjectConfigurationPersistenceTest extends WorkspaceSpecification 
 
     IProject project
 
-    def setup() {
+   void setup() {
         project = newProject("sample-project")
     }
 
@@ -67,9 +67,6 @@ class DefaultProjectConfigurationPersistenceTest extends WorkspaceSpecification 
         node.get(DefaultProjectConfigurationPersistence.PREF_KEY_PROJECT_PATH, null) == ':'
         node.get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null) == ''
         node.get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, null) == 'GRADLE_DISTRIBUTION(WRAPPER)'
-        node.get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_JAVA_HOME, null) == 'null'
-        node.get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_JVM_ARGUMENTS, null) == ''
-        node.get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_ARGUMENTS, null) == ''
     }
 
     def "read validates input"() {
@@ -153,13 +150,10 @@ class DefaultProjectConfigurationPersistenceTest extends WorkspaceSpecification 
 
     private ProjectConfiguration projectConfiguration() {
         ProjectConfiguration.from(
-            new FixedRequestAttributes(project.location.toFile(),
-                    null,
-                    GradleDistribution.fromBuild(),
-                    null,
-                    ImmutableList.of(),
-                    ImmutableList.of()),
-            Path.from(':'))
+            project.location.toFile(),
+            GradleDistribution.fromBuild(),
+            Path.from(':')
+        )
     }
 
 }

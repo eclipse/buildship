@@ -85,12 +85,8 @@ final class LegacyCleaningProjectConfigurationPersistence implements ProjectConf
 
         String projectPath = config.get("project_path");
         String projectDir = config.get("connection_project_dir");
-        String gradleUserHome = config.get("connection_gradle_user_home");
         String gradleDistribution = config.get("connection_gradle_distribution");
-        String javaHome = config.get("connection_java_home");
-        String jvmArguments = config.get("connection_jvm_arguments");
-        String arguments = config.get("connection_arguments");
-        return ProjectConfigurationProperties.from(projectPath, projectDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments);
+        return ProjectConfigurationProperties.from(projectPath, projectDir, gradleDistribution);
     }
 
     private static Map<String, Map<String, String>> parseLegacyConfigurationFile(IProject project) {
@@ -111,7 +107,6 @@ final class LegacyCleaningProjectConfigurationPersistence implements ProjectConf
         return parsedJson;
     }
 
-    @SuppressWarnings("serial")
     private static Type createMapTypeToken() {
         return new TypeToken<Map<String, Map<String, String>>>() {
         }.getType();

@@ -11,17 +11,16 @@
 
 package org.eclipse.buildship.core.configuration.internal;
 
+import java.io.File;
+
 import com.gradleware.tooling.toolingmodel.Path;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.util.collections.CollectionsUtils;
-import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.core.util.file.RelativePathUtils;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 
-import java.io.File;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.util.file.RelativePathUtils;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 
 /**
  * Value-holder class to transfer attributes between {@link ProjectConfiguration} and the preference storage.
@@ -30,21 +29,12 @@ final class ProjectConfigurationProperties {
 
     private final String projectPath;
     private final String projectDir;
-    private final String gradleUserHome;
     private final String gradleDistribution;
-    private final String javaHome;
-    private final String jvmArguments;
-    private final String arguments;
 
-    private ProjectConfigurationProperties(String projectPath, String projectDir, String gradleUserHome, String gradleDistribution,
-                                           String javaHome, String jvmArguments, String arguments) {
+    private ProjectConfigurationProperties(String projectPath, String projectDir, String gradleDistribution) {
         this.projectPath = projectPath;
         this.projectDir = projectDir;
-        this.gradleUserHome = gradleUserHome;
         this.gradleDistribution = gradleDistribution;
-        this.javaHome = javaHome;
-        this.jvmArguments = jvmArguments;
-        this.arguments = arguments;
     }
 
     String getProjectPath() {
@@ -55,40 +45,19 @@ final class ProjectConfigurationProperties {
         return this.projectDir;
     }
 
-    String getGradleUserHome() {
-        return this.gradleUserHome;
-    }
-
     String getGradleDistribution() {
         return this.gradleDistribution;
     }
 
-    String getJavaHome() {
-        return this.javaHome;
-    }
-
-    String getJvmArguments() {
-        return this.jvmArguments;
-    }
-
-    String getArguments() {
-        return this.arguments;
-    }
-
-    static ProjectConfigurationProperties from(String projectPath, String projectDir, String gradleUserHome, String gradleDistribution,
-                                               String javaHome, String jvmArguments, String arguments) {
-        return new ProjectConfigurationProperties(projectPath, projectDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments);
+    static ProjectConfigurationProperties from(String projectPath, String projectDir, String gradleDistribution) {
+        return new ProjectConfigurationProperties(projectPath, projectDir, gradleDistribution);
     }
 
     static ProjectConfigurationProperties from(IProject project, ProjectConfiguration projectConfiguration) {
         String projectPath = projectConfiguration.getProjectPath().getPath();
-        String projectDir = relativePathToRootProject(project, projectConfiguration.getRequestAttributes().getProjectDir());
-        String gradleUserHome = FileUtils.getAbsolutePath(projectConfiguration.getRequestAttributes().getGradleUserHome()).orNull();
-        String gradleDistribution = GradleDistributionSerializer.INSTANCE.serializeToString(projectConfiguration.getRequestAttributes().getGradleDistribution());
-        String javaHome = FileUtils.getAbsolutePath(projectConfiguration.getRequestAttributes().getJavaHome()).orNull();
-        String jvmArguments = CollectionsUtils.joinWithSpace(projectConfiguration.getRequestAttributes().getJvmArguments());
-        String arguments = CollectionsUtils.joinWithSpace(projectConfiguration.getRequestAttributes().getArguments());
-        return from(projectPath, projectDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments);
+        String projectDir = relativePathToRootProject(project, projectConfiguration.toRequestAttributes().getProjectDir());
+        String gradleDistribution = GradleDistributionSerializer.INSTANCE.serializeToString(projectConfiguration.toRequestAttributes().getGradleDistribution());
+        return from(projectPath, projectDir, gradleDistribution);
     }
 
     private static String relativePathToRootProject(IProject project, File rootProjectDir) {
@@ -98,15 +67,7 @@ final class ProjectConfigurationProperties {
     }
 
     ProjectConfiguration toProjectConfiguration(IProject project) {
-        FixedRequestAttributes requestAttributes = new FixedRequestAttributes(
-            rootProjectFile(project, getProjectDir()),
-            FileUtils.getAbsoluteFile(getGradleUserHome()).orNull(),
-            GradleDistributionSerializer.INSTANCE.deserializeFromString(getGradleDistribution()),
-            FileUtils.getAbsoluteFile(getJavaHome()).orNull(),
-            CollectionsUtils.splitBySpace(getJvmArguments()),
-            CollectionsUtils.splitBySpace(getArguments())
-        );
-        return ProjectConfiguration.from(requestAttributes, Path.from(getProjectPath()));
+        return ProjectConfiguration.from(rootProjectFile(project, getProjectDir()), GradleDistributionSerializer.INSTANCE.deserializeFromString(getGradleDistribution()), Path.from(getProjectPath()));
     }
 
     private static File rootProjectFile(IProject project, String pathToRootProject) {

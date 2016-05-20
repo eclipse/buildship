@@ -204,9 +204,9 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         updateFileLabel(this.projectDirLabel, configuration.getProjectDir(), CoreMessages.Value_UseGradleDefault);
         updateGradleDistributionLabel(this.gradleDistributionLabel, configuration.getGradleDistribution(), CoreMessages.Value_UseGradleDefault);
         updateGradleVersionLabel(this.gradleVersionLabel, configuration.getGradleDistribution(), CoreMessages.Value_Unknown);
+        this.gradleUserHomeLabel.setText(CoreMessages.Value_Unknown);
+        this.javaHomeLabel.setText(CoreMessages.Value_Unknown);
         updateGradleVersionWarningLabel();
-        updateFileLabel(this.gradleUserHomeLabel, configuration.getGradleUserHome(), CoreMessages.Value_UseGradleDefault);
-        updateFileLabel(this.javaHomeLabel, configuration.getJavaHome(), CoreMessages.Value_UseGradleDefault);
     }
 
     private void updateFileLabel(Label target, Property<File> source, String defaultMessage) {

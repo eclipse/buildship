@@ -11,83 +11,88 @@
 
 package org.eclipse.buildship.core.configuration;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
+import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+
+import org.eclipse.buildship.core.CorePlugin;
 
 /**
  * Describes the Gradle-specific configuration of an Eclipse project.
  */
 public final class ProjectConfiguration {
 
-    private final FixedRequestAttributes requestAttributes;
     private final Path projectPath;
+    private final File rootProjectDirectory;
+    private final GradleDistribution gradleDistribution;
 
-    private ProjectConfiguration(FixedRequestAttributes requestAttributes, Path projectPath) {
-        this.requestAttributes = Preconditions.checkNotNull(requestAttributes);
+    private ProjectConfiguration(File rootProjectDirectory, GradleDistribution gradleDistribution, Path projectPath) {
+        this.rootProjectDirectory = canonicalize(rootProjectDirectory);
+        this.gradleDistribution = Preconditions.checkNotNull(gradleDistribution);
         this.projectPath = Preconditions.checkNotNull(projectPath);
     }
 
-    /**
-     * Returns the request attributes that are used to connect to the Gradle project.
-     *
-     * @return the request attributes used to connect to the Gradle project, never null
-     */
-    public FixedRequestAttributes getRequestAttributes() {
-        return this.requestAttributes;
+    private static File canonicalize(File file) {
+        try {
+            return file.getCanonicalFile();
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
-    /**
-     * Returns the path of the Gradle project.
-     *
-     * @return the path of the Gradle project, never null
-     */
+    public FixedRequestAttributes toRequestAttributes() {
+        return new FixedRequestAttributes(
+                this.rootProjectDirectory,
+                CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration().getGradleUserHome(),
+                this.gradleDistribution,
+                null,
+                Collections.<String> emptyList(),
+                Collections.<String> emptyList()
+        );
+    }
+
     public Path getProjectPath() {
         return this.projectPath;
     }
 
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (other == null || getClass() != other.getClass()) {
-            return false;
-        }
+    public File getRootProjectDirectory() {
+        return this.rootProjectDirectory;
+    }
 
-        ProjectConfiguration that = (ProjectConfiguration) other;
-        return Objects.equal(this.requestAttributes, that.requestAttributes) && Objects.equal(this.projectPath, that.projectPath);
+    public GradleDistribution getGradleDistribution() {
+        return this.gradleDistribution;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ProjectConfiguration) {
+            ProjectConfiguration other = (ProjectConfiguration) obj;
+            return Objects.equal(this.projectPath, other.projectPath)
+                    && Objects.equal(this.rootProjectDirectory, other.rootProjectDirectory)
+                    && Objects.equal(this.gradleDistribution, other.gradleDistribution);
+        }
+        return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.requestAttributes, this.projectPath);
+        return Objects.hashCode(this.rootProjectDirectory, this.gradleDistribution, this.projectPath);
     }
 
-    /**
-     * Creates a new instance.
-     *
-     * @param requestAttributes the connection aspects of the configuration
-     * @param project the project aspects of the configuration
-     * @return the new instance
-     */
-    public static ProjectConfiguration from(FixedRequestAttributes requestAttributes, OmniEclipseProject project) {
-        return from(requestAttributes, project.getPath());
+    public static ProjectConfiguration from(FixedRequestAttributes build, OmniEclipseProject project) {
+        return from(build.getProjectDir(), build.getGradleDistribution(), project.getPath());
     }
 
-    /**
-     * Creates a new instance.
-     *
-     * @param requestAttributes the connection aspects of the configuration
-     * @param projectPath the path of the Gradle project
-     * @param projectDir the location of the Gradle project
-     * @return the new instance
-     */
-    public static ProjectConfiguration from(FixedRequestAttributes requestAttributes, Path projectPath) {
-        return new ProjectConfiguration(requestAttributes, projectPath);
+    public static ProjectConfiguration from(File rootProjectDir, GradleDistribution gradleDistribution, Path projectPath) {
+        return new ProjectConfiguration(rootProjectDir, gradleDistribution, projectPath);
     }
 
 }

@@ -59,7 +59,7 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
 
             @Override
             public FixedRequestAttributes apply(IProject project) {
-                return CorePlugin.projectConfigurationManager().readProjectConfiguration(project).getRequestAttributes();
+                return CorePlugin.projectConfigurationManager().readProjectConfiguration(project).toRequestAttributes();
             }
         }).toSet();
     }

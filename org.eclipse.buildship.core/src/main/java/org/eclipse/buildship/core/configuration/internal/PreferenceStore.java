@@ -29,18 +29,16 @@ abstract class PreferenceStore {
     }
 
     /**
-     * Reads the preference value. May return {@code null}, if a null-value was stored for the
-     * target key.
+     * Reads the preference value. May return {@code null}, if the key was not present.
      *
      * @param key the preference key
      * @return the preference value
-     * @throws GradlePluginsRuntimeException if the key is not present in the preference store
      */
     abstract String read(String key);
 
     /**
      * Writes a preference key-value pair. The changes can be persisted by calling {@link #flush()}.
-     * The value can be {@code null}.
+     * If the value is {@code null}, the preference is removed.
      *
      * @param key   the preference key
      * @param value the preference value
@@ -53,7 +51,9 @@ abstract class PreferenceStore {
      *
      * @param key the key to remove from the preference store
      */
-    abstract void delete(String key);
+    void delete(String key) {
+        write(key, null);
+    }
 
     /**
      * Persists changes done on this preference store.
@@ -61,14 +61,6 @@ abstract class PreferenceStore {
      * @throws GradlePluginsRuntimeException if the operation fails
      */
     abstract void flush();
-
-    static String fromRawValue(String value) {
-        return "null".equals(value) ? null : value;
-    }
-
-    static String toRawValue(String value) {
-        return value == null ? "null" : value;
-    }
 
     /**
      * Creates a new preference store based on Eclipse project-scoped preferences.
@@ -111,22 +103,16 @@ abstract class PreferenceStore {
 
         @Override
         String read(String key) {
-            String rawValue = this.preferences.get(key, null);
-            if (rawValue == null) {
-                throw new GradlePluginsRuntimeException(String.format("Cannot read preference %s in project %s in node %s.", key, this.project.getName(), this.node));
-            } else {
-                return fromRawValue(rawValue);
-            }
+            return this.preferences.get(key, null);
         }
 
         @Override
         void write(String key, String value) {
-            this.preferences.put(key, toRawValue(value));
-        }
-
-        @Override
-        void delete(String key) {
-            this.preferences.remove(key);
+            if (value == null) {
+                this.preferences.remove(key);
+            } else {
+                this.preferences.put(key, value);
+            }
         }
 
         @Override
@@ -180,22 +166,16 @@ abstract class PreferenceStore {
 
         @Override
         String read(String key) {
-            String rawValue = getProperties().getProperty(key, null);
-            if (rawValue == null) {
-                throw new GradlePluginsRuntimeException(String.format("Cannot read preference %s from file %s.", key, this.propertiesFile.getAbsolutePath()));
-            } else {
-                return fromRawValue(rawValue);
-            }
+            return getProperties().getProperty(key, null);
         }
 
         @Override
         void write(String key, String value) {
-            getProperties().put(key, toRawValue(value));
-        }
-
-        @Override
-        void delete(String key) {
-            getProperties().remove(key);
+            if (value == null) {
+                getProperties().remove(value);
+            } else {
+                getProperties().put(key, value);
+            }
         }
 
         @Override

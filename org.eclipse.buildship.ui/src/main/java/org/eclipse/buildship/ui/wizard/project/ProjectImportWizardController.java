@@ -59,9 +59,6 @@ public class ProjectImportWizardController {
     private static final String SETTINGS_KEY_PROJECT_DIR = "project_location"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_GRADLE_DISTRIBUTION_TYPE = "gradle_distribution_type"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_GRADLE_DISTRIBUTION_CONFIGURATION = "gradle_distribution_configuration"; //$NON-NLS-1$
-    private static final String SETTINGS_KEY_JAVA_HOME = "java_home"; //$NON-NLS-1$
-    private static final String SETTINGS_KEY_JVM_ARGUMENTS = "jvm_arguments"; //$NON-NLS-1$
-    private static final String SETTINGS_KEY_ARGUMENTS = "arguments"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_APPLY_WORKING_SETS = "apply_working_sets"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_WORKING_SETS = "working_sets"; //$NON-NLS-1$
 
@@ -71,43 +68,27 @@ public class ProjectImportWizardController {
         // assemble configuration object that serves as the data model of the wizard
         Validator<File> projectDirValidator = Validators.requiredDirectoryValidator(ProjectWizardMessages.Label_ProjectRootDirectory);
         Validator<GradleDistributionWrapper> gradleDistributionValidator = GradleDistributionValidator.gradleDistributionValidator();
-        Validator<File> gradleUserHomeValidator = Validators.optionalDirectoryValidator(ProjectWizardMessages.Label_GradleUserHome);
-        Validator<File> javaHomeValidator = Validators.optionalDirectoryValidator(ProjectWizardMessages.Label_JavaHome);
-        Validator<String> jvmArgumentsValidator = Validators.nullValidator();
-        Validator<String> argumentsValidator = Validators.nullValidator();
         Validator<Boolean> applyWorkingSetsValidator = Validators.nullValidator();
         Validator<List<String>> workingSetsValidator = Validators.nullValidator();
 
-        this.configuration = new ProjectImportConfiguration(projectDirValidator, gradleDistributionValidator, gradleUserHomeValidator, javaHomeValidator,
-                jvmArgumentsValidator, argumentsValidator, applyWorkingSetsValidator, workingSetsValidator);
+        this.configuration = new ProjectImportConfiguration(projectDirValidator, gradleDistributionValidator, applyWorkingSetsValidator, workingSetsValidator);
 
         // initialize values from the persisted dialog settings
         IDialogSettings dialogSettings = projectImportWizard.getDialogSettings();
         Optional<File> projectDir = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_PROJECT_DIR));
         Optional<String> gradleDistributionType = Optional.fromNullable(Strings.emptyToNull(dialogSettings.get(SETTINGS_KEY_GRADLE_DISTRIBUTION_TYPE)));
         Optional<String> gradleDistributionConfiguration = Optional.fromNullable(Strings.emptyToNull(dialogSettings.get(SETTINGS_KEY_GRADLE_DISTRIBUTION_CONFIGURATION)));
-        Optional<File> gradleUserHome = Optional.fromNullable(CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration().getGradleUserHome());
-        Optional<File> javaHome = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_JAVA_HOME));
-        Optional<String> jvmArguments = Optional.fromNullable(Strings.emptyToNull(dialogSettings.get(SETTINGS_KEY_JVM_ARGUMENTS)));
-        Optional<String> arguments = Optional.fromNullable(Strings.emptyToNull(dialogSettings.get(SETTINGS_KEY_ARGUMENTS)));
         boolean applyWorkingSets = dialogSettings.get(SETTINGS_KEY_APPLY_WORKING_SETS) != null && dialogSettings.getBoolean(SETTINGS_KEY_APPLY_WORKING_SETS);
         List<String> workingSets = ImmutableList.copyOf(CollectionsUtils.nullToEmpty(dialogSettings.getArray(SETTINGS_KEY_WORKING_SETS)));
 
         this.configuration.setProjectDir(projectDir.orNull());
         this.configuration.setGradleDistribution(createGradleDistribution(gradleDistributionType, gradleDistributionConfiguration));
-        this.configuration.setGradleUserHome(gradleUserHome.orNull());
-        this.configuration.setJavaHome(javaHome.orNull());
-        this.configuration.setJvmArguments(jvmArguments.orNull());
-        this.configuration.setArguments(arguments.orNull());
         this.configuration.setApplyWorkingSets(applyWorkingSets);
         this.configuration.setWorkingSets(workingSets);
 
         // store the values every time they change
         saveFilePropertyWhenChanged(dialogSettings, SETTINGS_KEY_PROJECT_DIR, this.configuration.getProjectDir());
         saveGradleWrapperPropertyWhenChanged(dialogSettings, this.configuration.getGradleDistribution());
-        saveFilePropertyWhenChanged(dialogSettings, SETTINGS_KEY_JAVA_HOME, this.configuration.getJavaHome());
-        saveStringPropertyWhenChanged(dialogSettings, SETTINGS_KEY_JVM_ARGUMENTS, this.configuration.getJvmArguments());
-        saveStringPropertyWhenChanged(dialogSettings, SETTINGS_KEY_ARGUMENTS, this.configuration.getArguments());
         saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_APPLY_WORKING_SETS, this.configuration.getApplyWorkingSets());
         saveStringArrayPropertyWhenChanged(dialogSettings, SETTINGS_KEY_WORKING_SETS, this.configuration.getWorkingSets());
     }
@@ -119,15 +100,6 @@ public class ProjectImportWizardController {
     }
 
     private void saveBooleanPropertyWhenChanged(final IDialogSettings settings, final String settingsKey, final Property<Boolean> target) {
-        target.addValidationListener(new ValidationListener() {
-
-            @Override
-            public void validationTriggered(Property<?> source, Optional<String> validationErrorMessage) {
-                settings.put(settingsKey, target.getValue());
-            }
-        });
-    }
-   private void saveStringPropertyWhenChanged(final IDialogSettings settings, final String settingsKey, final Property<String> target) {
         target.addValidationListener(new ValidationListener() {
 
             @Override
@@ -182,7 +154,8 @@ public class ProjectImportWizardController {
     }
 
     /**
-     * A delegating {@link NewProjectHandler} which adds workingsets to the imported projects and ensures that the Gradle views are visible.
+     * A delegating {@link NewProjectHandler} which adds workingsets to the imported projects and
+     * ensures that the Gradle views are visible.
      *
      * @author Stefan Oehme
      */
@@ -236,7 +209,8 @@ public class ProjectImportWizardController {
         }
 
         private void addWorkingSets(IProject project) {
-            List<String> workingSetNames = this.configuration.getApplyWorkingSets().getValue() ? ImmutableList.copyOf(this.configuration.getWorkingSets().getValue()) : ImmutableList.<String>of();
+            List<String> workingSetNames = this.configuration.getApplyWorkingSets().getValue() ? ImmutableList.copyOf(this.configuration.getWorkingSets().getValue())
+                    : ImmutableList.<String> of();
             IWorkingSetManager workingSetManager = PlatformUI.getWorkbench().getWorkingSetManager();
             IWorkingSet[] workingSets = WorkingSetUtils.toWorkingSets(workingSetNames);
             workingSetManager.addToWorkingSets(project, workingSets);

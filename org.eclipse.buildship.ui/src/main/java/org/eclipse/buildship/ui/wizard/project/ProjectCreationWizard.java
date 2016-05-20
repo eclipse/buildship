@@ -14,18 +14,20 @@ package org.eclipse.buildship.ui.wizard.project;
 import java.io.File;
 import java.util.List;
 
+import org.gradle.tooling.CancellationToken;
+import org.gradle.tooling.ProgressListener;
+
 import com.google.common.base.Optional;
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
-import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
-import org.eclipse.buildship.core.util.progress.AsyncHandler;
-import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
-import org.eclipse.buildship.core.workspace.NewProjectHandler;
-import org.eclipse.buildship.ui.HelpContext;
-import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
+import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.FutureCallback;
+
+import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
+import com.gradleware.tooling.toolingclient.LaunchableConfig;
+import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
+import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.util.Pair;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -37,18 +39,18 @@ import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
-import org.gradle.tooling.CancellationToken;
-import org.gradle.tooling.ProgressListener;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.FutureCallback;
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingclient.LaunchableConfig;
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.util.Pair;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
+import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
+import org.eclipse.buildship.core.util.progress.AsyncHandler;
+import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
+import org.eclipse.buildship.core.workspace.NewProjectHandler;
+import org.eclipse.buildship.ui.HelpContext;
+import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
 
 /**
  * Eclipse wizard for creating Gradle projects in the workspace.
@@ -276,22 +278,13 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
                     if (projectDir.mkdir()) {
                         // prepare the request
                         List<String> tasks = GRADLE_INIT_TASK_CMD_LINE;
-                        GradleDistribution gradleDistribution = this.fixedAttributes.getGradleDistribution();
-                        File gradleUserHome = FileUtils.getAbsoluteFile(this.fixedAttributes.getGradleUserHome()).orNull();
-                        File javaHome = FileUtils.getAbsoluteFile(this.fixedAttributes.getJavaHome()).orNull();
-                        List<String> jvmArguments = this.fixedAttributes.getJvmArguments();
-                        List<String> arguments = this.fixedAttributes.getArguments();
                         ProgressListener[] progressListeners = this.listeners.isPresent() ? this.listeners.get().toArray(new ProgressListener[this.listeners.get().size()]) :
                                 new ProgressListener[]{DelegatingProgressListener.withFullOutput(monitor)};
 
                         // configure the request
                         BuildLaunchRequest request = CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(tasks));
+                        this.fixedAttributes.apply(request);
                         request.projectDir(projectDir);
-                        request.gradleDistribution(gradleDistribution);
-                        request.gradleUserHomeDir(gradleUserHome);
-                        request.javaHomeDir(javaHome);
-                        request.jvmArguments(jvmArguments.toArray(new String[jvmArguments.size()]));
-                        request.arguments(arguments.toArray(new String[arguments.size()]));
                         request.progressListeners(progressListeners);
                         request.cancellationToken(token);
 

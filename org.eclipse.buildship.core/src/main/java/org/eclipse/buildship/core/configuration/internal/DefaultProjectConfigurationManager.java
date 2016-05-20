@@ -48,7 +48,7 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
             if (workspaceProject.isOpen() && GradleProjectNature.isPresentOn(workspaceProject)) {
                 // calculate the root configuration to which the current configuration belongs
                 ProjectConfiguration projectConfiguration = this.projectConfigurationPersistence.readProjectConfiguration(workspaceProject);
-                ProjectConfiguration rootProjectConfiguration = ProjectConfiguration.from(projectConfiguration.getRequestAttributes(), Path.from(":"));
+                ProjectConfiguration rootProjectConfiguration = ProjectConfiguration.from(projectConfiguration.getRootProjectDirectory(), projectConfiguration.getGradleDistribution(), Path.from(":"));
                 rootConfigurations.add(rootProjectConfiguration);
             }
         }
@@ -59,7 +59,7 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
         // changed/corrupted manually
         Map<String, ProjectConfiguration> rootProjectDirs = Maps.newHashMap();
         for (ProjectConfiguration rootProjectConfiguration : rootConfigurations.build()) {
-            String rootProjectDirPath = rootProjectConfiguration.getRequestAttributes().getProjectDir().getAbsolutePath();
+            String rootProjectDirPath = rootProjectConfiguration.toRequestAttributes().getProjectDir().getAbsolutePath();
             if (!rootProjectDirs.containsKey(rootProjectDirPath)) {
                 rootProjectDirs.put(rootProjectDirPath, rootProjectConfiguration);
             } else {
