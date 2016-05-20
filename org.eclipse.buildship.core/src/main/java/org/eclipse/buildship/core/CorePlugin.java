@@ -31,7 +31,9 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 
 import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
+import org.eclipse.buildship.core.configuration.WorkspaceConfigurationManager;
 import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigurationManager;
+import org.eclipse.buildship.core.configuration.internal.DefaultWorkspaceConfigurationManager;
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.console.internal.StdProcessStreamsProvider;
 import org.eclipse.buildship.core.event.ListenerRegistry;
@@ -97,6 +99,8 @@ public final class CorePlugin extends Plugin {
     private ServiceTracker listenerRegistryServiceTracker;
     private ServiceTracker userNotificationServiceTracker;
 
+    private WorkspaceConfigurationManager workspaceConfigurationManager;
+
     @Override
     public void start(BundleContext bundleContext) throws Exception {
         super.start(bundleContext);
@@ -149,6 +153,8 @@ public final class CorePlugin extends Plugin {
         this.gradleLaunchConfigurationService = registerService(context, GradleLaunchConfigurationManager.class, createGradleLaunchConfigurationManager(), preferences);
         this.listenerRegistryService = registerService(context, ListenerRegistry.class, createListenerRegistry(), preferences);
         this.userNotificationService = registerService(context, UserNotification.class, createUserNotification(), preferences);
+
+        this.workspaceConfigurationManager = new DefaultWorkspaceConfigurationManager();
     }
 
     private ServiceTracker createServiceTracker(BundleContext context, Class<?> clazz) {
@@ -279,6 +285,10 @@ public final class CorePlugin extends Plugin {
 
     public static UserNotification userNotification() {
         return (UserNotification) getInstance().userNotificationServiceTracker.getService();
+    }
+
+    public static WorkspaceConfigurationManager workspaceConfigurationManager() {
+        return getInstance().workspaceConfigurationManager;
     }
 
 }

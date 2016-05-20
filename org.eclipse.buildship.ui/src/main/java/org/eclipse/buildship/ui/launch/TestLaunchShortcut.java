@@ -72,7 +72,6 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
 
         // configure the advanced options
         GradleDistribution gradleDistribution = requestAttributes.getGradleDistribution();
-        String gradleUserHome = FileUtils.getAbsolutePath(requestAttributes.getGradleUserHome()).orNull();
         String javaHome = FileUtils.getAbsolutePath(requestAttributes.getJavaHome()).orNull();
         List<String> jvmArguments = requestAttributes.getJvmArguments();
         List<String> arguments = requestAttributes.getArguments();
@@ -81,7 +80,7 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
         boolean showExecutionView = true;
         boolean showConsoleView = true;
 
-        return GradleRunConfigurationAttributes.with(ImmutableList.<String>of(), projectDir, gradleDistribution, gradleUserHome,
+        return GradleRunConfigurationAttributes.with(ImmutableList.<String>of(), projectDir, gradleDistribution,
                 javaHome, jvmArguments, arguments, showExecutionView, showConsoleView);
     }
 

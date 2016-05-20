@@ -32,7 +32,6 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
                 project.getLocation().toFile().absolutePath,
                 GradleDistribution.fromBuild(),
                 null,
-                null,
                 [] as List,
                 [] as List,
                 false,

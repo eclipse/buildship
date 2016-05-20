@@ -84,7 +84,6 @@ public final class TaskNodeSelectionUtils {
 
         // determine the advanced options
         GradleDistribution gradleDistribution = requestAttributes.isPresent() ? requestAttributes.get().getGradleDistribution() : GradleDistribution.fromBuild();
-        String gradleUserHome = requestAttributes.isPresent() ? FileUtils.getAbsolutePath(requestAttributes.get().getGradleUserHome()).orNull() : null;
         String javaHome = requestAttributes.isPresent() ? FileUtils.getAbsolutePath(requestAttributes.get().getJavaHome()).orNull() : null;
         List<String> jvmArguments = requestAttributes.isPresent() ? requestAttributes.get().getJvmArguments() : ImmutableList.<String>of();
         List<String> arguments = requestAttributes.isPresent() ? requestAttributes.get().getArguments() : ImmutableList.<String>of();
@@ -94,7 +93,7 @@ public final class TaskNodeSelectionUtils {
         boolean showConsoleView = true;
 
         // create the run configuration
-        return GradleRunConfigurationAttributes.with(tasks, projectDirectoryExpression, gradleDistribution, gradleUserHome, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView);
+        return GradleRunConfigurationAttributes.with(tasks, projectDirectoryExpression, gradleDistribution, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView);
     }
 
     private static Optional<FixedRequestAttributes> getFixedRequestAttributes(NodeSelection selection) {

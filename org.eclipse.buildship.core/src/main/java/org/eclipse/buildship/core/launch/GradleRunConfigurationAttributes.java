@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
@@ -40,7 +41,6 @@ public final class GradleRunConfigurationAttributes {
     private static final String TASKS = "tasks";
     private static final String WORKING_DIR = "working_dir";
     private static final String GRADLE_DISTRIBUTION = "gradle_distribution";
-    private static final String GRADLE_USER_HOME = "gradle_user_home";
     private static final String JAVA_HOME = "java_home";
     private static final String JVM_ARGUMENTS = "jvm_arguments";
     private static final String ARGUMENTS = "arguments";
@@ -50,7 +50,6 @@ public final class GradleRunConfigurationAttributes {
     private final ImmutableList<String> tasks;
     private final String workingDirExpression;
     private final GradleDistribution gradleDistribution;
-    private final String gradleUserHomeExpression;
     private final String javaHomeExpression;
     private final ImmutableList<String> jvmArgumentExpressions;
     private final ImmutableList<String> argumentExpressions;
@@ -64,20 +63,17 @@ public final class GradleRunConfigurationAttributes {
      * @param workingDirExpression the expression resolving to the working directory from which to
      *            launch the Gradle tasks, never null
      * @param gradleDistribution the Gradle distribution to use
-     * @param gradleUserHomeExpression the expression resolving to the Gradle user home to use, can
-     *            be null
-     * @param javaHomeExpression the expression resolving to the Java home to use, can be null
+Ø     * @param javaHomeExpression the expression resolving to the Java home to use, can be null
      * @param jvmArgumentExpressions the expressions resolving to the JVM arguments to apply
      * @param argumentExpressions the expressions resolving to the arguments to apply
      * @param showExecutionView flag to show the execution view
      * @param showConsoleView flag to show the console view
      */
-    private GradleRunConfigurationAttributes(List<String> tasks, String workingDirExpression, GradleDistribution gradleDistribution, String gradleUserHomeExpression,
+    private GradleRunConfigurationAttributes(List<String> tasks, String workingDirExpression, GradleDistribution gradleDistribution,
             String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean showExecutionView, boolean showConsoleView) {
         this.tasks = ImmutableList.copyOf(tasks);
         this.workingDirExpression = Preconditions.checkNotNull(workingDirExpression);
         this.gradleDistribution = Preconditions.checkNotNull(gradleDistribution);
-        this.gradleUserHomeExpression = gradleUserHomeExpression;
         this.javaHomeExpression = javaHomeExpression;
         this.jvmArgumentExpressions = ImmutableList.copyOf(jvmArgumentExpressions);
         this.argumentExpressions = ImmutableList.copyOf(argumentExpressions);
@@ -106,17 +102,8 @@ public final class GradleRunConfigurationAttributes {
         return this.gradleDistribution;
     }
 
-    public String getGradleUserHomeExpression() {
-        return this.gradleUserHomeExpression;
-    }
-
     public File getGradleUserHome() {
-        try {
-            String location = ExpressionUtils.decode(this.gradleUserHomeExpression);
-            return FileUtils.getAbsoluteFile(location).orNull();
-        } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(String.format("Cannot resolve Gradle user home directory expression %s.", this.gradleUserHomeExpression));
-        }
+        return CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration().getGradleUserHome();
     }
 
     public String getJavaHomeExpression() {
@@ -201,7 +188,6 @@ public final class GradleRunConfigurationAttributes {
         applyTasks(this.tasks, launchConfiguration);
         applyWorkingDirExpression(this.workingDirExpression, launchConfiguration);
         applyGradleDistribution(this.gradleDistribution, launchConfiguration);
-        applyGradleUserHomeExpression(this.gradleUserHomeExpression, launchConfiguration);
         applyJavaHomeExpression(this.javaHomeExpression, launchConfiguration);
         applyJvmArgumentExpressions(this.jvmArgumentExpressions, launchConfiguration);
         applyArgumentExpressions(this.argumentExpressions, launchConfiguration);
@@ -219,10 +205,6 @@ public final class GradleRunConfigurationAttributes {
 
     public static void applyGradleDistribution(GradleDistribution gradleDistribution, ILaunchConfigurationWorkingCopy launchConfiguration) {
         launchConfiguration.setAttribute(GRADLE_DISTRIBUTION, Preconditions.checkNotNull(GradleDistributionSerializer.INSTANCE.serializeToString(gradleDistribution)));
-    }
-
-    public static void applyGradleUserHomeExpression(String gradleUserHomeExpression, ILaunchConfigurationWorkingCopy launchConfiguration) {
-        launchConfiguration.setAttribute(GRADLE_USER_HOME, gradleUserHomeExpression);
     }
 
     public static void applyJavaHomeExpression(String javaHomeExpression, ILaunchConfigurationWorkingCopy launchConfiguration) {
@@ -245,9 +227,9 @@ public final class GradleRunConfigurationAttributes {
         launchConfiguration.setAttribute(SHOW_CONSOLE_VIEW, showConsoleView);
     }
 
-    public static GradleRunConfigurationAttributes with(List<String> tasks, String workingDirExpression, GradleDistribution gradleDistribution, String gradleUserHomeExpression,
+    public static GradleRunConfigurationAttributes with(List<String> tasks, String workingDirExpression, GradleDistribution gradleDistribution,
             String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean showExecutionView, boolean showConsoleView) {
-        return new GradleRunConfigurationAttributes(tasks, workingDirExpression, gradleDistribution, gradleUserHomeExpression, javaHomeExpression, jvmArgumentExpressions,
+        return new GradleRunConfigurationAttributes(tasks, workingDirExpression, gradleDistribution, javaHomeExpression, jvmArgumentExpressions,
                 argumentExpressions, showExecutionView, showConsoleView);
     }
 
@@ -275,13 +257,6 @@ public final class GradleRunConfigurationAttributes {
             gradleDistribution = serialized != null ? GradleDistributionSerializer.INSTANCE.deserializeFromString(serialized) : GradleDistribution.fromBuild();
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot read launch configuration attribute '%s'.", GRADLE_DISTRIBUTION));
-        }
-
-        String gradleUserHomeExpression;
-        try {
-            gradleUserHomeExpression = launchConfiguration.getAttribute(GRADLE_USER_HOME, (String) null);
-        } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(String.format("Cannot read launch configuration attribute '%s'.", GRADLE_USER_HOME));
         }
 
         String javaHomeExpression;
@@ -319,7 +294,7 @@ public final class GradleRunConfigurationAttributes {
             throw new GradlePluginsRuntimeException(String.format("Cannot read launch configuration attribute '%s'.", SHOW_CONSOLE_VIEW));
         }
 
-        return with(tasks, workingDirExpression, gradleDistribution, gradleUserHomeExpression, javaHomeExpression, jvmArgumentExpressions, argumentExpressions,
+        return with(tasks, workingDirExpression, gradleDistribution, javaHomeExpression, jvmArgumentExpressions, argumentExpressions,
                 showExecutionView, showConsoleView);
     }
 

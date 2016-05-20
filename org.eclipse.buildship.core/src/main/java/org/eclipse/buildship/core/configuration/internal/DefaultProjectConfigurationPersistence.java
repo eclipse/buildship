@@ -31,7 +31,7 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
 
     private static final String PREF_KEY_PROJECT_PATH = "project.path";
     private static final String PREF_KEY_CONNECTION_PROJECT_DIR = "connection.project.dir";
-    private static final String PREF_KEY_CONNECTION_GRADLE_USER_HOME = "connection.gradle.user.home";
+    private static final String DEPRECATED_PREF_KEY_CONNECTION_GRADLE_USER_HOME = "connection.gradle.user.home";
     private static final String PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION = "connection.gradle.distribution";
     private static final String PREF_KEY_CONNECTION_JAVA_HOME = "connection.java.home";
     private static final String PREF_KEY_CONNECTION_JVM_ARGUMENTS = "connection.jvm.arguments";
@@ -60,12 +60,13 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
     private static ProjectConfiguration readProjectConfiguration(IProject project, PreferenceStore preferences) {
         String projectPath = preferences.read(PREF_KEY_PROJECT_PATH);
         String projectDir = preferences.read(PREF_KEY_CONNECTION_PROJECT_DIR);
-        String gradleUserHome = preferences.read(PREF_KEY_CONNECTION_GRADLE_USER_HOME);
+        File gradleUserHome = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration().getGradleUserHome();
+        String gradleUserHomePath = gradleUserHome == null ? null : gradleUserHome.getPath();
         String gradleDistribution = preferences.read(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
         String javaHome = preferences.read(PREF_KEY_CONNECTION_JAVA_HOME);
         String jvmArguments = preferences.read(PREF_KEY_CONNECTION_JVM_ARGUMENTS);
         String arguments = preferences.read(PREF_KEY_CONNECTION_ARGUMENTS);
-        return ProjectConfigurationProperties.from(projectPath, projectDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments).toProjectConfiguration(project);
+        return ProjectConfigurationProperties.from(projectPath, projectDir, gradleUserHomePath, gradleDistribution, javaHome, jvmArguments, arguments).toProjectConfiguration(project);
     }
 
     private static ProjectConfiguration loadFromPropertiesFile(IProject project) throws IOException {
@@ -92,7 +93,7 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
             PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
             preferences.write(PREF_KEY_PROJECT_PATH, properties.getProjectPath());
             preferences.write(PREF_KEY_CONNECTION_PROJECT_DIR, properties.getProjectDir());
-            preferences.write(PREF_KEY_CONNECTION_GRADLE_USER_HOME, properties.getGradleUserHome());
+            preferences.delete(DEPRECATED_PREF_KEY_CONNECTION_GRADLE_USER_HOME);
             preferences.write(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, properties.getGradleDistribution());
             preferences.write(PREF_KEY_CONNECTION_JAVA_HOME, properties.getJavaHome());
             preferences.write(PREF_KEY_CONNECTION_JVM_ARGUMENTS, properties.getJvmArguments());
@@ -112,7 +113,7 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
             PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
             preferences.delete(PREF_KEY_PROJECT_PATH);
             preferences.delete(PREF_KEY_CONNECTION_PROJECT_DIR);
-            preferences.delete(PREF_KEY_CONNECTION_GRADLE_USER_HOME);
+            preferences.delete(DEPRECATED_PREF_KEY_CONNECTION_GRADLE_USER_HOME);
             preferences.delete(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
             preferences.delete(PREF_KEY_CONNECTION_JAVA_HOME);
             preferences.delete(PREF_KEY_CONNECTION_JVM_ARGUMENTS);

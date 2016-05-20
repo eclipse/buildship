@@ -32,7 +32,6 @@ class GradleRunConfigurationAttributesTest extends Specification {
         tasks : ['clean'],
         workingDir : "/home/user/workspace",
         gradleDistr : GradleDistributionWrapper.from(DistributionType.WRAPPER, null).toGradleDistribution(),
-        gradleHome : "/.gradle",
         javaHome : "/.java",
         arguments : ["-q"],
         jvmArguments : ["-ea"],
@@ -51,7 +50,6 @@ class GradleRunConfigurationAttributesTest extends Specification {
         configuration.getTasks() == defaults.tasks
         configuration.getWorkingDirExpression() == defaults.workingDir
         configuration.getGradleDistribution() == defaults.gradleDistr
-        configuration.getGradleUserHomeExpression() == defaults.gradleHome
         configuration.getJavaHomeExpression() == defaults.javaHome
         configuration.getJvmArguments() == defaults.jvmArguments
         configuration.getArguments() == defaults.arguments
@@ -61,7 +59,6 @@ class GradleRunConfigurationAttributesTest extends Specification {
         configuration.getArgumentExpressions() == defaults.arguments
         configuration.getJvmArgumentExpressions() == defaults.jvmArguments
         configuration.getWorkingDir().getAbsolutePath() == new File(defaults.workingDir).getAbsolutePath()
-        configuration.getGradleUserHome().getAbsolutePath() == new File(defaults.gradleHome).getAbsolutePath()
         configuration.getJavaHome().getAbsolutePath() == new File(defaults.javaHome).getAbsolutePath()
     }
 
@@ -71,14 +68,11 @@ class GradleRunConfigurationAttributesTest extends Specification {
 
         then:
         configuration != null
-        attributes.gradleHome != null || configuration.getGradleUserHome() == null
         attributes.javaHome != null || configuration.getJavaHome() == null
 
         where:
         attributes << [
-            defaults.copy { gradleHome = null },
             defaults.copy { javaHome = null },
-            defaults.copy { gradleHome = null; javaHome = null }
         ]
     }
 
@@ -102,7 +96,6 @@ class GradleRunConfigurationAttributesTest extends Specification {
         when:
         def Attributes attributes = defaults.copy {
             workingDir = '${workspace_loc}/working_dir'
-            gradleHome = '${workspace_loc}/gradle_user_home'
             javaHome = '${workspace_loc}/java_home'
         }
         def configuration = attributes.toConfiguration()
@@ -110,8 +103,6 @@ class GradleRunConfigurationAttributesTest extends Specification {
         then:
         configuration.getWorkingDir().getPath().endsWith("working_dir")
         !(configuration.getWorkingDir().getPath().contains('$'))
-        configuration.getGradleUserHome().getPath().endsWith("gradle_user_home")
-        !(configuration.getGradleUserHome().getPath().contains('$'))
         configuration.getJavaHome().getPath().endsWith("java_home")
         !(configuration.getJavaHome().getPath().contains('$'))
     }
@@ -125,21 +116,6 @@ class GradleRunConfigurationAttributesTest extends Specification {
 
         when:
         configuration.getJavaHome()
-
-        then:
-        thrown(GradlePluginsRuntimeException)
-
-    }
-
-    def "Unresolvable expressions in Gradle user home results in runtime exception"() {
-        setup:
-        def Attributes attributes = defaults.copy {
-            gradleHome = '${nonexistingvariable}/gradle_user_home'
-        }
-        def configuration = attributes.toConfiguration()
-
-        when:
-        configuration.getGradleUserHome()
 
         then:
         thrown(GradlePluginsRuntimeException)
@@ -218,7 +194,6 @@ class GradleRunConfigurationAttributesTest extends Specification {
         gradleConfig1.getTasks() == gradleConfig2.getTasks()
         gradleConfig1.getWorkingDirExpression() == gradleConfig2.getWorkingDirExpression()
         gradleConfig1.getGradleDistribution() == gradleConfig2.getGradleDistribution()
-        gradleConfig1.getGradleUserHomeExpression() == gradleConfig2.getGradleUserHomeExpression()
         gradleConfig1.getJavaHomeExpression() == gradleConfig2.getJavaHomeExpression()
         gradleConfig1.getJvmArguments() == gradleConfig2.getJvmArguments()
         gradleConfig1.getArguments() == gradleConfig2.getArguments()
@@ -227,9 +202,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         where:
         attributes << [
             defaults,
-            defaults.copy { gradleHome = null },
             defaults.copy { javaHome = null },
-            defaults.copy { gradleHome = null; javaHome = null }
         ]
     }
 
@@ -251,7 +224,6 @@ class GradleRunConfigurationAttributesTest extends Specification {
         def tasks
         def workingDir
         def gradleDistr
-        def gradleHome
         def javaHome
         def arguments
         def jvmArguments
@@ -259,7 +231,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         def showConsoleView
 
         def GradleRunConfigurationAttributes toConfiguration() {
-            GradleRunConfigurationAttributes.with(tasks, workingDir, gradleDistr, gradleHome, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView)
+            GradleRunConfigurationAttributes.with(tasks, workingDir, gradleDistr, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView)
         }
 
         def Attributes copy(@DelegatesTo(value = Attributes, strategy=Closure.DELEGATE_FIRST) Closure closure) {

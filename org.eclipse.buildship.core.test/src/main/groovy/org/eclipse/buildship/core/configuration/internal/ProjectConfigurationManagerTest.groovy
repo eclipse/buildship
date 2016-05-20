@@ -208,7 +208,7 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         given:
         IProject project = workspaceOperations.createProject("sample-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
 
-        def requestAttributes = new FixedRequestAttributes(project.getLocation().toFile(), tempFolderProvider.newFolder(), GradleDistribution.forVersion("1.12"), tempFolderProvider.newFolder(),
+        def requestAttributes = new FixedRequestAttributes(project.getLocation().toFile(), null, GradleDistribution.forVersion("1.12"), tempFolderProvider.newFolder(),
                 ImmutableList.copyOf("-Xmx256M"), ImmutableList.copyOf("foo"))
         def projectConfiguration = ProjectConfiguration.from(requestAttributes, Path.from(":"))
 
