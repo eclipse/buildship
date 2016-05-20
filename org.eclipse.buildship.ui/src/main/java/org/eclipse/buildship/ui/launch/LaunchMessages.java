@@ -22,7 +22,6 @@ public final class LaunchMessages extends NLS {
 
     public static String Tab_Name_GradleTasks;
     public static String Tab_Name_GradleDistribution;
-    public static String Tab_Name_GradleUserHome;
     public static String Tab_Name_JavaHome;
     public static String Tab_Name_Arguments;
 

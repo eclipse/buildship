@@ -66,7 +66,6 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
 
     // widgets in the advanced options group
     private Text javaHomeText;
-    private Text gradleUserHomeText;
     private Text jvmArgumentsText;
     private Text programArgumentsText;
 
@@ -201,16 +200,6 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
     private void createAdvancedOptionsContent(Composite root) {
         UiBuilder.UiBuilderFactory uiBuilderFactory = getUiBuilderFactory();
 
-        // Gradle user home
-        uiBuilderFactory.newLabel(root).alignLeft().text(ProjectWizardMessages.Label_GradleUserHome);
-
-        File gradleUserHome = getConfiguration().getGradleUserHome().getValue();
-        String gradleUserHomeString = FileUtils.getAbsolutePath(gradleUserHome).orNull();
-        this.gradleUserHomeText = uiBuilderFactory.newText(root).alignFillHorizontal().text(gradleUserHomeString).control();
-
-        Button gradleUserHomeButton = uiBuilderFactory.newButton(root).alignLeft().text(UiMessages.Button_Label_Browse).control();
-        gradleUserHomeButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.gradleUserHomeText, ProjectWizardMessages.Label_GradleUserHome));
-
         // Java home
         uiBuilderFactory.newLabel(root).text(ProjectWizardMessages.Label_JavaHome).alignLeft().control();
 
@@ -323,13 +312,6 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
     }
 
     private void bindAdvancedOptionsToConfiguration() {
-        this.gradleUserHomeText.addModifyListener(new ModifyListener() {
-
-            @Override
-            public void modifyText(ModifyEvent e) {
-                getConfiguration().setGradleUserHome(FileUtils.getAbsoluteFile(GradleOptionsWizardPage.this.gradleUserHomeText.getText()).orNull());
-            }
-        });
         this.javaHomeText.addModifyListener(new ModifyListener() {
 
             @Override

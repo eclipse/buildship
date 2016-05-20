@@ -525,4 +525,12 @@
           </includes>
        </viewerContentBinding>
     </extension>
+    <extension
+          point="org.eclipse.ui.preferencePages">
+       <page
+             class="org.eclipse.buildship.ui.preferences.GradleWorkbenchPreferencePage"
+             id="org.eclipse.buildship.ui.preferences"
+             name="Gradle">
+       </page>
+    </extension>
 </plugin>

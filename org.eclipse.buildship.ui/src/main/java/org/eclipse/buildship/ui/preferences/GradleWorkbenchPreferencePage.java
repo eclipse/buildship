@@ -4,12 +4,11 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.launch;
+package org.eclipse.buildship.ui.preferences;
+
+import static org.eclipse.buildship.core.configuration.WorkspaceConfigurationManager.GRADLE_USER_HOME_PREFERENCE;
 
 import java.io.File;
 
@@ -18,39 +17,42 @@ import com.google.common.base.Strings;
 
 import com.gradleware.tooling.toolingutils.binding.Validator;
 
-import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
-import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.ISharedImages;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
-import org.eclipse.buildship.core.util.binding.Validators;
+import org.eclipse.buildship.ui.i18n.UiMessages;
+import org.eclipse.buildship.ui.launch.LaunchMessages;
 import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
 
 /**
- * Specifies the Gradle user home to apply when executing tasks via the run configurations.
+ * The main workspace preference page for Buildship. Currently only used to configure the Gradle
+ * User Home.
  */
-public final class GradleUserHomeTab extends AbstractLaunchConfigurationTab {
+public class GradleWorkbenchPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
     private final Font defaultFont;
     private final UiBuilder.UiBuilderFactory builderFactory;
@@ -58,31 +60,24 @@ public final class GradleUserHomeTab extends AbstractLaunchConfigurationTab {
 
     private Text gradleUserHomeText;
 
-    public GradleUserHomeTab() {
+    public GradleWorkbenchPreferencePage() {
         this.defaultFont = FontUtils.getDefaultDialogFont();
         this.builderFactory = new UiBuilder.UiBuilderFactory(this.defaultFont);
-        this.gradleUserHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.RunConfiguration_Label_GradleUserHome);
+        this.gradleUserHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_GradleUserHome);
     }
 
     @Override
-    public String getName() {
-        return LaunchMessages.Tab_Name_GradleUserHome;
-    }
-
-    @Override
-    public Image getImage() {
-        return PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_FOLDER).createImage();
-    }
-
-    @Override
-    public void createControl(Composite parent) {
+    protected Control createContents(Composite parent) {
         Composite page = new Composite(parent, SWT.NONE);
         GridLayout layout = new GridLayout(1, false);
         page.setLayout(layout);
-        setControl(page);
 
-        Group gradleUserHomeGroup = createGroup(page, CoreMessages.RunConfiguration_Label_GradleUserHome + ":");
+        Group gradleUserHomeGroup = createGroup(page, CoreMessages.Preference_Label_GradleUserHome + ":");
         createGradleUserHomeSelectionControl(gradleUserHomeGroup);
+
+        initFields();
+
+        return page;
     }
 
     private Group createGroup(Composite parent, String groupName) {
@@ -99,54 +94,64 @@ public final class GradleUserHomeTab extends AbstractLaunchConfigurationTab {
 
             @Override
             public void modifyText(ModifyEvent event) {
-                updateLaunchConfigurationDialog();
+                validate();
             }
         });
 
         Button gradleUserHomeBrowseButton = this.builderFactory.newButton(root).alignLeft().text(UiMessages.Button_Label_Browse).control();
-        gradleUserHomeBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.gradleUserHomeText,
-                CoreMessages.RunConfiguration_Label_GradleUserHome));
+        DirectoryDialogSelectionListener directoryDialogListener = new DirectoryDialogSelectionListener(root.getShell(), this.gradleUserHomeText,
+                CoreMessages.Preference_Label_GradleUserHome);
+        gradleUserHomeBrowseButton.addSelectionListener(directoryDialogListener);
     }
 
-    @Override
-    public void initializeFrom(ILaunchConfiguration configuration) {
-        GradleRunConfigurationAttributes configurationAttributes = GradleRunConfigurationAttributes.from(configuration);
-        this.gradleUserHomeText.setText(Strings.nullToEmpty(configurationAttributes.getGradleUserHomeExpression()));
+    private void validate() {
+        String resolvedGradleUserHome = getResolvedGradleUserHome();
+        File gradleUserHome = FileUtils.getAbsoluteFile(resolvedGradleUserHome).orNull();
+        Optional<String> error = this.gradleUserHomeValidator.validate(gradleUserHome);
+        setValid(!error.isPresent());
+        setErrorMessage(error.orNull());
     }
 
-    @Override
-    public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-        GradleRunConfigurationAttributes.applyGradleUserHomeExpression(Strings.emptyToNull(this.gradleUserHomeText.getText()), configuration);
-    }
-
-    @SuppressWarnings("Contract")
-    @Override
-    public boolean isValid(ILaunchConfiguration launchConfig) {
+    private String getResolvedGradleUserHome() {
         String gradleUserHomeExpression = Strings.emptyToNull(this.gradleUserHomeText.getText());
 
-        String gradleUserHomeResolved;
+        String gradleUserHomeResolved = null;
         try {
             gradleUserHomeResolved = ExpressionUtils.decode(gradleUserHomeExpression);
         } catch (CoreException e) {
             setErrorMessage(NLS.bind(LaunchMessages.ErrorMessage_CannotResolveExpression_0, gradleUserHomeExpression));
-            return false;
+            setValid(false);
         }
+        return gradleUserHomeResolved;
+    }
 
-        File gradleUserHome = FileUtils.getAbsoluteFile(gradleUserHomeResolved).orNull();
-        Optional<String> error = this.gradleUserHomeValidator.validate(gradleUserHome);
-        setErrorMessage(error.orNull());
-        return !error.isPresent();
+    private void initFields() {
+        IPreferenceStore prefs = getPreferenceStore();
+        this.gradleUserHomeText.setText(prefs.getString(GRADLE_USER_HOME_PREFERENCE));
     }
 
     @Override
-    public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
-        // leave the controls empty
+    public boolean performOk() {
+        IPreferenceStore prefs = getPreferenceStore();
+        prefs.setValue(GRADLE_USER_HOME_PREFERENCE, this.gradleUserHomeText.getText());
+        return super.performOk();
+    }
+
+    @Override
+    protected void performDefaults() {
+        this.gradleUserHomeText.setText("");
+        super.performDefaults();
     }
 
     @Override
     public void dispose() {
         this.defaultFont.dispose();
         super.dispose();
+    }
+
+    @Override
+    public void init(IWorkbench workbench) {
+        setPreferenceStore(new ScopedPreferenceStore(InstanceScope.INSTANCE, CorePlugin.PLUGIN_ID));
     }
 
 }

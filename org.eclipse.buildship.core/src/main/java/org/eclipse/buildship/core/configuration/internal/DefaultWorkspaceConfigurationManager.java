@@ -1,0 +1,46 @@
+/*
+ * Copyright (c) 2015 the original author or authors.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+package org.eclipse.buildship.core.configuration.internal;
+
+import java.io.File;
+
+import com.google.common.base.Preconditions;
+
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
+import org.eclipse.buildship.core.configuration.WorkspaceConfigurationManager;
+
+/**
+ * The default implementation of {@link WorkspaceConfigurationManager}.
+ *
+ * @author Stefan oehme
+ */
+public class DefaultWorkspaceConfigurationManager implements WorkspaceConfigurationManager {
+
+    @Override
+    public WorkspaceConfiguration loadWorkspaceConfiguration() {
+        IEclipsePreferences preferences = getPreferences();
+        String userHome = preferences.get(GRADLE_USER_HOME_PREFERENCE, null);
+        return new WorkspaceConfiguration(userHome == null ? null : new File(userHome));
+    }
+
+    @Override
+    public void saveWorkspaceConfiguration(WorkspaceConfiguration config) {
+        Preconditions.checkNotNull(config);
+        IEclipsePreferences preferences = getPreferences();
+        preferences.put(GRADLE_USER_HOME_PREFERENCE, config.getGradleUserHome() == null ? null : config.getGradleUserHome().getPath());
+    }
+
+    private IEclipsePreferences getPreferences() {
+        return InstanceScope.INSTANCE.getNode(CorePlugin.PLUGIN_ID);
+    }
+
+}

@@ -66,7 +66,6 @@ class DefaultProjectConfigurationPersistenceTest extends WorkspaceSpecification 
         def node = new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID)
         node.get(DefaultProjectConfigurationPersistence.PREF_KEY_PROJECT_PATH, null) == ':'
         node.get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null) == ''
-        node.get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_GRADLE_USER_HOME, null) == 'null'
         node.get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, null) == 'GRADLE_DISTRIBUTION(WRAPPER)'
         node.get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_JAVA_HOME, null) == 'null'
         node.get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_JVM_ARGUMENTS, null) == ''
@@ -106,7 +105,6 @@ class DefaultProjectConfigurationPersistenceTest extends WorkspaceSpecification 
                 file "${CorePlugin.PLUGIN_ID}.prefs", """
                     connection.arguments=
                     connection.gradle.distribution=GRADLE_DISTRIBUTION(WRAPPER)
-                    connection.gradle.user.home=null
                     connection.java.home=null
                     connection.jvm.arguments=
                     connection.project.dir=
