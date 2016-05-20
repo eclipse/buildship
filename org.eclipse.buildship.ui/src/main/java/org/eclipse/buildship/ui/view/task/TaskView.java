@@ -12,8 +12,9 @@
 
 package org.eclipse.buildship.ui.view.task;
 
-import java.util.Set;
+import java.util.List;
 
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
@@ -32,8 +33,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.ui.external.viewer.FilteredTree;
 import org.eclipse.buildship.ui.external.viewer.PatternFilter;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
@@ -141,7 +140,7 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
         // set initial content (use fetch strategy LOAD_IF_NOT_CACHED since
         // the model might already be available in case a project import has
         // just happened)
-        reload(FetchStrategy.LOAD_IF_NOT_CACHED);
+        reload();
     }
 
     /**
@@ -154,19 +153,25 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
     }
 
     /**
-     * Triggers a reload of the content backing this view. In case the input is empty, the tree
-     * viewer is hidden and only a label is visible which indicates that there are no tasks to be
-     * displayed.
+     * Updates the view to display the given content.
+     * @param content the content, never null
      */
-    public void reload(FetchStrategy modelFetchStrategy) {
-        try {
-            Set<ProjectConfiguration> rootProjectConfigs = CorePlugin.projectConfigurationManager().getRootProjectConfigurations();
-            this.pages.showPage(rootProjectConfigs.isEmpty() ? this.emptyInputPage : this.nonEmptyInputPage);
-            this.treeViewer.setInput(new TaskViewContent(modelFetchStrategy));
-        } catch (RuntimeException e) {
-            CorePlugin.logger().error("Failed to reload task view content.", e); //$NON-NLS-1$
+    public void setContent(TaskViewContent content) {
+        if (content.getFailure() == null) {
+            List<OmniEclipseProject> models = content.getProjects();
+            this.pages.showPage(models.isEmpty() ? this.emptyInputPage : this.nonEmptyInputPage);
+            this.treeViewer.setInput(content);
+        } else {
             this.pages.showPage(this.errorInputPage);
         }
+    }
+
+    /**
+     * Reloads the task model in the background and updates this view once the reload is complete.
+     * Can be safely called outside the UI thread.
+     */
+    public void reload() {
+        new ReloadTaskViewJob(this, FetchStrategy.FORCE_RELOAD).schedule();
     }
 
     @Override

@@ -13,14 +13,11 @@ package org.eclipse.buildship.ui.view.task;
 
 import com.google.common.base.Preconditions;
 
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.ui.PlatformUI;
 
 /**
  * Tracks the creation/deletion of projects in the workspace and updates the {@link TaskView}
@@ -48,7 +45,7 @@ public final class WorkspaceProjectsChangeListener implements IResourceChangeLis
     @Override
     public void resourceChanged(IResourceChangeEvent event) {
         if (hasListOfProjectsChanged(event.getDelta())) {
-            reloadTaskView();
+            this.taskView.reload();
         }
     }
 
@@ -64,16 +61,6 @@ public final class WorkspaceProjectsChangeListener implements IResourceChangeLis
             }
         }
         return false;
-    }
-
-    private void reloadTaskView() {
-        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-
-            @Override
-            public void run() {
-                WorkspaceProjectsChangeListener.this.taskView.reload(FetchStrategy.FORCE_RELOAD);
-            }
-        });
     }
 
 }

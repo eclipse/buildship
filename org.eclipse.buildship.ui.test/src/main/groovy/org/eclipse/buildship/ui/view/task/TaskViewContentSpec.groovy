@@ -45,13 +45,11 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
 
     def "Task are grouped by default"() {
         when:
-        def project = dir("root") {
-            file 'build.gradle', """
+        def project = dir("root") { file 'build.gradle', """
                 task foo() {
                     group = 'custom'
                 }
-            """
-        }
+            """ }
         importAndWait(project)
         waitForTaskView()
 
@@ -63,13 +61,11 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
         when:
         def project = dir("root") {
             file 'settings.gradle', "include 'a'"
-            a {
-                file 'build.gradle', """
+            a { file 'build.gradle', """
                     task foo() {
                         group = 'custom'
                     }
-                """
-            }
+                """ }
         }
         importAndWait(project)
         waitForTaskView()
@@ -81,17 +77,11 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
 
     def "If one project has errors, tasks from other projects are still visible"() {
         given:
-        def first = dir("a") {
-            file 'build.gradle'
-        }
-        def second = dir("b") {
-            file 'build.gradle'
-        }
+        def first = dir("a") { file 'build.gradle' }
+        def second = dir("b") { file 'build.gradle' }
         importAndWait(first)
         importAndWait(second)
-        fileTree(first) {
-            file 'build.gradle', "error"
-        }
+        fileTree(first) { file 'build.gradle', "error" }
 
         when:
         reloadTaskView()
@@ -103,17 +93,11 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
 
     def "The task view is refreshed when projects are added/deleted"() {
         given:
-        def first = dir("a") {
-            file 'build.gradle'
-        }
-        def second = dir("b") {
-            file 'build.gradle'
-        }
+        def first = dir("a") { file 'build.gradle' }
+        def second = dir("b") { file 'build.gradle' }
         importAndWait(first)
         importAndWait(second)
-        fileTree(first) {
-            file 'build.gradle', "error"
-        }
+        fileTree(first) { file 'build.gradle', "error" }
 
         when:
         findProject("b").delete(true, true, null)
@@ -147,7 +131,7 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
 
     private def reloadTaskView() {
         PlatformUI.workbench.display.syncExec {
-            view.reload(FetchStrategy.FORCE_RELOAD)
+            view.reload()
         }
         waitForTaskView()
     }
@@ -155,17 +139,11 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
     /*
      * The task view is refreshed whenever a project is added/removed.
      * So first we need to wait for this addition/removal event.
-     * The change listener then schedules an async runnable to call the
-     * reload method on the task view. So we need to wait until the display
-     * queue has been processed. Finally, the task view starts a synchronization
-     * job to get the latest model and that job then asynchronously updates the view.
-     * We need to wait for that job to finish and wait another time on the display
-     * queue before finally the task view is guaranteed to be up-to-date.
+     * The task view starts a synchronization job to get the latest model and that job then synchronously updates the view.
+     * We need to wait for that job to finish before the task view is guaranteed to be up-to-date.
      */
     private waitForTaskView() {
         waitForResourceChangeEvents()
-        PlatformUI.workbench.display.syncExec {}
         waitForGradleJobsToFinish()
-        PlatformUI.workbench.display.syncExec {}
     }
 }

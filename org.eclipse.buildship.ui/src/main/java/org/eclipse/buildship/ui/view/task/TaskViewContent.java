@@ -11,25 +11,35 @@
 
 package org.eclipse.buildship.ui.view.task;
 
-import com.google.common.base.Preconditions;
+import java.util.List;
 
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
+import org.gradle.tooling.GradleConnectionException;
+
+import com.google.common.collect.ImmutableList;
+
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 
 /**
- * Encapsulates the content backing the {@link TaskView}. The content consists of the
- * {@link FetchStrategy} to apply when querying for the Gradle project/task models in the content
- * provider.
+ * Encapsulates the content backing the {@link TaskView}.
  */
 public final class TaskViewContent {
 
-    private final FetchStrategy modelFetchStrategy;
+    private final GradleConnectionException failure;
+    private final List<OmniEclipseProject> projects;
 
-    public TaskViewContent(FetchStrategy modelFetchStrategy) {
-        this.modelFetchStrategy = Preconditions.checkNotNull(modelFetchStrategy);
+    public TaskViewContent(List<OmniEclipseProject> projects, GradleConnectionException failure) {
+        this.projects = ImmutableList.copyOf(projects);
+        this.failure = failure;
     }
 
-    public FetchStrategy getModelFetchStrategy() {
-        return this.modelFetchStrategy;
+    public List<OmniEclipseProject> getProjects() {
+        if (this.failure != null) {
+            throw this.failure;
+        }
+        return this.projects;
     }
 
+    public Exception getFailure() {
+        return this.failure;
+    }
 }

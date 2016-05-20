@@ -14,10 +14,6 @@ package org.eclipse.buildship.ui.view.task;
 import java.util.List;
 import java.util.Set;
 
-import org.gradle.tooling.connection.ModelResult;
-import org.gradle.tooling.connection.ModelResults;
-
-import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -28,20 +24,12 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.OmniProjectTask;
 import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.util.progress.ToolingApiJob;
-import org.eclipse.buildship.core.workspace.CompositeModelProvider;
 
 /**
  * Content provider for the {@link TaskView}.
@@ -62,55 +50,28 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
 
     @Override
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-        // handle the case where the new input is null
-        // (this happens when the ContentViewer gets disposed)
-        if (newInput == null) {
-            return;
-        }
-
-        // the only way to set the input is
-        // through TaskView#setInput(TaskViewContent)
-        TaskViewContent content = TaskViewContent.class.cast(newInput);
-        LoadTasksJob loadEclipseGradleBuildsJob = new LoadTasksJob(content.getModelFetchStrategy());
-        loadEclipseGradleBuildsJob.addJobChangeListener(new RefreshTasksViewAfterJobDone(this.taskView));
-        loadEclipseGradleBuildsJob.schedule();
     }
 
     @Override
     public Object[] getElements(Object input) {
         ImmutableList.Builder<Object> result = ImmutableList.builder();
         if (input instanceof TaskViewContent) {
-            result.addAll(createTopLevelProjectNodes());
+            List<OmniEclipseProject> projects = ((TaskViewContent) input).getProjects();
+            result.addAll(createTopLevelProjectNodes(projects));
         }
         return result.build().toArray();
     }
 
-    private List<ProjectNode> createTopLevelProjectNodes() {
-        ModelResults<OmniEclipseProject> results = fetchCachedEclipseEclipseProjects();
-        if (results == null) {
-            // no Gradle projects are cached yet, meaning the async job
-            // to load the projects is still running, thus nothing to show
-            return ImmutableList.of();
-        } else {
-            // flatten the tree of Gradle projects to a list, similar
-            // to how Eclipse projects look in the Eclipse Project explorer
-            List<ProjectNode> allProjectNodes = Lists.newArrayList();
-            for (ModelResult<OmniEclipseProject> result : results) {
-                if (result.getFailure() == null) {
-                    OmniEclipseProject project = result.getModel();
-                    if (project.getParent() == null) {
-                        collectProjectNodesRecursively(project, null, allProjectNodes);
-                    }
-                }
-
+    private List<ProjectNode> createTopLevelProjectNodes(List<OmniEclipseProject> projects) {
+        // flatten the tree of Gradle projects to a list, similar
+        // to how Eclipse projects look in the Eclipse Project explorer
+        List<ProjectNode> allProjectNodes = Lists.newArrayList();
+        for (OmniEclipseProject project : projects) {
+            if (project.getParent() == null) {
+                collectProjectNodesRecursively(project, null, allProjectNodes);
             }
-            return allProjectNodes;
         }
-    }
-
-    private ModelResults<OmniEclipseProject> fetchCachedEclipseEclipseProjects() {
-        CompositeModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getCompositeBuild().getModelProvider();
-        return modelProvider.fetchEclipseProjects(FetchStrategy.FROM_CACHE_ONLY, null, null);
+        return allProjectNodes;
     }
 
     private void collectProjectNodesRecursively(OmniEclipseProject eclipseProject, ProjectNode parentProjectNode, List<ProjectNode> allProjectNodes) {
@@ -195,63 +156,4 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
     @Override
     public void dispose() {
     }
-
-    /**
-     * Loads the tasks for all projects into the cache.
-     */
-    private static final class LoadTasksJob extends ToolingApiJob {
-
-        private final FetchStrategy modelFetchStrategy;
-
-        public LoadTasksJob(FetchStrategy modelFetchStrategy) {
-            super("Loading tasks of all Gradle projects");
-            this.modelFetchStrategy = Preconditions.checkNotNull(modelFetchStrategy);
-        }
-
-        @Override
-        protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
-            CompositeModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getCompositeBuild().getModelProvider();
-            modelProvider.fetchEclipseProjects(this.modelFetchStrategy, getToken(), monitor);
-        }
-
-        /**
-         * If there is already a {@link LoadTasksJob} scheduled with the same fetch strategy, then
-         * this job does not need to run.
-         */
-        @Override
-        public boolean shouldSchedule() {
-            Job[] jobs = Job.getJobManager().find(CorePlugin.GRADLE_JOB_FAMILY);
-            for (Job job : jobs) {
-                if (job instanceof LoadTasksJob) {
-                    LoadTasksJob other = (LoadTasksJob) job;
-                    return !Objects.equal(this.modelFetchStrategy, other.modelFetchStrategy);
-                }
-            }
-            return true;
-        }
-    }
-
-    /**
-     * Refreshes the task view when invoked, regardless of whether the underlying operation was successful or not.
-     */
-    private static final class RefreshTasksViewAfterJobDone extends JobChangeAdapter {
-
-        private final TaskView taskView;
-
-        private RefreshTasksViewAfterJobDone(TaskView taskView) {
-            this.taskView = Preconditions.checkNotNull(taskView);
-        }
-
-        @Override
-        public void done(IJobChangeEvent event) {
-            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-
-                @Override
-                public void run() {
-                    RefreshTasksViewAfterJobDone.this.taskView.refresh();
-                }
-            });
-        }
-    }
-
 }
