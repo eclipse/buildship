@@ -8,8 +8,6 @@
 
 package org.eclipse.buildship.ui.preferences;
 
-import static org.eclipse.buildship.core.configuration.WorkspaceConfigurationManager.GRADLE_USER_HOME_PREFERENCE;
-
 import java.io.File;
 
 import com.google.common.base.Optional;
@@ -18,8 +16,6 @@ import com.google.common.base.Strings;
 import com.gradleware.tooling.toolingutils.binding.Validator;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
@@ -35,9 +31,9 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.core.util.file.FileUtils;
@@ -126,14 +122,16 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
     }
 
     private void initFields() {
-        IPreferenceStore prefs = getPreferenceStore();
-        this.gradleUserHomeText.setText(prefs.getString(GRADLE_USER_HOME_PREFERENCE));
+        WorkspaceConfiguration config = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
+        File gradleUserHome = config.getGradleUserHome();
+        this.gradleUserHomeText.setText(gradleUserHome == null ? "" : gradleUserHome.getPath());
     }
 
     @Override
     public boolean performOk() {
-        IPreferenceStore prefs = getPreferenceStore();
-        prefs.setValue(GRADLE_USER_HOME_PREFERENCE, this.gradleUserHomeText.getText());
+        String gradleUserHome = this.gradleUserHomeText.getText();
+        WorkspaceConfiguration config = new WorkspaceConfiguration(gradleUserHome.isEmpty() ? null : new File(gradleUserHome));
+        CorePlugin.workspaceConfigurationManager().saveWorkspaceConfiguration(config);
         return super.performOk();
     }
 
@@ -151,7 +149,6 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
 
     @Override
     public void init(IWorkbench workbench) {
-        setPreferenceStore(new ScopedPreferenceStore(InstanceScope.INSTANCE, CorePlugin.PLUGIN_ID));
     }
 
 }
