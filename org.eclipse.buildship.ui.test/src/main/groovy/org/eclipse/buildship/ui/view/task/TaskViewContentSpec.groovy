@@ -45,11 +45,13 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
 
     def "Task are grouped by default"() {
         when:
-        def project = dir("root") { file 'build.gradle', """
+        def project = dir("root") {
+            file 'build.gradle', """
                 task foo() {
                     group = 'custom'
                 }
-            """ }
+            """
+        }
         importAndWait(project)
         waitForTaskView()
 
@@ -61,11 +63,13 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
         when:
         def project = dir("root") {
             file 'settings.gradle', "include 'a'"
-            a { file 'build.gradle', """
+            a {
+                file 'build.gradle', """
                     task foo() {
                         group = 'custom'
                     }
-                """ }
+                """
+            }
         }
         importAndWait(project)
         waitForTaskView()
@@ -130,9 +134,7 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
     }
 
     private def reloadTaskView() {
-        PlatformUI.workbench.display.syncExec {
-            view.reload()
-        }
+        view.reload()
         waitForTaskView()
     }
 

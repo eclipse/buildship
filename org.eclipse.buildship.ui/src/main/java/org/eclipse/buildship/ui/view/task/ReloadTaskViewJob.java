@@ -15,7 +15,6 @@ import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.connection.ModelResult;
 import org.gradle.tooling.connection.ModelResults;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -23,7 +22,6 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.CorePlugin;
@@ -79,21 +77,5 @@ final class ReloadTaskViewJob extends ToolingApiJob {
                 ReloadTaskViewJob.this.taskView.setContent(content);
             }
         });
-    }
-
-    /**
-     * If there is already a {@link ReloadTaskViewJob} scheduled with the same fetch strategy, then
-     * this job does not need to run.
-     */
-    @Override
-    public boolean shouldSchedule() {
-        Job[] jobs = Job.getJobManager().find(CorePlugin.GRADLE_JOB_FAMILY);
-        for (Job job : jobs) {
-            if (job instanceof ReloadTaskViewJob) {
-                ReloadTaskViewJob other = (ReloadTaskViewJob) job;
-                return !Objects.equal(this.modelFetchStrategy, other.modelFetchStrategy);
-            }
-        }
-        return true;
     }
 }
