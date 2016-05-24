@@ -43,10 +43,13 @@ public final class GradleProjectNature {
     /**
      * Determines if the target project has the Gradle nature applied.
      *
-     * @param project the project to verify
+     * @param project the project to verify, can be null
      * @return {@code true} if the specified project has the nature applied
      */
     public static boolean isPresentOn(IProject project) {
+        if (project == null) {
+            return false;
+        }
         if (!project.isOpen()) {
             return false;
         }

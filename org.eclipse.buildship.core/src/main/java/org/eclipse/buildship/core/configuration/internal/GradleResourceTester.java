@@ -32,7 +32,7 @@ public class GradleResourceTester extends PropertyTester {
         if (receiver instanceof IResource) {
             IResource resource = (IResource) receiver;
             IProject project = resource.getProject();
-            if (project != null && GradleProjectNature.isPresentOn(project)) {
+            if (GradleProjectNature.isPresentOn(project)) {
                 return resource instanceof IProject || "gradle".equals(resource.getFileExtension()) || "gradle.properties".equals(resource.getName());
             }
         }
