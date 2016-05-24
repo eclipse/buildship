@@ -139,7 +139,7 @@
             description="Refreshes all Gradle projects in the workspace">
       </command>
       <command
-            id="org.eclipse.buildship.ui.commands.addBuildshipNature"
+            id="org.eclipse.buildship.ui.commands.addbuildshipnature"
             categoryId="org.eclipse.buildship.ui.project"
             name="Add Gradle Nature"
             description="Adds the Gradle nature and synchronizes this project as if the Gradle Import wizard had been run on its location.">
@@ -212,7 +212,7 @@
          </activeWhen>
       </handler>
       <handler
-            commandId="org.eclipse.buildship.ui.commands.addBuildshipNature"
+            commandId="org.eclipse.buildship.ui.commands.addbuildshipnature"
             class="org.eclipse.buildship.ui.workspace.AddBuildshipNatureHandler">
          <activeWhen>
             <iterate
@@ -277,7 +277,7 @@
              disabledIcon="icons/full/dlcl16/refresh.gif">
        </image>
        <image
-             commandId="org.eclipse.buildship.ui.commands.addBuildshipNature"
+             commandId="org.eclipse.buildship.ui.commands.addbuildshipnature"
              icon="icons/full/etool16/import_wiz.png">
        </image>
     </extension>
@@ -432,7 +432,7 @@
         <menuContribution
             locationURI="popup:org.eclipse.ui.projectConfigure?after=additions">
          <command
-               commandId="org.eclipse.buildship.ui.commands.addBuildshipNature"
+               commandId="org.eclipse.buildship.ui.commands.addbuildshipnature"
                style="push">
             <visibleWhen>
                 <iterate
