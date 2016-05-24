@@ -23,7 +23,6 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -33,6 +32,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.util.collections.AdapterFunction;
 import org.eclipse.buildship.core.workspace.CompositeGradleBuild;
+import org.eclipse.buildship.core.workspace.DelegatingNewProjectHandler;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
@@ -41,7 +41,7 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
  * @author Stefan Oehme
  *
  */
-public class AddBuildshipNatureHandler extends AbstractHandler{
+public class AddBuildshipNatureHandler extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -77,20 +77,11 @@ public class AddBuildshipNatureHandler extends AbstractHandler{
             compositeBuild = compositeBuild.withBuild(build);
             projectDirectories.add(build.getProjectDir());
         }
-        compositeBuild.synchronize(new NewProjectHandler() {
-
-            @Override
-            public boolean shouldOverwriteDescriptor(IProjectDescription descriptor, OmniEclipseProject projectModel) {
-                return false;
-            }
+        compositeBuild.synchronize(new DelegatingNewProjectHandler(NewProjectHandler.IMPORT_AND_MERGE) {
 
             @Override
             public boolean shouldImport(OmniEclipseProject projectModel) {
                 return projectDirectories.contains(projectModel.getRoot().getProjectDirectory());
-            }
-
-            @Override
-            public void afterImport(IProject project, OmniEclipseProject projectModel) {
             }
         });
     }
