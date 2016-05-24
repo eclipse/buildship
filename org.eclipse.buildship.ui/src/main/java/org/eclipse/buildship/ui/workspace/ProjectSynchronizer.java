@@ -75,7 +75,7 @@ public final class ProjectSynchronizer {
             IResource resource = adapterFunction.apply(candidate);
             if (resource != null) {
                 IProject project = resource.getProject();
-                if (project != null && GradleProjectNature.isPresentOn(project)) {
+                if (GradleProjectNature.isPresentOn(project)) {
                     projects.add(project);
                 }
             }

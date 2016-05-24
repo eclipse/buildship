@@ -111,7 +111,7 @@ public final class TaskNodeSelectionUtils {
 
     private static Optional<FixedRequestAttributes> getFixedRequestAttributes(ProjectNode projectNode) {
         Optional<IProject> workspaceProject = projectNode.getWorkspaceProject();
-        if (workspaceProject.isPresent() && workspaceProject.get().isOpen() && GradleProjectNature.isPresentOn(workspaceProject.get())) {
+        if (workspaceProject.isPresent() && GradleProjectNature.isPresentOn(workspaceProject.get())) {
             ProjectConfiguration projectConfiguration = CorePlugin.projectConfigurationManager().readProjectConfiguration(workspaceProject.get());
             return Optional.of(projectConfiguration.getRequestAttributes());
         } else {
