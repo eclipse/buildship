@@ -525,6 +525,8 @@
           </includes>
        </viewerContentBinding>
     </extension>
+    
+    <!-- Add the "Gradle" menu to the workbench preferences-->
     <extension
           point="org.eclipse.ui.preferencePages">
        <page
