@@ -38,7 +38,6 @@ public final class CoreMessages extends NLS {
     public static String RunConfiguration_Label_GradleTasks;
     public static String RunConfiguration_Label_WorkingDirectory;
     public static String RunConfiguration_Label_GradleDistribution;
-    public static String Preference_Label_GradleUserHome;
     public static String RunConfiguration_Label_GradleVersion;
     public static String RunConfiguration_Label_JavaHome;
     public static String RunConfiguration_Label_JvmArguments;
@@ -57,6 +56,8 @@ public final class CoreMessages extends NLS {
     public static String ErrorMessage_0_MustBeSpecified;
     public static String ErrorMessage_0_MustBeDirectory;
     public static String ErrorMessage_0_AlreadyExists;
+
+    public static String Preference_Label_GradleUserHome;
 
     static {
         // initialize resource bundle
