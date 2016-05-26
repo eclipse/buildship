@@ -9,12 +9,15 @@ package org.eclipse.buildship.core.configuration.internal;
 
 import java.io.File;
 
+import org.osgi.service.prefs.BackingStoreException;
+
 import com.google.common.base.Preconditions;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.configuration.WorkspaceConfigurationManager;
 
@@ -42,6 +45,11 @@ public class DefaultWorkspaceConfigurationManager implements WorkspaceConfigurat
             preferences.remove(GRADLE_USER_HOME);
         } else {
             preferences.put(GRADLE_USER_HOME, config.getGradleUserHome().getPath());
+        }
+        try {
+            preferences.flush();
+        } catch (BackingStoreException e) {
+            throw new GradlePluginsRuntimeException("Could not persist workspace preferences", e);
         }
     }
 
