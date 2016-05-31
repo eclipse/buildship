@@ -53,8 +53,9 @@ public class DefaultWorkspaceConfigurationManager implements WorkspaceConfigurat
         }
     }
 
+    @SuppressWarnings("deprecation") //for 3.x compatibility
     private IEclipsePreferences getPreferences() {
-        return InstanceScope.INSTANCE.getNode(CorePlugin.PLUGIN_ID);
+        return new InstanceScope().getNode(CorePlugin.PLUGIN_ID);
     }
 
 }
