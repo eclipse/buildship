@@ -28,6 +28,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.part.FileEditorInput;
 
@@ -58,13 +59,15 @@ public final class ProjectSynchronizer {
             IStructuredSelection selection = (IStructuredSelection) currentSelection;
             return collectGradleProjects((List<?>) selection.toList());
         } else {
-            IEditorInput editorInput = HandlerUtil.getActiveEditorInput(event);
-            if (editorInput instanceof FileEditorInput) {
-                IFile file = ((FileEditorInput) editorInput).getFile();
-                return collectGradleProjects(ImmutableList.of(file));
-            } else {
-                return ImmutableSet.of();
+            IEditorPart editor = HandlerUtil.getActiveEditor(event);
+            if (editor != null) {
+                IEditorInput editorInput = editor.getEditorInput();
+                if (editorInput instanceof FileEditorInput) {
+                    IFile file = ((FileEditorInput) editorInput).getFile();
+                    return collectGradleProjects(ImmutableList.of(file));
+                }
             }
+            return ImmutableSet.of();
         }
     }
 
