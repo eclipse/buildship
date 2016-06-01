@@ -246,7 +246,11 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
           "1.0": {
              "project_path": ":",
              "connection_project_dir": ".",
-             "connection_gradle_distribution": "GRADLE_DISTRIBUTION(WRAPPER)"
+             "connection_gradle_user_home": null,
+             "connection_gradle_distribution": "GRADLE_DISTRIBUTION(WRAPPER)",
+             "connection_java_home": null,
+             "connection_jvm_arguments": "",
+             "connection_arguments": ""
           }
         }
         """
@@ -270,7 +274,11 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
           "1.0": {
              "project_path": ":",
              "connection_project_dir": "${projectDir}",
-             "connection_gradle_distribution": "GRADLE_DISTRIBUTION(WRAPPER)"
+             "connection_gradle_user_home": null,
+             "connection_gradle_distribution": "GRADLE_DISTRIBUTION(WRAPPER)",
+             "connection_java_home": null,
+             "connection_jvm_arguments": "",
+             "connection_arguments": ""
           }
         }
         """

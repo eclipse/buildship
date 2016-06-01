@@ -80,8 +80,8 @@ public final class ProjectImportConfiguration {
 
     public FixedRequestAttributes toFixedAttributes() {
         File projectDir = getProjectDir().getValue();
-        GradleDistribution gradleDistribution = getGradleDistribution().getValue().toGradleDistribution();
         File gradleUserHome = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration().getGradleUserHome();
+        GradleDistribution gradleDistribution = getGradleDistribution().getValue().toGradleDistribution();
         File javaHome = null;
         List<String> jvmArguments = Collections.emptyList();
         List<String> arguments = Collections.emptyList();
