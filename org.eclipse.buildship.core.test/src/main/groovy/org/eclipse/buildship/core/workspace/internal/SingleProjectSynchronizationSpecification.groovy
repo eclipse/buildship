@@ -2,6 +2,7 @@ package org.eclipse.buildship.core.workspace.internal
 
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
+import org.eclipse.jdt.launching.JavaRuntime;
 
 import org.eclipse.buildship.core.Logger;
 import org.eclipse.buildship.core.configuration.GradleProjectNature
@@ -210,7 +211,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         project.hasNature(JavaCore.NATURE_ID)
     }
 
-    def "If the project applies the Java plugin, then the Gradle classpath container is added"() {
+    def "If the project applies the Java plugin, then the Gradle classpath container is added after JRE Container"() {
         setup:
         prepareProject("sample-project")
         def projectDir = dir('sample-project') {
@@ -223,9 +224,17 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
 
         then:
         def project = findProject('sample-project')
-        JavaCore.create(project).rawClasspath.find{
+
+        def classpath = JavaCore.create(project).rawClasspath
+        classpath.find{
             it.entryKind == IClasspathEntry.CPE_CONTAINER &&
             it.path == GradleClasspathContainer.CONTAINER_PATH
+        }
+        for(entry in classpath) {
+            if(entry.entryKind == IClasspathEntry.CPE_CONTAINER) {
+                assert entry.path.segment(0) == JavaRuntime.JRE_CONTAINER
+                break;
+            }
         }
     }
 }
