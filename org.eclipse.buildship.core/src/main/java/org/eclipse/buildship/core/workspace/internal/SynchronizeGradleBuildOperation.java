@@ -213,11 +213,11 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         //old Gradle versions did not expose natures, so we need to add the Java nature explicitly
         CorePlugin.workspaceOperations().addNature(workspaceProject, JavaCore.NATURE_ID, progress.newChild(1));
         IJavaProject javaProject = JavaCore.create(workspaceProject);
+        SourceFolderUpdater.update(javaProject, project.getSourceDirectories(), progress.newChild(1));
         JavaSourceSettingsUpdater.update(javaProject, project.getJavaSourceSettings().get(), progress.newChild(1));
         GradleClasspathContainer.addIfNotPresent(javaProject, progress.newChild(1));
         ClasspathContainerUpdater.updateFromModel(javaProject, project, this.allProjects, progress.newChild(1));
         WtpClasspathUpdater.update(javaProject, project, progress.newChild(1));
-        SourceFolderUpdater.update(javaProject, project.getSourceDirectories(), progress.newChild(1));
     }
 
     private void synchronizeClosedWorkspaceProject(SubMonitor childProgress) {
