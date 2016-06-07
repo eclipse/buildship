@@ -211,7 +211,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         project.hasNature(JavaCore.NATURE_ID)
     }
 
-    def "If the project applies the Java plugin, then the Gradle classpath container is added after JRE Container"() {
+    def "If the project applies the Java plugin, then the Gradle classpath container is added after the JRE Container"() {
         setup:
         prepareProject("sample-project")
         def projectDir = dir('sample-project') {
@@ -225,16 +225,12 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         then:
         def project = findProject('sample-project')
 
-        def classpath = JavaCore.create(project).rawClasspath
-        classpath.find{
-            it.entryKind == IClasspathEntry.CPE_CONTAINER &&
-            it.path == GradleClasspathContainer.CONTAINER_PATH
+        List<IClasspathEntry> containers = JavaCore.create(project).rawClasspath.findAll {
+            it.entryKind == IClasspathEntry.CPE_CONTAINER
         }
-        for(entry in classpath) {
-            if(entry.entryKind == IClasspathEntry.CPE_CONTAINER) {
-                assert entry.path.segment(0) == JavaRuntime.JRE_CONTAINER
-                break;
-            }
-        }
+
+        containers.size() == 2
+        containers[0].path.segment(0) == JavaRuntime.JRE_CONTAINER
+        containers[1].path == GradleClasspathContainer.CONTAINER_PATH
     }
 }
