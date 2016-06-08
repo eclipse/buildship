@@ -33,12 +33,15 @@ import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 final class WtpClasspathUpdater {
 
     private static final String DEPLOYMENT_ATTRIBUTE = "org.eclipse.jst.component.dependency";
+    private static final String NON_DEPLOYMENT_ATTRIBUTE = "org.eclipse.jst.component.nondependency";
 
     public static void update(IJavaProject javaProject, OmniEclipseProject project, SubMonitor progress) throws JavaModelException {
         List<OmniExternalDependency> dependencies = project.getExternalDependencies();
         String deploymentPath = getDeploymentPath(dependencies);
         if (deploymentPath != null) {
             updateDeploymentPath(javaProject, deploymentPath, progress);
+        } else if (hasNonDeploymentAttributes(dependencies)) {
+            markAsNonDeployed(javaProject, progress);
         }
     }
 
@@ -57,8 +60,22 @@ final class WtpClasspathUpdater {
         return deploymentPath;
     }
 
-    private static void updateDeploymentPath(IJavaProject javaProject, String deploymentPath, SubMonitor progress) throws JavaModelException {
-        GradleClasspathContainer.updateAttributes(javaProject, new IClasspathAttribute[]{JavaCore.newClasspathAttribute(DEPLOYMENT_ATTRIBUTE, deploymentPath)}, progress);
+    private static boolean hasNonDeploymentAttributes(List<OmniExternalDependency> dependencies) {
+        for (OmniExternalDependency dependency : dependencies) {
+            for (OmniClasspathAttribute attribute : dependency.getClasspathAttributes()) {
+                if (attribute.getName().equals(NON_DEPLOYMENT_ATTRIBUTE)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
+    private static void updateDeploymentPath(IJavaProject javaProject, String deploymentPath, SubMonitor progress) throws JavaModelException {
+        GradleClasspathContainer.updateAttributes(javaProject, new IClasspathAttribute[] { JavaCore.newClasspathAttribute(DEPLOYMENT_ATTRIBUTE, deploymentPath) }, progress);
+    }
+
+    private static void markAsNonDeployed(IJavaProject javaProject, SubMonitor progress) throws JavaModelException {
+        GradleClasspathContainer.updateAttributes(javaProject, new IClasspathAttribute[] { JavaCore.newClasspathAttribute(NON_DEPLOYMENT_ATTRIBUTE, "") }, progress);
+    }
 }
