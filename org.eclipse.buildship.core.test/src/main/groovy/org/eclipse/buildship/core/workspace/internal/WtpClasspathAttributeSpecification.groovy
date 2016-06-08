@@ -130,6 +130,27 @@ class WtpClasspathAttributeSpecification extends ProjectSynchronizationSpecifica
         deploymenAttribute.value == ""
     }
 
+    def "If only non-deployed dependencies are present, the container is marked as such too"() {
+        setup:
+        File root = dir("project") {
+            file 'build.gradle', """
+                apply plugin: 'war'
+                repositories.jcenter()
+                dependencies {
+                    providedCompile "junit:junit:4.12"
+                }
+            """
+        }
+
+        when:
+        importAndWait(root, GradleDistribution.forVersion("2.14-20160505000028+0000"))
+
+        then:
+        def project = findProject('project')
+        IClasspathEntry dependency = rawClasspath(project).find { it.path == GradleClasspathContainer.CONTAINER_PATH }
+        dependency.getExtraAttributes().find { it.name == NON_DEPLOYED }
+    }
+
     def "Does not support mixed deployment paths"() {
         setup:
         File root = dir("project") {
