@@ -92,12 +92,12 @@ class Constants {
      *
      * @return the URL from where the Eclipse SDK can be downloaded
      */
-    static URL getEclipseSdkDownloadUrl() {
+    static String getEclipseSdkDownloadUrl() {
         def archInUrl = getArch() == "x86_64" ? "-x86_64" : "";
         if (getOs() == "win32") {
-            return new URL("http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops4/R-4.4.2-201502041700/eclipse-SDK-4.4.2-win32${archInUrl}.zip&r=1")
+            return "http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops4/R-4.4.2-201502041700/eclipse-SDK-4.4.2-win32${archInUrl}.zip&r=1"
         } else {
-            return new URL("http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops4/R-4.4.2-201502041700/eclipse-SDK-4.4.2-${getOs()}-${getWs()}${archInUrl}.tar.gz&r=1");
+            return "http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops4/R-4.4.2-201502041700/eclipse-SDK-4.4.2-${getOs()}-${getWs()}${archInUrl}.tar.gz&r=1"
         }
     }
 
