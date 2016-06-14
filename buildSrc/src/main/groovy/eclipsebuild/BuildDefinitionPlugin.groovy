@@ -171,43 +171,12 @@ class BuildDefinitionPlugin implements Plugin<Project> {
     }
 
     static void addTaskDownloadEclipseSdk(Project project, Config config) {
-        project.task(TASK_NAME_DOWNLOAD_ECLIPSE_SDK) {
+        project.task(TASK_NAME_DOWNLOAD_ECLIPSE_SDK, type: DownloadEclipseSdkTask) {
             group = Constants.gradleTaskGroupName
             description = "Downloads an Eclipse SDK to perform P2 operations with."
-            outputs.file config.eclipseSdkArchive
-            doLast { downloadEclipseSdk(project, config) }
+            downloadUrl = Constants.eclipseSdkDownloadUrl
+            targetDir = config.eclipseSdkDir
         }
-    }
-
-    static void downloadEclipseSdk(Project project, Config config) {
-        // if multiple builds start on the same machine (which is the case with a CI server)
-        // we want to prevent them downloading the same file to the same destination
-        def directoryLock = new FileSemaphore(config.eclipseSdkDir)
-        directoryLock.lock()
-        try {
-            downloadEclipseSdkUnprotected(project, config)
-        } finally {
-            directoryLock.unlock()
-        }
-    }
-
-    static void downloadEclipseSdkUnprotected(Project project, Config config) {
-        // download the archive
-        File sdkArchive = config.eclipseSdkArchive
-        project.logger.info("Download Eclipse SDK from '${Constants.eclipseSdkDownloadUrl}' to '${sdkArchive.absolutePath}'")
-        project.ant.get(src: Constants.eclipseSdkDownloadUrl, dest: sdkArchive)
-
-        // extract it to the same location where it was extracted
-        project.logger.info("Extract '$sdkArchive' to '$sdkArchive.parentFile.absolutePath'")
-        if (OperatingSystem.current().isWindows()) {
-            project.ant.unzip(src: sdkArchive, dest: sdkArchive.parentFile, overwrite: true)
-        } else {
-            project.ant.untar(src: sdkArchive, dest: sdkArchive.parentFile, compression: "gzip", overwrite: true)
-        }
-
-        // make it executable
-        project.logger.info("Set '${config.eclipseSdkExe}' executable")
-        config.eclipseSdkExe.setExecutable(true)
     }
 
     static void addTaskAssembleTargetPlatform(Project project, Config config) {
