@@ -49,14 +49,14 @@ public class MissingFeaturesTest {
     public void someLimitationWhenUsingFinalVersionOf24() {
         MissingFeatures missingFeatures = new MissingFeatures(GradleVersion.version("2.4"));
         List<Pair<GradleVersion, String>> details = missingFeatures.getMissingFeatures();
-        assertEquals(details.size(), 10);
+        assertEquals(details.size(), 12);
     }
 
     @Test
     public void someLimitationWhenUsingSnapshotVersionOf24() {
         MissingFeatures missingFeatures = new MissingFeatures(GradleVersion.version("2.4-20150101053008+0000"));
         List<Pair<GradleVersion, String>> details = missingFeatures.getMissingFeatures();
-        assertEquals(details.size(), 10);
+        assertEquals(details.size(), 12);
     }
 
 }

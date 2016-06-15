@@ -44,6 +44,8 @@ public final class MissingFeatures {
         addIfNeeded("2.11", "Target bytecode version is set on Java projects", missingFeatures);
         addIfNeeded("2.11", "Java runtime is set on Java projects", missingFeatures);
         addIfNeeded("2.13", "Improved performance when loading models", missingFeatures);
+        addIfNeeded("2.14", "Attributes defined for Java classpath entries", missingFeatures);
+        addIfNeeded("2.14", "WTP deployment attributes defined for web projects", missingFeatures);
         return missingFeatures.build();
     }
 
