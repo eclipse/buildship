@@ -20,6 +20,7 @@ import com.gradleware.tooling.toolingmodel.Path;
 
 import org.eclipse.core.resources.IProject;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
@@ -47,9 +48,11 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
         for (IProject workspaceProject : this.workspaceOperations.getAllProjects()) {
             if (GradleProjectNature.isPresentOn(workspaceProject)) {
                 // calculate the root configuration to which the current configuration belongs
-                ProjectConfiguration projectConfiguration = this.projectConfigurationPersistence.readProjectConfiguration(workspaceProject);
-                ProjectConfiguration rootProjectConfiguration = ProjectConfiguration.from(projectConfiguration.getRootProjectDirectory(), projectConfiguration.getGradleDistribution(), Path.from(":"));
-                rootConfigurations.add(rootProjectConfiguration);
+                ProjectConfiguration projectConfiguration = readProjectConfiguration(workspaceProject, true);
+                if (projectConfiguration != null) {
+                    ProjectConfiguration rootProjectConfiguration = ProjectConfiguration.from(projectConfiguration.getRootProjectDirectory(), projectConfiguration.getGradleDistribution(), Path.from(":"));
+                    rootConfigurations.add(rootProjectConfiguration);
+                }
             }
         }
 
@@ -77,8 +80,10 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
         ImmutableSet.Builder<ProjectConfiguration> allConfigurations = ImmutableSet.builder();
         for (IProject workspaceProject : this.workspaceOperations.getAllProjects()) {
             if (GradleProjectNature.isPresentOn(workspaceProject)) {
-                ProjectConfiguration projectConfiguration = this.projectConfigurationPersistence.readProjectConfiguration(workspaceProject);
-                allConfigurations.add(projectConfiguration);
+                ProjectConfiguration projectConfiguration = readProjectConfiguration(workspaceProject, true);
+                if (projectConfiguration != null) {
+                    allConfigurations.add(projectConfiguration);
+                }
             }
         }
 
@@ -93,7 +98,21 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
 
     @Override
     public ProjectConfiguration readProjectConfiguration(IProject workspaceProject) {
-        return this.projectConfigurationPersistence.readProjectConfiguration(workspaceProject);
+        return readProjectConfiguration(workspaceProject, false);
+    }
+
+    @Override
+    public ProjectConfiguration readProjectConfiguration(IProject workspaceProject, boolean suppressErrors) {
+        try {
+            return this.projectConfigurationPersistence.readProjectConfiguration(workspaceProject);
+        } catch (RuntimeException e) {
+            if (suppressErrors) {
+                CorePlugin.logger().warn(String.format(String.format("Cannot load project configuration for project %s.", workspaceProject.getName()), e));
+                return null;
+            } else {
+                throw e;
+            }
+        }
     }
 
     @Override

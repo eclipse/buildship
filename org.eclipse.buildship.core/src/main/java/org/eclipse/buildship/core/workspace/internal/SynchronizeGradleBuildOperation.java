@@ -149,11 +149,12 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         }).toSet();
 
         ImmutableList<IProject> allWorkspaceProjects = CorePlugin.workspaceOperations().getAllProjects();
+
         return FluentIterable.from(allWorkspaceProjects).filter(GradleProjectNature.isPresentOn()).filter(new Predicate<IProject>() {
 
             @Override
             public boolean apply(IProject project) {
-                ProjectConfiguration projectConfiguration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
+                ProjectConfiguration projectConfiguration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project, true);
                 return projectConfiguration.toRequestAttributes().getProjectDir().equals(SynchronizeGradleBuildOperation.this.build.getProjectDir()) &&
                         (project.getLocation() == null || !gradleProjectDirectories.contains(project.getLocation().toFile()));
             }

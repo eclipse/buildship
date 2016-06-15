@@ -22,6 +22,8 @@ public interface ProjectConfigurationManager {
 
     /**
      * Returns the unique set of {@link ProjectConfiguration} roots found in the workspace.
+     * <p/>
+     * If a project configuration cannot be read, then the project is omitted from the result.
      *
      * @return the unique set of {@code ProjectConfiguration} roots
      */
@@ -29,6 +31,8 @@ public interface ProjectConfigurationManager {
 
     /**
      * Returns the complete set of {@link ProjectConfiguration} instances found in the workspace.
+     * <p/>
+     * If a project configuration cannot be read, then the project is omitted from the result.
      *
      * @return the complete set of {@code ProjectConfiguration} instances
      */
@@ -50,6 +54,16 @@ public interface ProjectConfigurationManager {
      * @return the persisted Gradle configuration
      */
     ProjectConfiguration readProjectConfiguration(IProject workspaceProject);
+
+    /**
+     * Reads the Gradle project configuration from the Eclipse project's <i>.settings</i> folder.
+     *
+     * @param workspaceProject the Eclipse project from which to read the Gradle configuration
+     * @param suppressErrors if set to {@code true} then the method returns {@code null} if the
+     *            configuration can't be read
+     * @return the persisted Gradle configuration
+     */
+    ProjectConfiguration readProjectConfiguration(IProject project, boolean suppressErrors);
 
     /**
      * Deletes the Gradle project configuration from the Eclipse project's <i>.settings</i> folder.

@@ -293,4 +293,98 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null) == '..'
     }
 
+    def "missing project configurations are handled correcly"() {
+        given:
+        IProject project = workspaceOperations.createProject("sample-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
+
+        when:
+        configurationManager.readProjectConfiguration(project)
+
+        then:
+        thrown RuntimeException
+
+        when:
+        def configuration = configurationManager.readProjectConfiguration(project, true)
+
+        then:
+        configuration == null
+    }
+
+    def "broken project configurations are handled correctly"() {
+        given:
+        IProject project = workspaceOperations.createProject("sample-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
+
+        def projectConfiguration = ProjectConfiguration.from(project.location.toFile(), GradleDistribution.fromBuild(), Path.from(":"))
+        configurationManager.saveProjectConfiguration(projectConfiguration, project)
+
+        when:
+        setInvalidPreferenceOn(project)
+        configurationManager.readProjectConfiguration(project)
+
+        then:
+        thrown RuntimeException
+
+        when:
+        def configuration = configurationManager.readProjectConfiguration(project, true)
+
+        then:
+        configuration == null
+    }
+
+    def "broken project configurations are excluded from the root configurations"() {
+        setup:
+        def rootDirOne = dir("root1") {
+            file('settings.gradle').text = "rootProject.name = 'one'"
+        }
+
+        def rootDirTwo = dir("root2") {
+            file('settings.gradle').text = "rootProject.name = 'two'"
+        }
+
+        importAndWait(rootDirOne)
+        importAndWait(rootDirTwo)
+
+        when:
+        setInvalidPreferenceOn(findProject('two'))
+        List configurations = configurationManager.getRootProjectConfigurations() as List
+
+        then:
+        configurations.size() == 1
+    }
+
+    def "broken project configurations excluded from the project configurations"() {
+        setup:
+        def rootDirOne = dir("root1") {
+            file('settings.gradle').text = '''
+                rootProject.name = 'one'
+                include 'sub'
+            '''
+            sub {
+                file('build.gradle').text = '''
+                   apply plugin: 'java'
+                '''
+            }
+        }
+
+        def rootDirTwo = dir("root2") {
+            file('settings.gradle').text = "rootProject.name = 'two'"
+        }
+
+        importAndWait(rootDirOne)
+        importAndWait(rootDirTwo)
+
+        when:
+        setInvalidPreferenceOn(findProject('sub'))
+        List configurations = configurationManager.getAllProjectConfigurations() as List
+
+        then:
+        configurations.size() == 2
+    }
+
+    private void setInvalidPreferenceOn(IProject project) {
+        PreferenceStore preferences = PreferenceStore.forProjectScope(project, CorePlugin.PLUGIN_ID)
+        preferences.write(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, 'I am error.')
+        preferences.flush()
+    }
+
 }
