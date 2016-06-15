@@ -11,6 +11,7 @@ import java.util.Set;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 
@@ -20,8 +21,9 @@ import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.workspace.GradleBuild;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.workspace.CompositeGradleBuild;
+import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
 
 /**
@@ -56,9 +58,10 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
 
             @Override
             public FixedRequestAttributes apply(IProject project) {
-                return CorePlugin.projectConfigurationManager().readProjectConfiguration(project).getRequestAttributes();
+                ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project, true);
+                return configuration == null ? null : configuration.getRequestAttributes();
             }
-        }).toSet();
+        }).filter(Predicates.notNull()).toSet();
     }
 
 }
