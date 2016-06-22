@@ -64,5 +64,13 @@
              type="org.eclipse.core.resources.IResource">
        </propertyTester>
     </extension>
+    <extension
+          point="org.eclipse.jdt.launching.runtimeClasspathEntryResolvers">
+       <runtimeClasspathEntryResolver
+             class="org.eclipse.buildship.core.workspace.internal.GradleClasspathContainerRuntimeClasspathEntryResolver"
+             container="org.eclipse.buildship.core.gradleclasspathcontainer"
+             id="org.eclipse.buildship.core.classpathcontainerentryresolver">
+       </runtimeClasspathEntryResolver>
+    </extension>
 
 </plugin>
