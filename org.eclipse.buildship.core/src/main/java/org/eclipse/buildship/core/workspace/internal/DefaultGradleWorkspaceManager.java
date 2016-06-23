@@ -61,8 +61,8 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
 
             @Override
             public FixedRequestAttributes apply(IProject project) {
-                ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project, true);
-                return configuration == null ? null : configuration.toRequestAttributes();
+                Optional<ProjectConfiguration> configuration = CorePlugin.projectConfigurationManager().tryReadProjectConfiguration(project);
+                return configuration.isPresent() ? configuration.get().toRequestAttributes() : null;
             }
         }).filter(Predicates.notNull()).toSet();
     }

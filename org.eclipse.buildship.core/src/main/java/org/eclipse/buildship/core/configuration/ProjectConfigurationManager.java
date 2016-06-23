@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.core.configuration;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 
 import org.eclipse.core.resources.IProject;
@@ -56,14 +57,15 @@ public interface ProjectConfigurationManager {
     ProjectConfiguration readProjectConfiguration(IProject workspaceProject);
 
     /**
-     * Reads the Gradle project configuration from the Eclipse project's <i>.settings</i> folder.
+     * Tries to read the Gradle project configuration from the Eclipse project's <i>.settings</i>
+     * folder. If the configuration is not present or cannot be read, then the method returns
+     * {@code Optional#absent()}.
      *
      * @param workspaceProject the Eclipse project from which to read the Gradle configuration
-     * @param suppressErrors if set to {@code true} then the method returns {@code null} if the
-     *            configuration can't be read
-     * @return the persisted Gradle configuration
+     * @return the persisted Gradle configuration or {@code Optional#absent()} if the configuration
+     *         cannot be read.
      */
-    ProjectConfiguration readProjectConfiguration(IProject project, boolean suppressErrors);
+    Optional<ProjectConfiguration> tryReadProjectConfiguration(IProject workspaceProject);
 
     /**
      * Deletes the Gradle project configuration from the Eclipse project's <i>.settings</i> folder.

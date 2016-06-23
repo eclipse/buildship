@@ -154,9 +154,10 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
 
             @Override
             public boolean apply(IProject project) {
-                ProjectConfiguration projectConfiguration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project, true);
-                return projectConfiguration.toRequestAttributes().getProjectDir().equals(SynchronizeGradleBuildOperation.this.build.getProjectDir()) &&
-                        (project.getLocation() == null || !gradleProjectDirectories.contains(project.getLocation().toFile()));
+                Optional<ProjectConfiguration> projectConfiguration = CorePlugin.projectConfigurationManager().tryReadProjectConfiguration(project);
+                return projectConfiguration.isPresent()
+                        && projectConfiguration.get().toRequestAttributes().getProjectDir().equals(SynchronizeGradleBuildOperation.this.build.getProjectDir())
+                        && (project.getLocation() == null || !gradleProjectDirectories.contains(project.getLocation().toFile()));
             }
         }).toList();
     }
