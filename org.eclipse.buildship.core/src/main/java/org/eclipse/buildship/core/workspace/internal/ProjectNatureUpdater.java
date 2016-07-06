@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -20,16 +21,17 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-
-import org.eclipse.buildship.core.CorePlugin;
 
 /**
  * Updates the natures on the target project.
@@ -46,33 +48,58 @@ final class ProjectNatureUpdater {
         this.natures = ImmutableList.copyOf(natures);
     }
 
-    private void updateNatures(IProgressMonitor monitor) {
+    private void updateNatures(IProgressMonitor monitor) throws CoreException {
         SubMonitor progress = SubMonitor.convert(monitor, 2);
         StringSetProjectProperty knownNatures = StringSetProjectProperty.from(this.project, PROJECT_PROPERTY_KEY_GRADLE_NATURES);
         removeNaturesRemovedFromGradleModel(knownNatures, progress.newChild(1));
         addNaturesNewInGradleModel(knownNatures, progress.newChild(1));
     }
 
-    private void addNaturesNewInGradleModel(StringSetProjectProperty knownNatures, SubMonitor progress) {
-        progress.setWorkRemaining(this.natures.size());
+    private void addNaturesNewInGradleModel(StringSetProjectProperty knownNatures, SubMonitor progress) throws CoreException {
         Set<String> newNatureNames = Sets.newLinkedHashSet();
         for (OmniEclipseProjectNature nature : this.natures) {
             String natureId = nature.getId();
-            CorePlugin.workspaceOperations().addNature(this.project, natureId, progress.newChild(1));
-            newNatureNames.add(natureId);
+            if (natureRecognizedByEclipse(natureId)) {
+                newNatureNames.add(natureId);
+            }
         }
+        addNatures(this.project, newNatureNames, progress);
         knownNatures.set(newNatureNames);
     }
 
-    private void removeNaturesRemovedFromGradleModel(StringSetProjectProperty knownNatures, SubMonitor progress) {
+    private void addNatures(IProject project, Set<String> natureIds, SubMonitor progress) throws CoreException {
+        IProjectDescription description = project.getDescription();
+
+        Set<String> newIds = Sets.newLinkedHashSet(Arrays.asList(description.getNatureIds()));
+        newIds.addAll(natureIds);
+
+        description.setNatureIds(newIds.toArray(new String[0]));
+        project.setDescription(description, progress);
+    }
+
+    private boolean natureRecognizedByEclipse(String natureId) {
+        return ResourcesPlugin.getWorkspace().getNatureDescriptor(natureId) != null;
+    }
+
+    private void removeNaturesRemovedFromGradleModel(StringSetProjectProperty knownNatures, SubMonitor progress) throws CoreException {
         Set<String> knownNatureIds = knownNatures.get();
-        progress.setWorkRemaining(knownNatureIds.size());
+        Set<String> naturesToRemove = Sets.newLinkedHashSet();
         for (String knownNatureId : knownNatureIds) {
-            SubMonitor childProgress = progress.newChild(1);
             if (!natureIdExistsInGradleModel(knownNatureId)) {
-                CorePlugin.workspaceOperations().removeNature(this.project, knownNatureId, childProgress);
+                naturesToRemove.add(knownNatureId);
             }
         }
+        removeNatures(this.project, naturesToRemove, progress);
+    }
+
+    private void removeNatures(IProject project, Set<String> natureIds, SubMonitor progress) throws CoreException {
+        IProjectDescription description = project.getDescription();
+
+        List<String> newIds = Lists.newArrayList(description.getNatureIds());
+        newIds.removeAll(natureIds);
+
+        description.setNatureIds(newIds.toArray(new String[0]));
+        project.setDescription(description, progress);
     }
 
     private boolean natureIdExistsInGradleModel(final String natureId) {
