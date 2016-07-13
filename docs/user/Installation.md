@@ -16,6 +16,9 @@ For manual installation the complete list of update sites:
 
 Eclipse Version | Type      | Update Site
 --------------  | ----------| ------------
+Neon (4.6)      | release   | `http://download.eclipse.org/buildship/updates/e46/releases/1.0`
+                | milestone | `http://download.eclipse.org/buildship/updates/e46/milestones/1.0`
+                | snapshot  | `http://download.eclipse.org/buildship/updates/e46/snapshots/1.0`
 Mars (4.5)      | release   | `http://download.eclipse.org/buildship/updates/e45/releases/1.0`
                 | milestone | `http://download.eclipse.org/buildship/updates/e45/milestones/1.0`
                 | snapshot  | `http://download.eclipse.org/buildship/updates/e45/snapshots/1.0`
