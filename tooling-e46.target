@@ -14,8 +14,8 @@
 <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.sdk.ide" version="4.6.0.I20160317-0200"/>
-<repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/staging-neon/"/>
+<unit id="org.eclipse.sdk.ide" version="4.6.0.I20160606-1100"/>
+<repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/release-neon/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.gradle.toolingapi" version="2.14.0.v20160614100625"/>
