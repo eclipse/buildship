@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<fragment>
+
+   <!-- Sample nature to test Bug 497753 -->
+   <extension
+         id="javaextensionnature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="org.eclipse.buildship.core.workspace.internal.ImportingProjectWithCustomNature$JavaExtensionNature">
+         </run>
+      </runtime>
+      <requires-nature
+            id="org.eclipse.jdt.core.javanature">
+      </requires-nature>
+   </extension>
+
+</fragment>
