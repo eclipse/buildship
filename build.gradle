@@ -23,11 +23,11 @@ def eclipseVersionAgnosticDependencies = [
     'org.eclipse.swtbot.junit4_x'       : '2.2.1',
 ]
 
-// target platform definition for all major Eclipse releases between version 3.6 and 4.5
-// the default version is 44 which can be overridden through -Peclipse.version=<version>
+// target platform definition for all major Eclipse releases between version 4.2 and 4.6
+// the default version is 46 which can be overridden through -Peclipse.version=<version>
 // also the target platforms contain 1) the Eclipse SDK 2) the latest junit 3) SWTBot 2.2.1
 eclipseBuild {
-    defaultEclipseVersion = '45'
+    defaultEclipseVersion = '46'
 
     final def swtPluginId = "org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}"
 
