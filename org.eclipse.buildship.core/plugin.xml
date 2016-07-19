@@ -52,6 +52,8 @@
             modes="run">
       </launchConfigurationType>
    </extension>
+
+    <!-- A property tester that can be used to determine if a resource is a Gradle build file -->
     <extension
           point="org.eclipse.core.expressions.propertyTesters">
        <propertyTester
@@ -62,6 +64,8 @@
              type="org.eclipse.core.resources.IResource">
        </propertyTester>
     </extension>
+
+    <!-- Define runtime classpath contributed by the Gradle classpath container when launching a JDT application -->
     <extension
           point="org.eclipse.jdt.launching.runtimeClasspathEntryResolvers">
        <runtimeClasspathEntryResolver
