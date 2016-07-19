@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
@@ -53,27 +52,6 @@ public abstract class GradleClasspathContainer implements IClasspathContainer {
     }
 
     /**
-     * Adds the Gradle classpath container to the given project if it is not yet defined.
-     *
-     * @param javaProject the project to add the container to
-     * @param progress the monitor to report progress on
-     * @throws JavaModelException if the container cannot be added
-     */
-    public static void addIfNotPresent(IJavaProject javaProject, IProgressMonitor progress) throws JavaModelException {
-        IClasspathEntry[] oldClasspath = javaProject.getRawClasspath();
-        for (IClasspathEntry entry : oldClasspath) {
-            if (entry.getPath().equals(CONTAINER_PATH)) {
-                return;
-            }
-        }
-
-        IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length + 1];
-        System.arraycopy(oldClasspath, 0, newClasspath, 0, oldClasspath.length);
-        newClasspath[newClasspath.length - 1] = newClasspathEntry();
-        javaProject.setRawClasspath(newClasspath, progress);
-    }
-
-    /**
      * Updates the Gradle classpath container on the given project with the given attributes. Does
      * nothing if the classpath container is not present.
      *
@@ -83,6 +61,7 @@ public abstract class GradleClasspathContainer implements IClasspathContainer {
      * @throws JavaModelException if the container cannot be updated
      */
     public static void updateAttributes(IJavaProject javaProject, IClasspathAttribute[] extraAttributes, SubMonitor progress) throws JavaModelException {
+        // TODO (donat) this overrides the changes done in the ClasspathContainerUpdater
         IClasspathEntry[] oldClasspath = javaProject.getRawClasspath();
         IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length];
         for (int i = 0; i < oldClasspath.length; i++) {

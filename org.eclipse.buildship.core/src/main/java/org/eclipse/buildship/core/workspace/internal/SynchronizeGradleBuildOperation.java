@@ -48,7 +48,6 @@ import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.gradle.Predicates;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
@@ -211,14 +210,15 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
     }
 
     private void synchronizeOpenJavaProject(OmniEclipseProject project, IProject workspaceProject, SubMonitor progress) throws JavaModelException, CoreException {
-        progress.setWorkRemaining(6);
+        progress.setWorkRemaining(7);
         //old Gradle versions did not expose natures, so we need to add the Java nature explicitly
         CorePlugin.workspaceOperations().addNature(workspaceProject, JavaCore.NATURE_ID, progress.newChild(1));
         IJavaProject javaProject = JavaCore.create(workspaceProject);
+        OutputLocationUpdater.update(javaProject, project.getOutputLocation(), progress.newChild(1));
         SourceFolderUpdater.update(javaProject, project.getSourceDirectories(), progress.newChild(1));
         JavaSourceSettingsUpdater.update(javaProject, project.getJavaSourceSettings().get(), progress.newChild(1));
-        GradleClasspathContainer.addIfNotPresent(javaProject, progress.newChild(1));
-        ClasspathContainerUpdater.updateFromModel(javaProject, project, this.allProjects, progress.newChild(1));
+        ClasspathContainerUpdater.update(javaProject, project.getClasspathContainers(), progress.newChild(1));
+        GradleClasspathContainerUpdater.updateFromModel(javaProject, project, this.allProjects, progress.newChild(1));
         WtpClasspathUpdater.update(javaProject, project, progress.newChild(1));
     }
 

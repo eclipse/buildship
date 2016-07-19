@@ -29,7 +29,7 @@ import org.eclipse.buildship.core.configuration.GradleProjectNature;
  * {@code org.eclipse.jdt.core.classpathContainerInitializer} extension point.
  * <p/>
  *
- * @see ClasspathContainerUpdater
+ * @see GradleClasspathContainerUpdater
  */
 public final class GradleClasspathContainerInitializer extends ClasspathContainerInitializer {
 
@@ -51,7 +51,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
         boolean updatedFromStorage;
         try {
-            updatedFromStorage = ClasspathContainerUpdater.updateFromStorage(javaProject, null);
+            updatedFromStorage = GradleClasspathContainerUpdater.updateFromStorage(javaProject, null);
         } catch (JavaModelException e) {
             throw new GradlePluginsRuntimeException("Could not initialize Gradle classpath container.", e);
         }
