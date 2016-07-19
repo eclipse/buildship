@@ -1,8 +1,10 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import com.google.common.base.Optional
+
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory
 
-import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IFolder
 import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
@@ -10,7 +12,6 @@ import org.eclipse.jdt.core.IClasspathAttribute
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
-import org.eclipse.jdt.core.util.IClassFileAttribute;
 
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.util.file.FileUtils
@@ -174,8 +175,12 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
 
     private List<OmniEclipseSourceDirectory> gradleSourceFolders(List<String> folderPaths) {
         folderPaths.collect { String folderPath ->
-            def sourceDirectory = Mock(OmniEclipseSourceDirectory)
+            OmniEclipseSourceDirectory sourceDirectory = Mock(OmniEclipseSourceDirectory)
             sourceDirectory.getPath() >> folderPath
+            sourceDirectory.getClasspathAttributes() >> Optional.absent()
+            sourceDirectory.getExcludes() >> Optional.absent()
+            sourceDirectory.getIncludes() >> Optional.absent()
+            sourceDirectory.getOutput() >> '/project-name/foo' // TODO (donat) test use-case when values here are not null or not absent
             sourceDirectory
         }
     }

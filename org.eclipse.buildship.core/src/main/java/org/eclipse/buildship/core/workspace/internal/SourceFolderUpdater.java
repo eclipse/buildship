@@ -24,6 +24,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
+import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
 
 import org.eclipse.core.resources.IFolder;
@@ -32,6 +33,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -100,46 +102,47 @@ final class SourceFolderUpdater {
             return Optional.absent();
         }
 
-        //default settings
-        IPath outputLocation = null;
-        IPath[] includes = new IPath[0];
-        IPath[] excludes = new IPath[0];
-        IClasspathAttribute[] extraAttributes = new IClasspathAttribute[0];
-
         // preserve the previous settings by the user
         final IPackageFragmentRoot root = SourceFolderUpdater.this.project.getPackageFragmentRoot(sourceDirectory);
-        Optional<IClasspathEntry> possibleExistingEntry = FluentIterable.from(rawClasspath).firstMatch(new Predicate<IClasspathEntry>() {
+        Optional<IClasspathEntry> existingEntry = FluentIterable.from(rawClasspath).firstMatch(new Predicate<IClasspathEntry>() {
 
             @Override
             public boolean apply(IClasspathEntry entry) {
                 return root.getPath().equals(entry.getPath());
             }
         });
-        if (possibleExistingEntry.isPresent()) {
-            IClasspathEntry existingEntry = possibleExistingEntry.get();
-            includes = existingEntry.getInclusionPatterns();
-            excludes = existingEntry.getExclusionPatterns();
-            outputLocation = existingEntry.getOutputLocation();
-            extraAttributes = existingEntry.getExtraAttributes();
+
+        SourceFolderEntryBuilder builder = new SourceFolderEntryBuilder(root.getPath());
+
+        if (existingEntry.isPresent()) {
+            IClasspathEntry entry = existingEntry.get();
+            builder.setIncludes(entry.getInclusionPatterns());
+            builder.setExcludes(entry.getExclusionPatterns());
+            builder.setAttributes(entry.getExtraAttributes());
         }
 
-        extraAttributes = markAsFromGradleModel(extraAttributes);
+        // set source folder settings from the Gradle model
+        builder.setOutput(directory.getOutput());
 
-        return Optional.of(JavaCore.newSourceEntry(root.getPath(), includes, excludes, outputLocation, extraAttributes));
-    }
-
-    private IClasspathAttribute[] markAsFromGradleModel(IClasspathAttribute[] extraAttributes) {
-        for (IClasspathAttribute attribute : extraAttributes) {
-            if (CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL.equals(attribute.getName())) {
-                return extraAttributes;
-            }
+        Optional<List<OmniClasspathAttribute>> attributes = directory.getClasspathAttributes();
+        if (attributes.isPresent()) {
+            builder.setAttributes(attributes.get());
         }
 
-        IClasspathAttribute[] newAttributes = new IClasspathAttribute[extraAttributes.length + 1];
-        System.arraycopy(extraAttributes, 0, newAttributes, 0, extraAttributes.length);
-        IClasspathAttribute fromGradleModel = JavaCore.newClasspathAttribute(CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL, "true");
-        newAttributes[newAttributes.length - 1] = fromGradleModel;
-        return newAttributes;
+        Optional<List<String>> exclude = directory.getExcludes();
+        if (exclude.isPresent()) {
+           builder.setExcludes(exclude.get());
+        }
+
+        Optional<List<String>> include = directory.getExcludes();
+        if (include.isPresent()) {
+            builder.setIncludes(include.get());
+        }
+
+        // mark the source folder that it is from the Gradle model
+        builder.addAttribute(CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL, "true");
+
+        return Optional.of(builder.build());
     }
 
     /*
@@ -249,6 +252,83 @@ final class SourceFolderUpdater {
     public static void update(IJavaProject project, List<OmniEclipseSourceDirectory> sourceFolders, IProgressMonitor monitor) throws CoreException {
         SourceFolderUpdater updater = new SourceFolderUpdater(project, sourceFolders);
         updater.updateClasspath(monitor);
+    }
+
+    /**
+     * Helper class to create an {@link IClasspathEntry} instance representing a source folder.
+     */
+    private static class SourceFolderEntryBuilder {
+        private final IPath path;
+        //default settings
+        private IPath output = null;
+        private IPath[] includes = new IPath[0];
+        private IPath[] excludes = new IPath[0];
+        private IClasspathAttribute[] attributes = new IClasspathAttribute[0];
+
+        public SourceFolderEntryBuilder(IPath path) {
+            this.path = path;
+        }
+
+        public void setIncludes(IPath[] includes) {
+            this.includes = includes;
+        }
+
+        public void setIncludes(List<String> includes) {
+            this.includes = new IPath[includes.size()];
+            for (int i = 0; i < includes.size(); i++) {
+                this.includes[i] = new Path(includes.get(i));
+            }
+        }
+
+        public void setExcludes(IPath[] excludes) {
+            this.excludes = excludes;
+        }
+
+        public void setExcludes(List<String> excludes) {
+            this.includes = new IPath[excludes.size()];
+            for (int i = 0; i < excludes.size(); i++) {
+                this.excludes[i] = new Path(excludes.get(i));
+            }
+        }
+
+        public void setAttributes(IClasspathAttribute[] attributes) {
+            this.attributes = attributes;
+        }
+
+        public void setAttributes(List<OmniClasspathAttribute> attributes) {
+            this.attributes = new IClasspathAttribute[attributes.size()];
+            for (int i = 0; i < attributes.size(); i++) {
+                OmniClasspathAttribute attribute = attributes.get(i);
+                this.attributes[i] = JavaCore.newClasspathAttribute(attribute.getName(), attribute.getValue());
+            }
+        }
+
+        public void addAttribute(String name, String value) {
+            for (int i = 0; i < this.attributes.length; i++) {
+                IClasspathAttribute attribute = this.attributes[i];
+                if (attribute.getName().equals(name)) {
+                    if (attribute.getValue().equals(value)) {
+                        return;
+                    } else {
+                        this.attributes[i] = JavaCore.newClasspathAttribute(name, value);
+                        return;
+                    }
+                }
+            }
+            IClasspathAttribute[] newAttributes = new IClasspathAttribute[this.attributes.length + 1];
+            System.arraycopy(this.attributes, 0, newAttributes, 0, this.attributes.length);
+            IClasspathAttribute fromGradleModel = JavaCore.newClasspathAttribute(name, value);
+            newAttributes[newAttributes.length - 1] = fromGradleModel;
+            this.attributes = newAttributes;
+        }
+
+        public void setOutput(String output) {
+            this.output = output == null ? null : new Path(output);
+        }
+
+        public IClasspathEntry build() {
+            return JavaCore.newSourceEntry(this.path, this.includes, this.excludes, this.output, this.attributes);
+        }
     }
 
 }

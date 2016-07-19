@@ -1,172 +1,192 @@
 /*
- * Copyright (c) 2015 the original author or authors.
+ * Copyright (c) 2016 the original author or authors.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
- *     Simon Scholz <simon.scholz@vogella.com> - Bug 473348
  */
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Set;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
+import com.gradleware.tooling.toolingmodel.OmniAccessRule;
 import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
-import com.gradleware.tooling.toolingmodel.OmniClasspathEntry;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
-import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
+import com.gradleware.tooling.toolingmodel.OmniEclipseClasspathContainer;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathAttribute;
-import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.launching.JavaRuntime;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.gradle.Specs;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
 /**
- * Updates the classpath container of the target project.
+ * Updates the classpath containers of the target project.
  * <p/>
- * The update is triggered via {@link #updateFromModel(IJavaProject, OmniEclipseProject, IProgressMonitor)}.
- * The method executes synchronously and unprotected, without thread synchronization or job scheduling.
+ * The update is triggered via {@link #update(IJavaProject, Optional, IProgressMonitor)}. The method
+ * executes synchronously and unprotected, without thread synchronization or job scheduling.
  * <p/>
- * The update logic composes a new classpath container containing all project and external
- * dependencies defined in the Gradle model. At the end of the execution the old classpath
- * container is replaced by the one being created.
+ * If an absent value was passed for the containers, then it will be treated as an empty list.
  * <p/>
- * If an invalid external dependency is received (anything else, than a {@code .jar} file
- * or {@code .zip} file) the given entry is omitted from the classpath container. Due to
- * performance reasons only the file extension is checked.
+ * The Gradle classpath container is always configured on the project.
+ *
+ * @author Donat Csikos
  */
 final class ClasspathContainerUpdater {
 
-    private final IJavaProject eclipseProject;
-    private final OmniEclipseProject gradleProject;
+    private static final String PROJECT_PROPERTY_KEY_GRADLE_CONTAINERS = "containers";
 
-    private ClasspathContainerUpdater(IJavaProject eclipseProject, OmniEclipseProject gradleProject) {
-        this.eclipseProject = Preconditions.checkNotNull(eclipseProject);
-        this.gradleProject = Preconditions.checkNotNull(gradleProject);
-    }
+    private static final OmniEclipseClasspathContainer DEFAULT_GRADLE_CLASSPATH_CONTAINER = new OmniEclipseClasspathContainer() {
 
-    private void updateClasspathContainer(IProgressMonitor monitor) throws JavaModelException {
-        ImmutableList<IClasspathEntry> containerEntries = collectClasspathContainerEntries();
-        setClasspathContainer(this.eclipseProject, containerEntries, monitor);
-        ClasspathContainerPersistence.save(this.eclipseProject, containerEntries);
-    }
-
-    private ImmutableList<IClasspathEntry> collectClasspathContainerEntries() {
-        // project dependencies
-        List<IClasspathEntry> projectDependencies = FluentIterable.from(this.gradleProject.getProjectDependencies())
-                .transform(new Function<OmniEclipseProjectDependency, IClasspathEntry>() {
-
-                    @Override
-                    public IClasspathEntry apply(OmniEclipseProjectDependency dependency) {
-                        OmniEclipseProject dependentProject = ClasspathContainerUpdater.this.gradleProject.getRoot()
-                                .tryFind(Specs.eclipseProjectMatchesIdentifier(dependency.getTarget())).get();
-                        String actualName = CorePlugin.workspaceOperations().normalizeProjectName(dependentProject.getName(), dependentProject.getProjectDirectory());
-                        Path path = new Path("/" + actualName);
-                        return JavaCore.newProjectEntry(path, null, true, getClasspathAttributes(dependency), dependency.isExported());
-                    }
-                }).toList();
-
-        // external dependencies
-        List<IClasspathEntry> externalDependencies = FluentIterable.from(this.gradleProject.getExternalDependencies()).filter(new Predicate<OmniExternalDependency>() {
-
-            @Override
-            public boolean apply(OmniExternalDependency dependency) {
-                File file = dependency.getFile();
-                String name = file.getName();
-                // Eclipse only accepts folders and archives as external dependencies (but not, for example, a DLL)
-                return file.isDirectory() || name.endsWith(".jar") || name.endsWith(".zip");
-            }
-        }).transform(new Function<OmniExternalDependency, IClasspathEntry>() {
-
-            @Override
-            public IClasspathEntry apply(OmniExternalDependency dependency) {
-                IPath file = org.eclipse.core.runtime.Path.fromOSString(dependency.getFile().getAbsolutePath());
-                IPath sources = dependency.getSource() != null ? org.eclipse.core.runtime.Path.fromOSString(dependency.getSource().getAbsolutePath()) : null;
-                return JavaCore.newLibraryEntry(file, sources, null, null, getClasspathAttributes(dependency), dependency.isExported());
-            }
-        }).toList();
-
-        // return all dependencies as a joined list - The order of the dependencies is important see Bug 473348
-        return ImmutableList.<IClasspathEntry>builder().addAll(externalDependencies).addAll(projectDependencies).build();
-    }
-
-    private IClasspathAttribute[] getClasspathAttributes(OmniClasspathEntry entry) {
-        IClasspathAttribute[] classpathAttributes = new IClasspathAttribute[entry.getClasspathAttributes().size()];
-        List<OmniClasspathAttribute> attributes = entry.getClasspathAttributes();
-        for (int i = 0; i < attributes.size(); i++) {
-            OmniClasspathAttribute attribute = attributes.get(i);
-            classpathAttributes[i] = JavaCore.newClasspathAttribute(attribute.getName(), attribute.getValue());
+        @Override
+        public Optional<List<OmniClasspathAttribute>> getClasspathAttributes() {
+            return Optional.of(Collections.<OmniClasspathAttribute>emptyList());
         }
-        return classpathAttributes;
-    }
 
-    /**
-     * Updates the classpath container of the target project based on the given Gradle model.
-     * The container will be persisted so it does not have to be reloaded after the workbench is restarted.
-     *
-     * @param eclipseProject         the target project to update the classpath container on
-     * @param gradleProject          the Gradle model to read the dependencies from
-     * @param monitor                the monitor to report progress on
-     * @throws JavaModelException if the container assignment fails
-     */
-    public static void updateFromModel(IJavaProject eclipseProject, OmniEclipseProject gradleProject, IProgressMonitor monitor) throws JavaModelException {
-        ClasspathContainerUpdater updater = new ClasspathContainerUpdater(eclipseProject, gradleProject);
-        updater.updateClasspathContainer(monitor);
-    }
+        @Override
+        public Optional<List<OmniAccessRule>> getAccessRules() {
+            return Optional.of(Collections.<OmniAccessRule>emptyList());
+        }
 
-    /**
-     * Updates the classpath container from the state stored by the last call to {@link #updateFromModel(IJavaProject, OmniEclipseProject, IProgressMonitor)}.
-     *
-     * @param eclipseProject the target project to update the classpath container on
-     * @param monitor the monitor to report progress on
-     * @return true if the container could be loaded, false if the container remains uninitialized
-     * @throws JavaModelException if the classpath cannot be assigned
-     */
-    public static boolean updateFromStorage(IJavaProject eclipseProject, IProgressMonitor monitor) throws JavaModelException {
-        Optional<List<IClasspathEntry>> storedClasspath = ClasspathContainerPersistence.load(eclipseProject);
-        if (storedClasspath.isPresent()) {
-            setClasspathContainer(eclipseProject, storedClasspath.get(), monitor);
-            return true;
-        } else {
+        @Override
+        public String getPath() {
+            return GradleClasspathContainer.CONTAINER_PATH.toPortableString();
+        }
+
+        @Override
+        public boolean isExported() {
             return false;
         }
+    };
+
+    private final IJavaProject project;
+    private final List<OmniEclipseClasspathContainer> containers;
+
+    private ClasspathContainerUpdater(IJavaProject project, List<OmniEclipseClasspathContainer> containers) {
+        this.project = project;
+        this.containers = ImmutableList.copyOf(containers);
     }
 
-    /**
-     * Resolves the classpath container to an empty list.
-     *
-     * @param eclipseProject      the target project to update the classpath container on
-     * @param monitor             the monitor to report progress on
-     * @throws JavaModelException if the container assignment fails
-     */
-    public static void clear(IJavaProject eclipseProject, IProgressMonitor monitor) throws JavaModelException {
-        setClasspathContainer(eclipseProject, ImmutableList.<IClasspathEntry>of(), monitor);
+    private void updateContainers(IProgressMonitor monitor) throws CoreException {
+        SubMonitor progress = SubMonitor.convert(monitor);
+        progress.setWorkRemaining(2);
+
+        StringSetProjectProperty knownContainers = StringSetProjectProperty.from(this.project.getProject(), PROJECT_PROPERTY_KEY_GRADLE_CONTAINERS);
+
+        List<IClasspathEntry> classpath = new ArrayList<IClasspathEntry>();
+        for (IClasspathEntry entry : this.project.getRawClasspath()) {
+            classpath.add(entry);
+        }
+
+        removeContainersRemovedFromGradleModel(knownContainers, classpath, progress.newChild(1));
+        addContainersInGradleModel(knownContainers, classpath, progress.newChild(1));
     }
 
-    private static void setClasspathContainer(IJavaProject eclipseProject, List<IClasspathEntry> classpathEntries, IProgressMonitor monitor) throws JavaModelException {
-        IClasspathContainer classpathContainer = GradleClasspathContainer.newInstance(classpathEntries);
-        JavaCore.setClasspathContainer(GradleClasspathContainer.CONTAINER_PATH, new IJavaProject[]{eclipseProject}, new IClasspathContainer[]{classpathContainer}, monitor);
+    private void removeContainersRemovedFromGradleModel(StringSetProjectProperty knownContainers, List<IClasspathEntry> classpath, SubMonitor progress) throws CoreException {
+        Set<String> knownContainerPaths = knownContainers.get();
+        for (String knownContainerPath : knownContainerPaths) {
+            if (!existsInGradleModel(knownContainerPath)) {
+                removeContainer(classpath, knownContainerPath);
+            }
+        }
     }
 
+    private boolean existsInGradleModel(String containerPath) {
+        for (OmniEclipseClasspathContainer container : this.containers) {
+            if (container.getPath().equals(containerPath)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void removeContainer(List<IClasspathEntry> classpath, String pathToRemove) {
+        Iterator<IClasspathEntry> iterator = classpath.iterator();
+        while(iterator.hasNext()) {
+            IClasspathEntry entry = iterator.next();
+            if(entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER && entry.getPath().toPortableString().equals(pathToRemove)) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private void addContainersInGradleModel(StringSetProjectProperty knownContainers, List<IClasspathEntry> classpath, SubMonitor progress) throws JavaModelException {
+        Set<String> paths = new HashSet<String>();
+        IPath defaultJreContainerPath = JavaRuntime.newDefaultJREContainerPath();
+
+        for(OmniEclipseClasspathContainer container : this.containers) {
+            Path containerPath = new Path(container.getPath());
+            // the JRE container is handled in JavaSourceSettingsUpdater
+            if (!defaultJreContainerPath.isPrefixOf(containerPath)) {
+                addContainer(container, classpath);
+                paths.add(container.getPath());
+            }
+        }
+
+        if (!paths.contains(GradleClasspathContainer.CONTAINER_PATH.toPortableString())) {
+            addContainer(DEFAULT_GRADLE_CLASSPATH_CONTAINER, classpath);
+        }
+
+        knownContainers.set(paths);
+        this.project.setRawClasspath(classpath.toArray(new IClasspathEntry[classpath.size()]), progress);
+    }
+
+    private void addContainer(OmniEclipseClasspathContainer container, List<IClasspathEntry> classpath) {
+        ListIterator<IClasspathEntry> iterator = classpath.listIterator();
+        while (iterator.hasNext()) {
+            IClasspathEntry entry = iterator.next();
+            if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER && entry.getPath().equals(new Path(container.getPath()))) {
+                iterator.set(createContainerEntry(container));
+                return;
+            }
+        }
+        classpath.add(createContainerEntry(container));
+    }
+
+    private static IClasspathEntry createContainerEntry(OmniEclipseClasspathContainer container) {
+        IPath containerPath = new Path(container.getPath());
+        boolean isExported = container.isExported();
+        IAccessRule[] accessRules = new IAccessRule[0];
+        if (container.getAccessRules().isPresent()) {
+            List<OmniAccessRule> containerRules = container.getAccessRules().get();
+            accessRules = new IAccessRule[containerRules.size()];
+            for (int i = 0; i < containerRules.size(); i++) {
+                OmniAccessRule rule = containerRules.get(i);
+                accessRules[i] = JavaCore.newAccessRule(new Path(rule.getPattern()), rule.getKind());
+            }
+        }
+        IClasspathAttribute[] attributes = new IClasspathAttribute[0];
+        if (container.getClasspathAttributes().isPresent()) {
+            List<OmniClasspathAttribute> containerAttributes = container.getClasspathAttributes().get();
+            attributes = new IClasspathAttribute[containerAttributes.size()];
+            for (int i = 0; i < containerAttributes.size(); i++) {
+                OmniClasspathAttribute attribute = containerAttributes.get(i);
+                attributes[i] = JavaCore.newClasspathAttribute(attribute.getName(), attribute.getValue());
+            }
+        }
+
+        return JavaCore.newContainerEntry(containerPath, accessRules, attributes, isExported);
+    }
+
+    public static void update(IJavaProject project, Optional<List<OmniEclipseClasspathContainer>> containers, IProgressMonitor monitor) throws CoreException {
+        new ClasspathContainerUpdater(project, containers.or(Collections.<OmniEclipseClasspathContainer>emptyList())).updateContainers(monitor);
+    }
 }

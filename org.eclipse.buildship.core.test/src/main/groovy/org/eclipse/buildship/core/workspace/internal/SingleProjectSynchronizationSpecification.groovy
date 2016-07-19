@@ -1,10 +1,11 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import org.eclipse.core.resources.IProject
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
-import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jdt.launching.JavaRuntime
 
-import org.eclipse.buildship.core.Logger;
+import org.eclipse.buildship.core.Logger
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigurationPersistence
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
@@ -232,5 +233,51 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         containers.size() == 2
         containers[0].path.segment(0) == JavaRuntime.JRE_CONTAINER
         containers[1].path == GradleClasspathContainer.CONTAINER_PATH
+    }
+
+    def "Custom containers are set"() {
+        setup:
+        prepareProject('sample-project')
+        def projectDir = dir('sample-project') {
+            file 'build.gradle', """
+                apply plugin: 'java'
+                apply plugin: 'eclipse'
+                eclipse {
+                    classpath {
+                        containers 'custom.container'
+                    }
+                }
+            """
+        }
+
+        when:
+        synchronizeAndWait(projectDir)
+
+        then:
+        IProject project = findProject('sample-project')
+        JavaCore.create(project).rawClasspath.find { IClasspathEntry entry -> entry.entryKind == IClasspathEntry.CPE_CONTAINER  && entry.path.toPortableString() == 'custom.container' }
+    }
+
+    def "Custom project output location is set"() {
+        setup:
+        prepareProject('sample-project')
+        def projectDir = dir('sample-project') {
+            file 'build.gradle', """
+                apply plugin: 'java'
+                apply plugin: 'eclipse'
+                eclipse {
+                    classpath {
+                        defaultOutputDir = file('target/bin')
+                    }
+                }
+            """
+        }
+
+        when:
+        synchronizeAndWait(projectDir)
+
+        then:
+        IProject project = findProject('sample-project')
+        JavaCore.create(project).getOutputLocation().toPortableString() == '/sample-project/target/bin'
     }
 }

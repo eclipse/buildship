@@ -8,6 +8,7 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
@@ -48,7 +49,9 @@ final class WtpClasspathUpdater {
     private static String getDeploymentPath(List<OmniExternalDependency> dependencies) {
         String deploymentPath = null;
         for (OmniExternalDependency dependency : dependencies) {
-            for (OmniClasspathAttribute attribute : dependency.getClasspathAttributes()) {
+            List<OmniClasspathAttribute> attributes = dependency.getClasspathAttributes().isPresent() ? dependency.getClasspathAttributes().get()
+                    : Collections.<OmniClasspathAttribute>emptyList();
+            for (OmniClasspathAttribute attribute : attributes) {
                 if (attribute.getName().equals(DEPLOYMENT_ATTRIBUTE)) {
                     if (deploymentPath != null && !deploymentPath.equals(attribute.getValue())) {
                         throw new IllegalStateException("WTP currently does not support mixed deployment paths.");
@@ -62,7 +65,9 @@ final class WtpClasspathUpdater {
 
     private static boolean hasNonDeploymentAttributes(List<OmniExternalDependency> dependencies) {
         for (OmniExternalDependency dependency : dependencies) {
-            for (OmniClasspathAttribute attribute : dependency.getClasspathAttributes()) {
+            List<OmniClasspathAttribute> attributes = dependency.getClasspathAttributes().isPresent() ? dependency.getClasspathAttributes().get()
+                    : Collections.<OmniClasspathAttribute>emptyList();
+            for (OmniClasspathAttribute attribute : attributes) {
                 if (attribute.getName().equals(NON_DEPLOYMENT_ATTRIBUTE)) {
                     return true;
                 }
