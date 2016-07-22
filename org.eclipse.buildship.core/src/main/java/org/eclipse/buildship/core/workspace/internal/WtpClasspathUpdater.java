@@ -8,15 +8,21 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
+
+import com.google.common.collect.Lists;
 
 import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.IClasspathAttribute;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -77,10 +83,50 @@ final class WtpClasspathUpdater {
     }
 
     private static void updateDeploymentPath(IJavaProject javaProject, String deploymentPath, SubMonitor progress) throws JavaModelException {
-        GradleClasspathContainer.updateAttributes(javaProject, new IClasspathAttribute[] { JavaCore.newClasspathAttribute(DEPLOYMENT_ATTRIBUTE, deploymentPath) }, progress);
+        updateClasspathAttributes(javaProject, GradleClasspathContainer.CONTAINER_PATH, DEPLOYMENT_ATTRIBUTE, deploymentPath, NON_DEPLOYMENT_ATTRIBUTE, progress);
     }
 
     private static void markAsNonDeployed(IJavaProject javaProject, SubMonitor progress) throws JavaModelException {
-        GradleClasspathContainer.updateAttributes(javaProject, new IClasspathAttribute[] { JavaCore.newClasspathAttribute(NON_DEPLOYMENT_ATTRIBUTE, "") }, progress);
+        updateClasspathAttributes(javaProject,GradleClasspathContainer.CONTAINER_PATH, NON_DEPLOYMENT_ATTRIBUTE, "", DEPLOYMENT_ATTRIBUTE, progress);
+    }
+
+    private static void updateClasspathAttributes(IJavaProject project, IPath path, String plusKey, String plusValue, String minusKey, SubMonitor progress) throws JavaModelException {
+        IClasspathEntry[] oldClasspath = project.getRawClasspath();
+        IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length];
+        for (int i = 0; i < oldClasspath.length; i++) {
+            IClasspathEntry entry = oldClasspath[i];
+            if (entry.getPath().equals(path)) {
+                IClasspathEntry newContainer = updateClasspathEntries(entry, plusKey, plusValue, minusKey);
+                newClasspath[i] = newContainer;
+            } else {
+                newClasspath[i] = entry;
+            }
+        }
+        if (!Arrays.equals(oldClasspath, newClasspath)) {
+            project.setRawClasspath(newClasspath, progress);
+        }
+    }
+
+    private static IClasspathEntry updateClasspathEntries(IClasspathEntry entry, String plusKey, String plusValue, String minusKey) {
+        List<IClasspathAttribute> attributes = Lists.newArrayList(entry.getExtraAttributes());
+        ListIterator<IClasspathAttribute> iterator = attributes.listIterator();
+        boolean plusPresent = false;
+        while(iterator.hasNext()) {
+            IClasspathAttribute attribute = iterator.next();
+            if (attribute.getName().equals(minusKey)) {
+                iterator.remove();
+            } else if (attribute.getName().equals(plusKey)) {
+                plusPresent = true;
+                if (!attribute.getValue().equals(plusValue)) {
+                    iterator.set(JavaCore.newClasspathAttribute(plusKey, plusValue));
+                }
+            }
+        }
+
+        if (!plusPresent) {
+            attributes.add(JavaCore.newClasspathAttribute(plusKey, plusValue));
+        }
+
+        return JavaCore.newContainerEntry(entry.getPath(), entry.getAccessRules(), attributes.toArray(new IClasspathAttribute[attributes.size()]), entry.isExported());
     }
 }

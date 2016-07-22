@@ -1,16 +1,17 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import com.google.common.base.Optional
+
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency
 
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
+import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
-
-import com.google.common.base.Optional
 
 class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
@@ -18,7 +19,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
     void setup() {
         project = newJavaProject("sample")
-        project.setRawClasspath([GradleClasspathContainer.newClasspathEntry()] as IClasspathEntry[], null)
+        project.setRawClasspath([JavaCore.newContainerEntry(GradleClasspathContainer.CONTAINER_PATH)] as IClasspathEntry[], null)
     }
 
     def "Folders are valid external dependencies"() {
