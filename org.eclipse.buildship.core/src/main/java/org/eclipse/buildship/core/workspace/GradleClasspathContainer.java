@@ -12,19 +12,15 @@
 
 package org.eclipse.buildship.core.workspace;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
-import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.workspace.internal.DefaultGradleClasspathContainer;
@@ -49,37 +45,6 @@ public abstract class GradleClasspathContainer implements IClasspathContainer {
      */
     public static IClasspathContainer newInstance(List<IClasspathEntry> classpathEntries) {
         return new DefaultGradleClasspathContainer(CONTAINER_PATH, classpathEntries);
-    }
-
-    /**
-     * Updates the Gradle classpath container on the given project with the given attributes. Does
-     * nothing if the classpath container is not present.
-     *
-     * @param javaProject the project to update the container in
-     * @param extraAttributes the classpath attributes to set on the container
-     * @param progress the monitor to report progress on
-     * @throws JavaModelException if the container cannot be updated
-     */
-    public static void updateAttributes(IJavaProject javaProject, IClasspathAttribute[] extraAttributes, SubMonitor progress) throws JavaModelException {
-        // TODO (donat) this overrides the changes done in the ClasspathContainerUpdater
-        IClasspathEntry[] oldClasspath = javaProject.getRawClasspath();
-        IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length];
-        for (int i = 0; i < oldClasspath.length; i++) {
-            IClasspathEntry entry = oldClasspath[i];
-            if (entry.getPath().equals(CONTAINER_PATH)) {
-                IClasspathEntry newContainer = GradleClasspathContainer.newClasspathEntry(extraAttributes);
-                newClasspath[i] = newContainer;
-            } else {
-                newClasspath[i] = entry;
-            }
-        }
-        if (!Arrays.equals(oldClasspath, newClasspath)) {
-            javaProject.setRawClasspath(newClasspath, progress);
-        }
-    }
-
-    private static IClasspathEntry newClasspathEntry(IClasspathAttribute... extraAttributes) throws JavaModelException {
-        return JavaCore.newContainerEntry(CONTAINER_PATH, null, extraAttributes, false);
     }
 
     /**

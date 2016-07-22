@@ -5,6 +5,7 @@ import spock.lang.Ignore
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
 import org.eclipse.core.resources.IProject
+import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathAttribute
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
@@ -174,6 +175,54 @@ class WtpClasspathAttributeSpecification extends ProjectSynchronizationSpecifica
 
         then:
         1 * logger.error(*_)
+    }
+
+    def "Does not override classpath container customisation"() {
+        setup:
+        File root = dir("project") {
+            file 'build.gradle', """
+                import org.gradle.plugins.ide.eclipse.model.AccessRule
+
+                apply plugin: 'eclipse'
+                apply plugin: 'war'
+
+                repositories {
+                    jcenter()
+                }
+
+                dependencies {
+                    providedCompile "junit:junit:4.12"
+                }
+
+                eclipse {
+                    classpath {
+                        containers 'org.eclipse.buildship.core.gradleclasspathcontainer'
+
+                        file {
+                            whenMerged { classpath ->
+                                def container = classpath.entries.find { it.path == 'org.eclipse.buildship.core.gradleclasspathcontainer' }
+                                container.exported = true
+                                container.entryAttributes.customKey = 'customValue'
+                                container.accessRules.add(new AccessRule('1', 'nonAccessibleFilesPattern'))
+                            }
+                        }
+                    }
+               }
+            """
+        }
+
+        when:
+        importAndWait(root)
+
+        then:
+        def project = findProject('project')
+        IClasspathEntry container = rawClasspath(project).find { it.path == GradleClasspathContainer.CONTAINER_PATH }
+        container.extraAttributes.length == 2
+        container.extraAttributes.find { it.name == NON_DEPLOYED }
+        container.extraAttributes.find { it.name == 'customKey' && it.value == 'customValue' }
+        container.accessRules.length == 1
+        container.accessRules[0].kind == IAccessRule.K_NON_ACCESSIBLE
+        container.accessRules[0].pattern.toPortableString() == 'nonAccessibleFilesPattern'
     }
 
     private IClasspathEntry[] resolvedClasspath(IProject project) {
