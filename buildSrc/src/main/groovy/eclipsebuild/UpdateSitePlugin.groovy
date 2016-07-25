@@ -355,7 +355,8 @@ class UpdateSitePlugin implements Plugin<Project> {
                     '-compress',
                     '-publishArtifacts',
                     '-reusePack200Files',
-                    '-configs', 'ANY')
+                    '-configs', 'ANY',
+                    '-consoleLog')
         }
 
         // publish P2 category defined in the category.xml to the update site
@@ -366,7 +367,8 @@ class UpdateSitePlugin implements Plugin<Project> {
                     '-application', 'org.eclipse.equinox.p2.publisher.CategoryPublisher',
                     '-metadataRepository', repositoryDir.toURI().toURL(),
                     '-categoryDefinition',  project.updateSite.siteDescriptor.toURI().toURL(),
-                    '-compress')
+                    '-compress',
+                    '-consoleLog')
         }
 
         // copy the extra resources to the update site
