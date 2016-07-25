@@ -134,7 +134,7 @@ final class SourceFolderUpdater {
            builder.setExcludes(exclude.get());
         }
 
-        Optional<List<String>> include = directory.getExcludes();
+        Optional<List<String>> include = directory.getIncludes();
         if (include.isPresent()) {
             builder.setIncludes(include.get());
         }
@@ -285,7 +285,7 @@ final class SourceFolderUpdater {
         }
 
         public void setExcludes(List<String> excludes) {
-            this.includes = new IPath[excludes.size()];
+            this.excludes = new IPath[excludes.size()];
             for (int i = 0; i < excludes.size(); i++) {
                 this.excludes[i] = new Path(excludes.get(i));
             }
