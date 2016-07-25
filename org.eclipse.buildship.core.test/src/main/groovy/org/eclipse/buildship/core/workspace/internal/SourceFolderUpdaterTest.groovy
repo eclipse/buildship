@@ -170,16 +170,34 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         javaProject.rawClasspath[0].path.toPortableString() == "/project-name"
         javaProject.rawClasspath[0].extraAttributes.length == 1
         javaProject.rawClasspath[0].extraAttributes[0].name == SourceFolderUpdater.CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL
-
     }
 
-    private List<OmniEclipseSourceDirectory> gradleSourceFolders(List<String> folderPaths) {
+    def "Can configure exclude and include patterns"() {
+        given:
+        def newModelSourceFolders = gradleSourceFolders(['src'], Optional.of(['java/**']), Optional.of(['**/Test*']))
+
+        expect:
+        javaProject.rawClasspath.length == 0
+
+        when:
+        SourceFolderUpdater.update(javaProject, newModelSourceFolders, null)
+
+        then:
+        javaProject.rawClasspath.length == 1
+        javaProject.rawClasspath[0].entryKind == IClasspathEntry.CPE_SOURCE
+        javaProject.rawClasspath[0].inclusionPatterns.length == 1
+        javaProject.rawClasspath[0].inclusionPatterns[0].toPortableString() == '**/Test*'
+        javaProject.rawClasspath[0].exclusionPatterns.length == 1
+        javaProject.rawClasspath[0].exclusionPatterns[0].toPortableString() == 'java/**'
+    }
+
+    private List<OmniEclipseSourceDirectory> gradleSourceFolders(List<String> folderPaths, Optional excludes = Optional.absent(),  Optional includes = Optional.absent()) {
         folderPaths.collect { String folderPath ->
             OmniEclipseSourceDirectory sourceDirectory = Mock(OmniEclipseSourceDirectory)
             sourceDirectory.getPath() >> folderPath
             sourceDirectory.getClasspathAttributes() >> Optional.absent()
-            sourceDirectory.getExcludes() >> Optional.absent()
-            sourceDirectory.getIncludes() >> Optional.absent()
+            sourceDirectory.getExcludes() >> excludes
+            sourceDirectory.getIncludes() >> includes
             sourceDirectory.getOutput() >> '/project-name/foo' // TODO (donat) test use-case when values here are not null or not absent
             sourceDirectory
         }
