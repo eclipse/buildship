@@ -184,7 +184,8 @@ class TestBundlePlugin implements Plugin<Project> {
                         "-artifactRepository", "file:${additionalPluginsDir.path}/${p.name}",
                         "-bundles", p.tasks.jar.outputs.files.singleFile.path,
                         "-publishArtifacts",
-                        "-nosplash")
+                        "-nosplash",
+                        "-consoleLog")
             }
         }
 
@@ -197,7 +198,8 @@ class TestBundlePlugin implements Plugin<Project> {
                     "-artifactRepository", "file:${additionalPluginsDir.path}/${project.name}",
                     "-bundles", project.jar.outputs.files.singleFile.path,
                     "-publishArtifacts",
-                    "-nosplash")
+                    "-nosplash",
+                    "-consoleLog")
         }
     }
 
@@ -217,7 +219,8 @@ class TestBundlePlugin implements Plugin<Project> {
                         '-p2.ws', Constants.ws,
                         '-p2.arch', Constants.arch,
                         '-roaming',
-                        '-nosplash')
+                        '-nosplash',
+                        '-consoleLog')
             }
         }
 
