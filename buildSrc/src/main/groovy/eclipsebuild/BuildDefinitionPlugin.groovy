@@ -240,7 +240,8 @@ class BuildDefinitionPlugin implements Plugin<Project> {
                     '-p2.ws', Constants.ws,
                     '-p2.arch', Constants.arch,
                     '-roaming',
-                    '-nosplash')
+                    '-nosplash',
+                    '-consoleLog')
         }
     }
 
