@@ -2,6 +2,7 @@ package org.eclipse.buildship.core.workspace.internal
 
 import com.google.common.base.Optional
 
+import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory
 
 import org.eclipse.core.resources.IFolder
@@ -174,32 +175,71 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
 
     def "Can configure exclude and include patterns"() {
         given:
-        def newModelSourceFolders = gradleSourceFolders(['src'], Optional.of(['java/**']), Optional.of(['**/Test*']))
+        def sourceFolders = gradleSourceFolders(['src'], Optional.of(['java/**']), Optional.of(['**/Test*']))
 
         expect:
         javaProject.rawClasspath.length == 0
 
         when:
-        SourceFolderUpdater.update(javaProject, newModelSourceFolders, null)
+        SourceFolderUpdater.update(javaProject, sourceFolders, null)
 
         then:
-        javaProject.rawClasspath.length == 1
-        javaProject.rawClasspath[0].entryKind == IClasspathEntry.CPE_SOURCE
         javaProject.rawClasspath[0].inclusionPatterns.length == 1
         javaProject.rawClasspath[0].inclusionPatterns[0].toPortableString() == '**/Test*'
         javaProject.rawClasspath[0].exclusionPatterns.length == 1
         javaProject.rawClasspath[0].exclusionPatterns[0].toPortableString() == 'java/**'
     }
 
-    private List<OmniEclipseSourceDirectory> gradleSourceFolders(List<String> folderPaths, Optional excludes = Optional.absent(),  Optional includes = Optional.absent()) {
+    def "Can configure extra attributes"() {
+        given:
+        def sourceFolders = gradleSourceFolders(['src'], Optional.absent(), Optional.absent(), Optional.of(['customKey': 'customValue']))
+
+        when:
+        SourceFolderUpdater.update(javaProject, sourceFolders, null)
+
+        then:
+        javaProject.rawClasspath[0].extraAttributes as List == attributes(['customKey': 'customValue'] << fromGradleModel()) as List
+    }
+
+    def "Can configure custom output location"() {
+        given:
+        def sourceFolders = gradleSourceFolders(['src'], Optional.absent(), Optional.absent(), Optional.absent(), location)
+
+        when:
+        SourceFolderUpdater.update(javaProject, sourceFolders, null)
+
+        then:
+        javaProject.rawClasspath[0].outputLocation?.toPortableString() == location
+
+        where:
+        location << [null, '/project-name/target/classes']
+    }
+
+    private List<OmniEclipseSourceDirectory> gradleSourceFolders(List<String> folderPaths, Optional excludes = Optional.absent(),
+                                                                 Optional includes = Optional.absent(), Optional attributes = Optional.absent(),
+                                                                 String output = '/project-name/foo') {
         folderPaths.collect { String folderPath ->
             OmniEclipseSourceDirectory sourceDirectory = Mock(OmniEclipseSourceDirectory)
             sourceDirectory.getPath() >> folderPath
-            sourceDirectory.getClasspathAttributes() >> Optional.absent()
+            sourceDirectory.getClasspathAttributes() >> gradleClasspathAttributes(attributes)
             sourceDirectory.getExcludes() >> excludes
             sourceDirectory.getIncludes() >> includes
-            sourceDirectory.getOutput() >> '/project-name/foo' // TODO (donat) test use-case when values here are not null or not absent
+            sourceDirectory.getOutput() >> output
             sourceDirectory
+        }
+    }
+
+    private Optional<List<OmniClasspathAttribute>> gradleClasspathAttributes(Optional attributes) {
+        if (!attributes.present) {
+            return Optional.absent()
+        } else {
+            def result = attributes.get().collect { k, v ->
+                OmniClasspathAttribute attribute = Mock(OmniClasspathAttribute)
+                attribute.getName() >> k
+                attribute.getValue() >> v
+                attribute
+            }
+            return Optional.of(result)
         }
     }
 
