@@ -43,7 +43,7 @@ public final class WorkbenchUtils {
             T view = (T) activeWorkbenchWindow.getActivePage().showView(viewId, secondaryId, mode);
             return view;
         } catch (PartInitException e) {
-            throw new RuntimeException(String.format("Cannot show view with id %s and secondary id %s.", viewId, secondaryId));
+            throw new RuntimeException(String.format("Cannot show view with id %s and secondary id %s.", viewId, secondaryId), e);
         }
     }
 
