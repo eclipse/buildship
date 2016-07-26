@@ -313,10 +313,10 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         thrown RuntimeException
 
         when:
-        def configuration = configurationManager.readProjectConfiguration(project, true)
+        def configuration = configurationManager.tryReadProjectConfiguration(project)
 
         then:
-        configuration == null
+        !configuration.isPresent()
     }
 
     def "broken project configurations are handled correctly"() {
@@ -334,10 +334,10 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         thrown RuntimeException
 
         when:
-        def configuration = configurationManager.readProjectConfiguration(project, true)
+        def configuration = configurationManager.tryReadProjectConfiguration(project)
 
         then:
-        configuration == null
+        !configuration.isPresent()
     }
 
     def "broken project configurations are excluded from the root configurations"() {

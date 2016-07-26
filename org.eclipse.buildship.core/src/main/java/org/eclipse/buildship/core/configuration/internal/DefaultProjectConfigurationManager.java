@@ -13,6 +13,7 @@ package org.eclipse.buildship.core.configuration.internal;
 
 import java.util.Map;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 
@@ -48,9 +49,9 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
         for (IProject workspaceProject : this.workspaceOperations.getAllProjects()) {
             if (GradleProjectNature.isPresentOn(workspaceProject)) {
                 // calculate the root configuration to which the current configuration belongs
-                ProjectConfiguration projectConfiguration = readProjectConfiguration(workspaceProject, true);
-                if (projectConfiguration != null) {
-                    ProjectConfiguration rootProjectConfiguration = ProjectConfiguration.from(projectConfiguration.getRequestAttributes(), Path.from(":"));
+                Optional<ProjectConfiguration> projectConfiguration = tryReadProjectConfiguration(workspaceProject);
+                if (projectConfiguration.isPresent()) {
+                    ProjectConfiguration rootProjectConfiguration = ProjectConfiguration.from(projectConfiguration.get().getRequestAttributes(), Path.from(":"));
                     rootConfigurations.add(rootProjectConfiguration);
                 }
             }
@@ -80,9 +81,9 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
         ImmutableSet.Builder<ProjectConfiguration> allConfigurations = ImmutableSet.builder();
         for (IProject workspaceProject : this.workspaceOperations.getAllProjects()) {
             if (GradleProjectNature.isPresentOn(workspaceProject)) {
-                ProjectConfiguration projectConfiguration = readProjectConfiguration(workspaceProject, true);
-                if (projectConfiguration != null) {
-                    allConfigurations.add(projectConfiguration);
+                Optional<ProjectConfiguration> projectConfiguration = tryReadProjectConfiguration(workspaceProject);
+                if (projectConfiguration.isPresent()) {
+                    allConfigurations.add(projectConfiguration.get());
                 }
             }
         }
@@ -98,11 +99,16 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
 
     @Override
     public ProjectConfiguration readProjectConfiguration(IProject workspaceProject) {
-        return readProjectConfiguration(workspaceProject, false);
+        return tryReadProjectConfiguration(workspaceProject, false);
     }
 
     @Override
-    public ProjectConfiguration readProjectConfiguration(IProject workspaceProject, boolean suppressErrors) {
+    public Optional<ProjectConfiguration> tryReadProjectConfiguration(IProject project) {
+        ProjectConfiguration configuration = tryReadProjectConfiguration(project, true);
+        return Optional.fromNullable(configuration);
+    }
+
+    private ProjectConfiguration tryReadProjectConfiguration(IProject workspaceProject, boolean suppressErrors) {
         try {
             return this.projectConfigurationPersistence.readProjectConfiguration(workspaceProject);
         } catch (RuntimeException e) {
