@@ -78,7 +78,6 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
 
                 dependencies {
                     compile project(':a')
-                    compile 'org.springframework:spring-core:4.3.1.RELEASE'
                 }
             }
         '''
