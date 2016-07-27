@@ -10,10 +10,10 @@ import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.IAccessRule
+import org.eclipse.jdt.core.IClasspathAttribute
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
-import org.eclipse.jdt.launching.JavaRuntime
 
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
@@ -22,7 +22,6 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
     static IPath CUSTOM_MODEL_CONTAINER = new Path('model.classpath.container')
     static IPath CUSTOM_USER_CONTAINER = new Path('user.classpath.container')
-    static IPath DEFAULT_JRE_CONTAINER = JavaRuntime.newDefaultJREContainerPath()
 
     def "Can set classpath containers"() {
         setup:
@@ -60,14 +59,25 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
     def "Preserves manually added classpath containers"() {
         setup:
         IJavaProject project = newJavaProject('project-with-classpath-container')
-        IClasspathEntry[] classpath = project.rawClasspath + JavaCore.newContainerEntry(CUSTOM_USER_CONTAINER, false)
+        IAccessRule[] rules = [JavaCore.newAccessRule(new Path('accessiblePattern'), IAccessRule.K_ACCESSIBLE)]
+        IClasspathAttribute[] attributes = [JavaCore.newClasspathAttribute('attributeKey', 'attributeValue')]
+        IClasspathEntry[] classpath = project.rawClasspath + JavaCore.newContainerEntry(CUSTOM_USER_CONTAINER, rules, attributes, true)
         project.setRawClasspath(classpath, new NullProgressMonitor())
 
         when:
         executeContainerUpdate(project)
 
         then:
-        findContainer(project, CUSTOM_USER_CONTAINER)
+        IClasspathEntry container = findContainer(project, CUSTOM_USER_CONTAINER)
+        container != null
+        container.exported == true
+        container.accessRules.length == 1
+        container.accessRules[0].pattern.toPortableString() == 'accessiblePattern'
+        container.accessRules[0].kind == IAccessRule.K_ACCESSIBLE
+        container.extraAttributes.length == 1
+        container.extraAttributes[0].name == 'attributeKey'
+        container.extraAttributes[0].value == 'attributeValue'
+
     }
 
     def "Classpath containers that were previously defined manually are transformed to model elements"() {
@@ -76,39 +86,17 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
         IClasspathEntry[] classpath = project.rawClasspath + JavaCore.newContainerEntry(CUSTOM_USER_CONTAINER, false)
         project.setRawClasspath(classpath, new NullProgressMonitor())
 
-        expect:
-        !StringSetProjectProperty.from(project.project, ClasspathContainerUpdater.PROJECT_PROPERTY_KEY_GRADLE_CONTAINERS).get().contains(CUSTOM_USER_CONTAINER.toPortableString())
-
         when:
         executeContainerUpdate(project, container(CUSTOM_USER_CONTAINER))
 
         then:
         findContainer(project, CUSTOM_USER_CONTAINER)
-        StringSetProjectProperty.from(project.project, ClasspathContainerUpdater.PROJECT_PROPERTY_KEY_GRADLE_CONTAINERS).get().contains(CUSTOM_USER_CONTAINER.toPortableString())
-    }
-
-    def "Leaves the JRE container untouched"() {
-        setup:
-        IJavaProject project = newJavaProject('project-with-classpath-container')
-
-        expect:
-        IClasspathEntry jreEntry = findContainer(project)
 
         when:
         executeContainerUpdate(project)
 
         then:
-        findContainer(project) == jreEntry
-    }
-
-    def "Skips custom JRE entries"() { // because setting JREs is a responsibility of the JavaSourceSettingsUpdater class
-        setup:
-        IJavaProject project = newJavaProject('project-with-classpath-container')
-        IPath customJre = new Path('org.eclipse.jdt.launching.JRE_CONTAINER/custom-jre')
-        executeContainerUpdate(project, container(customJre))
-
-        expect:
-        !findContainer(project, customJre)
+        !findContainer(project, CUSTOM_USER_CONTAINER)
     }
 
     def "Adds Gradle classpath container by default"() {
@@ -166,7 +154,4 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
         project.rawClasspath.find { it.entryKind == IClasspathEntry.CPE_CONTAINER && it.path == path }
     }
 
-    private def findContainer(IJavaProject project) {
-        project.rawClasspath.find { it.entryKind == IClasspathEntry.CPE_CONTAINER && DEFAULT_JRE_CONTAINER.isPrefixOf(it.path) }
-    }
 }

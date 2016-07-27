@@ -11,20 +11,17 @@
 
 package org.eclipse.buildship.core.test.fixtures
 
-import java.io.File;
-
-import groovy.lang.Closure;
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-import spock.lang.AutoCleanup;
+import spock.lang.AutoCleanup
 import spock.lang.Specification
 
 import com.google.common.io.Files
 
 import org.eclipse.core.resources.IProject
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.runtime.jobs.Job
-import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.core.resources.IWorkspace
+import org.eclipse.jdt.core.IJavaProject
+import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.CorePlugin
 
@@ -147,5 +144,10 @@ abstract class WorkspaceSpecification extends Specification {
 
     protected IProject findProject(String name) {
         CorePlugin.workspaceOperations().findProjectByName(name).orNull()
+    }
+
+    protected IJavaProject findJavaProject(String name) {
+        IProject project = findProject(name)
+        return project == null ? null : JavaCore.create(project)
     }
 }

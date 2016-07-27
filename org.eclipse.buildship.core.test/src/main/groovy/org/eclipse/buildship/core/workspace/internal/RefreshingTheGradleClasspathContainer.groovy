@@ -108,10 +108,6 @@ class RefreshingTheGradleClasspathContainer extends ProjectSynchronizationSpecif
         }
     }
 
-    private static def findJavaProject(String name) {
-        JavaCore.create(CorePlugin.workspaceOperations().findProjectByName(name).get())
-    }
-
     private static def defineLocalGroovyDependency(File buildScript) {
         buildScript << '\ndependencies { compile localGroovy() }'
     }

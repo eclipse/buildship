@@ -8,19 +8,19 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 
+import org.gradle.internal.impldep.com.google.common.collect.Maps;
+
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
-import com.gradleware.tooling.toolingmodel.OmniAccessRule;
-import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
 import com.gradleware.tooling.toolingmodel.OmniEclipseClasspathContainer;
 
 import org.eclipse.core.runtime.CoreException;
@@ -34,8 +34,8 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.launching.JavaRuntime;
 
+import org.eclipse.buildship.core.util.classpath.ClasspathUtils;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
 /**
@@ -54,139 +54,112 @@ final class ClasspathContainerUpdater {
 
     private static final String PROJECT_PROPERTY_KEY_GRADLE_CONTAINERS = "containers";
 
-    private static final OmniEclipseClasspathContainer DEFAULT_GRADLE_CLASSPATH_CONTAINER = new OmniEclipseClasspathContainer() {
-
-        @Override
-        public Optional<List<OmniClasspathAttribute>> getClasspathAttributes() {
-            return Optional.of(Collections.<OmniClasspathAttribute>emptyList());
-        }
-
-        @Override
-        public Optional<List<OmniAccessRule>> getAccessRules() {
-            return Optional.of(Collections.<OmniAccessRule>emptyList());
-        }
-
-        @Override
-        public String getPath() {
-            return GradleClasspathContainer.CONTAINER_PATH.toPortableString();
-        }
-
-        @Override
-        public boolean isExported() {
-            return false;
-        }
-    };
-
     private final IJavaProject project;
     private final List<OmniEclipseClasspathContainer> containers;
+    private final Set<String> containerPaths;
 
     private ClasspathContainerUpdater(IJavaProject project, List<OmniEclipseClasspathContainer> containers) {
         this.project = project;
         this.containers = ImmutableList.copyOf(containers);
+        this.containerPaths = new HashSet<String>();
+
+        for (OmniEclipseClasspathContainer container : this.containers) {
+            this.containerPaths.add(container.getPath());
+        }
     }
 
     private void updateContainers(IProgressMonitor monitor) throws CoreException {
         SubMonitor progress = SubMonitor.convert(monitor);
-        progress.setWorkRemaining(2);
+        progress.setWorkRemaining(3);
 
-        StringSetProjectProperty knownContainers = StringSetProjectProperty.from(this.project.getProject(), PROJECT_PROPERTY_KEY_GRADLE_CONTAINERS);
+        LinkedHashMap<ClasspathEntryId, IClasspathEntry> classpath = collectProjectClasspath();
+        removeContainersRemovedFromGradleModel(classpath, progress.newChild(1));
+        addContainersPresentInGradleModel(classpath, progress.newChild(1));
+        updateProjectClasspath(classpath, progress.newChild(1));
+    }
 
-        List<IClasspathEntry> classpath = new ArrayList<IClasspathEntry>();
+    private LinkedHashMap<ClasspathEntryId, IClasspathEntry> collectProjectClasspath() throws JavaModelException {
+        LinkedHashMap<ClasspathEntryId, IClasspathEntry> classpath = Maps.newLinkedHashMap();
         for (IClasspathEntry entry : this.project.getRawClasspath()) {
-            classpath.add(entry);
+            classpath.put(ClasspathEntryId.create(entry.getEntryKind(), entry.getPath().toPortableString()), entry);
         }
-
-        removeContainersRemovedFromGradleModel(knownContainers, classpath, progress.newChild(1));
-        addContainersInGradleModel(knownContainers, classpath, progress.newChild(1));
+        return classpath;
     }
 
-    private void removeContainersRemovedFromGradleModel(StringSetProjectProperty knownContainers, List<IClasspathEntry> classpath, SubMonitor progress) throws CoreException {
-        Set<String> knownContainerPaths = knownContainers.get();
-        for (String knownContainerPath : knownContainerPaths) {
-            if (!existsInGradleModel(knownContainerPath)) {
-                removeContainer(classpath, knownContainerPath);
+    private void removeContainersRemovedFromGradleModel(LinkedHashMap<ClasspathEntryId, IClasspathEntry> classpath, SubMonitor progress) throws CoreException {
+        StringSetProjectProperty previousPaths = StringSetProjectProperty.from(this.project.getProject(), PROJECT_PROPERTY_KEY_GRADLE_CONTAINERS);
+        for (String previousPath : previousPaths.get()) {
+            if (!this.containerPaths.contains(previousPath)) {
+                classpath.remove(ClasspathEntryId.create(IClasspathEntry.CPE_CONTAINER, previousPath));
             }
         }
     }
 
-    private boolean existsInGradleModel(String containerPath) {
+    private void addContainersPresentInGradleModel(LinkedHashMap<ClasspathEntryId, IClasspathEntry> classpath, SubMonitor progress) throws JavaModelException {
         for (OmniEclipseClasspathContainer container : this.containers) {
-            if (container.getPath().equals(containerPath)) {
-                return true;
-            }
+            classpath.put(ClasspathEntryId.create(IClasspathEntry.CPE_CONTAINER, container.getPath()), createContainerEntry(container));
         }
-        return false;
-    }
 
-    private void removeContainer(List<IClasspathEntry> classpath, String pathToRemove) {
-        Iterator<IClasspathEntry> iterator = classpath.iterator();
-        while(iterator.hasNext()) {
-            IClasspathEntry entry = iterator.next();
-            if(entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER && entry.getPath().toPortableString().equals(pathToRemove)) {
-                iterator.remove();
-            }
+        if (!this.containerPaths.contains(GradleClasspathContainer.CONTAINER_PATH.toPortableString())) {
+            ClasspathEntryId key = ClasspathEntryId.create(IClasspathEntry.CPE_CONTAINER, GradleClasspathContainer.CONTAINER_PATH.toPortableString());
+            IClasspathEntry value = JavaCore.newContainerEntry(GradleClasspathContainer.CONTAINER_PATH);
+            // linked hash map preserves ordering if existing key-value pair is replaced
+            classpath.put(key, value);
         }
     }
 
-    private void addContainersInGradleModel(StringSetProjectProperty knownContainers, List<IClasspathEntry> classpath, SubMonitor progress) throws JavaModelException {
-        Set<String> paths = new HashSet<String>();
-        IPath defaultJreContainerPath = JavaRuntime.newDefaultJREContainerPath();
+    private void updateProjectClasspath(LinkedHashMap<ClasspathEntryId, IClasspathEntry> classpath, SubMonitor progress) throws JavaModelException {
+        StringSetProjectProperty containerPaths = StringSetProjectProperty.from(this.project.getProject(), PROJECT_PROPERTY_KEY_GRADLE_CONTAINERS);
+        containerPaths.set(this.containerPaths);
 
-        for(OmniEclipseClasspathContainer container : this.containers) {
-            Path containerPath = new Path(container.getPath());
-            // the JRE container is handled in JavaSourceSettingsUpdater
-            if (!defaultJreContainerPath.isPrefixOf(containerPath)) {
-                addContainer(container, classpath);
-                paths.add(container.getPath());
-            }
-        }
-
-        if (!paths.contains(GradleClasspathContainer.CONTAINER_PATH.toPortableString())) {
-            addContainer(DEFAULT_GRADLE_CLASSPATH_CONTAINER, classpath);
-        }
-
-        knownContainers.set(paths);
-        this.project.setRawClasspath(classpath.toArray(new IClasspathEntry[classpath.size()]), progress);
-    }
-
-    private void addContainer(OmniEclipseClasspathContainer container, List<IClasspathEntry> classpath) {
-        ListIterator<IClasspathEntry> iterator = classpath.listIterator();
-        while (iterator.hasNext()) {
-            IClasspathEntry entry = iterator.next();
-            if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER && entry.getPath().equals(new Path(container.getPath()))) {
-                iterator.set(createContainerEntry(container));
-                return;
-            }
-        }
-        classpath.add(createContainerEntry(container));
+        Collection<IClasspathEntry> entries = classpath.values();
+        this.project.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), progress.newChild(1));
     }
 
     private static IClasspathEntry createContainerEntry(OmniEclipseClasspathContainer container) {
         IPath containerPath = new Path(container.getPath());
         boolean isExported = container.isExported();
-        IAccessRule[] accessRules = new IAccessRule[0];
-        if (container.getAccessRules().isPresent()) {
-            List<OmniAccessRule> containerRules = container.getAccessRules().get();
-            accessRules = new IAccessRule[containerRules.size()];
-            for (int i = 0; i < containerRules.size(); i++) {
-                OmniAccessRule rule = containerRules.get(i);
-                accessRules[i] = JavaCore.newAccessRule(new Path(rule.getPattern()), rule.getKind());
-            }
-        }
-        IClasspathAttribute[] attributes = new IClasspathAttribute[0];
-        if (container.getClasspathAttributes().isPresent()) {
-            List<OmniClasspathAttribute> containerAttributes = container.getClasspathAttributes().get();
-            attributes = new IClasspathAttribute[containerAttributes.size()];
-            for (int i = 0; i < containerAttributes.size(); i++) {
-                OmniClasspathAttribute attribute = containerAttributes.get(i);
-                attributes[i] = JavaCore.newClasspathAttribute(attribute.getName(), attribute.getValue());
-            }
-        }
-
+        IAccessRule[] accessRules = ClasspathUtils.createAccessRules(container);
+        IClasspathAttribute[] attributes = ClasspathUtils.createClasspathAttributes(container);
         return JavaCore.newContainerEntry(containerPath, accessRules, attributes, isExported);
     }
 
     public static void update(IJavaProject project, Optional<List<OmniEclipseClasspathContainer>> containers, IProgressMonitor monitor) throws CoreException {
         new ClasspathContainerUpdater(project, containers.or(Collections.<OmniEclipseClasspathContainer>emptyList())).updateContainers(monitor);
+    }
+
+    /**
+     * Helper class to uniquely identify classpath entries based on their type and path.
+     */
+    private static final class ClasspathEntryId {
+
+        private final int kind;
+        private final String path;
+
+        private ClasspathEntryId(int kind, String path) {
+            this.kind = kind;
+            this.path = path;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.kind, this.path);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            ClasspathEntryId that = (ClasspathEntryId) o;
+            return Objects.equal(this.kind, that.kind) && Objects.equal(this.path, that.path);
+        }
+
+        public static ClasspathEntryId create(int kind, String path) {
+            return new ClasspathEntryId(kind, path);
+        }
     }
 }
