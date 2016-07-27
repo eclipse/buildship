@@ -13,9 +13,12 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import org.gradle.internal.impldep.com.google.common.collect.Maps;
+import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -23,11 +26,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 
-import com.gradleware.tooling.toolingmodel.OmniAccessRule;
-import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
-import com.gradleware.tooling.toolingmodel.OmniClasspathEntry;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
@@ -35,8 +34,6 @@ import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IAccessRule;
-import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -44,7 +41,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.gradle.Predicates;
+import org.eclipse.buildship.core.util.classpath.ClasspathUtils;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
 /**
@@ -65,12 +62,15 @@ final class GradleClasspathContainerUpdater {
 
     private final IJavaProject eclipseProject;
     private final OmniEclipseProject gradleProject;
-    private final Set<OmniEclipseProject> allGradleProjects;
+    private final Map<EclipseProjectIdentifier, OmniEclipseProject> idsToAllProjects;
 
     private GradleClasspathContainerUpdater(IJavaProject eclipseProject, OmniEclipseProject gradleProject, Set<OmniEclipseProject> allGradleProjects) {
         this.eclipseProject = Preconditions.checkNotNull(eclipseProject);
         this.gradleProject = Preconditions.checkNotNull(gradleProject);
-        this.allGradleProjects = allGradleProjects;
+        this.idsToAllProjects = Maps.newHashMap();
+        for (OmniEclipseProject project : allGradleProjects) {
+            this.idsToAllProjects.put(project.getIdentifier(), project);
+        }
     }
 
     private void updateClasspathContainer(IProgressMonitor monitor) throws JavaModelException {
@@ -86,10 +86,10 @@ final class GradleClasspathContainerUpdater {
 
                     @Override
                     public IClasspathEntry apply(OmniEclipseProjectDependency dependency) {
-                        OmniEclipseProject targetProject = Iterables.find(GradleClasspathContainerUpdater.this.allGradleProjects, Predicates.eclipseProjectMatchesIdentifier(dependency.getTarget()));
+                        OmniEclipseProject targetProject = GradleClasspathContainerUpdater.this.idsToAllProjects.get(dependency.getTarget());
                         String actualName = CorePlugin.workspaceOperations().normalizeProjectName(targetProject.getName(), targetProject.getProjectDirectory());
                         Path path = new Path("/" + actualName);
-                        return JavaCore.newProjectEntry(path, getAccessRules(dependency), true, getClasspathAttributes(dependency), dependency.isExported());
+                        return JavaCore.newProjectEntry(path, ClasspathUtils.createAccessRules(dependency), true, ClasspathUtils.createClasspathAttributes(dependency), dependency.isExported());
                     }
                 }).toList();
 
@@ -109,33 +109,12 @@ final class GradleClasspathContainerUpdater {
             public IClasspathEntry apply(OmniExternalDependency dependency) {
                 IPath file = org.eclipse.core.runtime.Path.fromOSString(dependency.getFile().getAbsolutePath());
                 IPath sources = dependency.getSource() != null ? org.eclipse.core.runtime.Path.fromOSString(dependency.getSource().getAbsolutePath()) : null;
-                return JavaCore.newLibraryEntry(file, sources, null, getAccessRules(dependency), getClasspathAttributes(dependency), dependency.isExported());
+                return JavaCore.newLibraryEntry(file, sources, null, ClasspathUtils.createAccessRules(dependency), ClasspathUtils.createClasspathAttributes(dependency), dependency.isExported());
             }
         }).toList();
 
         // return all dependencies as a joined list - The order of the dependencies is important see Bug 473348
         return ImmutableList.<IClasspathEntry>builder().addAll(externalDependencies).addAll(projectDependencies).build();
-    }
-
-    private IClasspathAttribute[] getClasspathAttributes(OmniClasspathEntry entry) {
-        List<OmniClasspathAttribute> attributes = entry.getClasspathAttributes().isPresent() ? entry.getClasspathAttributes().get()
-                : Collections.<OmniClasspathAttribute>emptyList();
-        IClasspathAttribute[] classpathAttributes = new IClasspathAttribute[attributes.size()];
-        for (int i = 0; i < attributes.size(); i++) {
-            OmniClasspathAttribute attribute = attributes.get(i);
-            classpathAttributes[i] = JavaCore.newClasspathAttribute(attribute.getName(), attribute.getValue());
-        }
-        return classpathAttributes;
-    }
-
-    private IAccessRule[] getAccessRules(OmniClasspathEntry entry) {
-        List<OmniAccessRule> rules = entry.getAccessRules().isPresent() ? entry.getAccessRules().get() : Collections.<OmniAccessRule>emptyList();
-        IAccessRule[] accessRules = new IAccessRule[rules.size()];
-        for (int i = 0; i < rules.size(); i++) {
-            OmniAccessRule rule = rules.get(i);
-            accessRules[i] = JavaCore.newAccessRule(new Path(rule.getPattern()), rule.getKind());
-        }
-        return accessRules;
     }
 
     /**
