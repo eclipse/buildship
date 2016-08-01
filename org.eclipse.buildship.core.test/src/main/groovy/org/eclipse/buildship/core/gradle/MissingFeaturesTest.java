@@ -22,7 +22,7 @@ import org.junit.Test;
 import com.gradleware.tooling.toolingmodel.util.Pair;
 
 /**
- * Limitations test.
+ * MissingFeatures test.
  * <p/>
  * Note: This test had to be converted to JUnit test from Spock because it threw a
  * ClassNotFoundError upon execution: it tried to load the The GradleVersion$Stage class which is
@@ -49,14 +49,14 @@ public class MissingFeaturesTest {
     public void someLimitationWhenUsingFinalVersionOf24() {
         MissingFeatures missingFeatures = new MissingFeatures(GradleVersion.version("2.4"));
         List<Pair<GradleVersion, String>> details = missingFeatures.getMissingFeatures();
-        assertEquals(details.size(), 12);
+        assertEquals(details.size(), 14);
     }
 
     @Test
     public void someLimitationWhenUsingSnapshotVersionOf24() {
         MissingFeatures missingFeatures = new MissingFeatures(GradleVersion.version("2.4-20150101053008+0000"));
         List<Pair<GradleVersion, String>> details = missingFeatures.getMissingFeatures();
-        assertEquals(details.size(), 12);
+        assertEquals(details.size(), 14);
     }
 
 }

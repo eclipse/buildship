@@ -46,6 +46,8 @@ public final class MissingFeatures {
         addIfNeeded("2.13", "Improved performance when loading models", missingFeatures);
         addIfNeeded("2.14", "Attributes defined for Java classpath entries", missingFeatures);
         addIfNeeded("2.14", "WTP deployment attributes defined for web projects", missingFeatures);
+        addIfNeeded("3.0", "Output location, classpath containers, source folder excludes-includes and JRE name are set on Java projects", missingFeatures);
+        addIfNeeded("3.0", "Java classpath customization done in 'eclipse.classpath.file.whenMerged' is synchronized", missingFeatures);
         return missingFeatures.build();
     }
 
