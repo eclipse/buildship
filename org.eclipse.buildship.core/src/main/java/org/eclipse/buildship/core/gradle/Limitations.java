@@ -41,6 +41,11 @@ public final class Limitations {
         addIfNeeded("2.10", "Language source level not set on Java projects", limitations);
         addIfNeeded("2.11", "Target bytecode version not set on Java projects", limitations);
         addIfNeeded("2.11", "Java runtime not set on Java projects", limitations);
+        addIfNeeded("2.13", "Improved performance when loading models", limitations);
+        addIfNeeded("2.14", "Attributes defined for Java classpath entries", limitations);
+        addIfNeeded("2.14", "WTP deployment attributes defined for web projects", limitations);
+        addIfNeeded("3.0", "Output location, classpath containers, source folder excludes-includes and JRE name are set on Java projects", limitations);
+        addIfNeeded("3.0", "Java classpath customization done in 'eclipse.classpath.file.whenMerged' is synchronized", limitations);
         return limitations.build();
     }
 
