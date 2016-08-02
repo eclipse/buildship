@@ -1,8 +1,6 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import spock.lang.Ignore;
-
-import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.IAccessRule
 import org.eclipse.jdt.core.IClasspathEntry
@@ -217,10 +215,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         project.hasNature(JavaCore.NATURE_ID)
     }
 
-    @Ignore
-    // TODO (donat) the test only works if the eclipse plugin is added, otherwise the following code is not invoked in Gradle:
-    // https://github.com/gradle/gradle/blob/dc1853e14184b35d0044ba8c854ed69f4cc62595/subprojects/ide/src/main/groovy/org/gradle/plugins/ide/eclipse/EclipsePlugin.java#L247-L250
-    def "If the project applies the Java plugin, then the Gradle classpath container is added after the JRE Container"() {
+    def "If the project applies the Java plugin then the Gradle classpath container is added after the JRE container"() {
         setup:
         prepareProject("sample-project")
         def projectDir = dir('sample-project') {
