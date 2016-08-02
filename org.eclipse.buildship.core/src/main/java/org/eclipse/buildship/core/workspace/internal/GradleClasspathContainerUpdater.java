@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.gradle.internal.impldep.com.google.common.collect.Maps;
 import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
 
 import com.google.common.base.Function;
@@ -26,6 +25,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
