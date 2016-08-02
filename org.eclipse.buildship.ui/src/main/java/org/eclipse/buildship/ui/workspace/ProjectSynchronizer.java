@@ -16,10 +16,9 @@ package org.eclipse.buildship.ui.workspace;
 import java.util.List;
 import java.util.Set;
 
-import org.gradle.internal.impldep.com.google.common.collect.Sets;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IFile;
