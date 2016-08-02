@@ -30,6 +30,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.util.collections.AdapterFunction;
 import org.eclipse.buildship.core.workspace.CompositeGradleBuild;
 import org.eclipse.buildship.core.workspace.DelegatingNewProjectHandler;
@@ -62,7 +63,8 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
             if (project != null && !GradleProjectNature.isPresentOn(project)) {
                 IPath location = project.getLocation();
                 if (location != null) {
-                    builds.add(new FixedRequestAttributes(location.toFile(), null, GradleDistribution.fromBuild(), null, Lists.<String>newArrayList(), Lists.<String>newArrayList()));
+                    WorkspaceConfiguration configuration = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
+                    builds.add(new FixedRequestAttributes(location.toFile(), configuration.getGradleUserHome(), GradleDistribution.fromBuild(), null, Lists.<String>newArrayList(), Lists.<String>newArrayList()));
                 }
             }
 
