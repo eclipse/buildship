@@ -63,9 +63,9 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
         File gradleUserHome = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration().getGradleUserHome();
         String gradleUserHomePath = gradleUserHome == null ? null : gradleUserHome.getPath();
         String gradleDistribution = preferences.read(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
-        String javaHome = preferences.read(PREF_KEY_CONNECTION_JAVA_HOME);
-        String jvmArguments = preferences.read(PREF_KEY_CONNECTION_JVM_ARGUMENTS);
-        String arguments = preferences.read(PREF_KEY_CONNECTION_ARGUMENTS);
+        String javaHome = preferences.read(PREF_KEY_CONNECTION_JAVA_HOME, null);
+        String jvmArguments = preferences.read(PREF_KEY_CONNECTION_JVM_ARGUMENTS, "");
+        String arguments = preferences.read(PREF_KEY_CONNECTION_ARGUMENTS, "");
         return ProjectConfigurationProperties.from(projectPath, projectDir, gradleUserHomePath, gradleDistribution, javaHome, jvmArguments, arguments).toProjectConfiguration(project);
     }
 

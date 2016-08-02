@@ -39,6 +39,17 @@ abstract class PreferenceStore {
     abstract String read(String key);
 
     /**
+     * Reads the preference value. If the preference is not present then the specified default
+     * is returned. Returns {@code null} if the stored value is a "null" string or the key is
+     * missing from the preference and the supplied default is {@code null} or "null" string.
+     *
+     * @param key the preference key
+     * @param defaultValue the value to return if the key is not present in the preference store
+     * @return the preference value
+     */
+    abstract String read(String key, String defaultValue);
+
+    /**
      * Writes a preference key-value pair. The changes can be persisted by calling {@link #flush()}.
      * The value can be {@code null}.
      *
@@ -120,6 +131,12 @@ abstract class PreferenceStore {
         }
 
         @Override
+        String read(String key, String defaultValue) {
+            String rawValue = this.preferences.get(key, defaultValue);
+            return fromRawValue(rawValue);
+        }
+
+        @Override
         void write(String key, String value) {
             this.preferences.put(key, toRawValue(value));
         }
@@ -186,6 +203,12 @@ abstract class PreferenceStore {
             } else {
                 return fromRawValue(rawValue);
             }
+        }
+
+        @Override
+        String read(String key, String defaultValue) {
+            String rawValue = getProperties().getProperty(key, defaultValue);
+            return fromRawValue(rawValue);
         }
 
         @Override

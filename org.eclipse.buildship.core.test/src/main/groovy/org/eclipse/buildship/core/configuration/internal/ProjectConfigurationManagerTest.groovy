@@ -390,9 +390,35 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         configurations.size() == 2
     }
 
+    def "missing option project configuration attributes are replaced with defaults"() {
+        setup:
+        def projectDir = dir("sample-project") {
+            file('settings.gradle').text = "rootProject.name = 'sample-project'"
+        }
+
+        importAndWait(projectDir)
+
+        when:
+        IProject project = findProject('sample-project')
+        deleteOptionalPreferences(project)
+
+        then:
+        def configuration = configurationManager.tryReadProjectConfiguration(project)
+        configuration.isPresent()
+        configuration.get() == ProjectConfiguration.from(new FixedRequestAttributes(projectDir, null, GradleDistribution.fromBuild(), null, [], []), Path.from(':'))
+    }
+
     private void setInvalidPreferenceOn(IProject project) {
         PreferenceStore preferences = PreferenceStore.forProjectScope(project, CorePlugin.PLUGIN_ID)
         preferences.write(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, 'I am error.')
+        preferences.flush()
+    }
+
+    private void deleteOptionalPreferences(IProject project){
+        PreferenceStore preferences = PreferenceStore.forProjectScope(project, CorePlugin.PLUGIN_ID)
+        preferences.delete(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_JAVA_HOME)
+        preferences.delete(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_ARGUMENTS)
+        preferences.delete(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_JVM_ARGUMENTS)
         preferences.flush()
     }
 
