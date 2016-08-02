@@ -10,9 +10,8 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.List;
 
-import org.gradle.internal.impldep.com.google.common.collect.Lists;
-
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
