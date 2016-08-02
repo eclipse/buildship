@@ -31,6 +31,7 @@ import com.google.common.collect.Maps;
 
 import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
+import com.gradleware.tooling.toolingmodel.util.Maybe;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -271,8 +272,8 @@ final class SourceFolderUpdater {
             this.path = path;
         }
 
-        public void setOutput(String output) {
-            this.output = output;
+        public void setOutput(Maybe<String> output) {
+            this.output = output.or(null);
         }
 
         public void setIncludes(IPath[] includes) {
