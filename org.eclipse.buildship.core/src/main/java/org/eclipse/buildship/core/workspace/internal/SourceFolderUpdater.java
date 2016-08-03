@@ -119,27 +119,31 @@ final class SourceFolderUpdater {
 
         IClasspathEntry existingEntry = sourceFolders.get(root.getPath());
         if (existingEntry != null) {
+            builder.setOutput(existingEntry.getOutputLocation());
+            builder.setAttributes(existingEntry.getExtraAttributes());
             builder.setIncludes(existingEntry.getInclusionPatterns());
             builder.setExcludes(existingEntry.getExclusionPatterns());
-            builder.setAttributes(existingEntry.getExtraAttributes());
         }
 
         // set source folder settings from the Gradle model
-        builder.setOutput(directory.getOutput());
+        Maybe<String> output = directory.getOutput();
+        if (output.isPresent()) {
+            builder.setOutput(output.get());
+        }
 
         Optional<List<OmniClasspathAttribute>> attributes = directory.getClasspathAttributes();
         if (attributes.isPresent()) {
             builder.setAttributes(attributes.get());
         }
 
-        Optional<List<String>> exclude = directory.getExcludes();
-        if (exclude.isPresent()) {
-           builder.setExcludes(exclude.get());
+        Optional<List<String>> excludes = directory.getExcludes();
+        if (excludes.isPresent()) {
+           builder.setExcludes(excludes.get());
         }
 
-        Optional<List<String>> include = directory.getIncludes();
-        if (include.isPresent()) {
-            builder.setIncludes(include.get());
+        Optional<List<String>> includes = directory.getIncludes();
+        if (includes.isPresent()) {
+            builder.setIncludes(includes.get());
         }
 
         // mark the source folder that it is from the Gradle model
@@ -272,8 +276,12 @@ final class SourceFolderUpdater {
             this.path = path;
         }
 
-        public void setOutput(Maybe<String> output) {
-            this.output = output.or(null);
+        public void setOutput(IPath output) {
+            this.output = output == null ? null : output.toPortableString();
+        }
+
+        public void setOutput(String output) {
+            this.output = output;
         }
 
         public void setIncludes(IPath[] includes) {
