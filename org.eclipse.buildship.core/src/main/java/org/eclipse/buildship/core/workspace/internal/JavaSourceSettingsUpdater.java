@@ -17,6 +17,7 @@ import java.util.Collections;
 import com.google.common.base.Optional;
 import com.google.common.collect.ObjectArrays;
 
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings;
 
 import org.eclipse.core.resources.IProject;
@@ -42,18 +43,22 @@ import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
  */
 final class JavaSourceSettingsUpdater {
 
-    public static void update(IJavaProject project, OmniJavaSourceSettings sourceSettings, IProgressMonitor monitor) throws CoreException {
+    public static void update(IJavaProject project, OmniEclipseProject modelProject, IProgressMonitor monitor) throws CoreException {
         SubMonitor progress = SubMonitor.convert(monitor, 1);
+        OmniJavaSourceSettings sourceSettings = modelProject.getJavaSourceSettings().get();
         String sourceVersion = sourceSettings.getSourceLanguageLevel().getName();
         String targetVersion = sourceSettings.getTargetBytecodeLevel().getName();
-        File vmLocation = sourceSettings.getTargetRuntime().getHomeDirectory();
 
-        IVMInstall vm = EclipseVmUtil.findOrRegisterStandardVM(targetVersion, vmLocation);
-        Optional<IExecutionEnvironment> executionEnvironment = EclipseVmUtil.findExecutionEnvironment(targetVersion);
-        if (executionEnvironment.isPresent()) {
-            addExecutionEnvironmentToClasspath(project, executionEnvironment.get(), progress.newChild(1));
-        } else {
-            addVmToClasspath(project, vm, progress.newChild(1));
+        // set the runtime JRE only if the classpath containers are not available on the Tooling API
+        if (!modelProject.getClasspathContainers().isPresent()) {
+            File vmLocation = sourceSettings.getTargetRuntime().getHomeDirectory();
+            IVMInstall vm = EclipseVmUtil.findOrRegisterStandardVM(targetVersion, vmLocation);
+            Optional<IExecutionEnvironment> executionEnvironment = EclipseVmUtil.findExecutionEnvironment(targetVersion);
+            if (executionEnvironment.isPresent()) {
+                addExecutionEnvironmentToClasspath(project, executionEnvironment.get(), progress.newChild(1));
+            } else {
+                addVmToClasspath(project, vm, progress.newChild(1));
+            }
         }
 
         boolean compilerOptionChanged = false;

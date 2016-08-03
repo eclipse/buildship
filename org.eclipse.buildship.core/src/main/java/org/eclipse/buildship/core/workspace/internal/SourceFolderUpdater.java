@@ -12,8 +12,12 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.google.common.base.Function;
@@ -23,8 +27,11 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 
+import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
 import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory;
+import com.gradleware.tooling.toolingmodel.util.Maybe;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -32,6 +39,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -76,12 +84,17 @@ final class SourceFolderUpdater {
 
     private ImmutableList<IClasspathEntry> collectGradleSourceFolders() throws CoreException {
         // collect all sources currently configured on the project
-        final List<IClasspathEntry> rawClasspath = ImmutableList.copyOf(this.project.getRawClasspath());
+        Map<IPath, IClasspathEntry> sourceFolders = Maps.newHashMap();
+        for (IClasspathEntry entry : this.project.getRawClasspath()) {
+            if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+                sourceFolders.put(entry.getPath(), entry);
+            }
+        }
 
         // collect the paths of all source folders of the new Gradle model and keep any user-defined filters
         ImmutableList.Builder<IClasspathEntry> sourceFolderEntries = ImmutableList.builder();
         for (OmniEclipseSourceDirectory sourceFolder : this.sourceFolders) {
-            Optional<IClasspathEntry> entry = createSourceFolderEntry(sourceFolder, rawClasspath);
+            Optional<IClasspathEntry> entry = createSourceFolderEntry(sourceFolder, sourceFolders);
             if (entry.isPresent()) {
                 sourceFolderEntries.add(entry.get());
             }
@@ -92,7 +105,7 @@ final class SourceFolderUpdater {
         return ImmutableSet.copyOf(sourceFolderEntries.build()).asList();
     }
 
-    private Optional<IClasspathEntry> createSourceFolderEntry(OmniEclipseSourceDirectory directory, List<IClasspathEntry> rawClasspath) throws CoreException {
+    private Optional<IClasspathEntry> createSourceFolderEntry(OmniEclipseSourceDirectory directory, Map<IPath, IClasspathEntry> sourceFolders) throws CoreException {
         // pre-condition: in case of linked resources, the linked folder must have been created already
         Optional<IFolder> linkedFolder = getLinkedFolderIfExists(directory.getDirectory());
         IResource sourceDirectory = linkedFolder.isPresent() ? linkedFolder.get() : getFolderOrProjectRoot(directory);
@@ -100,46 +113,43 @@ final class SourceFolderUpdater {
             return Optional.absent();
         }
 
-        //default settings
-        IPath outputLocation = null;
-        IPath[] includes = new IPath[0];
-        IPath[] excludes = new IPath[0];
-        IClasspathAttribute[] extraAttributes = new IClasspathAttribute[0];
-
         // preserve the previous settings by the user
         final IPackageFragmentRoot root = SourceFolderUpdater.this.project.getPackageFragmentRoot(sourceDirectory);
-        Optional<IClasspathEntry> possibleExistingEntry = FluentIterable.from(rawClasspath).firstMatch(new Predicate<IClasspathEntry>() {
+        SourceFolderEntryBuilder builder = new SourceFolderEntryBuilder(root.getPath());
 
-            @Override
-            public boolean apply(IClasspathEntry entry) {
-                return root.getPath().equals(entry.getPath());
-            }
-        });
-        if (possibleExistingEntry.isPresent()) {
-            IClasspathEntry existingEntry = possibleExistingEntry.get();
-            includes = existingEntry.getInclusionPatterns();
-            excludes = existingEntry.getExclusionPatterns();
-            outputLocation = existingEntry.getOutputLocation();
-            extraAttributes = existingEntry.getExtraAttributes();
+        IClasspathEntry existingEntry = sourceFolders.get(root.getPath());
+        if (existingEntry != null) {
+            builder.setOutput(existingEntry.getOutputLocation());
+            builder.setAttributes(existingEntry.getExtraAttributes());
+            builder.setIncludes(existingEntry.getInclusionPatterns());
+            builder.setExcludes(existingEntry.getExclusionPatterns());
         }
 
-        extraAttributes = markAsFromGradleModel(extraAttributes);
-
-        return Optional.of(JavaCore.newSourceEntry(root.getPath(), includes, excludes, outputLocation, extraAttributes));
-    }
-
-    private IClasspathAttribute[] markAsFromGradleModel(IClasspathAttribute[] extraAttributes) {
-        for (IClasspathAttribute attribute : extraAttributes) {
-            if (CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL.equals(attribute.getName())) {
-                return extraAttributes;
-            }
+        // set source folder settings from the Gradle model
+        Maybe<String> output = directory.getOutput();
+        if (output.isPresent()) {
+            builder.setOutput(output.get());
         }
 
-        IClasspathAttribute[] newAttributes = new IClasspathAttribute[extraAttributes.length + 1];
-        System.arraycopy(extraAttributes, 0, newAttributes, 0, extraAttributes.length);
-        IClasspathAttribute fromGradleModel = JavaCore.newClasspathAttribute(CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL, "true");
-        newAttributes[newAttributes.length - 1] = fromGradleModel;
-        return newAttributes;
+        Optional<List<OmniClasspathAttribute>> attributes = directory.getClasspathAttributes();
+        if (attributes.isPresent()) {
+            builder.setAttributes(attributes.get());
+        }
+
+        Optional<List<String>> excludes = directory.getExcludes();
+        if (excludes.isPresent()) {
+           builder.setExcludes(excludes.get());
+        }
+
+        Optional<List<String>> includes = directory.getIncludes();
+        if (includes.isPresent()) {
+            builder.setIncludes(includes.get());
+        }
+
+        // mark the source folder that it is from the Gradle model
+        builder.addAttribute(CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL, "true");
+
+        return Optional.of(builder.build());
     }
 
     /*
@@ -249,6 +259,108 @@ final class SourceFolderUpdater {
     public static void update(IJavaProject project, List<OmniEclipseSourceDirectory> sourceFolders, IProgressMonitor monitor) throws CoreException {
         SourceFolderUpdater updater = new SourceFolderUpdater(project, sourceFolders);
         updater.updateClasspath(monitor);
+    }
+
+    /**
+     * Helper class to create an {@link IClasspathEntry} instance representing a source folder.
+     */
+    private static class SourceFolderEntryBuilder {
+        private final IPath path;
+        //default settings
+        private String output = null;
+        private List<String> includes = new ArrayList<String>();
+        private List<String> excludes = new ArrayList<String>();
+        private Map<String, String> attributes = new LinkedHashMap<String, String>();
+
+        public SourceFolderEntryBuilder(IPath path) {
+            this.path = path;
+        }
+
+        public void setOutput(IPath output) {
+            this.output = output == null ? null : output.toPortableString();
+        }
+
+        public void setOutput(String output) {
+            this.output = output;
+        }
+
+        public void setIncludes(IPath[] includes) {
+            setIncludes(pathsToStringList(includes));
+        }
+
+        public void setIncludes(List<String> includes) {
+            this.includes = includes;
+        }
+
+        public void setExcludes(IPath[] excludes) {
+            setExcludes(pathsToStringList(excludes));
+        }
+
+        public void setExcludes(List<String> excludes) {
+            this.excludes = excludes;
+        }
+
+        public void setAttributes(IClasspathAttribute[] attributes) {
+            Map<String, String> result = new LinkedHashMap<String, String>();
+            for (IClasspathAttribute attr : attributes) {
+                result.put(attr.getName(), attr.getValue());
+            }
+            this.attributes = result;
+        }
+
+        public void setAttributes(List<OmniClasspathAttribute> attributes) {
+            Map<String, String> result = new LinkedHashMap<String, String>();
+            for (OmniClasspathAttribute attr : attributes) {
+                result.put(attr.getName(), attr.getValue());
+            }
+            this.attributes = result;
+        }
+
+        public void addAttribute(String name, String value) {
+            this.attributes.put(name, value);
+        }
+
+        public IClasspathEntry build() {
+            return JavaCore.newSourceEntry(this.path, getIncludes(), getExcludes(), getOutput(), getAttributes());
+        }
+
+        private IPath getOutput() {
+            return this.output == null ? null : new Path(this.output);
+        }
+
+        private IPath[] getIncludes() {
+            return stringListToPaths(this.includes);
+        }
+
+        private IPath[] getExcludes() {
+            return stringListToPaths(this.excludes);
+        }
+
+        private IClasspathAttribute[] getAttributes() {
+            return FluentIterable.from(this.attributes.entrySet()).transform(new Function<Entry<String, String>, IClasspathAttribute>() {
+
+                @Override
+                public IClasspathAttribute apply(Entry<String, String> entry) {
+                    return JavaCore.newClasspathAttribute(entry.getKey(), entry.getValue());
+                }
+            }).toArray(IClasspathAttribute.class);
+        }
+
+        private static List<String> pathsToStringList(IPath[] paths) {
+            List<String> result = new ArrayList<String>();
+            for (IPath path : paths) {
+                result.add(path.toPortableString());
+            }
+            return result;
+        }
+
+        private static IPath[] stringListToPaths(List<String> strings) {
+            IPath[] result = new IPath[strings.size()];
+            for (int i = 0; i < strings.size(); i++) {
+                result[i] = new Path(strings.get(i));
+            }
+            return result;
+        }
     }
 
 }

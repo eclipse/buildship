@@ -3,8 +3,8 @@ package org.eclipse.buildship.core.workspace.internal
 import org.eclipse.core.resources.IProject
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
+import org.eclipse.jdt.core.JavaCore
 
-import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 
 class SynchronizingExistingWorkspaceProject extends SingleProjectSynchronizationSpecification {
@@ -30,7 +30,7 @@ class SynchronizingExistingWorkspaceProject extends SingleProjectSynchronization
     def "The Gradle classpath container is updated"() {
         setup:
         IJavaProject javaProject = newJavaProject('sample-project')
-        IClasspathEntry[] entries = javaProject.rawClasspath + GradleClasspathContainer.newClasspathEntry()
+        IClasspathEntry[] entries = javaProject.rawClasspath + JavaCore.newContainerEntry(GradleClasspathContainer.CONTAINER_PATH)
         javaProject.setRawClasspath(entries, null)
         def projectDir = dir('sample-project') {
             file 'build.gradle','''apply plugin: "java"
