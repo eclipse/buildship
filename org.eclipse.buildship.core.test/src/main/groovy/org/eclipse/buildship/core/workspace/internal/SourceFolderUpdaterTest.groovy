@@ -74,7 +74,7 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
 
     def "Previous model source folders are removed if they no longer exist in the Gradle model"() {
         given:
-        addSourceFolder("src-old", [], [], Maybe.of(null), attributes(fromGradleModel()))
+        addSourceFolder("src-old", [], [], null, attributes(fromGradleModel()))
         def srcNew = javaProject.project.getFolder('src-new')
         srcNew.create(true, true, null)
         def newModelSourceFolders = gradleSourceFolders([srcNew.name])
@@ -127,9 +127,9 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         javaProject.rawClasspath[0].extraAttributes[0].name == SourceFolderUpdater.CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL
     }
 
-    def "Manual adjustments on model source folders are preserved"() {
+    def "When becoming part of model, unsupported source folder attributes are preserved"() {
         given:
-        addSourceFolder("src", ['manual-inclusion-pattern'], ['manual-exclusion-pattern'], Maybe.of('foo'), attributes(["foo" : "bar"] << fromGradleModel()))
+        addSourceFolder("src", ['manual-inclusion-pattern'], ['manual-exclusion-pattern'], 'foo', attributes(["foo" : "bar"]))
         def newModelSourceFolders = gradleSourceFolders(['src'])
 
         when:
@@ -143,20 +143,22 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         entryAfterUpdate.outputLocation.toString() == "/project-name/foo"
     }
 
-    def "Manual adjustments on non-model source folders are preserved when becoming model source folders"() {
+    def "When becoming part of model, supported source folder attributes are overridden"() {
         given:
-        addSourceFolder("src", ['manual-inclusion-pattern'], ['manual-exclusion-pattern'], Maybe.of('foo'), attributes(["foo" : "bar"]))
-        def newModelSourceFolders = gradleSourceFolders(['src'])
+        addSourceFolder("src", ['manual-inclusion-pattern'], ['manual-exclusion-pattern'], 'foo', attributes(["foo" : "bar"]))
+        def newModelSourceFolders = gradleSourceFolders(['src'], Optional.of(['model-excludes']),
+            Optional.of(['model-includes']), Optional.of(['model-key' : 'model-value']), Maybe.of('/project-name/model-output'))
 
         when:
         SourceFolderUpdater.update(javaProject, newModelSourceFolders, null)
+        javaProject.rawClasspath.each {println it }
 
         then:
         IClasspathEntry entryAfterUpdate = javaProject.rawClasspath[0]
-        entryAfterUpdate.getInclusionPatterns()[0].toString() == "manual-inclusion-pattern"
-        entryAfterUpdate.getExclusionPatterns()[0].toString() == "manual-exclusion-pattern"
-        entryAfterUpdate.extraAttributes as List == attributes(["foo" : "bar"] << fromGradleModel()) as List
-        entryAfterUpdate.outputLocation.toString() == "/project-name/foo"
+        entryAfterUpdate.exclusionPatterns.collect { it.toPortableString() }  == ['model-excludes']
+        entryAfterUpdate.inclusionPatterns.collect { it.toPortableString() }  == ['model-includes']
+        entryAfterUpdate.extraAttributes as List == attributes(['model-key' : 'model-value'] << fromGradleModel()) as List
+        entryAfterUpdate.outputLocation.toString() == '/project-name/model-output'
     }
 
     def "The project root can be a source folder"() {
@@ -222,7 +224,7 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
 
     private List<OmniEclipseSourceDirectory> gradleSourceFolders(List<String> folderPaths, Optional excludes = Optional.absent(),
                                                                  Optional includes = Optional.absent(), Optional attributes = Optional.absent(),
-                                                                 Maybe<String> output = Maybe.of('/project-name/foo')) {
+                                                                 Maybe<String> output = Maybe.absent()) {
         folderPaths.collect { String folderPath ->
             OmniEclipseSourceDirectory sourceDirectory = Mock(OmniEclipseSourceDirectory)
             sourceDirectory.getPath() >> folderPath
@@ -248,9 +250,9 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         }
     }
 
-    private void addSourceFolder(String path, List<String> inclusionPatterns = [], List<String> exclusionPatterns = [], Maybe outputLocation = Maybe.absent(), IClasspathAttribute[] extraAttributes = []) {
+    private void addSourceFolder(String path, List<String> inclusionPatterns = [], List<String> exclusionPatterns = [], String outputLocation = null, IClasspathAttribute[] extraAttributes = []) {
         IFolder folder = javaProject.project.getFolder(path)
-        IPath fullOutputPath = outputLocation.or(null) == null ? null : javaProject.project.getFolder(outputLocation.get()).fullPath
+        IPath fullOutputPath = outputLocation == null ? null : javaProject.project.getFolder(outputLocation).fullPath
         FileUtils.ensureFolderHierarchyExists(folder)
         def root = javaProject.getPackageFragmentRoot(folder)
         def entry = JavaCore.newSourceEntry(

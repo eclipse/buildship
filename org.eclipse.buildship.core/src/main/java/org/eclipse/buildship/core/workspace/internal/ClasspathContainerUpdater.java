@@ -74,14 +74,13 @@ final class ClasspathContainerUpdater {
         SubMonitor progress = SubMonitor.convert(monitor);
         progress.setWorkRemaining(3);
 
-        List<IClasspathEntry> classpath = Lists.newArrayList(this.project.getRawClasspath());
         LinkedHashSet<IPath> toRemove = collectContainersToRemove(progress.newChild(1));
         LinkedHashMap<IPath, IClasspathEntry> toAdd = collectContainersToAdd(progress.newChild(1));
 
-        updateProjectClasspath(classpath, toRemove, toAdd, progress.newChild(1));
+        updateProjectClasspath(toRemove, toAdd, progress.newChild(1));
     }
 
-    private LinkedHashSet<IPath> collectContainersToRemove(SubMonitor progress) throws CoreException {
+    private LinkedHashSet<IPath> collectContainersToRemove(SubMonitor progress) {
         StringSetProjectProperty previousPaths = StringSetProjectProperty.from(this.project.getProject(), PROJECT_PROPERTY_KEY_GRADLE_CONTAINERS);
         LinkedHashSet<IPath> result = Sets.newLinkedHashSet();
         for (String previousPath : previousPaths.get()) {
@@ -104,28 +103,20 @@ final class ClasspathContainerUpdater {
         return result;
     }
 
-    private void updateProjectClasspath(List<IClasspathEntry> classpath, LinkedHashSet<IPath> containersToRemove, LinkedHashMap<IPath, IClasspathEntry> containersToAdd,
+    private void updateProjectClasspath(LinkedHashSet<IPath> containersToRemove, LinkedHashMap<IPath, IClasspathEntry> containersToAdd,
             SubMonitor progress) throws JavaModelException {
         StringSetProjectProperty containerPaths = StringSetProjectProperty.from(this.project.getProject(), PROJECT_PROPERTY_KEY_GRADLE_CONTAINERS);
         containerPaths.set(this.containerPaths);
 
-        updateClasspathContainerEntries(classpath, containersToRemove, containersToAdd);
-        this.project.setRawClasspath(classpath.toArray(new IClasspathEntry[classpath.size()]), progress.newChild(1));
+        updateClasspathContainerEntries(containersToRemove, containersToAdd, progress);
     }
 
-    private static IClasspathEntry createContainerEntry(OmniEclipseClasspathContainer container) {
-        IPath containerPath = new Path(container.getPath());
-        boolean isExported = container.isExported();
-        IAccessRule[] accessRules = ClasspathUtils.createAccessRules(container);
-        IClasspathAttribute[] attributes = ClasspathUtils.createClasspathAttributes(container);
-        return JavaCore.newContainerEntry(containerPath, accessRules, attributes, isExported);
-    }
+    private void updateClasspathContainerEntries(Set<IPath> containersToRemove, Map<IPath, IClasspathEntry> containersToAdd, SubMonitor progress) throws JavaModelException {
+        List<IClasspathEntry> classpath = Lists.newArrayList(this.project.getRawClasspath());
 
-    private static void updateClasspathContainerEntries(List<IClasspathEntry> oldClasspath, Set<IPath> containersToRemove, Map<IPath, IClasspathEntry> containersToAdd) {
-        ListIterator<IClasspathEntry> iterator = oldClasspath.listIterator();
+        ListIterator<IClasspathEntry> iterator = classpath.listIterator();
         while (iterator.hasNext()) {
             IClasspathEntry entry = iterator.next();
-
             if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
                 IPath entryPath = entry.getPath();
                 if (containersToRemove.contains(entryPath)) {
@@ -137,8 +128,17 @@ final class ClasspathContainerUpdater {
                 }
             }
         }
+        classpath.addAll(containersToAdd.values());
 
-        oldClasspath.addAll(containersToAdd.values());
+        this.project.setRawClasspath(classpath.toArray(new IClasspathEntry[classpath.size()]), progress);
+    }
+
+    private static IClasspathEntry createContainerEntry(OmniEclipseClasspathContainer container) {
+        IPath containerPath = new Path(container.getPath());
+        boolean isExported = container.isExported();
+        IAccessRule[] accessRules = ClasspathUtils.createAccessRules(container);
+        IClasspathAttribute[] attributes = ClasspathUtils.createClasspathAttributes(container);
+        return JavaCore.newContainerEntry(containerPath, accessRules, attributes, isExported);
     }
 
     public static void update(IJavaProject project, Optional<List<OmniEclipseClasspathContainer>> containers, IProgressMonitor monitor) throws CoreException {
