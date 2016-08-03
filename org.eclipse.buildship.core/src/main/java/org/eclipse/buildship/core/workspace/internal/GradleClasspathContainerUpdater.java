@@ -15,7 +15,6 @@ package org.eclipse.buildship.core.workspace.internal;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
 
@@ -47,7 +46,7 @@ import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 /**
  * Updates the classpath container of the target project.
  * <p/>
- * The update is triggered via {@link #updateFromModel(IJavaProject, OmniEclipseProject, Set, IProgressMonitor)}.
+ * The update is triggered via {@link #updateFromModel(IJavaProject, OmniEclipseProject, javal.util.Set, IProgressMonitor)}.
  * The method executes synchronously and unprotected, without thread synchronization or job scheduling.
  * <p/>
  * The update logic composes a new classpath container containing all project and external
@@ -68,7 +67,7 @@ final class GradleClasspathContainerUpdater {
         this.eclipseProject = Preconditions.checkNotNull(eclipseProject);
         this.gradleProject = Preconditions.checkNotNull(gradleProject);
         this.idsToAllProjects = Maps.newHashMap();
-        for (OmniEclipseProject project : gradleProject.getAll()) {
+        for (OmniEclipseProject project : gradleProject.getRoot().getAll()) {
             this.idsToAllProjects.put(project.getIdentifier(), project);
         }
     }
