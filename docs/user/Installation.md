@@ -83,5 +83,4 @@ Apply the following instructions to install the latest snapshot of Buildship int
 
 ## Updating from update site
 
-If you have already installed Buildship, you can update to the most recent version by opening the menu item _Help >> Check for Updates_. This
-works for the update sites on both eclipse.org and builds.gradle.org.
+If you have already installed Buildship, you can update to the most recent version by opening the menu item _Help >> Check for Updates_. Note, that the update works only if Buildship was installed from the updates sites from download.eclipse.org or from builds.gradle.org, as listed above. If Buildship comes preinstalled in your Eclipse (for instance if you use the standard [Eclipse for Java developers](https://www.eclipse.org/downloads/packages/eclipse-ide-java-developers/neon) package) then you have to do the update manually. To do that just follow the steps from the previous section.
