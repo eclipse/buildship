@@ -19,16 +19,14 @@ import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.TestExecutionException;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 
@@ -62,22 +60,28 @@ public final class ToolingApiInvoker {
         try {
             command.run();
             return handleSuccess();
-        } catch (OperationCanceledException e) {
-            return handleOperationCanceled(e);
-        } catch (BuildCancelledException e) {
-            return handleBuildCanceled(e);
-        } catch (BuildException e) {
-            return handleBuildFailed(e);
-        } catch (GradleConnectionException e) {
-            return handleGradleConnectionFailed(e);
-        } catch (GradlePluginsRuntimeException e) {
-            return handlePluginFailed(e);
-        } catch (AggregateException e) {
-            return handleMultiException(e);
         } catch (Throwable t) {
-            return handleUnknownFailed(t);
+            return handleFailure(t);
         } finally {
             progressMonitor.done();
+        }
+    }
+
+    private IStatus handleFailure(Throwable failure) {
+        if (failure instanceof OperationCanceledException) {
+            return handleOperationCanceled((OperationCanceledException) failure);
+        } else if (failure instanceof BuildCancelledException) {
+            return handleBuildCanceled((BuildCancelledException) failure);
+        } else if (failure instanceof BuildException) {
+            return handleBuildFailed((BuildException) failure);
+        } else if (failure instanceof GradleConnectionException) {
+            return handleGradleConnectionFailed((GradleConnectionException) failure);
+        } else if (failure instanceof GradlePluginsRuntimeException) {
+            return handlePluginFailed((GradlePluginsRuntimeException) failure);
+        } else if (failure instanceof AggregateException) {
+            return handleMultiException((AggregateException) failure);
+        } else {
+            return handleUnknownFailed(failure);
         }
     }
 
@@ -144,22 +148,12 @@ public final class ToolingApiInvoker {
     }
 
     private IStatus handleMultiException(AggregateException e) {
-        // log all exceptions and notify the user about the first one
-        String message = String.format("%s failed due to multiple errors.", this.workName);
-        for (Throwable t : e.getCauses()) {
-            CorePlugin.logger().error(message, t);
+        MultiStatus status = new MultiStatus(CorePlugin.PLUGIN_ID, Status.OK, "Multiple problems", null);
+        for (Throwable cause : e.getCauses()) {
+            IStatus child = handleFailure(cause);
+            status.add(child);
         }
-        Optional<Throwable> firstError = FluentIterable.from(e.getCauses()).firstMatch(new Predicate<Throwable>() {
-
-            @Override
-            public boolean apply(Throwable t) {
-                return shouldSendUserNotification(t);
-            }
-        });
-        if (firstError.isPresent()) {
-            CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(firstError.get()), IStatus.ERROR, firstError.get());
-        }
-        return createInfoStatus(message, e);
+        return status;
     }
 
     @SuppressWarnings("SimplifiableIfStatement")
