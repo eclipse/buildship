@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.IClasspathAttribute
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
+import org.eclipse.jdt.launching.JavaRuntime
 
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
@@ -22,6 +23,7 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
     static IPath CUSTOM_MODEL_CONTAINER = new Path('model.classpath.container')
     static IPath CUSTOM_USER_CONTAINER = new Path('user.classpath.container')
+    static IPath CUSTOM_JRE_CONTAINER = new Path('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/custom')
 
     def "Can set classpath containers"() {
         setup:
@@ -135,6 +137,41 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
         where:
         path << [ CUSTOM_MODEL_CONTAINER, GradleClasspathContainer.CONTAINER_PATH ]
+    }
+
+    def "Keeps user-defined JRE entries if model doesn't contain JRE"() {
+        setup:
+        IJavaProject project = newJavaProject('sample-project')
+        def updatedClasspath = project.rawClasspath.findAll { !it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
+        updatedClasspath += JavaCore.newContainerEntry(CUSTOM_JRE_CONTAINER)
+        project.setRawClasspath(updatedClasspath as IClasspathEntry[], null)
+
+        expect:
+        findContainer(project, CUSTOM_JRE_CONTAINER)
+
+        when:
+        executeContainerUpdate(project)
+
+        then:
+        findContainer(project, CUSTOM_JRE_CONTAINER)
+    }
+
+    def "Removes user-defined JRE entries if model contains JRE"() {
+        setup:
+        IPath CUSTOM_JRE_CONTAINER = new Path('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/custom')
+        IJavaProject project = newJavaProject('project-with-classpath-container')
+        def updatedClasspath = project.rawClasspath.findAll { !it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
+        updatedClasspath += JavaCore.newContainerEntry(CUSTOM_JRE_CONTAINER)
+        project.setRawClasspath(updatedClasspath as IClasspathEntry[], null)
+
+        expect:
+        findContainer(project, CUSTOM_JRE_CONTAINER)
+
+        when:
+        executeContainerUpdate(project, container(JavaRuntime.newDefaultJREContainerPath()))
+
+        then:
+        !findContainer(project, CUSTOM_JRE_CONTAINER)
     }
 
     private def executeContainerUpdate(IJavaProject project, OmniEclipseClasspathContainer... containers) {
