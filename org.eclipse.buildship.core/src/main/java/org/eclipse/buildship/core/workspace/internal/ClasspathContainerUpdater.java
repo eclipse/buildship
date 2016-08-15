@@ -36,6 +36,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.launching.JavaRuntime;
 
 import org.eclipse.buildship.core.util.classpath.ClasspathUtils;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
@@ -59,15 +60,25 @@ final class ClasspathContainerUpdater {
     private final IJavaProject project;
     private final List<OmniEclipseClasspathContainer> containers;
     private final Set<String> containerPaths;
+    private final boolean containersContainJre;
 
     private ClasspathContainerUpdater(IJavaProject project, List<OmniEclipseClasspathContainer> containers) {
         this.project = project;
         this.containers = ImmutableList.copyOf(containers);
         this.containerPaths = new HashSet<String>();
 
+        boolean containersContainJre = false;
+        String defaultJrePath = JavaRuntime.newDefaultJREContainerPath().toPortableString();
+
         for (OmniEclipseClasspathContainer container : this.containers) {
-            this.containerPaths.add(container.getPath());
+            String containerPath = container.getPath();
+            this.containerPaths.add(containerPath);
+            if(containerPath.startsWith(defaultJrePath)) {
+                containersContainJre = true;
+            }
         }
+
+        this.containersContainJre = containersContainJre;
     }
 
     private void updateContainers(IProgressMonitor monitor) throws CoreException {
@@ -80,7 +91,7 @@ final class ClasspathContainerUpdater {
         updateProjectClasspath(toRemove, toAdd, progress.newChild(1));
     }
 
-    private LinkedHashSet<IPath> collectContainersToRemove(SubMonitor progress) {
+    private LinkedHashSet<IPath> collectContainersToRemove(SubMonitor progress) throws JavaModelException {
         StringSetProjectProperty previousPaths = StringSetProjectProperty.from(this.project.getProject(), PROJECT_PROPERTY_KEY_GRADLE_CONTAINERS);
         LinkedHashSet<IPath> result = Sets.newLinkedHashSet();
         for (String previousPath : previousPaths.get()) {
@@ -88,6 +99,17 @@ final class ClasspathContainerUpdater {
                 result.add(new Path(previousPath));
             }
         }
+
+        // if the model contains a JRE entry then remove user-defined JREs from the classpath
+        if (this.containersContainJre) {
+            IPath defaultJrePath = JavaRuntime.newDefaultJREContainerPath();
+            for (IClasspathEntry entry : this.project.getRawClasspath()) {
+                if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER && defaultJrePath.isPrefixOf(entry.getPath())) {
+                    result.add(entry.getPath());
+                }
+            }
+        }
+
         return result;
     }
 
@@ -100,6 +122,7 @@ final class ClasspathContainerUpdater {
         if (!result.keySet().contains(GradleClasspathContainer.CONTAINER_PATH)) {
             result.put(GradleClasspathContainer.CONTAINER_PATH, JavaCore.newContainerEntry(GradleClasspathContainer.CONTAINER_PATH));
         }
+
         return result;
     }
 
