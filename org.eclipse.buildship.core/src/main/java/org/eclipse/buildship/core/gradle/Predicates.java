@@ -38,21 +38,4 @@ public final class Predicates {
             }
         };
     }
-
-    /**
-     * Returns a predicate that matches if the the project directory of a {@code OmniEclipseProject}
-     * 's root project matches the given root directory.
-     *
-     * @param rootDir the root directory to match
-     * @return the predicate
-     */
-    public static Predicate<OmniEclipseProject> isSubProjectOf(final File rootDir) {
-        return new Predicate<OmniEclipseProject>() {
-
-            @Override
-            public boolean apply(OmniEclipseProject candidate) {
-                return candidate.getRoot().getProjectDirectory().equals(rootDir);
-            }
-        };
-    }
 }

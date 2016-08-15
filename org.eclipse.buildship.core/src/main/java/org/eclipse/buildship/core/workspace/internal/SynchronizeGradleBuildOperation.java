@@ -21,7 +21,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseLinkedResource;
@@ -46,7 +45,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.gradle.Predicates;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
@@ -129,9 +127,8 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
 
     private void runInWorkspace(IProgressMonitor monitor) throws CoreException {
         // collect Gradle projects and Eclipse workspace projects to sync
-        List<OmniEclipseProject> projectsInThisBuild = getProjectsInThisBuild();
         List<IProject> decoupledWorkspaceProjects = getOpenWorkspaceProjectsRemovedFromGradleBuild();
-        SubMonitor progress = SubMonitor.convert(monitor, decoupledWorkspaceProjects.size() + projectsInThisBuild.size());
+        SubMonitor progress = SubMonitor.convert(monitor, decoupledWorkspaceProjects.size() + this.allProjects.size());
 
         progress.setTaskName(String.format("Synchronizing Gradle build at %s", this.build.getProjectDir()));
 
@@ -141,7 +138,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         }
 
         // synchronize the Gradle projects with their corresponding workspace projects
-        for (OmniEclipseProject gradleProject : projectsInThisBuild) {
+        for (OmniEclipseProject gradleProject : this.allProjects) {
             synchronizeGradleProjectWithWorkspaceProject(gradleProject, progress.newChild(1));
         }
     }
@@ -149,7 +146,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
     private List<IProject> getOpenWorkspaceProjectsRemovedFromGradleBuild() {
         // in the workspace, find all projects with a Gradle nature that belong to the same Gradle build (based on the root project directory) but
         // which do not match the location of one of the Gradle projects of that build
-        final Set<File> gradleProjectDirectories = FluentIterable.from(getProjectsInThisBuild()).transform(new Function<OmniEclipseProject, File>() {
+        final Set<File> gradleProjectDirectories = FluentIterable.from(this.allProjects).transform(new Function<OmniEclipseProject, File>() {
 
             @Override
             public File apply(OmniEclipseProject gradleProject) {
@@ -351,9 +348,4 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         DerivedResourcesUpdater.clear(workspaceProject, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
         CorePlugin.projectConfigurationManager().deleteProjectConfiguration(workspaceProject);
     }
-
-    private List<OmniEclipseProject> getProjectsInThisBuild() {
-        return ImmutableList.copyOf(Iterables.<OmniEclipseProject>filter(this.allProjects, Predicates.isSubProjectOf(this.build.getProjectDir())));
-    }
-
 }
