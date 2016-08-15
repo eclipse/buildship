@@ -162,50 +162,30 @@ public class ProjectImportWizardController {
     private static final class ImportWizardNewProjectHandler implements NewProjectHandler {
 
         private final ProjectImportConfiguration configuration;
-        private final FixedRequestAttributes build;
         private final NewProjectHandler importedBuildDelegate;
-        private final NewProjectHandler otherBuildsDelegate;
 
         private volatile boolean gradleViewsVisible;
 
         private ImportWizardNewProjectHandler(NewProjectHandler delegate, ProjectImportConfiguration configuration) {
             this.importedBuildDelegate = delegate;
-            this.otherBuildsDelegate = NewProjectHandler.NO_OP;
             this.configuration = configuration;
-            this.build = configuration.toFixedAttributes();
         }
 
         @Override
         public boolean shouldImport(OmniEclipseProject projectModel) {
-            if (isPartOfImportedBuild(projectModel)) {
-                return this.importedBuildDelegate.shouldImport(projectModel);
-            } else {
-                return this.otherBuildsDelegate.shouldImport(projectModel);
-            }
+            return this.importedBuildDelegate.shouldImport(projectModel);
         }
 
         @Override
         public boolean shouldOverwriteDescriptor(IProjectDescription descriptor, OmniEclipseProject projectModel) {
-            if (isPartOfImportedBuild(projectModel)) {
-                return this.importedBuildDelegate.shouldOverwriteDescriptor(descriptor, projectModel);
-            } else {
-                return this.otherBuildsDelegate.shouldOverwriteDescriptor(descriptor, projectModel);
-            }
+            return this.importedBuildDelegate.shouldOverwriteDescriptor(descriptor, projectModel);
         }
 
         @Override
         public void afterImport(IProject project, OmniEclipseProject projectModel) {
-            if (isPartOfImportedBuild(projectModel)) {
-                this.importedBuildDelegate.afterImport(project, projectModel);
-                addWorkingSets(project);
-                ensureGradleViewsAreVisible();
-            } else {
-                this.otherBuildsDelegate.afterImport(project, projectModel);
-            }
-        }
-
-        private boolean isPartOfImportedBuild(OmniEclipseProject projectModel) {
-            return this.build.getProjectDir().equals(projectModel.getRoot().getProjectDirectory());
+            this.importedBuildDelegate.afterImport(project, projectModel);
+            addWorkingSets(project);
+            ensureGradleViewsAreVisible();
         }
 
         private void addWorkingSets(IProject project) {
