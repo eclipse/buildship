@@ -55,7 +55,7 @@ final class ReloadTaskViewJob extends ToolingApiJob {
             List<OmniEclipseProject> projects = loadProjects(monitor);
             return new TaskViewContent(projects, null);
         } catch (GradleConnectionException e) {
-            CorePlugin.logger().error("Error loading tasks view", e);
+            CorePlugin.logger().warn("Error loading tasks view", e);
             return new TaskViewContent(Collections.<OmniEclipseProject> emptyList(), e);
         }
     }
