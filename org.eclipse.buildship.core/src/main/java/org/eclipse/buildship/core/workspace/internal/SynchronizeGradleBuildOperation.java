@@ -118,6 +118,16 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
 
     @Override
     public void run(IProgressMonitor monitor) throws CoreException {
+        JavaCore.run(new IWorkspaceRunnable() {
+
+            @Override
+            public void run(IProgressMonitor monitor) throws CoreException {
+                runInWorkspace(monitor);
+            }
+        }, monitor);
+    };
+
+    private void runInWorkspace(IProgressMonitor monitor) throws CoreException {
         // collect Gradle projects and Eclipse workspace projects to sync
         List<OmniEclipseProject> projectsInThisBuild = getProjectsInThisBuild();
         List<IProject> decoupledWorkspaceProjects = getOpenWorkspaceProjectsRemovedFromGradleBuild();
@@ -134,7 +144,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         for (OmniEclipseProject gradleProject : projectsInThisBuild) {
             synchronizeGradleProjectWithWorkspaceProject(gradleProject, progress.newChild(1));
         }
-    };
+    }
 
     private List<IProject> getOpenWorkspaceProjectsRemovedFromGradleBuild() {
         // in the workspace, find all projects with a Gradle nature that belong to the same Gradle build (based on the root project directory) but

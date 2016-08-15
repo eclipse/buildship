@@ -8,7 +8,6 @@
  */
 package org.eclipse.buildship.ui.workspace;
 
-import java.io.File;
 import java.util.List;
 import java.util.Set;
 
@@ -16,7 +15,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -32,8 +30,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.util.collections.AdapterFunction;
-import org.eclipse.buildship.core.workspace.CompositeGradleBuild;
-import org.eclipse.buildship.core.workspace.DelegatingNewProjectHandler;
+import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
@@ -73,19 +70,10 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
     }
 
     private void synchronize(Set<FixedRequestAttributes> builds) {
-        CompositeGradleBuild compositeBuild = CorePlugin.gradleWorkspaceManager().getCompositeBuild();
-        final Set<File> projectDirectories = Sets.newHashSet();
-        for (FixedRequestAttributes build : builds) {
-            compositeBuild = compositeBuild.withBuild(build);
-            projectDirectories.add(build.getProjectDir());
+        for (final FixedRequestAttributes build : builds) {
+            GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(build);
+            gradleBuild.synchronize(NewProjectHandler.IMPORT_AND_MERGE);
         }
-        compositeBuild.synchronize(new DelegatingNewProjectHandler(NewProjectHandler.IMPORT_AND_MERGE) {
-
-            @Override
-            public boolean shouldImport(OmniEclipseProject projectModel) {
-                return projectDirectories.contains(projectModel.getRoot().getProjectDirectory());
-            }
-        });
     }
 
 }

@@ -8,6 +8,8 @@
 
 package org.eclipse.buildship.core.workspace;
 
+import java.util.Set;
+
 import com.google.common.base.Optional;
 
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
@@ -40,11 +42,13 @@ public interface GradleWorkspaceManager {
     public Optional<GradleBuild> getGradleBuild(IProject project);
 
     /**
-     * Returns the composite build containing all Gradle builds in the workspace.
+     * Returns an aggregate of Gradle builds. It can be used to perform synchronization on all
+     * participant within the same job.
      * <p/>
+     * Non-Gradle projects are ignored.
      *
-     * @return the composite build, never null
+     * @param projects the projects for which to find the corresponding builds
+     * @return the build aggregate, never null
      */
-    public CompositeGradleBuild getCompositeBuild();
-
+    public MultipleGradleBuilds getMultipleGradleBuilds(Set<IProject> projects);
 }

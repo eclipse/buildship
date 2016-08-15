@@ -22,11 +22,13 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
-import org.eclipse.buildship.core.workspace.CompositeModelProvider;
+import org.eclipse.buildship.core.workspace.GradleBuild;
 
 /**
  * Loads the tasks for all projects into the cache and refreshes the task view afterwards.
@@ -59,13 +61,17 @@ final class ReloadTaskViewJob extends ToolingApiJob {
 
     private List<OmniEclipseProject> loadProjects(IProgressMonitor monitor) {
         List<OmniEclipseProject> projects = Lists.newArrayList();
-        CompositeModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getCompositeBuild().getModelProvider();
-        ModelResults<OmniEclipseProject> results = modelProvider.fetchEclipseProjects(this.modelFetchStrategy, getToken(), monitor);
-        for (ModelResult<OmniEclipseProject> result : results) {
-            if (result.getFailure() == null) {
-                projects.add(result.getModel());
+
+        for (ProjectConfiguration configuration : CorePlugin.projectConfigurationManager().getRootProjectConfigurations()) {
+            GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(configuration.toRequestAttributes());
+            ModelResults<OmniEclipseProject> results = gradleBuild.getModelProvider().fetchEclipseProjects(this.modelFetchStrategy, getToken(), monitor);
+            for (ModelResult<OmniEclipseProject> result : results) {
+                if (result.getFailure() == null) {
+                    projects.add(result.getModel());
+                }
             }
         }
+
         return projects;
     }
 
@@ -77,5 +83,16 @@ final class ReloadTaskViewJob extends ToolingApiJob {
                 ReloadTaskViewJob.this.taskView.setContent(content);
             }
         });
+    }
+
+    @Override
+    public boolean shouldSchedule() {
+        Job[] jobs = Job.getJobManager().find(CorePlugin.GRADLE_JOB_FAMILY);
+        for (Job job : jobs) {
+            if (job instanceof ReloadTaskViewJob) {
+                return false;
+            }
+        }
+        return true;
     }
 }

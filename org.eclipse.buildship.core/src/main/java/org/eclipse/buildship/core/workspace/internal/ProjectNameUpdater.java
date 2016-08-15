@@ -90,12 +90,12 @@ final class ProjectNameUpdater {
             return false;
         }
 
-        OmniEclipseProject duplicateEclipseProject = Iterables.find(allProjects, Predicates.eclipseProjectMatchesProjectDir(duplicate.getLocation().toFile()));
-        if (duplicateEclipseProject == null) {
+        Optional<OmniEclipseProject> duplicateEclipseProject = Iterables.tryFind(allProjects, Predicates.eclipseProjectMatchesProjectDir(duplicate.getLocation().toFile()));
+        if (!duplicateEclipseProject.isPresent()) {
             return false;
         }
 
-        String newName = normalizeProjectName(duplicateEclipseProject);
+        String newName = normalizeProjectName(duplicateEclipseProject.get());
         return !newName.equals(duplicate.getName());
     }
 

@@ -13,20 +13,17 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.workspace.CompositeGradleBuild;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
+import org.eclipse.buildship.core.workspace.MultipleGradleBuilds;
 
 /**
  * Default implementation of {@link GradleWorkspaceManager}.
@@ -42,18 +39,17 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
 
     @Override
     public Optional<GradleBuild> getGradleBuild(IProject project) {
-        Set<FixedRequestAttributes> builds = getBuilds(ImmutableSet.of(project));
-        if (builds.isEmpty()) {
-            return Optional.absent();
+        Optional<ProjectConfiguration> configuration = CorePlugin.projectConfigurationManager().tryReadProjectConfiguration(project);
+        if (configuration.isPresent()) {
+            return Optional.<GradleBuild>of(new DefaultGradleBuild(configuration.get().toRequestAttributes()));
         } else {
-            return Optional.of(getGradleBuild(builds.iterator().next()));
+            return Optional.absent();
         }
     }
 
     @Override
-    public CompositeGradleBuild getCompositeBuild() {
-        Set<IProject> allProjects = Sets.newHashSet(ResourcesPlugin.getWorkspace().getRoot().getProjects());
-        return new DefaultCompositeGradleBuild(getBuilds(allProjects));
+    public MultipleGradleBuilds getMultipleGradleBuilds(Set<IProject> projects) {
+        return new DefaultMultipleGradleBuilds(getBuilds(projects));
     }
 
     private Set<FixedRequestAttributes> getBuilds(Set<IProject> projects) {

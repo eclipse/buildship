@@ -31,8 +31,8 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.part.FileEditorInput;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.util.collections.AdapterFunction;
+import org.eclipse.buildship.core.workspace.MultipleGradleBuilds;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
@@ -48,7 +48,9 @@ public final class ProjectSynchronizer {
         if (selectedProjects.isEmpty()) {
             return;
         }
-        CorePlugin.gradleWorkspaceManager().getCompositeBuild().synchronize(NewProjectHandler.IMPORT_AND_MERGE);
+
+        MultipleGradleBuilds gradleBuilds = CorePlugin.gradleWorkspaceManager().getMultipleGradleBuilds(selectedProjects);
+        gradleBuilds.synchronize(NewProjectHandler.IMPORT_AND_MERGE);
     }
 
     private static Set<IProject> collectSelectedProjects(ExecutionEvent event) {
@@ -73,10 +75,7 @@ public final class ProjectSynchronizer {
         for (Object candidate : candidates) {
             IResource resource = adapterFunction.apply(candidate);
             if (resource != null) {
-                IProject project = resource.getProject();
-                if (GradleProjectNature.isPresentOn(project)) {
-                    projects.add(project);
-                }
+                projects.add(resource.getProject());
             }
         }
         return projects;

@@ -23,8 +23,14 @@ class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpe
         findProject('root')
     }
 
-    def "Same subproject names are deduped"() {
+    // TODO (donat) the test randomly imports subprojects from project 'second'
+    // ensure that the project synchronization is ordered
+    def "Same subproject names in different builds interrupt the project synchronization"() {
         setup:
+        Logger logger = Mock(Logger)
+        registerService(Logger, logger)
+        registerService(UserNotification, Mock(UserNotification)) // suppress exception from test output
+
         def firstProject = dir('first') {
             dir 'sub/subsub'
             file 'settings.gradle', "include 'sub:subsub'"
@@ -42,17 +48,12 @@ class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpe
         findProject('first')
         findProject('sub')
         findProject('subsub')
+        0 * logger.error(*_)
 
         when:
         importAndWait(secondProject)
 
         then:
-        allProjects().size() == 6
-        findProject('first')
-        findProject('first-sub')
-        findProject('first-sub-subsub')
-        findProject('second')
-        findProject('second-sub')
-        findProject('second-sub-subsub')
+        1 * logger.error(*_)
     }
 }

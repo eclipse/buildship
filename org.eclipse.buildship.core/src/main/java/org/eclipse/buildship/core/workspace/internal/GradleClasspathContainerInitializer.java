@@ -57,12 +57,12 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         }
 
         if (!updatedFromStorage) {
-            resynchronize();
+            resynchronize(javaProject);
         }
     }
 
-    private void resynchronize() {
-        CorePlugin.gradleWorkspaceManager().getCompositeBuild().synchronize();
+    private void resynchronize(IJavaProject project) {
+        CorePlugin.gradleWorkspaceManager().getGradleBuild(project.getProject()).get().synchronize();
     }
 
 }

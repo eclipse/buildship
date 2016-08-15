@@ -1,6 +1,7 @@
 package org.eclipse.buildship.core.workspace.internal
 
 import org.gradle.util.GradleVersion
+import org.junit.Ignore;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 
@@ -11,6 +12,7 @@ import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 
+@Ignore("TODO (donat) reimplement this class once we can import composites")
 class SynchronizingMultipleBuilds extends ProjectSynchronizationSpecification {
 
     def "If there are no name clashes, no de-duplication is done"() {

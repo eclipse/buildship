@@ -11,16 +11,17 @@ import com.gradleware.tooling.toolingmodel.util.Pair
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.jobs.Job
 
-import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.NewProjectHandler
 
+
 abstract class ProjectSynchronizationSpecification extends WorkspaceSpecification {
 
-    private static final DEFAULT_DISTRIBUTION = GradleDistribution.fromBuild()
+    private static final GradleDistribution DEFAULT_DISTRIBUTION = GradleDistribution.fromBuild()
 
     protected void synchronizeAndWait(File location, NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
         startSynchronization(location, DEFAULT_DISTRIBUTION, newProjectHandler)
@@ -34,11 +35,11 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
 
     protected void startSynchronization(File location, GradleDistribution distribution = DEFAULT_DISTRIBUTION, NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
         FixedRequestAttributes attributes = new FixedRequestAttributes(location, null, distribution, null, [], [])
-        CorePlugin.gradleWorkspaceManager().getCompositeBuild().withBuild(attributes).synchronize(newProjectHandler)
+        CorePlugin.gradleWorkspaceManager().getGradleBuild(attributes).synchronize(newProjectHandler)
     }
 
     protected void synchronizeAndWait(IProject... projects) {
-        CorePlugin.gradleWorkspaceManager().getCompositeBuild().synchronize(NewProjectHandler.IMPORT_AND_MERGE)
+        CorePlugin.gradleWorkspaceManager().getMultipleGradleBuilds(projects as Set).synchronize(NewProjectHandler.IMPORT_AND_MERGE)
         waitForGradleJobsToFinish()
     }
 
