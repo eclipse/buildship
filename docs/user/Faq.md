@@ -1,5 +1,15 @@
 # Frequently Asked Questions
 
+### Q. "A project with this name already exists". What can I do?
+
+The `eclipse` plugin uses the default `eclipse.project.name = project.name`. These names are de-duplicated inside each Gradle build. But of course there can be clashes between multiple Gradle builds if you have very short project names. The following snippet will give you long project names that are unlikely to clash:
+
+```
+if (project != rootProject) {
+  eclipse.project.name = (rootProject.name + project.path).replaceAll(':', '-')
+}
+```
+
 ### Q. Running Java compilation tasks fails with `Could not find tools.jar`, how can I fix this?
 
 By default, Buildship uses whatever Java runtime you started Eclipse with. If that runtime is only a JRE, then no compiler is available. We recommend you specify your Java home in the `~/.gradle/gradle.properties` file, using the `org.gradle.java.home` property. This property will be honored both when running from Eclipse and when running from the command line.
