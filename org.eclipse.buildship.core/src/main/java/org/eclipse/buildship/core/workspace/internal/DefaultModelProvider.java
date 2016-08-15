@@ -8,10 +8,15 @@
  */
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.util.List;
+
 import org.gradle.tooling.CancellationToken;
+import org.gradle.tooling.GradleConnector;
+import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.connection.ModelResults;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
@@ -20,9 +25,13 @@ import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.CompositeBuildModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.SingleBuildModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 
 /**
@@ -30,7 +39,7 @@ import org.eclipse.buildship.core.workspace.ModelProvider;
  *
  * @author Stefan Oehme
  */
-final class DefaultModelProvider extends AbstractModelProvider implements ModelProvider {
+final class DefaultModelProvider implements ModelProvider {
 
     private final CompositeBuildModelRepository modelRepository;
     private final SingleBuildModelRepository singleModelRepository;
@@ -58,6 +67,16 @@ final class DefaultModelProvider extends AbstractModelProvider implements ModelP
     @Override
     public OmniBuildEnvironment fetchBuildEnvironment(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor) {
         return this.singleModelRepository.fetchBuildEnvironment(getTransientRequestAttributes(token, monitor), fetchStrategy);
+    }
+
+    private final TransientRequestAttributes getTransientRequestAttributes(CancellationToken token, IProgressMonitor monitor) {
+        ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
+        List<ProgressListener> progressListeners = ImmutableList.<ProgressListener> of(DelegatingProgressListener.withoutDuplicateLifecycleEvents(monitor));
+        ImmutableList<org.gradle.tooling.events.ProgressListener> noEventListeners = ImmutableList.<org.gradle.tooling.events.ProgressListener> of();
+        if (token == null) {
+            token = GradleConnector.newCancellationTokenSource().token();
+        }
+        return new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), progressListeners, noEventListeners, token);
     }
 
 }
