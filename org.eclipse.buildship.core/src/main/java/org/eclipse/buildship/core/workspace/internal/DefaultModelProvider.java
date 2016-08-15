@@ -35,11 +35,11 @@ import org.eclipse.buildship.core.workspace.ModelProvider;
  *
  * @author Stefan Oehme
  */
-class DefaultModelprovider implements ModelProvider {
+class DefaultModelProvider implements ModelProvider {
 
     private final SingleBuildModelRepository repository;
 
-    DefaultModelprovider(SingleBuildModelRepository repository) {
+    DefaultModelProvider(SingleBuildModelRepository repository) {
         this.repository = repository;
     }
 

@@ -48,7 +48,7 @@ public class DefaultGradleBuild implements GradleBuild {
     @Override
     public ModelProvider getModelProvider() {
         SingleBuildModelRepository modelRepository = CorePlugin.modelRepositoryProvider().getModelRepository(this.attributes);
-        return new DefaultModelprovider(modelRepository);
+        return new DefaultModelProvider(modelRepository);
     }
 
 }
