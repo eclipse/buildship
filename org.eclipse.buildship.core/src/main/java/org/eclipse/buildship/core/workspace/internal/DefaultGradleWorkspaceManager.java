@@ -7,6 +7,7 @@
  */
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.util.Collection;
 import java.util.Set;
 
 import com.google.common.base.Function;
@@ -23,7 +24,7 @@ import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
-import org.eclipse.buildship.core.workspace.MultipleGradleBuilds;
+import org.eclipse.buildship.core.workspace.GradleBuilds;
 
 /**
  * Default implementation of {@link GradleWorkspaceManager}.
@@ -48,11 +49,16 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
     }
 
     @Override
-    public MultipleGradleBuilds getMultipleGradleBuilds(Set<IProject> projects) {
-        return new DefaultMultipleGradleBuilds(getBuilds(projects));
+    public GradleBuilds getGradleBuilds() {
+        return new DefaultGradleBuilds(getBuilds(CorePlugin.workspaceOperations().getAllProjects()));
     }
 
-    private Set<FixedRequestAttributes> getBuilds(Set<IProject> projects) {
+    @Override
+    public GradleBuilds getGradleBuilds(Set<IProject> projects) {
+        return new DefaultGradleBuilds(getBuilds(projects));
+    }
+
+    private Set<FixedRequestAttributes> getBuilds(Collection<IProject> projects) {
         return FluentIterable.from(projects).filter(GradleProjectNature.isPresentOn()).transform(new Function<IProject, FixedRequestAttributes>() {
 
             @Override

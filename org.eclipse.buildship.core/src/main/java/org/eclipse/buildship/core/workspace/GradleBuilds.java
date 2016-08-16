@@ -13,7 +13,7 @@ package org.eclipse.buildship.core.workspace;
  *
  * @author Donat Csikos
  */
-public interface MultipleGradleBuilds {
+public interface GradleBuilds extends Iterable<GradleBuild> {
     /**
      * Attempts to synchronize all contained builds with the workspace.
      * <p/>

@@ -17,8 +17,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         def requestAttributes = new FixedRequestAttributes(projectLocation, null, GradleDistribution.fromBuild(), null, [], [])
         def gradleBuild = new DefaultGradleBuild(requestAttributes)
         def jobs = [
-            SynchronizeGradleBuildJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP),
-            SynchronizeGradleBuildJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP)
+            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP),
+            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP)
         ]
 
         when:
@@ -37,8 +37,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         def requestAttributes = new FixedRequestAttributes(projectLocation, null, GradleDistribution.fromBuild(), null, [], [])
         def gradleBuild = new DefaultGradleBuild(requestAttributes)
         def jobs = [
-            SynchronizeGradleBuildJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP),
-            SynchronizeGradleBuildJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.NO_OP, AsyncHandler.NO_OP)
+            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP),
+            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.NO_OP, AsyncHandler.NO_OP)
         ]
 
         when:
@@ -57,8 +57,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         def requestAttributes = new FixedRequestAttributes(projectLocation, null, GradleDistribution.fromBuild(), null, [], [])
         def gradleBuild = new DefaultGradleBuild(requestAttributes)
         def jobs = [
-            SynchronizeGradleBuildJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP),
-            SynchronizeGradleBuildJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_OVERWRITE, AsyncHandler.NO_OP)
+            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP),
+            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_OVERWRITE, AsyncHandler.NO_OP)
         ]
 
         when:
@@ -77,8 +77,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         def requestAttributes = new FixedRequestAttributes(projectLocation, null, GradleDistribution.fromBuild(), null, [], [])
         def gradleBuild = new DefaultGradleBuild(requestAttributes)
         def jobs = [
-            SynchronizeGradleBuildJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, {monitor, token -> "Foo"}),
-            SynchronizeGradleBuildJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP)
+            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, {monitor, token -> "Foo"}),
+            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP)
         ]
 
         when:
@@ -97,8 +97,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         def requestAttributes = new FixedRequestAttributes(projectLocation, null, GradleDistribution.fromBuild(), null, [], [])
         def gradleBuild = new DefaultGradleBuild(requestAttributes)
         def jobs = [
-            SynchronizeGradleBuildJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, {monitor, token -> "Foo"}),
-            SynchronizeGradleBuildJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, {monitor, token -> "Bar"})
+            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, {monitor, token -> "Foo"}),
+            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, {monitor, token -> "Bar"})
         ]
 
         when:
@@ -118,8 +118,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         def attributes2 = new FixedRequestAttributes(project2, null, GradleDistribution.fromBuild(), null, [], [])
         def gradleBuild2 = new DefaultGradleBuild(attributes2)
         def jobs = [
-            SynchronizeGradleBuildJob.forSingleGradleBuild(gradleBuild1, NewProjectHandler.NO_OP, AsyncHandler.NO_OP),
-            SynchronizeGradleBuildJob.forSingleGradleBuild(gradleBuild2, NewProjectHandler.NO_OP, AsyncHandler.NO_OP)
+            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild1, NewProjectHandler.NO_OP, AsyncHandler.NO_OP),
+            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild2, NewProjectHandler.NO_OP, AsyncHandler.NO_OP)
         ]
 
         when:

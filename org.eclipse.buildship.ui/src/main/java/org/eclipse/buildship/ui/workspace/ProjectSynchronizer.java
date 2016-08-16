@@ -32,7 +32,7 @@ import org.eclipse.ui.part.FileEditorInput;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.collections.AdapterFunction;
-import org.eclipse.buildship.core.workspace.MultipleGradleBuilds;
+import org.eclipse.buildship.core.workspace.GradleBuilds;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
@@ -49,7 +49,7 @@ public final class ProjectSynchronizer {
             return;
         }
 
-        MultipleGradleBuilds gradleBuilds = CorePlugin.gradleWorkspaceManager().getMultipleGradleBuilds(selectedProjects);
+        GradleBuilds gradleBuilds = CorePlugin.gradleWorkspaceManager().getGradleBuilds(selectedProjects);
         gradleBuilds.synchronize(NewProjectHandler.IMPORT_AND_MERGE);
     }
 

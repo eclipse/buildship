@@ -26,7 +26,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 
@@ -63,8 +62,7 @@ final class ReloadTaskViewJob extends ToolingApiJob {
     private List<OmniEclipseProject> loadProjects(IProgressMonitor monitor) {
         List<OmniEclipseProject> projects = Lists.newArrayList();
 
-        for (ProjectConfiguration configuration : CorePlugin.projectConfigurationManager().getRootProjectConfigurations()) {
-            GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(configuration.toRequestAttributes());
+        for (GradleBuild gradleBuild : CorePlugin.gradleWorkspaceManager().getGradleBuilds()) {
             ModelResults<OmniEclipseProject> results = gradleBuild.getModelProvider().fetchEclipseProjects(this.modelFetchStrategy, getToken(), monitor);
             for (ModelResult<OmniEclipseProject> result : results) {
                 if (result.getFailure() == null) {

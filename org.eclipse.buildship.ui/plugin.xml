@@ -136,7 +136,7 @@
             id="org.eclipse.buildship.ui.commands.refreshproject"
             categoryId="org.eclipse.buildship.ui.project"
             name="Refresh Gradle Project"
-            description="Refreshes selected Gradle projects">
+            description="Synchronizes the Gradle builds of the selected projects with the workspace">
       </command>
       <command
             id="org.eclipse.buildship.ui.commands.addbuildshipnature"

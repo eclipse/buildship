@@ -30,8 +30,6 @@ public interface ModelProvider {
     /**
      * Fetches the {@link OmniEclipseProject}s.
      *
-     * Note: the result is obtained from {@code com.gradleware.tooling.toolingmodel.repository.CompositeBuildModelRepository}.
-     *
      * @param fetchStrategy the caching strategy
      * @param token the cancellation token or null if cancellation is not required
      * @param monitor the monitor to report progress on or null if progress reporting is not required
@@ -41,8 +39,6 @@ public interface ModelProvider {
 
     /**
      * Fetches the {@link OmniGradleBuild}.
-     *
-     * Note: the result is obtained from {@code com.gradleware.tooling.toolingmodel.repository.SingleBuildModelRepository}.
      *
      * @param fetchStrategy the caching strategy
      * @param token the cancellation token or null if cancellation is not required
@@ -54,8 +50,6 @@ public interface ModelProvider {
     /**
      * Fetches the {@link OmniEclipseGradleBuild}.
      *
-     * Note: the result is obtained from {@code com.gradleware.tooling.toolingmodel.repository.SingleBuildModelRepository}.
-     *
      * @param fetchStrategy the caching strategy
      * @param token the cancellation token or null if cancellation is not required
      * @param monitor the monitor to report progress on or null if progress reporting is not required
@@ -65,8 +59,6 @@ public interface ModelProvider {
 
     /**
      * Fetches the {@link OmniBuildEnvironment}.
-     *
-     * Note: the result is obtained from {@code com.gradleware.tooling.toolingmodel.repository.SingleBuildModelRepository}.
      *
      * @param fetchStrategy the caching strategy
      * @param token the cancellation token or null if cancellation is not required
