@@ -25,7 +25,7 @@
 <repository location="jar:https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/0.14.0-20160802142356/p2-repository-0.14.0-20160802142356.zip!/"/>
 </location>
 </locations>
-<targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+<targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 <launcherArgs>
 <vmArgs>-XX:MaxPermSize=128M</vmArgs>
 </launcherArgs>
