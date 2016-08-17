@@ -10,7 +10,6 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 
 import com.gradleware.tooling.toolingmodel.repository.CompositeBuildModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
@@ -18,8 +17,8 @@ import com.gradleware.tooling.toolingmodel.repository.SingleBuildModelRepository
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
-import org.eclipse.buildship.core.workspace.ModelProvider;
 import org.eclipse.buildship.core.workspace.GradleBuild;
+import org.eclipse.buildship.core.workspace.ModelProvider;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
@@ -51,7 +50,7 @@ public class DefaultGradleBuild implements GradleBuild {
     @Override
     public ModelProvider getModelProvider() {
         SingleBuildModelRepository singleModelRepository = CorePlugin.modelRepositoryProvider().getModelRepository(this.build);
-        CompositeBuildModelRepository compositeModelRepository = CorePlugin.modelRepositoryProvider().getCompositeModelRepository(ImmutableSet.of(this.build));
+        CompositeBuildModelRepository compositeModelRepository = CorePlugin.modelRepositoryProvider().getCompositeModelRepository(this.build);
         return new DefaultModelProvider(singleModelRepository, compositeModelRepository);
     }
 
