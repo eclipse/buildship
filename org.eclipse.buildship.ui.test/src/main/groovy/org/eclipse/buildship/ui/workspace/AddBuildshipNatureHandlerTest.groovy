@@ -55,7 +55,7 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
     private boolean eclipseModelLoadedWithGradleUserHome(File projectLocation, File gradleUserHome) {
         FixedRequestAttributes attributes = new FixedRequestAttributes(projectLocation, gradleUserHome, GradleDistribution.fromBuild(), null, [], [])
         TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, System.out, System.err, System.in, [], [], GradleConnector.newCancellationTokenSource().token())
-        return CorePlugin.modelRepositoryProvider().getCompositeModelRepository([attributes] as Set).fetchEclipseProjects(transientAttributes, FetchStrategy.FROM_CACHE_ONLY) != null
+        return CorePlugin.modelRepositoryProvider().getCompositeModelRepository(attributes).fetchEclipseProjects(transientAttributes, FetchStrategy.FROM_CACHE_ONLY) != null
     }
 
 }
