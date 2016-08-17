@@ -11,14 +11,12 @@
 
 package org.eclipse.buildship.core.gradle;
 
-import java.util.List;
 import java.util.Set;
 
 import org.gradle.tooling.BuildCancelledException;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
@@ -28,7 +26,6 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
-import org.eclipse.buildship.core.AggregateException;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
@@ -50,9 +47,8 @@ public final class LoadEclipseGradleBuildsJob extends ToolingApiJob {
     }
 
     @Override
-    protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
+    protected void runToolingApiJob(IProgressMonitor monitor) {
         SubMonitor progress = SubMonitor.convert(monitor, this.configurations.size());
-        List<Exception> exceptions = Lists.newArrayList();
         for (ProjectConfiguration configuration : this.configurations) {
             if (monitor.isCanceled()) {
                 throw new OperationCanceledException();
@@ -62,11 +58,8 @@ public final class LoadEclipseGradleBuildsJob extends ToolingApiJob {
             } catch (BuildCancelledException e) {
                 throw e;
             } catch (Exception e) {
-                exceptions.add(e);
+                CorePlugin.logger().warn(String.format("Failed to load build for project located at %s", configuration.getRequestAttributes().getProjectDir()), e);
             }
-        }
-        if (!exceptions.isEmpty()) {
-            throw new AggregateException(exceptions);
         }
     }
 
