@@ -11,6 +11,8 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import com.google.common.base.Optional;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
@@ -20,7 +22,7 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.workspace.GradleBuild;
 
 /**
  * Updates the Gradle classpath container of the given Java workspace project.
@@ -45,24 +47,25 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
     private void loadClasspath(IJavaProject javaProject) {
         IProject project = javaProject.getProject();
-        if (!GradleProjectNature.isPresentOn(project)) {
+        Optional<GradleBuild> gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(project);
+
+        if (!gradleBuild.isPresent()) {
             return;
         }
 
-        boolean updatedFromStorage;
-        try {
-            updatedFromStorage = GradleClasspathContainerUpdater.updateFromStorage(javaProject, null);
-        } catch (JavaModelException e) {
-            throw new GradlePluginsRuntimeException("Could not initialize Gradle classpath container.", e);
-        }
+        boolean updatedFromStorage = updateFromStorage(javaProject);
 
         if (!updatedFromStorage) {
-            resynchronize(javaProject);
+            gradleBuild.get().synchronize();
         }
     }
 
-    private void resynchronize(IJavaProject project) {
-        CorePlugin.gradleWorkspaceManager().getGradleBuild(project.getProject()).get().synchronize();
+    private boolean updateFromStorage(IJavaProject javaProject) {
+        try {
+            return GradleClasspathContainerUpdater.updateFromStorage(javaProject, null);
+        } catch (JavaModelException e) {
+            throw new GradlePluginsRuntimeException("Could not initialize Gradle classpath container.", e);
+        }
     }
 
 }
