@@ -6,6 +6,7 @@ import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
@@ -34,7 +35,9 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         reimportWithoutSynchronization(project)
 
         then:
-        0 * workspaceManager._
+        def gradleBuild = Mock(GradleBuild)
+        1 * workspaceManager.getGradleBuild(project) >> Optional.of(gradleBuild)
+        0 * gradleBuild._
         javaProject.getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
     }
 
