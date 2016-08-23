@@ -47,18 +47,16 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
     private void loadClasspath(IJavaProject javaProject) throws JavaModelException {
         IProject project = javaProject.getProject();
-        Optional<GradleBuild> gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(project);
+        boolean updatedFromStorage = updateFromStorage(javaProject);
 
-        if (gradleBuild.isPresent()) {
-            boolean updatedFromStorage = updateFromStorage(javaProject);
-
-            if (!updatedFromStorage) {
+        if (!updatedFromStorage) {
+            Optional<GradleBuild> gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(project);
+            if (gradleBuild.isPresent()) {
                 gradleBuild.get().synchronize();
+            } else {
+                GradleClasspathContainerUpdater.clear(javaProject, null);
             }
-        } else {
-            GradleClasspathContainerUpdater.clear(javaProject, null);
         }
-
     }
 
     private boolean updateFromStorage(IJavaProject javaProject) {
