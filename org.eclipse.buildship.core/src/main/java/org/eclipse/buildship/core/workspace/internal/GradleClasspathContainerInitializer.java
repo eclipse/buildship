@@ -36,28 +36,29 @@ import org.eclipse.buildship.core.workspace.GradleBuild;
 public final class GradleClasspathContainerInitializer extends ClasspathContainerInitializer {
 
     @Override
-    public void initialize(IPath containerPath, IJavaProject javaProject) {
+    public void initialize(IPath containerPath, IJavaProject javaProject) throws JavaModelException {
         loadClasspath(javaProject);
     }
 
     @Override
-    public void requestClasspathContainerUpdate(IPath containerPath, IJavaProject javaProject, IClasspathContainer containerSuggestion) {
+    public void requestClasspathContainerUpdate(IPath containerPath, IJavaProject javaProject, IClasspathContainer containerSuggestion) throws JavaModelException {
         loadClasspath(javaProject);
     }
 
-    private void loadClasspath(IJavaProject javaProject) {
+    private void loadClasspath(IJavaProject javaProject) throws JavaModelException {
         IProject project = javaProject.getProject();
         Optional<GradleBuild> gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(project);
 
-        if (!gradleBuild.isPresent()) {
-            return;
+        if (gradleBuild.isPresent()) {
+            boolean updatedFromStorage = updateFromStorage(javaProject);
+
+            if (!updatedFromStorage) {
+                gradleBuild.get().synchronize();
+            }
+        } else {
+            GradleClasspathContainerUpdater.clear(javaProject, null);
         }
 
-        boolean updatedFromStorage = updateFromStorage(javaProject);
-
-        if (!updatedFromStorage) {
-            gradleBuild.get().synchronize();
-        }
     }
 
     private boolean updateFromStorage(IJavaProject javaProject) {
