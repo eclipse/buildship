@@ -64,6 +64,28 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         workspace.root.projects.length == 1
     }
 
+    def "The container is cleared for broken projects"() {
+        setup:
+        File projectDir = dir('sample-project') {
+            file 'build.gradle',  """apply plugin: "java"
+               repositories { jcenter() }
+               dependencies { compile "org.springframework:spring-beans:1.2.8"}
+            """
+        }
+
+        importAndWait(projectDir)
+        IProject project = findProject("sample-project")
+        IJavaProject javaProject = JavaCore.create(project)
+
+        new File(projectDir, ".settings/org.eclipse.buildship.core.prefs").delete()
+
+        when:
+        reimportWithoutSynchronization(project)
+
+        then:
+        !javaProject.getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
+    }
+
     private reimportWithoutSynchronization(IProject project) {
         def descriptor = project.description
         project.delete(false, true, null)
