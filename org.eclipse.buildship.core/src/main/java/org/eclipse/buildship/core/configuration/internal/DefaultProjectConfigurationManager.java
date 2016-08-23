@@ -113,7 +113,7 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
             return this.projectConfigurationPersistence.readProjectConfiguration(workspaceProject);
         } catch (RuntimeException e) {
             if (suppressErrors) {
-                CorePlugin.logger().warn(String.format(String.format("Cannot load project configuration for project %s.", workspaceProject.getName()), e));
+                CorePlugin.logger().warn(String.format("Cannot load project configuration for project %s.", workspaceProject.getName()), e);
                 return null;
             } else {
                 throw e;
