@@ -84,6 +84,15 @@ public final class EclipseTestExecuter implements TestExecuter {
         final JavaExecAction javaExecHandleBuilder = new DefaultJavaExecAction(getFileResolver(testTask));
         javaExecHandleBuilder.setClasspath(this.project.files(equinoxLauncherFile));
         javaExecHandleBuilder.setMain("org.eclipse.equinox.launcher.Main");
+
+        File javaHome = getExtension(testTask).getTestEclipseJavaHome();
+        File executable = new File(javaHome, "bin/java");
+        if (executable.exists()) {
+            javaExecHandleBuilder.setExecutable(executable);
+        } else {
+            LOGGER.warn("Java executable doesn't exist: " + executable.getAbsolutePath());
+        }
+
         List<String> programArgs = new ArrayList<String>();
 
         programArgs.add("-os");

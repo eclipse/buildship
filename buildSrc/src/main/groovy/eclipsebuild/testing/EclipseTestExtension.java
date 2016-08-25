@@ -33,6 +33,8 @@ public class EclipseTestExtension {
 
     private long testTimeoutSeconds = 60 * 60L;
 
+    private File testEclipseJavaHome = new File(System.getProperty("java.home"));
+
     @Inject
     public FileResolver getFileResolver() {
         throw new UnsupportedOperationException();
@@ -76,6 +78,14 @@ public class EclipseTestExtension {
 
     public void setFragmentHost(String fragmentHost) {
         this.fragmentHost = fragmentHost;
+    }
+
+    public File getTestEclipseJavaHome() {
+        return this.testEclipseJavaHome;
+    }
+
+    public void setTestEclipseJavaHome(File testEclipseJavaHome) {
+        this.testEclipseJavaHome = testEclipseJavaHome;
     }
 
 }

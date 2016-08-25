@@ -6,10 +6,13 @@ dependencies {
     compile project(':org.eclipse.buildship.ui')
 }
 
+def javaHome = hasProperty('eclipse.test.java.home') ? getProperty('eclipse.test.java.home') : System.getProperty('java.home')
+
 eclipseTest {
     fragmentHost 'org.eclipse.buildship.ui'
     applicationName 'org.eclipse.swtbot.eclipse.core.swtbottestapplication'
     optionsFile rootProject.project(':org.eclipse.buildship.core').file('.options')
     consoleLog = true
+    testEclipseJavaHome = project.file(javaHome)
 }
 
