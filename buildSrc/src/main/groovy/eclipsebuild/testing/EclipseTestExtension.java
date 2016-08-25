@@ -33,7 +33,7 @@ public class EclipseTestExtension {
 
     private long testTimeoutSeconds = 60 * 60L;
 
-    private File testEclipseJavaHome = new File(System.getProperty("java.home"));
+    private String testEclipseJavaHome = System.getProperty("java.home");
 
     @Inject
     public FileResolver getFileResolver() {
@@ -80,11 +80,11 @@ public class EclipseTestExtension {
         this.fragmentHost = fragmentHost;
     }
 
-    public File getTestEclipseJavaHome() {
+    public String getTestEclipseJavaHome() {
         return this.testEclipseJavaHome;
     }
 
-    public void setTestEclipseJavaHome(File testEclipseJavaHome) {
+    public void setTestEclipseJavaHome(String testEclipseJavaHome) {
         this.testEclipseJavaHome = testEclipseJavaHome;
     }
 

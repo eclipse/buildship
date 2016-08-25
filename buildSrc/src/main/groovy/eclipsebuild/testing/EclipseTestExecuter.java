@@ -85,7 +85,7 @@ public final class EclipseTestExecuter implements TestExecuter {
         javaExecHandleBuilder.setClasspath(this.project.files(equinoxLauncherFile));
         javaExecHandleBuilder.setMain("org.eclipse.equinox.launcher.Main");
 
-        File javaHome = getExtension(testTask).getTestEclipseJavaHome();
+        String javaHome = getExtension(testTask).getTestEclipseJavaHome();
         File executable = new File(javaHome, "bin/java");
         if (executable.exists()) {
             javaExecHandleBuilder.setExecutable(executable);

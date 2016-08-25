@@ -5,12 +5,13 @@ dependencies {
     compile project(':org.eclipse.buildship.core')
 }
 
-def javaHome = hasProperty('eclipse.test.java.home') ? getProperty('eclipse.test.java.home') : System.getProperty('java.home') 
+def javaHome = hasProperty('eclipse.test.java.home') ? getProperty('eclipse.test.java.home') : System.getProperty('java.home')
+javaHome = javaHome.replace('\"', '').replace('\'', '')
 
 eclipseTest {
     fragmentHost 'org.eclipse.buildship.core'
     applicationName 'org.eclipse.pde.junit.runtime.coretestapplication'
     optionsFile rootProject.project(':org.eclipse.buildship.core').file('.options')
-    testEclipseJavaHome = project.file(javaHome)
+    testEclipseJavaHome = javaHome
 }
 
