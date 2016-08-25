@@ -7,12 +7,13 @@ dependencies {
 }
 
 def javaHome = hasProperty('eclipse.test.java.home') ? getProperty('eclipse.test.java.home') : System.getProperty('java.home')
+javaHome = javaHome.replace('\"', '').replace('\'', '')
 
 eclipseTest {
     fragmentHost 'org.eclipse.buildship.ui'
     applicationName 'org.eclipse.swtbot.eclipse.core.swtbottestapplication'
     optionsFile rootProject.project(':org.eclipse.buildship.core').file('.options')
     consoleLog = true
-    testEclipseJavaHome = project.file(javaHome)
+    testEclipseJavaHome = javaHome
 }
 
