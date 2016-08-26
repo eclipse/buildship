@@ -1,12 +1,9 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import org.gradle.internal.impldep.com.google.common.collect.ImmutableList;
-import spock.lang.Ignore
-
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
 import org.eclipse.core.resources.IProject
-import org.eclipse.jdt.core.IAccessRule;
+import org.eclipse.jdt.core.IAccessRule
 import org.eclipse.jdt.core.IClasspathAttribute
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
@@ -14,8 +11,7 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.buildship.core.Logger
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
-import org.eclipse.buildship.core.workspace.WorkspaceOperations;
-
+import org.eclipse.buildship.core.workspace.WorkspaceOperations
 
 class ImportingWtpProjects extends ProjectSynchronizationSpecification {
 

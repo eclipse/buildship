@@ -19,17 +19,21 @@ import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.NewProjectHandler
 
 abstract class ProjectSynchronizationSpecification extends WorkspaceSpecification {
+
+    //TODO revert to GradleDistribution.fromBuild() once we no longer need Java 6 compatibility
+    private static final GradleDistribution DEFAULT_GRADLE_VERSION = GradleDistribution.forVersion("3.0")
+
     protected void synchronizeAndWait(File location, NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
-        startSynchronization(location, GradleDistribution.fromBuild(), newProjectHandler)
+        startSynchronization(location, DEFAULT_GRADLE_VERSION, newProjectHandler)
         waitForGradleJobsToFinish()
     }
 
-    protected void importAndWait(File location, GradleDistribution distribution = GradleDistribution.fromBuild()) {
+    protected void importAndWait(File location, GradleDistribution distribution = DEFAULT_GRADLE_VERSION) {
         startSynchronization(location, distribution, NewProjectHandler.IMPORT_AND_MERGE)
         waitForGradleJobsToFinish()
     }
 
-    protected void startSynchronization(File location, GradleDistribution distribution = GradleDistribution.fromBuild(), NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
+    protected void startSynchronization(File location, GradleDistribution distribution = DEFAULT_GRADLE_VERSION, NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
         FixedRequestAttributes attributes = new FixedRequestAttributes(location, null, distribution, null, [], [])
         CorePlugin.gradleWorkspaceManager().getGradleBuild(attributes).synchronize(newProjectHandler)
     }
@@ -42,7 +46,7 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
     }
 
     protected void previewAndWait(File location, FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler) {
-        def job = newProjectPreviewJob(location, GradleDistribution.fromBuild(), resultHandler)
+        def job = newProjectPreviewJob(location, DEFAULT_GRADLE_VERSION, resultHandler)
         job.schedule()
         job.join()
     }

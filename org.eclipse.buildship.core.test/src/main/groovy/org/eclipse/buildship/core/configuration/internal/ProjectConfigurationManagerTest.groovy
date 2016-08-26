@@ -92,7 +92,7 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
             }
         }
 
-        importAndWait(rootDir)
+        importAndWait(rootDir, GradleDistribution.fromBuild())
 
         when:
         Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
@@ -147,7 +147,7 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
             }
         }
 
-        importAndWait(rootDirOne)
+        importAndWait(rootDirOne, GradleDistribution.fromBuild())
         importAndWait(rootDirTwo, GradleDistribution.forVersion("1.12"))
 
         when:
@@ -396,7 +396,7 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
             file('settings.gradle').text = "rootProject.name = 'sample-project'"
         }
 
-        importAndWait(projectDir)
+        importAndWait(projectDir, GradleDistribution.fromBuild())
 
         when:
         IProject project = findProject('sample-project')
