@@ -113,7 +113,7 @@ class TestBundlePlugin implements Plugin<Project> {
             reports.html.destination = new File("${project.reporting.baseDir}/eclipseTest")
 
             // set some system properties for the test Eclipse
-            systemProperty('osgi.requiredJavaVersion','1.7')
+            systemProperty('osgi.requiredJavaVersion','1.6')
             systemProperty('eclipse.pde.launch','true')
             systemProperty('eclipse.p2.data.area','@config.dir/p2')
 
