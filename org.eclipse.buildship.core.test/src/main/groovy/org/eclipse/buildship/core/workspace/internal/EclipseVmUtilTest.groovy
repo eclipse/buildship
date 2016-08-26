@@ -1,5 +1,6 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import org.gradle.api.JavaVersion
 import spock.lang.Specification
 
 import org.eclipse.jdt.internal.launching.StandardVMType
@@ -12,7 +13,7 @@ class EclipseVmUtilTest extends Specification {
 
     def "Can find an existing VM"() {
         when:
-        EclipseVmUtil.findOrRegisterVM('1.7', new File("foo"))
+        EclipseVmUtil.findOrRegisterVM(JavaVersion.current().name, new File("foo"))
 
         then:
         allVms().size() == old(allVms().size())
