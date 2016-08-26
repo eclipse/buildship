@@ -1,5 +1,6 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import org.gradle.internal.impldep.com.google.common.collect.ImmutableList;
 import spock.lang.Ignore
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
@@ -13,12 +14,80 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.buildship.core.Logger
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
+import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 
-class WtpClasspathAttributeSpecification extends ProjectSynchronizationSpecification {
+class ImportingWtpProjects extends ProjectSynchronizationSpecification {
 
     private static final String NON_DEPLOYED = "org.eclipse.jst.component.nondependency"
     private static final String DEPLOYED = "org.eclipse.jst.component.dependency"
+    private static final String WTP_COMPONENT_NATURE = "org.eclipse.wst.common.modulecore.ModuleCoreNature";
+
+    def "The eclipseWtp task is run before importing WTP projects"() {
+        setup:
+        File root = dir("project") {
+            file 'build.gradle', """
+                apply plugin: 'war'
+                apply plugin: 'eclipse'
+            """
+        }
+
+        WorkspaceOperations operations = Stub(WorkspaceOperations) {
+            isNatureRecognizedByEclipse(WTP_COMPONENT_NATURE) >> true
+        }
+        registerService(WorkspaceOperations, operations)
+
+        when:
+        importAndWait(root)
+
+        then:
+        hasComponentDescriptor(root)
+        hasFacetDescriptor(root)
+    }
+
+    def "The eclipseWtp task is not run if Eclipse WTP is not installed"() {
+        setup:
+        File root = dir("project") {
+            file 'build.gradle', """
+                apply plugin: 'war'
+                apply plugin: 'eclipse'
+            """
+        }
+
+        WorkspaceOperations operations = Stub(WorkspaceOperations) {
+            isNatureRecognizedByEclipse(WTP_COMPONENT_NATURE) >> false
+        }
+        registerService(WorkspaceOperations, operations)
+
+        when:
+        importAndWait(root)
+
+        then:
+        !hasComponentDescriptor(root)
+        !hasFacetDescriptor(root)
+    }
+
+    def "The eclipseWtp task is not run if for Gradle < 3.0"() {
+        setup:
+        File root = dir("project") {
+            file 'build.gradle', """
+                apply plugin: 'war'
+                apply plugin: 'eclipse'
+            """
+        }
+
+        WorkspaceOperations operations = Stub(WorkspaceOperations) {
+            isNatureRecognizedByEclipse(WTP_COMPONENT_NATURE) >> true
+        }
+        registerService(WorkspaceOperations, operations)
+
+        when:
+        importAndWait(root, GradleDistribution.forVersion('2.13'))
+
+        then:
+        !hasComponentDescriptor(root)
+        !hasFacetDescriptor(root)
+    }
 
     def "No classpath attributes for older Gradle versions"() {
         setup:
@@ -232,4 +301,13 @@ class WtpClasspathAttributeSpecification extends ProjectSynchronizationSpecifica
     private IClasspathEntry[] rawClasspath(IProject project) {
         JavaCore.create(project).rawClasspath
     }
+
+    private hasFacetDescriptor(File root) {
+        new File(root, ".settings/org.eclipse.wst.common.project.facet.core.xml").exists()
+    }
+
+    private hasComponentDescriptor(File root) {
+        new File(root, ".settings/org.eclipse.wst.common.component").exists()
+    }
+
 }

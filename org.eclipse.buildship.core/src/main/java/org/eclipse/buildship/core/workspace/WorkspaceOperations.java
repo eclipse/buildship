@@ -209,4 +209,12 @@ public interface WorkspaceOperations {
      * @return true if this folder is a sub project
      */
     boolean isSubProject(IFolder folder);
+
+
+    /**
+     * Checks whether Eclipse supports the given project nature.
+     * @param natureId the nature to check for, must not be null
+     * @return true if Eclipse supports this nature, false otherwise
+     */
+    boolean isNatureRecognizedByEclipse(String natureId);
 }
