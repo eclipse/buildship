@@ -1,5 +1,8 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import org.gradle.api.JavaVersion
+import spock.lang.IgnoreIf
+
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
 import org.eclipse.core.resources.IProject
@@ -19,6 +22,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
     private static final String DEPLOYED = "org.eclipse.jst.component.dependency"
     private static final String WTP_COMPONENT_NATURE = "org.eclipse.wst.common.modulecore.ModuleCoreNature";
 
+    @IgnoreIf({ !JavaVersion.current().isJava7Compatible() })  // TODO (donat) re-enable once the latest Tooling API is used
     def "The eclipseWtp task is run before importing WTP projects"() {
         setup:
         File root = dir("project") {
@@ -282,12 +286,18 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         then:
         def project = findProject('project')
         IClasspathEntry container = rawClasspath(project).find { it.path == GradleClasspathContainer.CONTAINER_PATH }
-        container.extraAttributes.length == 2
-        container.extraAttributes.find { it.name == NON_DEPLOYED }
-        container.extraAttributes.find { it.name == 'customKey' && it.value == 'customValue' }
-        container.accessRules.length == 1
-        container.accessRules[0].kind == IAccessRule.K_NON_ACCESSIBLE
-        container.accessRules[0].pattern.toPortableString() == 'nonAccessibleFilesPattern'
+        if (JavaVersion.current().isJava7Compatible()) {
+            assert container.extraAttributes.length == 2
+            assert container.extraAttributes.find { it.name == NON_DEPLOYED }
+            assert container.extraAttributes.find { it.name == 'customKey' && it.value == 'customValue' }
+            assert container.accessRules.length == 1
+            assert container.accessRules[0].kind == IAccessRule.K_NON_ACCESSIBLE
+            assert container.accessRules[0].pattern.toPortableString() == 'nonAccessibleFilesPattern'
+        } else {
+            // TODO (donat) remove this branch once the latest Tooling API is used
+            assert container.extraAttributes.length == 1
+            assert container.extraAttributes.find { it.name == NON_DEPLOYED }
+        }
     }
 
     private IClasspathEntry[] resolvedClasspath(IProject project) {

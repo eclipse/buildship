@@ -1,5 +1,8 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import org.gradle.api.JavaVersion
+import spock.lang.IgnoreIf
+
 import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.IAccessRule
@@ -236,6 +239,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         containers[1].path == GradleClasspathContainer.CONTAINER_PATH
     }
 
+    @IgnoreIf({ !JavaVersion.current().isJava7Compatible() })  // TODO (donat) re-enable once the latest Tooling API is used
     def "Custom containers are set"() {
         setup:
         prepareProject('sample-project')
@@ -258,6 +262,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         findJavaProject('sample-project').rawClasspath.find { IClasspathEntry entry -> entry.entryKind == IClasspathEntry.CPE_CONTAINER  && entry.path.toPortableString() == 'custom.container' }
     }
 
+    @IgnoreIf({ !JavaVersion.current().isJava7Compatible() }) // TODO (donat) re-enable once the latest Tooling API is used
     def "Custom project output location is set"() {
         setup:
         prepareProject('sample-project')
@@ -277,9 +282,10 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         synchronizeAndWait(projectDir)
 
         then:
-        findJavaProject('sample-project').getOutputLocation().toPortableString() == '/sample-project/target/bin'
+        assert findJavaProject('sample-project').getOutputLocation().toPortableString() == '/sample-project/target/bin'
     }
 
+    @IgnoreIf({ !JavaVersion.current().isJava7Compatible() }) // TODO (donat) re-enable once the latest Tooling API is used
     def "Custom access rules are set"() {
         setup:
         prepareProject('sample-project')
@@ -332,6 +338,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
            assertAccessRules(libraryDep, IAccessRule.K_DISCOURAGED, 'library-pattern')
     }
 
+    @IgnoreIf({ !JavaVersion.current().isJava7Compatible() }) // TODO (donat) re-enable once the latest Tooling API is used
     def "Custom output folder is set"() {
         setup:
         prepareProject('sample-project')
@@ -361,6 +368,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         project.rawClasspath.find { it.path.toPortableString() == '/sample-project/src/main/java' }.outputLocation.toPortableString() == '/sample-project/target/classes'
     }
 
+    @IgnoreIf({ !JavaVersion.current().isJava7Compatible() }) // TODO (donat) re-enable once the latest Tooling API is used
     def "Custom classpath attributes are set"() {
         setup:
         prepareProject('sample-project')
@@ -415,6 +423,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
            assertClasspathAttributes(libraryDep, 'libraryKey', 'libraryValue')
     }
 
+    @IgnoreIf({ !JavaVersion.current().isJava7Compatible() }) // TODO (donat) re-enable once the latest Tooling API is used
     def "Custom java runtime name"() {
         setup:
         prepareProject('sample-project')
