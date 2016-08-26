@@ -1,13 +1,15 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import com.google.common.base.Optional
+
 import org.eclipse.core.resources.IProject
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
-import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
-import org.eclipse.buildship.core.workspace.WorkspaceOperations;
+import org.eclipse.buildship.core.workspace.GradleBuild
+import org.eclipse.buildship.core.workspace.GradleWorkspaceManager
 
 class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
 
@@ -21,7 +23,9 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         }
         importAndWait(projectDir)
 
+        GradleBuild gradleBuild = Mock(GradleBuild)
         GradleWorkspaceManager workspaceManager = Mock(GradleWorkspaceManager)
+        _ * workspaceManager.getGradleBuild(_) >> Optional.of(gradleBuild)
         registerService(GradleWorkspaceManager, workspaceManager)
 
         IJavaProject javaProject = JavaCore.create(findProject("sample-project"))
@@ -34,7 +38,7 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         reimportWithoutSynchronization(project)
 
         then:
-        0 * workspaceManager._
+        0 * gradleBuild._
         javaProject.getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
     }
 
@@ -51,13 +55,58 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
             file 'settings.gradle', 'include "sub"'
         }
 
-        CorePlugin.instance.stateLocation.append("classpath-persistence").toFile().delete()
+        assert CorePlugin.instance.stateLocation.append("classpath-persistence").append("sample-project").toFile().delete()
 
         when:
         reimportWithoutSynchronization(findProject("sample-project"))
 
         then:
         workspace.root.projects.length == 1
+    }
+
+    def "If the cache is still present, the container is kept for broken projects"() {
+        setup:
+        File projectDir = dir('sample-project') {
+            file 'build.gradle',  """apply plugin: "java"
+               repositories { jcenter() }
+               dependencies { compile "org.springframework:spring-beans:1.2.8"}
+            """
+        }
+
+        importAndWait(projectDir)
+        IProject project = findProject("sample-project")
+        IJavaProject javaProject = JavaCore.create(project)
+
+        new File(projectDir, ".settings/org.eclipse.buildship.core.prefs").delete()
+
+        when:
+        reimportWithoutSynchronization(project)
+
+        then:
+        javaProject.getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
+    }
+
+    def "If the cache is missing, the container is cleared for broken projects"() {
+        setup:
+        File projectDir = dir('sample-project') {
+            file 'build.gradle',  """apply plugin: "java"
+               repositories { jcenter() }
+               dependencies { compile "org.springframework:spring-beans:1.2.8"}
+            """
+        }
+
+        importAndWait(projectDir)
+        IProject project = findProject("sample-project")
+        IJavaProject javaProject = JavaCore.create(project)
+
+        assert new File(projectDir, ".settings/org.eclipse.buildship.core.prefs").delete()
+        assert CorePlugin.instance.stateLocation.append("classpath-persistence").append("sample-project").toFile().delete()
+
+        when:
+        reimportWithoutSynchronization(project)
+
+        then:
+        !JavaCore.create(findProject("sample-project")).getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
     }
 
     private reimportWithoutSynchronization(IProject project) {

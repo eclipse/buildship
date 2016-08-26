@@ -11,6 +11,8 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import com.google.common.base.Optional;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
@@ -20,7 +22,7 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
@@ -35,35 +37,35 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
 public final class GradleClasspathContainerInitializer extends ClasspathContainerInitializer {
 
     @Override
-    public void initialize(IPath containerPath, IJavaProject javaProject) {
+    public void initialize(IPath containerPath, IJavaProject javaProject) throws JavaModelException {
         loadClasspath(javaProject);
     }
 
     @Override
-    public void requestClasspathContainerUpdate(IPath containerPath, IJavaProject javaProject, IClasspathContainer containerSuggestion) {
+    public void requestClasspathContainerUpdate(IPath containerPath, IJavaProject javaProject, IClasspathContainer containerSuggestion) throws JavaModelException {
         loadClasspath(javaProject);
     }
 
-    private void loadClasspath(IJavaProject javaProject) {
+    private void loadClasspath(IJavaProject javaProject) throws JavaModelException {
         IProject project = javaProject.getProject();
-        if (!GradleProjectNature.isPresentOn(project)) {
-            return;
-        }
-
-        boolean updatedFromStorage;
-        try {
-            updatedFromStorage = GradleClasspathContainerUpdater.updateFromStorage(javaProject, null);
-        } catch (JavaModelException e) {
-            throw new GradlePluginsRuntimeException("Could not initialize Gradle classpath container.", e);
-        }
+        boolean updatedFromStorage = updateFromStorage(javaProject);
 
         if (!updatedFromStorage) {
-            updateFromGradleProject(javaProject);
+            Optional<GradleBuild> gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(project);
+            if (gradleBuild.isPresent()) {
+                gradleBuild.get().synchronize(NewProjectHandler.NO_OP);
+            } else {
+                GradleClasspathContainerUpdater.clear(javaProject, null);
+            }
         }
     }
 
-    private void updateFromGradleProject(IJavaProject project) {
-        CorePlugin.gradleWorkspaceManager().getGradleBuild(project.getProject()).get().synchronize(NewProjectHandler.NO_OP);
+    private boolean updateFromStorage(IJavaProject javaProject) {
+        try {
+            return GradleClasspathContainerUpdater.updateFromStorage(javaProject, null);
+        } catch (JavaModelException e) {
+            throw new GradlePluginsRuntimeException("Could not initialize Gradle classpath container.", e);
+        }
     }
 
 }
