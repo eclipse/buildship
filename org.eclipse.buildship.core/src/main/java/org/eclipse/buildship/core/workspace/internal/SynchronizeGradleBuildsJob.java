@@ -74,8 +74,9 @@ public final class SynchronizeGradleBuildsJob extends ToolingApiJob {
 
     private void synchronizeBuild(DefaultGradleBuild build, SubMonitor progress) throws CoreException {
         progress.setTaskName((String.format("Synchronizing Gradle build at %s with workspace", build.getBuild().getProjectDir())));
-        progress.setWorkRemaining(2);
+        progress.setWorkRemaining(3);
         Set<OmniEclipseProject> allProjects = fetchEclipseProjects(build, progress.newChild(1));
+        new RunOnImportTasksOperation(allProjects, build.getBuild()).run(progress.newChild(1), getToken());
         new SynchronizeGradleBuildOperation(allProjects, build.getBuild(), SynchronizeGradleBuildsJob.this.newProjectHandler).run(progress.newChild(1));
     }
 

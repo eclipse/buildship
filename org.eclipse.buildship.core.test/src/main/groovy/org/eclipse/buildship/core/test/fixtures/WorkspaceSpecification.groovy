@@ -34,7 +34,6 @@ abstract class WorkspaceSpecification extends Specification {
     @Rule
     TemporaryFolder tempFolderProvider
 
-    @AutoCleanup
     TestEnvironment environment = TestEnvironment.INSTANCE
 
     private File externalTestDir
@@ -44,6 +43,7 @@ abstract class WorkspaceSpecification extends Specification {
     }
 
     void cleanup() {
+        environment.close()
         deleteAllProjects(true)
     }
 

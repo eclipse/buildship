@@ -218,7 +218,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
             // abort if the project already has the nature applied or the nature is not defined
             List<String> currentNatureIds = ImmutableList.copyOf(description.getNatureIds());
-            if (currentNatureIds.contains(natureId) || !natureRecognizedByEclipse(natureId)) {
+            if (currentNatureIds.contains(natureId) || !isNatureRecognizedByEclipse(natureId)) {
                 return;
             }
 
@@ -234,7 +234,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         }
     }
 
-    private boolean natureRecognizedByEclipse(String natureId) {
+    @Override
+    public boolean isNatureRecognizedByEclipse(String natureId) {
         // if a description contains a nature id not defined by any of the Eclipse plugins then setting
         // it on a project throws an exception
         return ResourcesPlugin.getWorkspace().getNatureDescriptor(natureId) != null;
