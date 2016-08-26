@@ -13,6 +13,7 @@ package org.eclipse.buildship.core.util.progress;
 
 import java.util.List;
 
+import org.gradle.api.JavaVersion;
 import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.BuildException;
 import org.gradle.tooling.GradleConnectionException;
@@ -117,9 +118,15 @@ public final class ToolingApiInvoker {
     }
 
     private IStatus handleGradleConnectionFailed(GradleConnectionException e) {
+        Throwable cause = e.getCause();
+        String message;
+        if (cause instanceof UnsupportedClassVersionError && !JavaVersion.current().isJava7Compatible()) {
+            message = String.format("Project uses Gradle 3.x which requires Java 7 or later to work. Please specify a more recent JVM to run Eclipse.");
+        } else {
+            message = String.format("%s failed due to an error connecting to the Gradle build.", this.workName);
+        }
         // if there is an error connecting to Gradle, notify the user, but don't
         // put it in the error log (log as a warning instead)
-        String message = String.format("%s failed due to an error connecting to the Gradle build.", this.workName);
         CorePlugin.logger().warn(message, e);
         if (shouldSendUserNotification(e)) {
             CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(e), IStatus.WARNING, e);

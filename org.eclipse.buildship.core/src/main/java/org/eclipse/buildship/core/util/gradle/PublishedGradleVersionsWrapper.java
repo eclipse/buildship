@@ -14,8 +14,11 @@ package org.eclipse.buildship.core.util.gradle;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.gradle.api.JavaVersion;
 import org.gradle.util.GradleVersion;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
@@ -46,7 +49,25 @@ public final class PublishedGradleVersionsWrapper {
 
     public List<GradleVersion> getVersions() {
         PublishedGradleVersions versions = this.publishedGradleVersions.get();
-        return versions != null ? versions.getVersions() : ImmutableList.of(GradleVersion.current());
+        return versions != null ? filterGradle3xVersionsForJava6Users(versions.getVersions()) : ImmutableList.of(GradleVersion.current());
+    }
+
+    private List<GradleVersion> filterGradle3xVersionsForJava6Users(List<GradleVersion> gradleVersions) {
+        if (JavaVersion.current().isJava7Compatible()) {
+            return gradleVersions;
+        } else {
+            return filterGradle3xVersions(gradleVersions);
+        }
+    }
+
+    private List<GradleVersion> filterGradle3xVersions(List<GradleVersion> gradleVersions) {
+        final GradleVersion gradle2x = GradleVersion.version("2.99.99");
+        return FluentIterable.from(gradleVersions).filter(new Predicate<GradleVersion>() {
+            @Override
+            public boolean apply(GradleVersion version) {
+                return version.compareTo(gradle2x) < 0;
+            }
+        }).toList();
     }
 
     /**
