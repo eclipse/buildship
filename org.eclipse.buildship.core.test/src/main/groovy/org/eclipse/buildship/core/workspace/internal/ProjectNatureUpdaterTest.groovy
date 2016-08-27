@@ -26,6 +26,28 @@ class ProjectNatureUpdaterTest extends WorkspaceSpecification {
         project.description.natureIds.find{ it == 'org.eclipse.pde.UpdateSiteNature' }
     }
 
+    def "Gradle Nature is added when nature information is present"() {
+        given:
+        def project = newProject('sample-project')
+
+        when:
+        ProjectNatureUpdater.update(project, natures(), new NullProgressMonitor())
+
+        then:
+        project.description.natureIds.find{ it == GradleProjectNature.ID }
+    }
+
+    def "Gradle Nature is added when nature information is absent"() {
+        given:
+        def project = newProject('sample-project')
+
+        when:
+        ProjectNatureUpdater.update(project, Optional.absent(), new NullProgressMonitor())
+
+        then:
+        project.description.natureIds.find{ it == GradleProjectNature.ID }
+    }
+
     def "Project natures are removed if they no longer exist in the Gradle model"() {
         given:
         def project = newProject('sample-project')
@@ -39,7 +61,22 @@ class ProjectNatureUpdaterTest extends WorkspaceSpecification {
         project.description.natureIds.find{ it == 'org.eclipse.jdt.core.javanature' }
     }
 
-    def "Manually added natures are preserved"() {
+    def "Manually added natures are preserved if Gradle model has no nature information"() {
+        given:
+        def project = newProject('sample-project')
+        def description = project.description
+        def manualNatures = ['org.eclipse.pde.UpdateSiteNature', 'org.eclipse.jdt.core.javanature']
+        description.setNatureIds(manualNatures as String[])
+        project.setDescription(description, new NullProgressMonitor())
+
+        when:
+        ProjectNatureUpdater.update(project, Optional.absent(), new NullProgressMonitor())
+
+        then:
+        project.description.natureIds as List == manualNatures + [GradleProjectNature.ID]
+    }
+
+    def "Manually added natures are removed if Gradle model has nature information"() {
         given:
         def project = newProject('sample-project')
         def description = project.description
@@ -47,22 +84,6 @@ class ProjectNatureUpdaterTest extends WorkspaceSpecification {
         project.setDescription(description, new NullProgressMonitor())
 
         when:
-        ProjectNatureUpdater.update(project, natures(), new NullProgressMonitor())
-
-        then:
-        project.description.natureIds.find{ it == 'org.eclipse.pde.UpdateSiteNature' }
-    }
-
-    def "Project natures that were previously defined manually are transformed to model source folders"() {
-        given:
-        def project = newProject('sample-project')
-        def description = project.description
-        description.setNatureIds([
-            'org.eclipse.pde.UpdateSiteNature'] as String[])
-        project.setDescription(description, new NullProgressMonitor())
-
-        when:
-        ProjectNatureUpdater.update(project, natures('org.eclipse.pde.UpdateSiteNature'), new NullProgressMonitor())
         ProjectNatureUpdater.update(project, natures(), new NullProgressMonitor())
 
         then:
