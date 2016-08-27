@@ -198,9 +198,15 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
 
     @Override
     public void dispose() {
-        this.state.dispose();
-        this.selectionHistoryManager.dispose();
-        this.uiContributionManager.dispose();
+        if (this.state != null) {
+            this.state.dispose();
+        }
+        if (this.selectionHistoryManager != null) {
+            this.selectionHistoryManager.dispose();
+        }
+        if (this.uiContributionManager != null) {
+            this.uiContributionManager.dispose();
+        }
         super.dispose();
     }
 

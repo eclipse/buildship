@@ -77,7 +77,9 @@ public final class ExecutionsView extends MultiPageView {
 
     @Override
     public void dispose() {
-        this.state.dispose();
+        if (this.state != null) {
+            this.state.dispose();
+        }
         super.dispose();
     }
 
