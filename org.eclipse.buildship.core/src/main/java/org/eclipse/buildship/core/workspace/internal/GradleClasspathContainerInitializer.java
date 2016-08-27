@@ -21,7 +21,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
@@ -60,12 +59,8 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         }
     }
 
-    private boolean updateFromStorage(IJavaProject javaProject) {
-        try {
-            return GradleClasspathContainerUpdater.updateFromStorage(javaProject, null);
-        } catch (JavaModelException e) {
-            throw new GradlePluginsRuntimeException("Could not initialize Gradle classpath container.", e);
-        }
+    private boolean updateFromStorage(IJavaProject javaProject) throws JavaModelException {
+        return GradleClasspathContainerUpdater.updateFromStorage(javaProject, null);
     }
 
 }

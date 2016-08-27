@@ -55,7 +55,8 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
             file 'settings.gradle', 'include "sub"'
         }
 
-        assert CorePlugin.instance.stateLocation.append("classpath-persistence").append("sample-project").toFile().delete()
+        expect:
+        CorePlugin.instance.stateLocation.append("classpath-persistence").append("sample-project").toFile().delete()
 
         when:
         reimportWithoutSynchronization(findProject("sample-project"))
@@ -99,8 +100,9 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         IProject project = findProject("sample-project")
         IJavaProject javaProject = JavaCore.create(project)
 
-        assert new File(projectDir, ".settings/org.eclipse.buildship.core.prefs").delete()
-        assert CorePlugin.instance.stateLocation.append("classpath-persistence").append("sample-project").toFile().delete()
+        expect:
+        new File(projectDir, ".settings/org.eclipse.buildship.core.prefs").delete()
+        CorePlugin.instance.stateLocation.append("classpath-persistence").append("sample-project").toFile().delete()
 
         when:
         reimportWithoutSynchronization(project)
