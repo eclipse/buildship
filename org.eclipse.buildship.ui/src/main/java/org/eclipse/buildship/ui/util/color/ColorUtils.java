@@ -31,11 +31,11 @@ public final class ColorUtils {
     /**
      * Returns the color for {@code DECORATIONS_COLOR} from the current workbench theme.
      *
-     * @return the theme color to decorate text
+     * @return the theme color to decorate text or null if none is registered.
      */
     public static Color getDecorationsColorFromCurrentTheme() {
         ITheme theme = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme();
-        return Preconditions.checkNotNull(theme.getColorRegistry().get(DECORATIONS_COLOR));
+        return theme.getColorRegistry().get(DECORATIONS_COLOR);
     }
 
     /**
