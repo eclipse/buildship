@@ -288,7 +288,9 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
 
     @Override
     public void dispose() {
-        this.selectionHistoryManager.dispose();
+        if (this.selectionHistoryManager != null) {
+            this.selectionHistoryManager.dispose();
+        }
         super.dispose();
     }
 

@@ -80,7 +80,9 @@ public final class SwitchToNextPageAction extends Action implements IMenuCreator
 
     @Override
     public void dispose() {
-        this.menuManager.dispose();
+        if (this.menuManager != null) {
+            this.menuManager.dispose();
+        }
     }
 
 }
