@@ -41,8 +41,6 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         javaProject.rawClasspath.length == 1
         javaProject.rawClasspath[0].entryKind == IClasspathEntry.CPE_SOURCE
         javaProject.rawClasspath[0].path.toPortableString() == "/project-name/src"
-        javaProject.rawClasspath[0].extraAttributes.length == 1
-        javaProject.rawClasspath[0].extraAttributes[0].name == SourceFolderUpdater.CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL
 
     }
 
@@ -57,8 +55,6 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         javaProject.rawClasspath.length == 1
         javaProject.rawClasspath[0].entryKind == IClasspathEntry.CPE_SOURCE
         javaProject.rawClasspath[0].path.toPortableString() == "/project-name/src"
-        javaProject.rawClasspath[0].extraAttributes.length == 1
-        javaProject.rawClasspath[0].extraAttributes[0].name == SourceFolderUpdater.CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL
     }
 
     def "Source folders that don't physically exist are ignored."() {
@@ -72,9 +68,9 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         javaProject.rawClasspath.length == 0
     }
 
-    def "Previous model source folders are removed if they no longer exist in the Gradle model"() {
+    def "Previous source folders are removed if they no longer exist in the Gradle model"() {
         given:
-        addSourceFolder("src-old", [], [], null, attributes(fromGradleModel()))
+        addSourceFolder("src-old", [], [], null)
         def srcNew = javaProject.project.getFolder('src-new')
         srcNew.create(true, true, null)
         def newModelSourceFolders = gradleSourceFolders([srcNew.name])
@@ -86,11 +82,9 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         javaProject.rawClasspath.length == 1
         javaProject.rawClasspath[0].entryKind == IClasspathEntry.CPE_SOURCE
         javaProject.rawClasspath[0].path.toPortableString() == "/project-name/src-new"
-        javaProject.rawClasspath[0].extraAttributes.length == 1
-        javaProject.rawClasspath[0].extraAttributes[0].name == SourceFolderUpdater.CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL
     }
 
-    def "Non-model source folders are preserved even if they are not part of the Gradle model"() {
+    def "Manually added source folders are removed if they are not part of the Gradle model"() {
         given:
         addSourceFolder("src")
         def srcGradle = javaProject.project.getFolder('src-gradle')
@@ -101,33 +95,12 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         SourceFolderUpdater.update(javaProject, newModelSourceFolders, null)
 
         then:
-        javaProject.rawClasspath.length == 2
-        javaProject.rawClasspath[0].entryKind == IClasspathEntry.CPE_SOURCE
-        javaProject.rawClasspath[0].path.toPortableString() == "/project-name/src-gradle"
-        javaProject.rawClasspath[0].extraAttributes.length == 1
-        javaProject.rawClasspath[0].extraAttributes[0].name == SourceFolderUpdater.CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL
-        javaProject.rawClasspath[1].entryKind == IClasspathEntry.CPE_SOURCE
-        javaProject.rawClasspath[1].path.toPortableString() == "/project-name/src"
-        javaProject.rawClasspath[1].extraAttributes.length == 0
-    }
-
-    def "Model source folders that were previously defined manually are transformed to model source folders"() {
-        given:
-        addSourceFolder("src")
-        def newModelSourceFolders = gradleSourceFolders(['src'])
-
-        when:
-        SourceFolderUpdater.update(javaProject, newModelSourceFolders, null)
-
-        then:
         javaProject.rawClasspath.length == 1
         javaProject.rawClasspath[0].entryKind == IClasspathEntry.CPE_SOURCE
-        javaProject.rawClasspath[0].path.toPortableString() == "/project-name/src"
-        javaProject.rawClasspath[0].extraAttributes.length == 1
-        javaProject.rawClasspath[0].extraAttributes[0].name == SourceFolderUpdater.CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL
+        javaProject.rawClasspath[0].path.toPortableString() == "/project-name/src-gradle"
     }
 
-    def "When becoming part of model, unsupported source folder attributes are preserved"() {
+    def "User-defined attributes are kept if not present in the Gradle model"() {
         given:
         addSourceFolder("src", ['manual-inclusion-pattern'], ['manual-exclusion-pattern'], 'foo', attributes(["foo" : "bar"]))
         def newModelSourceFolders = gradleSourceFolders(['src'])
@@ -139,11 +112,11 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         IClasspathEntry entryAfterUpdate = javaProject.rawClasspath[0]
         entryAfterUpdate.getInclusionPatterns()[0].toString() == "manual-inclusion-pattern"
         entryAfterUpdate.getExclusionPatterns()[0].toString() == "manual-exclusion-pattern"
-        entryAfterUpdate.extraAttributes as List == attributes(["foo" : "bar"] << fromGradleModel()) as List
+        entryAfterUpdate.extraAttributes as List == attributes(["foo" : "bar"]) as List
         entryAfterUpdate.outputLocation.toString() == "/project-name/foo"
     }
 
-    def "When becoming part of model, supported source folder attributes are overridden"() {
+    def "User-defined attributes are overwritten if present in the Gradle model"() {
         given:
         addSourceFolder("src", ['manual-inclusion-pattern'], ['manual-exclusion-pattern'], 'foo', attributes(["foo" : "bar"]))
         def newModelSourceFolders = gradleSourceFolders(['src'], Optional.of(['model-excludes']),
@@ -156,7 +129,7 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         IClasspathEntry entryAfterUpdate = javaProject.rawClasspath[0]
         entryAfterUpdate.exclusionPatterns.collect { it.toPortableString() }  == ['model-excludes']
         entryAfterUpdate.inclusionPatterns.collect { it.toPortableString() }  == ['model-includes']
-        entryAfterUpdate.extraAttributes as List == attributes(['model-key' : 'model-value'] << fromGradleModel()) as List
+        entryAfterUpdate.extraAttributes as List == attributes(['model-key' : 'model-value']) as List
         entryAfterUpdate.outputLocation.toString() == '/project-name/model-output'
     }
 
@@ -171,8 +144,6 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         javaProject.rawClasspath.length == 1
         javaProject.rawClasspath[0].entryKind == IClasspathEntry.CPE_SOURCE
         javaProject.rawClasspath[0].path.toPortableString() == "/project-name"
-        javaProject.rawClasspath[0].extraAttributes.length == 1
-        javaProject.rawClasspath[0].extraAttributes[0].name == SourceFolderUpdater.CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL
     }
 
     def "Can configure exclude and include patterns"() {
@@ -200,7 +171,7 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         SourceFolderUpdater.update(javaProject, sourceFolders, null)
 
         then:
-        javaProject.rawClasspath[0].extraAttributes as List == attributes(['customKey': 'customValue'] << fromGradleModel()) as List
+        javaProject.rawClasspath[0].extraAttributes as List == attributes(['customKey': 'customValue']) as List
     }
 
     def "Can configure custom output location"() {
@@ -272,10 +243,6 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         return attributes.entrySet().collect {
             attribute(it.key, it.value)
         }
-    }
-
-    private Map<String, String> fromGradleModel() {
-        [(SourceFolderUpdater.CLASSPATH_ATTRIBUTE_FROM_GRADLE_MODEL) : "true"]
     }
 
     private IClasspathAttribute attribute(String key, String value) {
