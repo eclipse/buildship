@@ -69,7 +69,6 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
  * <li>If the workspace project is open:
  * <ul>
  * <li>the project name is updated</li>
- * <li>the Gradle nature is set</li>
  * <li>the Gradle settings file is written</li>
  * <li>the linked resources are set</li>
  * <li>the derived resources are marked</li>
