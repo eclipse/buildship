@@ -24,7 +24,6 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
     private static final String WTP_COMPONENT_NATURE = "org.eclipse.wst.common.modulecore.ModuleCoreNature";
 
     @Ignore("Ignored for 1.0.19, reactivate for 1.0.20")
-    @IgnoreIf({ !JavaVersion.current().isJava7Compatible() })  // TODO (donat) re-enable once the latest Tooling API is used
     def "The eclipseWtp task is run before importing WTP projects"() {
         setup:
         File root = dir("project") {
