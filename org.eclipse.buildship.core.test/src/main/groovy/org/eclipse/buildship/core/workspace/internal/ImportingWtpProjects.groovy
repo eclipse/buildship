@@ -1,6 +1,7 @@
 package org.eclipse.buildship.core.workspace.internal
 
 import org.gradle.api.JavaVersion
+import spock.lang.Ignore;
 import spock.lang.IgnoreIf
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
@@ -22,6 +23,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
     private static final String DEPLOYED = "org.eclipse.jst.component.dependency"
     private static final String WTP_COMPONENT_NATURE = "org.eclipse.wst.common.modulecore.ModuleCoreNature";
 
+    @Ignore("Ignored for 1.0.19, reactivate for 1.0.20")
     @IgnoreIf({ !JavaVersion.current().isJava7Compatible() })  // TODO (donat) re-enable once the latest Tooling API is used
     def "The eclipseWtp task is run before importing WTP projects"() {
         setup:
@@ -45,6 +47,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         hasFacetDescriptor(root)
     }
 
+    @Ignore("Ignored for 1.0.19, reactivate for 1.0.20")
     def "The eclipseWtp task is not run if Eclipse WTP is not installed"() {
         setup:
         File root = dir("project") {
@@ -67,6 +70,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         !hasFacetDescriptor(root)
     }
 
+    @Ignore("Ignored for 1.0.19, reactivate for 1.0.20")
     def "The eclipseWtp task is not run if for Gradle < 3.0"() {
         setup:
         File root = dir("project") {
