@@ -1,8 +1,7 @@
 package org.eclipse.buildship.core.workspace.internal
 
 import org.gradle.api.JavaVersion
-import spock.lang.Ignore;
-import spock.lang.IgnoreIf
+import spock.lang.Ignore
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
