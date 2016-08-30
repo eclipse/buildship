@@ -16,9 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -53,7 +50,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     private static final QualifiedName BUILD_FOLDER_PROPERTY_KEY = new QualifiedName(CorePlugin.PLUGIN_ID, "buildFolder");
     private static final QualifiedName SUB_PROJECT_PROPERTY_KEY = new QualifiedName(CorePlugin.PLUGIN_ID, "subProject");
     private static final String PROPERTY_TRUE = "true";
-    private static final Logger logger = LoggerFactory.getLogger(DefaultWorkspaceOperations.class);
 
     @Override
     public ImmutableList<IProject> getAllProjects() {
@@ -353,7 +349,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         try {
             return folder.exists() && PROPERTY_TRUE.equals(folder.getPersistentProperty(BUILD_FOLDER_PROPERTY_KEY));
         } catch (CoreException e) {
-            logger.debug(String.format("Could not check whether folder %s is a build folder.", folder.getFullPath()), e);
+            CorePlugin.logger().debug(String.format("Could not check whether folder %s is a build folder.", folder.getFullPath()), e);
             return false;
         }
     }
@@ -372,7 +368,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         try {
             return folder.exists() && PROPERTY_TRUE.equals(folder.getPersistentProperty(SUB_PROJECT_PROPERTY_KEY));
         } catch (CoreException e) {
-            logger.debug(String.format("Could not check whether folder %s is a sub project.", folder.getFullPath()), e);
+            CorePlugin.logger().debug(String.format("Could not check whether folder %s is a sub project.", folder.getFullPath()), e);
             return false;
         }
     }

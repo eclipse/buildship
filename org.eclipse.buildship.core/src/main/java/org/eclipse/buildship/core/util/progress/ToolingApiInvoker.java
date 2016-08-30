@@ -88,21 +88,21 @@ public final class ToolingApiInvoker {
 
     private IStatus handleSuccess() {
         String message = String.format("%s succeeded.", this.workName);
-        CorePlugin.logger().info(message);
+        CorePlugin.logger().debug(message);
         return Status.OK_STATUS;
     }
 
     private IStatus handleOperationCanceled(OperationCanceledException e) {
         // if an Eclipse job was cancelled by the user, just log the event
         String message = String.format("%s cancelled.", this.workName);
-        CorePlugin.logger().info(message, e);
+        CorePlugin.logger().debug(message, e);
         return createCancelStatus(message, e);
     }
 
     private IStatus handleBuildCanceled(BuildCancelledException e) {
         // if a Gradle job was cancelled by the user, just log the event
         String message = String.format("%s cancelled.", this.workName);
-        CorePlugin.logger().info(message, e);
+        CorePlugin.logger().debug(message, e);
         return createCancelStatus(message, e);
     }
 
