@@ -21,7 +21,7 @@ package org.eclipse.buildship.core;
  *   ...
  * } catch (Exception e) {
  *   CorePlugin.logger().error(e);
- * }o
+ * }
  * </pre>
  *
  * Instead of doing this:
@@ -36,6 +36,22 @@ package org.eclipse.buildship.core;
  * <p>
  */
 public interface Logger {
+
+    /**
+     * Logs an entry with {@link org.eclipse.core.runtime.IStatus#INFO} severity in Eclipse's log if tracing is enabled.
+     *
+     * @param message the information to log
+     */
+    void debug(String message);
+
+
+    /**
+     * Logs an entry with {@link org.eclipse.core.runtime.IStatus#INFO} severity in Eclipse's log if tracing is enabled.
+     *
+     * @param message the information to log
+     * @param t the underlying cause
+     */
+    void debug(String message, Throwable t);
 
     /**
      * Logs an entry with {@link org.eclipse.core.runtime.IStatus#INFO} severity in Eclipse's log.
