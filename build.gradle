@@ -382,7 +382,7 @@ gradle.buildFinished {
 task tag << {
     def tagVersion = file('version.txt').text.trim()
     exec { commandLine 'git', 'tag', '-a', "REL_$tagVersion", '-m', "Create tag REL_$tagVersion" }
-    exec { commandLine 'git', 'push', '--tags', githubAuthenticatedHost, 'master' }
+    //exec { commandLine 'git', 'push', '--tags', githubAuthenticatedHost, 'master' }
 }
 
 // increment the service segment in the version number and push it to master
