@@ -241,7 +241,8 @@ class BuildDefinitionPlugin implements Plugin<Project> {
                     '-p2.arch', Constants.arch,
                     '-roaming',
                     '-nosplash',
-                    '-consoleLog')
+                    '-consoleLog',
+                    '-vmargs', '-Declipse.p2.mirror=false')
         }
     }
 
