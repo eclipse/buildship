@@ -14,6 +14,7 @@ eclipseTest {
     applicationName 'org.eclipse.swtbot.eclipse.core.swtbottestapplication'
     optionsFile rootProject.project(':org.eclipse.buildship.core').file('.options')
     consoleLog = true
-    testEclipseJavaHome = javaHome
+    // TODO (donat) re-enable custom java home when we change the execution environment to Java 7 for the entire project and adjust CI builds
+    // testEclipseJavaHome = javaHome
 }
 
