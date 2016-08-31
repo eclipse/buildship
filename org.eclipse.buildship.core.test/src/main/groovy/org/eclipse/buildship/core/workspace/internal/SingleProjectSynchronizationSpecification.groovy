@@ -352,7 +352,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
                         file {
                             whenMerged { classpath ->
                                 def src = classpath.entries.find { it.path == 'src/main/java' }
-                                src.output = '/sample-project/target/classes'
+                                src.output = 'target/classes'
                             }
                         }
                     }

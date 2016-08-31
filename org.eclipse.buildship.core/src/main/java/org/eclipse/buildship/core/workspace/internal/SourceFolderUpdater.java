@@ -115,7 +115,7 @@ final class SourceFolderUpdater {
 
         // preserve the previous settings by the user
         final IPackageFragmentRoot root = SourceFolderUpdater.this.project.getPackageFragmentRoot(sourceDirectory);
-        SourceFolderEntryBuilder builder = new SourceFolderEntryBuilder(root.getPath());
+        SourceFolderEntryBuilder builder = new SourceFolderEntryBuilder(this.project, root.getPath());
 
         IClasspathEntry existingEntry = sourceFolders.get(root.getPath());
         if (existingEntry != null) {
@@ -266,18 +266,21 @@ final class SourceFolderUpdater {
      */
     private static class SourceFolderEntryBuilder {
         private final IPath path;
+        private final IJavaProject project;
+
         //default settings
         private String output = null;
         private List<String> includes = new ArrayList<String>();
         private List<String> excludes = new ArrayList<String>();
         private Map<String, String> attributes = new LinkedHashMap<String, String>();
 
-        public SourceFolderEntryBuilder(IPath path) {
+        public SourceFolderEntryBuilder(IJavaProject project, IPath path) {
+            this.project = project;
             this.path = path;
         }
 
         public void setOutput(IPath output) {
-            this.output = output == null ? null : output.toPortableString();
+            this.output = output == null ? null : output.removeFirstSegments(1).toPortableString();
         }
 
         public void setOutput(String output) {
@@ -325,7 +328,7 @@ final class SourceFolderUpdater {
         }
 
         private IPath getOutput() {
-            return this.output == null ? null : new Path(this.output);
+            return this.output == null ? null : this.project.getPath().append(this.output);
         }
 
         private IPath[] getIncludes() {
