@@ -147,7 +147,7 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         given:
         addSourceFolder("src", ['manual-inclusion-pattern'], ['manual-exclusion-pattern'], 'foo', attributes(["foo" : "bar"]))
         def newModelSourceFolders = gradleSourceFolders(['src'], Optional.of(['model-excludes']),
-            Optional.of(['model-includes']), Optional.of(['model-key' : 'model-value']), Maybe.of('/project-name/model-output'))
+            Optional.of(['model-includes']), Optional.of(['model-key' : 'model-value']), Maybe.of('model-output'))
 
         when:
         SourceFolderUpdater.update(javaProject, newModelSourceFolders, null)
@@ -215,10 +215,10 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         javaProject.rawClasspath[0].outputLocation?.toPortableString() == expectedLocation
 
         where:
-        modelLocation                            | expectedLocation
-        Maybe.absent()                           | null
-        Maybe.of(null)                           | null
-        Maybe.of('/project-name/target/classes') | '/project-name/target/classes'
+        modelLocation              | expectedLocation
+        Maybe.absent()             | null
+        Maybe.of(null)             | null
+        Maybe.of('target/classes') | '/project-name/target/classes'
 
     }
 
