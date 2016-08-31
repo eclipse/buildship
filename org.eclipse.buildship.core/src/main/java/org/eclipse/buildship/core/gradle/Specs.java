@@ -14,7 +14,6 @@ package org.eclipse.buildship.core.gradle;
 import java.io.File;
 
 import org.gradle.api.specs.Spec;
-import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
@@ -41,23 +40,6 @@ public final class Specs {
             @Override
             public boolean isSatisfiedBy(OmniEclipseProject candidate) {
                 return candidate.getProjectDirectory().equals(projectDir);
-            }
-        };
-    }
-
-    /**
-     * Returns a spec that matches if the the identifier of a {@code OmniEclipseProject} instance
-     * matches the given identifier.
-     *
-     * @param identifier the identifier to match
-     * @return the spec
-     */
-    public static Spec<OmniEclipseProject> eclipseProjectMatchesIdentifier(final EclipseProjectIdentifier identifier) {
-        return new Spec<OmniEclipseProject>() {
-
-            @Override
-            public boolean isSatisfiedBy(OmniEclipseProject candidate) {
-                return candidate.getIdentifier().equals(identifier);
             }
         };
     }
