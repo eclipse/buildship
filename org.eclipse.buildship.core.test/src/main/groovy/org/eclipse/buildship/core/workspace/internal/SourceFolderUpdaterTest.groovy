@@ -151,7 +151,6 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
 
         when:
         SourceFolderUpdater.update(javaProject, newModelSourceFolders, null)
-        javaProject.rawClasspath.each {println it }
 
         then:
         IClasspathEntry entryAfterUpdate = javaProject.rawClasspath[0]
