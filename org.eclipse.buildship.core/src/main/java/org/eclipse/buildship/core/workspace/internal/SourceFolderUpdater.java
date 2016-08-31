@@ -269,7 +269,7 @@ final class SourceFolderUpdater {
         private final IJavaProject project;
 
         //default settings
-        private String output = null;
+        private IPath output = null;
         private List<String> includes = new ArrayList<String>();
         private List<String> excludes = new ArrayList<String>();
         private Map<String, String> attributes = new LinkedHashMap<String, String>();
@@ -280,11 +280,11 @@ final class SourceFolderUpdater {
         }
 
         public void setOutput(IPath output) {
-            this.output = output == null ? null : output.removeFirstSegments(1).toPortableString();
+            this.output = output;
         }
 
         public void setOutput(String output) {
-            this.output = output;
+            this.output = output == null ? null : this.project.getPath().append(output);
         }
 
         public void setIncludes(IPath[] includes) {
@@ -328,7 +328,7 @@ final class SourceFolderUpdater {
         }
 
         private IPath getOutput() {
-            return this.output == null ? null : this.project.getPath().append(this.output);
+            return this.output;
         }
 
         private IPath[] getIncludes() {
