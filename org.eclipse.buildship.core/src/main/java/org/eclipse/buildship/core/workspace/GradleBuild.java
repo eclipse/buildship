@@ -8,6 +8,8 @@
  */
 package org.eclipse.buildship.core.workspace;
 
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+
 //TODO this should eventually also contain the methods to launch tasks etc.
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 
@@ -68,4 +70,11 @@ public interface GradleBuild {
      * @return the model provider, never null
      */
     ModelProvider getModelProvider();
+
+    /**
+     * Returns the request attributes for this build.
+     *
+     * @return the request attributes, never null
+     */
+    FixedRequestAttributes getRequestAttributes();
 }

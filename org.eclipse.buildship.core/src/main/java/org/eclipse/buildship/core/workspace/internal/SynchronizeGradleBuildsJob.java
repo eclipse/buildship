@@ -32,6 +32,7 @@ import org.eclipse.buildship.core.AggregateException;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
+import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
@@ -64,7 +65,7 @@ public final class SynchronizeGradleBuildsJob extends ToolingApiJob {
 
         this.initializer.run(progress.newChild(1), getToken());
 
-        for (DefaultGradleBuild build : this.builds) {
+        for (GradleBuild build : this.builds) {
             if (monitor.isCanceled()) {
                 throw new OperationCanceledException();
             }
@@ -72,15 +73,15 @@ public final class SynchronizeGradleBuildsJob extends ToolingApiJob {
         }
     }
 
-    private void synchronizeBuild(DefaultGradleBuild build, SubMonitor progress) throws CoreException {
-        progress.setTaskName((String.format("Synchronizing Gradle build at %s with workspace", build.getBuild().getProjectDir())));
+    private void synchronizeBuild(GradleBuild build, SubMonitor progress) throws CoreException {
+        progress.setTaskName((String.format("Synchronizing Gradle build at %s with workspace", build.getRequestAttributes().getProjectDir())));
         progress.setWorkRemaining(3);
         Set<OmniEclipseProject> allProjects = fetchEclipseProjects(build, progress.newChild(1));
-        new RunOnImportTasksOperation(allProjects, build.getBuild()).run(progress.newChild(1), getToken());
-        new SynchronizeGradleBuildOperation(allProjects, build.getBuild(), SynchronizeGradleBuildsJob.this.newProjectHandler).run(progress.newChild(1));
+        new RunOnImportTasksOperation(allProjects, build.getRequestAttributes()).run(progress.newChild(1), getToken());
+        new SynchronizeGradleBuildOperation(allProjects, build.getRequestAttributes(), SynchronizeGradleBuildsJob.this.newProjectHandler).run(progress.newChild(1));
     }
 
-    private Set<OmniEclipseProject> fetchEclipseProjects(DefaultGradleBuild build, SubMonitor progress) {
+    private Set<OmniEclipseProject> fetchEclipseProjects(GradleBuild build, SubMonitor progress) {
         progress.setTaskName("Loading Gradle project models");
         ModelProvider modelProvider = build.getModelProvider();
         ModelResults<OmniEclipseProject> results = modelProvider.fetchEclipseProjects(FetchStrategy.FORCE_RELOAD, getToken(), progress);

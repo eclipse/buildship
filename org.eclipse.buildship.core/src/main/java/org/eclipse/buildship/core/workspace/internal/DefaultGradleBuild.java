@@ -28,10 +28,10 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
  */
 public class DefaultGradleBuild implements GradleBuild {
 
-    private final FixedRequestAttributes build;
+    private final FixedRequestAttributes attributes;
 
     public DefaultGradleBuild(FixedRequestAttributes builds) {
-        this.build = Preconditions.checkNotNull(builds);
+        this.attributes = Preconditions.checkNotNull(builds);
     }
 
     @Override
@@ -49,26 +49,27 @@ public class DefaultGradleBuild implements GradleBuild {
 
     @Override
     public ModelProvider getModelProvider() {
-        SingleBuildModelRepository singleModelRepository = CorePlugin.modelRepositoryProvider().getModelRepository(this.build);
-        CompositeBuildModelRepository compositeModelRepository = CorePlugin.modelRepositoryProvider().getCompositeModelRepository(this.build);
+        SingleBuildModelRepository singleModelRepository = CorePlugin.modelRepositoryProvider().getModelRepository(this.attributes);
+        CompositeBuildModelRepository compositeModelRepository = CorePlugin.modelRepositoryProvider().getCompositeModelRepository(this.attributes);
         return new DefaultModelProvider(singleModelRepository, compositeModelRepository);
     }
 
-    FixedRequestAttributes getBuild() {
-        return this.build;
+    @Override
+    public FixedRequestAttributes getRequestAttributes() {
+        return this.attributes;
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof DefaultGradleBuild) {
             DefaultGradleBuild other = (DefaultGradleBuild) obj;
-            return Objects.equal(this.build, other.build);
+            return Objects.equal(this.attributes, other.attributes);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.build);
+        return Objects.hashCode(this.attributes);
     }
 }
