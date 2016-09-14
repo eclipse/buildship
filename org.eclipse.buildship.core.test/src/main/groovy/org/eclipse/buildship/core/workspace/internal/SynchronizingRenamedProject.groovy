@@ -11,16 +11,7 @@
 
 package org.eclipse.buildship.core.workspace.internal
 
-import spock.lang.Ignore;
-
-import com.google.common.util.concurrent.FutureCallback
-
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure
-import com.gradleware.tooling.toolingmodel.util.Pair
-
-import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;;
-import org.eclipse.core.runtime.Path
+import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 
 class SynchronizingRenamedProject extends ProjectSynchronizationSpecification {
 
@@ -75,34 +66,6 @@ class SynchronizingRenamedProject extends ProjectSynchronizationSpecification {
         then:
         findProject("a").location.lastSegment() == "b"
         findProject("b").location.lastSegment() == "a"
-    }
-
-    @Ignore("Adjust this once composites can be imported")
-    def "Projects can be renamed in cycles across the workspace"() {
-        setup:
-        def first = dir('first') {
-            dir 'a'
-            file 'settings.gradle', "include 'a'"
-        }
-        def second = dir('second') {
-            dir 'b'
-            file 'settings.gradle', "include 'b'"
-        }
-        importAndWait(first)
-        importAndWait(second)
-
-        fileTree(first) {
-            renameInGradle(dir('a'), "b")
-        }
-        fileTree(second) {
-            renameInGradle(dir('b'), "a")
-        }
-        when:
-        synchronizeAndWait()
-
-        then:
-        findProject('a').location.lastSegment() == "b"
-        findProject('b').location.lastSegment() == "a"
     }
 
     def "Cyclic renaming also works for new subprojects"() {
