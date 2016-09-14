@@ -8,6 +8,8 @@
 
 package org.eclipse.buildship.core.workspace;
 
+import java.util.Set;
+
 /**
  * An aggregate of Gradle builds.
  *
@@ -23,4 +25,11 @@ public interface GradleBuilds extends Iterable<GradleBuild> {
      * @param newProjectHandler how to handle newly added projects
      */
     void synchronize(NewProjectHandler newProjectHandler);
+
+    /**
+     * Returns the contained {@link GradleBuild} instances.
+     *
+     * @return the contained Gradle builds
+     */
+    Set<GradleBuild> getGradleBuilds();
 }

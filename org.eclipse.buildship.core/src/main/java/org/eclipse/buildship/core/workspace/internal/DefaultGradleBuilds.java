@@ -26,10 +26,10 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
  */
 public class DefaultGradleBuilds implements GradleBuilds {
 
-    private final ImmutableSet<DefaultGradleBuild> gradleBuilds;
+    private final ImmutableSet<GradleBuild> gradleBuilds;
 
     public DefaultGradleBuilds(Set<FixedRequestAttributes> attributes) {
-        Builder<DefaultGradleBuild> builds = ImmutableSet.builder();
+        Builder<GradleBuild> builds = ImmutableSet.builder();
         for (FixedRequestAttributes attribute : attributes) {
             builds.add(new DefaultGradleBuild(attribute));
         }
@@ -46,7 +46,8 @@ public class DefaultGradleBuilds implements GradleBuilds {
         return ImmutableSet.<GradleBuild>copyOf(this.getGradleBuilds()).iterator();
     }
 
-    public ImmutableSet<DefaultGradleBuild> getGradleBuilds() {
+    @Override
+    public ImmutableSet<GradleBuild> getGradleBuilds() {
         return this.gradleBuilds;
     }
 
