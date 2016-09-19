@@ -11,20 +11,22 @@
 
 package org.eclipse.buildship.core.launch
 
+import spock.lang.Shared
+import spock.lang.Specification
+
+import com.gradleware.tooling.toolingclient.GradleDistribution
+import com.gradleware.tooling.toolingmodel.Path;
+
+import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.debug.core.DebugPlugin
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
+
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.test.fixtures.EclipseProjects
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType
-
-import java.lang.reflect.Field;
-
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
-import groovy.transform.Canonical
-import groovy.transform.stc.ClosureParams;
-import groovy.transform.stc.FirstParam;
-import spock.lang.Shared;
-import spock.lang.Specification;
 
 class GradleRunConfigurationAttributesTest extends Specification {
 
@@ -36,7 +38,8 @@ class GradleRunConfigurationAttributesTest extends Specification {
         arguments : ["-q"],
         jvmArguments : ["-ea"],
         showExecutionView :  true,
-        showConsoleView : true
+        showConsoleView : true,
+        useGradleDistributionFromImport : true
     )
 
     def "Can create a new valid instance"() {
@@ -55,6 +58,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         configuration.getArguments() == defaults.arguments
         configuration.isShowExecutionView() == defaults.showExecutionView
         configuration.isShowConsoleView() == defaults.showConsoleView
+        configuration.isUseGradleDistributionFromImport() == defaults.useGradleDistributionFromImport
         // check calculated value
         configuration.getArgumentExpressions() == defaults.arguments
         configuration.getJvmArgumentExpressions() == defaults.jvmArguments
@@ -198,6 +202,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         gradleConfig1.getJvmArguments() == gradleConfig2.getJvmArguments()
         gradleConfig1.getArguments() == gradleConfig2.getArguments()
         gradleConfig1.isShowExecutionView() == gradleConfig2.isShowExecutionView()
+        gradleConfig1.isUseGradleDistributionFromImport() == gradleConfig2.isUseGradleDistributionFromImport()
 
         where:
         attributes << [
@@ -229,9 +234,10 @@ class GradleRunConfigurationAttributesTest extends Specification {
         def jvmArguments
         def showExecutionView
         def showConsoleView
+        def useGradleDistributionFromImport
 
         def GradleRunConfigurationAttributes toConfiguration() {
-            GradleRunConfigurationAttributes.with(tasks, workingDir, gradleDistr, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView)
+            GradleRunConfigurationAttributes.with(tasks, workingDir, gradleDistr, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView, useGradleDistributionFromImport)
         }
 
         def Attributes copy(@DelegatesTo(value = Attributes, strategy=Closure.DELEGATE_FIRST) Closure closure) {

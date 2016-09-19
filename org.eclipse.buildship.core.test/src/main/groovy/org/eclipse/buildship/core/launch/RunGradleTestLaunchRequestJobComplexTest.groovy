@@ -35,7 +35,8 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
                 [] as List,
                 [] as List,
                 false,
-                false)
+                false,
+                true)
         executeCleanTestAndWait(attributes)
 
         when:

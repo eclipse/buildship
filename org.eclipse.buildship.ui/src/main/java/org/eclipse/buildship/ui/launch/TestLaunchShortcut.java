@@ -81,7 +81,7 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
         boolean showConsoleView = true;
 
         return GradleRunConfigurationAttributes.with(ImmutableList.<String>of(), projectDir, gradleDistribution,
-                javaHome, jvmArguments, arguments, showExecutionView, showConsoleView);
+                javaHome, jvmArguments, arguments, showExecutionView, showConsoleView, true);
     }
 
     private void showNoTestsFoundDialog() {
