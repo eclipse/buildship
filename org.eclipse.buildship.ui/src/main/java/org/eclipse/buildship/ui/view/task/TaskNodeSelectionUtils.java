@@ -93,7 +93,7 @@ public final class TaskNodeSelectionUtils {
         boolean showConsoleView = true;
 
         // create the run configuration
-        return GradleRunConfigurationAttributes.with(tasks, projectDirectoryExpression, gradleDistribution, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView);
+        return GradleRunConfigurationAttributes.with(tasks, projectDirectoryExpression, gradleDistribution, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView, true);
     }
 
     private static Optional<FixedRequestAttributes> getFixedRequestAttributes(NodeSelection selection) {
