@@ -2,6 +2,16 @@ import eclipsebuild.*
 import org.gradle.internal.os.OperatingSystem
 import java.util.regex.*
 
+plugins {
+    id 'com.gradle.build-scan' version '1.1.1'
+}
+
+buildScan {
+    licenseAgreementUrl = 'https://gradle.com/terms-of-service'
+    licenseAgree = 'yes'
+    server = "https://e.grdev.net"
+}
+
 apply plugin: eclipsebuild.BuildDefinitionPlugin
 
 ext.toolingCommonsBundleVersion = getBundleVersion(toolingCommonsVersion)
