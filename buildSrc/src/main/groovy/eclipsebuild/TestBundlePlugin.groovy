@@ -109,7 +109,6 @@ class TestBundlePlugin implements Plugin<Project> {
             testExecuter = new EclipseTestExecuter(project)
             testClassesDir = project.sourceSets['main'].output.classesDir
             classpath = project.sourceSets.main.output + project.sourceSets.test.output
-            testSrcDirs = []
             reports.html.destination = new File("${project.reporting.baseDir}/eclipseTest")
 
             // set some system properties for the test Eclipse
