@@ -7,8 +7,6 @@ plugins {
 }
 
 buildScan {
-    licenseAgreementUrl = 'https://gradle.com/terms-of-service'
-    licenseAgree = 'yes'
     server = "https://e.grdev.net"
 }
 
