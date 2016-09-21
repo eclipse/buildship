@@ -338,7 +338,7 @@ public final class GradleRunConfigurationAttributes {
             return GradleDistribution.fromBuild();
         } else {
             ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project.get());
-            return configuration.getGradleDistribution();
+            return configuration.getRequestAttributes().getGradleDistribution();
         }
     }
 
