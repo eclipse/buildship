@@ -115,14 +115,12 @@ public final class EclipseTestListener implements ITestRunListener2 {
 
     @Override
     public synchronized void testFailed(int status, String testId, String testName, String trace, String expected, String actual) {
-        String message = testId + " failed";
+        String message = testName + " failed";
         if (expected != null || actual != null) {
             message += " (expected=" + expected + ", actual=" + actual + ")";
         }
-        //this.resultProcessor.output(this.currentTestMethod.getId(), new DefaultTestOutputEvent(TestOutputEvent.Destination.StdOut, message));
-        //Throwable placeholder = new PlaceholderException(statusString, message, null, trace, null, null);
 
-        this.resultProcessor.output(this.currentTestMethod.getId(), new DefaultTestOutputEvent(TestOutputEvent.Destination.StdErr, message));
+        this.resultProcessor.output(this.currentTestMethod.getId(), new DefaultTestOutputEvent(TestOutputEvent.Destination.StdOut, message));
         this.resultProcessor.failure(this.currentTestMethod.getId(), new EclipseTestFailure(message, trace));
     }
 
