@@ -1,5 +1,7 @@
 package org.eclipse.buildship.core.test.fixtures
 
+import org.gradle.api.JavaVersion
+
 import com.google.common.util.concurrent.FutureCallback
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
@@ -21,7 +23,7 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler
 abstract class ProjectSynchronizationSpecification extends WorkspaceSpecification {
 
     //TODO revert to GradleDistribution.fromBuild() once we no longer need Java 6 compatibility
-    private static final GradleDistribution DEFAULT_GRADLE_VERSION =  GradleDistribution.forVersion(CorePlugin.publishedGradleVersions().versions.get(0).version)
+    private static final GradleDistribution DEFAULT_GRADLE_VERSION =  JavaVersion.current().isJava7Compatible() ? GradleDistribution.forVersion('3.0') : GradleDistribution.fromBuild()
 
     protected void synchronizeAndWait(File location, NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
         startSynchronization(location, DEFAULT_GRADLE_VERSION, newProjectHandler)
