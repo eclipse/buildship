@@ -22,9 +22,7 @@ You can stop the import at any time by pressing the Stop button in the Progress 
 
 ## Project Creation
 
-You can create a new Gradle project and have it be added to the current workspace through the Eclipse New Wizard
-functionality. In distinct steps, the creation wizard allows you to specify the name and location of the Gradle
-project, and see a summary of how the project will be created and imported.
+You can create a new Gradle project and add it the current workspace with the New Gradle Project wizard. The wizard allows you to specify the project name and location, the working sets, and the target Gradle distribution. To create the project, the the executes Gradle's built-in `init` task with the  [java-library](https://docs.gradle.org/current/userguide/build_init_plugin.html#sec:build_init_tasks) template.  
 
 
 ## Task View
