@@ -22,7 +22,7 @@ You can stop the import at any time by pressing the Stop button in the Progress 
 
 ## Project Creation
 
-You can create a new Gradle project and add it the current workspace with the New Gradle Project wizard. The wizard allows you to specify the project name and location, the working sets, and the target Gradle distribution. To create the project, the the executes Gradle's built-in `init` task with the  [java-library](https://docs.gradle.org/current/userguide/build_init_plugin.html#sec:build_init_tasks) template.  
+You can create a new Gradle project and add it the current workspace with the New Gradle Project wizard. The wizard allows you to specify the project name and location, the working sets, and the target Gradle distribution. To create the project, the wizard executes Gradle's built-in `init` task with the [java-library](https://docs.gradle.org/current/userguide/build_init_plugin.html#sec:build_init_tasks) template.  
 
 
 ## Task View
