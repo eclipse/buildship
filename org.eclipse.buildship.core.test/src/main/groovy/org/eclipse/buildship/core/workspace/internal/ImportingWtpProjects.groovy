@@ -33,7 +33,10 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         }
 
         WorkspaceOperations operations = Stub(WorkspaceOperations) {
-            isNatureRecognizedByEclipse(WTP_COMPONENT_NATURE) >> true
+            isNatureRecognizedByEclipse(WTP_COMPONENT_NATURE) >> {
+                environment.close()
+                true
+            }
         }
         registerService(WorkspaceOperations, operations)
 
@@ -55,7 +58,10 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         }
 
         WorkspaceOperations operations = Stub(WorkspaceOperations) {
-            isNatureRecognizedByEclipse(WTP_COMPONENT_NATURE) >> false
+            isNatureRecognizedByEclipse(WTP_COMPONENT_NATURE) >> {
+                environment.close()
+                false
+            }
         }
         registerService(WorkspaceOperations, operations)
 
@@ -77,7 +83,10 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         }
 
         WorkspaceOperations operations = Stub(WorkspaceOperations) {
-            isNatureRecognizedByEclipse(WTP_COMPONENT_NATURE) >> true
+            isNatureRecognizedByEclipse(WTP_COMPONENT_NATURE) >>  {
+                environment.close()
+                true
+            }
         }
         registerService(WorkspaceOperations, operations)
 
