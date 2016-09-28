@@ -13,6 +13,11 @@ import org.eclipse.buildship.core.workspace.GradleWorkspaceManager
 
 class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
 
+    void cleanup() {
+        new File(dir('sample-project'), ".settings/org.eclipse.buildship.core.prefs").delete()
+        CorePlugin.instance.stateLocation.append("classpath-persistence").append("sample-project").toFile().delete()
+    }
+
     def "the classpath container is persisted"() {
         setup:
         def projectDir = dir('sample-project') {
