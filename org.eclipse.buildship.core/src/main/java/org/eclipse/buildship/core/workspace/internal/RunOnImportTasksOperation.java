@@ -18,6 +18,7 @@ import org.gradle.tooling.ProgressListener;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import com.gradleware.tooling.toolingclient.SingleBuildRequest;
@@ -41,16 +42,16 @@ import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
  * we only have hard coded support for detecting WTP projects, for which we run the 'eclipseWtp'
  * task. That task only behaves correctly on Gradle >= 3.0, so we don't run it on older versions.
  */
-public final class RunOnImportTasksOperation {
+public class RunOnImportTasksOperation {
 
     private static final String WTP_TASK = "eclipseWtp";
     private static final String WTP_COMPONENT_NATURE = "org.eclipse.wst.common.modulecore.ModuleCoreNature";
 
-    private final OmniEclipseGradleBuild gradleBuild;
     private final FixedRequestAttributes build;
+    private final Set<OmniEclipseProject> allprojects;
 
-    public RunOnImportTasksOperation(OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes build) {
-        this.gradleBuild = Preconditions.checkNotNull(gradleBuild);
+    public RunOnImportTasksOperation(Set<OmniEclipseProject> allProjects, FixedRequestAttributes build) {
+        this.allprojects = ImmutableSet.copyOf(allProjects);
         this.build = Preconditions.checkNotNull(build);
     }
 
