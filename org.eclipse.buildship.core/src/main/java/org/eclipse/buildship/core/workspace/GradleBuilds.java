@@ -22,8 +22,7 @@ public interface GradleBuilds extends Iterable<GradleBuild> {
      * If the synchronization fails on one Gradle build, the process stops and subsequent builds
      * won't be synchronized.
      * <p/>
-     * The synchronization happens asynchronously. In case of a failure, the user will be notified
-     * once after all builds have finished.
+     * The synchronization happens asynchronously. In case of a failure, the user will be notified.
      *
      * @param newProjectHandler how to handle newly added projects
      */
