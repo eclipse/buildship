@@ -13,10 +13,10 @@ import java.util.Set;
 
 import org.gradle.internal.impldep.com.google.common.collect.Sets;
 import org.gradle.tooling.CancellationToken;
-import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
@@ -42,17 +42,17 @@ import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
  * have hard coded support for detecting WTP projects, for which we run the 'eclipseWtp' task. That task only
  * behaves correctly on Gradle >= 3.0, so we don't run it on older versions.
  */
-public class RunOnImportTasksOperation {
+public final class RunOnImportTasksOperation {
 
     private static final String WTP_TASK = "eclipseWtp";
     private static final String WTP_COMPONENT_NATURE = "org.eclipse.wst.common.modulecore.ModuleCoreNature";
 
-    private OmniEclipseGradleBuild gradleBuild;
-    private FixedRequestAttributes build;
+    private final OmniEclipseGradleBuild gradleBuild;
+    private final FixedRequestAttributes build;
 
     public RunOnImportTasksOperation(OmniEclipseGradleBuild gradleBuild, FixedRequestAttributes build) {
-        this.gradleBuild = gradleBuild;
-        this.build = build;
+        this.gradleBuild = Preconditions.checkNotNull(gradleBuild);
+        this.build = Preconditions.checkNotNull(build);
     }
 
     public void run(IProgressMonitor monitor, CancellationToken token) throws CoreException {
@@ -107,9 +107,6 @@ public class RunOnImportTasksOperation {
         ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
         List<ProgressListener> progressListeners = ImmutableList.<ProgressListener> of(DelegatingProgressListener.withoutDuplicateLifecycleEvents(monitor));
         ImmutableList<org.gradle.tooling.events.ProgressListener> noEventListeners = ImmutableList.<org.gradle.tooling.events.ProgressListener> of();
-        if (token == null) {
-            token = GradleConnector.newCancellationTokenSource().token();
-        }
         return new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), progressListeners, noEventListeners, token);
     }
 

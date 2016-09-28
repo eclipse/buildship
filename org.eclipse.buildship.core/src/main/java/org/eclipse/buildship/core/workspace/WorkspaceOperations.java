@@ -213,6 +213,7 @@ public interface WorkspaceOperations {
 
     /**
      * Checks whether Eclipse supports the given project nature.
+     *
      * @param natureId the nature to check for, must not be null
      * @return true if Eclipse supports this nature, false otherwise
      */
