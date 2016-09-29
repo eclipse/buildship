@@ -23,6 +23,7 @@ public final class CoreMessages extends NLS {
     public static String ClasspathContainer_Label;
 
     public static String GradleDistribution_Label_FromImportSettings;
+    public static String GradleDistribution_Label_FromImportSettings_Tooltip;
     public static String GradleDistribution_Label_GradleWrapper;
     public static String GradleDistribution_Label_LocalInstallationDirectory;
     public static String GradleDistribution_Label_RemoteDistributionUri;

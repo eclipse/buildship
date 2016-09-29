@@ -147,6 +147,7 @@ public final class GradleDistributionTab extends AbstractLaunchConfigurationTab 
     private void createGradleDistributionSelectionControl(Group container) {
         // first option: use the same distribution that was used for project import
         this.useAutomaticOption = this.builderFactory.newRadio(container).alignLeft().text(CoreMessages.GradleDistribution_Label_FromImportSettings).control();
+        this.useAutomaticOption.setToolTipText(CoreMessages.GradleDistribution_Label_FromImportSettings_Tooltip);
         this.useAutomaticOption.setSelection(true);
         this.builderFactory.span(container);
         this.builderFactory.span(container);
