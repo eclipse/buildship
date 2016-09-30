@@ -1,5 +1,7 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import com.gradleware.tooling.toolingclient.GradleDistribution
+
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.launching.IRuntimeClasspathEntry
@@ -15,7 +17,9 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
     void setup() {
         location = dir('sample-project') {
             file('settings.gradle') << "include 'a', 'b', 'c'"
-            dir('a'); dir('b'); dir('c')
+            dir('a/src/main/java').mkdirs()
+            dir('b/src/main/java').mkdirs()
+            dir('c/src/main/java').mkdirs()
             buildFile = file 'build.gradle', '''
                 subprojects {
                     apply plugin: 'java'
@@ -91,6 +95,41 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
         !classpath.find { it.path.toPortableString().contains('commons-logging') }
     }
 
+    def "Can access transitive dependencies resolved via project dependency"(GradleDistribution distribution) {
+        setup:
+        buildFile << '''
+            project(':a') {
+                dependencies {
+                    compile 'com.google.guava:guava:18.0'
+                }
+            }
+
+            project(':b') {
+                dependencies {
+                    compile project(':a')
+                }
+            }
+
+            project(':c') {
+                dependencies {
+                    compile project(':b')
+                }
+            }
+        '''
+        importAndWait(location, distribution)
+
+        when:
+        IRuntimeClasspathEntry[] classpathB = projectRuntimeClasspath(JavaCore.create(findProject('b')))
+        IRuntimeClasspathEntry[] classpathC = projectRuntimeClasspath(JavaCore.create(findProject('c')))
+
+        then:
+        classpathB.find { it.path.toPortableString().contains('guava') }
+        classpathC.find { it.path.toPortableString().contains('guava') }
+
+        where:
+        distribution << [ GradleDistribution.forVersion('2.4'), DEFAULT_GRADLE_VERSION ]
+    }
+
     def "Dependencies are still on the runtime classpath"() {
         setup:
         new File(location, 'b/lib').mkdirs()
@@ -110,8 +149,9 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
         IRuntimeClasspathEntry[] classpath = projectRuntimeClasspath(javaProject)
 
         then:
-        classpath.length == 3
+        classpath.length == 4
         classpath.find { it.type == IRuntimeClasspathEntry.PROJECT && it.path.lastSegment() == 'a' }
+        classpath.find { it.type == IRuntimeClasspathEntry.PROJECT && it.path.lastSegment() == 'b' }
         classpath.find { it.type == IRuntimeClasspathEntry.ARCHIVE && it.path.lastSegment() == 'log4j-1.2.17.jar' }
         classpath.find { it.type == IRuntimeClasspathEntry.ARCHIVE && it.path.lastSegment() == 'lib' }
 

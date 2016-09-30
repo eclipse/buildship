@@ -23,7 +23,7 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler
 abstract class ProjectSynchronizationSpecification extends WorkspaceSpecification {
 
     //TODO revert to GradleDistribution.fromBuild() once we no longer need Java 6 compatibility
-    private static final GradleDistribution DEFAULT_GRADLE_VERSION =  JavaVersion.current().isJava7Compatible() ? GradleDistribution.forVersion('3.0') : GradleDistribution.fromBuild()
+    protected static final GradleDistribution DEFAULT_GRADLE_VERSION =  JavaVersion.current().isJava7Compatible() ? GradleDistribution.forVersion('3.0') : GradleDistribution.fromBuild()
 
     protected void synchronizeAndWait(File location, NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
         startSynchronization(location, DEFAULT_GRADLE_VERSION, newProjectHandler)
