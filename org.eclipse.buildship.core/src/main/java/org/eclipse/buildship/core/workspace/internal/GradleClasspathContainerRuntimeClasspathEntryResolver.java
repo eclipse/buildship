@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.IRuntimeClasspathEntry;
 import org.eclipse.jdt.launching.IRuntimeClasspathEntryResolver;
 import org.eclipse.jdt.launching.IVMInstall;
@@ -49,23 +50,37 @@ public class GradleClasspathContainerRuntimeClasspathEntryResolver implements IR
         if (entry.getType() != IRuntimeClasspathEntry.CONTAINER || !entry.getPath().equals(GradleClasspathContainer.CONTAINER_PATH)) {
             return new IRuntimeClasspathEntry[0];
         }
+        return collectContainerRuntimeClasspathIfPresent(project);
+    }
 
-        IClasspathContainer container = JavaCore.getClasspathContainer(entry.getPath(), project);
-
+    private static IRuntimeClasspathEntry[] collectContainerRuntimeClasspathIfPresent(IJavaProject project) throws JavaModelException {
         List<IRuntimeClasspathEntry> result = Lists.newArrayList();
+        collectContainerRuntimeClasspathIfPresent(project, result, false);
+        return result.toArray(new IRuntimeClasspathEntry[result.size()]);
+    }
+
+    private static void collectContainerRuntimeClasspathIfPresent(IJavaProject project, List<IRuntimeClasspathEntry> result, boolean includeExportedEntriesOnly) throws JavaModelException {
+        IClasspathContainer container = JavaCore.getClasspathContainer(GradleClasspathContainer.CONTAINER_PATH, project);
+        if (container != null) {
+            collectContainerRuntimeClasspath(container, result, includeExportedEntriesOnly);
+        }
+    }
+
+    private static void collectContainerRuntimeClasspath(IClasspathContainer container, List<IRuntimeClasspathEntry> result, boolean includeExportedEntriesOnly) throws JavaModelException {
         for (final IClasspathEntry cpe : container.getClasspathEntries()) {
-            if (cpe.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-                result.add(JavaRuntime.newArchiveRuntimeClasspathEntry(cpe.getPath()));
-            } else if (cpe.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
-                Optional<IProject> candidate = findAccessibleJavaProject(cpe.getPath().segment(0));
-                if (candidate.isPresent()) {
-                    IJavaProject dependencyProject = JavaCore.create(candidate.get());
-                    result.add(JavaRuntime.newProjectRuntimeClasspathEntry(dependencyProject));
+            if (!includeExportedEntriesOnly || cpe.isExported()) {
+                if (cpe.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+                    result.add(JavaRuntime.newArchiveRuntimeClasspathEntry(cpe.getPath()));
+                } else if (cpe.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+                    Optional<IProject> candidate = findAccessibleJavaProject(cpe.getPath().segment(0));
+                    if (candidate.isPresent()) {
+                        IJavaProject dependencyProject = JavaCore.create(candidate.get());
+                        result.add(JavaRuntime.newProjectRuntimeClasspathEntry(dependencyProject));
+                        collectContainerRuntimeClasspathIfPresent(dependencyProject, result, true);
+                    }
                 }
             }
         }
-
-        return result.toArray(new IRuntimeClasspathEntry[result.size()]);
     }
 
     private static Optional<IProject> findAccessibleJavaProject(String name) {
