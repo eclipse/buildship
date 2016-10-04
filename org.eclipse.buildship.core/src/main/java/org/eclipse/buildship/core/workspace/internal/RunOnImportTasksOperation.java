@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 the original author or authors.
+ * Copyright (c) 2016 the original author or authors.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,13 +11,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.gradle.internal.impldep.com.google.common.collect.Sets;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import com.gradleware.tooling.toolingclient.SingleBuildRequest;

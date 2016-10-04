@@ -98,6 +98,33 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         !hasFacetDescriptor(root)
     }
 
+    def "No error if eclipseWtp task is not found"() {
+        setup:
+        File root = dir("project") {
+            file 'build.gradle', """
+                apply plugin: 'java'
+                apply plugin: 'eclipse'
+                eclipse.project.natures 'org.eclipse.wst.common.modulecore.ModuleCoreNature'
+            """
+        }
+
+        WorkspaceOperations operations = Stub(WorkspaceOperations) {
+            isNatureRecognizedByEclipse(WTP_COMPONENT_NATURE) >>  {
+                environment.close()
+                true
+            }
+        }
+        registerService(WorkspaceOperations, operations)
+
+        when:
+        importAndWait(root, DEFAULT_GRADLE_VERSION)
+
+        then:
+        findProject("project")
+        !hasComponentDescriptor(root)
+        !hasFacetDescriptor(root)
+    }
+
     def "No classpath attributes for older Gradle versions"() {
         setup:
         File root = dir("project") {
