@@ -130,7 +130,10 @@ final class JavaSourceSettingsUpdater {
             @Override
             public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
                 try {
-                    project.build(IncrementalProjectBuilder.FULL_BUILD, JavaCore.BUILDER_ID, Collections.<String, String>emptyMap(), monitor);
+                    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=501830
+                    if (project.isAccessible()) {
+                        project.build(IncrementalProjectBuilder.FULL_BUILD, JavaCore.BUILDER_ID, Collections.<String, String>emptyMap(), monitor);
+                    }
                     return Status.OK_STATUS;
                 } finally {
                     monitor.done();
