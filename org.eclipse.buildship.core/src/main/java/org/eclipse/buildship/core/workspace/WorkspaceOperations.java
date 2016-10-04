@@ -210,7 +210,6 @@ public interface WorkspaceOperations {
      */
     boolean isSubProject(IFolder folder);
 
-
     /**
      * Checks whether Eclipse supports the given project nature.
      *
