@@ -89,8 +89,8 @@ abstract class EclipseProjects {
         project.setDescription(description, null)
         IJavaProject javaProject = JavaCore.create(project)
         project.getFolder('src').create(true, false, null)
-        javaProject.setRawClasspath([JavaCore.newContainerEntry(JavaRuntime.getDefaultJREContainerEntry().getPath()),
-            JavaCore.newSourceEntry(project.getFolder('src').location)] as IClasspathEntry[], null)
+        javaProject.setRawClasspath([JavaCore.newSourceEntry(project.getFolder('src').location),
+            JavaCore.newContainerEntry(JavaRuntime.getDefaultJREContainerEntry().getPath())] as IClasspathEntry[], null)
         javaProject.setOutputLocation(project.getFolder('bin').fullPath, null)
         javaProject
     }

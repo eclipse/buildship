@@ -23,6 +23,8 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
     static IPath CUSTOM_MODEL_CONTAINER = new Path('model.classpath.container')
     static IPath CUSTOM_USER_CONTAINER = new Path('user.classpath.container')
+    static IPath GRADLE_CLASSPATH_CONTAINER = GradleClasspathContainer.CONTAINER_PATH
+    static IPath DEFAULT_JRE_CONTAINER = JavaRuntime.newDefaultJREContainerPath()
     static IPath STANDARD_JRE_CONTAINER = new Path('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8')
     static IPath CUSTOM_JRE_CONTAINER = new Path('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/Java SE 6 [1.6.0_65-b14-462]')
 
@@ -108,7 +110,7 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
         executeContainerUpdate(project)
 
         expect:
-        findContainer(project, GradleClasspathContainer.CONTAINER_PATH)
+        findContainer(project, GRADLE_CLASSPATH_CONTAINER)
     }
 
     def "Respects custom classpath container features"() {
@@ -137,7 +139,7 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
         entry.accessRules[0].pattern.toPortableString() == 'custompattern'
 
         where:
-        path << [ CUSTOM_MODEL_CONTAINER, GradleClasspathContainer.CONTAINER_PATH ]
+        path << [ CUSTOM_MODEL_CONTAINER, GRADLE_CLASSPATH_CONTAINER ]
     }
 
     def "Keeps user-defined JRE entries if model doesn't contain JRE"() {
@@ -173,13 +175,76 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
         findContainer(project, CUSTOM_JRE_CONTAINER)
 
         when:
-        def defaultJreContainerPath = JavaRuntime.newDefaultJREContainerPath()
-        executeContainerUpdate(project, container(defaultJreContainerPath))
+        executeContainerUpdate(project, container(DEFAULT_JRE_CONTAINER))
 
         then:
-        findContainer(project, defaultJreContainerPath)
+        findContainer(project, DEFAULT_JRE_CONTAINER)
         !findContainer(project, STANDARD_JRE_CONTAINER)
         !findContainer(project, CUSTOM_JRE_CONTAINER)
+    }
+
+    def "Model containers should come after the source folders"() {
+        setup:
+        IJavaProject project = newJavaProject('project-with-classpath-container')
+
+        when:
+        executeContainerUpdate(project, container(CUSTOM_MODEL_CONTAINER))
+        int sourceIndex = project.rawClasspath.findIndexOf { it.entryKind == IClasspathEntry.CPE_SOURCE }
+        int containerIndex = project.rawClasspath.findIndexOf { it.path == CUSTOM_MODEL_CONTAINER }
+
+        then:
+        sourceIndex < containerIndex
+    }
+
+    def "Model containers should be at beginning of classpath if no source folders exist"() {
+        setup:
+        IJavaProject project = newJavaProject('project-with-classpath-container')
+        project.setRawClasspath(project.rawClasspath - project.rawClasspath.findAll { it.entryKind == IClasspathEntry.CPE_SOURCE } as IClasspathEntry[], null)
+
+        when:
+        executeContainerUpdate(project, container(CUSTOM_MODEL_CONTAINER))
+
+        then:
+        project.rawClasspath.findIndexOf { it.path == CUSTOM_MODEL_CONTAINER } == 0
+    }
+
+    def "JRE container is set between source folders and Gradle classpath container"() {
+        setup:
+        IJavaProject project = newJavaProject('project-with-classpath-container')
+        project.setRawClasspath(project.rawClasspath + JavaCore.newContainerEntry(GRADLE_CLASSPATH_CONTAINER) as IClasspathEntry[], null)
+
+        when:
+        executeContainerUpdate(project, container(DEFAULT_JRE_CONTAINER))
+
+        then:
+        project.rawClasspath.length == 3
+        project.rawClasspath[0].entryKind == IClasspathEntry.CPE_SOURCE
+        project.rawClasspath[1].path == DEFAULT_JRE_CONTAINER
+        project.rawClasspath[2].path == GRADLE_CLASSPATH_CONTAINER
+    }
+
+    def "Container ordering respected on the classpath"(List<IPath> containerPaths) {
+        setup:
+        IJavaProject project = newJavaProject('project-with-classpath-container')
+        project.setRawClasspath(project.rawClasspath + JavaCore.newContainerEntry(CUSTOM_USER_CONTAINER) as IClasspathEntry[], null)
+
+        when:
+        def containers = containerPaths.collect { container(it) } as OmniEclipseClasspathContainer[]
+        executeContainerUpdate(project, containers)
+        def containerIndexes = containerPaths.collect { path -> project.rawClasspath.findIndexOf { it.path == path } ?: -1 }
+
+        then:
+        containerIndexes.every { it >= 0 }
+        containerIndexes == containerIndexes.toSorted()
+
+        where:
+        containerPaths << [
+            [ STANDARD_JRE_CONTAINER, GRADLE_CLASSPATH_CONTAINER ],
+            [ GRADLE_CLASSPATH_CONTAINER, STANDARD_JRE_CONTAINER ],
+            [ CUSTOM_USER_CONTAINER, STANDARD_JRE_CONTAINER, CUSTOM_MODEL_CONTAINER ],
+            [ STANDARD_JRE_CONTAINER, CUSTOM_USER_CONTAINER, CUSTOM_MODEL_CONTAINER ],
+            [ CUSTOM_USER_CONTAINER, CUSTOM_MODEL_CONTAINER, STANDARD_JRE_CONTAINER ],
+        ]
     }
 
     private def executeContainerUpdate(IJavaProject project, OmniEclipseClasspathContainer... containers) {
@@ -198,5 +263,4 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
     private def findContainer(IJavaProject project, IPath path) {
         project.rawClasspath.find { it.entryKind == IClasspathEntry.CPE_CONTAINER && it.path == path }
     }
-
 }

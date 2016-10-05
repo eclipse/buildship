@@ -136,6 +136,12 @@ final class ClasspathContainerUpdater {
 
     private void updateClasspathContainerEntries(Set<IPath> containersToRemove, Map<IPath, IClasspathEntry> containersToAdd, SubMonitor progress) throws JavaModelException {
         List<IClasspathEntry> classpath = Lists.newArrayList(this.project.getRawClasspath());
+        int lastSourceIndex = -1;
+        for (int i = 0; i < classpath.size(); i++) {
+            if (classpath.get(i).getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+                lastSourceIndex = i;
+            }
+        }
 
         ListIterator<IClasspathEntry> iterator = classpath.listIterator();
         while (iterator.hasNext()) {
@@ -146,12 +152,12 @@ final class ClasspathContainerUpdater {
                     containersToRemove.remove(entryPath);
                     iterator.remove();
                 } else if (containersToAdd.containsKey(entryPath)) {
-                    IClasspathEntry newEntry = containersToAdd.remove(entryPath);
-                    iterator.set(newEntry);
+                    iterator.remove();
                 }
             }
         }
-        classpath.addAll(containersToAdd.values());
+
+        classpath.addAll(lastSourceIndex + 1, containersToAdd.values());
 
         this.project.setRawClasspath(classpath.toArray(new IClasspathEntry[classpath.size()]), progress);
     }
