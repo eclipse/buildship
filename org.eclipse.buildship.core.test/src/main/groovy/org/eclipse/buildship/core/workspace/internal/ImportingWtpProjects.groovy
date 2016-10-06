@@ -117,7 +117,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         registerService(WorkspaceOperations, operations)
 
         when:
-        importAndWait(root, DEFAULT_GRADLE_VERSION)
+        importAndWait(root)
 
         then:
         findProject("project")
