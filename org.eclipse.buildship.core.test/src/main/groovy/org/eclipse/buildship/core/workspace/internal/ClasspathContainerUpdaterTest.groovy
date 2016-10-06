@@ -5,6 +5,9 @@ import com.google.common.base.Optional
 import com.gradleware.tooling.toolingmodel.OmniAccessRule
 import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute
 import com.gradleware.tooling.toolingmodel.OmniEclipseClasspathContainer
+import com.gradleware.tooling.toolingmodel.OmniJavaRuntime;
+import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings
+import com.gradleware.tooling.toolingmodel.OmniJavaVersion;
 
 import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.NullProgressMonitor
@@ -193,7 +196,7 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
         int containerIndex = project.rawClasspath.findIndexOf { it.path == CUSTOM_MODEL_CONTAINER }
 
         then:
-        sourceIndex < containerIndex
+        sourceIndex + 1 == containerIndex
     }
 
     def "Model containers should be at beginning of classpath if no source folders exist"() {
@@ -247,8 +250,71 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
         ]
     }
 
+    def "VM added to the project classpath if not exist"() {
+        given:
+        IJavaProject project = newJavaProject('sample-project')
+        def classpathWithoutVM = project.rawClasspath.findAll { !it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
+        project.setRawClasspath(classpathWithoutVM as IClasspathEntry[], null)
+
+        expect:
+        !project.rawClasspath.find { it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
+
+        when:
+        executeContainerUpdateWithOldGradle(project)
+
+        then:
+        project.rawClasspath.find { it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
+    }
+
+    def "Existing VM on the project classpath updated"() {
+        given:
+        IJavaProject project = newJavaProject('sample-project')
+        def updatedClasspath = project.rawClasspath.findAll { !it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
+        updatedClasspath += JavaCore.newContainerEntry(new Path('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/custom'))
+        project.setRawClasspath(updatedClasspath as IClasspathEntry[], null)
+
+        expect:
+        project.rawClasspath.find {
+            it.path.toPortableString().equals('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/custom')
+        }
+
+        when:
+        executeContainerUpdateWithOldGradle(project)
+
+        then:
+        project.rawClasspath.find {
+            it.path.toPortableString().startsWith('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType')
+        }
+        !project.rawClasspath.find {
+            it.path.toPortableString().equals('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/custom')
+        }
+    }
+
+    private def executeContainerUpdateWithOldGradle(IJavaProject project) {
+        ClasspathContainerUpdater.update(project, Optional.absent(), sourceSettings('1.6', '1.6'), new NullProgressMonitor())
+    }
+
     private def executeContainerUpdate(IJavaProject project, OmniEclipseClasspathContainer... containers) {
-        ClasspathContainerUpdater.update(project, Optional.of(Arrays.asList(containers)), new NullProgressMonitor())
+        ClasspathContainerUpdater.update(project, Optional.of(Arrays.asList(containers)), sourceSettings('1.6', '1.6'), new NullProgressMonitor())
+    }
+
+    private OmniJavaSourceSettings sourceSettings(String sourceVersion, String targetVersion) {
+        OmniJavaRuntime rt = Mock(OmniJavaRuntime)
+        rt.homeDirectory >> new File(System.getProperty('java.home'))
+        rt.javaVersion >> Mock(OmniJavaVersion)
+
+        OmniJavaVersion target = Mock(OmniJavaVersion)
+        target.name >> targetVersion
+
+        OmniJavaVersion source = Mock(OmniJavaVersion)
+        source.name >> sourceVersion
+
+        OmniJavaSourceSettings settings = Mock(OmniJavaSourceSettings)
+        settings.targetRuntime >> rt
+        settings.targetBytecodeLevel >> target
+        settings.sourceLanguageLevel >> source
+
+        settings
     }
 
     private def container(IPath path, boolean exported = false, attributes = Optional.of([]), rules = Optional.of([])) {

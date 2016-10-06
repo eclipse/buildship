@@ -56,45 +56,7 @@ class JavaSourceSettingsUpdaterTest extends WorkspaceSpecification {
         version << ['', '1.0.0', '7.8', 'string', '1.5']
     }
 
-    def "VM added to the project classpath if not exist"() {
-        given:
-        IJavaProject project = newJavaProject('sample-project')
-        def classpathWithoutVM = project.rawClasspath.findAll { !it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
-        project.setRawClasspath(classpathWithoutVM as IClasspathEntry[], null)
 
-        expect:
-        !project.rawClasspath.find { it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
-
-        when:
-        JavaSourceSettingsUpdater.update(project, modelProject('1.6', '1.6'), new NullProgressMonitor())
-
-        then:
-        project.rawClasspath.find { it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
-    }
-
-    def "Existing VM on the project classpath updated"() {
-        given:
-        IJavaProject project = newJavaProject('sample-project')
-        def updatedClasspath = project.rawClasspath.findAll { !it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
-        updatedClasspath += JavaCore.newContainerEntry(new Path('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/custom'))
-        project.setRawClasspath(updatedClasspath as IClasspathEntry[], null)
-
-        expect:
-        project.rawClasspath.find {
-            it.path.toPortableString().equals('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/custom')
-        }
-
-        when:
-        JavaSourceSettingsUpdater.update(project, modelProject('1.6', '1.6'), new NullProgressMonitor())
-
-        then:
-        project.rawClasspath.find {
-            it.path.toPortableString().startsWith('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType')
-        }
-        !project.rawClasspath.find {
-            it.path.toPortableString().equals('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/custom')
-        }
-    }
 
     def "If Tooling API supports classpath containers then VMs are left unchanged"() {
         given:
