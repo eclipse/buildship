@@ -8,6 +8,8 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.io.File;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -18,12 +20,12 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseClasspathContainer;
+import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -36,7 +38,9 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 
 import org.eclipse.buildship.core.util.classpath.ClasspathUtils;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
@@ -57,41 +61,78 @@ final class ClasspathContainerUpdater {
 
     private static final String PROJECT_PROPERTY_KEY_GRADLE_CONTAINERS = "containers";
 
+    private static final IPath DEFAULT_JRE_PATH = JavaRuntime.newDefaultJREContainerPath();
+
     private final IJavaProject project;
+    private final boolean gradleSupportsContainers;
     private final List<OmniEclipseClasspathContainer> containers;
     private final Set<String> containerPaths;
-    private final boolean containersContainJre;
+    private final OmniJavaSourceSettings sourceSettings;
 
-    private ClasspathContainerUpdater(IJavaProject project, List<OmniEclipseClasspathContainer> containers) {
+    private ClasspathContainerUpdater(IJavaProject project, boolean gradleSupportsContainers, List<OmniEclipseClasspathContainer> containers, OmniJavaSourceSettings sourceSettings) {
         this.project = project;
-        this.containers = ImmutableList.copyOf(containers);
+        this.gradleSupportsContainers = gradleSupportsContainers;
+        this.containers = containers;
         this.containerPaths = new HashSet<String>();
-
-        boolean containersContainJre = false;
-        String defaultJrePath = JavaRuntime.newDefaultJREContainerPath().toPortableString();
-
-        for (OmniEclipseClasspathContainer container : this.containers) {
-            String containerPath = container.getPath();
-            this.containerPaths.add(containerPath);
-            if(containerPath.startsWith(defaultJrePath)) {
-                containersContainJre = true;
-            }
+        this.sourceSettings = sourceSettings;
+        for (OmniEclipseClasspathContainer container : containers) {
+            this.containerPaths.add(container.getPath());
         }
-
-        this.containersContainJre = containersContainJre;
     }
 
     private void updateContainers(IProgressMonitor monitor) throws CoreException {
         SubMonitor progress = SubMonitor.convert(monitor);
         progress.setWorkRemaining(3);
 
-        LinkedHashSet<IPath> toRemove = collectContainersToRemove(progress.newChild(1));
-        LinkedHashMap<IPath, IClasspathEntry> toAdd = collectContainersToAdd(progress.newChild(1));
+        LinkedHashMap<IPath, IClasspathEntry> containersToAdd = collectContainersToAdd(progress.newChild(1));
+        boolean containersToAddHasJreDefinition = containsJrePath(containersToAdd.keySet());
+        // if the model contains a JRE entry then remove other JREs from the classpath
+        LinkedHashSet<IPath> containersToRemove = collectContainersToRemove(containersToAddHasJreDefinition, progress.newChild(1));
 
-        updateProjectClasspath(toRemove, toAdd, progress.newChild(1));
+        updateProjectClasspath(containersToRemove, containersToAdd, progress.newChild(1));
     }
 
-    private LinkedHashSet<IPath> collectContainersToRemove(SubMonitor progress) throws JavaModelException {
+    private LinkedHashMap<IPath, IClasspathEntry> collectContainersToAdd(SubMonitor progress) throws JavaModelException {
+        LinkedHashMap<IPath, IClasspathEntry> result = Maps.newLinkedHashMap();
+
+        if (!this.gradleSupportsContainers) {
+            IPath path = getJrePathFromSourceSettings();
+            IClasspathEntry entry = createContainerEntry(path);
+            result.put(path, entry);
+        } else {
+            for (OmniEclipseClasspathContainer container : this.containers) {
+                IClasspathEntry entry = createContainerEntry(container);
+                result.put(entry.getPath(), entry);
+            }
+        }
+
+        if (!result.keySet().contains(GradleClasspathContainer.CONTAINER_PATH)) {
+            result.put(GradleClasspathContainer.CONTAINER_PATH, createContainerEntry(GradleClasspathContainer.CONTAINER_PATH));
+        }
+
+        return result;
+    }
+
+    private IPath getJrePathFromSourceSettings() {
+        String targetVersion = this.sourceSettings.getTargetBytecodeLevel().getName();
+        File vmLocation = this.sourceSettings.getTargetRuntime().getHomeDirectory();
+        IVMInstall vm = EclipseVmUtil.findOrRegisterStandardVM(targetVersion, vmLocation);
+        Optional<IExecutionEnvironment> executionEnvironment = EclipseVmUtil.findExecutionEnvironment(targetVersion);
+        return executionEnvironment.isPresent() ? JavaRuntime.newJREContainerPath(executionEnvironment.get()) : JavaRuntime.newJREContainerPath(vm);
+    }
+
+    private static boolean containsJrePath(Collection<IPath> containers) {
+        for (IPath container : containers) {
+            if(DEFAULT_JRE_PATH.isPrefixOf(container)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    private LinkedHashSet<IPath> collectContainersToRemove(boolean includeJreContainers, SubMonitor progress) throws JavaModelException {
         StringSetProjectProperty previousPaths = StringSetProjectProperty.from(this.project.getProject(), PROJECT_PROPERTY_KEY_GRADLE_CONTAINERS);
         LinkedHashSet<IPath> result = Sets.newLinkedHashSet();
         for (String previousPath : previousPaths.get()) {
@@ -100,27 +141,12 @@ final class ClasspathContainerUpdater {
             }
         }
 
-        // if the model contains a JRE entry then remove user-defined JREs from the classpath
-        if (this.containersContainJre) {
-            IPath defaultJrePath = JavaRuntime.newDefaultJREContainerPath();
+        if (includeJreContainers) {
             for (IClasspathEntry entry : this.project.getRawClasspath()) {
-                if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER && defaultJrePath.isPrefixOf(entry.getPath())) {
+                if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER && DEFAULT_JRE_PATH.isPrefixOf(entry.getPath())) {
                     result.add(entry.getPath());
                 }
             }
-        }
-
-        return result;
-    }
-
-    private LinkedHashMap<IPath, IClasspathEntry> collectContainersToAdd(SubMonitor progress) {
-        LinkedHashMap<IPath, IClasspathEntry> result = Maps.newLinkedHashMap();
-        for (OmniEclipseClasspathContainer container : this.containers) {
-            result.put(new Path(container.getPath()), createContainerEntry(container));
-        }
-
-        if (!result.keySet().contains(GradleClasspathContainer.CONTAINER_PATH)) {
-            result.put(GradleClasspathContainer.CONTAINER_PATH, JavaCore.newContainerEntry(GradleClasspathContainer.CONTAINER_PATH));
         }
 
         return result;
@@ -136,12 +162,6 @@ final class ClasspathContainerUpdater {
 
     private void updateClasspathContainerEntries(Set<IPath> containersToRemove, Map<IPath, IClasspathEntry> containersToAdd, SubMonitor progress) throws JavaModelException {
         List<IClasspathEntry> classpath = Lists.newArrayList(this.project.getRawClasspath());
-        int lastSourceIndex = -1;
-        for (int i = 0; i < classpath.size(); i++) {
-            if (classpath.get(i).getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-                lastSourceIndex = i;
-            }
-        }
 
         ListIterator<IClasspathEntry> iterator = classpath.listIterator();
         while (iterator.hasNext()) {
@@ -157,9 +177,18 @@ final class ClasspathContainerUpdater {
             }
         }
 
-        classpath.addAll(lastSourceIndex + 1, containersToAdd.values());
-
+        classpath.addAll(indexOfNewContainers(classpath), containersToAdd.values());
         this.project.setRawClasspath(classpath.toArray(new IClasspathEntry[classpath.size()]), progress);
+    }
+
+    private int indexOfNewContainers(List<IClasspathEntry> classpath) {
+        int index = 0;
+        for (int i = 0; i < classpath.size(); i++) {
+            if (classpath.get(i).getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+                index = i + 1;
+            }
+        }
+        return index;
     }
 
     private static IClasspathEntry createContainerEntry(OmniEclipseClasspathContainer container) {
@@ -170,8 +199,13 @@ final class ClasspathContainerUpdater {
         return JavaCore.newContainerEntry(containerPath, accessRules, attributes, isExported);
     }
 
-    public static void update(IJavaProject project, Optional<List<OmniEclipseClasspathContainer>> containers, IProgressMonitor monitor) throws CoreException {
-        new ClasspathContainerUpdater(project, containers.or(Collections.<OmniEclipseClasspathContainer>emptyList())).updateContainers(monitor);
+    private static IClasspathEntry createContainerEntry(IPath path) {
+        return JavaCore.newContainerEntry(path);
+    }
+
+    public static void update(IJavaProject project, Optional<List<OmniEclipseClasspathContainer>> containers, OmniJavaSourceSettings omniJavaSourceSettings, IProgressMonitor monitor) throws CoreException {
+        boolean gradleSupportsContainers = containers.isPresent();
+        new ClasspathContainerUpdater(project, gradleSupportsContainers, containers.or(Collections.<OmniEclipseClasspathContainer>emptyList()), omniJavaSourceSettings).updateContainers(monitor);
     }
 
 }

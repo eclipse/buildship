@@ -11,11 +11,7 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.io.File;
 import java.util.Collections;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.ObjectArrays;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings;
@@ -25,18 +21,11 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.launching.IVMInstall;
-import org.eclipse.jdt.launching.JavaRuntime;
-import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 
 /**
  * Updates the Java source settings on the target project.
@@ -44,22 +33,9 @@ import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 final class JavaSourceSettingsUpdater {
 
     public static void update(IJavaProject project, OmniEclipseProject modelProject, IProgressMonitor monitor) throws CoreException {
-        SubMonitor progress = SubMonitor.convert(monitor, 1);
         OmniJavaSourceSettings sourceSettings = modelProject.getJavaSourceSettings().get();
         String sourceVersion = sourceSettings.getSourceLanguageLevel().getName();
         String targetVersion = sourceSettings.getTargetBytecodeLevel().getName();
-
-        // set the runtime JRE only if the classpath containers are not available on the Tooling API
-        if (!modelProject.getClasspathContainers().isPresent()) {
-            File vmLocation = sourceSettings.getTargetRuntime().getHomeDirectory();
-            IVMInstall vm = EclipseVmUtil.findOrRegisterStandardVM(targetVersion, vmLocation);
-            Optional<IExecutionEnvironment> executionEnvironment = EclipseVmUtil.findExecutionEnvironment(targetVersion);
-            if (executionEnvironment.isPresent()) {
-                addExecutionEnvironmentToClasspath(project, executionEnvironment.get(), progress.newChild(1));
-            } else {
-                addVmToClasspath(project, vm, progress.newChild(1));
-            }
-        }
 
         boolean compilerOptionChanged = false;
         compilerOptionChanged |= updateJavaProjectOptionIfNeeded(project, JavaCore.COMPILER_COMPLIANCE, sourceVersion);
@@ -69,45 +45,6 @@ final class JavaSourceSettingsUpdater {
         if (compilerOptionChanged && isProjectAutoBuildingEnabled()) {
             scheduleJdtBuild(project.getProject());
         }
-    }
-
-    private static void addExecutionEnvironmentToClasspath(IJavaProject project, IExecutionEnvironment executionEnvironment, IProgressMonitor monitor) throws JavaModelException {
-        IPath vmPath = JavaRuntime.newJREContainerPath(executionEnvironment);
-        addContainerToClasspath(project, vmPath, monitor);
-    }
-
-    private static void addVmToClasspath(IJavaProject project, IVMInstall vm, IProgressMonitor monitor) throws JavaModelException {
-        IPath vmPath = JavaRuntime.newJREContainerPath(vm);
-        addContainerToClasspath(project, vmPath, monitor);
-    }
-
-    private static void addContainerToClasspath(IJavaProject project, IPath containerPath, IProgressMonitor monitor) throws JavaModelException {
-        IClasspathEntry[] classpath = project.getRawClasspath();
-        IPath defaultContainerPath = JavaRuntime.newDefaultJREContainerPath();
-
-        // try to find the VM entry on the classpath
-        for (int i = 0; i < classpath.length; i++) {
-            IClasspathEntry entry = classpath[i];
-            if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
-                if (entry.getPath().equals(containerPath)) {
-                    // if the same VM is already set then there's no need for the update
-                    return;
-                } else {
-                    if (defaultContainerPath.isPrefixOf(entry.getPath())) {
-                        // if a different VM is present then replace it
-                        IClasspathEntry newContainerEntry = JavaCore.newContainerEntry(containerPath);
-                        classpath[i] = newContainerEntry;
-                        project.setRawClasspath(classpath, monitor);
-                        return;
-                    }
-                }
-            }
-        }
-
-        // if no VM entry is on the classpath then append it to the end
-        IClasspathEntry newContainerEntry = JavaCore.newContainerEntry(containerPath);
-        classpath = ObjectArrays.concat(classpath, newContainerEntry);
-        project.setRawClasspath(classpath, monitor);
     }
 
     private static boolean updateJavaProjectOptionIfNeeded(IJavaProject project, String optionKey, String newValue) {
