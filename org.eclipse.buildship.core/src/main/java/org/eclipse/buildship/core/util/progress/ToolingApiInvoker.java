@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.buildship.core.AggregateException;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.UnsupportedConfigurationException;
 import org.eclipse.buildship.core.util.string.StringUtils;
 
 /**
@@ -76,6 +77,8 @@ public final class ToolingApiInvoker {
             return handleBuildFailed((BuildException) failure);
         } else if (failure instanceof GradleConnectionException) {
             return handleGradleConnectionFailed((GradleConnectionException) failure);
+        } else if (failure instanceof UnsupportedConfigurationException) {
+            return handleUnsupportedConfiguration((UnsupportedConfigurationException) failure);
         } else if (failure instanceof GradlePluginsRuntimeException) {
             return handlePluginFailed((GradlePluginsRuntimeException) failure);
         } else if (failure instanceof AggregateException) {
@@ -120,6 +123,15 @@ public final class ToolingApiInvoker {
         // if there is an error connecting to Gradle, notify the user, but don't
         // put it in the error log (log as a warning instead)
         String message = String.format("%s failed due to an error connecting to the Gradle build.", this.workName);
+        CorePlugin.logger().warn(message, e);
+        if (shouldSendUserNotification(e)) {
+            CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(e), IStatus.WARNING, e);
+        }
+        return createInfoStatus(message, e);
+    }
+
+    private IStatus handleUnsupportedConfiguration(UnsupportedConfigurationException e) {
+        String message = String.format("%s failed due to an unsupported configuration in the referenced Gradle build.", this.workName);
         CorePlugin.logger().warn(message, e);
         if (shouldSendUserNotification(e)) {
             CorePlugin.userNotification().errorOccurred(String.format("%s failed", this.workName), message, collectErrorMessages(e), IStatus.WARNING, e);
