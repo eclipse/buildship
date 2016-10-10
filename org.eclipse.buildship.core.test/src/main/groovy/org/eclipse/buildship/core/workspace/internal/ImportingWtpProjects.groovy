@@ -279,7 +279,8 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         importAndWait(root, GradleDistribution.forVersion("2.14-20160505000028+0000"))
 
         then:
-        1 * logger.error(*_)
+        0 * logger.error(*_)
+        1 * logger.warn(*_)
     }
 
     def "Does not override classpath container customisation"() {

@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
+import org.eclipse.buildship.core.UnsupportedConfigurationException;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
 /**
@@ -58,7 +59,7 @@ final class WtpClasspathUpdater {
             for (OmniClasspathAttribute attribute : attributes) {
                 if (attribute.getName().equals(DEPLOYMENT_ATTRIBUTE)) {
                     if (deploymentPath != null && !deploymentPath.equals(attribute.getValue())) {
-                        throw new IllegalStateException("WTP currently does not support mixed deployment paths.");
+                        throw new UnsupportedConfigurationException("WTP currently does not support mixed deployment paths.");
                     }
                     deploymentPath = attribute.getValue();
                 }
