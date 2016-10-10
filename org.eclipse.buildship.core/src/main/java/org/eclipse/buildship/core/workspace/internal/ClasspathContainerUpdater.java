@@ -69,13 +69,13 @@ final class ClasspathContainerUpdater {
     private final Set<String> containerPaths;
     private final OmniJavaSourceSettings sourceSettings;
 
-    private ClasspathContainerUpdater(IJavaProject project, boolean gradleSupportsContainers, List<OmniEclipseClasspathContainer> containers, OmniJavaSourceSettings sourceSettings) {
+    private ClasspathContainerUpdater(IJavaProject project, Optional<List<OmniEclipseClasspathContainer>> containers, OmniJavaSourceSettings sourceSettings) {
         this.project = project;
-        this.gradleSupportsContainers = gradleSupportsContainers;
-        this.containers = containers;
+        this.gradleSupportsContainers = containers.isPresent();
+        this.containers = containers.or(Collections.<OmniEclipseClasspathContainer>emptyList());
         this.containerPaths = new HashSet<String>();
         this.sourceSettings = sourceSettings;
-        for (OmniEclipseClasspathContainer container : containers) {
+        for (OmniEclipseClasspathContainer container : this.containers) {
             this.containerPaths.add(container.getPath());
         }
     }
@@ -182,6 +182,7 @@ final class ClasspathContainerUpdater {
     }
 
     private int indexOfNewContainers(List<IClasspathEntry> classpath) {
+        // containers are added after the last source folder
         int index = 0;
         for (int i = 0; i < classpath.size(); i++) {
             if (classpath.get(i).getEntryKind() == IClasspathEntry.CPE_SOURCE) {
@@ -204,8 +205,7 @@ final class ClasspathContainerUpdater {
     }
 
     public static void update(IJavaProject project, Optional<List<OmniEclipseClasspathContainer>> containers, OmniJavaSourceSettings omniJavaSourceSettings, IProgressMonitor monitor) throws CoreException {
-        boolean gradleSupportsContainers = containers.isPresent();
-        new ClasspathContainerUpdater(project, gradleSupportsContainers, containers.or(Collections.<OmniEclipseClasspathContainer>emptyList()), omniJavaSourceSettings).updateContainers(monitor);
+        new ClasspathContainerUpdater(project, containers, omniJavaSourceSettings).updateContainers(monitor);
     }
 
 }
