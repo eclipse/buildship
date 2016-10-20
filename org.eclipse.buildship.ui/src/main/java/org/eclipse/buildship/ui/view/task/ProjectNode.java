@@ -29,12 +29,15 @@ public final class ProjectNode {
     private final OmniEclipseProject eclipseProject;
     private final OmniGradleProject gradleProject;
     private final Optional<IProject> workspaceProject;
+    private final boolean includedProject;
 
-    public ProjectNode(ProjectNode parentProjectNode, OmniEclipseProject eclipseProject, OmniGradleProject gradleProject, Optional<IProject> workspaceProject) {
+
+    public ProjectNode(ProjectNode parentProjectNode, OmniEclipseProject eclipseProject, OmniGradleProject gradleProject, Optional<IProject> workspaceProject, boolean includedProject) {
         this.parentProjectNode = parentProjectNode; // is null for root project
         this.eclipseProject = Preconditions.checkNotNull(eclipseProject);
         this.gradleProject = Preconditions.checkNotNull(gradleProject);
         this.workspaceProject = workspaceProject;
+        this.includedProject = includedProject;
     }
 
     public ProjectNode getRootProjectNode() {
@@ -61,6 +64,10 @@ public final class ProjectNode {
         return this.workspaceProject;
     }
 
+    public boolean isIncludedProject() {
+        return this.includedProject;
+    }
+
     @Override
     public String toString() {
         return this.gradleProject.getName();
@@ -77,12 +84,13 @@ public final class ProjectNode {
 
         ProjectNode that = (ProjectNode) other;
         return Objects.equal(this.parentProjectNode, that.parentProjectNode) && Objects.equal(this.eclipseProject, that.eclipseProject)
-                && Objects.equal(this.gradleProject, that.gradleProject) && Objects.equal(this.workspaceProject, that.workspaceProject);
+                && Objects.equal(this.gradleProject, that.gradleProject) && Objects.equal(this.workspaceProject, that.workspaceProject)
+                && Objects.equal(this.includedProject, that.includedProject);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.parentProjectNode, this.eclipseProject, this.gradleProject, this.workspaceProject);
+        return Objects.hashCode(this.parentProjectNode, this.eclipseProject, this.gradleProject, this.workspaceProject, this.includedProject);
     }
 
 }

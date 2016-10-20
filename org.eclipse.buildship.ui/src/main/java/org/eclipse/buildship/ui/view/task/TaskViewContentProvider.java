@@ -56,25 +56,28 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
     public Object[] getElements(Object input) {
         ImmutableList.Builder<Object> result = ImmutableList.builder();
         if (input instanceof TaskViewContent) {
-            List<OmniEclipseProject> projects = ((TaskViewContent) input).getProjects();
-            result.addAll(createTopLevelProjectNodes(projects));
+            TaskViewContent taskViewContent = (TaskViewContent) input;
+            List<OmniEclipseProject> projects = taskViewContent.getProjects();
+            List<OmniEclipseProject> includedProjects = taskViewContent.getIncludedProjects();
+            result.addAll(createTopLevelProjectNodes(projects, false));
+            result.addAll(createTopLevelProjectNodes(includedProjects, true));
         }
         return result.build().toArray();
     }
 
-    private List<ProjectNode> createTopLevelProjectNodes(List<OmniEclipseProject> projects) {
+    private List<ProjectNode> createTopLevelProjectNodes(List<OmniEclipseProject> projects, boolean includedProject) {
         // flatten the tree of Gradle projects to a list, similar
         // to how Eclipse projects look in the Eclipse Project explorer
         List<ProjectNode> allProjectNodes = Lists.newArrayList();
         for (OmniEclipseProject project : projects) {
             if (project.getParent() == null) {
-                collectProjectNodesRecursively(project, null, allProjectNodes);
+                collectProjectNodesRecursively(project, null, allProjectNodes, includedProject);
             }
         }
         return allProjectNodes;
     }
 
-    private void collectProjectNodesRecursively(OmniEclipseProject eclipseProject, ProjectNode parentProjectNode, List<ProjectNode> allProjectNodes) {
+    private void collectProjectNodesRecursively(OmniEclipseProject eclipseProject, ProjectNode parentProjectNode, List<ProjectNode> allProjectNodes, boolean includedProject) {
         OmniGradleProject gradleProject = eclipseProject.getGradleProject();
 
         // find the corresponding Eclipse project in the workspace
@@ -82,10 +85,10 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(eclipseProject.getProjectDirectory());
 
         // create a new node for the given Eclipse project and then recurse into the children
-        ProjectNode projectNode = new ProjectNode(parentProjectNode, eclipseProject, gradleProject, workspaceProject);
+        ProjectNode projectNode = new ProjectNode(parentProjectNode, eclipseProject, gradleProject, workspaceProject, includedProject);
         allProjectNodes.add(projectNode);
         for (OmniEclipseProject childProject : eclipseProject.getChildren()) {
-            collectProjectNodesRecursively(childProject, projectNode, allProjectNodes);
+            collectProjectNodesRecursively(childProject, projectNode, allProjectNodes, includedProject);
         }
     }
 

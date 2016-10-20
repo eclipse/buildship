@@ -59,10 +59,14 @@ public final class TaskViewActionStateRules {
             return false;
         }
 
-        // enable action if all selected nodes are task nodes of the same concrete type and they
-        // belong to the same parent
-        return (nodeSelection.hasAllNodesOfType(ProjectTaskNode.class) || nodeSelection.hasAllNodesOfType(TaskSelectorNode.class) && gradleCanFindTheRootProject(nodeSelection))
-                && taskNodesBelongToSameParentProjectNode(nodeSelection);
+        // enable action if all selected nodes are task nodes of the same concrete type, they
+        // belong to the same parent and none of them come from an included build
+        if (!nodeSelection.hasAllNodesOfType(TaskNode.class) || parentProjectIsIncluded(nodeSelection)) {
+            return false;
+        } else {
+            return (nodeSelection.hasAllNodesOfType(ProjectTaskNode.class) || nodeSelection.hasAllNodesOfType(TaskSelectorNode.class) && gradleCanFindTheRootProject(nodeSelection))
+                    && taskNodesBelongToSameParentProjectNode(nodeSelection);
+        }
     }
 
     //see https://docs.gradle.org/current/userguide/build_lifecycle.html#sec:initialization
@@ -77,6 +81,17 @@ public final class TaskViewActionStateRules {
                 IPath masterPath = projectPath.removeLastSegments(1).append("master");
                 Path rootPath = new Path(project.getRoot().getProjectDirectory().getPath());
                 return rootPath.isPrefixOf(projectPath) || rootPath.equals(masterPath);
+            }
+        });
+    }
+
+    private static boolean parentProjectIsIncluded(NodeSelection nodeSelection) {
+        return nodeSelection.allMatch(new Predicate<Object>() {
+
+            @Override
+            public boolean apply(Object input) {
+                TaskNode node = (TaskNode) input;
+                return node.getParentProjectNode().isIncludedProject();
             }
         });
     }
@@ -122,7 +137,7 @@ public final class TaskViewActionStateRules {
             return false;
         }
 
-        return nodeSelection.hasAllNodesOfType(ProjectNode.class) && nodeSelection.isSingleSelection();
+        return nodeSelection.hasAllNodesOfType(ProjectNode.class) && nodeSelection.isSingleSelection() && !nodeSelection.getFirstElement(ProjectNode.class).isIncludedProject();
     }
 
 }
