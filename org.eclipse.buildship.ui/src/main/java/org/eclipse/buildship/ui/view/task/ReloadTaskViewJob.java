@@ -12,12 +12,11 @@ import java.util.Collections;
 import java.util.List;
 
 import org.gradle.tooling.GradleConnectionException;
-import org.gradle.tooling.connection.ModelResult;
-import org.gradle.tooling.connection.ModelResults;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
+import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
@@ -63,11 +62,9 @@ final class ReloadTaskViewJob extends ToolingApiJob {
         List<OmniEclipseProject> projects = Lists.newArrayList();
 
         for (GradleBuild gradleBuild : CorePlugin.gradleWorkspaceManager().getGradleBuilds()) {
-            ModelResults<OmniEclipseProject> results = gradleBuild.getModelProvider().fetchEclipseProjects(this.modelFetchStrategy, getToken(), monitor);
-            for (ModelResult<OmniEclipseProject> result : results) {
-                if (result.getFailure() == null) {
-                    projects.add(result.getModel());
-                }
+            OmniEclipseGradleBuild eclipseBuild = gradleBuild.getModelProvider().fetchEclipseGradleBuild(this.modelFetchStrategy, getToken(), monitor);
+            for (OmniEclipseProject project : eclipseBuild.getAllRootProjects()) {
+                projects.addAll(project.getAll());
             }
         }
 

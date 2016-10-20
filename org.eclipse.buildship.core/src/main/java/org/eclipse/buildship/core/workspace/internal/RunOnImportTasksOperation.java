@@ -20,8 +20,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
+import com.gradleware.tooling.toolingclient.BuildRequest;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
-import com.gradleware.tooling.toolingclient.SingleBuildRequest;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature;
 import com.gradleware.tooling.toolingmodel.OmniProjectTask;
@@ -97,7 +97,7 @@ public class RunOnImportTasksOperation {
     }
 
     private void runTasks(Set<String> tasksToRun, IProgressMonitor monitor, CancellationToken token) {
-        SingleBuildRequest<Void> request = CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(tasksToRun));
+        BuildRequest<Void> request = CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(tasksToRun));
         this.build.apply(request);
         getTransientRequestAttributes(token, monitor).apply(request);
         request.executeAndWait();

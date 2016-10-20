@@ -13,18 +13,15 @@ import java.util.List;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.connection.ModelResults;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
-import com.gradleware.tooling.toolingmodel.repository.CompositeBuildModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.SingleBuildModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -41,32 +38,25 @@ import org.eclipse.buildship.core.workspace.ModelProvider;
  */
 final class DefaultModelProvider implements ModelProvider {
 
-    private final CompositeBuildModelRepository modelRepository;
-    private final SingleBuildModelRepository singleModelRepository;
+    private final ModelRepository modelRepository;
 
-    public DefaultModelProvider(SingleBuildModelRepository singleModelRepository, CompositeBuildModelRepository modelRepository) {
-        this.singleModelRepository = Preconditions.checkNotNull(singleModelRepository);
-        this.modelRepository = Preconditions.checkNotNull(modelRepository);
-    }
-
-    @Override
-    public ModelResults<OmniEclipseProject> fetchEclipseProjects(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor) {
-        return this.modelRepository.fetchEclipseProjects(getTransientRequestAttributes(token, monitor), fetchStrategy);
+    public DefaultModelProvider(ModelRepository singleModelRepository) {
+        this.modelRepository = Preconditions.checkNotNull(singleModelRepository);
     }
 
     @Override
     public OmniGradleBuild fetchGradleBuild(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor) {
-        return this.singleModelRepository.fetchGradleBuild(getTransientRequestAttributes(token, monitor), fetchStrategy);
+        return this.modelRepository.fetchGradleBuild(getTransientRequestAttributes(token, monitor), fetchStrategy);
     }
 
     @Override
     public OmniEclipseGradleBuild fetchEclipseGradleBuild(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor) {
-        return this.singleModelRepository.fetchEclipseGradleBuild(getTransientRequestAttributes(token, monitor), fetchStrategy);
+        return this.modelRepository.fetchEclipseGradleBuild(getTransientRequestAttributes(token, monitor), fetchStrategy);
     }
 
     @Override
     public OmniBuildEnvironment fetchBuildEnvironment(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor) {
-        return this.singleModelRepository.fetchBuildEnvironment(getTransientRequestAttributes(token, monitor), fetchStrategy);
+        return this.modelRepository.fetchBuildEnvironment(getTransientRequestAttributes(token, monitor), fetchStrategy);
     }
 
     private final TransientRequestAttributes getTransientRequestAttributes(CancellationToken token, IProgressMonitor monitor) {

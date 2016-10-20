@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.gradle.tooling.model.eclipse.EclipseProjectIdentifier;
-
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -62,14 +60,14 @@ final class GradleClasspathContainerUpdater {
 
     private final IJavaProject eclipseProject;
     private final OmniEclipseProject gradleProject;
-    private final Map<EclipseProjectIdentifier, OmniEclipseProject> idsToAllProjects;
+    private final Map<File, OmniEclipseProject> projectDirToProject;
 
     private GradleClasspathContainerUpdater(IJavaProject eclipseProject, OmniEclipseProject gradleProject, Set<OmniEclipseProject> allGradleProjects) {
         this.eclipseProject = Preconditions.checkNotNull(eclipseProject);
         this.gradleProject = Preconditions.checkNotNull(gradleProject);
-        this.idsToAllProjects = Maps.newHashMap();
-        for (OmniEclipseProject project : allGradleProjects) {
-            this.idsToAllProjects.put(project.getIdentifier(), project);
+        this.projectDirToProject = Maps.newHashMap();
+        for (OmniEclipseProject project : gradleProject.getRoot().getAll()) {
+            this.projectDirToProject.put(project.getProjectDirectory(), project);
         }
     }
 
@@ -86,9 +84,15 @@ final class GradleClasspathContainerUpdater {
 
                     @Override
                     public IClasspathEntry apply(OmniEclipseProjectDependency dependency) {
-                        OmniEclipseProject targetProject = GradleClasspathContainerUpdater.this.idsToAllProjects.get(dependency.getTarget());
-                        String actualName = CorePlugin.workspaceOperations().normalizeProjectName(targetProject.getName(), targetProject.getProjectDirectory());
-                        Path path = new Path("/" + actualName);
+                        IPath path;
+                        Optional<File> targetProjectDir = dependency.getTargetProjectDir();
+                        if (targetProjectDir.isPresent()) {
+                            OmniEclipseProject dependentProject = GradleClasspathContainerUpdater.this.projectDirToProject.get(targetProjectDir.get());
+                            String actualName = CorePlugin.workspaceOperations().normalizeProjectName(dependentProject.getName(), dependentProject.getProjectDirectory());
+                            path = new Path("/" + actualName);
+                        } else {
+                            path = new Path("/" + dependency.getPath());
+                        }
                         return JavaCore.newProjectEntry(path, ClasspathUtils.createAccessRules(dependency), true, ClasspathUtils.createClasspathAttributes(dependency), dependency.isExported());
                     }
                 }).toList();

@@ -10,14 +10,12 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.Set;
 
-import org.gradle.tooling.connection.ModelResult;
-import org.gradle.tooling.connection.ModelResults;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableSet.Builder;
 
+import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
@@ -28,7 +26,6 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
-import org.eclipse.buildship.core.AggregateException;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
@@ -85,24 +82,13 @@ public final class SynchronizeGradleBuildsJob extends ToolingApiJob {
     private Set<OmniEclipseProject> fetchEclipseProjects(GradleBuild build, SubMonitor progress) {
         progress.setTaskName("Loading Gradle project models");
         ModelProvider modelProvider = build.getModelProvider();
-        ModelResults<OmniEclipseProject> results = modelProvider.fetchEclipseProjects(FetchStrategy.FORCE_RELOAD, getToken(), progress);
+        OmniEclipseGradleBuild eclipseBuild = modelProvider.fetchEclipseGradleBuild(FetchStrategy.FORCE_RELOAD, getToken(), progress);
 
-        Set<OmniEclipseProject> allProjects = Sets.newLinkedHashSet();
-        Set<Exception> problems = Sets.newLinkedHashSet();
-
-        for (ModelResult<OmniEclipseProject> result : results) {
-            if (result.getFailure() == null) {
-                allProjects.add(result.getModel());
-            } else {
-                problems.add(result.getFailure());
-            }
+        Builder<OmniEclipseProject> result = ImmutableSet.builder();
+        for (OmniEclipseProject included : eclipseBuild.getAllRootProjects()) {
+            result.addAll(included.getAll());
         }
-
-        if (problems.isEmpty()) {
-            return allProjects;
-        } else {
-            throw new AggregateException(problems);
-        }
+        return result.build();
     }
 
     /**

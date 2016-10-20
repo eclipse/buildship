@@ -394,11 +394,12 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
                         ProjectPreviewWizardPage.this.projectPreviewTree.removeAll();
 
                         // populate the tree from the build structure
-                        OmniGradleProjectStructure rootProject = buildStructure.getRootProject();
-                        TreeItem rootTreeItem = new TreeItem(ProjectPreviewWizardPage.this.projectPreviewTree, SWT.NONE);
-                        rootTreeItem.setExpanded(true);
-                        rootTreeItem.setText(rootProject.getName());
-                        populateRecursively(rootProject, rootTreeItem);
+                        for (OmniGradleProjectStructure rootProject : buildStructure.getAllRootProjects()) {
+                            TreeItem rootTreeItem = new TreeItem(ProjectPreviewWizardPage.this.projectPreviewTree, SWT.NONE);
+                            rootTreeItem.setExpanded(true);
+                            rootTreeItem.setText(rootProject.getName());
+                            populateRecursively(rootProject, rootTreeItem);
+                        }
                     }
                 }
             });

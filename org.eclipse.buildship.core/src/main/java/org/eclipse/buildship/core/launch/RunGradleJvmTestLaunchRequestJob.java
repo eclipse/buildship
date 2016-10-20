@@ -16,7 +16,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingclient.SingleBuildRequest;
+import com.gradleware.tooling.toolingclient.BuildRequest;
 import com.gradleware.tooling.toolingclient.TestConfig;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessDescription;
@@ -67,7 +67,7 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
     }
 
     @Override
-    protected SingleBuildRequest<Void> createRequest() {
+    protected BuildRequest<Void> createRequest() {
         TestConfig.Builder testConfig = new TestConfig.Builder();
         for (TestTarget testTarget : this.testTargets) {
             testTarget.apply(testConfig);

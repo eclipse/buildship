@@ -23,7 +23,7 @@ import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.SingleBuildModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.Pair;
 
@@ -85,12 +85,12 @@ public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
     }
 
     private OmniBuildEnvironment fetchBuildEnvironment(IProgressMonitor monitor) {
-        SingleBuildModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(this.fixedAttributes);
+        ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(this.fixedAttributes);
         return repository.fetchBuildEnvironment(this.transientAttributes, FetchStrategy.FORCE_RELOAD);
     }
 
     private OmniGradleBuildStructure fetchGradleBuildStructure(IProgressMonitor monitor) {
-        SingleBuildModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(this.fixedAttributes);
+        ModelRepository repository = CorePlugin.modelRepositoryProvider().getModelRepository(this.fixedAttributes);
         return repository.fetchGradleBuildStructure(this.transientAttributes, FetchStrategy.FORCE_RELOAD);
     }
 

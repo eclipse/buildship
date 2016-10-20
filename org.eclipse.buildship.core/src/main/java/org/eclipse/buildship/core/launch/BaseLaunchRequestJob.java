@@ -22,7 +22,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
-import com.gradleware.tooling.toolingclient.SingleBuildRequest;
+import com.gradleware.tooling.toolingclient.BuildRequest;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
@@ -71,7 +71,7 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
         List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(DelegatingProgressListener.withFullOutput(monitor));
 
         // apply the fixed attributes on the request o
-        SingleBuildRequest<Void> request = createRequest();
+        BuildRequest<Void> request = createRequest();
         FixedRequestAttributes fixedAttributes = getConfigurationAttributes().toFixedRequestAttributes();
         fixedAttributes.apply(request);
 
@@ -166,7 +166,7 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
      *
      * @return the new request object
      */
-    protected abstract SingleBuildRequest<Void> createRequest();
+    protected abstract BuildRequest<Void> createRequest();
 
     /**
      * Writes extra information on the configuration console.
