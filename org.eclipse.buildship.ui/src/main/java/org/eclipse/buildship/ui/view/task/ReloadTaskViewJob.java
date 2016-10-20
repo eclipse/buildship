@@ -53,13 +53,17 @@ final class ReloadTaskViewJob extends ToolingApiJob {
             List<OmniEclipseProject> projects = Lists.newArrayList();
             List<OmniEclipseProject> includedProjects = Lists.newArrayList();
 
-            for (GradleBuild gradleBuild : CorePlugin.gradleWorkspaceManager().getGradleBuilds()) {
-                OmniEclipseGradleBuild eclipseBuild = gradleBuild.getModelProvider().fetchEclipseGradleBuild(this.modelFetchStrategy, getToken(), monitor);
-                projects.addAll(eclipseBuild.getRootEclipseProject().getAll());
-                for (OmniEclipseProject project : eclipseBuild.getIncludedRootProjects()) {
-                    includedProjects.addAll(project.getAll());
-                }
-            }
+             for (GradleBuild gradleBuild : CorePlugin.gradleWorkspaceManager().getGradleBuilds()) {
+                 try {
+                     OmniEclipseGradleBuild eclipseBuild = gradleBuild.getModelProvider().fetchEclipseGradleBuild(this.modelFetchStrategy, getToken(), monitor);
+                     projects.addAll(eclipseBuild.getRootEclipseProject().getAll());
+                     for (OmniEclipseProject project : eclipseBuild.getIncludedRootProjects()) {
+                         includedProjects.addAll(project.getAll());
+                     }
+                 } catch (RuntimeException e) {
+                     CorePlugin.logger().debug("Eclipse model can't be loaded", e);
+                 }
+             }
 
             return new TaskViewContent(projects, includedProjects, null);
         } catch (GradleConnectionException e) {

@@ -16,15 +16,16 @@ class SynchronizingExistingWorkspaceProject extends SingleProjectSynchronization
             file 'settings.gradle'
         }
         File[] projectFiles = dir('sample-project').listFiles()
-        Long[] modifiedTimes = dir('sample-project').listFiles().collect{ it.lastModified() }
+        Long[] modifiedTimes = projectFiles.collect { it.lastModified() }
 
         when:
         synchronizeAndWait(projectDir)
+        def updatedProjectFiles = dir('sample-project').listFiles().findAll { it.name != '.gradle' }
 
         then:
         !project.isOpen()
-        projectFiles == dir('sample-project').listFiles()
-        modifiedTimes == dir('sample-project').listFiles().collect{ it.lastModified() }
+        projectFiles == updatedProjectFiles
+        modifiedTimes == updatedProjectFiles.collect{ it.lastModified() }
     }
 
     def "The Gradle classpath container is updated"() {

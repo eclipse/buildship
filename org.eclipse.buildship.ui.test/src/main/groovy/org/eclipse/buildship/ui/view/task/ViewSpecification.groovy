@@ -16,7 +16,7 @@ import com.gradleware.tooling.toolingmodel.Path
 abstract class ViewSpecification extends Specification {
 
   protected def newProjectNode(ProjectNode parent, String projectLocation) {
-    return new ProjectNode(parent, newEclipseProject(parent, projectLocation), newGradleProject(), Optional.absent())
+    return new ProjectNode(parent, newEclipseProject(parent, projectLocation), newGradleProject(), Optional.absent(), false)
   }
 
   protected ProjectTaskNode newProjectTaskNode(ProjectNode parent, String taskPath) {

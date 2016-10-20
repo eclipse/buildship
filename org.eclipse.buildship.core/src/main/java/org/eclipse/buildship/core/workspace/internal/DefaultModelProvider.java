@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
+import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
@@ -42,6 +43,11 @@ final class DefaultModelProvider implements ModelProvider {
 
     public DefaultModelProvider(ModelRepository singleModelRepository) {
         this.modelRepository = Preconditions.checkNotNull(singleModelRepository);
+    }
+
+    @Override
+    public OmniGradleBuildStructure fetchGradleBuildStructure(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor) {
+        return this.modelRepository.fetchGradleBuildStructure(getTransientRequestAttributes(token, monitor), fetchStrategy);
     }
 
     @Override
