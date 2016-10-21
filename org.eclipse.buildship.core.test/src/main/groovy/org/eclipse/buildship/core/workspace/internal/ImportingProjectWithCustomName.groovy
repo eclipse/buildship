@@ -151,7 +151,7 @@ class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification
         previewAndWait(location, previewResultHandler)
 
         then:
-        1 * previewResultHandler.onSuccess { it.second.rootProject.name == 'app' }
+        1 * previewResultHandler.onSuccess { it.second.rootProjects[0].name == 'app' }
     }
 
 }

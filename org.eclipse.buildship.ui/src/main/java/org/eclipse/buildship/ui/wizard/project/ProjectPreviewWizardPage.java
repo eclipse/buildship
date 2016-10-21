@@ -394,7 +394,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
                         ProjectPreviewWizardPage.this.projectPreviewTree.removeAll();
 
                         // populate the tree from the build structure
-                        for (OmniGradleProjectStructure rootProject : buildStructure.getAllRootProjects()) {
+                        for (OmniGradleProjectStructure rootProject : buildStructure.getRootProjects()) {
                             TreeItem rootTreeItem = new TreeItem(ProjectPreviewWizardPage.this.projectPreviewTree, SWT.NONE);
                             rootTreeItem.setExpanded(true);
                             rootTreeItem.setText(rootProject.getName());

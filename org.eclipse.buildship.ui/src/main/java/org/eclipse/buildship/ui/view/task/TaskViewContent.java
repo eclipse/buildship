@@ -26,11 +26,9 @@ public final class TaskViewContent {
 
     private final GradleConnectionException failure;
     private final List<OmniEclipseProject> projects;
-    private final List<OmniEclipseProject> includedProjects;
 
-    public TaskViewContent(List<OmniEclipseProject> projects, List<OmniEclipseProject> includedProjects, GradleConnectionException failure) {
+    public TaskViewContent(List<OmniEclipseProject> projects, GradleConnectionException failure) {
         this.projects = ImmutableList.copyOf(projects);
-        this.includedProjects = ImmutableList.copyOf(includedProjects);
         this.failure = failure;
     }
 
@@ -39,13 +37,6 @@ public final class TaskViewContent {
             throw this.failure;
         }
         return this.projects;
-    }
-
-    public List<OmniEclipseProject> getIncludedProjects() {
-        if (this.failure != null) {
-            throw this.failure;
-        }
-        return this.includedProjects;
     }
 
     public Exception getFailure() {

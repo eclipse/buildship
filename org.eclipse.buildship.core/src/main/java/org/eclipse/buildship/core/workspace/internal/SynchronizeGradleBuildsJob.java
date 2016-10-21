@@ -13,7 +13,6 @@ import java.util.Set;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSet.Builder;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
@@ -83,12 +82,7 @@ public final class SynchronizeGradleBuildsJob extends ToolingApiJob {
         progress.setTaskName("Loading Gradle project models");
         ModelProvider modelProvider = build.getModelProvider();
         OmniEclipseGradleBuild eclipseBuild = modelProvider.fetchEclipseGradleBuild(FetchStrategy.FORCE_RELOAD, getToken(), progress);
-
-        Builder<OmniEclipseProject> result = ImmutableSet.builder();
-        for (OmniEclipseProject included : eclipseBuild.getAllRootProjects()) {
-            result.addAll(included.getAll());
-        }
-        return result.build();
+        return eclipseBuild.getAllProjects();
     }
 
     /**
