@@ -11,8 +11,12 @@
 
 package org.eclipse.buildship.ui.view.task;
 
+import java.util.List;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 
@@ -59,51 +63,55 @@ public final class TaskViewActionStateRules {
             return false;
         }
 
-        // enable action if all selected nodes are task nodes of the same concrete type, they
-        // belong to the same parent and none of them come from an included build
-        if (!nodeSelection.hasAllNodesOfType(TaskNode.class) || parentProjectIsIncluded(nodeSelection)) {
+        // execution is enabled only if no tasks from included builds are selected and each task is from the same project
+        List<?> elements = nodeSelection.toList();
+        List<TaskNode> taskNodes = FluentIterable.from(elements).filter(TaskNode.class).toList();
+        if (elements.size() != taskNodes.size() || hasMultipleOrIncludedParentProject(taskNodes)) {
             return false;
-        } else {
-            return (nodeSelection.hasAllNodesOfType(ProjectTaskNode.class) || nodeSelection.hasAllNodesOfType(TaskSelectorNode.class) && gradleCanFindTheRootProject(nodeSelection))
-                    && taskNodesBelongToSameParentProjectNode(nodeSelection);
         }
+
+        // if project tasks are selected only then the execution should be permitted
+        List<ProjectTaskNode> projectNodes = FluentIterable.from(elements).filter(ProjectTaskNode.class).toList();
+        if (projectNodes.size() == taskNodes.size()) {
+            return true;
+        }
+
+        // if task selectors are selected only then the execution should be permitted if the root project can be found
+        List<TaskSelectorNode> taskSelectorNodes = FluentIterable.from(elements).filter(TaskSelectorNode.class).toList();
+        if (taskSelectorNodes.size() == taskNodes.size()) {
+            return canFindRootProjects(taskSelectorNodes);
+        }
+
+        // as a default disable the execution
+        return  false;
+    }
+
+    private static boolean hasMultipleOrIncludedParentProject(List<TaskNode> nodes) {
+        Preconditions.checkArgument(!nodes.isEmpty());
+        final ProjectNode firstParent = nodes.get(0).getParentProjectNode();
+        if (firstParent.isIncludedProject()) {
+            return true;
+        }
+        return Iterables.any(nodes, new Predicate<TaskNode>() {
+
+            @Override
+            public boolean apply(TaskNode node) {
+                return !node.getParentProjectNode().equals(firstParent);
+            }
+        });
     }
 
     //see https://docs.gradle.org/current/userguide/build_lifecycle.html#sec:initialization
-    private static boolean gradleCanFindTheRootProject(NodeSelection nodeSelection) {
-        return nodeSelection.allMatch(new Predicate<Object>() {
+    private static boolean canFindRootProjects(List<TaskSelectorNode> nodes) {
+        return Iterables.all(nodes, new Predicate<TaskNode>() {
 
             @Override
-            public boolean apply(Object input) {
-                TaskNode node = (TaskNode) input;
+            public boolean apply(TaskNode node) {
                 OmniEclipseProject project = node.getParentProjectNode().getEclipseProject();
                 Path projectPath = new Path(project.getProjectDirectory().getPath());
                 IPath masterPath = projectPath.removeLastSegments(1).append("master");
                 Path rootPath = new Path(project.getRoot().getProjectDirectory().getPath());
                 return rootPath.isPrefixOf(projectPath) || rootPath.equals(masterPath);
-            }
-        });
-    }
-
-    private static boolean parentProjectIsIncluded(NodeSelection nodeSelection) {
-        return nodeSelection.allMatch(new Predicate<Object>() {
-
-            @Override
-            public boolean apply(Object input) {
-                TaskNode node = (TaskNode) input;
-                return node.getParentProjectNode().isIncludedProject();
-            }
-        });
-    }
-
-    private static boolean taskNodesBelongToSameParentProjectNode(NodeSelection nodeSelection) {
-        Preconditions.checkArgument(!nodeSelection.isEmpty());
-        final TaskNode firstNode = (TaskNode) nodeSelection.getFirstElement();
-        return nodeSelection.allMatch(new Predicate<Object>() {
-
-            @Override
-            public boolean apply(Object input) {
-                return ((TaskNode) input).getParentProjectNode() == firstNode.getParentProjectNode();
             }
         });
     }
