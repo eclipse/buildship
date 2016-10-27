@@ -9,6 +9,7 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.List;
+import java.util.Set;
 
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.GradleConnector;
@@ -18,9 +19,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
+import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
@@ -46,8 +47,8 @@ final class DefaultModelProvider implements ModelProvider {
     }
 
     @Override
-    public OmniGradleBuildStructure fetchGradleBuildStructure(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor) {
-        return this.modelRepository.fetchGradleBuildStructure(getTransientRequestAttributes(token, monitor), fetchStrategy);
+    public OmniBuildEnvironment fetchBuildEnvironment(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor) {
+        return this.modelRepository.fetchBuildEnvironment(getTransientRequestAttributes(token, monitor), fetchStrategy);
     }
 
     @Override
@@ -56,13 +57,13 @@ final class DefaultModelProvider implements ModelProvider {
     }
 
     @Override
-    public OmniEclipseGradleBuild fetchEclipseGradleBuild(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor) {
-        return this.modelRepository.fetchEclipseGradleBuild(getTransientRequestAttributes(token, monitor), fetchStrategy);
+    public Set<OmniGradleProject> fetchGradleProjects(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor) {
+        return this.modelRepository.fetchGradleProjects(getTransientRequestAttributes(token, monitor), fetchStrategy);
     }
 
     @Override
-    public OmniBuildEnvironment fetchBuildEnvironment(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor) {
-        return this.modelRepository.fetchBuildEnvironment(getTransientRequestAttributes(token, monitor), fetchStrategy);
+    public Set<OmniEclipseProject> fetchEclipseGradleProjects(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor) {
+        return this.modelRepository.fetchEclipseGradleProjects(getTransientRequestAttributes(token, monitor), fetchStrategy);
     }
 
     private final TransientRequestAttributes getTransientRequestAttributes(CancellationToken token, IProgressMonitor monitor) {
