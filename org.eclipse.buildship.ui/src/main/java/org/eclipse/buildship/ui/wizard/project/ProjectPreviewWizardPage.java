@@ -28,7 +28,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
+import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
 import com.gradleware.tooling.toolingmodel.util.Pair;
 import com.gradleware.tooling.toolingutils.binding.Property;
@@ -328,14 +328,13 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
          * @param listeners the progress listeners to register when calling Gradle
          * @return the job in which the Gradle project data is loaded
          */
-        Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler, List<ProgressListener> listeners);
-
+        Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> resultHandler, List<ProgressListener> listeners);
     }
 
     /**
      * Updates the project preview once the necessary Gradle models have been loaded.
      */
-    private final class ProjectPreviewJobResultHandler implements FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> {
+    private final class ProjectPreviewJobResultHandler implements FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> {
 
         private final CountDownLatch latch;
 
@@ -344,7 +343,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         }
 
         @Override
-        public void onSuccess(Pair<OmniBuildEnvironment, OmniGradleBuildStructure> result) {
+        public void onSuccess(Pair<OmniBuildEnvironment, OmniGradleBuild> result) {
             // the job has already taken care of logging the success
             this.latch.countDown();
 
@@ -385,21 +384,14 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
             });
         }
 
-        private void populateTree(final OmniGradleBuildStructure buildStructure) {
+        private void populateTree(final OmniGradleBuild buildStructure) {
             PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
                 @Override
                 public void run() {
                     if (!getControl().isDisposed()) {
                         ProjectPreviewWizardPage.this.projectPreviewTree.removeAll();
-
-                        // populate the tree from the build structure
-                        for (OmniGradleProjectStructure rootProject : buildStructure.getRootProjects()) {
-                            TreeItem rootTreeItem = new TreeItem(ProjectPreviewWizardPage.this.projectPreviewTree, SWT.NONE);
-                            rootTreeItem.setExpanded(true);
-                            rootTreeItem.setText(rootProject.getName());
-                            populateRecursively(rootProject, rootTreeItem);
-                        }
+                        populateRecursively(buildStructure, ProjectPreviewWizardPage.this.projectPreviewTree);
                     }
                 }
             });
@@ -415,6 +407,17 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
                     }
                 }
             });
+        }
+
+        private void populateRecursively(OmniGradleBuild gradleBuild, Tree parent) {
+            OmniGradleProjectStructure rootProject = gradleBuild.getRootProject();
+            TreeItem rootTreeItem = new TreeItem(ProjectPreviewWizardPage.this.projectPreviewTree, SWT.NONE);
+            rootTreeItem.setExpanded(true);
+            rootTreeItem.setText(rootProject.getName());
+            populateRecursively(rootProject, rootTreeItem);
+            for (OmniGradleBuild includedBuilds : gradleBuild.getIncludedBuilds()) {
+                populateRecursively(includedBuilds, parent);
+            }
         }
 
         private void populateRecursively(OmniGradleProjectStructure gradleProjectStructure, TreeItem parent) {

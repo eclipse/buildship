@@ -11,20 +11,16 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
+import java.util.List;
+
+import org.gradle.tooling.ProgressListener;
+
 import com.google.common.util.concurrent.FutureCallback;
+
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
+import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
 import com.gradleware.tooling.toolingmodel.util.Pair;
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
-import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
-import org.eclipse.buildship.core.util.progress.AsyncHandler;
-import org.eclipse.buildship.core.workspace.NewProjectHandler;
-import org.eclipse.buildship.ui.HelpContext;
-import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -35,9 +31,16 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IImportWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
-import org.gradle.tooling.ProgressListener;
 
-import java.util.List;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
+import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
+import org.eclipse.buildship.core.util.progress.AsyncHandler;
+import org.eclipse.buildship.core.workspace.NewProjectHandler;
+import org.eclipse.buildship.ui.HelpContext;
+import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
 
 /**
  * Eclipse wizard for importing Gradle projects into the workspace.
@@ -102,7 +105,7 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
         this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller.getConfiguration(),
                 new ProjectPreviewWizardPage.ProjectPreviewLoader() {
                     @Override
-                    public Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler, List<ProgressListener> listeners) {
+                    public Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> resultHandler, List<ProgressListener> listeners) {
                         ProjectPreviewJob projectPreviewJob = new ProjectPreviewJob(configuration, listeners, AsyncHandler.NO_OP, resultHandler);
                         projectPreviewJob.schedule();
                         return projectPreviewJob;

@@ -24,7 +24,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure;
+import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.Pair;
 
@@ -127,7 +127,7 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
                 ProjectWizardMessages.Title_NewGradleProjectOptionsWizardPage, ProjectWizardMessages.InfoMessage_NewGradleProjectOptionsWizardPageDefault, ProjectWizardMessages.InfoMessage_NewGradleProjectOptionsWizardPageContext);
         this.projectPreviewPage = new ProjectPreviewWizardPage(importConfiguration, new ProjectPreviewWizardPage.ProjectPreviewLoader() {
             @Override
-            public Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler, List<ProgressListener> listeners) {
+            public Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> resultHandler, List<ProgressListener> listeners) {
                 ProjectPreviewJob projectPreviewJob = new ProjectPreviewJob(importConfiguration, listeners, new NewGradleProjectInitializer(importConfiguration, listeners), resultHandler);
                 projectPreviewJob.schedule();
                 return projectPreviewJob;
