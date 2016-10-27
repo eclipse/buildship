@@ -13,6 +13,8 @@ package org.eclipse.buildship.ui.view.task;
 
 import com.google.common.base.Preconditions;
 
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -45,7 +47,7 @@ public final class WorkspaceProjectsChangeListener implements IResourceChangeLis
     @Override
     public void resourceChanged(IResourceChangeEvent event) {
         if (hasListOfProjectsChanged(event.getDelta())) {
-            this.taskView.reload();
+            this.taskView.reload(FetchStrategy.LOAD_IF_NOT_CACHED);
         }
     }
 
