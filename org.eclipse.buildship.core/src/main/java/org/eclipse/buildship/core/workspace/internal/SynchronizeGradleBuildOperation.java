@@ -201,10 +201,8 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
 
         CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, progress.newChild(1));
 
-        if (this.build != null) {
-            ProjectConfiguration configuration = ProjectConfiguration.from(this.build, project);
-            CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, workspaceProject);
-        }
+        ProjectConfiguration configuration = ProjectConfiguration.from(this.build, project);
+        CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, workspaceProject);
 
         LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), progress.newChild(1));
         markGradleSpecificFolders(project, workspaceProject, progress.newChild(1));
