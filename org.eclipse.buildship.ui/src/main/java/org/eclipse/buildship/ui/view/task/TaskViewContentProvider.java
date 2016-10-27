@@ -82,7 +82,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
 
         // find the corresponding Eclipse project in the workspace
         // (find by location rather than by name since the Eclipse project name does not always correspond to the Gradle project name)
-        Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(eclipseProject.getProjectDirectory());
+        Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByName(eclipseProject.getName());
 
         // create a new node for the given Eclipse project and then recurse into the children
         ProjectNode projectNode = new ProjectNode(parentProjectNode, eclipseProject, gradleProject, workspaceProject, isIncludedProject(workspaceProject, eclipseProject));
