@@ -8,15 +8,12 @@
  */
 package org.eclipse.buildship.ui.view.task;
 
-import java.util.Collections;
 import java.util.List;
-
-import org.gradle.tooling.GradleConnectionException;
+import java.util.Set;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
@@ -49,23 +46,18 @@ final class ReloadTaskViewJob extends ToolingApiJob {
     }
 
     private TaskViewContent loadContent(IProgressMonitor monitor) {
-        try {
-            List<OmniEclipseProject> projects = Lists.newArrayList();
+        List<OmniEclipseProject> projects = Lists.newArrayList();
 
-             for (GradleBuild gradleBuild : CorePlugin.gradleWorkspaceManager().getGradleBuilds()) {
-                 try {
-                     OmniEclipseGradleBuild eclipseBuild = gradleBuild.getModelProvider().fetchEclipseGradleBuild(this.modelFetchStrategy, getToken(), monitor);
-                     projects.addAll(eclipseBuild.getAllProjects());
-                 } catch (RuntimeException e) {
-                     CorePlugin.logger().debug("Eclipse model can't be loaded", e);
-                 }
+         for (GradleBuild gradleBuild : CorePlugin.gradleWorkspaceManager().getGradleBuilds()) {
+             try {
+                 Set<OmniEclipseProject> eclipseProjects = gradleBuild.getModelProvider().fetchEclipseGradleProjects(this.modelFetchStrategy, getToken(), monitor);
+                 projects.addAll(eclipseProjects);
+             } catch (RuntimeException e) {
+                 CorePlugin.logger().debug("Eclipse model can't be loaded", e);
              }
+         }
 
-            return new TaskViewContent(projects, null);
-        } catch (GradleConnectionException e) {
-            CorePlugin.logger().warn("Error loading tasks view", e);
-            return new TaskViewContent(Collections.<OmniEclipseProject> emptyList(), e);
-        }
+        return new TaskViewContent(projects, null);
     }
 
     private void refreshTaskView(final TaskViewContent content) {
