@@ -14,7 +14,6 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
@@ -81,8 +80,7 @@ public final class SynchronizeGradleBuildsJob extends ToolingApiJob {
     private Set<OmniEclipseProject> fetchEclipseProjects(GradleBuild build, SubMonitor progress) {
         progress.setTaskName("Loading Gradle project models");
         ModelProvider modelProvider = build.getModelProvider();
-        OmniEclipseGradleBuild eclipseBuild = modelProvider.fetchEclipseGradleBuild(FetchStrategy.FORCE_RELOAD, getToken(), progress);
-        return eclipseBuild.getAllProjects();
+        return modelProvider.fetchEclipseGradleProjects(FetchStrategy.FORCE_RELOAD, getToken(), progress);
     }
 
     /**
