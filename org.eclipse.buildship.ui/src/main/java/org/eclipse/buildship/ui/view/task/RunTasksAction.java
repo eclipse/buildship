@@ -13,9 +13,9 @@ package org.eclipse.buildship.ui.view.task;
 
 import org.eclipse.buildship.ui.PluginImage;
 import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.view.CommandBackedAction;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
+import org.eclipse.buildship.ui.view.CommandBackedAction;
 
 /**
  * Runs the selected Gradle tasks.
@@ -43,7 +43,15 @@ public final class RunTasksAction extends CommandBackedAction implements Selecti
 
     @Override
     public void setEnabledFor(NodeSelection selection) {
-        setEnabled(isEnabledFor(selection));
+        boolean isEnabled = isEnabledFor(selection);
+        setEnabled(isEnabled);
+        if (isEnabled) {
+            setText(TaskViewMessages.Action_RunTasks_Text);
+            setImageDescriptor(PluginImages.RUN_TASKS.withState(PluginImage.ImageState.ENABLED).getImageDescriptor());
+        } else {
+            setText(TaskViewMessages.Action_RunTasks_Text_Disabled);
+            setImageDescriptor(PluginImages.RUN_TASKS.withState(PluginImage.ImageState.DISABLED).getImageDescriptor());
+        }
     }
 
 }
