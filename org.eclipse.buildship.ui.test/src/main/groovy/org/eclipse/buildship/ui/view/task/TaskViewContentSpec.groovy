@@ -177,7 +177,7 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
     }
 
     private def reloadTaskView() {
-        view.reload()
+        view.reload(FetchStrategy.FORCE_RELOAD)
         waitForTaskView()
     }
 
