@@ -32,7 +32,7 @@ import org.eclipse.buildship.ui.util.image.ImageUtils;
 public enum PluginImages implements PluginImage {
 
     // @formatter:off
-    TASK(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/task.png")),
+    TASK(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/task.png", ImageState.DISABLED, "icons/full/obj16/task_disabled.png")),
     TASK_GROUP(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/task-group.png")),
     OVERLAY_PROJECT_TASK(ImmutableMap.of(ImageState.ENABLED, "icons/full/ovr16/task_project.png")),
     OVERLAY_TASK_SELECTOR(ImmutableMap.of(ImageState.ENABLED, "icons/full/ovr16/task_selector.png")),

@@ -127,7 +127,7 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
         if (!projectTask.isPublic()) {
             overlayImages.add(PluginImages.OVERLAY_PRIVATE_TASK.withState(ImageState.ENABLED));
         }
-        return getOverlayImage(overlayImages.build());
+        return getOverlayImage(projectTask, overlayImages.build());
     }
 
     private Image getOverlayImageForTaskSelector(TaskSelectorNode taskSelector) {
@@ -136,11 +136,12 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
         if (!taskSelector.isPublic()) {
             overlayImages.add(PluginImages.OVERLAY_PRIVATE_TASK.withState(ImageState.ENABLED));
         }
-        return getOverlayImage(overlayImages.build());
+        return getOverlayImage(taskSelector, overlayImages.build());
     }
 
-    private Image getOverlayImage(List<PluginImageWithState> overlayImages) {
-        return PluginImages.TASK.withState(ImageState.ENABLED).getOverlayImage(overlayImages);
+    private Image getOverlayImage(TaskNode taskNode, List<PluginImageWithState> overlayImages) {
+        ImageState state = taskNode.getParentProjectNode().isIncludedProject() ? ImageState.DISABLED : ImageState.ENABLED;
+        return PluginImages.TASK.withState(state).getOverlayImage(overlayImages);
     }
 
     @Override
