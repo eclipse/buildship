@@ -23,7 +23,6 @@ import org.osgi.util.tracker.ServiceTracker;
 
 import com.gradleware.tooling.toolingclient.ToolingClient;
 import com.gradleware.tooling.toolingclient.ToolingClient.CleanUpStrategy;
-import com.gradleware.tooling.toolingmodel.repository.Environment;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProvider;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProviderFactory;
 
@@ -46,8 +45,8 @@ import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.util.logging.EclipseLogger;
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
-import org.eclipse.buildship.core.workspace.internal.DefaultWorkspaceOperations;
 import org.eclipse.buildship.core.workspace.internal.DefaultGradleWorkspaceManager;
+import org.eclipse.buildship.core.workspace.internal.DefaultWorkspaceOperations;
 
 /**
  * The plug-in runtime class for the Gradle integration plugin containing the non-UI elements.
@@ -181,7 +180,7 @@ public final class CorePlugin extends Plugin {
 
     private ModelRepositoryProvider createModelRepositoryProvider() {
         ToolingClient toolingClient = (ToolingClient) this.toolingClientServiceTracker.getService();
-        return ModelRepositoryProviderFactory.create(toolingClient, Environment.ECLIPSE);
+        return ModelRepositoryProviderFactory.create(toolingClient);
     }
 
     private WorkspaceOperations createWorkspaceOperations() {
