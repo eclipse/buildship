@@ -38,7 +38,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.classpath.ClasspathUtils;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
@@ -84,15 +83,7 @@ final class GradleClasspathContainerUpdater {
 
                     @Override
                     public IClasspathEntry apply(OmniEclipseProjectDependency dependency) {
-                        IPath path;
-                        Optional<File> targetProjectDir = dependency.getTargetProjectDir();
-                        if (targetProjectDir.isPresent()) {
-                            OmniEclipseProject dependentProject = GradleClasspathContainerUpdater.this.projectDirToProject.get(targetProjectDir.get());
-                            String actualName = CorePlugin.workspaceOperations().normalizeProjectName(dependentProject.getName(), dependentProject.getProjectDirectory());
-                            path = new Path("/" + actualName);
-                        } else {
-                            path = new Path("/" + dependency.getPath());
-                        }
+                        IPath path = new Path("/" + dependency.getPath());
                         return JavaCore.newProjectEntry(path, ClasspathUtils.createAccessRules(dependency), true, ClasspathUtils.createClasspathAttributes(dependency), dependency.isExported());
                     }
                 }).toList();
