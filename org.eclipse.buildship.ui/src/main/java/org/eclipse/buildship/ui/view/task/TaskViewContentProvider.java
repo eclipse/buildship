@@ -96,7 +96,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         if (!workspaceProject.isPresent()) {
             return false;
         } else {
-            File projectDirectory = modelProject.getRoot().getProjectDirectory();
+            File projectDirectory = modelProject.getProjectIdentifier().getBuildIdentifier().getRootDir();
             ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(workspaceProject.get());
             return !projectDirectory.equals(configuration.getRootProjectDirectory());
         }
