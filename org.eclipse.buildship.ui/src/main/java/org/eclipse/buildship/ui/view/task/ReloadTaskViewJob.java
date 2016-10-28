@@ -53,7 +53,7 @@ final class ReloadTaskViewJob extends ToolingApiJob {
                  Set<OmniEclipseProject> eclipseProjects = gradleBuild.getModelProvider().fetchEclipseGradleProjects(this.modelFetchStrategy, getToken(), monitor);
                  projects.addAll(eclipseProjects);
              } catch (RuntimeException e) {
-                 CorePlugin.logger().debug("Eclipse model can't be loaded", e);
+                 CorePlugin.logger().warn("Tasks can't be loaded for project located at " + gradleBuild.getRequestAttributes().getProjectDir().getAbsolutePath(), e);
              }
          }
 
