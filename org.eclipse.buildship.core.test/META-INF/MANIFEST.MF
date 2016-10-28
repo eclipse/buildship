@@ -4,7 +4,7 @@ Bundle-Name: Buildship, Eclipse Plug-ins for Gradle - Core Test
 Bundle-SymbolicName: org.eclipse.buildship.core.test;singleton:=true
 Bundle-Version: 2.0.0.qualifier
 Bundle-Vendor: Eclipse Buildship
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Fragment-Host: org.eclipse.buildship.core
 Comment: junit has to be a required bundle, otherwise the tests won't launch for headless builds
 Require-Bundle: org.junit

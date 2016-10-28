@@ -237,11 +237,9 @@ subprojects {
     // for later versions the minimum execution environment is Java 8
     // try to compile with the minimum required JDK if the location is specified by the caller or if it can be derived
     plugins.withType(JavaPlugin) {
-        sourceCompatibility = 1.6
+        sourceCompatibility = 1.7
         String targetPlatformVersion = Config.on(project).targetPlatform.eclipseVersion
-        if (targetPlatformVersion < '45') {
-            targetCompatibility = 1.6
-        } else if (targetPlatformVersion == '45') {
+        if (targetPlatformVersion < '46') {
             targetCompatibility = 1.7
         } else {
             targetCompatibility = 1.8
