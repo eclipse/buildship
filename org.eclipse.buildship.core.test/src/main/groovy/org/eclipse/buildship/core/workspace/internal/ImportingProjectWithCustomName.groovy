@@ -14,7 +14,7 @@ package org.eclipse.buildship.core.workspace.internal
 import com.google.common.util.concurrent.FutureCallback
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure
+import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
 import com.gradleware.tooling.toolingmodel.util.Pair
 
 import org.eclipse.core.resources.IProject
@@ -145,13 +145,13 @@ class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification
             '''
         }
 
-        FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> previewResultHandler = Mock()
+        FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> previewResultHandler = Mock()
 
         when:
         previewAndWait(location, previewResultHandler)
 
         then:
-        1 * previewResultHandler.onSuccess { it.second.rootProjects[0].name == 'app' }
+        1 * previewResultHandler.onSuccess { it.second.rootProject.name == 'app' }
     }
 
 }

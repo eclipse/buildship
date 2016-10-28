@@ -4,17 +4,15 @@ import com.google.common.util.concurrent.FutureCallback
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
-import com.gradleware.tooling.toolingmodel.OmniGradleBuildStructure
+import com.gradleware.tooling.toolingmodel.OmniGradleBuild
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 import com.gradleware.tooling.toolingmodel.util.Pair
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IWorkspace
-import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.Path
-import org.eclipse.core.runtime.jobs.Job
 
-import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
@@ -52,13 +50,13 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         waitForGradleJobsToFinish()
     }
 
-    protected void previewAndWait(File location, FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler) {
+    protected void previewAndWait(File location, FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> resultHandler) {
         def job = newProjectPreviewJob(location, GradleDistribution.fromBuild(), resultHandler)
         job.schedule()
         job.join()
     }
 
-    private ProjectPreviewJob newProjectPreviewJob(File location, GradleDistribution distribution, FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuildStructure>> resultHandler) {
+    private ProjectPreviewJob newProjectPreviewJob(File location, GradleDistribution distribution, FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> resultHandler) {
         ProjectImportConfiguration configuration = new ProjectImportConfiguration()
         configuration.gradleDistribution = GradleDistributionWrapper.from(distribution)
         configuration.projectDir = location
