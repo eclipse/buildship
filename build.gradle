@@ -244,7 +244,9 @@ subprojects {
             // enable all warnings except for different sourceCompatibility and targetCompatibility value
             options.compilerArgs << '-Xlint:all'
             options.compilerArgs << '-Xlint:-options'
-            options.compilerArgs << '-Werror'
+            if (targetPlatformVersion >= '46') {
+                options.compilerArgs << '-Werror'                
+            }
             options.fork = true
 
             if (OperatingSystem.current().isMacOsX()) {
