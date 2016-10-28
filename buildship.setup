@@ -27,7 +27,7 @@
     <repository
         url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.6"/>
     <repository
-        url="http://download.eclipse.org/buildship/updates/e45/snapshots/${buildship.latest.version}"/>
+        url="http://download.eclipse.org/buildship/updates/e46/snapshots/${buildship.latest.version}"/>
     <description>Installs the required plugins to the IDE.</description>
   </setupTask>
   <setupTask
@@ -66,17 +66,17 @@
           xsi:type="setup:PreferenceTask"
           id="buildship.preferences.compiler.source"
           key="instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.source"
-          value="1.6"/>
+          value="1.7"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
           id="buildship.preferences.compiler.compilance"
           key="instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.compliance"
-          value="1.6"/>
+          value="1.7"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
           id="buildship.preferences.compiler.codegen"
           key="instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.codegen.targetPlatform"
-          value="1.6"/>
+          value="1.7"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
           id="buildship.preferences.compiler.goovycompilerlevel"
@@ -197,7 +197,7 @@
         xsi:type="setup:VariableTask"
         id="buildship.variables.buildshiptargetplatform"
         name="buildship.target.platform"
-        defaultValue="Mars"
+        defaultValue="Neon"
         label="Buildship Target Platform">
       <choice
           value="Neon"
@@ -226,7 +226,7 @@
         xsi:type="setup:VariableTask"
         id="buildship.variables.latestversion"
         name="buildship.latest.version"
-        value="1.0"
+        value="2.0"
         defaultValue=""/>
   </setupTask>
   <setupTask
