@@ -60,6 +60,7 @@ public final class CoreMessages extends NLS {
     public static String ErrorMessage_0_AlreadyExists;
 
     public static String Preference_Label_GradleUserHome;
+    public static String Preference_Label_GradleOfflineMode;
 
     static {
         // initialize resource bundle

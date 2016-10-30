@@ -13,7 +13,9 @@ package org.eclipse.buildship.core.configuration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -49,13 +51,20 @@ public final class ProjectConfiguration {
     }
 
     public FixedRequestAttributes toRequestAttributes() {
+        WorkspaceConfiguration workspaceConfiguration = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
+        List<String> arguments = new ArrayList<>();
+
+        if (workspaceConfiguration.getGradleIsOffline()) {
+            arguments.add("--offline");
+        }
+
         return new FixedRequestAttributes(
                 this.rootProjectDirectory,
-                CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration().getGradleUserHome(),
+                workspaceConfiguration.getGradleUserHome(),
                 this.gradleDistribution,
                 null,
                 Collections.<String> emptyList(),
-                Collections.<String> emptyList()
+                arguments
         );
     }
 

@@ -55,6 +55,7 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
     private final Validator<File> gradleUserHomeValidator;
 
     private Text gradleUserHomeText;
+    private Button gradleIsOfflineCheckbox;
 
     public GradleWorkbenchPreferencePage() {
         this.defaultFont = FontUtils.getDefaultDialogFont();
@@ -70,10 +71,16 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
 
         Group gradleUserHomeGroup = createGroup(page, CoreMessages.Preference_Label_GradleUserHome + ":");
         createGradleUserHomeSelectionControl(gradleUserHomeGroup);
+        createGradleIsOfflineCheckbox(page);
 
         initFields();
 
         return page;
+    }
+
+    private void createGradleIsOfflineCheckbox(Composite page) {
+        this.gradleIsOfflineCheckbox = new Button(page, SWT.CHECK);
+        this.gradleIsOfflineCheckbox.setText(CoreMessages.Preference_Label_GradleOfflineMode);
     }
 
     private Group createGroup(Composite parent, String groupName) {
@@ -125,12 +132,13 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
         WorkspaceConfiguration config = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
         File gradleUserHome = config.getGradleUserHome();
         this.gradleUserHomeText.setText(gradleUserHome == null ? "" : gradleUserHome.getPath());
+        this.gradleIsOfflineCheckbox.setSelection(config.getGradleIsOffline());
     }
 
     @Override
     public boolean performOk() {
         String gradleUserHome = this.gradleUserHomeText.getText();
-        WorkspaceConfiguration config = new WorkspaceConfiguration(gradleUserHome.isEmpty() ? null : new File(gradleUserHome));
+        WorkspaceConfiguration config = new WorkspaceConfiguration(gradleUserHome.isEmpty() ? null : new File(gradleUserHome), this.gradleIsOfflineCheckbox.getSelection());
         CorePlugin.workspaceConfigurationManager().saveWorkspaceConfiguration(config);
         return super.performOk();
     }

@@ -20,13 +20,19 @@ import org.gradle.api.Nullable;
 public final class WorkspaceConfiguration {
 
     private final File gradleUserHome;
+    private final boolean gradleIsOffline;
 
-    public WorkspaceConfiguration(File gradleUserHome) {
+    public WorkspaceConfiguration(File gradleUserHome, boolean gradleIsOffline) {
         this.gradleUserHome = gradleUserHome;
+        this.gradleIsOffline = gradleIsOffline;
     }
 
     @Nullable
     public File getGradleUserHome() {
         return this.gradleUserHome;
+    }
+
+    public boolean getGradleIsOffline() {
+        return this.gradleIsOffline;
     }
 }
