@@ -182,13 +182,9 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
      * @param content the content, never null
      */
     public void setContent(TaskViewContent content) {
-        if (content.getFailure() == null) {
-            List<OmniEclipseProject> models = content.getProjects();
-            this.pages.showPage(models.isEmpty() ? this.emptyInputPage : this.nonEmptyInputPage);
-            this.treeViewer.setInput(content);
-        } else {
-            this.pages.showPage(this.errorInputPage);
-        }
+        List<OmniEclipseProject> models = content.getProjects();
+        this.pages.showPage(models.isEmpty() ? this.emptyInputPage : this.nonEmptyInputPage);
+        this.treeViewer.setInput(content);
     }
 
     /**

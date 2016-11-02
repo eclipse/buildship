@@ -57,7 +57,7 @@ final class ReloadTaskViewJob extends ToolingApiJob {
              }
          }
 
-        return new TaskViewContent(projects, null);
+        return new TaskViewContent(projects);
     }
 
     private void refreshTaskView(final TaskViewContent content) {

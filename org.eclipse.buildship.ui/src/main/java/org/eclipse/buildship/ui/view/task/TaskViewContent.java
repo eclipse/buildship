@@ -13,8 +13,6 @@ package org.eclipse.buildship.ui.view.task;
 
 import java.util.List;
 
-import org.gradle.tooling.GradleConnectionException;
-
 import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
@@ -24,22 +22,14 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
  */
 public final class TaskViewContent {
 
-    private final GradleConnectionException failure;
     private final List<OmniEclipseProject> projects;
 
-    public TaskViewContent(List<OmniEclipseProject> projects, GradleConnectionException failure) {
+    public TaskViewContent(List<OmniEclipseProject> projects) {
         this.projects = ImmutableList.copyOf(projects);
-        this.failure = failure;
     }
 
     public List<OmniEclipseProject> getProjects() {
-        if (this.failure != null) {
-            throw this.failure;
-        }
         return this.projects;
     }
 
-    public Exception getFailure() {
-        return this.failure;
-    }
 }
