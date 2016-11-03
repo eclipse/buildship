@@ -33,10 +33,9 @@ public enum PluginImages implements PluginImage {
 
     // @formatter:off
     TASK(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/task.png", ImageState.DISABLED, "icons/full/obj16/task_disabled.png")),
+    PRIVATE_TASK(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/task_private.png")),
+    PROJECT_TASK(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/task_project.png")),
     TASK_GROUP(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/task-group.png")),
-    OVERLAY_PROJECT_TASK(ImmutableMap.of(ImageState.ENABLED, "icons/full/ovr16/task_project.png")),
-    OVERLAY_TASK_SELECTOR(ImmutableMap.of(ImageState.ENABLED, "icons/full/ovr16/task_selector.png")),
-    OVERLAY_PRIVATE_TASK(ImmutableMap.of(ImageState.ENABLED, "icons/full/ovr16/task_private.png")),
     SORT_BY_TYPE(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/sort_by_type.png")),
     SORT_BY_VISIBILITY(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/sort_by_visibility.png")),
     RUN_TASKS(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/run_tasks.png")),

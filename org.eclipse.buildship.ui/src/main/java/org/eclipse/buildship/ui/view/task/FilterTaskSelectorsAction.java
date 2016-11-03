@@ -12,7 +12,6 @@
 package org.eclipse.buildship.ui.view.task;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 
 import org.eclipse.jface.action.Action;
 
@@ -32,8 +31,7 @@ public final class FilterTaskSelectorsAction extends Action {
         this.taskViewer = Preconditions.checkNotNull(taskViewer);
 
         setText(TaskViewMessages.Action_FilterTaskSelectors_Text);
-        setImageDescriptor(PluginImages.TASK.withState(ImageState.ENABLED).getOverlayImageDescriptor(
-                ImmutableList.of(PluginImages.OVERLAY_TASK_SELECTOR.withState(ImageState.ENABLED))));
+        setImageDescriptor(PluginImages.TASK.withState(ImageState.ENABLED).getImageDescriptor());
         setChecked(taskViewer.getState().isTaskSelectorsVisible());
     }
 

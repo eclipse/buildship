@@ -11,10 +11,7 @@
 
 package org.eclipse.buildship.ui.view.task;
 
-import java.util.List;
-
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
@@ -27,7 +24,6 @@ import org.eclipse.ui.ide.IDE.SharedImages;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 
 import org.eclipse.buildship.ui.PluginImage.ImageState;
-import org.eclipse.buildship.ui.PluginImageWithState;
 import org.eclipse.buildship.ui.PluginImages;
 
 /**
@@ -114,34 +110,20 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
     }
 
     private Image getProjectTaskImage(ProjectTaskNode projectTask) {
-        return getOverlayImageForProjectTask(projectTask);
+        // FIXME (donat) if the project is private a 'private project task' icon should be presented
+        return PluginImages.PROJECT_TASK.withState(getImageState(projectTask)).getImage();
     }
 
     private Image getTaskSelectorImage(TaskSelectorNode taskSelector) {
-        return getOverlayImageForTaskSelector(taskSelector);
-    }
-
-    private Image getOverlayImageForProjectTask(ProjectTaskNode projectTask) {
-        ImmutableList.Builder<PluginImageWithState> overlayImages = ImmutableList.builder();
-        overlayImages.add(PluginImages.OVERLAY_PROJECT_TASK.withState(ImageState.ENABLED));
-        if (!projectTask.isPublic()) {
-            overlayImages.add(PluginImages.OVERLAY_PRIVATE_TASK.withState(ImageState.ENABLED));
-        }
-        return getOverlayImage(projectTask, overlayImages.build());
-    }
-
-    private Image getOverlayImageForTaskSelector(TaskSelectorNode taskSelector) {
-        ImmutableList.Builder<PluginImageWithState> overlayImages = ImmutableList.builder();
-        overlayImages.add(PluginImages.OVERLAY_TASK_SELECTOR.withState(ImageState.ENABLED));
         if (!taskSelector.isPublic()) {
-            overlayImages.add(PluginImages.OVERLAY_PRIVATE_TASK.withState(ImageState.ENABLED));
+            return PluginImages.PRIVATE_TASK.withState(getImageState(taskSelector)).getImage();
+        } else {
+            return PluginImages.TASK.withState(getImageState(taskSelector)).getImage();
         }
-        return getOverlayImage(taskSelector, overlayImages.build());
     }
 
-    private Image getOverlayImage(TaskNode taskNode, List<PluginImageWithState> overlayImages) {
-        ImageState state = taskNode.getParentProjectNode().isIncludedProject() ? ImageState.DISABLED : ImageState.ENABLED;
-        return PluginImages.TASK.withState(state).getOverlayImage(overlayImages);
+    private ImageState getImageState(TaskNode taskNode) {
+        return taskNode.getParentProjectNode().isIncludedProject() ? ImageState.DISABLED : ImageState.ENABLED;
     }
 
     @Override

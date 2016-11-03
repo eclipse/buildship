@@ -67,7 +67,7 @@
       <editor
             id="org.eclipse.buildship.ui.gradlebuildscripteditor"
             class="org.eclipse.ui.editors.text.TextEditor"
-            icon="icons/full/obj16/gradle_logo.png"
+            icon="icons/full/obj16/gradle_file.png"
             name="Gradle Build Script Editor"
             default="false"
             extensions="gradle">
