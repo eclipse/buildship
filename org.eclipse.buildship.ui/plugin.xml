@@ -263,8 +263,8 @@
           point="org.eclipse.ui.commandImages">
        <image
              commandId="org.eclipse.buildship.ui.commands.refreshtaskview"
-             icon="icons/full/elcl16/refresh.gif"
-             disabledIcon="icons/full/dlcl16/refresh.gif">
+             icon="icons/full/elcl16/refresh.png"
+             disabledIcon="icons/full/dlcl16/refresh.png">
        </image>
        <image
              commandId="org.eclipse.buildship.ui.commands.runtasks"
@@ -273,8 +273,8 @@
        </image>
        <image
              commandId="org.eclipse.buildship.ui.commands.refreshproject"
-             icon="icons/full/elcl16/refresh.gif"
-             disabledIcon="icons/full/dlcl16/refresh.gif">
+             icon="icons/full/elcl16/refresh.png"
+             disabledIcon="icons/full/dlcl16/refresh.png">
        </image>
        <image
              commandId="org.eclipse.buildship.ui.commands.addbuildshipnature"
