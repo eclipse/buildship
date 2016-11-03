@@ -17,22 +17,32 @@ import java.util.List;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
+import org.eclipse.jface.wizard.IWizard;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.wizards.IWizardDescriptor;
 
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.ui.UiPluginConstants;
 import org.eclipse.buildship.ui.external.viewer.FilteredTree;
 import org.eclipse.buildship.ui.external.viewer.PatternFilter;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
@@ -52,7 +62,7 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
     private SelectionHistoryManager selectionHistoryManager;
 
     private PageBook pages;
-    private Label emptyInputPage;
+    private Link emptyInputPage;
     private Label errorInputPage;
     private Composite nonEmptyInputPage;
     private TreeViewer treeViewer;
@@ -74,7 +84,7 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
         this.pages = new PageBook(parent, SWT.NONE);
 
         // if there is no task data to display, show only a label
-        this.emptyInputPage = new Label(this.pages, SWT.NONE);
+        this.emptyInputPage = new Link(this.pages, SWT.NONE);
         this.emptyInputPage.setText(TaskViewMessages.Label_No_Gradle_Projects);
 
         // if there is a problem loading the task data, show an error label
@@ -110,6 +120,21 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
         final TreeColumn taskDescriptionColumn = treeViewerDescriptionColumn.getColumn();
         taskDescriptionColumn.setText(TaskViewMessages.Tree_Column_Description_Text);
         taskDescriptionColumn.setWidth(this.state.getHeaderDescriptionColumnWidth());
+
+        // open the import wizard if the empty input page link is selected
+        this.emptyInputPage.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                try {
+                    IWizardDescriptor descriptor = PlatformUI.getWorkbench().getImportWizardRegistry().findWizard(UiPluginConstants.IMPORT_WIZARD_ID);
+                    IWizard wizard = descriptor.createWizard();
+                    WizardDialog dialog = new WizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
+                    dialog.open();
+                } catch (CoreException e) {
+                    throw new GradlePluginsRuntimeException(e);
+                }
+            }
+        });
 
         // when changed save the header width into the state
         taskNameColumn.addControlListener(new ControlAdapter() {

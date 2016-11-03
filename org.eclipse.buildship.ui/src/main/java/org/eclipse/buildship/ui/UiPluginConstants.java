@@ -70,6 +70,8 @@ public final class UiPluginConstants {
      */
     public static final String JAVA = "org.eclipse.jdt.ui.JavaWorkingSetPage"; //$NON-NLS-1$
 
+    public static final String IMPORT_WIZARD_ID = "org.eclipse.buildship.ui.wizards.project.import";
+
     private UiPluginConstants() {
     }
 
