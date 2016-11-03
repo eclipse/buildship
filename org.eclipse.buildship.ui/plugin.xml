@@ -268,8 +268,8 @@
        </image>
        <image
              commandId="org.eclipse.buildship.ui.commands.runtasks"
-             icon="icons/full/elcl16/run.png"
-             disabledIcon="icons/full/dlcl16/run.png">
+             icon="icons/full/elcl16/run_tasks.png"
+             disabledIcon="icons/full/dlcl16/run_tasks.png">
        </image>
        <image
              commandId="org.eclipse.buildship.ui.commands.refreshproject"
