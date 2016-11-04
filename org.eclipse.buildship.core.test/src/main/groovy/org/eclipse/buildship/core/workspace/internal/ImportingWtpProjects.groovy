@@ -157,7 +157,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         }
 
         when:
-        importAndWait(root, GradleDistribution.forVersion("2.14-20160505000028+0000"))
+        importAndWait(root)
 
         then:
         def project = findProject('project')
@@ -179,7 +179,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         }
 
         when:
-        importAndWait(root, GradleDistribution.forVersion("2.14-20160505000028+0000"))
+        importAndWait(root)
 
         then:
         def project = findProject('project')
@@ -201,7 +201,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         }
 
         when:
-        importAndWait(root, GradleDistribution.forVersion("2.14-20160505000028+0000"))
+        importAndWait(root)
 
         then:
         def project = findProject('project')
@@ -223,7 +223,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         }
 
         when:
-        importAndWait(root, GradleDistribution.forVersion("2.14-20160505000028+0000"))
+        importAndWait(root)
 
         then:
         def project = findProject('project')
@@ -246,7 +246,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         }
 
         when:
-        importAndWait(root, GradleDistribution.forVersion("2.14-20160505000028+0000"))
+        importAndWait(root)
 
         then:
         def project = findProject('project')
@@ -273,7 +273,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         environment.registerService(Logger, logger)
 
         when:
-        importAndWait(root, GradleDistribution.forVersion("2.14-20160505000028+0000"))
+        importAndWait(root)
 
         then:
         0 * logger.error(*_)
