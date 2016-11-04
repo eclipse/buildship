@@ -278,7 +278,7 @@
        </image>
        <image
              commandId="org.eclipse.buildship.ui.commands.addbuildshipnature"
-             icon="icons/full/etool16/import_wiz.png">
+             icon="icons/full/eview16/tasks_view.png">
        </image>
     </extension>
 

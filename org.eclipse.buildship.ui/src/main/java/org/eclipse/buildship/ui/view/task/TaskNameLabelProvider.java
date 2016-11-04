@@ -23,6 +23,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE.SharedImages;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 
+import org.eclipse.buildship.ui.PluginImage;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
 
@@ -110,16 +111,13 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
     }
 
     private Image getProjectTaskImage(ProjectTaskNode projectTask) {
-        // FIXME (donat) if the project is private a 'private project task' icon should be presented
-        return PluginImages.PROJECT_TASK.withState(getImageState(projectTask)).getImage();
+        PluginImage image = projectTask.isPublic() ? PluginImages.PROJECT_TASK : PluginImages.PRIVATE_PROJECT_TASK;
+        return image.withState(getImageState(projectTask)).getImage();
     }
 
     private Image getTaskSelectorImage(TaskSelectorNode taskSelector) {
-        if (!taskSelector.isPublic()) {
-            return PluginImages.PRIVATE_TASK.withState(getImageState(taskSelector)).getImage();
-        } else {
-            return PluginImages.TASK.withState(getImageState(taskSelector)).getImage();
-        }
+        PluginImage image = taskSelector.isPublic() ? PluginImages.TASK : PluginImages.PRIVATE_TASK;
+        return image.withState(getImageState(taskSelector)).getImage();
     }
 
     private ImageState getImageState(TaskNode taskNode) {

@@ -33,12 +33,13 @@ public enum PluginImages implements PluginImage {
 
     // @formatter:off
     TASK(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/task.png", ImageState.DISABLED, "icons/full/obj16/task_disabled.png")),
-    PRIVATE_TASK(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/task_private.png")),
-    PROJECT_TASK(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/task_project.png")),
+    PRIVATE_TASK(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/task_private.png", ImageState.DISABLED, "icons/full/obj16/task_disabled.png")),
+    PROJECT_TASK(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/task_project.png", ImageState.DISABLED, "icons/full/obj16/task_disabled.png")),
+    PRIVATE_PROJECT_TASK(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/task_project_private.png", ImageState.DISABLED, "icons/full/obj16/task_disabled.png")),
     TASK_GROUP(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/task-group.png")),
     SORT_BY_TYPE(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/sort_by_type.png")),
     SORT_BY_VISIBILITY(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/sort_by_visibility.png")),
-    RUN_TASKS(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/run_tasks.png")),
+    RUN_TASKS(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/run_tasks.png", ImageState.DISABLED, "icons/full/obj16/task_disabled.png")),
     REFRESH(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/refresh.png", ImageState.DISABLED, "icons/full/dlcl16/refresh.png")),
     LINK_TO_SELECTION(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/link_to_selection.png")),
     REMOVE_CONSOLE(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/remove_page.png", ImageState.DISABLED, "icons/full/dlcl16/remove_page.png")),
