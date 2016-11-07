@@ -32,7 +32,7 @@ public final class WorkspaceConfiguration {
         return this.gradleUserHome;
     }
 
-    public boolean getGradleIsOffline() {
+    public boolean isOffline() {
         return this.gradleIsOffline;
     }
 }

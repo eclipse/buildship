@@ -54,7 +54,7 @@ public final class ProjectConfiguration {
         WorkspaceConfiguration workspaceConfiguration = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
         List<String> arguments = new ArrayList<>();
 
-        if (workspaceConfiguration.getGradleIsOffline()) {
+        if (workspaceConfiguration.isOffline()) {
             arguments.add("--offline");
         }
 
