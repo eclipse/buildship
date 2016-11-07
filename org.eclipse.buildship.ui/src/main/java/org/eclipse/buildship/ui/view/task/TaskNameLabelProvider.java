@@ -14,14 +14,14 @@ package org.eclipse.buildship.ui.view.task;
 import com.google.common.base.Optional;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
-import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE.SharedImages;
-import org.eclipse.ui.model.WorkbenchLabelProvider;
 
 import org.eclipse.buildship.ui.PluginImage;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
@@ -32,11 +32,7 @@ import org.eclipse.buildship.ui.PluginImages;
  */
 public final class TaskNameLabelProvider extends LabelProvider implements IStyledLabelProvider {
 
-    private final ILabelProvider workbenchLabelProvider;
-
-    public TaskNameLabelProvider() {
-        this.workbenchLabelProvider = WorkbenchLabelProvider.getDecoratingWorkbenchLabelProvider();
-    }
+    // We use internal, standalone icons because the platform's image overlay mechanism provides blurry images on high-resolution monitors
 
     @Override
     public String getText(Object element) {
@@ -53,6 +49,8 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
             return getProjectText((ProjectNode) element);
         } else if (element instanceof TaskGroupNode) {
             return getGroupText((TaskGroupNode) element);
+        } else if (element instanceof FaultyProjectNode) {
+            return new StyledString(((FaultyProjectNode)element).getProject().getName());
         } else {
             throw new IllegalStateException(String.format("Unknown element type of element %s.", element));
         }
@@ -67,6 +65,8 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
             return getTaskSelectorImage((TaskSelectorNode) element);
         } else if (element instanceof ProjectNode) {
             return getProjectImage((ProjectNode) element);
+        } else if (element instanceof FaultyProjectNode) {
+            return getFaultyProjectImage((FaultyProjectNode) element);
         } else if (element instanceof TaskGroupNode) {
             return getGroupImage((TaskGroupNode) element);
         } else {
@@ -99,11 +99,27 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
 
     private Image getProjectImage(ProjectNode project) {
         Optional<IProject> workspaceProject = project.getWorkspaceProject();
-        if (workspaceProject.isPresent()) {
-            return this.workbenchLabelProvider.getImage(workspaceProject.get());
-        } else {
+        if (!workspaceProject.isPresent() || !workspaceProject.get().isOpen()) {
             return PlatformUI.getWorkbench().getSharedImages().getImage(SharedImages.IMG_OBJ_PROJECT_CLOSED);
         }
+
+        if (isJavaProject(workspaceProject.get())) {
+            return PluginImages.JAVA_PROJECT.withState(ImageState.ENABLED).getImage();
+        } else {
+            return PluginImages.PROJECT.withState(ImageState.ENABLED).getImage();
+        }
+    }
+
+    private static boolean isJavaProject(IProject project) {
+        try {
+            return project.hasNature(JavaCore.NATURE_ID);
+        } catch (CoreException e) {
+            return false;
+        }
+    }
+
+    private Image getFaultyProjectImage(FaultyProjectNode node) {
+        return PluginImages.FAULTY_PROJECT.withState(ImageState.ENABLED).getImage();
     }
 
     private Image getGroupImage(TaskGroupNode element) {
@@ -123,11 +139,4 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
     private ImageState getImageState(TaskNode taskNode) {
         return taskNode.getParentProjectNode().isIncludedProject() ? ImageState.DISABLED : ImageState.ENABLED;
     }
-
-    @Override
-    public void dispose() {
-        this.workbenchLabelProvider.dispose();
-        super.dispose();
-    }
-
 }

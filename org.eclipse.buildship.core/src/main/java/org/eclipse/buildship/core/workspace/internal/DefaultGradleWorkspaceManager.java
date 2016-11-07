@@ -23,8 +23,8 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.workspace.GradleBuild;
-import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
 import org.eclipse.buildship.core.workspace.GradleBuilds;
+import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
 
 /**
  * Default implementation of {@link GradleWorkspaceManager}.

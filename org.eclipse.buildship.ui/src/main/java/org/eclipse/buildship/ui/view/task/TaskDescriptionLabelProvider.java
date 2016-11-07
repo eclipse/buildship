@@ -31,6 +31,8 @@ public final class TaskDescriptionLabelProvider extends ColumnLabelProvider {
     public String getText(Object element) {
         if (element instanceof ProjectNode) {
             return getProjectTaskText((ProjectNode) element);
+        } else if (element instanceof FaultyProjectNode) {
+            return getFaultyProjectTaskText((FaultyProjectNode) element);
         } else if (element instanceof ProjectTaskNode) {
             return getProjectTaskText((ProjectTaskNode) element);
         } else if (element instanceof TaskSelectorNode) {
@@ -46,12 +48,16 @@ public final class TaskDescriptionLabelProvider extends ColumnLabelProvider {
         return projectNode.getEclipseProject().getDescription();
     }
 
+    private String getFaultyProjectTaskText(FaultyProjectNode projectNode) {
+        return "";
+    }
+
     private String getTaskGroupText(TaskGroupNode taskGroup) {
         return "";
     }
 
     private String getProjectTaskText(ProjectTaskNode projectTask) {
-        return projectTask.getProjectTask().getDescription();
+        return "";
     }
 
     private String getTaskSelectorText(TaskSelectorNode taskSelector) {

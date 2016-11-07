@@ -17,6 +17,7 @@ import java.util.List;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -183,7 +184,8 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
      */
     public void setContent(TaskViewContent content) {
         List<OmniEclipseProject> models = content.getProjects();
-        this.pages.showPage(models.isEmpty() ? this.emptyInputPage : this.nonEmptyInputPage);
+        List<IProject> faultyProjects = content.getFaultyProjects();
+        this.pages.showPage((models.isEmpty() && faultyProjects.isEmpty()) ? this.emptyInputPage : this.nonEmptyInputPage);
         this.treeViewer.setInput(content);
     }
 

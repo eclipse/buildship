@@ -60,24 +60,29 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         if (input instanceof TaskViewContent) {
             TaskViewContent taskViewContent = (TaskViewContent) input;
             List<OmniEclipseProject> projects = taskViewContent.getProjects();
-            result.addAll(createTopLevelProjectNodes(projects));
+            List<IProject> faultyProjects = taskViewContent.getFaultyProjects();
+            result.addAll(createTopLevelProjectNodes(projects, faultyProjects));
         }
         return result.build().toArray();
     }
 
-    private List<ProjectNode> createTopLevelProjectNodes(List<OmniEclipseProject> projects) {
+    private List<Object> createTopLevelProjectNodes(List<OmniEclipseProject> projects, List<IProject> faultyProjects) {
         // flatten the tree of Gradle projects to a list, similar
         // to how Eclipse projects look in the Eclipse Project explorer
-        List<ProjectNode> allProjectNodes = Lists.newArrayList();
+        List<Object> allProjectNodes = Lists.newArrayList();
         for (OmniEclipseProject project : projects) {
             if (project.getParent() == null) {
                 collectProjectNodesRecursively(project, null, allProjectNodes);
             }
         }
+        for (IProject faultyProject : faultyProjects) {
+            allProjectNodes.add(new FaultyProjectNode(faultyProject));
+        }
+
         return allProjectNodes;
     }
 
-    private void collectProjectNodesRecursively(OmniEclipseProject eclipseProject, ProjectNode parentProjectNode, List<ProjectNode> allProjectNodes) {
+    private void collectProjectNodesRecursively(OmniEclipseProject eclipseProject, ProjectNode parentProjectNode, List<Object> allProjectNodes) {
         OmniGradleProject gradleProject = eclipseProject.getGradleProject();
 
         // find the corresponding Eclipse project in the workspace
@@ -95,11 +100,15 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
     private static boolean isIncludedProject(Optional<IProject> workspaceProject, OmniEclipseProject modelProject) {
         if (!workspaceProject.isPresent()) {
             return false;
-        } else {
-            File projectDirectory = modelProject.getProjectIdentifier().getBuildIdentifier().getRootDir();
-            ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(workspaceProject.get());
-            return !projectDirectory.equals(configuration.getRootProjectDirectory());
         }
+
+        Optional<ProjectConfiguration> configuration = CorePlugin.projectConfigurationManager().tryReadProjectConfiguration(workspaceProject.get());
+        if (!configuration.isPresent()) {
+            return false;
+        }
+
+        File projectDirectory = modelProject.getProjectIdentifier().getBuildIdentifier().getRootDir();
+        return !projectDirectory.equals(configuration.get().getRootProjectDirectory());
     }
 
     @Override

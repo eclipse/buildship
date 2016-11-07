@@ -27,15 +27,16 @@ public final class TaskNodeViewerSorter extends ViewerComparator {
 
     private final Ordering<ProjectNode> projectNodeOrdering;
     private final Ordering<TaskNode> taskNodeOrdering;
+    private final Ordering<FaultyProjectNode> faultyProjectOrdering;
 
     private TaskNodeViewerSorter(Ordering<ProjectNode> projectNodeOrdering, Ordering<TaskNode> taskNodeOrdering) {
         this.projectNodeOrdering = projectNodeOrdering;
         this.taskNodeOrdering = taskNodeOrdering;
+        this.faultyProjectOrdering = createLexicographicalFaultyProjectOrdering();
     }
 
     @Override
     public int compare(Viewer viewer, Object leftNode, Object rightNode) {
-        // we compare only tasks
         if (leftNode instanceof ProjectNode && rightNode instanceof ProjectNode) {
             ProjectNode left = (ProjectNode) leftNode;
             ProjectNode right = (ProjectNode) rightNode;
@@ -44,6 +45,14 @@ public final class TaskNodeViewerSorter extends ViewerComparator {
             TaskNode left = (TaskNode) leftNode;
             TaskNode right = (TaskNode) rightNode;
             return this.taskNodeOrdering.compare(left, right);
+        } else if (leftNode instanceof FaultyProjectNode && rightNode instanceof ProjectNode) {
+            return 1;
+        } else if (leftNode instanceof ProjectNode && rightNode instanceof FaultyProjectNode) {
+            return -1;
+        } else  if (leftNode instanceof FaultyProjectNode && rightNode instanceof FaultyProjectNode) {
+            FaultyProjectNode left = (FaultyProjectNode) leftNode;
+            FaultyProjectNode right = (FaultyProjectNode) rightNode;
+            return this.faultyProjectOrdering.compare(left, right);
         } else {
             return super.compare(viewer, leftNode, rightNode);
         }
@@ -91,7 +100,7 @@ public final class TaskNodeViewerSorter extends ViewerComparator {
     private static Ordering<TaskNode> createTaskNodeOrdering(boolean byType, boolean byVisibility) {
         // sort (optionally) by type, then (optionally) by visibility and
         // at the end (always) lexicographically
-        Ordering<TaskNode> ord = createLexicographicalOrdering();
+        Ordering<TaskNode> ord = createLexicographicalTaskOrdering();
         if (byVisibility) {
             ord = createByVisibilityOrdering().compound(ord);
         }
@@ -101,12 +110,22 @@ public final class TaskNodeViewerSorter extends ViewerComparator {
         return ord;
     }
 
-    private static Ordering<TaskNode> createLexicographicalOrdering() {
+    private static Ordering<TaskNode> createLexicographicalTaskOrdering() {
         return new Ordering<TaskNode>() {
 
             @Override
             public int compare(TaskNode left, TaskNode right) {
                 return left.getName().compareTo(right.getName());
+            }
+        };
+    }
+
+    private static Ordering<FaultyProjectNode> createLexicographicalFaultyProjectOrdering() {
+        return new Ordering<FaultyProjectNode>() {
+
+            @Override
+            public int compare(FaultyProjectNode left, FaultyProjectNode right) {
+                return left.getProject().getName().compareTo(right.getProject().getName());
             }
         };
     }

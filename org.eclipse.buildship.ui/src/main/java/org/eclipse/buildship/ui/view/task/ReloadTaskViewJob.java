@@ -9,19 +9,23 @@
 package org.eclipse.buildship.ui.view.task;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 
@@ -47,17 +51,31 @@ final class ReloadTaskViewJob extends ToolingApiJob {
 
     private TaskViewContent loadContent(IProgressMonitor monitor) {
         List<OmniEclipseProject> projects = Lists.newArrayList();
+        Map<String, IProject> faultyProjects = allGradleWorkspaceProjects();
 
          for (GradleBuild gradleBuild : CorePlugin.gradleWorkspaceManager().getGradleBuilds()) {
              try {
                  Set<OmniEclipseProject> eclipseProjects = gradleBuild.getModelProvider().fetchEclipseGradleProjects(this.modelFetchStrategy, getToken(), monitor);
+                 for (OmniEclipseProject eclipseProject : eclipseProjects) {
+                     faultyProjects.remove(eclipseProject.getName());
+                 }
                  projects.addAll(eclipseProjects);
              } catch (RuntimeException e) {
                  CorePlugin.logger().warn("Tasks can't be loaded for project located at " + gradleBuild.getRequestAttributes().getProjectDir().getAbsolutePath(), e);
              }
          }
 
-        return new TaskViewContent(projects);
+        return new TaskViewContent(projects, Lists.newArrayList(faultyProjects.values()));
+    }
+
+    private Map<String, IProject> allGradleWorkspaceProjects() {
+        Map<String, IProject> result = Maps.newLinkedHashMap();
+        for (IProject project : CorePlugin.workspaceOperations().getAllProjects()) {
+            if (GradleProjectNature.isPresentOn(project)) {
+                result.put(project.getName(), project);
+            }
+        }
+        return result;
     }
 
     private void refreshTaskView(final TaskViewContent content) {

@@ -17,19 +17,27 @@ import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 
+import org.eclipse.core.resources.IProject;
+
 /**
  * Encapsulates the content backing the {@link TaskView}.
  */
 public final class TaskViewContent {
 
     private final List<OmniEclipseProject> projects;
+    private final List<IProject> faultyProjects;
 
-    public TaskViewContent(List<OmniEclipseProject> projects) {
+    public TaskViewContent(List<OmniEclipseProject> projects, List<IProject> faultyProjects) {
         this.projects = ImmutableList.copyOf(projects);
+        this.faultyProjects = faultyProjects;
     }
 
     public List<OmniEclipseProject> getProjects() {
         return this.projects;
     }
 
+
+    public List<IProject> getFaultyProjects() {
+        return this.faultyProjects;
+    }
 }

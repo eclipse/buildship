@@ -51,32 +51,26 @@ public final class TreeViewerSelectionChangeListener implements ISelectionChange
     private void findAndUpdateViewSelections(ISelection selection) {
         if (selection instanceof IStructuredSelection) {
             IStructuredSelection structuredSelection = (IStructuredSelection) selection;
-            ImmutableList<ProjectNode> projectNodes = collectProjectNodesToSelect(structuredSelection.toList());
-            ImmutableList<IProject> projects = collectProjectsToSelect(projectNodes);
+            ImmutableList<IProject> projects = collectProjectNodesToSelect(structuredSelection.toList());
             updateViewSelection(projects);
         }
     }
 
-    private ImmutableList<ProjectNode> collectProjectNodesToSelect(List<?> selectedNodes) {
-        ImmutableList.Builder<ProjectNode> projectNodes = ImmutableList.builder();
+    private ImmutableList<IProject> collectProjectNodesToSelect(List<?> selectedNodes) {
+        ImmutableList.Builder<IProject> projects = ImmutableList.builder();
         for (Object selectedNode : selectedNodes) {
             if (selectedNode instanceof ProjectNode) {
-                ProjectNode projectNode = (ProjectNode) selectedNode;
-                projectNodes.add(projectNode);
+                Optional<IProject> project = ((ProjectNode) selectedNode).getWorkspaceProject();
+                if (project.isPresent()) {
+                    projects.add(project.get());
+                }
             } else if (selectedNode instanceof TaskNode) {
-                TaskNode taskNode = (TaskNode) selectedNode;
-                projectNodes.add(taskNode.getParentProjectNode());
-            }
-        }
-        return projectNodes.build();
-    }
-
-    private ImmutableList<IProject> collectProjectsToSelect(List<ProjectNode> projectNodes) {
-        ImmutableList.Builder<IProject> projects = ImmutableList.builder();
-        for (ProjectNode projectNode : projectNodes) {
-            Optional<IProject> workspaceProject = projectNode.getWorkspaceProject();
-            if (workspaceProject.isPresent()) {
-                projects.add(workspaceProject.get());
+                Optional<IProject> project = ((TaskNode) selectedNode).getParentProjectNode().getWorkspaceProject();
+                if (project.isPresent()) {
+                    projects.add(project.get());
+                }
+            } else if (selectedNode instanceof FaultyProjectNode) {
+                projects.add(((FaultyProjectNode)selectedNode).getProject());
             }
         }
         return projects.build();

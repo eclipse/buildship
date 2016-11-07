@@ -79,6 +79,50 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
         taskTree.a.custom.contains('foo')
     }
 
+    def "If a project has errors, it is still visible in the task view"() {
+        given:
+        def first = dir("a") { file 'build.gradle' }
+        importAndWait(first)
+        fileTree(first) { file 'build.gradle', 'error' }
+
+        when:
+        reloadTaskView()
+
+        then:
+        taskTree == ['a']
+    }
+
+    def "Faulty projects are listed below non-faulty ones"() {
+        given:
+        def a = dir("a") { file 'build.gradle' }
+        def b = dir("b") { file 'build.gradle' }
+        importAndWait(a)
+        importAndWait(b)
+        fileTree(a) { file 'build.gradle', 'error' }
+
+        when:
+        reloadTaskView()
+
+        then:
+        taskTree.collect { k, v -> k } == ['b', 'a']
+    }
+
+    def "Faulty projects are ordered lexicographically"() {
+        given:
+        def a = dir("a") { file 'build.gradle' }
+        def b = dir("b") { file 'build.gradle' }
+        importAndWait(a)
+        importAndWait(b)
+        fileTree(a) { file 'build.gradle', 'error' }
+        fileTree(b) { file 'build.gradle', 'error' }
+
+        when:
+        reloadTaskView()
+
+        then:
+        taskTree == ['a', 'b']
+    }
+
     def "If one project has errors, tasks from other projects are still visible"() {
         given:
         def first = dir("a") { file 'build.gradle' }
@@ -108,8 +152,7 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
         waitForTaskView()
 
         then:
-        !taskTree.a
-        !taskTree.b
+        taskTree == ['a']
     }
 
     private def getTaskTree() {
