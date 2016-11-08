@@ -32,10 +32,6 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
     private static final String PREF_KEY_PROJECT_PATH = "project.path";
     private static final String PREF_KEY_CONNECTION_PROJECT_DIR = "connection.project.dir";
     private static final String PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION = "connection.gradle.distribution";
-    private static final String DEPRECATED_PREF_KEY_CONNECTION_GRADLE_USER_HOME = "connection.gradle.user.home";
-    private static final String DEPRECATED_PREF_KEY_CONNECTION_JAVA_HOME = "connection.java.home";
-    private static final String DEPRECATED_PREF_KEY_CONNECTION_JVM_ARGUMENTS = "connection.jvm.arguments";
-    private static final String DEPRECATED_PREF_KEY_CONNECTION_ARGUMENTS = "connection.arguments";
 
     @Override
     public ProjectConfiguration readProjectConfiguration(IProject project) {
@@ -89,10 +85,6 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
             preferences.write(PREF_KEY_PROJECT_PATH, properties.getProjectPath());
             preferences.write(PREF_KEY_CONNECTION_PROJECT_DIR, properties.getProjectDir());
             preferences.write(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, properties.getGradleDistribution());
-            preferences.delete(DEPRECATED_PREF_KEY_CONNECTION_GRADLE_USER_HOME);
-            preferences.delete(DEPRECATED_PREF_KEY_CONNECTION_JAVA_HOME);
-            preferences.delete(DEPRECATED_PREF_KEY_CONNECTION_JVM_ARGUMENTS);
-            preferences.delete(DEPRECATED_PREF_KEY_CONNECTION_ARGUMENTS);
             preferences.flush();
         } catch (Exception e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot store project-scope preferences in project %s.", project.getName()), e);
@@ -109,10 +101,6 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
             preferences.delete(PREF_KEY_PROJECT_PATH);
             preferences.delete(PREF_KEY_CONNECTION_PROJECT_DIR);
             preferences.delete(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
-            preferences.delete(DEPRECATED_PREF_KEY_CONNECTION_GRADLE_USER_HOME);
-            preferences.delete(DEPRECATED_PREF_KEY_CONNECTION_JAVA_HOME);
-            preferences.delete(DEPRECATED_PREF_KEY_CONNECTION_JVM_ARGUMENTS);
-            preferences.delete(DEPRECATED_PREF_KEY_CONNECTION_ARGUMENTS);
             preferences.flush();
         } catch (Exception e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot delete project-scope preferences in project %s.", project.getName()), e);
