@@ -27,7 +27,7 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
         // if not the default location is specified then the Gradle
         // distribution is downloaded every time the test is executed
         File  gradleUserHome = new File(System.getProperty('user.home'), '.gradle')
-        WorkspaceConfiguration config = new WorkspaceConfiguration(gradleUserHome)
+        WorkspaceConfiguration config = new WorkspaceConfiguration(gradleUserHome, false)
         CorePlugin.workspaceConfigurationManager().saveWorkspaceConfiguration(config)
 
         IProject project = EclipseProjects.newProject('add-buildship-nature')
