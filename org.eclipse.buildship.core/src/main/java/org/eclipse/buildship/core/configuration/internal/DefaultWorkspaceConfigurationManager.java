@@ -29,12 +29,14 @@ import org.eclipse.buildship.core.configuration.WorkspaceConfigurationManager;
 public class DefaultWorkspaceConfigurationManager implements WorkspaceConfigurationManager {
 
     private static final String GRADLE_USER_HOME = "gradle.user.home";
+    private static final String GRADLE_OFFLINE_MODE = "gradle.offline.mode";
 
     @Override
     public WorkspaceConfiguration loadWorkspaceConfiguration() {
         IEclipsePreferences preferences = getPreferences();
         String userHome = preferences.get(GRADLE_USER_HOME, null);
-        return new WorkspaceConfiguration(userHome == null ? null : new File(userHome));
+        boolean offlineMode = preferences.getBoolean(GRADLE_OFFLINE_MODE, false);
+        return new WorkspaceConfiguration(userHome == null ? null : new File(userHome), offlineMode);
     }
 
     @Override
@@ -46,6 +48,7 @@ public class DefaultWorkspaceConfigurationManager implements WorkspaceConfigurat
         } else {
             preferences.put(GRADLE_USER_HOME, config.getGradleUserHome().getPath());
         }
+        preferences.putBoolean(GRADLE_OFFLINE_MODE, config.isOffline());
         try {
             preferences.flush();
         } catch (BackingStoreException e) {
