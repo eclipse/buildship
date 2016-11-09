@@ -183,7 +183,8 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     }
 
     private Map<String, ColorDescriptor> getCustomTextColoringMapping() {
-        return ImmutableMap.of("UP-TO-DATE", ColorUtils.getDecorationsColorDescriptorFromCurrentTheme());
+        ColorDescriptor decorationsColor = ColorUtils.getDecorationsColorDescriptorFromCurrentTheme();
+        return ImmutableMap.of("UP-TO-DATE", decorationsColor, "FROM-CACHE", decorationsColor);
     }
 
     @Override

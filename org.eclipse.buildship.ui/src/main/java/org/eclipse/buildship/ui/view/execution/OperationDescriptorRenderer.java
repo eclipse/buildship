@@ -28,38 +28,57 @@ public final class OperationDescriptorRenderer {
 
     public static String renderVerbose(FinishEvent finishEvent) {
         OperationDescriptor descriptor = finishEvent.getDescriptor();
-        if (descriptor instanceof TaskOperationDescriptor) {
-            String taskPath = ((TaskOperationDescriptor) descriptor).getTaskPath();
-            return taskIsUpToDate(finishEvent) ? String.format("Task %s UP-TO-DATE", taskPath) : String.format("Task %s", taskPath);
-        } else if (descriptor instanceof TestOperationDescriptor) {
-            return String.format("Test '%s'", descriptor.getName());
-        } else {
-            return descriptor.getDisplayName();
-        }
+        return render(descriptor, finishEvent, true);
     }
 
     public static String renderCompact(OperationItem operationItem) {
         OperationDescriptor descriptor = operationItem.getStartEvent().getDescriptor();
+        FinishEvent finishEvent = operationItem.getFinishEvent();
+        return render(descriptor, finishEvent, false);
+    }
+
+    private static String render(OperationDescriptor descriptor, FinishEvent finishEvent, boolean verbose) {
         if (descriptor instanceof TaskOperationDescriptor) {
-            String taskPath = ((TaskOperationDescriptor) descriptor).getTaskPath();
-            return taskIsUpToDate(operationItem.getFinishEvent()) ? String.format("%s UP-TO-DATE", taskPath) : taskPath;
+            return renderTask(finishEvent, ((TaskOperationDescriptor) descriptor), verbose);
         } else if (descriptor instanceof TestOperationDescriptor) {
-            return descriptor.getName();
+            return renderTest(descriptor, verbose);
         } else {
-            return descriptor.getDisplayName();
+            return renderOther(descriptor);
         }
     }
 
+    private static String renderTask(FinishEvent finishEvent, TaskOperationDescriptor descriptor, boolean verbose) {
+        StringBuilder task = new StringBuilder();
 
-    private static boolean taskIsUpToDate(FinishEvent finishEvent) {
+        if (verbose) {
+            task.append("Task ");
+        }
+
+        task.append(descriptor.getTaskPath());
+
         if (finishEvent instanceof TaskFinishEvent) {
-            TaskFinishEvent taskFinishEvent = (TaskFinishEvent) finishEvent;
-            if (taskFinishEvent.getResult() instanceof TaskSuccessResult) {
-                TaskSuccessResult taskSuccessResult = (TaskSuccessResult) taskFinishEvent.getResult();
-                return taskSuccessResult.isUpToDate();
+            if (finishEvent.getResult() instanceof TaskSuccessResult) {
+                TaskSuccessResult taskResult = (TaskSuccessResult) finishEvent.getResult();
+                if (taskResult.isFromCache()) {
+                    task.append(" FROM-CACHE");
+                } else if (taskResult.isUpToDate()) {
+                    task.append(" UP-TO-DATE");
+                }
             }
         }
-        return false;
+        return task.toString();
+    }
+
+    private static String renderTest(OperationDescriptor descriptor, boolean verbose) {
+        if (verbose) {
+            return String.format("Test '%s'", descriptor.getName());
+        } else {
+            return descriptor.getName();
+        }
+    }
+
+    private static String renderOther(OperationDescriptor descriptor) {
+        return descriptor.getDisplayName();
     }
 
 }
