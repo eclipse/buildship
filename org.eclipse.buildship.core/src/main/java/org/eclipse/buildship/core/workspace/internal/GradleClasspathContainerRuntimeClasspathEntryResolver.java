@@ -8,6 +8,7 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.base.Optional;
@@ -21,7 +22,6 @@ import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.IRuntimeClasspathEntry;
 import org.eclipse.jdt.launching.IRuntimeClasspathEntryResolver;
 import org.eclipse.jdt.launching.IVMInstall;
@@ -53,20 +53,20 @@ public class GradleClasspathContainerRuntimeClasspathEntryResolver implements IR
         return collectContainerRuntimeClasspathIfPresent(project);
     }
 
-    private static IRuntimeClasspathEntry[] collectContainerRuntimeClasspathIfPresent(IJavaProject project) throws JavaModelException {
+    private static IRuntimeClasspathEntry[] collectContainerRuntimeClasspathIfPresent(IJavaProject project) throws CoreException {
         List<IRuntimeClasspathEntry> result = Lists.newArrayList();
         collectContainerRuntimeClasspathIfPresent(project, result, false);
         return result.toArray(new IRuntimeClasspathEntry[result.size()]);
     }
 
-    private static void collectContainerRuntimeClasspathIfPresent(IJavaProject project, List<IRuntimeClasspathEntry> result, boolean includeExportedEntriesOnly) throws JavaModelException {
+    private static void collectContainerRuntimeClasspathIfPresent(IJavaProject project, List<IRuntimeClasspathEntry> result, boolean includeExportedEntriesOnly) throws CoreException {
         IClasspathContainer container = JavaCore.getClasspathContainer(GradleClasspathContainer.CONTAINER_PATH, project);
         if (container != null) {
             collectContainerRuntimeClasspath(container, result, includeExportedEntriesOnly);
         }
     }
 
-    private static void collectContainerRuntimeClasspath(IClasspathContainer container, List<IRuntimeClasspathEntry> result, boolean includeExportedEntriesOnly) throws JavaModelException {
+    private static void collectContainerRuntimeClasspath(IClasspathContainer container, List<IRuntimeClasspathEntry> result, boolean includeExportedEntriesOnly) throws CoreException {
         for (final IClasspathEntry cpe : container.getClasspathEntries()) {
             if (!includeExportedEntriesOnly || cpe.isExported()) {
                 if (cpe.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
@@ -75,7 +75,8 @@ public class GradleClasspathContainerRuntimeClasspathEntryResolver implements IR
                     Optional<IProject> candidate = findAccessibleJavaProject(cpe.getPath().segment(0));
                     if (candidate.isPresent()) {
                         IJavaProject dependencyProject = JavaCore.create(candidate.get());
-                        result.add(JavaRuntime.newProjectRuntimeClasspathEntry(dependencyProject));
+                        IRuntimeClasspathEntry projectRuntimeEntry = JavaRuntime.newProjectRuntimeClasspathEntry(dependencyProject);
+                        Collections.addAll(result, JavaRuntime.resolveRuntimeClasspathEntry(projectRuntimeEntry, dependencyProject));
                         collectContainerRuntimeClasspathIfPresent(dependencyProject, result, true);
                     }
                 }

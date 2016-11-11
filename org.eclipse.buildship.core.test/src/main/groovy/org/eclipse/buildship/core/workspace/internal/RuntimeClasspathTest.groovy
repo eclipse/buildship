@@ -1,5 +1,7 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import spock.lang.Issue
+
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
 import org.eclipse.jdt.core.IJavaProject
@@ -154,7 +156,45 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
         classpath.find { it.type == IRuntimeClasspathEntry.PROJECT && it.path.lastSegment() == 'b' }
         classpath.find { it.type == IRuntimeClasspathEntry.ARCHIVE && it.path.lastSegment() == 'log4j-1.2.17.jar' }
         classpath.find { it.type == IRuntimeClasspathEntry.ARCHIVE && it.path.lastSegment() == 'lib' }
+    }
 
+    @Issue("https://bugs.eclipse.org/bugs/show_bug.cgi?id=507206")
+    def "Runtime classpath contains custom output folders"() {
+        setup:
+        new File(location, 'a/src/main/java').mkdirs()
+        buildFile << '''
+            project(':a') {
+                apply plugin: 'eclipse'
+
+                eclipse {
+                    classpath {
+                        defaultOutputDir = file('default-output-dir')
+
+                        file {
+                            whenMerged {
+                                def src = entries.find { it.path == 'src/main/java' }
+                                src.output = 'custom-output-dir'
+                            }
+                        }
+                    }
+                }
+            }
+
+            project(':b') {
+                dependencies {
+                    compile project(':a')
+                }
+            }
+        '''
+        importAndWait(location)
+
+        when:
+        IJavaProject javaProject = JavaCore.create(findProject('b'))
+        IRuntimeClasspathEntry[] classpath = projectRuntimeClasspath(javaProject)
+
+        then:
+        classpath.find { it.type == IRuntimeClasspathEntry.ARCHIVE && it.path.lastSegment() == 'custom-output-dir' }
+        classpath.find { it.type == IRuntimeClasspathEntry.ARCHIVE && it.path.lastSegment() == 'default-output-dir' }
     }
 
     private IRuntimeClasspathEntry[] projectRuntimeClasspath(IJavaProject project) {
