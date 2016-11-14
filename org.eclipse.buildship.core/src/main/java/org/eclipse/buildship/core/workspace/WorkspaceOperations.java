@@ -167,17 +167,16 @@ public interface WorkspaceOperations {
     boolean isBuildFolder(IFolder folder);
 
     /**
-     * Normalizes the name of an Eclipse project based on the project's location.
-     * <p/>
-     * In general, Eclipse projects can have a name that is different from their folder name.
-     * However, projects that are directly contained in the workspace root directory (also known as
-     * the 'default location') must have the same name as their directory.
+     * Ensures that the target project name and location is valid.
      *
-     * @param desiredName the desired project name
-     * @param location the location of the project
-     * @return the name the project should have
+     * @param name the project name
+     * @param location the project location
+     * @throws NullPointerException if any of the arguments are {@code null}
+     * @throws org.eclipse.buildship.core.UnsupportedConfigurationException if the target
+     *             directory is located under the workspace root and the directory's name
+     *             is not equal to the project's name
      */
-    String normalizeProjectName(String desiredName, File location);
+    void validateProjectName(String name, File location);
 
     /**
      * Renames the project. Has no effect if the project already has the given name. Projects

@@ -14,13 +14,15 @@ package org.eclipse.buildship.core.workspace.internal
 import com.google.common.util.concurrent.FutureCallback
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
-import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
+import com.gradleware.tooling.toolingmodel.OmniGradleBuild
 import com.gradleware.tooling.toolingmodel.util.Pair
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
+import org.eclipse.buildship.core.Logger
+import org.eclipse.buildship.core.notification.UserNotification
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 
 class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification {
@@ -45,8 +47,12 @@ class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification
         findProject('custom-app')
     }
 
-    def "Custom project naming is not honored on the root project when imported from the workspace root"() {
+    def "Custom project naming is disallowed on the root project when imported from the workspace root"() {
         setup:
+        Logger logger = Mock(Logger)
+        environment.registerService(Logger, logger)
+        environment.registerService(UserNotification, Mock(UserNotification))
+
         def location = workspaceDir('app') {
             file 'build.gradle', '''
                 apply plugin: 'eclipse'
@@ -62,21 +68,14 @@ class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification
         importAndWait(location)
 
         then:
-        findProject('app')
+        allProjects().isEmpty()
+        1 * logger.warn(*_)
     }
 
-    def "Custom project naming is honored on the non-root projects even if the root is in the workspace root()"() {
+    def "Custom project naming is honoured on the non-root projects when the root is under the workspace root"() {
         setup:
-        def location = workspaceDir('app') {
+        def location = workspaceDir('app2') {
             file 'settings.gradle', "include 'sub'"
-            file 'build.gradle', '''
-                apply plugin: 'eclipse'
-                eclipse {
-                    project {
-                        project.name = "custom-app"
-                    }
-                }
-            '''
             dir('sub') {
                 file 'build.gradle', '''
                     apply plugin: 'eclipse'
@@ -95,7 +94,7 @@ class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification
 
         then:
         allProjects().size() == 2
-        findProject('app')
+        findProject('app2')
         findProject('custom-sub')
     }
 

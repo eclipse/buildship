@@ -41,7 +41,7 @@ final class ProjectNameUpdater {
      * @return the new project reference in case the project name has changed, the incoming project instance otherwise
      */
     static IProject updateProjectName(IProject workspaceProject, OmniEclipseProject project, Set<OmniEclipseProject> allProjects, IProgressMonitor monitor) {
-        String newName = normalizeProjectName(project);
+        String newName = checkProjectName(project);
         SubMonitor progress = SubMonitor.convert(monitor, 2);
         if (newName.equals(workspaceProject.getName())) {
             return workspaceProject;
@@ -68,7 +68,7 @@ final class ProjectNameUpdater {
      * @param monitor     the monitor to report progress on
      */
     static void ensureProjectNameIsFree(OmniEclipseProject project, Set<OmniEclipseProject> allProjects, IProgressMonitor monitor) {
-        String name = normalizeProjectName(project);
+        String name = checkProjectName(project);
         ensureProjectNameIsFree(name, allProjects, monitor);
     }
 
@@ -95,7 +95,7 @@ final class ProjectNameUpdater {
             return false;
         }
 
-        String newName = normalizeProjectName(duplicateEclipseProject.get());
+        String newName = checkProjectName(duplicateEclipseProject.get());
         return !newName.equals(duplicate.getName());
     }
 
@@ -103,8 +103,9 @@ final class ProjectNameUpdater {
         CorePlugin.workspaceOperations().renameProject(duplicate, duplicate.getName() + "-" + duplicate.getName().hashCode(), monitor);
     }
 
-    private static String normalizeProjectName(OmniEclipseProject project) {
-        return CorePlugin.workspaceOperations().normalizeProjectName(project.getName(), project.getProjectDirectory());
+    private static String checkProjectName(OmniEclipseProject project) {
+        CorePlugin.workspaceOperations().validateProjectName(project.getName(), project.getProjectDirectory());
+        return project.getName();
     }
 
 }

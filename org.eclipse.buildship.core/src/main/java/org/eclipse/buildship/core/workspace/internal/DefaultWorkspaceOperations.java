@@ -40,6 +40,7 @@ import org.eclipse.core.runtime.SubMonitor;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.UnsupportedConfigurationException;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 /**
@@ -113,15 +114,15 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         SubMonitor progress = SubMonitor.convert(monitor, 3);
         try {
             // calculate the name and the project location
-            String projectName = normalizeProjectName(name, location);
+            validateProjectName(name, location);
             IPath projectLocation = normalizeProjectLocation(location);
 
             // get an IProject instance and create the project
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
-            IProjectDescription projectDescription = workspace.newProjectDescription(projectName);
+            IProjectDescription projectDescription = workspace.newProjectDescription(name);
             projectDescription.setLocation(projectLocation);
-            projectDescription.setComment(String.format("Project %s created by Buildship.", projectName));
-            IProject project = workspace.getRoot().getProject(projectName);
+            projectDescription.setComment(String.format("Project %s created by Buildship.", name));
+            IProject project = workspace.getRoot().getProject(name);
             project.create(projectDescription, progress.newChild(1));
 
             // open the project
@@ -188,10 +189,15 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
-    public String normalizeProjectName(String desiredName, File location) {
+    public void validateProjectName(String desiredName, File location) {
         Preconditions.checkNotNull(desiredName);
         Preconditions.checkNotNull(location);
-        return isDirectChildOfWorkspaceRootFolder(location) ? location.getName() : desiredName;
+        if (isDirectChildOfWorkspaceRootFolder(location) && !location.getName().equals(desiredName))  {
+            throw new UnsupportedConfigurationException(String.format("Project at %s can't be named %s because it's located directly under the workspace"
+                    + " root. If such project is renamed, Eclipse would move the container directory. This would break the functionality of external tools"
+                    + " like git. To resolve this problem, move the project out of the workspace root or configure it to have the same name as the container"
+                    + " directory.",location.getAbsolutePath(), desiredName));
+        }
     }
 
     /*

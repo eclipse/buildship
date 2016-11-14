@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.GradlePluginsRuntimeException
+import org.eclipse.buildship.core.UnsupportedConfigurationException
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
@@ -360,25 +361,39 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
         workspaceOperations.isBuildFolder(build)
     }
 
-    def "Projects in the workspace root get their default name"() {
-        expect:
-        workspaceOperations.normalizeProjectName("foo", workspaceDir("bar")) == "bar"
+    def "Validate invalid project name in the workspace root"() {
+        when:
+        workspaceOperations.validateProjectName("foo", workspaceDir("bar"))
+
+        then:
+        thrown(UnsupportedConfigurationException)
     }
 
-    def "Projects in an external location can have custom names"() {
-        expect:
-        workspaceOperations.normalizeProjectName("foo", dir("bar")) == "foo"
+    def "Validate valid project name in the workspace root "() {
+        when:
+        workspaceOperations.validateProjectName("foo", workspaceDir("foo"))
+
+        then:
+        notThrown(Throwable)
+    }
+
+    def "Validate projects in an external location with custom names"() {
+        when:
+        workspaceOperations.validateProjectName("foo", dir("bar"))
+
+        then:
+        notThrown(Throwable)
     }
 
     def "A project name cannot be calculated with null arguments"() {
         when:
-        workspaceOperations.normalizeProjectName("foo", null)
+        workspaceOperations.validateProjectName("foo", null)
 
         then:
         thrown NullPointerException
 
         when:
-        workspaceOperations.normalizeProjectName(null, dir("bar"))
+        workspaceOperations.validateProjectName(null, dir("bar"))
 
         then:
         thrown NullPointerException
