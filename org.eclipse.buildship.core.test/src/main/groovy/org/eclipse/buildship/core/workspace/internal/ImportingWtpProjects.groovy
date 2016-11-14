@@ -1,5 +1,7 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import spock.lang.Issue
+
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
 import org.eclipse.core.resources.IProject
@@ -326,6 +328,50 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         container.accessRules.length == 1
         container.accessRules[0].kind == IAccessRule.K_NON_ACCESSIBLE
         container.accessRules[0].pattern.toPortableString() == 'nonAccessibleFilesPattern'
+    }
+
+    @Issue("https://bugs.eclipse.org/bugs/show_bug.cgi?id=506627")
+    def "Cleans up outdated component configuration"() {
+        setup:
+        WorkspaceOperations operations = Stub(WorkspaceOperations) {
+            isNatureRecognizedByEclipse(WTP_COMPONENT_NATURE) >> {
+                environment.close()
+                true
+            }
+        }
+        registerService(WorkspaceOperations, operations)
+
+        File root = dir("wtp-project") {
+            dir 'src/main/java'
+            file 'build.gradle', """
+                apply plugin: 'war'
+                apply plugin: 'eclipse-wtp'
+            """
+            dir('.settings') {
+                file 'org.eclipse.wst.common.component', '''<?xml version="1.0" encoding="UTF-8"?>
+                    <project-modules id="moduleCoreId" project-version="1.5.0">
+                        <wb-module deploy-name="wtp-project">
+                            <property name="context-root" value="wtp-project"/>
+                            <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
+                            <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/test/java"/>
+                        </wb-module>
+                    </project-modules>
+                '''
+            }
+        }
+
+        when:
+        importAndWait(root)
+        def content = new File(root, '.settings/org.eclipse.wst.common.component').text
+        def rootNode = new XmlSlurper().parseText(content)
+        def moduleConfig = rootNode.'wb-module'.children()
+
+        then:
+        moduleConfig.size() == 2
+        moduleConfig[0].name() == 'property'
+        moduleConfig[1].name() == 'wb-resource'
+        moduleConfig[1].'@deploy-path' == '/WEB-INF/classes'
+        moduleConfig[1].'@source-path' == 'src/main/java'
     }
 
     private IClasspathEntry[] resolvedClasspath(IProject project) {

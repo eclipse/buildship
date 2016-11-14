@@ -45,6 +45,7 @@ import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 public class RunOnImportTasksOperation {
 
     private static final String WTP_TASK = "eclipseWtp";
+    private static final String CLEAN_WTP_TASK = "cleanEclipseWtp";
     private static final String WTP_COMPONENT_NATURE = "org.eclipse.wst.common.modulecore.ModuleCoreNature";
 
     private final FixedRequestAttributes build;
@@ -56,28 +57,32 @@ public class RunOnImportTasksOperation {
     }
 
     public void run(IProgressMonitor monitor, CancellationToken token) throws CoreException {
-        Set<String> tasksToRun = findWtpTasks();
+        List<String> tasksToRun = findWtpTasks();
         if (!tasksToRun.isEmpty()) {
             runTasks(tasksToRun, monitor, token);
         }
     }
 
-    private Set<String> findWtpTasks() {
+    private List<String> findWtpTasks() {
         if (!CorePlugin.workspaceOperations().isNatureRecognizedByEclipse(WTP_COMPONENT_NATURE)) {
-            return Collections.emptySet();
+            return Collections.emptyList();
         }
-        Set<String> tasksToRun = Sets.newHashSet();
+        Set<String> cleanWtpTasks = Sets.newHashSet();
+        Set<String> wtpTasks = Sets.newHashSet();
+
         for (OmniEclipseProject eclipseProject : this.allprojects) {
             if (isGradle30(eclipseProject) && isWtpProject(eclipseProject)) {
                 List<OmniProjectTask> tasks = eclipseProject.getGradleProject().getProjectTasks();
                 for (OmniProjectTask task : tasks) {
                     if (WTP_TASK.equals(task.getName())) {
-                        tasksToRun.add(task.getPath().getPath());
+                        wtpTasks.add(task.getPath().getPath());
+                    } else if (CLEAN_WTP_TASK.equals(task.getName())) {
+                       cleanWtpTasks.add(task.getPath().getPath());
                     }
                 }
             }
         }
-        return tasksToRun;
+        return ImmutableList.<String>builder().addAll(cleanWtpTasks).addAll(wtpTasks).build();
     }
 
     private boolean isGradle30(OmniEclipseProject eclipseProject) {
@@ -96,7 +101,7 @@ public class RunOnImportTasksOperation {
         return false;
     }
 
-    private void runTasks(Set<String> tasksToRun, IProgressMonitor monitor, CancellationToken token) {
+    private void runTasks(List<String> tasksToRun, IProgressMonitor monitor, CancellationToken token) {
         BuildRequest<Void> request = CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(tasksToRun));
         this.build.apply(request);
         getTransientRequestAttributes(token, monitor).apply(request);
