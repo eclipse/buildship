@@ -2,8 +2,9 @@
 
 ## Requirements
 
-Buildship can be used with Eclipse 3.6.x or newer. Older versions might work but have not been tested explicitly. Depending on the
-version of Gradle that Buildship interacts with, certain features of Buildship may not be available.
+Buildship 2.x can be installed into Eclipse 4.2 or newer, whereas Buildship 1.x can be installed into Eclipse 3.6-4.6. 
+Different Eclipse versions might be compatible but they aren't explicitly tested. 
+Depending on the Gradle version what Buildship uses for a project import, certain features of Eclipse may not be available.
 
 
 ## Installing from eclipse.org update site
@@ -12,31 +13,40 @@ We propose you install Buildship from the [Eclipse Marketplace](http://marketpla
 
 Buildship is also available through one of the provided composite update sites listed on [eclipse.org](https://projects.eclipse.org/projects/tools.buildship/downloads).
 
-For manual installation the complete list of update sites:
+For manual installation use one of the update sites below.
+
+### Update sites for Buildship 2.x:
 
 Eclipse Version | Type      | Update Site
 --------------  | ----------| ------------
-Neon (4.6)      | release   | `http://download.eclipse.org/buildship/updates/e46/releases/1.0`
-                | milestone | `http://download.eclipse.org/buildship/updates/e46/milestones/1.0`
-                | snapshot  | `http://download.eclipse.org/buildship/updates/e46/snapshots/1.0`
-Mars (4.5)      | release   | `http://download.eclipse.org/buildship/updates/e45/releases/1.0`
-                | milestone | `http://download.eclipse.org/buildship/updates/e45/milestones/1.0`
-                | snapshot  | `http://download.eclipse.org/buildship/updates/e45/snapshots/1.0`
-Luna (4.4)      | release   | `http://download.eclipse.org/buildship/updates/e44/releases/1.0`
-                | milestone | `http://download.eclipse.org/buildship/updates/e44/milestones/1.0`
-                | snapshot  | `http://download.eclipse.org/buildship/updates/e44/snapshots/1.0`
-Kepler (4.3)    | release   | `http://download.eclipse.org/buildship/updates/e43/releases/1.0`
-                | milestone | `http://download.eclipse.org/buildship/updates/e43/milestones/1.0`
-                | snapshot  | `http://download.eclipse.org/buildship/updates/e43/snapshots/1.0`
-Juno (4.2)      | release   | `http://download.eclipse.org/buildship/updates/e42/releases/1.0`
-                | milestone | `http://download.eclipse.org/buildship/updates/e42/milestones/1.0`
-                | snapshot  | `http://download.eclipse.org/buildship/updates/e42/snapshots/1.0`
-Indigo (3.7)    | release   | `http://download.eclipse.org/buildship/updates/e37/releases/1.0`
-                | milestone | `http://download.eclipse.org/buildship/updates/e37/milestones/1.0`
-                | snapshot  | `http://download.eclipse.org/buildship/updates/e37/snapshots/1.0`
-Helios (3.6)    | release   | `http://download.eclipse.org/buildship/updates/e36/releases/1.0`
-                | milestone | `http://download.eclipse.org/buildship/updates/e36/milestones/1.0`
-                | snapshot  | `http://download.eclipse.org/buildship/updates/e36/snapshots/1.0`
+Neon (4.6)      | release   | `http://download.eclipse.org/buildship/updates/e46/releases/2.x` (not yet available)
+                | milestone | `http://download.eclipse.org/buildship/updates/e46/milestones/2.x`
+                | snapshot  | `http://download.eclipse.org/buildship/updates/e46/snapshots/2.x`
+Mars (4.5)      | release   | `http://download.eclipse.org/buildship/updates/e45/releases/2.x` (not yet available)
+                | milestone | `http://download.eclipse.org/buildship/updates/e45/milestones/2.x`
+                | snapshot  | `http://download.eclipse.org/buildship/updates/e45/snapshots/2.x`
+Luna (4.4)      | release   | `http://download.eclipse.org/buildship/updates/e44/releases/2.x` (not yet available)
+                | milestone | `http://download.eclipse.org/buildship/updates/e44/milestones/2.x` 
+                | snapshot  | `http://download.eclipse.org/buildship/updates/e44/snapshots/2.x`
+Kepler (4.3)    | release   | `http://download.eclipse.org/buildship/updates/e43/releases/2.x` (not yet available)
+                | milestone | `http://download.eclipse.org/buildship/updates/e43/milestones/2.x`
+                | snapshot  | `http://download.eclipse.org/buildship/updates/e43/snapshots/2.x`
+Juno (4.2)      | release   | `http://download.eclipse.org/buildship/updates/e42/releases/2.x` (not yet available)
+                | milestone | `http://download.eclipse.org/buildship/updates/e42/milestones/2.x`
+                | snapshot  | `http://download.eclipse.org/buildship/updates/e42/snapshots/2.x`
+                
+#### Update sites for Buildship 1.x:
+
+Eclipse Version | Update Site
+--------------  |------------
+Neon (4.6)      | `http://download.eclipse.org/buildship/updates/e46/releases/1.0`
+Mars (4.5)      | `http://download.eclipse.org/buildship/updates/e45/releases/1.0`
+Luna (4.4)      | `http://download.eclipse.org/buildship/updates/e44/releases/1.0`
+Kepler (4.3)    | `http://download.eclipse.org/buildship/updates/e43/releases/1.0`
+Juno (4.2)      | `http://download.eclipse.org/buildship/updates/e42/releases/1.0`
+Indigo (3.7)    | `http://download.eclipse.org/buildship/updates/e37/releases/1.0`
+Helios (3.6)    | `http://download.eclipse.org/buildship/updates/e36/releases/1.0`
+
 
 The continuous integration server generates nightly snapshot releases each day 23:00 CET which instantly become
 available at the snapshot update sites above. In regular intervals, the Buildship team also creates new
@@ -65,8 +75,6 @@ are available for all the supported Eclipse versions:
   * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse44Build/.lastSuccessful/update-site` (latest 4.4 development snapshot)
   * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse43Build/.lastSuccessful/update-site` (latest 4.3 development snapshot)
   * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse42Build/.lastSuccessful/update-site` (latest 4.2 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse37Build/.lastSuccessful/update-site` (latest 3.7 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse36Build/.lastSuccessful/update-site` (latest 3.6 development snapshot)
 
 Apply the following instructions to install the latest snapshot of Buildship into your version of Eclipse.
 
