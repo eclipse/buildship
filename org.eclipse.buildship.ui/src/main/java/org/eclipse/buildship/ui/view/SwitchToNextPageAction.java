@@ -13,7 +13,6 @@ package org.eclipse.buildship.ui.view;
 
 import java.util.List;
 
-import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.action.MenuManager;
@@ -32,10 +31,6 @@ public final class SwitchToNextPageAction extends Action implements IMenuCreator
 
     private final MultiPageView multiPageView;
     private MenuManager menuManager;
-
-    public SwitchToNextPageAction(MultiPageView multiPageView) {
-        this(multiPageView, UiMessages.Action_SwitchPage_Tooltip);
-    }
 
     public SwitchToNextPageAction(MultiPageView multiPageView, String toolTip) {
         super(null, AS_DROP_DOWN_MENU);
