@@ -75,4 +75,14 @@ This is available if the Gradle build is run with target Gradle version 2.1 or n
 
 ## Composite build support
 
-Gradle 3.1 introduced the concept of [composite builds](https://docs.gradle.org/3.1/release-notes#composite-builds). To quote the release notes, _"composite builds allow you to integrate independent Gradle builds, effectively giving you something like a multi-project build while keeping the builds separate"_.  Staring from version 2.0, Buildship can seamlessly import composite builds into Eclipse, The dependency resolution and the tasks execution works the same way as in the command line.
+Gradle 3.1 introduced the concept of [composite builds](https://docs.gradle.org/3.1/release-notes#composite-builds). To quote the release notes,
+_"they allow you to integrate independent Gradle builds, effectively giving you something like a multi-project build while keeping the builds
+separate"_.  Staring from version 2.0, Buildship can seamlessly import composite builds into Eclipse.
+
+A composite build in the workspace have a few special traits. 
+- Upon synchronization the included builds synchronized along with normal build.
+- The project names within a composite are de-duplicated, so independent builds with clashing names can be imported into the workspace as a composite.
+- If a project has a binary dependency which has matching coordinates (group id, artifact id, version) with an artifact published by some other project
+in the composite, then the binary dependency is replaced with a dependency to the included project. Also, the included build dependency substitution
+rules declared in the `settings.gradle` file are respected. For more details check out the 
+[User Guide](https://docs.gradle.org/current/userguide/composite_builds.html#included_build_declaring_substitutions).
