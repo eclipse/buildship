@@ -15,7 +15,7 @@ Buildship is also available through one of the provided composite update sites l
 
 For manual installation use one of the update sites below.
 
-### Update sites for Buildship 2.x:
+### Update sites for Buildship 2.x
 
 Eclipse Version | Type      | Update Site
 --------------  | ----------| ------------
@@ -35,7 +35,7 @@ Juno (4.2)      | release   | `http://download.eclipse.org/buildship/updates/e42
                 | milestone | `http://download.eclipse.org/buildship/updates/e42/milestones/2.x`
                 | snapshot  | `http://download.eclipse.org/buildship/updates/e42/snapshots/2.x`
                 
-#### Update sites for Buildship 1.x:
+#### Update sites for Buildship 1.x
 
 Eclipse Version | Update Site
 --------------  |------------
