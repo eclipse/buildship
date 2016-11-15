@@ -12,6 +12,7 @@
 package org.eclipse.buildship.core.projectimport;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,6 +23,7 @@ import com.gradleware.tooling.toolingutils.binding.Validator;
 import com.gradleware.tooling.toolingutils.binding.Validators;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 
 /**
@@ -79,12 +81,14 @@ public final class ProjectImportConfiguration {
     }
 
     public FixedRequestAttributes toFixedAttributes() {
+        WorkspaceConfiguration configuration = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
+
         File projectDir = getProjectDir().getValue();
-        File gradleUserHome = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration().getGradleUserHome();
+        File gradleUserHome = configuration.getGradleUserHome();
         GradleDistribution gradleDistribution = getGradleDistribution().getValue().toGradleDistribution();
         File javaHome = null;
         List<String> jvmArguments = Collections.emptyList();
-        List<String> arguments = Collections.emptyList();
+        List<String> arguments = configuration.isOffline() ? Arrays.asList("--offline") : Collections.<String>emptyList();
 
         return new FixedRequestAttributes(projectDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments);
     }

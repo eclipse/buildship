@@ -8,6 +8,8 @@
  */
 package org.eclipse.buildship.ui.workspace;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -61,7 +63,8 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
                 IPath location = project.getLocation();
                 if (location != null) {
                     WorkspaceConfiguration configuration = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
-                    builds.add(new FixedRequestAttributes(location.toFile(), configuration.getGradleUserHome(), GradleDistribution.fromBuild(), null, Lists.<String>newArrayList(), Lists.<String>newArrayList()));
+                    List<String> arguments = configuration.isOffline() ? Arrays.asList("--offline") : Collections.<String>emptyList();
+                    builds.add(new FixedRequestAttributes(location.toFile(), configuration.getGradleUserHome(), GradleDistribution.fromBuild(), null, Lists.<String>newArrayList(), arguments));
                 }
             }
 
