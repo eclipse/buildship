@@ -13,9 +13,6 @@ package org.eclipse.buildship.core.configuration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -25,7 +22,7 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
-import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder;
 
 /**
  * Describes the Gradle-specific configuration of an Eclipse project.
@@ -51,21 +48,7 @@ public final class ProjectConfiguration {
     }
 
     public FixedRequestAttributes toRequestAttributes() {
-        WorkspaceConfiguration workspaceConfiguration = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
-        List<String> arguments = new ArrayList<>();
-
-        if (workspaceConfiguration.isOffline()) {
-            arguments.add("--offline");
-        }
-
-        return new FixedRequestAttributes(
-                this.rootProjectDirectory,
-                workspaceConfiguration.getGradleUserHome(),
-                this.gradleDistribution,
-                null,
-                Collections.<String> emptyList(),
-                arguments
-        );
+        return FixedRequestAttributesBuilder.fromWorkspaceSettings(this.rootProjectDirectory).gradleDistribution(this.gradleDistribution).build();
     }
 
     public Path getProjectPath() {

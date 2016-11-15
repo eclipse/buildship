@@ -8,15 +8,11 @@
  */
 package org.eclipse.buildship.ui.workspace;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -30,8 +26,8 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.util.collections.AdapterFunction;
+import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
@@ -62,9 +58,7 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
             if (project != null && !GradleProjectNature.isPresentOn(project)) {
                 IPath location = project.getLocation();
                 if (location != null) {
-                    WorkspaceConfiguration configuration = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
-                    List<String> arguments = configuration.isOffline() ? Arrays.asList("--offline") : Collections.<String>emptyList();
-                    builds.add(new FixedRequestAttributes(location.toFile(), configuration.getGradleUserHome(), GradleDistribution.fromBuild(), null, Lists.<String>newArrayList(), arguments));
+                    builds.add(FixedRequestAttributesBuilder.fromWorkspaceSettings(location.toFile()).build());
                 }
             }
 

@@ -15,6 +15,7 @@ import org.eclipse.jface.viewers.StructuredSelection
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration
+import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder;
 import org.eclipse.buildship.ui.test.fixtures.EclipseProjects
 import org.eclipse.buildship.ui.test.fixtures.WorkspaceSpecification
 
@@ -53,7 +54,7 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
     }
 
     private boolean eclipseModelLoadedWithGradleUserHome(File projectLocation, File gradleUserHome) {
-        FixedRequestAttributes attributes = new FixedRequestAttributes(projectLocation, gradleUserHome, GradleDistribution.fromBuild(), null, [], [])
+        FixedRequestAttributes attributes = FixedRequestAttributesBuilder.fromEmptySettings(projectLocation).gradleUserHome(gradleUserHome).build();
         TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, System.out, System.err, System.in, [], [], GradleConnector.newCancellationTokenSource().token())
         return CorePlugin.modelRepositoryProvider().getModelRepository(attributes).fetchEclipseGradleProjects(transientAttributes, FetchStrategy.FROM_CACHE_ONLY) != null
     }

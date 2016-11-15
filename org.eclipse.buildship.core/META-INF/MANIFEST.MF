@@ -33,6 +33,7 @@ Export-Package: org.eclipse.buildship.core;x-friends:="org.eclipse.buildship.ui"
  org.eclipse.buildship.core.projectimport;x-friends:="org.eclipse.buildship.ui",
  org.eclipse.buildship.core.util.binding;x-friends:="org.eclipse.buildship.ui",
  org.eclipse.buildship.core.util.collections;x-friends:="org.eclipse.buildship.ui",
+ org.eclipse.buildship.core.util.configuration;x-friends:="org.eclipse.buildship.ui",
  org.eclipse.buildship.core.util.file;x-friends:="org.eclipse.buildship.ui",
  org.eclipse.buildship.core.util.gradle;x-friends:="org.eclipse.buildship.ui",
  org.eclipse.buildship.core.util.logging;x-friends:="org.eclipse.buildship.ui",

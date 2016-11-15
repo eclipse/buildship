@@ -31,6 +31,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
@@ -186,13 +187,13 @@ public final class GradleRunConfigurationAttributes {
     }
 
     public FixedRequestAttributes toFixedRequestAttributes() {
-        File workingDir = getWorkingDir();
-        File gradleUserHome = getGradleUserHome();
-        GradleDistribution gradleDistribution = getGradleDistribution();
-        File javaHome = getJavaHome();
-        ImmutableList<String> jvmArguments = getJvmArguments();
-        ImmutableList<String> arguments = getArguments();
-        return new FixedRequestAttributes(workingDir, gradleUserHome, gradleDistribution, javaHome, jvmArguments, arguments);
+        return FixedRequestAttributesBuilder.fromEmptySettings(getWorkingDir())
+            .gradleUserHome(getGradleUserHome())
+            .gradleDistribution(getGradleDistribution())
+            .javaHome(getJavaHome())
+            .jvmArguments(getJvmArguments())
+            .arguments(getArguments())
+            .build();
     }
 
     public void apply(ILaunchConfigurationWorkingCopy launchConfiguration) {
