@@ -72,3 +72,7 @@ Tests classes and test methods can also be run from the Code Editor through the 
 You can cancel all long-running operations like importing a project, executing tasks, refreshing the tasks, etc.
 
 This is available if the Gradle build is run with target Gradle version 2.1 or newer.
+
+## Composite build support
+
+Gradle 3.1 introduced the concept of [composite builds](https://docs.gradle.org/3.1/release-notes#composite-builds). To quote the release notes, _"composite builds allow you to integrate independent Gradle builds, effectively giving you something like a multi-project build while keeping the builds separate"_.  Staring from version 2.0, Buildship can seamlessly import composite builds into Eclipse, The dependency resolution and the tasks execution works the same way as in the command line.
