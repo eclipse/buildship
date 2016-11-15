@@ -22,7 +22,7 @@
             hasPages="true"
             project="true">
          <description>
-            Create a new Gradle project in the local file system.
+            Create a new Gradle project.
          </description>
          <keywordReference id="org.eclipse.buildship.ui.keyword.buildship"/>
       </wizard>
@@ -42,7 +42,7 @@
             icon="icons/full/etool16/import_wiz.png"
             name="Existing Gradle Project">
          <description>
-            Import a Gradle project in the local file system.
+            Import a Gradle project from the local file system.
          </description>
          <keywordReference id="org.eclipse.buildship.ui.keyword.buildship"/>
       </wizard>
