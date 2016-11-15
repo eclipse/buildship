@@ -72,7 +72,7 @@ class ProjectPreviewWizardPageUiTest extends SwtBotSpecification {
         SWTBotShell shell = bot.shell("Import")
         shell.activate()
         bot.waitUntil(Conditions.shellIsActive("Import"))
-        bot.tree().expandNode("Gradle").select("Gradle Project")
+        bot.tree().expandNode("Gradle").select("Existing Gradle Project")
         bot.button("Next >").click()
         bot.button("Next >").click()
         bot.textWithLabel("Project root directory").setText(location.toString())

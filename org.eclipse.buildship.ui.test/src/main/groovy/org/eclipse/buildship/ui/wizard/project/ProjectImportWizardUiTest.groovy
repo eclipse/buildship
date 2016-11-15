@@ -78,7 +78,7 @@ class ProjectImportWizardUiTest extends SwtBotSpecification {
         SWTBotShell shell = bot.shell("Import")
         shell.activate()
         bot.waitUntil(Conditions.shellIsActive("Import"))
-        bot.tree().expandNode("Gradle").select("Gradle Project")
+        bot.tree().expandNode("Gradle").select("Existing Gradle Project")
         pressNext()
     }
 
