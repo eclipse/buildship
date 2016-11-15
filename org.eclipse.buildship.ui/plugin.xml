@@ -40,7 +40,7 @@
             class="org.eclipse.buildship.ui.wizard.project.ProjectImportWizard"
             category="org.eclipse.buildship.ui.importwizards"
             icon="icons/full/etool16/import_wiz.png"
-            name="Gradle Project">
+            name="Existing Gradle Project">
          <description>
             Import a Gradle project in the local file system.
          </description>
