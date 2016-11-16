@@ -4,8 +4,7 @@
 
 Buildship 2.x can be installed into Eclipse 4.2 or newer, whereas Buildship 1.x can be installed into Eclipse 3.6-4.6. 
 Different Eclipse versions might be compatible but they aren't explicitly tested. 
-Depending on the Gradle version what Buildship uses for a project import, certain features of Eclipse may not be available.
-
+Depending on the Gradle version that Buildship uses for a project import, certain features may not be available.
 
 ## Installing from eclipse.org update site
 
