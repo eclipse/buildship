@@ -23,20 +23,19 @@ import org.eclipse.core.resources.IProject;
 /**
  * Tree node in the {@link TaskView} representing a Gradle project.
  */
-public final class ProjectNode {
+public final class ProjectNode extends BaseProjectNode {
 
     private final ProjectNode parentProjectNode;
     private final OmniEclipseProject eclipseProject;
     private final OmniGradleProject gradleProject;
-    private final Optional<IProject> workspaceProject;
     private final boolean includedProject;
 
 
     public ProjectNode(ProjectNode parentProjectNode, OmniEclipseProject eclipseProject, OmniGradleProject gradleProject, Optional<IProject> workspaceProject, boolean includedProject) {
+        super(workspaceProject);
         this.parentProjectNode = parentProjectNode; // is null for root project
         this.eclipseProject = Preconditions.checkNotNull(eclipseProject);
         this.gradleProject = Preconditions.checkNotNull(gradleProject);
-        this.workspaceProject = workspaceProject;
         this.includedProject = includedProject;
     }
 
@@ -60,10 +59,6 @@ public final class ProjectNode {
         return this.gradleProject;
     }
 
-    public Optional<IProject> getWorkspaceProject() {
-        return this.workspaceProject;
-    }
-
     public boolean isIncludedProject() {
         return this.includedProject;
     }
@@ -83,14 +78,14 @@ public final class ProjectNode {
         }
 
         ProjectNode that = (ProjectNode) other;
-        return Objects.equal(this.parentProjectNode, that.parentProjectNode) && Objects.equal(this.eclipseProject, that.eclipseProject)
-                && Objects.equal(this.gradleProject, that.gradleProject) && Objects.equal(this.workspaceProject, that.workspaceProject)
+        return Objects.equal(getWorkspaceProject(), getWorkspaceProject()) && Objects.equal(this.parentProjectNode, that.parentProjectNode)
+                && Objects.equal(this.eclipseProject, that.eclipseProject) && Objects.equal(this.gradleProject, that.gradleProject)
                 && Objects.equal(this.includedProject, that.includedProject);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.parentProjectNode, this.eclipseProject, this.gradleProject, this.workspaceProject, this.includedProject);
+        return Objects.hashCode(getWorkspaceProject(), this.parentProjectNode, this.eclipseProject, this.gradleProject, this.includedProject);
     }
 
 }

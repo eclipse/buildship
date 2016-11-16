@@ -125,7 +125,7 @@ public final class TaskNodeViewerSorter extends ViewerComparator {
 
             @Override
             public int compare(FaultyProjectNode left, FaultyProjectNode right) {
-                return left.getProject().getName().compareTo(right.getProject().getName());
+                return left.getWorkspaceProject().get().getName().compareTo(right.getWorkspaceProject().get().getName());
             }
         };
     }

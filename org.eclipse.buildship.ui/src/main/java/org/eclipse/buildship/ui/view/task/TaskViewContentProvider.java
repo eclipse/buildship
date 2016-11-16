@@ -66,10 +66,10 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         return result.build().toArray();
     }
 
-    private List<Object> createTopLevelProjectNodes(List<OmniEclipseProject> projects, List<IProject> faultyProjects) {
+    private List<BaseProjectNode> createTopLevelProjectNodes(List<OmniEclipseProject> projects, List<IProject> faultyProjects) {
         // flatten the tree of Gradle projects to a list, similar
         // to how Eclipse projects look in the Eclipse Project explorer
-        List<Object> allProjectNodes = Lists.newArrayList();
+        List<BaseProjectNode> allProjectNodes = Lists.newArrayList();
         for (OmniEclipseProject project : projects) {
             if (project.getParent() == null) {
                 collectProjectNodesRecursively(project, null, allProjectNodes);
@@ -82,7 +82,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         return allProjectNodes;
     }
 
-    private void collectProjectNodesRecursively(OmniEclipseProject eclipseProject, ProjectNode parentProjectNode, List<Object> allProjectNodes) {
+    private void collectProjectNodesRecursively(OmniEclipseProject eclipseProject, ProjectNode parentProjectNode, List<BaseProjectNode> allProjectNodes) {
         OmniGradleProject gradleProject = eclipseProject.getGradleProject();
 
         // find the corresponding Eclipse project in the workspace

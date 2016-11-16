@@ -29,10 +29,11 @@ import org.eclipse.buildship.ui.PluginImages;
 
 /**
  * Styled label provider for the task name column in the TaskView.
+ * <p/>
+ * Note: we use internal, standalone icons because the platform's image overlay mechanism provides
+ * blurry images on high-resolution monitors.
  */
 public final class TaskNameLabelProvider extends LabelProvider implements IStyledLabelProvider {
-
-    // We use internal, standalone icons because the platform's image overlay mechanism provides blurry images on high-resolution monitors
 
     @Override
     public String getText(Object element) {
@@ -50,7 +51,7 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
         } else if (element instanceof TaskGroupNode) {
             return getGroupText((TaskGroupNode) element);
         } else if (element instanceof FaultyProjectNode) {
-            return new StyledString(((FaultyProjectNode)element).getProject().getName());
+            return new StyledString(((FaultyProjectNode)element).getWorkspaceProject().get().getName());
         } else {
             throw new IllegalStateException(String.format("Unknown element type of element %s.", element));
         }

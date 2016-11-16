@@ -87,19 +87,13 @@ public final class WorkbenchSelectionListener implements ISelectionListener {
         Tree tree = this.taskView.getTreeViewer().getTree();
         for (TreeItem treeItem : tree.getItems()) {
             Object data = treeItem.getData();
-            if (data instanceof ProjectNode) {
+            if (data instanceof BaseProjectNode) {
                 ProjectNode selectedNode = (ProjectNode) data;
                 Optional<IProject> workspaceProject = selectedNode.getWorkspaceProject();
                 if (workspaceProject.isPresent() && projects.contains(workspaceProject.get())) {
                     selection.add(treeItem);
                 }
-            } else if (data instanceof FaultyProjectNode) {
-                IProject workspaceProject = ((FaultyProjectNode)data).getProject();
-                if (projects.contains(workspaceProject)) {
-                    selection.add(treeItem);
-                }
             }
-
         }
 
         ImmutableList<TreeItem> treeSelection = selection.build();
