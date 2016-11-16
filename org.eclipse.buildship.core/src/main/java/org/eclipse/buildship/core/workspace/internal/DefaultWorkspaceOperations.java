@@ -194,9 +194,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         Preconditions.checkNotNull(location);
         if (isDirectChildOfWorkspaceRootFolder(location) && !location.getName().equals(desiredName))  {
             throw new UnsupportedConfigurationException(String.format("Project at %s can't be named %s because it's located directly under the workspace"
-                    + " root. If such project is renamed, Eclipse would move the container directory. This would break the functionality of external tools"
-                    + " like git. To resolve this problem, move the project out of the workspace root or configure it to have the same name as the container"
-                    + " directory.",location.getAbsolutePath(), desiredName));
+                    + " root. If such a project is renamed, Eclipse would move the container directory. To resolve this problem, move the project out of "
+                    + "the workspace root or configure it to have the same name as the container directory.", location.getAbsolutePath(), desiredName));
         }
     }
 
