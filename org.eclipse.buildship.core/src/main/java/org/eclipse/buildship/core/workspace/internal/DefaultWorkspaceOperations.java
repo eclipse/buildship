@@ -193,9 +193,9 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
         Preconditions.checkNotNull(desiredName);
         Preconditions.checkNotNull(location);
         if (isDirectChildOfWorkspaceRootFolder(location) && !location.getName().equals(desiredName))  {
-            throw new UnsupportedConfigurationException(String.format("Project at %s can't be named %s because it's located directly under the workspace"
+            throw new UnsupportedConfigurationException(String.format("Project at '%s' can't be named '%s' because it's located directly under the workspace"
                     + " root. If such a project is renamed, Eclipse would move the container directory. To resolve this problem, move the project out of "
-                    + "the workspace root or configure it to have the same name as the container directory.", location.getAbsolutePath(), desiredName));
+                    + "the workspace root or configure it to have the name '%s'.", location.getAbsolutePath(), desiredName, location.getName()));
         }
     }
 
@@ -260,7 +260,7 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             }
 
             // remove the nature from the project
-            List<String> newIds = new ArrayList<String>(currentNatureIds);
+            List<String> newIds = new ArrayList<>(currentNatureIds);
             newIds.remove(natureId);
             description.setNatureIds(newIds.toArray(new String[newIds.size()]));
 
