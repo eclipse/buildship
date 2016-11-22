@@ -55,13 +55,21 @@ public final class FixedRequestAttributesBuilder {
     }
 
     public FixedRequestAttributesBuilder jvmArguments(List<String> jvmArguments) {
-        this.jvmArguments.addAll(jvmArguments);
+        addUnique(this.jvmArguments, jvmArguments);
         return this;
     }
 
     public FixedRequestAttributesBuilder arguments(List<String> arguments) {
-        this.arguments.addAll(arguments);
+        addUnique(this.arguments, arguments);
         return this;
+    }
+
+    private static void addUnique(List<String> target, List<String> newElements) {
+        for (String element : newElements) {
+            if (!target.contains(element)) {
+                target.add(element);
+            }
+        }
     }
 
     public FixedRequestAttributes build() {
