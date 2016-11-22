@@ -10,9 +10,11 @@ package org.eclipse.buildship.core.util.configuration;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
@@ -32,8 +34,8 @@ public final class FixedRequestAttributesBuilder {
     private File gradleUserHome = null;
     private GradleDistribution gradleDistribution = GradleDistribution.fromBuild();
     private File javaHome = null;
-    private final List<String> jvmArguments = Lists.newArrayList();
-    private final List<String> arguments = Lists.newArrayList();
+    private final Set<String> jvmArguments = Sets.newLinkedHashSet();
+    private final Set<String> arguments = Sets.newLinkedHashSet();
 
     private FixedRequestAttributesBuilder(File projectDir) {
         this.projectDir = Preconditions.checkNotNull(projectDir);
@@ -55,25 +57,17 @@ public final class FixedRequestAttributesBuilder {
     }
 
     public FixedRequestAttributesBuilder jvmArguments(List<String> jvmArguments) {
-        addUnique(this.jvmArguments, jvmArguments);
+        this.jvmArguments.addAll(jvmArguments);
         return this;
     }
 
     public FixedRequestAttributesBuilder arguments(List<String> arguments) {
-        addUnique(this.arguments, arguments);
+        this.arguments.addAll(arguments);
         return this;
     }
 
-    private static void addUnique(List<String> target, List<String> newElements) {
-        for (String element : newElements) {
-            if (!target.contains(element)) {
-                target.add(element);
-            }
-        }
-    }
-
     public FixedRequestAttributes build() {
-        return new FixedRequestAttributes(this.projectDir, this.gradleUserHome, this.gradleDistribution, this.javaHome, this.jvmArguments, this.arguments);
+        return new FixedRequestAttributes(this.projectDir, this.gradleUserHome, this.gradleDistribution, this.javaHome, Lists.newArrayList(this.jvmArguments), Lists.newArrayList(this.arguments));
     }
 
     public static FixedRequestAttributesBuilder fromEmptySettings(File projectDir) {
