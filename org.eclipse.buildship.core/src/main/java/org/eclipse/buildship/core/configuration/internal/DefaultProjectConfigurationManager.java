@@ -63,7 +63,7 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
         // changed/corrupted manually
         Map<String, ProjectConfiguration> rootProjectDirs = Maps.newHashMap();
         for (ProjectConfiguration rootProjectConfiguration : rootConfigurations.build()) {
-            String rootProjectDirPath = rootProjectConfiguration.toRequestAttributes().getProjectDir().getAbsolutePath();
+            String rootProjectDirPath = rootProjectConfiguration.toRequestAttributes(false).getProjectDir().getAbsolutePath();
             if (!rootProjectDirs.containsKey(rootProjectDirPath)) {
                 rootProjectDirs.put(rootProjectDirPath, rootProjectConfiguration);
             } else {

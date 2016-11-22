@@ -14,6 +14,7 @@ package org.eclipse.buildship.core.configuration.internal;
 import java.io.File;
 
 import com.gradleware.tooling.toolingmodel.Path;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
@@ -55,8 +56,9 @@ final class ProjectConfigurationProperties {
 
     static ProjectConfigurationProperties from(IProject project, ProjectConfiguration projectConfiguration) {
         String projectPath = projectConfiguration.getProjectPath().getPath();
-        String projectDir = relativePathToRootProject(project, projectConfiguration.toRequestAttributes().getProjectDir());
-        String gradleDistribution = GradleDistributionSerializer.INSTANCE.serializeToString(projectConfiguration.toRequestAttributes().getGradleDistribution());
+        FixedRequestAttributes requestAttributes = projectConfiguration.toRequestAttributes(false);
+        String projectDir = relativePathToRootProject(project, requestAttributes.getProjectDir());
+        String gradleDistribution = GradleDistributionSerializer.INSTANCE.serializeToString(requestAttributes.getGradleDistribution());
         return from(projectPath, projectDir, gradleDistribution);
     }
 

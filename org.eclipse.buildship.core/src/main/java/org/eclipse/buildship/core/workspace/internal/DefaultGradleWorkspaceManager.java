@@ -42,7 +42,7 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
     public Optional<GradleBuild> getGradleBuild(IProject project) {
         Optional<ProjectConfiguration> configuration = CorePlugin.projectConfigurationManager().tryReadProjectConfiguration(project);
         if (configuration.isPresent()) {
-            return Optional.<GradleBuild>of(new DefaultGradleBuild(configuration.get().toRequestAttributes()));
+            return Optional.<GradleBuild>of(new DefaultGradleBuild(configuration.get().toRequestAttributes(true)));
         } else {
             return Optional.absent();
         }
@@ -64,7 +64,7 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
             @Override
             public FixedRequestAttributes apply(IProject project) {
                 Optional<ProjectConfiguration> configuration = CorePlugin.projectConfigurationManager().tryReadProjectConfiguration(project);
-                return configuration.isPresent() ? configuration.get().toRequestAttributes() : null;
+                return configuration.isPresent() ? configuration.get().toRequestAttributes(true) : null;
             }
         }).filter(Predicates.notNull()).toSet();
     }

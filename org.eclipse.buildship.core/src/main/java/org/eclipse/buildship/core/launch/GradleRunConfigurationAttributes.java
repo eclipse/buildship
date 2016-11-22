@@ -187,7 +187,7 @@ public final class GradleRunConfigurationAttributes {
     }
 
     public FixedRequestAttributes toFixedRequestAttributes() {
-        return FixedRequestAttributesBuilder.fromEmptySettings(getWorkingDir())
+        return FixedRequestAttributesBuilder.fromWorkspaceSettings(getWorkingDir())
             .gradleUserHome(getGradleUserHome())
             .gradleDistribution(getGradleDistribution())
             .javaHome(getJavaHome())

@@ -47,8 +47,10 @@ public final class ProjectConfiguration {
         }
     }
 
-    public FixedRequestAttributes toRequestAttributes() {
-        return FixedRequestAttributesBuilder.fromWorkspaceSettings(this.rootProjectDirectory).gradleDistribution(this.gradleDistribution).build();
+    public FixedRequestAttributes toRequestAttributes(boolean mergeWorkspaceSettings) {
+        FixedRequestAttributesBuilder builder = mergeWorkspaceSettings ? FixedRequestAttributesBuilder.fromWorkspaceSettings(this.rootProjectDirectory)
+                : FixedRequestAttributesBuilder.fromEmptySettings(this.rootProjectDirectory);
+        return builder.gradleDistribution(this.gradleDistribution).build();
     }
 
     public Path getProjectPath() {
