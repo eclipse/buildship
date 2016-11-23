@@ -25,6 +25,7 @@ Export-Package: org.eclipse.buildship.core;x-friends:="org.eclipse.buildship.ui"
  org.eclipse.buildship.core.configuration;x-friends:="org.eclipse.buildship.ui",
  org.eclipse.buildship.core.console;x-friends:="org.eclipse.buildship.ui",
  org.eclipse.buildship.core.event;x-friends:="org.eclipse.buildship.ui",
+ org.eclipse.buildship.core.extensions,
  org.eclipse.buildship.core.gradle;x-friends:="org.eclipse.buildship.ui",
  org.eclipse.buildship.core.i18n;x-friends:="org.eclipse.buildship.ui",
  org.eclipse.buildship.core.launch;x-friends:="org.eclipse.buildship.ui",

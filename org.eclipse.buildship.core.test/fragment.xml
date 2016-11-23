@@ -15,5 +15,13 @@
             id="org.eclipse.jdt.core.javanature">
       </requires-nature>
    </extension>
+   
+   <!-- Sample invocation customizer -->
+   <extension
+         point="org.eclipse.buildship.core.invocationcustomizers">
+      <customizer
+            class="org.eclipse.buildship.core.extensions.InvocationCustomizerTest$SampleInvocationCustomizer">
+      </customizer>
+   </extension>
 
 </fragment>

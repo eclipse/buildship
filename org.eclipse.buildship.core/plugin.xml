@@ -4,6 +4,9 @@
    <!-- extension point to activate plugins when a build execution starts -->
    <extension-point id="executionparticipants" name="Build Execution Participants" schema="schema/executionparticipants.exsd"/>
 
+    <!-- extension point to contribute additional arguments to build invocations -->
+    <extension-point id="invocationcustomizers" name="Gradle Invocation Customizers" schema="schema/invocationcustomizers.exsd" />
+
     <!-- initialization of the classpath container-->
     <extension
             point="org.eclipse.jdt.core.classpathContainerInitializer">
