@@ -79,6 +79,7 @@ public final class FixedRequestAttributesBuilder {
         if (configuration.isOffline()) {
             result.arguments.add("--offline");
         }
+        result.arguments(CorePlugin.contributionManager().getContributedExtraArguments());
         return result;
      }
 }
