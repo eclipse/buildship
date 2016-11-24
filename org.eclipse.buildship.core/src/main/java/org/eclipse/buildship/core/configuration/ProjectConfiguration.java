@@ -22,7 +22,6 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder;
 
 /**
@@ -35,7 +34,21 @@ public final class ProjectConfiguration {
      * ProjectConfiguration instance is converted to FixedRequestAttributes.
      */
     public enum ConversionStrategy {
-        MERGE_WORKSPACE_SETTINGS, IGNORE_WORKSPACE_SETTINGS
+        MERGE_WORKSPACE_SETTINGS {
+            @Override
+            protected FixedRequestAttributesBuilder getFixedRequestAttributesBuilder(File rootDir) {
+                return FixedRequestAttributesBuilder.fromWorkspaceSettings(rootDir);
+            }
+        },
+
+        IGNORE_WORKSPACE_SETTINGS {
+            @Override
+            protected FixedRequestAttributesBuilder getFixedRequestAttributesBuilder(File rootDir) {
+                return FixedRequestAttributesBuilder.fromEmptySettings(rootDir);
+            }
+        };
+
+        protected abstract FixedRequestAttributesBuilder getFixedRequestAttributesBuilder(File rootDir);
     }
 
     private final Path projectPath;
@@ -57,18 +70,7 @@ public final class ProjectConfiguration {
     }
 
     public FixedRequestAttributes toRequestAttributes(ConversionStrategy strategy) {
-        FixedRequestAttributesBuilder builder;
-        switch(strategy) {
-            case IGNORE_WORKSPACE_SETTINGS:
-                builder = FixedRequestAttributesBuilder.fromEmptySettings(this.rootProjectDirectory);
-                break;
-            case MERGE_WORKSPACE_SETTINGS:
-                builder = FixedRequestAttributesBuilder.fromWorkspaceSettings(this.rootProjectDirectory);
-                break;
-            default:
-                throw new GradlePluginsRuntimeException("Invalid conversion strategy: " + strategy);
-        }
-        return builder.gradleDistribution(this.gradleDistribution).build();
+        return strategy.getFixedRequestAttributesBuilder(this.rootProjectDirectory).gradleDistribution(this.gradleDistribution).build();
     }
 
     public Path getProjectPath() {
