@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration.ConversionStrategy;
 import org.eclipse.buildship.core.launch.*;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.core.resources.IProject;
@@ -65,7 +66,7 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
 
     @SuppressWarnings("ConstantConditions")
     private GradleRunConfigurationAttributes collectRunConfigurationAttributes(IProject project) {
-        FixedRequestAttributes requestAttributes = CorePlugin.projectConfigurationManager().readProjectConfiguration(project).toRequestAttributes(false);
+        FixedRequestAttributes requestAttributes = CorePlugin.projectConfigurationManager().readProjectConfiguration(project).toRequestAttributes(ConversionStrategy.IGNORE_WORKSPACE_SETTINGS);
 
         // configure the project directory
         String projectDir = requestAttributes.getProjectDir().getAbsolutePath();

@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration.ConversionStrategy;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 
@@ -56,7 +57,7 @@ final class ProjectConfigurationProperties {
 
     static ProjectConfigurationProperties from(IProject project, ProjectConfiguration projectConfiguration) {
         String projectPath = projectConfiguration.getProjectPath().getPath();
-        FixedRequestAttributes requestAttributes = projectConfiguration.toRequestAttributes(false);
+        FixedRequestAttributes requestAttributes = projectConfiguration.toRequestAttributes(ConversionStrategy.IGNORE_WORKSPACE_SETTINGS);
         String projectDir = relativePathToRootProject(project, requestAttributes.getProjectDir());
         String gradleDistribution = GradleDistributionSerializer.INSTANCE.serializeToString(requestAttributes.getGradleDistribution());
         return from(projectPath, projectDir, gradleDistribution);

@@ -45,6 +45,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration.ConversionStrategy;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
@@ -162,7 +163,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
             public boolean apply(IProject project) {
                 Optional<ProjectConfiguration> projectConfiguration = CorePlugin.projectConfigurationManager().tryReadProjectConfiguration(project);
                 return projectConfiguration.isPresent()
-                        && projectConfiguration.get().toRequestAttributes(true).getProjectDir().equals(SynchronizeGradleBuildOperation.this.build.getProjectDir())
+                        && projectConfiguration.get().toRequestAttributes(ConversionStrategy.MERGE_WORKSPACE_SETTINGS).getProjectDir().equals(SynchronizeGradleBuildOperation.this.build.getProjectDir())
                         && (project.getLocation() == null || !gradleProjectDirectories.contains(project.getLocation().toFile()));
             }
         }).toList();

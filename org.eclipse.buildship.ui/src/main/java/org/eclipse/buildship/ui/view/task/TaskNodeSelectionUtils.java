@@ -19,6 +19,7 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration.ConversionStrategy;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
@@ -112,7 +113,7 @@ public final class TaskNodeSelectionUtils {
         Optional<IProject> workspaceProject = projectNode.getWorkspaceProject();
         if (workspaceProject.isPresent() && GradleProjectNature.isPresentOn(workspaceProject.get())) {
             ProjectConfiguration projectConfiguration = CorePlugin.projectConfigurationManager().readProjectConfiguration(workspaceProject.get());
-            return Optional.of(projectConfiguration.toRequestAttributes(false));
+            return Optional.of(projectConfiguration.toRequestAttributes(ConversionStrategy.IGNORE_WORKSPACE_SETTINGS));
         } else {
             return Optional.absent();
         }
