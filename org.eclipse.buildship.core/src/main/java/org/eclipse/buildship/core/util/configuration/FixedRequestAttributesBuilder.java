@@ -10,11 +10,9 @@ package org.eclipse.buildship.core.util.configuration;
 
 import java.io.File;
 import java.util.List;
-import java.util.Set;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
@@ -34,8 +32,8 @@ public final class FixedRequestAttributesBuilder {
     private File gradleUserHome = null;
     private GradleDistribution gradleDistribution = GradleDistribution.fromBuild();
     private File javaHome = null;
-    private final Set<String> jvmArguments = Sets.newLinkedHashSet();
-    private final Set<String> arguments = Sets.newLinkedHashSet();
+    private final List<String> jvmArguments = Lists.newArrayList();
+    private final List<String> arguments = Lists.newArrayList();
 
     private FixedRequestAttributesBuilder(File projectDir) {
         this.projectDir = Preconditions.checkNotNull(projectDir);
