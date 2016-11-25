@@ -17,8 +17,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 
-import com.gradleware.tooling.toolingmodel.Path;
-
 import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.CorePlugin;
@@ -52,7 +50,7 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
                 // calculate the root configuration to which the current configuration belongs
                 Optional<ProjectConfiguration> projectConfiguration = tryReadProjectConfiguration(workspaceProject);
                 if (projectConfiguration.isPresent()) {
-                    ProjectConfiguration rootProjectConfiguration = ProjectConfiguration.from(projectConfiguration.get().getRootProjectDirectory(), projectConfiguration.get().getGradleDistribution(), Path.from(":"));
+                    ProjectConfiguration rootProjectConfiguration = ProjectConfiguration.from(projectConfiguration.get().getRootProjectDirectory(), projectConfiguration.get().getGradleDistribution());
                     rootConfigurations.add(rootProjectConfiguration);
                 }
             }

@@ -1,29 +1,17 @@
 package org.eclipse.buildship.core.configuration.internal
 
-import java.util.Map
-
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import spock.lang.Shared;
-import spock.lang.Specification
-import spock.lang.Subject;
-
-import com.google.common.collect.ImmutableList
+import spock.lang.Shared
+import spock.lang.Subject
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
-import com.gradleware.tooling.toolingmodel.Path
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
-
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.GradlePluginsRuntimeException
-import org.eclipse.buildship.core.configuration.ProjectConfiguration
-import org.eclipse.buildship.core.test.fixtures.EclipseProjects
-import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification;
 
 import org.eclipse.core.resources.IProject
-import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.ProjectScope
 import org.eclipse.core.runtime.NullProgressMonitor
+
+import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.configuration.ProjectConfiguration
+import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
 class DefaultProjectConfigurationPersistenceTest extends WorkspaceSpecification {
 
@@ -64,7 +52,6 @@ class DefaultProjectConfigurationPersistenceTest extends WorkspaceSpecification 
 
         expect:
         def node = new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID)
-        node.get(DefaultProjectConfigurationPersistence.PREF_KEY_PROJECT_PATH, null) == ':'
         node.get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null) == ''
         node.get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, null) == 'GRADLE_DISTRIBUTION(WRAPPER)'
     }
@@ -100,13 +87,9 @@ class DefaultProjectConfigurationPersistenceTest extends WorkspaceSpecification 
         fileTree(project.location.toFile()) {
             dir('.settings') {
                 file "${CorePlugin.PLUGIN_ID}.prefs", """
-                    connection.arguments=
                     connection.gradle.distribution=GRADLE_DISTRIBUTION(WRAPPER)
-                    connection.java.home=null
-                    connection.jvm.arguments=
                     connection.project.dir=
                     eclipse.preferences.version=1
-                    project.path=\\:
                 """
             }
         }
@@ -138,21 +121,20 @@ class DefaultProjectConfigurationPersistenceTest extends WorkspaceSpecification 
         persistence.saveProjectConfiguration(projectConfiguration(), project)
 
         expect:
-        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_PROJECT_PATH, null)
+        new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, null)
 
         when:
         persistence.deleteProjectConfiguration(project)
 
         then:
-        !new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_PROJECT_PATH, null)
+        !new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, null)
 
     }
 
     private ProjectConfiguration projectConfiguration() {
         ProjectConfiguration.from(
             project.location.toFile(),
-            GradleDistribution.fromBuild(),
-            Path.from(':')
+            GradleDistribution.fromBuild()
         )
     }
 

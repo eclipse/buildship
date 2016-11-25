@@ -29,7 +29,6 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
 
     private static final String PREF_NODE = CorePlugin.PLUGIN_ID;
 
-    private static final String PREF_KEY_PROJECT_PATH = "project.path";
     private static final String PREF_KEY_CONNECTION_PROJECT_DIR = "connection.project.dir";
     private static final String PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION = "connection.gradle.distribution";
 
@@ -54,10 +53,9 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
     }
 
     private static ProjectConfiguration readProjectConfiguration(IProject project, PreferenceStore preferences) {
-        String projectPath = preferences.read(PREF_KEY_PROJECT_PATH);
         String projectDir = preferences.read(PREF_KEY_CONNECTION_PROJECT_DIR);
         String gradleDistribution = preferences.read(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
-        return ProjectConfigurationProperties.from(projectPath, projectDir, gradleDistribution).toProjectConfiguration(project);
+        return ProjectConfigurationProperties.from(projectDir, gradleDistribution).toProjectConfiguration(project);
     }
 
     private static ProjectConfiguration loadFromPropertiesFile(IProject project) throws IOException {
@@ -82,7 +80,6 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
         ProjectConfigurationProperties properties = ProjectConfigurationProperties.from(project, projectConfiguration);
         try {
             PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
-            preferences.write(PREF_KEY_PROJECT_PATH, properties.getProjectPath());
             preferences.write(PREF_KEY_CONNECTION_PROJECT_DIR, properties.getProjectDir());
             preferences.write(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, properties.getGradleDistribution());
             preferences.flush();
@@ -98,7 +95,6 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
 
         try {
             PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
-            preferences.delete(PREF_KEY_PROJECT_PATH);
             preferences.delete(PREF_KEY_CONNECTION_PROJECT_DIR);
             preferences.delete(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
             preferences.flush();

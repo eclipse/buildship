@@ -13,7 +13,6 @@ package org.eclipse.buildship.core.configuration.internal;
 
 import java.io.File;
 
-import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
@@ -29,18 +28,12 @@ import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
  */
 final class ProjectConfigurationProperties {
 
-    private final String projectPath;
     private final String projectDir;
     private final String gradleDistribution;
 
-    private ProjectConfigurationProperties(String projectPath, String projectDir, String gradleDistribution) {
-        this.projectPath = projectPath;
+    private ProjectConfigurationProperties(String projectDir, String gradleDistribution) {
         this.projectDir = projectDir;
         this.gradleDistribution = gradleDistribution;
-    }
-
-    String getProjectPath() {
-        return this.projectPath;
     }
 
     String getProjectDir() {
@@ -51,16 +44,15 @@ final class ProjectConfigurationProperties {
         return this.gradleDistribution;
     }
 
-    static ProjectConfigurationProperties from(String projectPath, String projectDir, String gradleDistribution) {
-        return new ProjectConfigurationProperties(projectPath, projectDir, gradleDistribution);
+    static ProjectConfigurationProperties from(String projectDir, String gradleDistribution) {
+        return new ProjectConfigurationProperties(projectDir, gradleDistribution);
     }
 
     static ProjectConfigurationProperties from(IProject project, ProjectConfiguration projectConfiguration) {
-        String projectPath = projectConfiguration.getProjectPath().getPath();
         FixedRequestAttributes requestAttributes = projectConfiguration.toRequestAttributes(ConversionStrategy.IGNORE_WORKSPACE_SETTINGS);
         String projectDir = relativePathToRootProject(project, requestAttributes.getProjectDir());
         String gradleDistribution = GradleDistributionSerializer.INSTANCE.serializeToString(requestAttributes.getGradleDistribution());
-        return from(projectPath, projectDir, gradleDistribution);
+        return from(projectDir, gradleDistribution);
     }
 
     private static String relativePathToRootProject(IProject project, File rootProjectDir) {
@@ -70,7 +62,7 @@ final class ProjectConfigurationProperties {
     }
 
     ProjectConfiguration toProjectConfiguration(IProject project) {
-        return ProjectConfiguration.from(rootProjectFile(project, getProjectDir()), GradleDistributionSerializer.INSTANCE.deserializeFromString(getGradleDistribution()), Path.from(getProjectPath()));
+        return ProjectConfiguration.from(rootProjectFile(project, getProjectDir()), GradleDistributionSerializer.INSTANCE.deserializeFromString(getGradleDistribution()));
     }
 
     private static File rootProjectFile(IProject project, String pathToRootProject) {

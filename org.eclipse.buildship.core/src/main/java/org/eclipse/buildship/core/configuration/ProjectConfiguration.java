@@ -19,7 +19,6 @@ import com.google.common.base.Preconditions;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.Path;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder;
@@ -51,14 +50,12 @@ public final class ProjectConfiguration {
         protected abstract FixedRequestAttributesBuilder getFixedRequestAttributesBuilder(File rootDir);
     }
 
-    private final Path projectPath;
     private final File rootProjectDirectory;
     private final GradleDistribution gradleDistribution;
 
-    private ProjectConfiguration(File rootProjectDirectory, GradleDistribution gradleDistribution, Path projectPath) {
+    private ProjectConfiguration(File rootProjectDirectory, GradleDistribution gradleDistribution) {
         this.rootProjectDirectory = canonicalize(rootProjectDirectory);
         this.gradleDistribution = Preconditions.checkNotNull(gradleDistribution);
-        this.projectPath = Preconditions.checkNotNull(projectPath);
     }
 
     private static File canonicalize(File file) {
@@ -73,10 +70,6 @@ public final class ProjectConfiguration {
         return strategy.getFixedRequestAttributesBuilder(this.rootProjectDirectory).gradleDistribution(this.gradleDistribution).build();
     }
 
-    public Path getProjectPath() {
-        return this.projectPath;
-    }
-
     public File getRootProjectDirectory() {
         return this.rootProjectDirectory;
     }
@@ -89,8 +82,7 @@ public final class ProjectConfiguration {
     public boolean equals(Object obj) {
         if (obj instanceof ProjectConfiguration) {
             ProjectConfiguration other = (ProjectConfiguration) obj;
-            return Objects.equal(this.projectPath, other.projectPath)
-                    && Objects.equal(this.rootProjectDirectory, other.rootProjectDirectory)
+            return Objects.equal(this.rootProjectDirectory, other.rootProjectDirectory)
                     && Objects.equal(this.gradleDistribution, other.gradleDistribution);
         }
         return false;
@@ -98,15 +90,15 @@ public final class ProjectConfiguration {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.rootProjectDirectory, this.gradleDistribution, this.projectPath);
+        return Objects.hashCode(this.rootProjectDirectory, this.gradleDistribution);
     }
 
     public static ProjectConfiguration from(FixedRequestAttributes build, OmniEclipseProject project) {
-        return from(build.getProjectDir(), build.getGradleDistribution(), project.getPath());
+        return from(build.getProjectDir(), build.getGradleDistribution());
     }
 
-    public static ProjectConfiguration from(File rootProjectDir, GradleDistribution gradleDistribution, Path projectPath) {
-        return new ProjectConfiguration(rootProjectDir, gradleDistribution, projectPath);
+    public static ProjectConfiguration from(File rootProjectDir, GradleDistribution gradleDistribution) {
+        return new ProjectConfiguration(rootProjectDir, gradleDistribution);
     }
 
 }
