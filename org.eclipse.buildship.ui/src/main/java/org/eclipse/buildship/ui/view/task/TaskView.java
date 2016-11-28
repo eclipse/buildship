@@ -192,6 +192,7 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
     /**
      * Reloads the task model in the background and updates this view once the reload is complete.
      * Can be safely called outside the UI thread.
+     * @param fetchStrategy determines how to get the model being visualized from the cache
      */
     public void reload(FetchStrategy fetchStrategy) {
         new ReloadTaskViewJob(this, fetchStrategy).schedule();
