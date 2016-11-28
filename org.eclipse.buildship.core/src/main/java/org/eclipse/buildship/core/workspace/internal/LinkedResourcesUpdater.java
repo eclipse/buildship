@@ -11,18 +11,14 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.io.File;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.base.Splitter;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Sets;
 
@@ -35,10 +31,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.SubMonitor;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.file.FileUtils;
 
 /**
@@ -46,13 +40,12 @@ import org.eclipse.buildship.core.util.file.FileUtils;
  *
  * Note that currently, we only include linked resources that are folders.
  */
-final class LinkedResourcesUpdater {
-    private static final QualifiedName LINKED_RESOURCES_KEY = new QualifiedName(CorePlugin.PLUGIN_ID, "linkedResources");
-
+final class LinkedResourcesUpdater extends PersistentUpdater {
     private final IProject project;
     private final Map<String,OmniEclipseLinkedResource> linkedResources;
 
     private LinkedResourcesUpdater(IProject project, List<OmniEclipseLinkedResource> linkedResources) {
+        super(project, "linkedResources");
         this.project = Preconditions.checkNotNull(project);
         this.linkedResources = FluentIterable.from(linkedResources).filter(new LinkedResourcesWithValidLocation()).uniqueIndex(new Function<OmniEclipseLinkedResource, String>() {
 
@@ -70,7 +63,7 @@ final class LinkedResourcesUpdater {
     }
 
     private void removeOutdatedLinkedResources(SubMonitor progress) throws CoreException {
-        Collection<String> resourceNames = getKnownLinkedResources(this.project);
+        Collection<String> resourceNames = getKnownItems();
         progress.setWorkRemaining(resourceNames.size());
         for (String resourceName : resourceNames) {
             SubMonitor childProgress = progress.newChild(1);
@@ -79,14 +72,6 @@ final class LinkedResourcesUpdater {
                 folder.delete(false, childProgress);
             }
         }
-    }
-
-    private Collection<String> getKnownLinkedResources(IProject project) throws CoreException {
-        String serializedForm = project.getPersistentProperty(LINKED_RESOURCES_KEY);
-        if (serializedForm == null) {
-            return Collections.emptyList();
-        }
-        return Splitter.on(File.pathSeparator).omitEmptyStrings().splitToList(serializedForm);
     }
 
     private boolean shouldDelete(IFolder folder) {
@@ -109,11 +94,7 @@ final class LinkedResourcesUpdater {
             IFolder linkedResourceFolder = createLinkedResourceFolder(linkedResource.getName(), linkedResource, childProgress);
             resourceNames.add(projectRelativePath(linkedResourceFolder));
         }
-        setKnownLinkedResources(this.project, resourceNames);
-    }
-
-    private void setKnownLinkedResources(IProject project, Collection<String> linkedResources) throws CoreException {
-        project.setPersistentProperty(LINKED_RESOURCES_KEY, Joiner.on(File.pathSeparator).join(linkedResources));
+        setKnownItems(resourceNames);
     }
 
     private IFolder createLinkedResourceFolder(String name, OmniEclipseLinkedResource linkedResource, SubMonitor progress) throws CoreException {

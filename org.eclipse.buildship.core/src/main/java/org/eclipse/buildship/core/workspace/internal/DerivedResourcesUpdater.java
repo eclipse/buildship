@@ -8,24 +8,17 @@
  */
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.io.File;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.SubMonitor;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
@@ -34,14 +27,11 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
  *
  * @author Stefan Oehme
  */
-final class DerivedResourcesUpdater {
-    private static final QualifiedName DERIVED_RESOURCES_KEY = new QualifiedName(CorePlugin.PLUGIN_ID, "derivedResources");
-
-    private final IProject project;
+final class DerivedResourcesUpdater extends PersistentUpdater {
     private final ImmutableList<String> derivedResources;
 
     private DerivedResourcesUpdater(IProject project, List<String> derivedResources) {
-        this.project = Preconditions.checkNotNull(project);
+        super(project, "derivedResources");
         this.derivedResources = ImmutableList.copyOf(derivedResources);
     }
 
@@ -61,19 +51,11 @@ final class DerivedResourcesUpdater {
     }
 
     private void removePreviousMarkers(SubMonitor progress) throws CoreException {
-        Collection<String> previouslyKnownDerivedResources = getKnownDerivedResources();
+        Collection<String> previouslyKnownDerivedResources = getKnownItems();
         progress.setWorkRemaining(previouslyKnownDerivedResources.size());
         for (String resourceName : previouslyKnownDerivedResources) {
             setDerived(resourceName, false, progress.newChild(1));
         }
-    }
-
-    private Collection<String> getKnownDerivedResources() throws CoreException {
-        String serializedForm = this.project.getPersistentProperty(DERIVED_RESOURCES_KEY);
-        if (serializedForm == null) {
-            return Collections.emptyList();
-        }
-        return Splitter.on(File.pathSeparator).omitEmptyStrings().splitToList(serializedForm);
     }
 
     private void addNewMarkers(SubMonitor progress) throws CoreException {
@@ -81,7 +63,7 @@ final class DerivedResourcesUpdater {
         for (String resourceName : this.derivedResources) {
             setDerived(resourceName, true, progress.newChild(1));
         }
-        setKnownDerivedResources(this.project, this.derivedResources);
+        setKnownItems(this.derivedResources);
     }
 
     private void setDerived(String resourceName, boolean derived, SubMonitor progress) throws CoreException {
@@ -89,10 +71,6 @@ final class DerivedResourcesUpdater {
         if (derivedResource != null) {
             derivedResource.setDerived(derived, progress);
         }
-    }
-
-    private void setKnownDerivedResources(IProject project, Collection<String> derivedResources) throws CoreException {
-        project.setPersistentProperty(DERIVED_RESOURCES_KEY, Joiner.on(File.pathSeparator).join(derivedResources));
     }
 
     static void update(IProject project, List<String> derivedResources, IProgressMonitor monitor) {
