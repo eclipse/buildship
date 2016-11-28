@@ -28,7 +28,7 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
     static IPath CUSTOM_USER_CONTAINER = new Path('user.classpath.container')
     static IPath GRADLE_CLASSPATH_CONTAINER = GradleClasspathContainer.CONTAINER_PATH
     static IPath DEFAULT_JRE_CONTAINER = JavaRuntime.newDefaultJREContainerPath()
-    static IPath DEFAULT_JAVA_8 = new Path('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8')
+    static IPath DEFAULT_JAVA_8_CONTAINER = new Path('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8')
     static IPath CUSTOM_JRE_CONTAINER = new Path('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/Java SE 6 [1.6.0_65-b14-462]')
 
     def "Can set classpath containers"() {
@@ -144,12 +144,12 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
         setup:
         IJavaProject project = newJavaProject('sample-project')
         def updatedClasspath = project.rawClasspath.findAll { !it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
-        updatedClasspath += JavaCore.newContainerEntry(DEFAULT_JAVA_8)
+        updatedClasspath += JavaCore.newContainerEntry(DEFAULT_JAVA_8_CONTAINER)
         updatedClasspath += JavaCore.newContainerEntry(CUSTOM_JRE_CONTAINER)
         project.setRawClasspath(updatedClasspath as IClasspathEntry[], null)
 
         expect:
-        findContainer(project, DEFAULT_JAVA_8)
+        findContainer(project, DEFAULT_JAVA_8_CONTAINER)
         findContainer(project, CUSTOM_JRE_CONTAINER)
 
         when:
@@ -157,7 +157,7 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
         then:
         findContainer(project, new Path('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6'))
-        !findContainer(project, DEFAULT_JAVA_8)
+        !findContainer(project, DEFAULT_JAVA_8_CONTAINER)
         !findContainer(project, CUSTOM_JRE_CONTAINER)
     }
 
@@ -165,19 +165,19 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
         setup:
         IJavaProject project = newJavaProject('sample-project')
         def updatedClasspath = project.rawClasspath.findAll { !it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
-        updatedClasspath += JavaCore.newContainerEntry(DEFAULT_JAVA_8)
+        updatedClasspath += JavaCore.newContainerEntry(DEFAULT_JAVA_8_CONTAINER)
         updatedClasspath += JavaCore.newContainerEntry(CUSTOM_JRE_CONTAINER)
         project.setRawClasspath(updatedClasspath as IClasspathEntry[], null)
 
         expect:
-        findContainer(project, DEFAULT_JAVA_8)
+        findContainer(project, DEFAULT_JAVA_8_CONTAINER)
         findContainer(project, CUSTOM_JRE_CONTAINER)
 
         when:
         executeContainerUpdate(project)
 
         then:
-        !findContainer(project, DEFAULT_JAVA_8)
+        !findContainer(project, DEFAULT_JAVA_8_CONTAINER)
         !findContainer(project, CUSTOM_JRE_CONTAINER)
     }
 
@@ -185,12 +185,12 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
         setup:
         IJavaProject project = newJavaProject('project-with-classpath-container')
         def updatedClasspath = project.rawClasspath.findAll { !it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
-        updatedClasspath += JavaCore.newContainerEntry(DEFAULT_JAVA_8)
+        updatedClasspath += JavaCore.newContainerEntry(DEFAULT_JAVA_8_CONTAINER)
         updatedClasspath += JavaCore.newContainerEntry(CUSTOM_JRE_CONTAINER)
         project.setRawClasspath(updatedClasspath as IClasspathEntry[], null)
 
         expect:
-        findContainer(project, DEFAULT_JAVA_8)
+        findContainer(project, DEFAULT_JAVA_8_CONTAINER)
         findContainer(project, CUSTOM_JRE_CONTAINER)
 
         when:
@@ -198,7 +198,7 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
         then:
         findContainer(project, DEFAULT_JRE_CONTAINER)
-        !findContainer(project, DEFAULT_JAVA_8)
+        !findContainer(project, DEFAULT_JAVA_8_CONTAINER)
         !findContainer(project, CUSTOM_JRE_CONTAINER)
     }
 
@@ -258,11 +258,11 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
         where:
         containerPaths << [
-            [ DEFAULT_JAVA_8, GRADLE_CLASSPATH_CONTAINER ],
-            [ GRADLE_CLASSPATH_CONTAINER, DEFAULT_JAVA_8 ],
-            [ CUSTOM_USER_CONTAINER, DEFAULT_JAVA_8, CUSTOM_MODEL_CONTAINER ],
-            [ DEFAULT_JAVA_8, CUSTOM_USER_CONTAINER, CUSTOM_MODEL_CONTAINER ],
-            [ CUSTOM_USER_CONTAINER, CUSTOM_MODEL_CONTAINER, DEFAULT_JAVA_8 ],
+            [ DEFAULT_JAVA_8_CONTAINER, GRADLE_CLASSPATH_CONTAINER ],
+            [ GRADLE_CLASSPATH_CONTAINER, DEFAULT_JAVA_8_CONTAINER ],
+            [ CUSTOM_USER_CONTAINER, DEFAULT_JAVA_8_CONTAINER, CUSTOM_MODEL_CONTAINER ],
+            [ DEFAULT_JAVA_8_CONTAINER, CUSTOM_USER_CONTAINER, CUSTOM_MODEL_CONTAINER ],
+            [ CUSTOM_USER_CONTAINER, CUSTOM_MODEL_CONTAINER, DEFAULT_JAVA_8_CONTAINER ],
         ]
     }
 
