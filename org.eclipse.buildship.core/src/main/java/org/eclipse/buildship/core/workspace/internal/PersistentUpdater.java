@@ -9,16 +9,18 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
+import com.google.common.io.Files;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.QualifiedName;
 
 import org.eclipse.buildship.core.CorePlugin;
 
@@ -27,18 +29,18 @@ import org.eclipse.buildship.core.CorePlugin;
  *
  * @author Donat Csikos
  */
-public abstract class PersistentUpdater<T> {
+public abstract class PersistentUpdater {
 
     protected final IProject project;
-    private final QualifiedName propertyName;
+    private final String propertyName;
 
     public PersistentUpdater(IProject project, String propertyName) {
-        this.propertyName = new QualifiedName(CorePlugin.PLUGIN_ID, propertyName);
+        this.propertyName = Preconditions.checkNotNull(propertyName);
         this.project = Preconditions.checkNotNull(project);
     }
 
     protected Collection<String> getKnownItems() throws CoreException {
-        String serializedForm = this.project.getPersistentProperty(this.propertyName);
+        String serializedForm = read();
         if (serializedForm == null) {
             return Collections.emptyList();
         }
@@ -46,6 +48,33 @@ public abstract class PersistentUpdater<T> {
     }
 
     protected void setKnownItems(Collection<String> items) throws CoreException {
-        this.project.setPersistentProperty(this.propertyName, Joiner.on(File.pathSeparator).join(items));
+        write(Joiner.on(File.pathSeparator).join(items));
+    }
+
+    private String read() {
+        File stateLocation = storageFile();
+        if (!stateLocation.exists()) {
+            return "";
+        }
+        try {
+            return Files.toString(stateLocation, Charsets.UTF_8);
+        } catch (Exception e) {
+            CorePlugin.logger().error(String.format("Can't load property %s for project %s.", this.propertyName, this.project.getName()), e);
+            return "";
+        }
+    }
+
+    private void write(String content) {
+        File stateLocation = storageFile();
+        try {
+            Files.createParentDirs(stateLocation);
+            Files.write(content, stateLocation, Charsets.UTF_8);
+        } catch (IOException e) {
+            CorePlugin.logger().error(String.format("Can't store property %s for project %s.", this.propertyName, this.project.getName()), e);
+        }
+    }
+
+    private File storageFile() {
+        return CorePlugin.getInstance().getStateLocation().append(this.propertyName).append(this.project.getName()).toFile();
     }
 }
