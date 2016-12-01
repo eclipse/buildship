@@ -2,8 +2,8 @@ package org.eclipse.buildship.core.extensions
 
 import spock.lang.Specification
 
-import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder
+import org.eclipse.buildship.core.util.extension.InvocationCustomizerCollector
 
 class InvocationCustomizerTest extends Specification {
 
@@ -28,7 +28,7 @@ class InvocationCustomizerTest extends Specification {
 
     def "Can contribute extra arguments"() {
         expect:
-        CorePlugin.contributionManager().contributedExtraArguments == EXTRA_ARGUMENTS
+       new InvocationCustomizerCollector().contributedExtraArguments == EXTRA_ARGUMENTS
     }
 
     def "FixedRequestAttributesBuilder receive extra arguments"() {

@@ -37,8 +37,6 @@ import org.eclipse.buildship.core.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.console.internal.StdProcessStreamsProvider;
 import org.eclipse.buildship.core.event.ListenerRegistry;
 import org.eclipse.buildship.core.event.internal.DefaultListenerRegistry;
-import org.eclipse.buildship.core.extensions.result.ContributionManager;
-import org.eclipse.buildship.core.extensions.result.internal.CachingContributionManager;
 import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.notification.UserNotification;
@@ -101,7 +99,6 @@ public final class CorePlugin extends Plugin {
     private ServiceTracker userNotificationServiceTracker;
 
     private WorkspaceConfigurationManager workspaceConfigurationManager;
-    private ContributionManager contributionManager;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
@@ -157,7 +154,6 @@ public final class CorePlugin extends Plugin {
         this.userNotificationService = registerService(context, UserNotification.class, createUserNotification(), preferences);
 
         this.workspaceConfigurationManager = new DefaultWorkspaceConfigurationManager();
-        this.contributionManager = new CachingContributionManager();
     }
 
     private ServiceTracker createServiceTracker(BundleContext context, Class<?> clazz) {
@@ -292,9 +288,5 @@ public final class CorePlugin extends Plugin {
 
     public static WorkspaceConfigurationManager workspaceConfigurationManager() {
         return getInstance().workspaceConfigurationManager;
-    }
-
-    public static ContributionManager contributionManager() {
-        return getInstance().contributionManager;
     }
 }

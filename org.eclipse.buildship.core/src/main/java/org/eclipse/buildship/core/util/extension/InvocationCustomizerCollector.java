@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.extensions.result.internal;
+package org.eclipse.buildship.core.util.extension;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,28 +19,22 @@ import org.eclipse.core.runtime.Platform;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.extensions.InvocationCustomizer;
-import org.eclipse.buildship.core.extensions.result.ContributionManager;
 
 /**
- * Default implementation for {@link ContributionManager}. The contributed elements are loaded lazily
- * and cached.
+ * Retrieves and caches extra Gradle arguments contributed via the {@code invocationcustomizer}
+ * extension point.
  *
  * @author Donat Csikos
  */
-public final class CachingContributionManager implements ContributionManager {
+public final class InvocationCustomizerCollector {
 
     private List<InvocationCustomizer> customizers;
 
-    @Override
     public List<String> getContributedExtraArguments() {
         if (this.customizers == null) {
             this.customizers = loadCustomizers();
         }
-        List<String> result = Lists.newArrayList();
-        for (InvocationCustomizer customizer : this.customizers) {
-            result.addAll(customizer.getExtraArguments());
-        }
-        return result;
+        return collectArguments(this.customizers);
     }
 
     private List<InvocationCustomizer> loadCustomizers() {
@@ -53,6 +47,14 @@ public final class CachingContributionManager implements ContributionManager {
             } catch (CoreException e) {
                 CorePlugin.logger().warn("Can't load contributed invocation customizers", e);
             }
+        }
+        return result;
+    }
+
+    private static List<String> collectArguments(List<InvocationCustomizer> customizers) {
+        List<String> result = Lists.newArrayList();
+        for (InvocationCustomizer customizer : customizers) {
+            result.addAll(customizer.getExtraArguments());
         }
         return result;
     }
