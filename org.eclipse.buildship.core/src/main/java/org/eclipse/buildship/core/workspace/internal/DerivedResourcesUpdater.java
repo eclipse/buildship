@@ -41,7 +41,7 @@ final class DerivedResourcesUpdater extends PersistentUpdater {
             removePreviousMarkers(progress.newChild(1));
             addNewMarkers(progress.newChild(1));
         } catch (CoreException e) {
-            String message = String.format("Could not update derived resources on project %s.", this.project.getName());
+            String message = String.format("Could not update derived resources on project %s.", project.getName());
             throw new GradlePluginsRuntimeException(message, e);
         } finally {
             if (monitor != null) {

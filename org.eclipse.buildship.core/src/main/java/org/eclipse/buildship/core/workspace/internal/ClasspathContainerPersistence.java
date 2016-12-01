@@ -8,20 +8,10 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.io.Files;
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.gradle.api.UncheckedIOException;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -32,11 +22,22 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.List;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.preferences.ProjectPluginStatePreferences;
 
 /**
  * Stores the current state of the gradle classpath container in the workspace metadata area
@@ -58,23 +59,20 @@ final class ClasspathContainerPersistence {
             content.append(this.javaProject.encodeClasspathEntry(entry));
         }
         content.append("</classpath>\n");
-        File stateLocation = getStateLocation();
-        try {
-            Files.createParentDirs(stateLocation);
-            Files.write(content, stateLocation, Charsets.UTF_8);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        ProjectPluginStatePreferences preferences = CorePlugin.projectPluginStatePreferenceStore().loadProjectPrefs(this.javaProject.getProject());
+        preferences.setValue("classpath", content.toString());
+        preferences.flush();
     }
 
     Optional<List<IClasspathEntry>> load() {
-        File stateLocation = getStateLocation();
-        if (!stateLocation.exists()) {
+        ProjectPluginStatePreferences preferences = CorePlugin.projectPluginStatePreferenceStore().loadProjectPrefs(this.javaProject.getProject());
+        String classpath = preferences.getValue("classpath", null);
+        if (classpath == null) {
             return Optional.absent();
         }
 
         try {
-            Element classpathNode = readClasspathNode(stateLocation);
+            Element classpathNode = readClasspathNode(classpath);
             List<IClasspathEntry> entries = readEntriesFromClasspathNode(classpathNode);
             return Optional.of(entries);
         } catch (Exception e) {
@@ -83,10 +81,9 @@ final class ClasspathContainerPersistence {
         }
     }
 
-    private Element readClasspathNode(File stateLocation) throws IOException, ParserConfigurationException, SAXException {
-        byte[] bytes = Files.toByteArray(stateLocation);
+    private Element readClasspathNode(String classpath) throws IOException, ParserConfigurationException, SAXException {
         DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Element classpathNode = parser.parse(new InputSource(new ByteArrayInputStream(bytes))).getDocumentElement();
+        Element classpathNode = parser.parse(new InputSource(new ByteArrayInputStream(classpath.getBytes()))).getDocumentElement();
         if (!classpathNode.getNodeName().equalsIgnoreCase("classpath")) {
             throw new IllegalStateException("Classpath file does not contain a <classpath> element.");
         }
@@ -118,10 +115,6 @@ final class ClasspathContainerPersistence {
         StringWriter writer = new StringWriter();
         transformer.transform(new DOMSource(node), new StreamResult(writer));
         return writer.toString();
-    }
-
-    private File getStateLocation() {
-        return CorePlugin.getInstance().getStateLocation().append("classpath-persistence").append(this.javaProject.getProject().getName()).toFile();
     }
 
     static void save(IJavaProject javaProject, List<IClasspathEntry> entries) {
