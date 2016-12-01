@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.extensions;
+package org.eclipse.buildship.core.invocation;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.extensions
+package org.eclipse.buildship.core.invocation
 
 import spock.lang.Specification
 

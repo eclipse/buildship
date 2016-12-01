@@ -55,7 +55,7 @@
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":org.eclipse.buildship.core.extensions.InvocationCustomizer"/>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.buildship.core.invocation.InvocationCustomizer"/>
                </appinfo>
             </annotation>
          </attribute>
