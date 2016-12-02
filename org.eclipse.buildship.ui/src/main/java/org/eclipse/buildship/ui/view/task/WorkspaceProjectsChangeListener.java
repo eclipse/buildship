@@ -15,11 +15,10 @@ import com.google.common.base.Preconditions;
 
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.IResourceDelta;
-import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.buildship.core.event.Event;
+import org.eclipse.buildship.core.event.EventListener;
+import org.eclipse.buildship.core.workspace.ProjectCreatedEvent;
+import org.eclipse.buildship.core.workspace.ProjectDeletedEvent;
 
 /**
  * Tracks the creation/deletion of projects in the workspace and updates the {@link TaskView}
@@ -28,7 +27,7 @@ import org.eclipse.core.resources.IWorkspace;
  * Every time a project is added or removed from the workspace, the listener updates the content of
  * the task view.
  */
-public final class WorkspaceProjectsChangeListener implements IResourceChangeListener {
+public final class WorkspaceProjectsChangeListener implements EventListener {
 
     private final TaskView taskView;
 
@@ -36,33 +35,10 @@ public final class WorkspaceProjectsChangeListener implements IResourceChangeLis
         this.taskView = Preconditions.checkNotNull(taskView);
     }
 
-    public void startListeningTo(IWorkspace workspace) {
-        workspace.addResourceChangeListener(this, IResourceChangeEvent.POST_CHANGE);
-    }
-
-    public void stopListeningTo(IWorkspace workspace) {
-        workspace.removeResourceChangeListener(this);
-    }
-
     @Override
-    public void resourceChanged(IResourceChangeEvent event) {
-        if (hasListOfProjectsChanged(event.getDelta())) {
+    public void onEvent(Event event) {
+        if (event instanceof ProjectCreatedEvent || event instanceof ProjectDeletedEvent) {
             this.taskView.reload(FetchStrategy.LOAD_IF_NOT_CACHED);
         }
     }
-
-    private boolean hasListOfProjectsChanged(IResourceDelta delta) {
-        if (delta.getResource() instanceof IProject) {
-            int kind = delta.getKind();
-            return kind == IResourceDelta.ADDED || kind == IResourceDelta.REMOVED;
-        }
-
-        for (IResourceDelta child : delta.getAffectedChildren()) {
-            if (hasListOfProjectsChanged(child)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 }

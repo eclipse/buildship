@@ -18,22 +18,22 @@ import com.google.common.collect.Sets;
 
 import org.eclipse.core.resources.IProject;
 
-import org.eclipse.buildship.core.preferences.ProjectPluginStatePreferences;
+import org.eclipse.buildship.core.preferences.PersistentModel;
 
 /**
- * Default implementation for {@link ProjectPluginStatePreferences}.
+ * Default implementation for {@link PersistentModel}.
  *
  * @author Donat Csikos
  */
-class DefaultProjectPluginStatePreferences implements ProjectPluginStatePreferences {
+class DefaultPersistentModel implements PersistentModel {
 
-    private final DefaultProjectPluginStatePreferenceStore store;
+    private final DefaultModelPersistence store;
     private final IProject project;
     private final ImmutableMap<String, String> entries;
     private final Map<String, String> added;
     private final Set<String> removed;
 
-    DefaultProjectPluginStatePreferences(DefaultProjectPluginStatePreferenceStore store, IProject project, Map<String, String> entries) {
+    DefaultPersistentModel(DefaultModelPersistence store, IProject project, Map<String, String> entries) {
         this.store = Preconditions.checkNotNull(store);
         this.project = Preconditions.checkNotNull(project);
         this.entries = ImmutableMap.copyOf(entries);

@@ -6,9 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.preferences.internal;
-
-import com.google.common.base.Preconditions;
+package org.eclipse.buildship.core.workspace.internal;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResourceChangeEvent;
@@ -16,26 +14,27 @@ import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.workspace.ProjectCreatedEvent;
+import org.eclipse.buildship.core.workspace.ProjectDeletedEvent;
+import org.eclipse.buildship.core.workspace.ProjectMovedEvent;
 
 /**
- * An {@link IResourceChangeListener} implementation which notifies a target
- * {@link ProjectChangeHandler} about project move and project deletion events.
+ * An {@link IResourceChangeListener} implementation which sends events about project change events
+ * via {@link CorePlugin#listenerRegistry()}.
  *
  * @author Donat Csikos
  *
  */
-final class ProjectChangeListener implements IResourceChangeListener {
+public final class ProjectChangeListener implements IResourceChangeListener {
 
-    private final ProjectChangeHandler projectChangeHandler;
-
-    public ProjectChangeListener(ProjectChangeHandler handler) {
-        this.projectChangeHandler = Preconditions.checkNotNull(handler);
+    private ProjectChangeListener() {
     }
 
     @Override
@@ -65,20 +64,35 @@ final class ProjectChangeListener implements IResourceChangeListener {
     }
 
     private boolean doVisitDelta(IResourceDelta delta) throws Exception {
-        if (delta.getResource() instanceof IProject && delta.getKind() == IResourceDelta.REMOVED) {
+        if (delta.getResource() instanceof IProject) {
             IProject project = (IProject) delta.getResource();
             IPath fromPath = delta.getMovedFromPath();
-
-            if (fromPath == null) {
-                ProjectChangeListener.this.projectChangeHandler.projectDeleted(project);
-            } else {
-                ProjectChangeListener.this.projectChangeHandler.projectMoved(fromPath, project);
+            IPath toPath = delta.getMovedToPath();
+            if (delta.getKind() == IResourceDelta.REMOVED) {
+                if (fromPath == null && toPath == null) {
+                    CorePlugin.listenerRegistry().dispatch(new ProjectDeletedEvent(project));
+                }
+            } else  if (delta.getKind() == IResourceDelta.ADDED) {
+                if (fromPath == null && toPath == null) {
+                    CorePlugin.listenerRegistry().dispatch(new ProjectCreatedEvent(project));
+                } else if (fromPath != null) {
+                    CorePlugin.listenerRegistry().dispatch(new ProjectMovedEvent(project, fromPath.lastSegment()));
+                }
             }
-
             return false;
         } else {
             // don't traverse deeper than the project level
             return delta.getResource() instanceof IWorkspaceRoot;
         }
+    }
+
+    public static ProjectChangeListener createAndRegister() {
+        ProjectChangeListener listener = new ProjectChangeListener();
+        ResourcesPlugin.getWorkspace().addResourceChangeListener(listener, IResourceChangeEvent.POST_CHANGE);
+        return listener;
+    }
+
+    public void close() {
+        ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
     }
 }

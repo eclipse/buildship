@@ -9,24 +9,25 @@
 package org.eclipse.buildship.core.preferences;
 
 /**
- * Interface to read and write project preferences stored in the workspace plugin state area.
+ * Interface to load and store Gradle model elements stored in the workspace plugin state area. The
+ * model elements are stored and retrieved in a map-like fashion.
  *
  * @author Donat Csikos
  */
-public interface ProjectPluginStatePreferences {
+public interface PersistentModel {
 
     /**
-     * Returns a value for the specified preference key.
+     * Returns a value for the specified key.
      *
-     * @param key the preference key
-     * @param defaultValue the value to be returned if the key is not present
-     * @return the preference value
+     * @param key the key
+     * @param defaultValue the to be returned if no value is present
+     * @return the value
      */
     String getValue(String key, String defaultValue);
 
     /**
-     * Stores a new preference key-value pair in this instance. To persist the update, the
-     * {@link #flush()} method should be called.
+     * Stores a new key-value pair in this instance. To persist the update, the {@link #flush()}
+     * method should be called.
      *
      * @param key the key
      * @param value the value
@@ -34,7 +35,7 @@ public interface ProjectPluginStatePreferences {
     void setValue(String key, String value);
 
     /**
-     * Persists all changes to the disk.
+     * Persists all changes on the disk.
      */
     void flush();
 }

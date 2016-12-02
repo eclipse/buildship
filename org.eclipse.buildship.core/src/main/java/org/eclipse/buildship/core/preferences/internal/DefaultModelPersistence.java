@@ -29,37 +29,27 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.preferences.ProjectPluginStatePreferenceStore;
-import org.eclipse.buildship.core.preferences.ProjectPluginStatePreferences;
+import org.eclipse.buildship.core.event.Event;
+import org.eclipse.buildship.core.event.EventListener;
+import org.eclipse.buildship.core.preferences.ModelPersistence;
+import org.eclipse.buildship.core.preferences.PersistentModel;
+import org.eclipse.buildship.core.workspace.ProjectDeletedEvent;
+import org.eclipse.buildship.core.workspace.ProjectMovedEvent;
 
 /**
- * Default implementation for {@link ProjectPluginStatePreferences}.
+ * Default implementation for {@link PersistentModel}.
  *
  * @author Donat Csikos
  */
-public final class DefaultProjectPluginStatePreferenceStore implements ProjectPluginStatePreferenceStore, ProjectChangeHandler {
+public final class DefaultModelPersistence implements ModelPersistence, EventListener  {
 
-    private final ProjectChangeListener projectChangeListener;
-
-    private DefaultProjectPluginStatePreferenceStore() {
-        this.projectChangeListener = new ProjectChangeListener(this);
-    }
-
-    private void init() {
-        ResourcesPlugin.getWorkspace().addResourceChangeListener(this.projectChangeListener, IResourceChangeEvent.POST_CHANGE);
-    }
-
-    public void close() {
-        ResourcesPlugin.getWorkspace().removeResourceChangeListener(this.projectChangeListener);
+    private DefaultModelPersistence() {
     }
 
     @Override
-    public ProjectPluginStatePreferences loadProjectPrefs(IProject project) {
+    public PersistentModel loadModel(IProject project) {
         try {
             return loadProjectPrefsChecked(project);
         } catch (IOException e) {
@@ -67,7 +57,7 @@ public final class DefaultProjectPluginStatePreferenceStore implements ProjectPl
         }
     }
 
-    private ProjectPluginStatePreferences loadProjectPrefsChecked(IProject project) throws IOException {
+    private PersistentModel loadProjectPrefsChecked(IProject project) throws IOException {
         File preferencesFile = preferencesFile(project);
         if (preferencesFile.exists()) {
             try (Reader reader = new InputStreamReader(new FileInputStream(preferencesFile(project)), Charsets.UTF_8)) {
@@ -77,14 +67,14 @@ public final class DefaultProjectPluginStatePreferenceStore implements ProjectPl
                 for (Object propKey : props.keySet()) {
                     preferences.put(propKey.toString(), props.get(propKey).toString());
                 }
-                return new DefaultProjectPluginStatePreferences(this, project, preferences);
+                return new DefaultPersistentModel(this, project, preferences);
             }
         } else {
-            return new DefaultProjectPluginStatePreferences(this, project, Collections.<String, String>emptyMap());
+            return new DefaultPersistentModel(this, project, Collections.<String, String>emptyMap());
         }
     }
 
-    void persistPrefs(DefaultProjectPluginStatePreferences preferences) {
+    void persistPrefs(DefaultPersistentModel preferences) {
         try {
             persistPrefsChecked(preferences);
         } catch (IOException e) {
@@ -92,7 +82,7 @@ public final class DefaultProjectPluginStatePreferenceStore implements ProjectPl
         }
     }
 
-    private void persistPrefsChecked(DefaultProjectPluginStatePreferences preferences) throws IOException {
+    private void persistPrefsChecked(DefaultPersistentModel preferences) throws IOException {
         Map<String, String> added = preferences.getAdded();
         Set<String> removed = preferences.getRemoved();
         if (!added.isEmpty() || !removed.isEmpty()) {
@@ -121,18 +111,27 @@ public final class DefaultProjectPluginStatePreferenceStore implements ProjectPl
     }
 
     @Override
-    public void projectMoved(IPath from, IProject to) throws IOException {
-        String deletedName = from.lastSegment();
-        String addedName = to.getName();
-        File preferencesFile = preferencesFile(deletedName);
-        if (preferencesFile.exists()) {
-            Files.move(preferencesFile, preferencesFile(addedName));
+    public void onEvent(Event event) {
+        try {
+            if (event instanceof ProjectMovedEvent) {
+                movePreferencesFile((ProjectMovedEvent) event);
+            } else if (event instanceof ProjectDeletedEvent) {
+                deleteProjectPreferences((ProjectDeletedEvent) event);
+            }
+        } catch (IOException e) {
+            throw new UncheckedException(e);
         }
     }
 
-    @Override
-    public void projectDeleted(IProject project) {
-        preferencesFile(project).delete();
+    private void movePreferencesFile(ProjectMovedEvent event) throws IOException {
+        File preferencesFile = preferencesFile(event.getPreviousName());
+        if (preferencesFile.exists()) {
+            Files.move(preferencesFile, preferencesFile(event.getProject().getName()));
+        }
+    }
+
+    private void deleteProjectPreferences(ProjectDeletedEvent event) {
+        preferencesFile(event.getProject()).delete();
     }
 
     private static File preferencesFile(IProject project) {
@@ -143,9 +142,13 @@ public final class DefaultProjectPluginStatePreferenceStore implements ProjectPl
         return CorePlugin.getInstance().getStateLocation().append("project-preferences").append(projectName).toFile();
     }
 
-    public static DefaultProjectPluginStatePreferenceStore createNew() {
-        DefaultProjectPluginStatePreferenceStore preferencesStore = new DefaultProjectPluginStatePreferenceStore();
-        preferencesStore.init();
-        return preferencesStore;
+    public static DefaultModelPersistence createAndRegister() {
+        DefaultModelPersistence persistence = new DefaultModelPersistence();
+        CorePlugin.listenerRegistry().addEventListener(persistence);
+        return persistence;
+    }
+
+    public void close() {
+        CorePlugin.listenerRegistry().removeEventListener(this);
     }
 }

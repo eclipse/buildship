@@ -37,7 +37,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.preferences.ProjectPluginStatePreferences;
+import org.eclipse.buildship.core.preferences.PersistentModel;
 
 /**
  * Stores the current state of the gradle classpath container in the workspace metadata area
@@ -59,13 +59,13 @@ final class ClasspathContainerPersistence {
             content.append(this.javaProject.encodeClasspathEntry(entry));
         }
         content.append("</classpath>\n");
-        ProjectPluginStatePreferences preferences = CorePlugin.projectPluginStatePreferenceStore().loadProjectPrefs(this.javaProject.getProject());
+        PersistentModel preferences = CorePlugin.modelPersistence().loadModel(this.javaProject.getProject());
         preferences.setValue("classpath", content.toString());
         preferences.flush();
     }
 
     Optional<List<IClasspathEntry>> load() {
-        ProjectPluginStatePreferences preferences = CorePlugin.projectPluginStatePreferenceStore().loadProjectPrefs(this.javaProject.getProject());
+        PersistentModel preferences = CorePlugin.modelPersistence().loadModel(this.javaProject.getProject());
         String classpath = preferences.getValue("classpath", null);
         if (classpath == null) {
             return Optional.absent();

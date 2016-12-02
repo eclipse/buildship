@@ -113,10 +113,10 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
 
     private reimportWithoutSynchronization(IProject project) {
         def descriptor = project.description
-        def classpath = CorePlugin.projectPluginStatePreferenceStore().loadProjectPrefs(project).getValue('classpath', null)
+        def classpath = CorePlugin.modelPersistence().loadModel(project).getValue('classpath', null)
         project.delete(false, true, null)
         project.create(descriptor, null)
-        def preferences = CorePlugin.projectPluginStatePreferenceStore().loadProjectPrefs(project)
+        def preferences = CorePlugin.modelPersistence().loadModel(project)
         preferences.setValue('classpath', classpath)
         preferences.flush()
         project.open(null)

@@ -19,7 +19,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.preferences.ProjectPluginStatePreferences;
+import org.eclipse.buildship.core.preferences.PersistentModel;
 
 /**
  * Base updater class to load and store updated item names.
@@ -28,14 +28,14 @@ import org.eclipse.buildship.core.preferences.ProjectPluginStatePreferences;
  */
 public abstract class PersistentUpdater {
 
-    private final ProjectPluginStatePreferences preferences;
+    private final PersistentModel preferences;
     protected final String name;
     protected final IProject project;
 
     public PersistentUpdater(IProject project, String name) {
         this.project = project;
         this.name = name;
-        this.preferences = CorePlugin.projectPluginStatePreferenceStore().loadProjectPrefs(project);
+        this.preferences = CorePlugin.modelPersistence().loadModel(project);
     }
 
     protected Collection<String> getKnownItems() throws CoreException {
