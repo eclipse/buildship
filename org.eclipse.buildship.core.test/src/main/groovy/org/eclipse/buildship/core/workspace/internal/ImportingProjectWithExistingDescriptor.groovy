@@ -1,6 +1,8 @@
 package org.eclipse.buildship.core.workspace.internal
 
 import org.gradle.api.JavaVersion
+import spock.lang.Ignore;
+
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.internal.ProjectConfigurationPersistence
@@ -58,6 +60,7 @@ class ImportingProjectWithExistingDescriptor extends SingleProjectSynchronizatio
         !project.getFile(".classpath").exists()
     }
 
+    @Ignore("We will remove the whole merge feature soon")
     def "If the project descriptor is merged on import, then existing settings are kept"() {
         setup:
         IProject project = newJavaProject('sample-project').project

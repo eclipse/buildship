@@ -151,22 +151,16 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         IProject project = newProject('project-name')
         IPath linkedFolderPath = new Path(externalDir.absolutePath)
 
-        when:
         IFolder manuallyDefinedLinkedFolder = project.getFolder(externalDir.name)
         manuallyDefinedLinkedFolder.createLink(linkedFolderPath, IResource.NONE, null);
-
-        then:
-        project.getFolder('another').isLinked()
-        StringSetProjectProperty linkedFolders = StringSetProjectProperty.from(project, 'linked.resources')
-        !linkedFolders.get().contains('another')
-
-        when:
         OmniEclipseLinkedResource linkedResource = newFolderLinkedResource(externalDir.name, externalDir)
         LinkedResourcesUpdater.update(project, [linkedResource], new NullProgressMonitor())
 
+        when:
+        LinkedResourcesUpdater.update(project, [], new NullProgressMonitor())
+
         then:
-        project.getFolder('another').isLinked()
-        linkedFolders.get().contains('another')
+        !project.getFolder('another').isLinked()
     }
 
     def "Can create linked resources in the subfolders" () {

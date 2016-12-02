@@ -5,9 +5,9 @@ import com.google.common.base.Optional
 import com.gradleware.tooling.toolingmodel.OmniAccessRule
 import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute
 import com.gradleware.tooling.toolingmodel.OmniEclipseClasspathContainer
-import com.gradleware.tooling.toolingmodel.OmniJavaRuntime;
+import com.gradleware.tooling.toolingmodel.OmniJavaRuntime
 import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings
-import com.gradleware.tooling.toolingmodel.OmniJavaVersion;
+import com.gradleware.tooling.toolingmodel.OmniJavaVersion
 
 import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.NullProgressMonitor
@@ -28,7 +28,7 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
     static IPath CUSTOM_USER_CONTAINER = new Path('user.classpath.container')
     static IPath GRADLE_CLASSPATH_CONTAINER = GradleClasspathContainer.CONTAINER_PATH
     static IPath DEFAULT_JRE_CONTAINER = JavaRuntime.newDefaultJREContainerPath()
-    static IPath STANDARD_JRE_CONTAINER = new Path('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8')
+    static IPath DEFAULT_JAVA_8 = new Path('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8')
     static IPath CUSTOM_JRE_CONTAINER = new Path('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/Java SE 6 [1.6.0_65-b14-462]')
 
     def "Can set classpath containers"() {
@@ -64,7 +64,7 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
         !findContainer(project, CUSTOM_MODEL_CONTAINER)
     }
 
-    def "Preserves manually added classpath containers"() {
+    def "Overwrites manually added classpath containers if model contains container information"() {
         setup:
         IJavaProject project = newJavaProject('project-with-classpath-container')
         IAccessRule[] rules = [JavaCore.newAccessRule(new Path('accessiblePattern'), IAccessRule.K_ACCESSIBLE)]
@@ -76,6 +76,21 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
         executeContainerUpdate(project)
 
         then:
+        !findContainer(project, CUSTOM_USER_CONTAINER)
+    }
+
+    def "Preserves manually added classpath containers if model contains no container information"() {
+        setup:
+        IJavaProject project = newJavaProject('project-with-classpath-container')
+        IAccessRule[] rules = [JavaCore.newAccessRule(new Path('accessiblePattern'), IAccessRule.K_ACCESSIBLE)]
+        IClasspathAttribute[] attributes = [JavaCore.newClasspathAttribute('attributeKey', 'attributeValue')]
+        IClasspathEntry[] classpath = project.rawClasspath + JavaCore.newContainerEntry(CUSTOM_USER_CONTAINER, rules, attributes, true)
+        project.setRawClasspath(classpath, new NullProgressMonitor())
+
+        when:
+        executeContainerUpdateWithOldGradle(project)
+
+        then:
         IClasspathEntry container = findContainer(project, CUSTOM_USER_CONTAINER)
         container != null
         container.exported == true
@@ -85,26 +100,6 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
         container.extraAttributes.length == 1
         container.extraAttributes[0].name == 'attributeKey'
         container.extraAttributes[0].value == 'attributeValue'
-
-    }
-
-    def "Classpath containers that were previously defined manually are transformed to model elements"() {
-        setup:
-        IJavaProject project = newJavaProject('project-with-classpath-container')
-        IClasspathEntry[] classpath = project.rawClasspath + JavaCore.newContainerEntry(CUSTOM_USER_CONTAINER, false)
-        project.setRawClasspath(classpath, new NullProgressMonitor())
-
-        when:
-        executeContainerUpdate(project, container(CUSTOM_USER_CONTAINER))
-
-        then:
-        findContainer(project, CUSTOM_USER_CONTAINER)
-
-        when:
-        executeContainerUpdate(project)
-
-        then:
-        !findContainer(project, CUSTOM_USER_CONTAINER)
     }
 
     def "Adds Gradle classpath container by default"() {
@@ -145,36 +140,57 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
         path << [ CUSTOM_MODEL_CONTAINER, GRADLE_CLASSPATH_CONTAINER ]
     }
 
-    def "Keeps user-defined JRE entries if model doesn't contain JRE"() {
+    def "Updates JRE entry based on source level if containers are not supported"() {
         setup:
         IJavaProject project = newJavaProject('sample-project')
         def updatedClasspath = project.rawClasspath.findAll { !it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
-        updatedClasspath += JavaCore.newContainerEntry(STANDARD_JRE_CONTAINER)
+        updatedClasspath += JavaCore.newContainerEntry(DEFAULT_JAVA_8)
         updatedClasspath += JavaCore.newContainerEntry(CUSTOM_JRE_CONTAINER)
         project.setRawClasspath(updatedClasspath as IClasspathEntry[], null)
 
         expect:
-        findContainer(project, STANDARD_JRE_CONTAINER)
+        findContainer(project, DEFAULT_JAVA_8)
+        findContainer(project, CUSTOM_JRE_CONTAINER)
+
+        when:
+        executeContainerUpdateWithOldGradle(project)
+
+        then:
+        findContainer(project, new Path('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6'))
+        !findContainer(project, DEFAULT_JAVA_8)
+        !findContainer(project, CUSTOM_JRE_CONTAINER)
+    }
+
+    def "Removes user-defined JRE entries if model doesn't contain JRE"() {
+        setup:
+        IJavaProject project = newJavaProject('sample-project')
+        def updatedClasspath = project.rawClasspath.findAll { !it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
+        updatedClasspath += JavaCore.newContainerEntry(DEFAULT_JAVA_8)
+        updatedClasspath += JavaCore.newContainerEntry(CUSTOM_JRE_CONTAINER)
+        project.setRawClasspath(updatedClasspath as IClasspathEntry[], null)
+
+        expect:
+        findContainer(project, DEFAULT_JAVA_8)
         findContainer(project, CUSTOM_JRE_CONTAINER)
 
         when:
         executeContainerUpdate(project)
 
         then:
-        findContainer(project, STANDARD_JRE_CONTAINER)
-        findContainer(project, CUSTOM_JRE_CONTAINER)
+        !findContainer(project, DEFAULT_JAVA_8)
+        !findContainer(project, CUSTOM_JRE_CONTAINER)
     }
 
     def "Removes user-defined JRE entries if model contains JRE"() {
         setup:
         IJavaProject project = newJavaProject('project-with-classpath-container')
         def updatedClasspath = project.rawClasspath.findAll { !it.path.segment(0).equals(JavaRuntime.JRE_CONTAINER) }
-        updatedClasspath += JavaCore.newContainerEntry(STANDARD_JRE_CONTAINER)
+        updatedClasspath += JavaCore.newContainerEntry(DEFAULT_JAVA_8)
         updatedClasspath += JavaCore.newContainerEntry(CUSTOM_JRE_CONTAINER)
         project.setRawClasspath(updatedClasspath as IClasspathEntry[], null)
 
         expect:
-        findContainer(project, STANDARD_JRE_CONTAINER)
+        findContainer(project, DEFAULT_JAVA_8)
         findContainer(project, CUSTOM_JRE_CONTAINER)
 
         when:
@@ -182,7 +198,7 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
         then:
         findContainer(project, DEFAULT_JRE_CONTAINER)
-        !findContainer(project, STANDARD_JRE_CONTAINER)
+        !findContainer(project, DEFAULT_JAVA_8)
         !findContainer(project, CUSTOM_JRE_CONTAINER)
     }
 
@@ -242,11 +258,11 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
         where:
         containerPaths << [
-            [ STANDARD_JRE_CONTAINER, GRADLE_CLASSPATH_CONTAINER ],
-            [ GRADLE_CLASSPATH_CONTAINER, STANDARD_JRE_CONTAINER ],
-            [ CUSTOM_USER_CONTAINER, STANDARD_JRE_CONTAINER, CUSTOM_MODEL_CONTAINER ],
-            [ STANDARD_JRE_CONTAINER, CUSTOM_USER_CONTAINER, CUSTOM_MODEL_CONTAINER ],
-            [ CUSTOM_USER_CONTAINER, CUSTOM_MODEL_CONTAINER, STANDARD_JRE_CONTAINER ],
+            [ DEFAULT_JAVA_8, GRADLE_CLASSPATH_CONTAINER ],
+            [ GRADLE_CLASSPATH_CONTAINER, DEFAULT_JAVA_8 ],
+            [ CUSTOM_USER_CONTAINER, DEFAULT_JAVA_8, CUSTOM_MODEL_CONTAINER ],
+            [ DEFAULT_JAVA_8, CUSTOM_USER_CONTAINER, CUSTOM_MODEL_CONTAINER ],
+            [ CUSTOM_USER_CONTAINER, CUSTOM_MODEL_CONTAINER, DEFAULT_JAVA_8 ],
         ]
     }
 
