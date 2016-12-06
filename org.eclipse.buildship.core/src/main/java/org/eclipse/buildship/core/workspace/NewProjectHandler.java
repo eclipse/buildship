@@ -62,26 +62,6 @@ public interface NewProjectHandler {
     };
 
     /**
-     * Will import new projects and overwrite their existing descriptors.
-     */
-    NewProjectHandler IMPORT_AND_OVERWRITE = new NewProjectHandler() {
-
-        @Override
-        public boolean shouldImport(OmniEclipseProject projectModel) {
-            return true;
-        };
-
-        @Override
-        public boolean shouldOverwriteDescriptor(IProjectDescription descriptor, OmniEclipseProject projectModel) {
-            return true;
-        }
-
-        @Override
-        public void afterImport(IProject project, OmniEclipseProject projectModel) {
-        }
-    };
-
-    /**
      * Determines whether the given project that was found in the Gradle model should be imported
      * into the workspace.
      *

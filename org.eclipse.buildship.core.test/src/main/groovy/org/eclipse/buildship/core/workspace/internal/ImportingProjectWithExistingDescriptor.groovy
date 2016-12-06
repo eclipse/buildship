@@ -44,22 +44,6 @@ class ImportingProjectWithExistingDescriptor extends SingleProjectSynchronizatio
         findProject('sample-project')
     }
 
-    def "If the project descriptor is overwritten on import, then all existing settings are removed"() {
-        setup:
-        IProject project = newJavaProject('sample-project').project
-        deleteAllProjects(false)
-        def projectDir = dir('sample-project') {
-            file 'settings.gradle'
-        }
-
-        when:
-        synchronizeAndWait(projectDir, NewProjectHandler.IMPORT_AND_OVERWRITE)
-
-        then:
-        !project.hasNature(JavaCore.NATURE_ID)
-        !project.getFile(".classpath").exists()
-    }
-
     @Ignore("We will remove the whole merge feature soon")
     def "If the project descriptor is merged on import, then existing settings are kept"() {
         setup:
