@@ -253,12 +253,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         // check if an Eclipse project already exists at the location of the Gradle project to import
         Optional<IProjectDescription> projectDescription = CorePlugin.workspaceOperations().findProjectDescriptor(project.getProjectDirectory(), progress.newChild(1));
         if (projectDescription.isPresent()) {
-            if (this.newProjectHandler.shouldOverwriteDescriptor(projectDescription.get(), project)) {
-                CorePlugin.workspaceOperations().deleteProjectDescriptors(project.getProjectDirectory());
-                workspaceProject = addNewEclipseProjectToWorkspace(project, progress.newChild(1));
-            } else {
-                workspaceProject = addExistingEclipseProjectToWorkspace(project, projectDescription.get(), progress.newChild(1));
-            }
+            workspaceProject = addExistingEclipseProjectToWorkspace(project, projectDescription.get(), progress.newChild(1));
         } else {
             workspaceProject = addNewEclipseProjectToWorkspace(project, progress.newChild(1));
         }
