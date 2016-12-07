@@ -152,7 +152,8 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
         waitForTaskView()
 
         then:
-        taskTree.size() == 1
+        taskTree.a
+        !taskTree.b
     }
 
     private def getTaskTree() {
