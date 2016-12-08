@@ -1,0 +1,21 @@
+buildscript {
+    ext.kotlin_version = '1.0.4'
+    repositories.jcenter()
+    dependencies.classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+}
+
+apply plugin: eclipsebuild.BundlePlugin
+apply plugin: 'kotlin'
+
+dependencies {
+    compile 'org.gradle:gradle-core:3.3'
+    compile 'org.gradle:gradle-process-services:3.3'
+    compile 'org.gradle:gradle-tooling-api:3.3'
+    compile 'org.gradle:gradle-script-kotlin:0.7.0'
+}
+
+task updateBundledJars(type: Copy) {
+    into 'lib'
+    from configurations.compile.filter { it.name.startsWith('gradle-script-kotlin') }
+    from configurations.compile.filter { it.name.startsWith('gradle-core') }
+}
