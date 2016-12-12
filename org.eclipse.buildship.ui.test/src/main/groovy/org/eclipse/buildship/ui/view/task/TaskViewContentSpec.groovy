@@ -152,7 +152,8 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
         waitForTaskView()
 
         then:
-        taskTree == ['a']
+        taskTree.a
+        !taskTree.b
     }
 
     private def getTaskTree() {
@@ -177,7 +178,7 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
     }
 
     private def reloadTaskView() {
-        view.reload()
+        view.reload(FetchStrategy.FORCE_RELOAD)
         waitForTaskView()
     }
 

@@ -63,13 +63,6 @@ public interface WorkspaceOperations {
      */
     Optional<IProjectDescription> findProjectDescriptor(File location, IProgressMonitor monitor);
 
-    /**
-     * Deletes the .project and .classpath files of the project at the given location.
-     *
-     * @param location the location of the project
-     */
-    void deleteProjectDescriptors(File location);
-
    /**
      * Creates a new {@link IProject} in the workspace using the specified name and location. The
      * location must exist and no project with the specified name must currently exist in the

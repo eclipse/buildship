@@ -18,19 +18,14 @@ import org.gradle.tooling.ProgressListener;
 import com.google.common.util.concurrent.FutureCallback;
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
 import com.gradleware.tooling.toolingmodel.util.Pair;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IImportWizard;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
@@ -146,7 +141,7 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
 
     @Override
     public boolean performFinish() {
-        return this.controller.performImportProject(AsyncHandler.NO_OP, new UserDelegatedDescriptorHandler());
+        return this.controller.performImportProject(AsyncHandler.NO_OP, NewProjectHandler.IMPORT_AND_MERGE);
     }
 
     @Override
@@ -162,50 +157,4 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
         }
         return section;
     }
-
-    /**
-     * Asks the user whether he wants to keep .project files or overwrite them. Asks only once per multi-project build and remembers the decision.
-     */
-    private final class UserDelegatedDescriptorHandler implements NewProjectHandler {
-
-        private Boolean overwriteDescriptors;
-
-        @Override
-        public boolean shouldImport(OmniEclipseProject projectModel) {
-            return true;
-        }
-
-        @Override
-        public boolean shouldOverwriteDescriptor(IProjectDescription descriptor, OmniEclipseProject projectModel) {
-            if (this.overwriteDescriptors == null) {
-                askUser();
-            }
-            return this.overwriteDescriptors;
-        }
-
-        @Override
-        public void afterImport(IProject project, OmniEclipseProject projectModel) {
-        }
-
-        private void askUser() {
-            PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
-                @Override
-                public void run() {
-                    MessageDialog dialog = new MessageDialog(
-                            getShell(),
-                            ProjectWizardMessages.Existing_Descriptors_Overwrite_Dialog_Header,
-                            null,
-                            ProjectWizardMessages.Existing_Descriptors_Overwrite_Message,
-                            MessageDialog.QUESTION,
-                            new String[]{ProjectWizardMessages.Existing_Descriptors_Overwrite, ProjectWizardMessages.Existing_Descriptors_Keep},
-                            0
-                       );
-                       int choice = dialog.open();
-                       UserDelegatedDescriptorHandler.this.overwriteDescriptors = choice == 0;
-                }
-            });
-        }
-
-    }
-
 }

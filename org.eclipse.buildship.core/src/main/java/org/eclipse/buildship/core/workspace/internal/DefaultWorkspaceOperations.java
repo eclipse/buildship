@@ -96,12 +96,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
-    public void deleteProjectDescriptors(File location) {
-        new File(location, ".project").delete();
-        new File(location, ".classpath").delete();
-    }
-
-    @Override
     public IProject createProject(String name, File location, List<String> natureIds, IProgressMonitor monitor) {
         // validate arguments
         Preconditions.checkNotNull(name);

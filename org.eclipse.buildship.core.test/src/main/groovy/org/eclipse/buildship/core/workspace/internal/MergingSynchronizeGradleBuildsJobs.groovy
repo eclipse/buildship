@@ -56,7 +56,7 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         def gradleBuild = new DefaultGradleBuild(requestAttributes)
         def jobs = [
             SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP),
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_OVERWRITE, AsyncHandler.NO_OP)
+            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, Mock(NewProjectHandler), AsyncHandler.NO_OP)
         ]
 
         when:

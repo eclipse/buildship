@@ -41,12 +41,15 @@ import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.notification.UserNotification;
 import org.eclipse.buildship.core.notification.internal.ConsoleUserNotification;
+import org.eclipse.buildship.core.preferences.ModelPersistence;
+import org.eclipse.buildship.core.preferences.internal.DefaultModelPersistence;
 import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.util.logging.EclipseLogger;
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 import org.eclipse.buildship.core.workspace.internal.DefaultGradleWorkspaceManager;
 import org.eclipse.buildship.core.workspace.internal.DefaultWorkspaceOperations;
+import org.eclipse.buildship.core.workspace.internal.ProjectChangeListener;
 
 /**
  * The plug-in runtime class for the Gradle integration plugin containing the non-UI elements.
@@ -99,6 +102,8 @@ public final class CorePlugin extends Plugin {
     private ServiceTracker userNotificationServiceTracker;
 
     private WorkspaceConfigurationManager workspaceConfigurationManager;
+    private DefaultModelPersistence modelPersistence;
+    private ProjectChangeListener projectChangeListener;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
@@ -154,6 +159,8 @@ public final class CorePlugin extends Plugin {
         this.userNotificationService = registerService(context, UserNotification.class, createUserNotification(), preferences);
 
         this.workspaceConfigurationManager = new DefaultWorkspaceConfigurationManager();
+        this.modelPersistence = DefaultModelPersistence.createAndRegister();
+        this.projectChangeListener = ProjectChangeListener.createAndRegister();
     }
 
     private ServiceTracker createServiceTracker(BundleContext context, Class<?> clazz) {
@@ -213,6 +220,8 @@ public final class CorePlugin extends Plugin {
     }
 
     private void unregisterServices() {
+        this.projectChangeListener.close();
+        this.modelPersistence.close();
         this.userNotificationService.unregister();
         this.listenerRegistryService.unregister();
         this.gradleLaunchConfigurationService.unregister();
@@ -288,5 +297,9 @@ public final class CorePlugin extends Plugin {
 
     public static WorkspaceConfigurationManager workspaceConfigurationManager() {
         return getInstance().workspaceConfigurationManager;
+    }
+
+    public static ModelPersistence modelPersistence() {
+        return getInstance().modelPersistence;
     }
 }

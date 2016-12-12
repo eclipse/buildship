@@ -25,7 +25,6 @@ import com.gradleware.tooling.toolingutils.binding.ValidationListener;
 import com.gradleware.tooling.toolingutils.binding.Validator;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.ui.IWorkbenchPage;
@@ -174,11 +173,6 @@ public class ProjectImportWizardController {
         @Override
         public boolean shouldImport(OmniEclipseProject projectModel) {
             return this.importedBuildDelegate.shouldImport(projectModel);
-        }
-
-        @Override
-        public boolean shouldOverwriteDescriptor(IProjectDescription descriptor, OmniEclipseProject projectModel) {
-            return this.importedBuildDelegate.shouldOverwriteDescriptor(descriptor, projectModel);
         }
 
         @Override

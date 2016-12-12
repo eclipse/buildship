@@ -33,6 +33,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -69,7 +70,6 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
  * <li>If the workspace project is open:
  * <ul>
  * <li>the project name is updated</li>
- * <li>the Gradle nature is set</li>
  * <li>the Gradle settings file is written</li>
  * <li>the linked resources are set</li>
  * <li>the derived resources are marked</li>
@@ -117,21 +117,16 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
 
     @Override
     public void run(IProgressMonitor monitor) throws CoreException {
-        JavaCore.run(new IWorkspaceRunnable() {
+        SubMonitor progress = SubMonitor.convert(monitor);
+        progress.setTaskName(String.format("Synchronizing Gradle build at %s", this.build.getProjectDir()));
+        synchronizeProjectsWithWorkspace(progress);
+    }
 
-            @Override
-            public void run(IProgressMonitor monitor) throws CoreException {
-                runInWorkspace(monitor);
-            }
-        }, monitor);
-    };
-
-    private void runInWorkspace(IProgressMonitor monitor) throws CoreException {
+    private void synchronizeProjectsWithWorkspace(SubMonitor progress) throws CoreException {
         // collect Gradle projects and Eclipse workspace projects to sync
         List<IProject> decoupledWorkspaceProjects = getOpenWorkspaceProjectsRemovedFromGradleBuild();
-        SubMonitor progress = SubMonitor.convert(monitor, decoupledWorkspaceProjects.size() + this.allProjects.size());
+        progress.setWorkRemaining(decoupledWorkspaceProjects.size() + this.allProjects.size());
 
-        progress.setTaskName(String.format("Synchronizing Gradle build at %s", this.build.getProjectDir()));
 
         // uncouple the open workspace projects that do not have a corresponding Gradle project anymore
         for (IProject project : decoupledWorkspaceProjects) {
@@ -139,8 +134,13 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         }
 
         // synchronize the Gradle projects with their corresponding workspace projects
-        for (OmniEclipseProject gradleProject : this.allProjects) {
-            synchronizeGradleProjectWithWorkspaceProject(gradleProject, progress.newChild(1));
+        for (final OmniEclipseProject gradleProject : this.allProjects) {
+            ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
+                @Override
+                public void run(IProgressMonitor monitor) throws CoreException {
+                    synchronizeGradleProjectWithWorkspaceProject(gradleProject, SubMonitor.convert(monitor));
+                }
+            }, progress.newChild(1));
         }
     }
 
@@ -202,10 +202,8 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
 
         CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, progress.newChild(1));
 
-        if (this.build != null) {
-            ProjectConfiguration configuration = ProjectConfiguration.from(this.build, project);
-            CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, workspaceProject);
-        }
+        ProjectConfiguration configuration = ProjectConfiguration.from(this.build, project);
+        CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, workspaceProject);
 
         LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), progress.newChild(1));
         markGradleSpecificFolders(project, workspaceProject, progress.newChild(1));
@@ -213,11 +211,21 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         BuildCommandUpdater.update(workspaceProject, project.getBuildCommands(), progress.newChild(1));
 
         if (isJavaProject(project)) {
-            synchronizeOpenJavaProject(project, workspaceProject, progress.newChild(1));
+            synchronizeJavaProject(project, workspaceProject, progress);
         }
     }
 
-    private void synchronizeOpenJavaProject(OmniEclipseProject project, IProject workspaceProject, SubMonitor progress) throws JavaModelException, CoreException {
+    private void synchronizeJavaProject(final OmniEclipseProject project, final IProject workspaceProject, SubMonitor progress) throws CoreException {
+        JavaCore.run(new IWorkspaceRunnable() {
+            @Override
+            public void run(IProgressMonitor monitor) throws CoreException {
+                SubMonitor progress = SubMonitor.convert(monitor);
+                synchronizeJavaProjectInTransaction(project, workspaceProject, progress);
+            }
+        }, progress.newChild(1));
+    }
+
+    private void synchronizeJavaProjectInTransaction(final OmniEclipseProject project, final IProject workspaceProject, SubMonitor progress) throws JavaModelException, CoreException {
         progress.setWorkRemaining(7);
         //old Gradle versions did not expose natures, so we need to add the Java nature explicitly
         CorePlugin.workspaceOperations().addNature(workspaceProject, JavaCore.NATURE_ID, progress.newChild(1));
@@ -226,8 +234,12 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         SourceFolderUpdater.update(javaProject, project.getSourceDirectories(), progress.newChild(1));
         ClasspathContainerUpdater.update(javaProject, project.getClasspathContainers(), project.getJavaSourceSettings().get(), progress.newChild(1));
         JavaSourceSettingsUpdater.update(javaProject, project, progress.newChild(1));
-        GradleClasspathContainerUpdater.updateFromModel(javaProject, project, this.allProjects, progress.newChild(1));
+        GradleClasspathContainerUpdater.updateFromModel(javaProject, project, SynchronizeGradleBuildOperation.this.allProjects, progress.newChild(1));
         WtpClasspathUpdater.update(javaProject, project, progress.newChild(1));
+    }
+
+    private boolean isJavaProject(OmniEclipseProject project) {
+        return project.getJavaSourceSettings().isPresent();
     }
 
     private void synchronizeClosedWorkspaceProject(SubMonitor childProgress) {
@@ -241,12 +253,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         // check if an Eclipse project already exists at the location of the Gradle project to import
         Optional<IProjectDescription> projectDescription = CorePlugin.workspaceOperations().findProjectDescriptor(project.getProjectDirectory(), progress.newChild(1));
         if (projectDescription.isPresent()) {
-            if (this.newProjectHandler.shouldOverwriteDescriptor(projectDescription.get(), project)) {
-                CorePlugin.workspaceOperations().deleteProjectDescriptors(project.getProjectDirectory());
-                workspaceProject = addNewEclipseProjectToWorkspace(project, progress.newChild(1));
-            } else {
-                workspaceProject = addExistingEclipseProjectToWorkspace(project, projectDescription.get(), progress.newChild(1));
-            }
+            workspaceProject = addExistingEclipseProjectToWorkspace(project, projectDescription.get(), progress.newChild(1));
         } else {
             workspaceProject = addNewEclipseProjectToWorkspace(project, progress.newChild(1));
         }
@@ -335,10 +342,6 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
             }
             return Optional.absent();
         }
-    }
-
-    private boolean isJavaProject(OmniEclipseProject project) {
-        return project.getJavaSourceSettings().isPresent();
     }
 
     private void uncoupleWorkspaceProjectFromGradle(IProject workspaceProject, SubMonitor monitor) {

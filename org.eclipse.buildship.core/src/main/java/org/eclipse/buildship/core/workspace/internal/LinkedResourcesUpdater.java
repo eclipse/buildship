@@ -11,10 +11,12 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.io.File;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
@@ -38,31 +40,30 @@ import org.eclipse.buildship.core.util.file.FileUtils;
  *
  * Note that currently, we only include linked resources that are folders.
  */
-final class LinkedResourcesUpdater {
-
+final class LinkedResourcesUpdater extends PersistentUpdater {
     private final IProject project;
-    private final List<OmniEclipseLinkedResource> linkedResources;
+    private final Map<String,OmniEclipseLinkedResource> linkedResources;
 
     private LinkedResourcesUpdater(IProject project, List<OmniEclipseLinkedResource> linkedResources) {
+        super(project, "linkedResources");
         this.project = Preconditions.checkNotNull(project);
-        this.linkedResources = FluentIterable.from(linkedResources).filter(new LinkedResourcesWithValidLocation()).toList();
+        this.linkedResources = FluentIterable.from(linkedResources).filter(new LinkedResourcesWithValidLocation()).uniqueIndex(new Function<OmniEclipseLinkedResource, String>() {
+
+            @Override
+            public String apply(OmniEclipseLinkedResource resource) {
+                return resource.getLocation();
+            }
+        });
     }
 
     private void updateLinkedResources(IProgressMonitor monitor) throws CoreException {
         SubMonitor progress = SubMonitor.convert(monitor, 2);
-        StringSetProjectProperty knownLinkedResources = getKnownLinkedResources(this.project);
-        removeOldLinkedResources(knownLinkedResources, progress.newChild(1));
-        createLinkedResources(knownLinkedResources, progress.newChild(1));
+        removeOutdatedLinkedResources(progress.newChild(1));
+        createLinkedResources(progress.newChild(1));
     }
 
-    private StringSetProjectProperty getKnownLinkedResources(IProject project) {
-        return StringSetProjectProperty.from(project, "linked.resources");
-    }
-
-    private void removeOldLinkedResources(StringSetProjectProperty knownLinkedResources, SubMonitor progress) throws CoreException {
-        // check all potential linked folders which might have been created by this class and
-        // delete the ones which are no longer part of the Gradle model
-        Set<String> resourceNames = knownLinkedResources.get();
+    private void removeOutdatedLinkedResources(SubMonitor progress) throws CoreException {
+        Collection<String> resourceNames = getKnownItems();
         progress.setWorkRemaining(resourceNames.size());
         for (String resourceName : resourceNames) {
             SubMonitor childProgress = progress.newChild(1);
@@ -82,23 +83,18 @@ final class LinkedResourcesUpdater {
     }
 
     private boolean partOfCurrentGradleModel(IFolder folder) {
-        for (OmniEclipseLinkedResource linkedResource : this.linkedResources) {
-            if (folder.getLocation().toFile().equals(new File(linkedResource.getLocation()))) {
-                return true;
-            }
-        }
-        return false;
+        return this.linkedResources.containsKey(folder.getLocation().toString());
     }
 
-    private void createLinkedResources(StringSetProjectProperty knownLinkedResources, SubMonitor progress) throws CoreException {
+    private void createLinkedResources(SubMonitor progress) throws CoreException {
         progress.setWorkRemaining(this.linkedResources.size());
         Set<String> resourceNames = Sets.newHashSet();
-        for (OmniEclipseLinkedResource linkedResource : this.linkedResources) {
+        for (OmniEclipseLinkedResource linkedResource : this.linkedResources.values()) {
             SubMonitor childProgress = progress.newChild(1);
             IFolder linkedResourceFolder = createLinkedResourceFolder(linkedResource.getName(), linkedResource, childProgress);
             resourceNames.add(projectRelativePath(linkedResourceFolder));
         }
-        knownLinkedResources.set(resourceNames);
+        setKnownItems(resourceNames);
     }
 
     private IFolder createLinkedResourceFolder(String name, OmniEclipseLinkedResource linkedResource, SubMonitor progress) throws CoreException {

@@ -193,9 +193,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         def javaProject = findJavaProject('sample-project')
         javaProject.rawClasspath.find{
             it.entryKind == IClasspathEntry.CPE_SOURCE &&
-            it.path.toPortableString() == '/sample-project/src/main/java' &&
-            it.extraAttributes.length == 1 &&
-            it.extraAttributes[0].name == "FROM_GRADLE_MODEL"
+            it.path.toPortableString() == '/sample-project/src/main/java'
         }
     }
 

@@ -166,7 +166,7 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
         // set initial content (use fetch strategy LOAD_IF_NOT_CACHED since
         // the model might already be available in case a project import has
         // just happened)
-        reload();
+        reload(FetchStrategy.LOAD_IF_NOT_CACHED);
     }
 
     /**
@@ -192,9 +192,10 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
     /**
      * Reloads the task model in the background and updates this view once the reload is complete.
      * Can be safely called outside the UI thread.
+     * @param fetchStrategy determines how to get the model being visualized from the cache
      */
-    public void reload() {
-        new ReloadTaskViewJob(this, FetchStrategy.FORCE_RELOAD).schedule();
+    public void reload(FetchStrategy fetchStrategy) {
+        new ReloadTaskViewJob(this, fetchStrategy).schedule();
     }
 
     @Override
