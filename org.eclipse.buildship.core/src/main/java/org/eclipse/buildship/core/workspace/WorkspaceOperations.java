@@ -145,13 +145,6 @@ public interface WorkspaceOperations {
     void removeBuildCommand(IProject project, String name, IProgressMonitor monitor);
 
     /**
-     * Marks the given folder as a build folder.
-     *
-     * @param folder the folder to mark
-     */
-    void markAsBuildFolder(IFolder folder);
-
-    /**
      * Returns whether the given folder is a build folder.
      *
      * @param folder the folder to check

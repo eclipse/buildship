@@ -109,7 +109,7 @@ final class SubprojectMarkerUpdater {
             IPath relativePath = RelativePathUtils.getRelativePath(folder.getProject().getFullPath(), folder.getFullPath());
             Collection<String> knownPaths = PersistentUpdaterUtils.getKnownItems(folder.getProject(), PERSISTENT_PROP_NAME);
             return knownPaths.contains(relativePath.toPortableString());
-        } catch (CoreException e) {
+        } catch (Exception e) {
             CorePlugin.logger().debug(String.format("Could not check whether folder %s is a sub project.", folder.getFullPath()), e);
             return false;
         }

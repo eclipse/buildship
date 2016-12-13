@@ -35,10 +35,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.SubMonitor;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.UnsupportedConfigurationException;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
@@ -47,10 +45,6 @@ import org.eclipse.buildship.core.workspace.WorkspaceOperations;
  * Default implementation of the {@link WorkspaceOperations} interface.
  */
 public final class DefaultWorkspaceOperations implements WorkspaceOperations {
-
-    // TODO (donat) use ModelPersistence to store properties
-    private static final QualifiedName BUILD_FOLDER_PROPERTY_KEY = new QualifiedName(CorePlugin.PLUGIN_ID, "buildFolder");
-    private static final String PROPERTY_TRUE = "true";
 
     @Override
     public ImmutableList<IProject> getAllProjects() {
@@ -335,22 +329,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
-    public void markAsBuildFolder(IFolder folder) {
-        try {
-            folder.setPersistentProperty(BUILD_FOLDER_PROPERTY_KEY, PROPERTY_TRUE);
-        } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(String.format("Could not mark folder %s as a build folder.", folder.getFullPath()), e);
-        }
-    }
-
-    @Override
     public boolean isBuildFolder(IFolder folder) {
-        try {
-            return folder.exists() && PROPERTY_TRUE.equals(folder.getPersistentProperty(BUILD_FOLDER_PROPERTY_KEY));
-        } catch (CoreException e) {
-            CorePlugin.logger().debug(String.format("Could not check whether folder %s is a build folder.", folder.getFullPath()), e);
-            return false;
-        }
+        return DerivedResourcesUpdater.isBuildFolder(folder);
     }
 
     @Override
