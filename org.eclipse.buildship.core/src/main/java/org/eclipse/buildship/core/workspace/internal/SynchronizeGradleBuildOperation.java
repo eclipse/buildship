@@ -275,8 +275,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         monitor.subTask(String.format("Uncouple workspace project %s from Gradle", workspaceProject.getName()));
         CorePlugin.workspaceOperations().refreshProject(workspaceProject, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
         CorePlugin.workspaceOperations().removeNature(workspaceProject, GradleProjectNature.ID, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
-        // TODO (donat) delete model persistence here
-        //DerivedResourcesUpdater.clear(workspaceProject, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
+        CorePlugin.modelPersistence().deleteModel(workspaceProject);
         CorePlugin.projectConfigurationManager().deleteProjectConfiguration(workspaceProject);
     }
 }

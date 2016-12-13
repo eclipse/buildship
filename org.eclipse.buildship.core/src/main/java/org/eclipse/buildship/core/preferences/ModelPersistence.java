@@ -31,4 +31,10 @@ public interface ModelPersistence {
      * @return the model
      */
     public PersistentModel loadModel(IProject project);
+
+    /**
+     * Removes the project model from the persistent storage.
+     * @param project
+     */
+    public void deleteModel(IProject project);
 }

@@ -111,6 +111,11 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
     }
 
     @Override
+    public void deleteModel(IProject project) {
+        preferencesFile(project).delete();
+    }
+
+    @Override
     public void onEvent(Event event) {
         try {
             if (event instanceof ProjectMovedEvent) {
@@ -131,7 +136,7 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
     }
 
     private void deleteProjectPreferences(ProjectDeletedEvent event) {
-        preferencesFile(event.getProject()).delete();
+        deleteModel(event.getProject());
     }
 
     private static File preferencesFile(IProject project) {
