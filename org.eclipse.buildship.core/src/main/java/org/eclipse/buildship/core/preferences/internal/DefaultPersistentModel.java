@@ -13,15 +13,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
@@ -40,23 +37,15 @@ class DefaultPersistentModel implements PersistentModel {
     private static final String PROPERTY_BUILD_DIR = "buildDir";
 
     private final IProject project;
-    private final ImmutableMap<String, String> entries;
-    private final Map<String, String> added;
-    private final Set<String> removed;
+    private final Map<String, String> entries;
 
     DefaultPersistentModel(IProject project, Map<String, String> entries) {
         this.project = Preconditions.checkNotNull(project);
-        this.entries = ImmutableMap.copyOf(entries);
-        this.added = Maps.newHashMap();
-        this.removed = Sets.newHashSet();
+        this.entries = Maps.newHashMap(entries);
     }
 
-    Map<String, String> getAdded() {
-        return this.added;
-    }
-
-    Set<String> getRemoved() {
-        return this.removed;
+    Map<String, String> getEntries() {
+        return this.entries;
     }
 
     IProject getProject() {
@@ -94,22 +83,16 @@ class DefaultPersistentModel implements PersistentModel {
 
     @Override
     public String getValue(String key, String defaultValue) {
-        if (this.added.keySet().contains(key)) {
-            return this.added.get(key);
-        } else if (this.removed.contains(key)) {
-            return defaultValue;
-        } else {
-            String value = this.entries.get(key);
-            return value != null ? value : defaultValue;
-        }
+        String value = this.entries.get(key);
+        return value != null ? value : defaultValue;
     }
 
     @Override
     public void setValue(String key, String value) {
         if (value != null) {
-            this.added.put(key, value);
+            this.entries.put(key, value);
         } else if (this.entries.containsKey(key)) {
-            this.removed.add(key);
+            this.entries.remove(key);
         }
     }
 

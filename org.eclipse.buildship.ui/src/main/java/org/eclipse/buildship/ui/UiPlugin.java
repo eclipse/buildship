@@ -22,6 +22,7 @@ import org.osgi.framework.ServiceRegistration;
 
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import org.eclipse.buildship.core.CorePlugin;
@@ -35,6 +36,7 @@ import org.eclipse.buildship.ui.launch.ConsoleShowingLaunchListener;
 import org.eclipse.buildship.ui.launch.UiGradleLaunchConfigurationManager;
 import org.eclipse.buildship.ui.notification.DialogUserNotification;
 import org.eclipse.buildship.ui.view.execution.ExecutionShowingLaunchRequestListener;
+import org.eclipse.buildship.ui.workspace.ShutdownListener;
 
 /**
  * The plug-in runtime class for the Gradle integration plug-in containing the UI-related elements.
@@ -58,6 +60,7 @@ public final class UiPlugin extends AbstractUIPlugin {
     private ServiceRegistration gradleLaunchConfigurationService;
     private ConsoleShowingLaunchListener consoleShowingLaunchListener;
     private ExecutionShowingLaunchRequestListener executionShowingLaunchRequestListener;
+    private ShutdownListener shutdownListener;
 
     @Override
     public void start(BundleContext context) throws Exception {
@@ -126,10 +129,13 @@ public final class UiPlugin extends AbstractUIPlugin {
 
         this.executionShowingLaunchRequestListener = new ExecutionShowingLaunchRequestListener();
         CorePlugin.listenerRegistry().addEventListener(this.executionShowingLaunchRequestListener);
+
+        PlatformUI.getWorkbench().addWorkbenchListener(this.shutdownListener = new ShutdownListener());
     }
 
     @SuppressWarnings({"cast", "RedundantCast"})
     private void unregisterListeners() {
+        PlatformUI.getWorkbench().removeWorkbenchListener(this.shutdownListener);
         CorePlugin.listenerRegistry().removeEventListener(this.executionShowingLaunchRequestListener);
         DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(this.consoleShowingLaunchListener);
     }
