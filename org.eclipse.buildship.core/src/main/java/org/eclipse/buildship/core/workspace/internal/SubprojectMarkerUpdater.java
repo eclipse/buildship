@@ -92,7 +92,6 @@ final class SubprojectMarkerUpdater {
         for (IPath subfolderPath : subfolderPaths) {
             IFolder subfolder = this.project.getFolder(subfolderPath);
             if (subfolder.exists()) {
-                CorePlugin.workspaceOperations().markAsSubProject(subfolder);
                 knownSubfolderPaths.add(subfolderPath.toPortableString());
             }
             progress.worked(1);
@@ -103,6 +102,17 @@ final class SubprojectMarkerUpdater {
 
     public static void update(IProject workspaceProject, OmniEclipseProject gradleProject, IProgressMonitor monitor) {
         new SubprojectMarkerUpdater(workspaceProject, gradleProject).update(monitor);
+    }
+
+    public static boolean isNestedSubProject(IFolder folder) {
+        try {
+            IPath relativePath = RelativePathUtils.getRelativePath(folder.getProject().getFullPath(), folder.getFullPath());
+            Collection<String> knownPaths = PersistentUpdaterUtils.getKnownItems(folder.getProject(), PERSISTENT_PROP_NAME);
+            return knownPaths.contains(relativePath.toPortableString());
+        } catch (CoreException e) {
+            CorePlugin.logger().debug(String.format("Could not check whether folder %s is a sub project.", folder.getFullPath()), e);
+            return false;
+        }
     }
 
 }

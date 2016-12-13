@@ -188,13 +188,6 @@ public interface WorkspaceOperations {
     IProject renameProject(IProject project, String newName, IProgressMonitor monitor);
 
     /**
-     * Marks the given folder as a sub project.
-     *
-     * @param folder the folder to mark
-     */
-    void markAsSubProject(IFolder folder);
-
-    /**
      * Returns whether the given folder is a sub project.
      *
      * @param folder the folder to check

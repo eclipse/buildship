@@ -50,7 +50,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
     // TODO (donat) use ModelPersistence to store properties
     private static final QualifiedName BUILD_FOLDER_PROPERTY_KEY = new QualifiedName(CorePlugin.PLUGIN_ID, "buildFolder");
-    private static final QualifiedName SUB_PROJECT_PROPERTY_KEY = new QualifiedName(CorePlugin.PLUGIN_ID, "subProject");
     private static final String PROPERTY_TRUE = "true";
 
     @Override
@@ -355,22 +354,8 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
     }
 
     @Override
-    public void markAsSubProject(IFolder folder) {
-        try {
-            folder.setPersistentProperty(SUB_PROJECT_PROPERTY_KEY, PROPERTY_TRUE);
-        } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(String.format("Could not mark folder %s as a sub project.", folder.getFullPath()), e);
-        }
-    }
-
-    @Override
     public boolean isSubProject(IFolder folder) {
-        try {
-            return folder.exists() && PROPERTY_TRUE.equals(folder.getPersistentProperty(SUB_PROJECT_PROPERTY_KEY));
-        } catch (CoreException e) {
-            CorePlugin.logger().debug(String.format("Could not check whether folder %s is a sub project.", folder.getFullPath()), e);
-            return false;
-        }
+        return SubprojectMarkerUpdater.isNestedSubProject(folder);
     }
 
     @Override
