@@ -35,8 +35,6 @@ import org.eclipse.buildship.core.util.file.RelativePathUtils;
  */
 final class SubprojectMarkerUpdater {
 
-    // TODO (donat) add test coverage
-
     private static final String PERSISTENT_PROP_NAME = "subprojects";
 
     private final IProject project;
@@ -48,11 +46,10 @@ final class SubprojectMarkerUpdater {
     }
 
     public void update(IProgressMonitor monitor) {
-        SubMonitor progress = SubMonitor.convert(monitor, 3);
+        SubMonitor progress = SubMonitor.convert(monitor, 2);
         try {
             List<IPath> subfolders = getNestedSubProjectFolderPaths(progress.newChild(1));
-            removePreviousMarkers(subfolders, progress.newChild(1));
-            addNewMarkers(subfolders, progress.newChild(1));
+            updateSubProjectMarkers(subfolders, progress.newChild(1));
         } catch (Exception e) {
             String message = String.format("Could not update sub-project markers on project %s.", this.project.getName());
             throw new GradlePluginsRuntimeException(message, e);
@@ -76,18 +73,7 @@ final class SubprojectMarkerUpdater {
         return subfolderPaths;
     }
 
-    private void removePreviousMarkers(List<IPath> subfolderPaths, SubMonitor progress) throws CoreException {
-        Collection<String> previouslyKnownsubfolderPaths = PersistentUpdaterUtils.getKnownItems(this.project, PERSISTENT_PROP_NAME);
-        System.err.println("Loaded known items:" + previouslyKnownsubfolderPaths); // TODO (donat) delete
-        progress.setWorkRemaining(previouslyKnownsubfolderPaths.size());
-        for (String previouslyKnownsubfolderPath : previouslyKnownsubfolderPaths) {
-            if (!subfolderPaths.contains(new Path(previouslyKnownsubfolderPath))) {
-                System.out.println("TODO (donat) unmark subproject folder: " + previouslyKnownsubfolderPath); // TODO (donat) implement
-            }
-        }
-    }
-
-    private void addNewMarkers(List<IPath> subfolderPaths, SubMonitor progress) throws CoreException {
+    private void updateSubProjectMarkers(List<IPath> subfolderPaths, SubMonitor progress) throws CoreException {
         List<String> knownSubfolderPaths = Lists.newArrayList();
         for (IPath subfolderPath : subfolderPaths) {
             IFolder subfolder = this.project.getFolder(subfolderPath);
@@ -96,7 +82,6 @@ final class SubprojectMarkerUpdater {
             }
             progress.worked(1);
         }
-        System.err.println("Saved known items: " + knownSubfolderPaths); // TODO (donat) delete
         PersistentUpdaterUtils.setKnownItems(this.project, PERSISTENT_PROP_NAME, knownSubfolderPaths);
     }
 
