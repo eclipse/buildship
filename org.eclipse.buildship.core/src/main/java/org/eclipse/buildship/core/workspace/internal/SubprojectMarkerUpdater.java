@@ -15,7 +15,6 @@ import com.google.common.collect.Lists;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -71,17 +70,9 @@ final class SubprojectMarkerUpdater {
         return subfolderPaths;
     }
 
-    private void updateSubProjectMarkers(List<IPath> subfolderPaths, SubMonitor progress) throws CoreException {
-        List<String> knownSubfolderPaths = Lists.newArrayList();
-        for (IPath subfolderPath : subfolderPaths) {
-            IFolder subfolder = this.project.getFolder(subfolderPath);
-            if (subfolder.exists()) {
-                knownSubfolderPaths.add(subfolderPath.toPortableString());
-            }
-            progress.worked(1);
-        }
+    private void updateSubProjectMarkers(List<IPath> subProjectPaths, SubMonitor progress) throws CoreException {
         PersistentModel model = CorePlugin.modelPersistence().loadModel(this.project);
-        model.setValues(PersistentModel.PROPERTY_SUBPROJECTS, knownSubfolderPaths);
+        model.setSubprojectPaths(subProjectPaths);
         CorePlugin.modelPersistence().saveModel(model);
     }
 

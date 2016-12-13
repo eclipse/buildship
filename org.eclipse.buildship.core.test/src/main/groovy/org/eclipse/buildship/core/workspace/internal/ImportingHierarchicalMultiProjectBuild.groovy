@@ -28,7 +28,7 @@ class ImportingHierarchicalMultiProjectBuild extends ProjectSynchronizationSpeci
         def root = findProject("sample")
         def moduleA = root.getFolder("moduleA")
         !moduleA.isDerived()
-        CorePlugin.modelPersistence().loadModel(root).getValue(PersistentModel.PROPERTY_SUBPROJECTS, null)
+        CorePlugin.modelPersistence().loadModel(root).getSubprojectPaths()
     }
 
     def "If a new project is added to the Gradle build, it is imported into the workspace"() {

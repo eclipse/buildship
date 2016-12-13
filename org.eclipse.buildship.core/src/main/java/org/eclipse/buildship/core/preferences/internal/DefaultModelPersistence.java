@@ -44,7 +44,7 @@ import org.eclipse.buildship.core.workspace.ProjectMovedEvent;
  *
  * @author Donat Csikos
  */
-public final class DefaultModelPersistence implements ModelPersistence, EventListener  {
+public final class DefaultModelPersistence implements ModelPersistence, EventListener {
 
     private DefaultModelPersistence() {
     }

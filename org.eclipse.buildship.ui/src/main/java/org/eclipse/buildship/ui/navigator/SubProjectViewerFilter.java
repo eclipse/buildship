@@ -15,7 +15,6 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.preferences.PersistentModel;
 
 /**
  * Allows users to show or hide the sub projects in the Navigator, Project and Package Explorer.
@@ -42,7 +41,7 @@ public final class SubProjectViewerFilter extends ViewerFilter {
 
     private boolean isSubProjectFolder(IFolder folder) {
         try {
-            return "true".equals(CorePlugin.modelPersistence().loadModel(folder.getProject()).getValue(PersistentModel.PROPERTY_SUBPROJECTS, null));
+            return CorePlugin.modelPersistence().loadModel(folder.getProject()).getSubprojectPaths().contains(folder.getFullPath());
         } catch (Exception e) {
             CorePlugin.logger().debug(String.format("Could not check whether folder %s is a sub project.", folder.getFullPath()), e);
             return false;

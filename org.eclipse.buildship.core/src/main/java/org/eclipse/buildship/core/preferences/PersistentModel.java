@@ -10,6 +10,8 @@ package org.eclipse.buildship.core.preferences;
 
 import java.util.Collection;
 
+import org.eclipse.core.runtime.IPath;
+
 /**
  * Interface to load and store Gradle model elements stored in the workspace plugin state area. The
  * model elements can be stored and retrieved in either a structured or a map-like fashion.
@@ -18,8 +20,30 @@ import java.util.Collection;
  */
 public interface PersistentModel {
 
-    public static final String PROPERTY_SUBPROJECTS = "subprojects";
-    public static final String PROPERTY_BUILD_DIR = "buildDir";
+    /**
+     * Returns the build directory.
+     * @return the build directory
+     */
+    String getBuildDir();
+
+    /**
+     * Sets the build directory.
+     */
+    void setBuildDir(String buildDir);
+
+    /**
+     * Returns subproject paths.
+     *
+     * @return the subproject paths
+     */
+    Collection<IPath> getSubprojectPaths();
+
+    /**
+     * Sets the subproject paths.
+     *
+     * @param subprojects the subproject paths.
+     */
+    void setSubprojectPaths(Collection<IPath> subprojectPaths);
 
     /**
      * Returns a value for the specified key.
