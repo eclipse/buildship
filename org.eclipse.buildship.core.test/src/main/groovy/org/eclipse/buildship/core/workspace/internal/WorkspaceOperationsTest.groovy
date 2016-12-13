@@ -15,6 +15,10 @@ import spock.lang.Shared
 
 import com.google.common.collect.ImmutableList
 
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject
+import com.gradleware.tooling.toolingmodel.OmniGradleProject
+import com.gradleware.tooling.toolingmodel.util.Maybe
+
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.JavaCore
@@ -355,7 +359,7 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
         build.create(true, true, null)
 
         when:
-        workspaceOperations.markAsBuildFolder(build)
+        DerivedResourcesUpdater.update(project, model(project), null)
 
         then:
         workspaceOperations.isBuildFolder(build)
@@ -448,5 +452,13 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
 
     private IProject createSampleProjectInWorkspace() {
         EclipseProjects.newProject("sample-project")
+    }
+
+    private def model(IProject project, String buildDir = 'build') {
+        OmniEclipseProject eclipseProject = Mock(OmniEclipseProject)
+        OmniGradleProject gradleProject = Mock(OmniGradleProject)
+        gradleProject.buildDirectory >> Maybe.of(new File(project.location.toFile(), buildDir))
+        eclipseProject.gradleProject >> gradleProject
+        eclipseProject
     }
 }
