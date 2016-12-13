@@ -40,12 +40,14 @@ import org.eclipse.buildship.core.util.file.FileUtils;
  *
  * Note that currently, we only include linked resources that are folders.
  */
-final class LinkedResourcesUpdater extends PersistentUpdater {
+final class LinkedResourcesUpdater {
+
+    private static final String PERSISTENT_PROP_NAME = "linkedResources";
+
     private final IProject project;
     private final Map<String,OmniEclipseLinkedResource> linkedResources;
 
     private LinkedResourcesUpdater(IProject project, List<OmniEclipseLinkedResource> linkedResources) {
-        super(project, "linkedResources");
         this.project = Preconditions.checkNotNull(project);
         this.linkedResources = FluentIterable.from(linkedResources).filter(new LinkedResourcesWithValidLocation()).uniqueIndex(new Function<OmniEclipseLinkedResource, String>() {
 
@@ -63,7 +65,7 @@ final class LinkedResourcesUpdater extends PersistentUpdater {
     }
 
     private void removeOutdatedLinkedResources(SubMonitor progress) throws CoreException {
-        Collection<String> resourceNames = getKnownItems();
+        Collection<String> resourceNames = PersistentUpdaterUtils.getKnownItems(this.project, PERSISTENT_PROP_NAME);
         progress.setWorkRemaining(resourceNames.size());
         for (String resourceName : resourceNames) {
             SubMonitor childProgress = progress.newChild(1);
@@ -94,7 +96,7 @@ final class LinkedResourcesUpdater extends PersistentUpdater {
             IFolder linkedResourceFolder = createLinkedResourceFolder(linkedResource.getName(), linkedResource, childProgress);
             resourceNames.add(projectRelativePath(linkedResourceFolder));
         }
-        setKnownItems(resourceNames);
+        PersistentUpdaterUtils.setKnownItems(this.project, PERSISTENT_PROP_NAME, resourceNames);
     }
 
     private IFolder createLinkedResourceFolder(String name, OmniEclipseLinkedResource linkedResource, SubMonitor progress) throws CoreException {

@@ -33,14 +33,17 @@ import org.eclipse.buildship.core.util.file.RelativePathUtils;
  *
  * @author Donat Csikos
  */
-final class SubprojectMarkerUpdater extends PersistentUpdater {
+final class SubprojectMarkerUpdater {
 
     // TODO (donat) add test coverage
 
+    private static final String PERSISTENT_PROP_NAME = "subprojects";
+
+    private final IProject project;
     private final OmniEclipseProject gradleProject;
 
     private SubprojectMarkerUpdater(IProject project, OmniEclipseProject gradleProject) {
-        super(project, "subprojects");
+        this.project = Preconditions.checkNotNull(project);
         this.gradleProject = Preconditions.checkNotNull(gradleProject);
     }
 
@@ -74,7 +77,7 @@ final class SubprojectMarkerUpdater extends PersistentUpdater {
     }
 
     private void removePreviousMarkers(List<IPath> subfolderPaths, SubMonitor progress) throws CoreException {
-        Collection<String> previouslyKnownsubfolderPaths = getKnownItems();
+        Collection<String> previouslyKnownsubfolderPaths = PersistentUpdaterUtils.getKnownItems(this.project, PERSISTENT_PROP_NAME);
         System.err.println("Loaded known items:" + previouslyKnownsubfolderPaths); // TODO (donat) delete
         progress.setWorkRemaining(previouslyKnownsubfolderPaths.size());
         for (String previouslyKnownsubfolderPath : previouslyKnownsubfolderPaths) {
@@ -95,7 +98,7 @@ final class SubprojectMarkerUpdater extends PersistentUpdater {
             progress.worked(1);
         }
         System.err.println("Saved known items: " + knownSubfolderPaths); // TODO (donat) delete
-        setKnownItems(knownSubfolderPaths);
+        PersistentUpdaterUtils.setKnownItems(this.project, PERSISTENT_PROP_NAME, knownSubfolderPaths);
     }
 
     public static void update(IProject workspaceProject, OmniEclipseProject gradleProject, IProgressMonitor monitor) {

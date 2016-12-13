@@ -22,32 +22,27 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.preferences.PersistentModel;
 
 /**
- * Base updater class to load and store updated item names.
+ * Helper class for the updater class to load and store persistent models.
  *
  * @author Donat Csikos
  */
-public abstract class PersistentUpdater {
+public final class PersistentUpdaterUtils {
 
-    private final PersistentModel preferences;
-    protected final String name;
-    protected final IProject project;
-
-    public PersistentUpdater(IProject project, String name) {
-        this.project = project;
-        this.name = name;
-        this.preferences = CorePlugin.modelPersistence().loadModel(project);
+    private PersistentUpdaterUtils() {
     }
 
-    protected Collection<String> getKnownItems() throws CoreException {
-        String serializedForm = this.preferences.getValue(this.name, null);
+    public static Collection<String> getKnownItems(IProject project, String propertyName) throws CoreException {
+        PersistentModel preferences = CorePlugin.modelPersistence().loadModel(project);
+        String serializedForm = preferences.getValue(propertyName, null);
         if (serializedForm == null) {
             return Collections.emptyList();
         }
         return Splitter.on(File.pathSeparator).omitEmptyStrings().splitToList(serializedForm);
     }
 
-    protected void setKnownItems(Collection<String> items) throws CoreException {
-        this.preferences.setValue(this.name, Joiner.on(File.pathSeparator).join(items));
-        this.preferences.flush();
+    public static void setKnownItems(IProject project, String propertyName, Collection<String> items) throws CoreException {
+        PersistentModel preferences = CorePlugin.modelPersistence().loadModel(project);
+        preferences.setValue(propertyName, Joiner.on(File.pathSeparator).join(items));
+        preferences.flush();
     }
 }

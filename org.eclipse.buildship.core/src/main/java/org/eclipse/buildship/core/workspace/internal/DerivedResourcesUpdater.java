@@ -40,12 +40,16 @@ import org.eclipse.buildship.core.util.file.RelativePathUtils;
  *
  * @author Stefan Oehme
  */
-final class DerivedResourcesUpdater extends PersistentUpdater {
+final class DerivedResourcesUpdater {
+
+    private static final String PERSISTENT_PROP_NAME = "derivedResources";
+
+    private final IProject project;
     private final IProject workspaceProject;
     private final OmniEclipseProject modelProject;
 
     private DerivedResourcesUpdater(IProject project, OmniEclipseProject modelProject) {
-        super(project, "derivedResources");
+        this.project = Preconditions.checkNotNull(project);
         this.workspaceProject = Preconditions.checkNotNull(project);
         this.modelProject = Preconditions.checkNotNull(modelProject);
     }
@@ -84,7 +88,7 @@ final class DerivedResourcesUpdater extends PersistentUpdater {
     }
 
     private void removePreviousMarkers(List<String> derivedResources, SubMonitor progress) throws CoreException {
-        Collection<String> previouslyKnownDerivedResources = getKnownItems();
+        Collection<String> previouslyKnownDerivedResources = PersistentUpdaterUtils.getKnownItems(this.project, PERSISTENT_PROP_NAME);
         progress.setWorkRemaining(previouslyKnownDerivedResources.size());
         for (String resourceName : previouslyKnownDerivedResources) {
             setDerived(resourceName, false, progress.newChild(1));
@@ -96,7 +100,7 @@ final class DerivedResourcesUpdater extends PersistentUpdater {
         for (String resourceName : derivedResources) {
             setDerived(resourceName, true, progress.newChild(1));
         }
-        setKnownItems(derivedResources);
+        PersistentUpdaterUtils.setKnownItems(this.project, PERSISTENT_PROP_NAME, derivedResources);
     }
 
     /*
