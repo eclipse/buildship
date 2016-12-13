@@ -23,11 +23,8 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseLinkedResource;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.util.Maybe;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -193,7 +190,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
     }
 
     private void synchronizeOpenWorkspaceProject(OmniEclipseProject project, IProject workspaceProject, SubMonitor progress) throws CoreException {
-        progress.setWorkRemaining(8);
+        progress.setWorkRemaining(9);
 
         //currently lots of our synchronization logic assumes that the whole resource tree is readable.
         CorePlugin.workspaceOperations().refreshProject(workspaceProject, progress.newChild(1));
@@ -207,6 +204,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
 
         LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), progress.newChild(1));
         markGradleSpecificFolders(project, workspaceProject, progress.newChild(1));
+        DerivedResourcesUpdater.update(workspaceProject, project, progress.newChild(1));
         ProjectNatureUpdater.update(workspaceProject, project.getProjectNatures(), progress.newChild(1));
         BuildCommandUpdater.update(workspaceProject, project.getBuildCommands(), progress.newChild(1));
 
@@ -296,52 +294,6 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
                 CorePlugin.workspaceOperations().markAsSubProject(subProjectFolder);
             }
         }
-
-        List<String> derivedResources = Lists.newArrayList();
-        derivedResources.add(".gradle");
-
-        Optional<IFolder> possibleBuildDirectory = getBuildDirectory(gradleProject, workspaceProject);
-        if (possibleBuildDirectory.isPresent()) {
-            IFolder buildDirectory = possibleBuildDirectory.get();
-            derivedResources.add(buildDirectory.getName());
-            if (buildDirectory.exists()) {
-                CorePlugin.workspaceOperations().markAsBuildFolder(buildDirectory);
-            }
-        }
-
-        DerivedResourcesUpdater.update(workspaceProject, derivedResources, progress);
-    }
-
-    /*
-     * If no build directory is available via the TAPI, use 'build'.
-     * If build directory is physically contained in the project, use that folder.
-     * If build directory is a linked resource, use the linked folder.
-     * Optional.absent() if all of the above fail.
-     */
-    private Optional<IFolder> getBuildDirectory(OmniEclipseProject project, IProject workspaceProject) {
-        OmniGradleProject gradleProject = project.getGradleProject();
-        Maybe<File> buildDirectory = gradleProject.getBuildDirectory();
-        if (buildDirectory.isPresent() && buildDirectory.get() != null) {
-            Path buildDirLocation = new Path(buildDirectory.get().getPath());
-            return normalizeBuildDirectory(buildDirLocation, workspaceProject, project);
-        } else {
-            return Optional.of(workspaceProject.getFolder("build"));
-        }
-    }
-
-    private Optional<IFolder> normalizeBuildDirectory(Path buildDirLocation, IProject workspaceProject, OmniEclipseProject project) {
-        IPath projectLocation = workspaceProject.getLocation();
-        if (projectLocation.isPrefixOf(buildDirLocation)) {
-            IPath relativePath = RelativePathUtils.getRelativePath(projectLocation, buildDirLocation);
-            return Optional.of(workspaceProject.getFolder(relativePath));
-        } else {
-            for (OmniEclipseLinkedResource linkedResource : project.getLinkedResources()) {
-                if (buildDirLocation.toString().equals(linkedResource.getLocation())) {
-                    return Optional.of(workspaceProject.getFolder(linkedResource.getName()));
-                }
-            }
-            return Optional.absent();
-        }
     }
 
     private void uncoupleWorkspaceProjectFromGradle(IProject workspaceProject, SubMonitor monitor) {
@@ -349,7 +301,8 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         monitor.subTask(String.format("Uncouple workspace project %s from Gradle", workspaceProject.getName()));
         CorePlugin.workspaceOperations().refreshProject(workspaceProject, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
         CorePlugin.workspaceOperations().removeNature(workspaceProject, GradleProjectNature.ID, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
-        DerivedResourcesUpdater.clear(workspaceProject, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
+        // TODO (donat) delete model persistence here
+        //DerivedResourcesUpdater.clear(workspaceProject, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
         CorePlugin.projectConfigurationManager().deleteProjectConfiguration(workspaceProject);
     }
 }

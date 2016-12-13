@@ -48,6 +48,7 @@ import org.eclipse.buildship.core.workspace.WorkspaceOperations;
  */
 public final class DefaultWorkspaceOperations implements WorkspaceOperations {
 
+    // TODO (donat) use ModelPersistence to store properties
     private static final QualifiedName BUILD_FOLDER_PROPERTY_KEY = new QualifiedName(CorePlugin.PLUGIN_ID, "buildFolder");
     private static final QualifiedName SUB_PROJECT_PROPERTY_KEY = new QualifiedName(CorePlugin.PLUGIN_ID, "subProject");
     private static final String PROPERTY_TRUE = "true";
