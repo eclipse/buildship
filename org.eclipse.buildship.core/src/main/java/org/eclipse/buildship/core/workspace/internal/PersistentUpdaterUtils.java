@@ -43,6 +43,6 @@ public final class PersistentUpdaterUtils {
     public static void setKnownItems(IProject project, String propertyName, Collection<String> items) throws CoreException {
         PersistentModel preferences = CorePlugin.modelPersistence().loadModel(project);
         preferences.setValue(propertyName, Joiner.on(File.pathSeparator).join(items));
-        preferences.flush();
+        CorePlugin.modelPersistence().saveModel(preferences);
     }
 }

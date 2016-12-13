@@ -61,7 +61,7 @@ final class ClasspathContainerPersistence {
         content.append("</classpath>\n");
         PersistentModel preferences = CorePlugin.modelPersistence().loadModel(this.javaProject.getProject());
         preferences.setValue("classpath", content.toString());
-        preferences.flush();
+        CorePlugin.modelPersistence().saveModel(preferences);
     }
 
     Optional<List<IClasspathEntry>> load() {

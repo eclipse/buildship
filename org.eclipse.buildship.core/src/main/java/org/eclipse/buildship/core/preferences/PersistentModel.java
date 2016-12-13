@@ -33,9 +33,4 @@ public interface PersistentModel {
      * @param value the value
      */
     void setValue(String key, String value);
-
-    /**
-     * Persists all changes on the disk.
-     */
-    void flush();
 }

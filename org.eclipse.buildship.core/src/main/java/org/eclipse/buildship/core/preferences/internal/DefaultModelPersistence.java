@@ -31,6 +31,7 @@ import com.google.common.io.Files;
 import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.event.EventListener;
 import org.eclipse.buildship.core.preferences.ModelPersistence;
@@ -67,10 +68,10 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
                 for (Object propKey : props.keySet()) {
                     preferences.put(propKey.toString(), props.get(propKey).toString());
                 }
-                return new DefaultPersistentModel(this, project, preferences);
+                return new DefaultPersistentModel(project, preferences);
             }
         } else {
-            return new DefaultPersistentModel(this, project, Collections.<String, String>emptyMap());
+            return new DefaultPersistentModel(project, Collections.<String, String>emptyMap());
         }
     }
 
@@ -108,6 +109,17 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
                 props.store(writer, "");
             }
         }
+    }
+
+    @Override
+    public void saveModel(PersistentModel model) {
+        if (!(model instanceof DefaultPersistentModel)) {
+            throw new GradlePluginsRuntimeException("Can't save PersistentModel class " + model.getClass().getName());
+        }
+        DefaultPersistentModel persistentModel = (DefaultPersistentModel) model;
+        persistPrefs(persistentModel);
+        persistentModel.getAdded().clear();
+        persistentModel.getRemoved().clear();
     }
 
     @Override

@@ -27,14 +27,12 @@ import org.eclipse.buildship.core.preferences.PersistentModel;
  */
 class DefaultPersistentModel implements PersistentModel {
 
-    private final DefaultModelPersistence store;
     private final IProject project;
     private final ImmutableMap<String, String> entries;
     private final Map<String, String> added;
     private final Set<String> removed;
 
-    DefaultPersistentModel(DefaultModelPersistence store, IProject project, Map<String, String> entries) {
-        this.store = Preconditions.checkNotNull(store);
+    DefaultPersistentModel(IProject project, Map<String, String> entries) {
         this.project = Preconditions.checkNotNull(project);
         this.entries = ImmutableMap.copyOf(entries);
         this.added = Maps.newHashMap();
@@ -72,12 +70,5 @@ class DefaultPersistentModel implements PersistentModel {
         } else if (this.entries.containsKey(key)) {
             this.removed.add(key);
         }
-    }
-
-    @Override
-    public void flush() {
-        this.store.persistPrefs(this);
-        this.added.clear();
-        this.removed.clear();
     }
 }

@@ -78,7 +78,7 @@ final class DerivedResourcesUpdater {
         PersistentModel preferences = CorePlugin.modelPersistence().loadModel(this.project);
         String buildDir = buildDirectoryPath.isPresent() ? buildDirectoryPath.get().toPortableString() : null;
         preferences.setValue(BUILD_PROP_NAME, buildDir);
-        preferences.flush();
+        CorePlugin.modelPersistence().saveModel(preferences);
     }
 
     private List<String> getDerivedResources(Optional<IPath> possibleBuildDirectoryPath, SubMonitor progress) {
