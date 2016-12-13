@@ -8,10 +8,14 @@
 
 package org.eclipse.buildship.core.preferences.internal;
 
+import java.io.File;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -70,5 +74,19 @@ class DefaultPersistentModel implements PersistentModel {
         } else if (this.entries.containsKey(key)) {
             this.removed.add(key);
         }
+    }
+
+    @Override
+    public Collection<String> getValues(String key, Collection<String> defaultValues) {
+        String serializedForm = getValue(key, null);
+        if (serializedForm == null) {
+            return defaultValues;
+        }
+        return Splitter.on(File.pathSeparator).omitEmptyStrings().splitToList(serializedForm);
+    }
+
+    @Override
+    public void setValues(String key, Collection<String> values) {
+        setValue(key, values == null ? null : Joiner.on(File.pathSeparator).join(values));
     }
 }

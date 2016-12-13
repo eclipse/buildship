@@ -12,6 +12,7 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +34,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.preferences.PersistentModel;
 import org.eclipse.buildship.core.util.file.FileUtils;
 
 /**
@@ -65,7 +68,8 @@ final class LinkedResourcesUpdater {
     }
 
     private void removeOutdatedLinkedResources(SubMonitor progress) throws CoreException {
-        Collection<String> resourceNames = PersistentUpdaterUtils.getKnownItems(this.project, PERSISTENT_PROP_NAME);
+        PersistentModel model = CorePlugin.modelPersistence().loadModel(this.project);
+        Collection<String> resourceNames = model.getValues(PERSISTENT_PROP_NAME, Collections.<String>emptyList());
         progress.setWorkRemaining(resourceNames.size());
         for (String resourceName : resourceNames) {
             SubMonitor childProgress = progress.newChild(1);
@@ -96,7 +100,9 @@ final class LinkedResourcesUpdater {
             IFolder linkedResourceFolder = createLinkedResourceFolder(linkedResource.getName(), linkedResource, childProgress);
             resourceNames.add(projectRelativePath(linkedResourceFolder));
         }
-        PersistentUpdaterUtils.setKnownItems(this.project, PERSISTENT_PROP_NAME, resourceNames);
+        PersistentModel model = CorePlugin.modelPersistence().loadModel(this.project);
+        model.setValues(PERSISTENT_PROP_NAME, resourceNames);
+        CorePlugin.modelPersistence().saveModel(model);
     }
 
     private IFolder createLinkedResourceFolder(String name, OmniEclipseLinkedResource linkedResource, SubMonitor progress) throws CoreException {

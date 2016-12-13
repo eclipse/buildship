@@ -10,6 +10,7 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.base.Optional;
@@ -93,7 +94,7 @@ final class DerivedResourcesUpdater {
     }
 
     private void removePreviousMarkers(List<String> derivedResources, SubMonitor progress) throws CoreException {
-        Collection<String> previouslyKnownDerivedResources = PersistentUpdaterUtils.getKnownItems(this.project, DERIVED_RESOURCE_PROP_NAME);
+        Collection<String> previouslyKnownDerivedResources = CorePlugin.modelPersistence().loadModel(this.project).getValues(DERIVED_RESOURCE_PROP_NAME, Collections.<String>emptyList());
         progress.setWorkRemaining(previouslyKnownDerivedResources.size());
         for (String resourceName : previouslyKnownDerivedResources) {
             setDerived(resourceName, false, progress.newChild(1));
@@ -105,7 +106,9 @@ final class DerivedResourcesUpdater {
         for (String resourceName : derivedResources) {
             setDerived(resourceName, true, progress.newChild(1));
         }
-        PersistentUpdaterUtils.setKnownItems(this.project, DERIVED_RESOURCE_PROP_NAME, derivedResources);
+        PersistentModel model = CorePlugin.modelPersistence().loadModel(this.project);
+        model.setValues(DERIVED_RESOURCE_PROP_NAME, derivedResources);
+        CorePlugin.modelPersistence().saveModel(model);
     }
 
     /*

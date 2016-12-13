@@ -8,9 +8,11 @@
 
 package org.eclipse.buildship.core.preferences;
 
+import java.util.Collection;
+
 /**
  * Interface to load and store Gradle model elements stored in the workspace plugin state area. The
- * model elements are stored and retrieved in a map-like fashion.
+ * model elements can be stored and retrieved in either a structured or a map-like fashion.
  *
  * @author Donat Csikos
  */
@@ -23,17 +25,33 @@ public interface PersistentModel {
      * Returns a value for the specified key.
      *
      * @param key the key
-     * @param defaultValue the to be returned if no value is present
+     * @param defaultValue to be returned if no value is present
      * @return the value
      */
     String getValue(String key, String defaultValue);
 
     /**
-     * Stores a new key-value pair in this instance. To persist the update, the {@link #flush()}
-     * method should be called.
+     * Stores a new key-value pair in this instance.
      *
      * @param key the key
      * @param value the value
      */
     void setValue(String key, String value);
+
+    /**
+     *  Returns a collection for the specified key.
+     *
+     * @param key the key
+     * @param defaultValues to be returned if no value is present
+     * @return the collection
+     */
+    Collection<String> getValues(String key, Collection<String> defaultValues);
+
+    /**
+     * Stores a new key-value pair in this instance where the value is a collection.
+     *
+     * @param key the key
+     * @param values the values
+     */
+    void setValues(String key, Collection<String> values);
 }

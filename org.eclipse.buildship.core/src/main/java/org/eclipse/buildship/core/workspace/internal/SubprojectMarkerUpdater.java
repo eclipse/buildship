@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.preferences.PersistentModel;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
@@ -79,7 +80,9 @@ final class SubprojectMarkerUpdater {
             }
             progress.worked(1);
         }
-        PersistentUpdaterUtils.setKnownItems(this.project, PersistentModel.PROPERTY_SUBPROJECTS, knownSubfolderPaths);
+        PersistentModel model = CorePlugin.modelPersistence().loadModel(this.project);
+        model.setValues(PersistentModel.PROPERTY_SUBPROJECTS, knownSubfolderPaths);
+        CorePlugin.modelPersistence().saveModel(model);
     }
 
     public static void update(IProject workspaceProject, OmniEclipseProject gradleProject, IProgressMonitor monitor) {
