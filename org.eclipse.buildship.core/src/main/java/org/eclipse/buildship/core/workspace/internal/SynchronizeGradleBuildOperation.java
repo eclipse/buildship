@@ -21,20 +21,16 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -44,7 +40,6 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration.ConversionStrategy;
-import org.eclipse.buildship.core.util.file.RelativePathUtils;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
@@ -203,7 +198,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, workspaceProject);
 
         LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), progress.newChild(1));
-        markGradleSpecificFolders(project, workspaceProject, progress.newChild(1));
+        SubprojectMarkerUpdater.update(workspaceProject, project, progress.newChild(1));
         DerivedResourcesUpdater.update(workspaceProject, project, progress.newChild(1));
         ProjectNatureUpdater.update(workspaceProject, project.getProjectNatures(), progress.newChild(1));
         BuildCommandUpdater.update(workspaceProject, project.getBuildCommands(), progress.newChild(1));
@@ -273,27 +268,6 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         IProject workspaceProject = CorePlugin.workspaceOperations().createProject(project.getName(), project.getProjectDirectory(), ImmutableList.<String>of(), progress.newChild(1));
         synchronizeOpenWorkspaceProject(project, workspaceProject, progress.newChild(1));
         return workspaceProject;
-    }
-
-    private List<IFolder> getNestedSubProjectFolders(OmniEclipseProject project, final IProject workspaceProject) {
-        List<IFolder> subProjectFolders = Lists.newArrayList();
-        final IPath parentPath = workspaceProject.getLocation();
-        for (OmniEclipseProject child : project.getChildren()) {
-            IPath childPath = Path.fromOSString(child.getProjectDirectory().getPath());
-            if (parentPath.isPrefixOf(childPath)) {
-                IPath relativePath = RelativePathUtils.getRelativePath(parentPath, childPath);
-                subProjectFolders.add(workspaceProject.getFolder(relativePath));
-            }
-        }
-        return subProjectFolders;
-    }
-
-    private void markGradleSpecificFolders(OmniEclipseProject gradleProject, IProject workspaceProject, SubMonitor progress) {
-        for (IFolder subProjectFolder : getNestedSubProjectFolders(gradleProject, workspaceProject)) {
-            if (subProjectFolder.exists()) {
-                CorePlugin.workspaceOperations().markAsSubProject(subProjectFolder);
-            }
-        }
     }
 
     private void uncoupleWorkspaceProjectFromGradle(IProject workspaceProject, SubMonitor monitor) {
