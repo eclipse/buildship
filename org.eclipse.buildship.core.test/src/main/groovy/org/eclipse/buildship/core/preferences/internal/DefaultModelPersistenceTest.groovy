@@ -15,14 +15,14 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         project = newProject('sample-project')
         PersistentModel model = CorePlugin.modelPersistence().loadModel(project)
         model.setValue('existing-key', 'existing-value')
-        model.flush()
+        CorePlugin.modelPersistence().saveModel(model)
     }
 
     def "Can store values for a project"() {
         given:
         PersistentModel model = CorePlugin.modelPersistence().loadModel(project)
         model.setValue('key', 'value')
-        model.flush()
+        CorePlugin.modelPersistence().saveModel(model)
 
         expect:
         CorePlugin.modelPersistence().loadModel(project).getValue('key', 'default-value') == 'value'
@@ -48,7 +48,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         when:
         PersistentModel model = CorePlugin.modelPersistence().loadModel(project)
         model.setValue('existing-key', null)
-        model.flush()
+        CorePlugin.modelPersistence().saveModel(model)
 
         then:
         CorePlugin.modelPersistence().loadModel(project).getValue('existing-key', 'default-value') == 'default-value'
@@ -68,5 +68,13 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
 
         then:
         CorePlugin.modelPersistence().loadModel(project).getValue('existing-key', 'default-value') == 'default-value'
+    }
+
+    def "Can delete model from project entirely"() {
+        when:
+        CorePlugin.modelPersistence().deleteModel(project)
+
+        then:
+        CorePlugin.modelPersistence().loadModel(project).getValue('existing-key', null) == null
     }
 }

@@ -9,12 +9,16 @@
 package org.eclipse.buildship.ui.navigator;
 
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.preferences.PersistentModel;
+import org.eclipse.buildship.core.util.file.RelativePathUtils;
 
 /**
  * Allows users to show or hide the build folder in the Navigator, Project and Package Explorer.
@@ -31,7 +35,21 @@ public final class BuildFolderViewerFilter extends ViewerFilter {
     }
 
     private boolean isBuildFolder(IResource resource) {
-        return resource instanceof IFolder && CorePlugin.workspaceOperations().isBuildFolder((IFolder) resource);
+        if (resource instanceof IFolder) {
+            return isBuildFolderInPerstentModel((IFolder) resource);
+        } else {
+            return false;
+        }
     }
 
+    public static boolean isBuildFolderInPerstentModel(IFolder folder) {
+        try {
+            IProject project = folder.getProject();
+            IPath relativePath = RelativePathUtils.getRelativePath(project.getFullPath(), folder.getFullPath());
+            return relativePath.toPortableString().equals(CorePlugin.modelPersistence().loadModel(project).getValue(PersistentModel.PROPERTY_BUILD_DIR, null));
+        } catch (Exception e) {
+            CorePlugin.logger().debug(String.format("Could not check whether folder %s is a build folder.", folder.getFullPath()), e);
+            return false;
+        }
+    }
 }

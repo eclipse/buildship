@@ -8,7 +8,6 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.util.Collection;
 import java.util.List;
 
 import com.google.common.base.Preconditions;
@@ -24,8 +23,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.preferences.PersistentModel;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
 
 /**
@@ -34,8 +33,6 @@ import org.eclipse.buildship.core.util.file.RelativePathUtils;
  * @author Donat Csikos
  */
 final class SubprojectMarkerUpdater {
-
-    private static final String PERSISTENT_PROP_NAME = "subprojects";
 
     private final IProject project;
     private final OmniEclipseProject gradleProject;
@@ -82,22 +79,10 @@ final class SubprojectMarkerUpdater {
             }
             progress.worked(1);
         }
-        PersistentUpdaterUtils.setKnownItems(this.project, PERSISTENT_PROP_NAME, knownSubfolderPaths);
+        PersistentUpdaterUtils.setKnownItems(this.project, PersistentModel.PROPERTY_SUBPROJECTS, knownSubfolderPaths);
     }
 
     public static void update(IProject workspaceProject, OmniEclipseProject gradleProject, IProgressMonitor monitor) {
         new SubprojectMarkerUpdater(workspaceProject, gradleProject).update(monitor);
     }
-
-    public static boolean isNestedSubProject(IFolder folder) {
-        try {
-            IPath relativePath = RelativePathUtils.getRelativePath(folder.getProject().getFullPath(), folder.getFullPath());
-            Collection<String> knownPaths = PersistentUpdaterUtils.getKnownItems(folder.getProject(), PERSISTENT_PROP_NAME);
-            return knownPaths.contains(relativePath.toPortableString());
-        } catch (Exception e) {
-            CorePlugin.logger().debug(String.format("Could not check whether folder %s is a sub project.", folder.getFullPath()), e);
-            return false;
-        }
-    }
-
 }

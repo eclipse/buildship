@@ -16,6 +16,9 @@ package org.eclipse.buildship.core.preferences;
  */
 public interface PersistentModel {
 
+    public static final String PROPERTY_SUBPROJECTS = "subprojects";
+    public static final String PROPERTY_BUILD_DIR = "buildDir";
+
     /**
      * Returns a value for the specified key.
      *

@@ -44,7 +44,6 @@ import org.eclipse.buildship.core.util.file.RelativePathUtils;
 final class DerivedResourcesUpdater {
 
     private static final String DERIVED_RESOURCE_PROP_NAME = "derivedResources";
-    private static final String BUILD_PROP_NAME = "buildDir";
 
     private final IProject project;
     private final IProject workspaceProject;
@@ -77,7 +76,7 @@ final class DerivedResourcesUpdater {
     private void markBuildFolder(Optional<IPath> buildDirectoryPath) throws CoreException {
         PersistentModel preferences = CorePlugin.modelPersistence().loadModel(this.project);
         String buildDir = buildDirectoryPath.isPresent() ? buildDirectoryPath.get().toPortableString() : null;
-        preferences.setValue(BUILD_PROP_NAME, buildDir);
+        preferences.setValue(PersistentModel.PROPERTY_BUILD_DIR, buildDir);
         CorePlugin.modelPersistence().saveModel(preferences);
     }
 
@@ -151,15 +150,4 @@ final class DerivedResourcesUpdater {
         new DerivedResourcesUpdater(workspaceProject, project).update(monitor);
     }
 
-    public static boolean isBuildFolder(IFolder folder) {
-        try {
-            IProject project = folder.getProject();
-            IPath relativePath = RelativePathUtils.getRelativePath(project.getFullPath(), folder.getFullPath());
-            return relativePath.toPortableString().equals(CorePlugin.modelPersistence().loadModel(project).getValue(BUILD_PROP_NAME, null));
-        } catch (Exception e) {
-            CorePlugin.logger().debug(String.format("Could not check whether folder %s is a build folder.", folder.getFullPath()), e);
-            return false;
-        }
-
-    }
 }

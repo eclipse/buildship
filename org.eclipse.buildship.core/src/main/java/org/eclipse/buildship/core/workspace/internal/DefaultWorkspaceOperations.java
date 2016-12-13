@@ -25,7 +25,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import org.eclipse.core.resources.ICommand;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
@@ -326,16 +325,6 @@ public final class DefaultWorkspaceOperations implements WorkspaceOperations {
             String message = String.format("Cannot remove build command %s from Eclipse project %s.", name, project.getName());
             throw new GradlePluginsRuntimeException(message, e);
         }
-    }
-
-    @Override
-    public boolean isBuildFolder(IFolder folder) {
-        return DerivedResourcesUpdater.isBuildFolder(folder);
-    }
-
-    @Override
-    public boolean isSubProject(IFolder folder) {
-        return SubprojectMarkerUpdater.isNestedSubProject(folder);
     }
 
     @Override

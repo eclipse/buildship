@@ -3,6 +3,8 @@ package org.eclipse.buildship.core.workspace.internal
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.Logger;
 import org.eclipse.buildship.core.configuration.GradleProjectNature
+import org.eclipse.buildship.core.preferences.ModelPersistence
+import org.eclipse.buildship.core.preferences.PersistentModel
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
 
@@ -26,7 +28,7 @@ class ImportingHierarchicalMultiProjectBuild extends ProjectSynchronizationSpeci
         def root = findProject("sample")
         def moduleA = root.getFolder("moduleA")
         !moduleA.isDerived()
-        CorePlugin.workspaceOperations().isSubProject(moduleA)
+        CorePlugin.modelPersistence().loadModel(root).getValue(PersistentModel.PROPERTY_SUBPROJECTS, null)
     }
 
     def "If a new project is added to the Gradle build, it is imported into the workspace"() {

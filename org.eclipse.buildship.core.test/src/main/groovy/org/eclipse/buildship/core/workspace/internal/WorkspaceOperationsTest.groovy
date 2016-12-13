@@ -352,19 +352,6 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
         thrown(RuntimeException)
     }
 
-    def "A marked build folder can be identified"() {
-        setup:
-        def project = createSampleProject()
-        def build = project.getFolder("build")
-        build.create(true, true, null)
-
-        when:
-        DerivedResourcesUpdater.update(project, model(project), null)
-
-        then:
-        workspaceOperations.isBuildFolder(build)
-    }
-
     def "Validate invalid project name in the workspace root"() {
         when:
         workspaceOperations.validateProjectName("foo", workspaceDir("bar"))

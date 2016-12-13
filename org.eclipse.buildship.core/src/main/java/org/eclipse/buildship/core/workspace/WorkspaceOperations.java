@@ -18,7 +18,6 @@ import java.util.Map;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -145,14 +144,6 @@ public interface WorkspaceOperations {
     void removeBuildCommand(IProject project, String name, IProgressMonitor monitor);
 
     /**
-     * Returns whether the given folder is a build folder.
-     *
-     * @param folder the folder to check
-     * @return true if this folder is a build folder
-     */
-    boolean isBuildFolder(IFolder folder);
-
-    /**
      * Ensures that the target project name and location is valid.
      *
      * @param name the project name
@@ -179,14 +170,6 @@ public interface WorkspaceOperations {
      * @throws org.eclipse.buildship.core.GradlePluginsRuntimeException if the project cannot be renamed
      */
     IProject renameProject(IProject project, String newName, IProgressMonitor monitor);
-
-    /**
-     * Returns whether the given folder is a sub project.
-     *
-     * @param folder the folder to check
-     * @return true if this folder is a sub project
-     */
-    boolean isSubProject(IFolder folder);
 
     /**
      * Checks whether Eclipse supports the given project nature.

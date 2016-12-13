@@ -23,7 +23,6 @@ import org.eclipse.core.resources.IProject;
  *
  */
 public interface ModelPersistence {
-
     /**
      * Reads the project model and returns a snapshot of the current state.
      *
