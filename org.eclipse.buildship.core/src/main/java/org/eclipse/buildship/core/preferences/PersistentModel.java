@@ -10,6 +10,8 @@ package org.eclipse.buildship.core.preferences;
 
 import java.util.Collection;
 
+import com.google.common.base.Optional;
+
 import org.eclipse.core.runtime.IPath;
 
 /**
@@ -24,12 +26,13 @@ public interface PersistentModel {
      * Returns the build directory.
      * @return the build directory
      */
-    String getBuildDir();
+    Optional<IPath> getBuildDir();
 
     /**
      * Sets the build directory.
+     * @param buildDirPath the build directory
      */
-    void setBuildDir(String buildDir);
+    void setBuildDir(Optional<IPath> buildDirPath);
 
     /**
      * Returns subproject paths.

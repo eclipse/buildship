@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -53,12 +54,14 @@ class DefaultPersistentModel implements PersistentModel {
     }
 
     @Override
-    public String getBuildDir() {
-        return getValue(PROPERTY_BUILD_DIR, null);
+    public Optional<IPath> getBuildDir() {
+        String buildDir = getValue(PROPERTY_BUILD_DIR, null);
+        return buildDir == null ? Optional.<IPath>absent() : Optional.<IPath>of(new Path(buildDir));
     }
 
     @Override
-    public void setBuildDir(String buildDir) {
+    public void setBuildDir(Optional<IPath> buildDirPath) {
+        String buildDir = buildDirPath.isPresent() ? buildDirPath.get().toPortableString() : null;
         setValue(PROPERTY_BUILD_DIR, buildDir);
     }
 

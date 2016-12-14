@@ -52,4 +52,6 @@ class UncouplingProjectFromGradleBuild extends ProjectSynchronizationSpecificati
         then:
         !node.get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null)
     }
+
+    // TODO (donat) uncoupling a project removes persistent model
 }

@@ -76,8 +76,7 @@ final class DerivedResourcesUpdater {
 
     private void markBuildFolder(Optional<IPath> buildDirectoryPath) throws CoreException {
         PersistentModel preferences = CorePlugin.modelPersistence().loadModel(this.project);
-        String buildDir = buildDirectoryPath.isPresent() ? buildDirectoryPath.get().toPortableString() : null;
-        preferences.setBuildDir(buildDir);
+        preferences.setBuildDir(buildDirectoryPath);
         CorePlugin.modelPersistence().saveModel(preferences);
     }
 
