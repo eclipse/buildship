@@ -88,4 +88,5 @@ rules declared in the `settings.gradle` file are respected.
 
 Current limitations:
 - Executing tasks in included builds is currently not supported. It will be enabled once the task addressing will be implemented in Gradle.
+- WTP support is not working with included builds.
 - The Executions view will not show events from included builds.
