@@ -39,7 +39,7 @@ public interface ModelPersistence {
 
     /**
      * Removes the project model from the storage.
-     * @param project the project from which the model should be deleted
+     * @param project the target project
      */
     void deleteModel(IProject project);
 }

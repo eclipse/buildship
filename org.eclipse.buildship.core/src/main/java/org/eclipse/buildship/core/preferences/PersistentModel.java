@@ -14,7 +14,7 @@ import org.eclipse.core.runtime.IPath;
 
 /**
  * Interface to load and store Gradle model elements stored in the workspace plugin state area. The
- * model elements can be stored and retrieved in either a structured or a map-like fashion.
+ * model elements can be stored and retrieved in either a structured or in a map-like fashion.
  *
  * @author Donat Csikos
  */
