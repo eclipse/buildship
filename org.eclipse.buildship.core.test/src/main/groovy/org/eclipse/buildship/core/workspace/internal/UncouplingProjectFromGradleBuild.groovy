@@ -53,5 +53,25 @@ class UncouplingProjectFromGradleBuild extends ProjectSynchronizationSpecificati
         !node.get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null)
     }
 
-    // TODO (donat) uncoupling a project removes persistent model
+    def "Uncoupling a project removes persistent model"() {
+        setup:
+        def projectDir = dir('sample-root') {
+            dir 'sample-sub'
+            file 'build.gradle', "apply plugin: 'java'"
+            file 'settings.gradle', "include 'sample-sub'"
+        }
+        synchronizeAndWait(projectDir)
+
+        expect:
+        !CorePlugin.modelPersistence().loadModel(findProject('sample-root')).entries.isEmpty()
+        !CorePlugin.modelPersistence().loadModel(findProject('sample-sub')).entries.isEmpty()
+
+        when:
+        file ('sample-root/settings.gradle').text = ''
+        synchronizeAndWait(projectDir)
+
+        then:
+        !CorePlugin.modelPersistence().loadModel(findProject('sample-root')).entries.isEmpty()
+        CorePlugin.modelPersistence().loadModel(findProject('sample-sub')).entries.isEmpty()
+    }
 }
