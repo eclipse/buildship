@@ -1,12 +1,12 @@
-# Buildship: Eclipse Plug-ins for Gradle <a href="http://builds.gradle.org/viewType.html?buildTypeId=Tooling_Master_IntegrationTests_Linux_Eclipse45Build&guest=1"><img src="https://builds.gradle.org/app/rest/builds/buildType:%28id:Tooling_Master_IntegrationTests_Linux_Eclipse45Build%29/statusIcon"/></a>
+# Eclipse Buildship: Gradle integration for the Eclipse IDE <a href="http://builds.gradle.org/viewType.html?buildTypeId=Tooling_Master_IntegrationTests_Linux_Eclipse45Build&guest=1"><img src="https://builds.gradle.org/app/rest/builds/buildType:%28id:Tooling_Master_IntegrationTests_Linux_Eclipse45Build%29/statusIcon"/></a>
 
-Buildship is a set of Eclipse Plug-ins that provide a deep integration of Gradle into Eclipse. Buildship is hosted
+Buildship is a set of Eclipse Plug-ins that provide a deep integration of Gradle into the Eclipse IDE. Buildship is hosted
 on [eclipse.org](https://projects.eclipse.org/projects/tools.buildship).
 
 
 ## Requirements
 
-Buildship can be used with Eclipse 3.6.x or newer. Older versions of Eclipse might work but have not been tested explicitly. Depending
+Buildship can be used with Eclipse IDE 3.6.x or newer. Older versions of Eclipse the IDE might work but have not been tested explicitly. Depending
 on the version of Gradle that Buildship interacts with, certain features of Buildship may not be available.
 
 
