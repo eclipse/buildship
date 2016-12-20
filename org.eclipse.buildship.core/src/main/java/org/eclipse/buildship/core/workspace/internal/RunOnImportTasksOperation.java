@@ -7,6 +7,7 @@
  */
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -71,7 +72,7 @@ public class RunOnImportTasksOperation {
         Set<String> wtpTasks = Sets.newHashSet();
 
         for (OmniEclipseProject eclipseProject : this.allprojects) {
-            if (isGradle30(eclipseProject) && isWtpProject(eclipseProject)) {
+            if (isGradle30(eclipseProject) && isWtpProject(eclipseProject) && !isIncludedProject(eclipseProject)) {
                 List<OmniProjectTask> tasks = eclipseProject.getGradleProject().getProjectTasks();
                 for (OmniProjectTask task : tasks) {
                     if (WTP_TASK.equals(task.getName())) {
@@ -99,6 +100,12 @@ public class RunOnImportTasksOperation {
             }
         }
         return false;
+    }
+
+    private boolean isIncludedProject(OmniEclipseProject eclipseProject) {
+        File buildRoot = this.build.getProjectDir();
+        File projectRoot = eclipseProject.getProjectIdentifier().getBuildIdentifier().getRootDir();
+        return !buildRoot.equals(projectRoot);
     }
 
     private void runTasks(List<String> tasksToRun, IProgressMonitor monitor, CancellationToken token) {

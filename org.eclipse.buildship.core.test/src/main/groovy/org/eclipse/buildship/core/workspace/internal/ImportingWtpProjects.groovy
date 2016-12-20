@@ -374,6 +374,39 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         moduleConfig[1].'@source-path' == 'src/main/java'
     }
 
+
+    def "wtp projects defined in included builds are ignored"() {
+        setup:
+        File included
+        File root = dir("project") {
+            included = dir("included") {
+                file "build.gradle", """
+                    apply plugin: 'war'
+                    apply plugin: 'eclipse'
+                 """
+                file "settings.gradle", ""
+            }
+            file 'settings.gradle', "includeBuild 'included'"
+        }
+
+        WorkspaceOperations operations = Stub(WorkspaceOperations) {
+            isNatureRecognizedByEclipse(WTP_COMPONENT_NATURE) >> {
+                environment.close()
+                true
+            }
+        }
+        registerService(WorkspaceOperations, operations)
+
+        when:
+        importAndWait(root)
+
+        then:
+        findProject('project')
+        findProject('included')
+        !hasComponentDescriptor(included)
+        !hasFacetDescriptor(included)
+    }
+
     private IClasspathEntry[] resolvedClasspath(IProject project) {
         JavaCore.create(project).getResolvedClasspath(false)
     }
