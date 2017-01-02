@@ -28,7 +28,7 @@ class InvocationCustomizerTest extends Specification {
 
     def "Can contribute extra arguments"() {
         expect:
-       new InvocationCustomizerCollector().contributedExtraArguments == EXTRA_ARGUMENTS
+       new InvocationCustomizerCollector().extraArguments == EXTRA_ARGUMENTS
     }
 
     def "FixedRequestAttributesBuilder receive extra arguments"() {
