@@ -19,7 +19,6 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
-import org.eclipse.buildship.core.util.extension.InvocationCustomizerCollector;
 
 /**
  * Builder object for {@link FixedRequestAttributes}. The {@link #fromEmptySettings(File)} creates an empty builder object,
@@ -28,8 +27,6 @@ import org.eclipse.buildship.core.util.extension.InvocationCustomizerCollector;
  * @author Donat Csikos
  */
 public final class FixedRequestAttributesBuilder {
-
-    private static final InvocationCustomizerCollector invocationCustomizers = new InvocationCustomizerCollector();
 
     private final File projectDir;
     private File gradleUserHome = null;
@@ -82,7 +79,7 @@ public final class FixedRequestAttributesBuilder {
         if (configuration.isOffline()) {
             result.arguments.add("--offline");
         }
-        result.arguments(invocationCustomizers.getContributedExtraArguments());
+        result.arguments(CorePlugin.invocationCustomizer().getExtraArguments());
         return result;
      }
 }

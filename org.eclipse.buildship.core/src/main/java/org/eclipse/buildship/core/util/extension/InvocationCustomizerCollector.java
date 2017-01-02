@@ -26,11 +26,12 @@ import org.eclipse.buildship.core.invocation.InvocationCustomizer;
  *
  * @author Donat Csikos
  */
-public final class InvocationCustomizerCollector {
+public final class InvocationCustomizerCollector implements InvocationCustomizer {
 
     private List<InvocationCustomizer> customizers;
 
-    public List<String> getContributedExtraArguments() {
+    @Override
+    public List<String> getExtraArguments() {
         if (this.customizers == null) {
             this.customizers = loadCustomizers();
         }

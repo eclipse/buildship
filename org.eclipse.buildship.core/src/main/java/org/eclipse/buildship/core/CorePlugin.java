@@ -37,12 +37,14 @@ import org.eclipse.buildship.core.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.console.internal.StdProcessStreamsProvider;
 import org.eclipse.buildship.core.event.ListenerRegistry;
 import org.eclipse.buildship.core.event.internal.DefaultListenerRegistry;
+import org.eclipse.buildship.core.invocation.InvocationCustomizer;
 import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.notification.UserNotification;
 import org.eclipse.buildship.core.notification.internal.ConsoleUserNotification;
 import org.eclipse.buildship.core.preferences.ModelPersistence;
 import org.eclipse.buildship.core.preferences.internal.DefaultModelPersistence;
+import org.eclipse.buildship.core.util.extension.InvocationCustomizerCollector;
 import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.util.logging.EclipseLogger;
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
@@ -104,6 +106,7 @@ public final class CorePlugin extends Plugin {
     private WorkspaceConfigurationManager workspaceConfigurationManager;
     private DefaultModelPersistence modelPersistence;
     private ProjectChangeListener projectChangeListener;
+    private InvocationCustomizer invocationCustomizer;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
@@ -161,6 +164,7 @@ public final class CorePlugin extends Plugin {
         this.workspaceConfigurationManager = new DefaultWorkspaceConfigurationManager();
         this.modelPersistence = DefaultModelPersistence.createAndRegister();
         this.projectChangeListener = ProjectChangeListener.createAndRegister();
+        this.invocationCustomizer = new InvocationCustomizerCollector();
     }
 
     private ServiceTracker createServiceTracker(BundleContext context, Class<?> clazz) {
@@ -301,5 +305,9 @@ public final class CorePlugin extends Plugin {
 
     public static ModelPersistence modelPersistence() {
         return getInstance().modelPersistence;
+    }
+
+    public static InvocationCustomizer invocationCustomizer() {
+        return getInstance().invocationCustomizer;
     }
 }
