@@ -71,6 +71,65 @@
       </documentation>
    </annotation>
 
+   <annotation>
+      <appinfo>
+         <meta.section type="examples"/>
+      </appinfo>
+      <documentation>
+         The following example contributes the installation location of the runtime Eclipse to each Gradle build.
+&lt;p/&gt;
+
+&lt;tt&gt;plugin.xml&lt;/tt&gt;
+&lt;p/&gt;
+
+&lt;pre&gt;
+&lt;extension point=&quot;org.eclipse.buildship.core.invocationcustomizers&quot;&gt;
+    &lt;customizer class=&quot;EclipseInstallLocationGradleBuild&quot; /&gt;
+&lt;/extension&gt;
+&lt;/pre&gt;
+
+
+&lt;tt&gt;EclipseInstallLocationGradleBuild.java&lt;/tt&gt;
+&lt;p/&gt;
+
+&lt;pre&gt;
+import java.util.*;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.buildship.core.invocation.InvocationCustomizer;
+
+public class EclipseInstallLocationGradleBuild implements InvocationCustomizer {
+     @Override public List&lt;String&gt; getExtraArguments() {
+        return Arrays.asList(&quot;-PeclipseInstallLocation=&quot; + Platform.getLocation().toPortableString());
+    }
+}
+&lt;/pre&gt;
+
+&lt;tt&gt;build.gradle&lt;/tt&gt;
+&lt;p/&gt;
+
+&lt;pre&gt;
+task printEclipseLocation {
+    doLast {
+        if (project.hasProperty(&quot;eclipseInstallLocation&quot;)) {
+            println project.getProperty(&quot;eclipseInstallLocation&quot;)
+        }
+    }
+}
+&lt;/pre&gt;
+
+&lt;tt&gt;execution output&lt;/tt&gt;
+&lt;p/&gt;
+
+&lt;pre&gt;
+:printEclipseLocation
+/path/to/install/location
+
+BUILD SUCCESSFUL
+
+Total time: 0.056 secs
+&lt;/pre&gt;
+      </documentation>
+   </annotation>
 
 
 
