@@ -2,7 +2,7 @@
 
 ## `org.eclipse.buildship.core.invocationcustomizers` extension point
 
-### `plugin.xml`
+### plugin.xml
 
     <extension point="org.eclipse.buildship.core.invocationcustomizers">
         <customizer class="EclipseInstallLocationGradleBuild" />
@@ -10,7 +10,7 @@
 
 
 
-### `EclipseInstallLocationGradleBuild.java`
+### EclipseInstallLocationGradleBuild.java
 
     import java.util.*;
     import org.eclipse.core.runtime.Platform;
@@ -23,7 +23,7 @@
     }
 
 
-### `build.gradle`
+### build.gradle
 
     task printEclipseLocation {
         doLast {
