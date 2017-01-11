@@ -18,11 +18,11 @@
 <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/release-neon/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.gradle.toolingapi" version="3.3.0.v20161219174624"/>
-<unit id="com.gradleware.tooling.utils" version="0.17.0.v20161219174624"/>
-<unit id="com.gradleware.tooling.client" version="0.17.0.v20161219174624"/>
-<unit id="com.gradleware.tooling.model" version="0.17.0.v20161219174624"/>
-<repository location="jar:https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/0.17.0-20161219174624/p2-repository-0.17.0-20161219174624.zip!/"/>
+<unit id="org.gradle.toolingapi" version="3.3.0.v20170103170240"/>
+<unit id="com.gradleware.tooling.utils" version="0.17.0.v20170103170240"/>
+<unit id="com.gradleware.tooling.client" version="0.17.0.v20170103170240"/>
+<unit id="com.gradleware.tooling.model" version="0.17.0.v20170103170240"/>
+<repository location="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.17.0/p2-repository-0.17.0.zip!/"/>
 </location>
 </locations>
 <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
