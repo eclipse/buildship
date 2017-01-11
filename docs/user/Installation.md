@@ -18,19 +18,19 @@ For manual installation use one of the update sites below.
 
 Eclipse Version | Type      | Update Site
 --------------  | ----------| ------------
-Neon (4.6)      | release   | `http://download.eclipse.org/buildship/updates/e46/releases/2.x` (not yet available)
+Neon (4.6)      | release   | `http://download.eclipse.org/buildship/updates/e46/releases/2.x`
                 | milestone | `http://download.eclipse.org/buildship/updates/e46/milestones/2.x`
                 | snapshot  | `http://download.eclipse.org/buildship/updates/e46/snapshots/2.x`
-Mars (4.5)      | release   | `http://download.eclipse.org/buildship/updates/e45/releases/2.x` (not yet available)
+Mars (4.5)      | release   | `http://download.eclipse.org/buildship/updates/e45/releases/2.x`
                 | milestone | `http://download.eclipse.org/buildship/updates/e45/milestones/2.x`
                 | snapshot  | `http://download.eclipse.org/buildship/updates/e45/snapshots/2.x`
-Luna (4.4)      | release   | `http://download.eclipse.org/buildship/updates/e44/releases/2.x` (not yet available)
+Luna (4.4)      | release   | `http://download.eclipse.org/buildship/updates/e44/releases/2.x`
                 | milestone | `http://download.eclipse.org/buildship/updates/e44/milestones/2.x` 
                 | snapshot  | `http://download.eclipse.org/buildship/updates/e44/snapshots/2.x`
-Kepler (4.3)    | release   | `http://download.eclipse.org/buildship/updates/e43/releases/2.x` (not yet available)
+Kepler (4.3)    | release   | `http://download.eclipse.org/buildship/updates/e43/releases/2.x`
                 | milestone | `http://download.eclipse.org/buildship/updates/e43/milestones/2.x`
                 | snapshot  | `http://download.eclipse.org/buildship/updates/e43/snapshots/2.x`
-Juno (4.2)      | release   | `http://download.eclipse.org/buildship/updates/e42/releases/2.x` (not yet available)
+Juno (4.2)      | release   | `http://download.eclipse.org/buildship/updates/e42/releases/2.x`
                 | milestone | `http://download.eclipse.org/buildship/updates/e42/milestones/2.x`
                 | snapshot  | `http://download.eclipse.org/buildship/updates/e42/snapshots/2.x`
                 
