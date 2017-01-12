@@ -24,6 +24,9 @@ import com.google.common.collect.Maps;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 
 import org.eclipse.buildship.core.preferences.PersistentModel;
 
@@ -88,13 +91,24 @@ class DefaultPersistentModel implements PersistentModel {
     }
 
     @Override
-    public String getClasspath() {
-        return getValue(PROPERTY_CLASSPATH, null);
+    public Optional<List<IClasspathEntry>> getClasspath() {
+        String classpath = getValue(PROPERTY_CLASSPATH, null);
+        if (classpath == null) {
+            return Optional.absent();
+        } else {
+            IJavaProject javaProject = JavaCore.create(this.project);
+            return Optional.of(ClasspathConverter.toEntries(javaProject, classpath));
+        }
     }
 
     @Override
-    public void setClasspath(String classpath) {
-       setValue(PROPERTY_CLASSPATH, classpath);
+    public void setClasspath(List<IClasspathEntry> classpath) {
+       if (classpath == null) {
+           this.entries.remove(PROPERTY_CLASSPATH);
+       }
+       IJavaProject javaProject = JavaCore.create(this.project);
+       String serialized = ClasspathConverter.toXml(javaProject, classpath);
+       setValue(PROPERTY_CLASSPATH, serialized);
     }
 
     @Override

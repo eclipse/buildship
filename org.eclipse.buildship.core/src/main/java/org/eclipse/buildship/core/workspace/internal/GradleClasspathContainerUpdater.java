@@ -38,6 +38,8 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.preferences.PersistentModel;
 import org.eclipse.buildship.core.util.classpath.ClasspathUtils;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
@@ -73,7 +75,9 @@ final class GradleClasspathContainerUpdater {
     private void updateClasspathContainer(IProgressMonitor monitor) throws JavaModelException {
         ImmutableList<IClasspathEntry> containerEntries = collectClasspathContainerEntries();
         setClasspathContainer(this.eclipseProject, containerEntries, monitor);
-        ClasspathContainerPersistence.save(this.eclipseProject, containerEntries);
+        PersistentModel model = CorePlugin.modelPersistence().loadModel(this.eclipseProject.getProject());
+        model.setClasspath(containerEntries);
+        CorePlugin.modelPersistence().saveModel(model);
     }
 
     private ImmutableList<IClasspathEntry> collectClasspathContainerEntries() {
@@ -136,7 +140,7 @@ final class GradleClasspathContainerUpdater {
      * @throws JavaModelException if the classpath cannot be assigned
      */
     public static boolean updateFromStorage(IJavaProject eclipseProject, IProgressMonitor monitor) throws JavaModelException {
-        Optional<List<IClasspathEntry>> storedClasspath = ClasspathContainerPersistence.load(eclipseProject);
+        Optional<List<IClasspathEntry>> storedClasspath = CorePlugin.modelPersistence().loadModel(eclipseProject.getProject()).getClasspath();
         if (storedClasspath.isPresent()) {
             setClasspathContainer(eclipseProject, storedClasspath.get(), monitor);
             return true;

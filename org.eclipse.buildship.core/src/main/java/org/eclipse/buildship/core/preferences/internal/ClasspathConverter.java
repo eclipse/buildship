@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.workspace.internal;
+package org.eclipse.buildship.core.preferences.internal;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,7 +29,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -37,47 +36,36 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.preferences.PersistentModel;
 
 /**
- * Stores the current state of the gradle classpath container in the workspace metadata area
- * such that it gets persisted across sessions.
+ * Transforms classpath entries to XML format and vica versa.
  */
-final class ClasspathContainerPersistence {
+final class ClasspathConverter {
 
     private final IJavaProject javaProject;
 
-    private ClasspathContainerPersistence(IJavaProject javaProject) {
+    private ClasspathConverter(IJavaProject javaProject) {
         this.javaProject = Preconditions.checkNotNull(javaProject);
     }
 
-    void save(List<IClasspathEntry> entries) {
+    public String toXml(List<IClasspathEntry> classpath) {
         StringBuilder content = new StringBuilder();
         content.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         content.append("<classpath>\n");
-        for (IClasspathEntry entry : entries) {
+        for (IClasspathEntry entry : classpath) {
             content.append(this.javaProject.encodeClasspathEntry(entry));
         }
         content.append("</classpath>\n");
-        PersistentModel preferences = CorePlugin.modelPersistence().loadModel(this.javaProject.getProject());
-        preferences.setClasspath(content.toString());
-        CorePlugin.modelPersistence().saveModel(preferences);
+        return content.toString();
     }
 
-    Optional<List<IClasspathEntry>> load() {
-        PersistentModel preferences = CorePlugin.modelPersistence().loadModel(this.javaProject.getProject());
-        String classpath = preferences.getClasspath();
-        if (classpath == null) {
-            return Optional.absent();
-        }
-
+    public List<IClasspathEntry> toEntries(String classpath) {
         try {
             Element classpathNode = readClasspathNode(classpath);
-            List<IClasspathEntry> entries = readEntriesFromClasspathNode(classpathNode);
-            return Optional.of(entries);
+            return readEntriesFromClasspathNode(classpathNode);
         } catch (Exception e) {
             CorePlugin.logger().error(String.format("Could not read persisted classpath for project %s.", this.javaProject.getProject().getName()), e);
-            return Optional.absent();
+            return null;
         }
     }
 
@@ -117,12 +105,11 @@ final class ClasspathContainerPersistence {
         return writer.toString();
     }
 
-    static void save(IJavaProject javaProject, List<IClasspathEntry> entries) {
-        new ClasspathContainerPersistence(javaProject).save(entries);
+    static String toXml(IJavaProject javaProject, List<IClasspathEntry> classpath) {
+        return new ClasspathConverter(javaProject).toXml(classpath);
     }
 
-    static Optional<List<IClasspathEntry>> load(IJavaProject javaProject) {
-        return new ClasspathContainerPersistence(javaProject).load();
+    static List<IClasspathEntry> toEntries(IJavaProject javaProject, String classpath) {
+        return new ClasspathConverter(javaProject).toEntries(classpath);
     }
-
 }

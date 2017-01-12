@@ -9,10 +9,12 @@
 package org.eclipse.buildship.core.preferences;
 
 import java.util.Collection;
+import java.util.List;
 
 import com.google.common.base.Optional;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.IClasspathEntry;
 
 /**
  * Interface to load and store Gradle model elements stored in the workspace plugin state area. The
@@ -30,9 +32,9 @@ public interface PersistentModel {
 
     void setSubprojectPaths(Collection<IPath> subprojectPaths);
 
-    String getClasspath();
+    Optional<List<IClasspathEntry>> getClasspath();
 
-    void setClasspath(String classpath);
+    void setClasspath(List<IClasspathEntry> classpath);
 
     Collection<String> getDerivedResources();
 
