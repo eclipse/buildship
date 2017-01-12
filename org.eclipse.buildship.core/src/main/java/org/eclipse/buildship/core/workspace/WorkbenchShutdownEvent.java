@@ -11,7 +11,9 @@ package org.eclipse.buildship.core.workspace;
 import org.eclipse.buildship.core.event.Event;
 
 /**
- * Project shutdown event.
+ * Event raised just before the workbench shuts down.
+ * <p/>
+ * Since the JVM will shut down shortly after this event, listeners should react synchronously.
  *
  * @author Donat Csikos
  */

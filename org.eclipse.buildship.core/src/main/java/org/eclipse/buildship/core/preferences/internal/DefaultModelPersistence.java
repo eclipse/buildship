@@ -20,7 +20,9 @@ import java.io.Writer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 import org.gradle.internal.UncheckedException;
 
@@ -32,9 +34,14 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.event.EventListener;
 import org.eclipse.buildship.core.preferences.ModelPersistence;
@@ -110,7 +117,6 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
     }
 
     private void deleteProjectPreferences(ProjectDeletedEvent event) {
-        this.modelCache.invalidate(event.getProject().getName());
         deleteModel(event.getProject());
     }
 
@@ -133,8 +139,8 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
 
     private void persistAllProjectPrefs() {
         Map<String, Map<String, String>> modelCacheMap = this.modelCache.asMap();
-        for (String projectName : modelCacheMap.keySet()) {
-            persistPrefs(projectName, modelCacheMap.get(projectName));
+        for (Entry<String, Map<String, String>> entry : modelCacheMap.entrySet()) {
+            persistPrefs(entry.getKey(), entry.getValue());
         }
     }
 
@@ -175,7 +181,30 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
     public static DefaultModelPersistence createAndRegister() {
         DefaultModelPersistence persistence = new DefaultModelPersistence();
         CorePlugin.listenerRegistry().addEventListener(persistence);
+        persistence.prefetchCacheAsync();
         return persistence;
+    }
+
+    private void prefetchCacheAsync() {
+        Job job = new Job("Load persistent model for all projects") {
+
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                for (IProject project : CorePlugin.workspaceOperations().getAllProjects()) {
+                    if (GradleProjectNature.isPresentOn(project)) {
+                        String projectName = project.getName();
+                        try {
+                            DefaultModelPersistence.this.modelCache.get(projectName);
+                        } catch (ExecutionException e) {
+                            CorePlugin.logger().warn("Can't load persistent model for project " + projectName, e);
+                        }
+                    }
+                }
+                return Status.OK_STATUS;
+            }
+        };
+        job.setSystem(true);
+        job.schedule();
     }
 
     public void close() {
