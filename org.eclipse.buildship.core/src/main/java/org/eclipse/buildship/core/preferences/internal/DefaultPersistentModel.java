@@ -36,6 +36,9 @@ class DefaultPersistentModel implements PersistentModel {
 
     private static final String PROPERTY_SUBPROJECTS = "subprojectPaths";
     private static final String PROPERTY_BUILD_DIR = "buildDir";
+    private static final String PROPERTY_CLASSPATH = "classpath";
+    private static final String PROPERTY_DERIVED_RESOURCES = "derivedResources";
+    private static final String PROPERTY_LINKED_RESOURCES = "linkedResources";
 
     private final IProject project;
     private final Map<String, String> entries;
@@ -85,12 +88,40 @@ class DefaultPersistentModel implements PersistentModel {
     }
 
     @Override
+    public String getClasspath() {
+        return getValue(PROPERTY_CLASSPATH, null);
+    }
+
+    @Override
+    public void setClasspath(String classpath) {
+       setValue(PROPERTY_CLASSPATH, classpath);
+    }
+
+    @Override
+    public Collection<String> getDerivedResources() {
+        return getValues(PROPERTY_DERIVED_RESOURCES, Collections.<String>emptyList());
+    }
+
+    @Override
+    public void setDerivedResources(Collection<String> derivedResources) {
+        setValues(PROPERTY_DERIVED_RESOURCES, derivedResources);
+    }
+
+    @Override
+    public Collection<String> getLinkedResources() {
+        return getValues(PROPERTY_LINKED_RESOURCES, Collections.<String>emptyList());
+    }
+
+    @Override
+    public void setLinkedResources(Collection<String> linkedResources) {
+        setValues(PROPERTY_LINKED_RESOURCES, linkedResources);
+    }
+
     public String getValue(String key, String defaultValue) {
         String value = this.entries.get(key);
         return value != null ? value : defaultValue;
     }
 
-    @Override
     public void setValue(String key, String value) {
         if (value != null) {
             this.entries.put(key, value);
@@ -99,7 +130,6 @@ class DefaultPersistentModel implements PersistentModel {
         }
     }
 
-    @Override
     public Collection<String> getValues(String key, Collection<String> defaultValues) {
         String serializedForm = getValue(key, null);
         if (serializedForm == null) {
@@ -108,7 +138,6 @@ class DefaultPersistentModel implements PersistentModel {
         return Splitter.on(File.pathSeparator).omitEmptyStrings().splitToList(serializedForm);
     }
 
-    @Override
     public void setValues(String key, Collection<String> values) {
         setValue(key, values == null ? null : Joiner.on(File.pathSeparator).join(values));
     }

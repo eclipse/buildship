@@ -12,7 +12,6 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,8 +44,6 @@ import org.eclipse.buildship.core.util.file.FileUtils;
  */
 final class LinkedResourcesUpdater {
 
-    private static final String PERSISTENT_PROP_NAME = "linkedResources";
-
     private final IProject project;
     private final Map<String,OmniEclipseLinkedResource> linkedResources;
 
@@ -69,7 +66,7 @@ final class LinkedResourcesUpdater {
 
     private void removeOutdatedLinkedResources(SubMonitor progress) throws CoreException {
         PersistentModel model = CorePlugin.modelPersistence().loadModel(this.project);
-        Collection<String> resourceNames = model.getValues(PERSISTENT_PROP_NAME, Collections.<String>emptyList());
+        Collection<String> resourceNames = model.getLinkedResources();
         progress.setWorkRemaining(resourceNames.size());
         for (String resourceName : resourceNames) {
             SubMonitor childProgress = progress.newChild(1);
@@ -101,7 +98,7 @@ final class LinkedResourcesUpdater {
             resourceNames.add(projectRelativePath(linkedResourceFolder));
         }
         PersistentModel model = CorePlugin.modelPersistence().loadModel(this.project);
-        model.setValues(PERSISTENT_PROP_NAME, resourceNames);
+        model.setLinkedResources(resourceNames);
         CorePlugin.modelPersistence().saveModel(model);
     }
 

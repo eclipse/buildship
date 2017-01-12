@@ -22,63 +22,23 @@ import org.eclipse.core.runtime.IPath;
  */
 public interface PersistentModel {
 
-    /**
-     * Returns the build directory.
-     * @return the build directory
-     */
     Optional<IPath> getBuildDir();
 
-    /**
-     * Sets the build directory.
-     * @param buildDirPath the build directory
-     */
     void setBuildDir(Optional<IPath> buildDirPath);
 
-    /**
-     * Returns subproject paths.
-     *
-     * @return the subproject paths
-     */
     Collection<IPath> getSubprojectPaths();
 
-    /**
-     * Sets the subproject paths.
-     *
-     * @param subprojects the subproject paths.
-     */
     void setSubprojectPaths(Collection<IPath> subprojectPaths);
 
-    /**
-     * Returns a value for the specified key.
-     *
-     * @param key the key
-     * @param defaultValue to be returned if no value is present
-     * @return the value
-     */
-    String getValue(String key, String defaultValue);
+    String getClasspath();
 
-    /**
-     * Stores a new key-value pair in this instance.
-     *
-     * @param key the key
-     * @param value the value
-     */
-    void setValue(String key, String value);
+    void setClasspath(String classpath);
 
-    /**
-     *  Returns a collection for the specified key.
-     *
-     * @param key the key
-     * @param defaultValues to be returned if no value is present
-     * @return the collection
-     */
-    Collection<String> getValues(String key, Collection<String> defaultValues);
+    Collection<String> getDerivedResources();
 
-    /**
-     * Stores a new key-value pair in this instance where the value is a collection.
-     *
-     * @param key the key
-     * @param values the values
-     */
-    void setValues(String key, Collection<String> values);
+    void setDerivedResources(Collection<String> derivedResources);
+
+    Collection<String> getLinkedResources();
+
+    void setLinkedResources(Collection<String> linkedResources);
 }
