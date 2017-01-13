@@ -19,8 +19,12 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 
 /**
- * Interface to load and store Gradle model elements stored in the workspace plugin state area. The
- * model elements can be stored and retrieved in either a structured or in a map-like fashion.
+ * Interface to load and store Gradle model elements stored in the workspace plugin state area.
+ * <p/>
+ * The {@link Optional} return type on the getters mark whether a value is present in the model.
+ * <p/>
+ * If {@code null} values or {@link Optional#absent()} is passed to the setters then the value is
+ * cleared from the model.
  *
  * @author Donat Csikos
  */
