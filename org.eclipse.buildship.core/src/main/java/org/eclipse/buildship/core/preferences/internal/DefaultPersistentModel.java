@@ -105,9 +105,6 @@ class DefaultPersistentModel implements PersistentModel {
 
     @Override
     public void setClasspath(List<IClasspathEntry> classpath) {
-       if (classpath == null) {
-           this.entries.remove(PROPERTY_CLASSPATH);
-       }
        IJavaProject javaProject = JavaCore.create(this.project);
        String serialized = ClasspathConverter.toXml(javaProject, classpath);
        setValue(PROPERTY_CLASSPATH, serialized);
