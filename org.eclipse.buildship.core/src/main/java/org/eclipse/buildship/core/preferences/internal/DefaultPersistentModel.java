@@ -21,6 +21,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
@@ -136,13 +137,26 @@ class DefaultPersistentModel implements PersistentModel {
     }
 
     @Override
-    public Collection<String> getLinkedResources() {
-        return getValues(PROPERTY_LINKED_RESOURCES, Collections.<String>emptyList());
+    public Collection<IFolder> getLinkedResources() {
+        Collection<IFolder> result = Lists.newArrayList();
+        Collection<String> resources = getValues(PROPERTY_LINKED_RESOURCES, Collections.<String>emptyList());
+        for (String resource : resources) {
+            result.add(this.project.getFolder(resource));
+        }
+        return result;
     }
 
     @Override
-    public void setLinkedResources(Collection<String> linkedResources) {
-        setValues(PROPERTY_LINKED_RESOURCES, linkedResources);
+    public void setLinkedResources(Collection<IFolder> linkedResources) {
+        Collection<String> result = Lists.newArrayList();
+        for (IFolder linkedResource : linkedResources) {
+            result.add(projectRelativePath(linkedResource));
+        }
+        setValues(PROPERTY_LINKED_RESOURCES, result);
+    }
+
+    private String projectRelativePath(IFolder folder) {
+        return folder.getFullPath().makeRelativeTo(this.project.getFullPath()).toPortableString();
     }
 
     public String getValue(String key, String defaultValue) {
