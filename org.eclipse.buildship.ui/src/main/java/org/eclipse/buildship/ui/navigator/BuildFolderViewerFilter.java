@@ -19,7 +19,6 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.util.file.RelativePathUtils;
 
 /**
  * Allows users to show or hide the build folder in the Navigator, Project and Package Explorer.
@@ -50,8 +49,7 @@ public final class BuildFolderViewerFilter extends ViewerFilter {
             if (!modelBuildDir.isPresent()) {
                 return false;
             }
-            IPath relativePath = RelativePathUtils.getRelativePath(project.getFullPath(), folder.getFullPath());
-            return relativePath.equals(modelBuildDir.get());
+            return folder.getProjectRelativePath().equals(modelBuildDir.get());
         } catch (Exception e) {
             CorePlugin.logger().debug(String.format("Could not check whether folder %s is a build folder.", folder.getFullPath()), e);
             return false;
