@@ -21,7 +21,6 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
 
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -57,7 +56,7 @@ final class DerivedResourcesUpdater {
         SubMonitor progress = SubMonitor.convert(monitor, 2);
         try {
             Optional<IPath> buildDirectoryPath = getBuildDirectoryPath();
-            List<String> derivedResources = getDerivedResources(buildDirectoryPath, progress.newChild(1));
+            List<IResource> derivedResources = getDerivedResources(buildDirectoryPath, progress.newChild(1));
             markBuildFolder(buildDirectoryPath);
             removePreviousMarkers(derivedResources, progress.newChild(1));
             addNewMarkers(derivedResources, progress.newChild(1));
@@ -77,30 +76,33 @@ final class DerivedResourcesUpdater {
         CorePlugin.modelPersistence().saveModel(preferences);
     }
 
-    private List<String> getDerivedResources(Optional<IPath> possibleBuildDirectoryPath, SubMonitor progress) {
-        List<String> derivedResources = Lists.newArrayList();
-        derivedResources.add(".gradle");
-
-        if (possibleBuildDirectoryPath.isPresent()) {
-            IFolder buildDirectory = this.project.getFolder(possibleBuildDirectoryPath.get());
-            derivedResources.add(buildDirectory.getName());
+    private List<IResource> getDerivedResources(Optional<IPath> possibleBuildDirectoryPath, SubMonitor progress) {
+        List<IResource> derivedResources = Lists.newArrayList();
+        IResource dotGradle = this.project.findMember(".gradle");
+        if (dotGradle != null) {
+            derivedResources.add(dotGradle);
         }
-
+        if (possibleBuildDirectoryPath.isPresent()) {
+            IResource buildDirectory = this.project.findMember(possibleBuildDirectoryPath.get());
+            if (buildDirectory != null) {
+                derivedResources.add(buildDirectory);
+            }
+        }
         return derivedResources;
     }
 
-    private void removePreviousMarkers(List<String> derivedResources, SubMonitor progress) throws CoreException {
-        Collection<String> previouslyKnownDerivedResources = CorePlugin.modelPersistence().loadModel(this.project).getDerivedResources();
+    private void removePreviousMarkers(List<IResource> derivedResources, SubMonitor progress) throws CoreException {
+        Collection<IResource> previouslyKnownDerivedResources = CorePlugin.modelPersistence().loadModel(this.project).getDerivedResources();
         progress.setWorkRemaining(previouslyKnownDerivedResources.size());
-        for (String resourceName : previouslyKnownDerivedResources) {
-            setDerived(resourceName, false, progress.newChild(1));
+        for (IResource resource : previouslyKnownDerivedResources) {
+            resource.setDerived(false, progress.newChild(1));
         }
     }
 
-    private void addNewMarkers(List<String> derivedResources, SubMonitor progress) throws CoreException {
+    private void addNewMarkers(List<IResource> derivedResources, SubMonitor progress) throws CoreException {
         progress.setWorkRemaining(derivedResources.size());
-        for (String resourceName : derivedResources) {
-            setDerived(resourceName, true, progress.newChild(1));
+        for (IResource resource : derivedResources) {
+            resource.setDerived(true, progress.newChild(1));
         }
         PersistentModel model = CorePlugin.modelPersistence().loadModel(this.project);
         model.setDerivedResources(derivedResources);
@@ -135,13 +137,6 @@ final class DerivedResourcesUpdater {
                 }
             }
             return Optional.absent();
-        }
-    }
-
-    private void setDerived(String resourceName, boolean derived, SubMonitor progress) throws CoreException {
-        IResource derivedResource = this.project.findMember(resourceName);
-        if (derivedResource != null) {
-            derivedResource.setDerived(derived, progress);
         }
     }
 

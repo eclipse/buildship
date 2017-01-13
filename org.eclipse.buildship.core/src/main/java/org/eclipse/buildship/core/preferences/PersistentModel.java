@@ -13,6 +13,7 @@ import java.util.List;
 
 import com.google.common.base.Optional;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 
@@ -36,9 +37,9 @@ public interface PersistentModel {
 
     void setClasspath(List<IClasspathEntry> classpath);
 
-    Collection<String> getDerivedResources();
+    Collection<IResource> getDerivedResources();
 
-    void setDerivedResources(Collection<String> derivedResources);
+    void setDerivedResources(Collection<IResource> derivedResources);
 
     Collection<String> getLinkedResources();
 

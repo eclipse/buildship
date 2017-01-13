@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -112,13 +113,26 @@ class DefaultPersistentModel implements PersistentModel {
     }
 
     @Override
-    public Collection<String> getDerivedResources() {
-        return getValues(PROPERTY_DERIVED_RESOURCES, Collections.<String>emptyList());
+    public Collection<IResource> getDerivedResources() {
+        Collection<IResource> result = Lists.newArrayList();
+        Collection<String> resourcePaths = getValues(PROPERTY_DERIVED_RESOURCES, Collections.<String>emptyList());
+        for (String path : resourcePaths) {
+            IResource resource = this.project.findMember(path);
+            if (resource != null) {
+                result.add(resource);
+            }
+        }
+        return result;
     }
 
     @Override
-    public void setDerivedResources(Collection<String> derivedResources) {
-        setValues(PROPERTY_DERIVED_RESOURCES, derivedResources);
+    public void setDerivedResources(Collection<IResource> derivedResources) {
+        Collection<String> result = Lists.newArrayList();
+        for (IResource resource : derivedResources) {
+            String path = resource.getProjectRelativePath().toPortableString();
+            result.add(path);
+        }
+        setValues(PROPERTY_DERIVED_RESOURCES, result);
     }
 
     @Override
