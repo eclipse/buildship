@@ -11,8 +11,6 @@ package org.eclipse.buildship.core.preferences;
 import java.util.Collection;
 import java.util.List;
 
-import com.google.common.base.Optional;
-
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
@@ -21,7 +19,8 @@ import org.eclipse.jdt.core.IClasspathEntry;
 /**
  * Interface to load and store Gradle model elements stored in the workspace plugin state area.
  * <p/>
- * The {@link Optional} return type on the getters mark whether a value is present in the model.
+ * Each getter may return {@code null} values if the model element is not available. If a
+ * {@code null} value is passed to a setter then the model element is deleted.
  *
  * @author Donat Csikos
  */
