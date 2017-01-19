@@ -12,14 +12,13 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -39,22 +38,25 @@ import org.eclipse.buildship.core.preferences.PersistentModel;
  */
 class DefaultPersistentModel implements PersistentModel {
 
-    private static final String PROPERTY_SUBPROJECTS = "subprojectPaths";
-    private static final String PROPERTY_BUILD_DIR = "buildDir";
-    private static final String PROPERTY_CLASSPATH = "classpath";
-    private static final String PROPERTY_DERIVED_RESOURCES = "derivedResources";
-    private static final String PROPERTY_LINKED_RESOURCES = "linkedResources";
-
     private final IProject project;
-    private final Map<String, String> entries;
 
-    DefaultPersistentModel(IProject project, Map<String, String> entries) {
+    private IPath buildDir;
+    private Collection<IPath> subprojectPaths;
+    private List<IClasspathEntry> classpath;
+    private Collection<IResource> derivedResources;
+    private Collection<IFolder> linkedResources;
+
+    private DefaultPersistentModel(IProject project) {
         this.project = Preconditions.checkNotNull(project);
-        this.entries = Maps.newHashMap(entries);
     }
 
-    Map<String, String> getEntries() {
-        return this.entries;
+    private DefaultPersistentModel(IProject project, IPath buildDir, Collection<IPath> subprojectPaths, List<IClasspathEntry> classpath, Collection<IResource> derivedResources, Collection<IFolder> linkedResources) {
+        this(project);
+        this.buildDir = buildDir;
+        this.subprojectPaths = subprojectPaths;
+        this.classpath = classpath;
+        this.derivedResources = derivedResources;
+        this.linkedResources = linkedResources;
     }
 
     IProject getProject() {
@@ -63,121 +65,174 @@ class DefaultPersistentModel implements PersistentModel {
 
     @Override
     public Optional<IPath> getBuildDir() {
-        String buildDir = getValue(PROPERTY_BUILD_DIR, null);
-        return buildDir == null ? Optional.<IPath>absent() : Optional.<IPath>of(new Path(buildDir));
+        return this.buildDir == null ? Optional.<IPath>absent() : Optional.of(this.buildDir);
     }
 
     @Override
-    public void setBuildDir(Optional<IPath> buildDirPath) {
-        String buildDir = buildDirPath.isPresent() ? buildDirPath.get().toPortableString() : null;
-        setValue(PROPERTY_BUILD_DIR, buildDir);
+    public void setBuildDir(Optional<IPath> buildDir) {
+       this.buildDir = buildDir.orNull();
     }
 
     @Override
     public Collection<IPath> getSubprojectPaths() {
-        Collection<String> paths = getValues(PROPERTY_SUBPROJECTS, Collections.<String>emptyList());
-        List<IPath> result = Lists.newArrayListWithCapacity(paths.size());
-        for(String path : paths) {
-            result.add(new Path(path));
-        }
-        return result;
+        return this.subprojectPaths == null ? Collections.<IPath>emptyList() : this.subprojectPaths;
     }
 
     @Override
     public void setSubprojectPaths(Collection<IPath> subprojectPaths) {
-        List<String> paths = Lists.newArrayListWithCapacity(subprojectPaths.size());
-        for (IPath path : subprojectPaths) {
-            paths.add(path.toPortableString());
-        }
-        setValues(PROPERTY_SUBPROJECTS, paths);
+        this.subprojectPaths = subprojectPaths;
     }
 
     @Override
     public Optional<List<IClasspathEntry>> getClasspath() {
-        String classpath = getValue(PROPERTY_CLASSPATH, null);
-        if (classpath == null) {
-            return Optional.absent();
-        } else {
-            IJavaProject javaProject = JavaCore.create(this.project);
-            return Optional.of(ClasspathConverter.toEntries(javaProject, classpath));
-        }
+        return this.classpath == null ? Optional.<List<IClasspathEntry>>absent() : Optional.of(this.classpath);
     }
 
     @Override
     public void setClasspath(List<IClasspathEntry> classpath) {
-       IJavaProject javaProject = JavaCore.create(this.project);
-       String serialized = ClasspathConverter.toXml(javaProject, classpath);
-       setValue(PROPERTY_CLASSPATH, serialized);
+        this.classpath = classpath;
     }
 
     @Override
     public Collection<IResource> getDerivedResources() {
-        Collection<IResource> result = Lists.newArrayList();
-        Collection<String> resourcePaths = getValues(PROPERTY_DERIVED_RESOURCES, Collections.<String>emptyList());
-        for (String path : resourcePaths) {
-            IResource resource = this.project.findMember(path);
-            if (resource != null) {
-                result.add(resource);
-            }
-        }
-        return result;
+        return this.derivedResources == null ? Collections.<IResource>emptyList() : this.derivedResources;
     }
 
     @Override
     public void setDerivedResources(Collection<IResource> derivedResources) {
-        Collection<String> result = Lists.newArrayList();
-        for (IResource resource : derivedResources) {
-            String path = resource.getProjectRelativePath().toPortableString();
-            result.add(path);
-        }
-        setValues(PROPERTY_DERIVED_RESOURCES, result);
+        this.derivedResources = derivedResources;
     }
 
     @Override
     public Collection<IFolder> getLinkedResources() {
-        Collection<IFolder> result = Lists.newArrayList();
-        Collection<String> resources = getValues(PROPERTY_LINKED_RESOURCES, Collections.<String>emptyList());
-        for (String resource : resources) {
-            result.add(this.project.getFolder(resource));
-        }
-        return result;
+        return this.linkedResources == null ? Collections.<IFolder>emptyList() : this.linkedResources;
     }
 
     @Override
     public void setLinkedResources(Collection<IFolder> linkedResources) {
-        Collection<String> result = Lists.newArrayList();
-        for (IFolder linkedResource : linkedResources) {
-            result.add(projectRelativePath(linkedResource));
+        this.linkedResources = linkedResources;
+    }
+
+    public Properties asProperties() {
+        return Storage.toProperties(this);
+    }
+
+    public static DefaultPersistentModel fromProperties(IProject project, Properties properties) {
+        return Storage.fromProperties(project, properties);
+    }
+
+    public static DefaultPersistentModel fromEmpty(IProject project) {
+        return new DefaultPersistentModel(project);
+    }
+
+    private static class Storage {
+        private static final String PROPERTY_BUILD_DIR = "buildDir";
+        private static final String PROPERTY_SUBPROJECTS = "subprojectPaths";
+        private static final String PROPERTY_CLASSPATH = "classpath";
+        private static final String PROPERTY_DERIVED_RESOURCES = "derivedResources";
+        private static final String PROPERTY_LINKED_RESOURCES = "linkedResources";
+
+        static DefaultPersistentModel fromProperties(IProject project, Properties properties) {
+            String prop = getValue(PROPERTY_BUILD_DIR, null, properties);
+            IPath buildDir = prop == null ? null : new Path(prop);
+
+            Collection<String> entries = getValues(PROPERTY_SUBPROJECTS, Collections.<String>emptyList(), properties);
+            List<IPath> subprojects = Lists.newArrayListWithCapacity(entries.size());
+            for(String path : entries) {
+                subprojects.add(new Path(path));
+            }
+
+            prop = getValue(PROPERTY_CLASSPATH, null, properties);
+            List<IClasspathEntry> classpath;
+            if (prop == null) {
+                classpath = null;
+            } else {
+                IJavaProject javaProject = JavaCore.create(project);
+                classpath = ClasspathConverter.toEntries(javaProject, prop);
+            }
+
+            entries = getValues(PROPERTY_DERIVED_RESOURCES, Collections.<String>emptyList(), properties);
+            Collection<IResource> derivedResources = Lists.newArrayListWithCapacity(entries.size());
+            for (String path : entries) {
+                IResource resource = project.findMember(path);
+                if (resource != null) {
+                    derivedResources.add(resource);
+                }
+            }
+
+            entries = getValues(PROPERTY_LINKED_RESOURCES, Collections.<String>emptyList(), properties);
+            Collection<IFolder> linkedResources = Lists.newArrayListWithCapacity(entries.size());
+            for (String path : entries) {
+                linkedResources.add(project.getFolder(path));
+            }
+
+            return new DefaultPersistentModel(project, buildDir, subprojects, classpath, derivedResources, linkedResources);
         }
-        setValues(PROPERTY_LINKED_RESOURCES, result);
-    }
 
-    private String projectRelativePath(IFolder folder) {
-        return folder.getFullPath().makeRelativeTo(this.project.getFullPath()).toPortableString();
-    }
+        static Properties toProperties(DefaultPersistentModel model) {
+            Properties properties = new Properties();
 
-    public String getValue(String key, String defaultValue) {
-        String value = this.entries.get(key);
-        return value != null ? value : defaultValue;
-    }
+            String buildDir = model.buildDir == null ? null : model.buildDir.toPortableString();
+            setValue(PROPERTY_BUILD_DIR, buildDir, properties);
 
-    public void setValue(String key, String value) {
-        if (value != null) {
-            this.entries.put(key, value);
-        } else if (this.entries.containsKey(key)) {
-            this.entries.remove(key);
+            List<String> paths = Lists.newArrayListWithCapacity(model.subprojectPaths.size());
+            for (IPath path : model.subprojectPaths) {
+                paths.add(path.toPortableString());
+            }
+            setValues(PROPERTY_SUBPROJECTS, paths, properties);
+
+            IJavaProject javaProject = JavaCore.create(model.project);
+            String serialized = ClasspathConverter.toXml(javaProject, model.classpath);
+            setValue(PROPERTY_CLASSPATH, serialized, properties);
+
+            Collection<String> resources = Lists.newArrayList();
+            for (IResource resource : model.derivedResources) {
+                String path = resource.getProjectRelativePath().toPortableString();
+                resources.add(path);
+            }
+            setValues(PROPERTY_DERIVED_RESOURCES, resources, properties);
+
+            Collection<String> linkedResources = Lists.newArrayList();
+            for (IFolder linkedResource : model.linkedResources) {
+                linkedResources.add(projectRelativePath(model.project, linkedResource));
+            }
+            setValues(PROPERTY_LINKED_RESOURCES, linkedResources, properties);
+
+            return properties;
         }
-    }
 
-    public Collection<String> getValues(String key, Collection<String> defaultValues) {
-        String serializedForm = getValue(key, null);
-        if (serializedForm == null) {
-            return defaultValues;
+        private static String projectRelativePath(IProject project, IFolder folder) {
+            return folder.getFullPath().makeRelativeTo(project.getFullPath()).toPortableString();
         }
-        return Splitter.on(File.pathSeparator).omitEmptyStrings().splitToList(serializedForm);
+
+
+        private static String getValue(String key, String defaultValue, Properties properties) {
+            String value = (String) properties.getOrDefault(key, defaultValue);
+            return value != null ? value : defaultValue;
+        }
+
+        private static void setValue(String key, String value, Properties properties) {
+            if (value != null) {
+                properties.put(key, value);
+            } else if (properties.containsKey(key)) {
+                properties.remove(key);
+            }
+        }
+
+        private static Collection<String> getValues(String key, Collection<String> defaultValues, Properties properties) {
+            String serializedForm = (String) properties.get(key);
+            if (serializedForm == null) {
+                return defaultValues;
+            }
+            return Splitter.on(File.pathSeparator).omitEmptyStrings().splitToList(serializedForm);
+        }
+
+        private static void setValues(String key, Collection<String> values, Properties properties) {
+            setValue(key, values == null ? null : Joiner.on(File.pathSeparator).join(values), properties);
+        }
+
     }
 
-    public void setValues(String key, Collection<String> values) {
-        setValue(key, values == null ? null : Joiner.on(File.pathSeparator).join(values));
-    }
+
+
 }
