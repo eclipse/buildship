@@ -113,11 +113,11 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
 
     private reimportWithoutSynchronization(IProject project) {
         def descriptor = project.description
-        def classpath = CorePlugin.modelPersistence().loadModel(project).getValue('classpath', null)
+        def classpath = CorePlugin.modelPersistence().loadModel(project).classpath
         project.delete(false, true, null)
         project.create(descriptor, null)
         def model = CorePlugin.modelPersistence().loadModel(project)
-        model.setValue('classpath', classpath)
+        model.setClasspath(classpath)
         CorePlugin.modelPersistence().saveModel(model)
         project.open(null)
         waitForGradleJobsToFinish()
