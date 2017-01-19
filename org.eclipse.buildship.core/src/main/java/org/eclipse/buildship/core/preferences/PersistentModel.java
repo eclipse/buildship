@@ -27,15 +27,15 @@ import org.eclipse.jdt.core.IClasspathEntry;
  */
 public interface PersistentModel {
 
-    Optional<IPath> getBuildDir();
+    IPath getBuildDir();
 
-    void setBuildDir(Optional<IPath> buildDirPath);
+    void setBuildDir(IPath buildDir);
 
     Collection<IPath> getSubprojectPaths();
 
     void setSubprojectPaths(Collection<IPath> subprojectPaths);
 
-    Optional<List<IClasspathEntry>> getClasspath();
+    List<IClasspathEntry> getClasspath();
 
     void setClasspath(List<IClasspathEntry> classpath);
 

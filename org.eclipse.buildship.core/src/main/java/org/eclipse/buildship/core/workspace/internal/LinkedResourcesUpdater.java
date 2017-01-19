@@ -67,11 +67,13 @@ final class LinkedResourcesUpdater {
     private void removeOutdatedLinkedResources(SubMonitor progress) throws CoreException {
         PersistentModel model = CorePlugin.modelPersistence().loadModel(this.project);
         Collection<IFolder> linkedResources = model.getLinkedResources();
-        progress.setWorkRemaining(linkedResources.size());
-        for (IFolder folder : linkedResources) {
-            SubMonitor childProgress = progress.newChild(1);
-            if (shouldDelete(folder)) {
-                folder.delete(false, childProgress);
+        if (linkedResources != null) {
+            progress.setWorkRemaining(linkedResources.size());
+            for (IFolder folder : linkedResources) {
+                SubMonitor childProgress = progress.newChild(1);
+                if (shouldDelete(folder)) {
+                    folder.delete(false, childProgress);
+                }
             }
         }
     }

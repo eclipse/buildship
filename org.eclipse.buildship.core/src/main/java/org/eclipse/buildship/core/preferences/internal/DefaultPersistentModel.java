@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Properties;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -64,18 +63,18 @@ class DefaultPersistentModel implements PersistentModel {
     }
 
     @Override
-    public Optional<IPath> getBuildDir() {
-        return this.buildDir == null ? Optional.<IPath>absent() : Optional.of(this.buildDir);
+    public IPath getBuildDir() {
+        return this.buildDir;
     }
 
     @Override
-    public void setBuildDir(Optional<IPath> buildDir) {
-       this.buildDir = buildDir.orNull();
+    public void setBuildDir(IPath buildDir) {
+       this.buildDir = buildDir;
     }
 
     @Override
     public Collection<IPath> getSubprojectPaths() {
-        return this.subprojectPaths == null ? Collections.<IPath>emptyList() : this.subprojectPaths;
+        return this.subprojectPaths;
     }
 
     @Override
@@ -84,8 +83,8 @@ class DefaultPersistentModel implements PersistentModel {
     }
 
     @Override
-    public Optional<List<IClasspathEntry>> getClasspath() {
-        return this.classpath == null ? Optional.<List<IClasspathEntry>>absent() : Optional.of(this.classpath);
+    public List<IClasspathEntry> getClasspath() {
+        return this.classpath;
     }
 
     @Override
@@ -95,7 +94,7 @@ class DefaultPersistentModel implements PersistentModel {
 
     @Override
     public Collection<IResource> getDerivedResources() {
-        return this.derivedResources == null ? Collections.<IResource>emptyList() : this.derivedResources;
+        return this.derivedResources;
     }
 
     @Override
@@ -105,7 +104,7 @@ class DefaultPersistentModel implements PersistentModel {
 
     @Override
     public Collection<IFolder> getLinkedResources() {
-        return this.linkedResources == null ? Collections.<IFolder>emptyList() : this.linkedResources;
+        return this.linkedResources;
     }
 
     @Override

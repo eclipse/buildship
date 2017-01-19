@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
@@ -140,9 +139,9 @@ final class GradleClasspathContainerUpdater {
      * @throws JavaModelException if the classpath cannot be assigned
      */
     public static boolean updateFromStorage(IJavaProject eclipseProject, IProgressMonitor monitor) throws JavaModelException {
-        Optional<List<IClasspathEntry>> storedClasspath = CorePlugin.modelPersistence().loadModel(eclipseProject.getProject()).getClasspath();
-        if (storedClasspath.isPresent()) {
-            setClasspathContainer(eclipseProject, storedClasspath.get(), monitor);
+        List<IClasspathEntry> storedClasspath = CorePlugin.modelPersistence().loadModel(eclipseProject.getProject()).getClasspath();
+        if (storedClasspath != null) {
+            setClasspathContainer(eclipseProject, storedClasspath, monitor);
             return true;
         } else {
             return false;

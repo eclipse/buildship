@@ -12,7 +12,6 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -55,7 +54,7 @@ final class DerivedResourcesUpdater {
     private void update(IProgressMonitor monitor) {
         SubMonitor progress = SubMonitor.convert(monitor, 2);
         try {
-            Optional<IPath> buildDirectoryPath = getBuildDirectoryPath();
+            IPath buildDirectoryPath = getBuildDirectoryPath();
             List<IResource> derivedResources = getDerivedResources(buildDirectoryPath, progress.newChild(1));
             markBuildFolder(buildDirectoryPath);
             removePreviousMarkers(derivedResources, progress.newChild(1));
@@ -70,20 +69,20 @@ final class DerivedResourcesUpdater {
         }
     }
 
-    private void markBuildFolder(Optional<IPath> buildDirectoryPath) throws CoreException {
+    private void markBuildFolder(IPath buildDirectoryPath) throws CoreException {
         PersistentModel preferences = CorePlugin.modelPersistence().loadModel(this.project);
         preferences.setBuildDir(buildDirectoryPath);
         CorePlugin.modelPersistence().saveModel(preferences);
     }
 
-    private List<IResource> getDerivedResources(Optional<IPath> possibleBuildDirectoryPath, SubMonitor progress) {
+    private List<IResource> getDerivedResources(IPath possibleBuildDirectoryPath, SubMonitor progress) {
         List<IResource> derivedResources = Lists.newArrayList();
         IResource dotGradle = this.project.findMember(".gradle");
         if (dotGradle != null) {
             derivedResources.add(dotGradle);
         }
-        if (possibleBuildDirectoryPath.isPresent()) {
-            IResource buildDirectory = this.project.findMember(possibleBuildDirectoryPath.get());
+        if (possibleBuildDirectoryPath != null) {
+            IResource buildDirectory = this.project.findMember(possibleBuildDirectoryPath);
             if (buildDirectory != null) {
                 derivedResources.add(buildDirectory);
             }
@@ -93,9 +92,11 @@ final class DerivedResourcesUpdater {
 
     private void removePreviousMarkers(List<IResource> derivedResources, SubMonitor progress) throws CoreException {
         Collection<IResource> previouslyKnownDerivedResources = CorePlugin.modelPersistence().loadModel(this.project).getDerivedResources();
-        progress.setWorkRemaining(previouslyKnownDerivedResources.size());
-        for (IResource resource : previouslyKnownDerivedResources) {
-            resource.setDerived(false, progress.newChild(1));
+        if (previouslyKnownDerivedResources != null) {
+            progress.setWorkRemaining(previouslyKnownDerivedResources.size());
+            for (IResource resource : previouslyKnownDerivedResources) {
+                resource.setDerived(false, progress.newChild(1));
+            }
         }
     }
 
@@ -114,29 +115,29 @@ final class DerivedResourcesUpdater {
      * physically contained in the project, use that folder. If build directory is a linked
      * resource, use the linked folder. Optional.absent() if all of the above fail.
      */
-    private Optional<IPath> getBuildDirectoryPath() {
+    private IPath getBuildDirectoryPath() {
         OmniGradleProject gradleProject = this.modelProject.getGradleProject();
         Maybe<File> buildDirectory = gradleProject.getBuildDirectory();
         if (buildDirectory.isPresent() && buildDirectory.get() != null) {
             Path buildDirLocation = new Path(buildDirectory.get().getPath());
             return normalizeBuildDirectoryPath(buildDirLocation);
         } else {
-            return Optional.<IPath>of(new Path("build"));
+            return new Path("build");
         }
     }
 
-    private Optional<IPath> normalizeBuildDirectoryPath(Path buildDirLocation) {
+    private IPath normalizeBuildDirectoryPath(Path buildDirLocation) {
         IPath projectLocation = this.workspaceProject.getLocation();
         if (projectLocation.isPrefixOf(buildDirLocation)) {
             IPath relativePath = RelativePathUtils.getRelativePath(projectLocation, buildDirLocation);
-            return Optional.of(relativePath);
+            return relativePath;
         } else {
             for (OmniEclipseLinkedResource linkedResource : this.modelProject.getLinkedResources()) {
                 if (buildDirLocation.toString().equals(linkedResource.getLocation())) {
-                    return Optional.<IPath>of(new Path(linkedResource.getName()));
+                    return new Path(linkedResource.getName());
                 }
             }
-            return Optional.absent();
+            return null;
         }
     }
 

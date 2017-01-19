@@ -8,8 +8,6 @@
 
 package org.eclipse.buildship.ui.navigator;
 
-import com.google.common.base.Optional;
-
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -45,11 +43,11 @@ public final class BuildFolderViewerFilter extends ViewerFilter {
     public static boolean isBuildFolderInPerstentModel(IFolder folder) {
         try {
             IProject project = folder.getProject();
-            Optional<IPath> modelBuildDir = CorePlugin.modelPersistence().loadModel(project).getBuildDir();
-            if (!modelBuildDir.isPresent()) {
+            IPath modelBuildDir = CorePlugin.modelPersistence().loadModel(project).getBuildDir();
+            if (modelBuildDir == null) {
                 return false;
             }
-            return folder.getProjectRelativePath().equals(modelBuildDir.get());
+            return folder.getProjectRelativePath().equals(modelBuildDir);
         } catch (Exception e) {
             CorePlugin.logger().debug(String.format("Could not check whether folder %s is a build folder.", folder.getFullPath()), e);
             return false;
