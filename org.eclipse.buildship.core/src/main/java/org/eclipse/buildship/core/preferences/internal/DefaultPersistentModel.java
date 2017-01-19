@@ -10,14 +10,15 @@ package org.eclipse.buildship.core.preferences.internal;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicates;
 import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
+import com.google.common.collect.FluentIterable;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -37,6 +38,12 @@ import org.eclipse.buildship.core.preferences.PersistentModel;
  */
 class DefaultPersistentModel implements PersistentModel {
 
+    private static final String PROPERTY_BUILD_DIR = "buildDir";
+    private static final String PROPERTY_SUBPROJECTS = "subprojectPaths";
+    private static final String PROPERTY_CLASSPATH = "classpath";
+    private static final String PROPERTY_DERIVED_RESOURCES = "derivedResources";
+    private static final String PROPERTY_LINKED_RESOURCES = "linkedResources";
+
     private final IProject project;
 
     private IPath buildDir;
@@ -49,7 +56,8 @@ class DefaultPersistentModel implements PersistentModel {
         this.project = Preconditions.checkNotNull(project);
     }
 
-    private DefaultPersistentModel(IProject project, IPath buildDir, Collection<IPath> subprojectPaths, List<IClasspathEntry> classpath, Collection<IResource> derivedResources, Collection<IFolder> linkedResources) {
+    private DefaultPersistentModel(IProject project, IPath buildDir, Collection<IPath> subprojectPaths, List<IClasspathEntry> classpath, Collection<IResource> derivedResources,
+            Collection<IFolder> linkedResources) {
         this(project);
         this.buildDir = buildDir;
         this.subprojectPaths = subprojectPaths;
@@ -69,7 +77,7 @@ class DefaultPersistentModel implements PersistentModel {
 
     @Override
     public void setBuildDir(IPath buildDir) {
-       this.buildDir = buildDir;
+        this.buildDir = buildDir;
     }
 
     @Override
@@ -112,126 +120,129 @@ class DefaultPersistentModel implements PersistentModel {
         this.linkedResources = linkedResources;
     }
 
-    public Properties asProperties() {
-        return Storage.toProperties(this);
+    Properties asProperties() {
+        Properties properties = new Properties();
+
+        storeValue(properties, PROPERTY_BUILD_DIR, this.buildDir, new Function<IPath, String>() {
+
+            @Override
+            public String apply(IPath path) {
+                return path.toPortableString();
+            }
+        });
+        storeList(properties, PROPERTY_SUBPROJECTS, this.subprojectPaths, new Function<IPath, String>() {
+
+            @Override
+            public String apply(IPath path) {
+                return path.toPortableString();
+            }
+        });
+        storeValue(properties, PROPERTY_CLASSPATH, this.classpath, new Function<List<IClasspathEntry>, String>() {
+
+            @Override
+            public String apply(List<IClasspathEntry> classpath) {
+                IJavaProject javaProject = JavaCore.create(DefaultPersistentModel.this.project);
+                return ClasspathConverter.toXml(javaProject, classpath);
+            }
+        });
+        storeList(properties, PROPERTY_DERIVED_RESOURCES, this.derivedResources, new Function<IResource, String>() {
+
+            @Override
+            public String apply(IResource resource) {
+                return resource.getProjectRelativePath().toPortableString();
+            }
+        });
+
+        storeList(properties, PROPERTY_LINKED_RESOURCES, this.linkedResources, new Function<IFolder, String>() {
+
+            @Override
+            public String apply(IFolder linkedResource) {
+                return linkedResource.getFullPath().makeRelativeTo(DefaultPersistentModel.this.project.getFullPath()).toPortableString();
+            }
+        });
+
+        return properties;
     }
 
-    public static DefaultPersistentModel fromProperties(IProject project, Properties properties) {
-        return Storage.fromProperties(project, properties);
-    }
-
-    public static DefaultPersistentModel fromEmpty(IProject project) {
+    static DefaultPersistentModel fromEmpty(IProject project) {
         return new DefaultPersistentModel(project);
     }
 
-    private static class Storage {
-        private static final String PROPERTY_BUILD_DIR = "buildDir";
-        private static final String PROPERTY_SUBPROJECTS = "subprojectPaths";
-        private static final String PROPERTY_CLASSPATH = "classpath";
-        private static final String PROPERTY_DERIVED_RESOURCES = "derivedResources";
-        private static final String PROPERTY_LINKED_RESOURCES = "linkedResources";
+    static DefaultPersistentModel fromProperties(final IProject project, Properties properties) {
+        IPath buildDir = loadValue(properties, PROPERTY_BUILD_DIR, new Function<String, IPath>() {
 
-        static DefaultPersistentModel fromProperties(IProject project, Properties properties) {
-            String prop = getValue(PROPERTY_BUILD_DIR, null, properties);
-            IPath buildDir = prop == null ? null : new Path(prop);
-
-            Collection<String> entries = getValues(PROPERTY_SUBPROJECTS, Collections.<String>emptyList(), properties);
-            List<IPath> subprojects = Lists.newArrayListWithCapacity(entries.size());
-            for(String path : entries) {
-                subprojects.add(new Path(path));
+            @Override
+            public IPath apply(String path) {
+                return new Path(path);
             }
+        });
+        Collection<IPath> subprojects = loadList(properties, PROPERTY_SUBPROJECTS, new Function<String, IPath>() {
 
-            prop = getValue(PROPERTY_CLASSPATH, null, properties);
-            List<IClasspathEntry> classpath;
-            if (prop == null) {
-                classpath = null;
-            } else {
+            @Override
+            public IPath apply(String path) {
+                return new Path(path);
+            }
+        });
+        List<IClasspathEntry> classpath = loadValue(properties, PROPERTY_CLASSPATH, new Function<String, List<IClasspathEntry>>() {
+
+            @Override
+            public List<IClasspathEntry> apply(String classpath) {
                 IJavaProject javaProject = JavaCore.create(project);
-                classpath = ClasspathConverter.toEntries(javaProject, prop);
+                return ClasspathConverter.toEntries(javaProject, classpath);
             }
+        });
+        Collection<IResource> derivedResources = loadList(properties, PROPERTY_DERIVED_RESOURCES, new Function<String, IResource>() {
 
-            entries = getValues(PROPERTY_DERIVED_RESOURCES, Collections.<String>emptyList(), properties);
-            Collection<IResource> derivedResources = Lists.newArrayListWithCapacity(entries.size());
-            for (String path : entries) {
+            @Override
+            public IResource apply(String path) {
                 IResource resource = project.findMember(path);
-                if (resource != null) {
-                    derivedResources.add(resource);
-                }
+                return resource == null ? null : resource;
+
             }
+        });
+        Collection<IFolder> linkedResources = loadList(properties, PROPERTY_LINKED_RESOURCES, new Function<String, IFolder>() {
 
-            entries = getValues(PROPERTY_LINKED_RESOURCES, Collections.<String>emptyList(), properties);
-            Collection<IFolder> linkedResources = Lists.newArrayListWithCapacity(entries.size());
-            for (String path : entries) {
-                linkedResources.add(project.getFolder(path));
+            @Override
+            public IFolder apply(String path) {
+                return project.getFolder(path);
             }
-
-            return new DefaultPersistentModel(project, buildDir, subprojects, classpath, derivedResources, linkedResources);
-        }
-
-        static Properties toProperties(DefaultPersistentModel model) {
-            Properties properties = new Properties();
-
-            String buildDir = model.buildDir == null ? null : model.buildDir.toPortableString();
-            setValue(PROPERTY_BUILD_DIR, buildDir, properties);
-
-            List<String> paths = Lists.newArrayListWithCapacity(model.subprojectPaths.size());
-            for (IPath path : model.subprojectPaths) {
-                paths.add(path.toPortableString());
-            }
-            setValues(PROPERTY_SUBPROJECTS, paths, properties);
-
-            IJavaProject javaProject = JavaCore.create(model.project);
-            String serialized = ClasspathConverter.toXml(javaProject, model.classpath);
-            setValue(PROPERTY_CLASSPATH, serialized, properties);
-
-            Collection<String> resources = Lists.newArrayList();
-            for (IResource resource : model.derivedResources) {
-                String path = resource.getProjectRelativePath().toPortableString();
-                resources.add(path);
-            }
-            setValues(PROPERTY_DERIVED_RESOURCES, resources, properties);
-
-            Collection<String> linkedResources = Lists.newArrayList();
-            for (IFolder linkedResource : model.linkedResources) {
-                linkedResources.add(projectRelativePath(model.project, linkedResource));
-            }
-            setValues(PROPERTY_LINKED_RESOURCES, linkedResources, properties);
-
-            return properties;
-        }
-
-        private static String projectRelativePath(IProject project, IFolder folder) {
-            return folder.getFullPath().makeRelativeTo(project.getFullPath()).toPortableString();
-        }
-
-
-        private static String getValue(String key, String defaultValue, Properties properties) {
-            String value = (String) properties.getOrDefault(key, defaultValue);
-            return value != null ? value : defaultValue;
-        }
-
-        private static void setValue(String key, String value, Properties properties) {
-            if (value != null) {
-                properties.put(key, value);
-            } else if (properties.containsKey(key)) {
-                properties.remove(key);
-            }
-        }
-
-        private static Collection<String> getValues(String key, Collection<String> defaultValues, Properties properties) {
-            String serializedForm = (String) properties.get(key);
-            if (serializedForm == null) {
-                return defaultValues;
-            }
-            return Splitter.on(File.pathSeparator).omitEmptyStrings().splitToList(serializedForm);
-        }
-
-        private static void setValues(String key, Collection<String> values, Properties properties) {
-            setValue(key, values == null ? null : Joiner.on(File.pathSeparator).join(values), properties);
-        }
-
+        });
+        return new DefaultPersistentModel(project, buildDir, subprojects, classpath, derivedResources, linkedResources);
     }
 
+    private static <T> T loadValue(Properties properties, String key, Function<String, T> conversion) {
+        String value = (String) properties.get(key);
+        if (value == null) {
+            return null;
+        } else {
+            return conversion.apply(value);
+        }
+    }
 
+    private static <T> List<T> loadList(Properties properties, String key, Function<String, T> conversion) {
+        String values = (String) properties.get(key);
+        if (values == null) {
+            return null;
+        } else {
+            List<String> collection = Splitter.on(File.pathSeparator).omitEmptyStrings().splitToList(values);
+            return FluentIterable.from(collection).transform(conversion).filter(Predicates.notNull()).toList();
+        }
+    }
 
+    private static <T> void storeValue(Properties properties, String key, T value, Function<T, String> conversion) {
+        if (value != null) {
+            properties.put(key, conversion.apply(value));
+        } else if (properties.containsKey(key)) {
+            properties.remove(key);
+        }
+    }
+
+    private static <T> void storeList(Properties properties, String key, Collection<T> values, Function<T, String> conversion) {
+        if (values != null) {
+            List<String> stringList = FluentIterable.from(values).transform(conversion).filter(Predicates.notNull()).toList();
+            properties.put(key, Joiner.on(File.pathSeparator).join(stringList));
+        } else if (properties.containsKey(key)) {
+            properties.remove(key);
+        }
+    }
 }
