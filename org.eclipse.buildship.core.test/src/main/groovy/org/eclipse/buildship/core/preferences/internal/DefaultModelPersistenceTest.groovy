@@ -33,7 +33,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         def buildDir = new Path('buildDir')
         def subProjectPaths = [new Path('subproject')]
         def classpath = [JavaCore.newProjectEntry(new Path('/project-path'))]
-        def derivedResources = [project.findMember('.')]
+        def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
 
         when:
@@ -60,7 +60,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         model.buildDir = new Path('buildDir')
         model.subprojectPaths = [new Path('subproject')]
         model.classpath = [JavaCore.newProjectEntry(new Path('/project-path'))]
-        model.derivedResources = [project.findMember('.')]
+        model.derivedResources = [new Path('derived')]
         model.linkedResources = [project.getFolder('linked')]
         CorePlugin.modelPersistence().saveModel(model)
 
@@ -87,7 +87,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         def buildDir = new Path('buildDir')
         def subProjectPaths = [new Path('subproject')]
         def classpath = [JavaCore.newProjectEntry(new Path('/project-path'))]
-        def derivedResources = [project.findMember('.')]
+        def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
 
         PersistentModel model = CorePlugin.modelPersistence().loadModel(project)
@@ -115,7 +115,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         def buildDir = new Path('buildDir')
         def subProjectPaths = [new Path('subproject')]
         def classpath = [JavaCore.newProjectEntry(new Path('/project-path'))]
-        def derivedResources = [project.findMember('.')]
+        def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
 
         PersistentModel model = CorePlugin.modelPersistence().loadModel(project)
@@ -143,7 +143,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         def buildDir = new Path('buildDir')
         def subProjectPaths = [new Path('subproject')]
         def classpath = [JavaCore.newProjectEntry(new Path('/project-path'))]
-        def derivedResources = [project.findMember('.')]
+        def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
 
         PersistentModel model = CorePlugin.modelPersistence().loadModel(project)

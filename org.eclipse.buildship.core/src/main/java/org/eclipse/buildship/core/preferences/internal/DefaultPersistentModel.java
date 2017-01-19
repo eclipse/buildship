@@ -22,7 +22,6 @@ import com.google.common.collect.FluentIterable;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -49,14 +48,14 @@ class DefaultPersistentModel implements PersistentModel {
     private IPath buildDir;
     private Collection<IPath> subprojectPaths;
     private List<IClasspathEntry> classpath;
-    private Collection<IResource> derivedResources;
+    private Collection<IPath> derivedResources;
     private Collection<IFolder> linkedResources;
 
     private DefaultPersistentModel(IProject project) {
         this.project = Preconditions.checkNotNull(project);
     }
 
-    private DefaultPersistentModel(IProject project, IPath buildDir, Collection<IPath> subprojectPaths, List<IClasspathEntry> classpath, Collection<IResource> derivedResources,
+    private DefaultPersistentModel(IProject project, IPath buildDir, Collection<IPath> subprojectPaths, List<IClasspathEntry> classpath, Collection<IPath> derivedResources,
             Collection<IFolder> linkedResources) {
         this(project);
         this.buildDir = buildDir;
@@ -101,12 +100,12 @@ class DefaultPersistentModel implements PersistentModel {
     }
 
     @Override
-    public Collection<IResource> getDerivedResources() {
+    public Collection<IPath> getDerivedResources() {
         return this.derivedResources;
     }
 
     @Override
-    public void setDerivedResources(Collection<IResource> derivedResources) {
+    public void setDerivedResources(Collection<IPath> derivedResources) {
         this.derivedResources = derivedResources;
     }
 
@@ -145,11 +144,11 @@ class DefaultPersistentModel implements PersistentModel {
                 return ClasspathConverter.toXml(javaProject, classpath);
             }
         });
-        storeList(properties, PROPERTY_DERIVED_RESOURCES, this.derivedResources, new Function<IResource, String>() {
+        storeList(properties, PROPERTY_DERIVED_RESOURCES, this.derivedResources, new Function<IPath, String>() {
 
             @Override
-            public String apply(IResource resource) {
-                return resource.getProjectRelativePath().toPortableString();
+            public String apply(IPath path) {
+                return path.toPortableString();
             }
         });
 
@@ -191,13 +190,11 @@ class DefaultPersistentModel implements PersistentModel {
                 return ClasspathConverter.toEntries(javaProject, classpath);
             }
         });
-        Collection<IResource> derivedResources = loadList(properties, PROPERTY_DERIVED_RESOURCES, new Function<String, IResource>() {
+        Collection<IPath> derivedResources = loadList(properties, PROPERTY_DERIVED_RESOURCES, new Function<String, IPath>() {
 
             @Override
-            public IResource apply(String path) {
-                IResource resource = project.findMember(path);
-                return resource == null ? null : resource;
-
+            public IPath apply(String path) {
+                return new Path(path);
             }
         });
         Collection<IFolder> linkedResources = loadList(properties, PROPERTY_LINKED_RESOURCES, new Function<String, IFolder>() {

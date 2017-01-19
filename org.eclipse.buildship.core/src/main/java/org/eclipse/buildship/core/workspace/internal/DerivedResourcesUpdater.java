@@ -55,7 +55,7 @@ final class DerivedResourcesUpdater {
         SubMonitor progress = SubMonitor.convert(monitor, 2);
         try {
             IPath buildDirectoryPath = getBuildDirectoryPath();
-            List<IResource> derivedResources = getDerivedResources(buildDirectoryPath, progress.newChild(1));
+            List<IPath> derivedResources = getDerivedResources(buildDirectoryPath, progress.newChild(1));
             markBuildFolder(buildDirectoryPath);
             removePreviousMarkers(derivedResources, progress.newChild(1));
             addNewMarkers(derivedResources, progress.newChild(1));
@@ -75,35 +75,38 @@ final class DerivedResourcesUpdater {
         CorePlugin.modelPersistence().saveModel(preferences);
     }
 
-    private List<IResource> getDerivedResources(IPath possibleBuildDirectoryPath, SubMonitor progress) {
-        List<IResource> derivedResources = Lists.newArrayList();
-        IResource dotGradle = this.project.findMember(".gradle");
-        if (dotGradle != null) {
-            derivedResources.add(dotGradle);
-        }
+    private List<IPath> getDerivedResources(IPath possibleBuildDirectoryPath, SubMonitor progress) {
+        List<IPath> derivedResources = Lists.<IPath>newArrayList(new Path(".gradle"));
         if (possibleBuildDirectoryPath != null) {
-            IResource buildDirectory = this.project.findMember(possibleBuildDirectoryPath);
-            if (buildDirectory != null) {
-                derivedResources.add(buildDirectory);
-            }
+            derivedResources.add(possibleBuildDirectoryPath);
         }
         return derivedResources;
     }
 
-    private void removePreviousMarkers(List<IResource> derivedResources, SubMonitor progress) throws CoreException {
-        Collection<IResource> previouslyKnownDerivedResources = CorePlugin.modelPersistence().loadModel(this.project).getDerivedResources();
+    private void removePreviousMarkers(List<IPath> derivedResources, SubMonitor progress) throws CoreException {
+        Collection<IPath> previouslyKnownDerivedResources = CorePlugin.modelPersistence().loadModel(this.project).getDerivedResources();
         if (previouslyKnownDerivedResources != null) {
             progress.setWorkRemaining(previouslyKnownDerivedResources.size());
-            for (IResource resource : previouslyKnownDerivedResources) {
-                resource.setDerived(false, progress.newChild(1));
+            for (IPath resourcePath : previouslyKnownDerivedResources) {
+                IResource resource = this.project.findMember(resourcePath);
+                if (resource != null) {
+                    resource.setDerived(false, progress.newChild(1));
+                } else {
+                    progress.worked(1);
+                }
             }
         }
     }
 
-    private void addNewMarkers(List<IResource> derivedResources, SubMonitor progress) throws CoreException {
+    private void addNewMarkers(List<IPath> derivedResources, SubMonitor progress) throws CoreException {
         progress.setWorkRemaining(derivedResources.size());
-        for (IResource resource : derivedResources) {
-            resource.setDerived(true, progress.newChild(1));
+        for (IPath resourcePath : derivedResources) {
+            IResource resource = this.project.findMember(resourcePath);
+            if (resource != null) {
+                resource.setDerived(true, progress.newChild(1));
+            } else {
+                progress.worked(1);
+            }
         }
         PersistentModel model = CorePlugin.modelPersistence().loadModel(this.project);
         model.setDerivedResources(derivedResources);

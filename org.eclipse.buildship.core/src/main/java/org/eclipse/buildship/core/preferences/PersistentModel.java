@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 
@@ -38,9 +37,9 @@ public interface PersistentModel {
 
     void setClasspath(List<IClasspathEntry> classpath);
 
-    Collection<IResource> getDerivedResources();
+    Collection<IPath> getDerivedResources();
 
-    void setDerivedResources(Collection<IResource> derivedResources);
+    void setDerivedResources(Collection<IPath> derivedResources);
 
     Collection<IFolder> getLinkedResources();
 
