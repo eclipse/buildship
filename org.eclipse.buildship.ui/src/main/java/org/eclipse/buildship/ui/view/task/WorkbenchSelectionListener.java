@@ -88,7 +88,7 @@ public final class WorkbenchSelectionListener implements ISelectionListener {
         for (TreeItem treeItem : tree.getItems()) {
             Object data = treeItem.getData();
             if (data instanceof BaseProjectNode) {
-                ProjectNode selectedNode = (ProjectNode) data;
+                BaseProjectNode selectedNode = (BaseProjectNode) data;
                 Optional<IProject> workspaceProject = selectedNode.getWorkspaceProject();
                 if (workspaceProject.isPresent() && projects.contains(workspaceProject.get())) {
                     selection.add(treeItem);

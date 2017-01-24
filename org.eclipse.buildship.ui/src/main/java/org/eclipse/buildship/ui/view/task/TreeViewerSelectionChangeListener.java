@@ -60,7 +60,7 @@ public final class TreeViewerSelectionChangeListener implements ISelectionChange
         ImmutableList.Builder<IProject> projects = ImmutableList.builder();
         for (Object selectedNode : selectedNodes) {
             if (selectedNode instanceof BaseProjectNode) {
-                Optional<IProject> project = ((ProjectNode) selectedNode).getWorkspaceProject();
+                Optional<IProject> project = ((BaseProjectNode) selectedNode).getWorkspaceProject();
                 if (project.isPresent()) {
                     projects.add(project.get());
                 }
