@@ -169,11 +169,7 @@ eclipseBuild {
 
     targetPlatform {
         eclipseVersion = '46'
-        if (findProperty('include.experimental.features') == 'true') {
-            targetDefinition = file('tooling-e46-kotlin.target')
-        } else {
-            targetDefinition = file('tooling-e46.target')
-        }
+        targetDefinition = file('tooling-e46.target')
         // TODO define version mapping similarly as above; it makes dependency resolution faster
         versionMapping = eclipseVersionAgnosticDependencies
     }
