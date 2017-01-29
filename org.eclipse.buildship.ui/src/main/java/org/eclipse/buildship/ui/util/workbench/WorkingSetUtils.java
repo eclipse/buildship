@@ -13,15 +13,23 @@ package org.eclipse.buildship.ui.util.workbench;
 
 import java.util.List;
 
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.UiPluginConstants;
+import org.eclipse.buildship.ui.external.widget.WorkingSetChangedListener;
+import org.eclipse.buildship.ui.external.widget.WorkingSetConfigurationBlock;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.IWorkingSet;
+import org.eclipse.ui.IWorkingSetManager;
+import org.eclipse.ui.PlatformUI;
+
 import com.google.common.base.Function;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.ui.IWorkingSet;
-import org.eclipse.ui.IWorkingSetManager;
-import org.eclipse.ui.PlatformUI;
 
 /**
  * Contains helper methods related to the Eclipse working sets.
@@ -31,11 +39,42 @@ public final class WorkingSetUtils {
     private WorkingSetUtils() {
     }
 
+    public static WorkingSetConfigurationBlock createWorkingSetConfigurationBlock(Composite workingSetGroup,
+            final ProjectImportConfiguration configuration) {
+        final WorkingSetConfigurationBlock workingSetConfigurationWidget = new WorkingSetConfigurationBlock(
+                new String[] { UiPluginConstants.RESOURCE, UiPluginConstants.JAVA },
+                UiPlugin.getInstance().getDialogSettings());
+        workingSetConfigurationWidget.createContent(workingSetGroup);
+        workingSetConfigurationWidget
+                .modifyCurrentWorkingSetItem(WorkingSetUtils.toWorkingSets(configuration.getWorkingSets().getValue()));
+        workingSetConfigurationWidget.setWorkingSetActive(configuration.getApplyWorkingSets().getValue());
+        workingSetConfigurationWidget.addWorkingSetChangeListener(new WorkingSetChangedListener() {
+
+            @Override
+            public void workingSetsChanged(List<IWorkingSet> workingSets) {
+                List<String> workingSetNames = WorkingSetUtils.toWorkingSetNames(workingSets);
+                configuration.setWorkingSets(workingSetNames);
+            }
+        });
+        workingSetConfigurationWidget.addWorkingSetEnabledListener(new Listener() {
+
+            @Override
+            public void handleEvent(Event event) {
+                boolean selected = workingSetConfigurationWidget.isWorkingSetEnabled();
+                configuration.setApplyWorkingSets(selected);
+            }
+        });
+
+        return workingSetConfigurationWidget;
+    }
+
     /**
-     * Converts the given working set names to {@link org.eclipse.ui.IWorkingSet} instances. Filters
-     * out working sets that cannot be found by the {@link IWorkingSetManager}.
+     * Converts the given working set names to
+     * {@link org.eclipse.ui.IWorkingSet} instances. Filters out working sets
+     * that cannot be found by the {@link IWorkingSetManager}.
      *
-     * @param workingSetNames the names of the working sets
+     * @param workingSetNames
+     *            the names of the working sets
      * @return the {@link org.eclipse.ui.IWorkingSet} instances
      */
     public static IWorkingSet[] toWorkingSets(List<String> workingSetNames) {
@@ -50,9 +89,11 @@ public final class WorkingSetUtils {
     }
 
     /**
-     * Converts the given working {@link org.eclipse.ui.IWorkingSet} instances to working set names.
+     * Converts the given working {@link org.eclipse.ui.IWorkingSet} instances
+     * to working set names.
      *
-     * @param workingSets the working sets
+     * @param workingSets
+     *            the working sets
      * @return the names of the working sets
      */
     public static List<String> toWorkingSetNames(List<IWorkingSet> workingSets) {
@@ -66,10 +107,12 @@ public final class WorkingSetUtils {
     }
 
     /**
-     * Returns the names of the selected {@link org.eclipse.ui.IWorkingSet} instancesor an empty
-     * List, if the selection does not contain any {@link org.eclipse.ui.IWorkingSet}.
+     * Returns the names of the selected {@link org.eclipse.ui.IWorkingSet}
+     * instancesor an empty List, if the selection does not contain any
+     * {@link org.eclipse.ui.IWorkingSet}.
      *
-     * @param selection the selection
+     * @param selection
+     *            the selection
      * @return the names of the selected working sets
      */
     public static List<String> getSelectedWorkingSetNames(IStructuredSelection selection) {
@@ -78,10 +121,12 @@ public final class WorkingSetUtils {
     }
 
     /**
-     * Returns the selected {@link org.eclipse.ui.IWorkingSet} instances or an empty List, if the
-     * selection does not contain any {@link org.eclipse.ui.IWorkingSet}.
+     * Returns the selected {@link org.eclipse.ui.IWorkingSet} instances or an
+     * empty List, if the selection does not contain any
+     * {@link org.eclipse.ui.IWorkingSet}.
      *
-     * @param selection the selection
+     * @param selection
+     *            the selection
      * @return the selected working sets
      */
     public static List<IWorkingSet> getSelectedWorkingSets(IStructuredSelection selection) {
@@ -91,7 +136,8 @@ public final class WorkingSetUtils {
 
         List<?> elements = selection.toList();
         @SuppressWarnings("unchecked")
-        List<IWorkingSet> workingSets = (List<IWorkingSet>) FluentIterable.from(elements).filter(Predicates.instanceOf(IWorkingSet.class)).toList();
+        List<IWorkingSet> workingSets = (List<IWorkingSet>) FluentIterable.from(elements)
+                .filter(Predicates.instanceOf(IWorkingSet.class)).toList();
         return workingSets;
     }
 
