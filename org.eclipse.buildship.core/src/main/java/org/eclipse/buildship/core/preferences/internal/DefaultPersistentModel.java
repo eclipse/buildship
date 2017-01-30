@@ -20,7 +20,6 @@ import com.google.common.base.Predicates;
 import com.google.common.base.Splitter;
 import com.google.common.collect.FluentIterable;
 
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -49,14 +48,14 @@ class DefaultPersistentModel implements PersistentModel {
     private Collection<IPath> subprojectPaths;
     private List<IClasspathEntry> classpath;
     private Collection<IPath> derivedResources;
-    private Collection<IFolder> linkedResources;
+    private Collection<IPath> linkedResources;
 
     private DefaultPersistentModel(IProject project) {
         this.project = Preconditions.checkNotNull(project);
     }
 
     private DefaultPersistentModel(IProject project, IPath buildDir, Collection<IPath> subprojectPaths, List<IClasspathEntry> classpath, Collection<IPath> derivedResources,
-            Collection<IFolder> linkedResources) {
+            Collection<IPath> linkedResources) {
         this(project);
         this.buildDir = buildDir;
         this.subprojectPaths = subprojectPaths;
@@ -110,12 +109,12 @@ class DefaultPersistentModel implements PersistentModel {
     }
 
     @Override
-    public Collection<IFolder> getLinkedResources() {
+    public Collection<IPath> getLinkedResources() {
         return this.linkedResources;
     }
 
     @Override
-    public void setLinkedResources(Collection<IFolder> linkedResources) {
+    public void setLinkedResources(Collection<IPath> linkedResources) {
         this.linkedResources = linkedResources;
     }
 
@@ -152,11 +151,11 @@ class DefaultPersistentModel implements PersistentModel {
             }
         });
 
-        storeList(properties, PROPERTY_LINKED_RESOURCES, this.linkedResources, new Function<IFolder, String>() {
+        storeList(properties, PROPERTY_LINKED_RESOURCES, this.linkedResources, new Function<IPath, String>() {
 
             @Override
-            public String apply(IFolder linkedResource) {
-                return linkedResource.getFullPath().makeRelativeTo(DefaultPersistentModel.this.project.getFullPath()).toPortableString();
+            public String apply(IPath linkedResource) {
+                return linkedResource.toPortableString();
             }
         });
 
@@ -197,11 +196,11 @@ class DefaultPersistentModel implements PersistentModel {
                 return new Path(path);
             }
         });
-        Collection<IFolder> linkedResources = loadList(properties, PROPERTY_LINKED_RESOURCES, new Function<String, IFolder>() {
+        Collection<IPath> linkedResources = loadList(properties, PROPERTY_LINKED_RESOURCES, new Function<String, IPath>() {
 
             @Override
-            public IFolder apply(String path) {
-                return project.getFolder(path);
+            public IPath apply(String path) {
+                return new Path(path);
             }
         });
         return new DefaultPersistentModel(project, buildDir, subprojects, classpath, derivedResources, linkedResources);

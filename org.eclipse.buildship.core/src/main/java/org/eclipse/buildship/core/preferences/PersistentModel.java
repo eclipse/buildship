@@ -11,7 +11,6 @@ package org.eclipse.buildship.core.preferences;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 
@@ -41,7 +40,7 @@ public interface PersistentModel {
 
     void setDerivedResources(Collection<IPath> derivedResources);
 
-    Collection<IFolder> getLinkedResources();
+    Collection<IPath> getLinkedResources();
 
-    void setLinkedResources(Collection<IFolder> linkedResources);
+    void setLinkedResources(Collection<IPath> linkedResources);
 }

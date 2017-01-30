@@ -66,20 +66,21 @@ final class LinkedResourcesUpdater {
 
     private void removeOutdatedLinkedResources(SubMonitor progress) throws CoreException {
         PersistentModel model = CorePlugin.modelPersistence().loadModel(this.project);
-        Collection<IFolder> linkedResources = model.getLinkedResources();
-        if (linkedResources != null) {
-            progress.setWorkRemaining(linkedResources.size());
-            for (IFolder folder : linkedResources) {
+        Collection<IPath> linkedPaths = model.getLinkedResources();
+        if (linkedPaths != null) {
+            progress.setWorkRemaining(linkedPaths.size());
+            for (IPath linkedPath : linkedPaths) {
                 SubMonitor childProgress = progress.newChild(1);
-                if (shouldDelete(folder)) {
-                    folder.delete(false, childProgress);
+                IFolder linkedFolder = this.project.getFolder(linkedPath);
+                if (shouldDelete(linkedFolder)) {
+                    linkedFolder.delete(false, childProgress);
                 }
             }
         }
     }
 
     private boolean shouldDelete(IFolder folder) {
-        return linkedWithValidLocation(folder) && !partOfCurrentGradleModel(folder);
+        return folder != null && linkedWithValidLocation(folder) && !partOfCurrentGradleModel(folder);
     }
 
     private boolean linkedWithValidLocation(IFolder folder) {
@@ -92,14 +93,14 @@ final class LinkedResourcesUpdater {
 
     private void createLinkedResources(SubMonitor progress) throws CoreException {
         progress.setWorkRemaining(this.linkedResources.size());
-        Set<IFolder> resourceNames = Sets.newHashSet();
+        Set<IPath> linkedPaths = Sets.newHashSet();
         for (OmniEclipseLinkedResource linkedResource : this.linkedResources.values()) {
             SubMonitor childProgress = progress.newChild(1);
-            IFolder linkedResourceFolder = createLinkedResourceFolder(linkedResource.getName(), linkedResource, childProgress);
-            resourceNames.add(linkedResourceFolder);
+            IFolder linkedFolder = createLinkedResourceFolder(linkedResource.getName(), linkedResource, childProgress);
+            linkedPaths.add(linkedFolder.getProjectRelativePath());
         }
         PersistentModel model = CorePlugin.modelPersistence().loadModel(this.project);
-        model.setLinkedResources(resourceNames);
+        model.setLinkedResources(linkedPaths);
         CorePlugin.modelPersistence().saveModel(model);
     }
 
