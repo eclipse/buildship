@@ -132,7 +132,7 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
                 return DefaultPersistentModel.fromProperties(project, props);
             }
         } else {
-            return DefaultPersistentModel.fromEmpty(project);
+            return DefaultPersistentModel.empty(project);
         }
     }
 

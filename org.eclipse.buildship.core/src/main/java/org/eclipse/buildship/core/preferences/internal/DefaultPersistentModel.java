@@ -162,7 +162,7 @@ class DefaultPersistentModel implements PersistentModel {
         return properties;
     }
 
-    static DefaultPersistentModel fromEmpty(IProject project) {
+    static DefaultPersistentModel empty(IProject project) {
         return new DefaultPersistentModel(project);
     }
 
