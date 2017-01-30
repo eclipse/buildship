@@ -62,7 +62,7 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
 
             @Override
             public DefaultPersistentModel load(IProject project) throws Exception {
-                return loadModel2(project);
+                return doLoadModel(project);
             }
         });
     }
@@ -122,7 +122,7 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
         deleteModel(event.getProject());
     }
 
-    private static DefaultPersistentModel loadModel2(IProject project) throws IOException, FileNotFoundException {
+    private static DefaultPersistentModel doLoadModel(IProject project) throws IOException, FileNotFoundException {
         String projectName = project.getName();
         File preferencesFile = preferencesFile(projectName);
         if (preferencesFile.exists()) {
