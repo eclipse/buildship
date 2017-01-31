@@ -240,13 +240,14 @@ subprojects {
             targetCompatibility = 1.8
         }
 
-        tasks.withType(AbstractCompile).all {
+        tasks.matching { it instanceof JavaCompile || it instanceof GroovyCompile }.all {
             // enable all warnings except for different sourceCompatibility and targetCompatibility value
             options.compilerArgs << '-Xlint:all'
             options.compilerArgs << '-Xlint:-options'
-            if (targetPlatformVersion >= '46') {
-                options.compilerArgs << '-Werror'                
-            }
+// TODO (donat) kotlin compilation currently fails with bad path error
+//            if (targetPlatformVersion >= '46') {
+//                options.compilerArgs << '-Werror'
+//            }
             options.fork = true
 
             if (OperatingSystem.current().isMacOsX()) {
@@ -283,6 +284,11 @@ subprojects {
 
     // configure the repositories where the external dependencies can be found
     repositories {
+        maven {
+            name = 'kotlin-dev-repository'
+            url kotlinDevRepositoryUrl
+        }
+
         maven {
             name = 'mavenized-target-platform'
             url "${eclipsebuild.Config.on(project).mavenizedTargetPlatformDir}"
