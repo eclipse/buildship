@@ -8,10 +8,10 @@ apply plugin: eclipsebuild.BundlePlugin
 apply plugin: 'kotlin'
 
 dependencies {
-    compile 'org.gradle:gradle-core:3.3'
-    compile 'org.gradle:gradle-process-services:3.3'
-    compile 'org.gradle:gradle-tooling-api:3.3'
-    compile 'org.gradle:gradle-script-kotlin:0.7.0'
+    compile "org.gradle:gradle-core:$toolingApiVersion"
+    compile "org.gradle:gradle-process-services:$toolingApiVersion"
+    compile "org.gradle:gradle-tooling-api:$toolingApiVersion"
+    compile "org.gradle:gradle-script-kotlin:0.7.0"
 }
 
 task updateBundledJars(type: Copy) {
