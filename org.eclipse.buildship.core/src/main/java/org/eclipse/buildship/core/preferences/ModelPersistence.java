@@ -23,12 +23,23 @@ import org.eclipse.core.resources.IProject;
  *
  */
 public interface ModelPersistence {
-
     /**
      * Reads the project model and returns a snapshot of the current state.
      *
      * @param project the target project
      * @return the model
      */
-    public PersistentModel loadModel(IProject project);
+    PersistentModel loadModel(IProject project);
+
+    /**
+     * Saves the project model in the storage.
+     * @param model the mode to save
+     */
+    void saveModel(PersistentModel model);
+
+    /**
+     * Removes the project model from the storage.
+     * @param project the target project
+     */
+    void deleteModel(IProject project);
 }

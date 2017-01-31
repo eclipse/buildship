@@ -33,25 +33,27 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.preferences.PersistentModel;
 import org.eclipse.buildship.core.util.file.FileUtils;
 
 /**
  * Updates the linked sources of the target project.
  *
- * Note that currently, we only include linked resources that are folders.
+ * Note that currently we only include linked resources that are folders.
  */
-final class LinkedResourcesUpdater extends PersistentUpdater {
+final class LinkedResourcesUpdater {
+
     private final IProject project;
-    private final Map<String,OmniEclipseLinkedResource> linkedResources;
+    private final Map<IFolder,OmniEclipseLinkedResource> linkedResources;
 
     private LinkedResourcesUpdater(IProject project, List<OmniEclipseLinkedResource> linkedResources) {
-        super(project, "linkedResources");
         this.project = Preconditions.checkNotNull(project);
-        this.linkedResources = FluentIterable.from(linkedResources).filter(new LinkedResourcesWithValidLocation()).uniqueIndex(new Function<OmniEclipseLinkedResource, String>() {
+        this.linkedResources = FluentIterable.from(linkedResources).filter(new LinkedResourcesWithValidLocation()).uniqueIndex(new Function<OmniEclipseLinkedResource, IFolder>() {
 
             @Override
-            public String apply(OmniEclipseLinkedResource resource) {
-                return resource.getLocation();
+            public IFolder apply(OmniEclipseLinkedResource resource) {
+                return LinkedResourcesUpdater.this.project.getFolder(resource.getLocation());
             }
         });
     }
@@ -63,19 +65,22 @@ final class LinkedResourcesUpdater extends PersistentUpdater {
     }
 
     private void removeOutdatedLinkedResources(SubMonitor progress) throws CoreException {
-        Collection<String> resourceNames = getKnownItems();
-        progress.setWorkRemaining(resourceNames.size());
-        for (String resourceName : resourceNames) {
-            SubMonitor childProgress = progress.newChild(1);
-            IFolder folder = this.project.getFolder(resourceName);
-            if (shouldDelete(folder)) {
-                folder.delete(false, childProgress);
+        PersistentModel model = CorePlugin.modelPersistence().loadModel(this.project);
+        Collection<IPath> linkedPaths = model.getLinkedResources();
+        if (linkedPaths != null) {
+            progress.setWorkRemaining(linkedPaths.size());
+            for (IPath linkedPath : linkedPaths) {
+                SubMonitor childProgress = progress.newChild(1);
+                IFolder linkedFolder = this.project.getFolder(linkedPath);
+                if (shouldDelete(linkedFolder)) {
+                    linkedFolder.delete(false, childProgress);
+                }
             }
         }
     }
 
     private boolean shouldDelete(IFolder folder) {
-        return linkedWithValidLocation(folder) && !partOfCurrentGradleModel(folder);
+        return folder != null && linkedWithValidLocation(folder) && !partOfCurrentGradleModel(folder);
     }
 
     private boolean linkedWithValidLocation(IFolder folder) {
@@ -88,13 +93,15 @@ final class LinkedResourcesUpdater extends PersistentUpdater {
 
     private void createLinkedResources(SubMonitor progress) throws CoreException {
         progress.setWorkRemaining(this.linkedResources.size());
-        Set<String> resourceNames = Sets.newHashSet();
+        Set<IPath> linkedPaths = Sets.newHashSet();
         for (OmniEclipseLinkedResource linkedResource : this.linkedResources.values()) {
             SubMonitor childProgress = progress.newChild(1);
-            IFolder linkedResourceFolder = createLinkedResourceFolder(linkedResource.getName(), linkedResource, childProgress);
-            resourceNames.add(projectRelativePath(linkedResourceFolder));
+            IFolder linkedFolder = createLinkedResourceFolder(linkedResource.getName(), linkedResource, childProgress);
+            linkedPaths.add(linkedFolder.getProjectRelativePath());
         }
-        setKnownItems(resourceNames);
+        PersistentModel model = CorePlugin.modelPersistence().loadModel(this.project);
+        model.setLinkedResources(linkedPaths);
+        CorePlugin.modelPersistence().saveModel(model);
     }
 
     private IFolder createLinkedResourceFolder(String name, OmniEclipseLinkedResource linkedResource, SubMonitor progress) throws CoreException {
@@ -103,10 +110,6 @@ final class LinkedResourcesUpdater extends PersistentUpdater {
        FileUtils.ensureParentFolderHierarchyExists(folder);
        folder.createLink(resourcePath, IResource.BACKGROUND_REFRESH | IResource.ALLOW_MISSING_LOCAL | IResource.REPLACE, progress);
        return folder;
-    }
-
-    private String projectRelativePath(IFolder folder) {
-        return folder.getFullPath().makeRelativeTo(this.project.getFullPath()).toPortableString();
     }
 
     public static void update(IProject project, List<OmniEclipseLinkedResource> linkedResources, IProgressMonitor monitor) throws CoreException {

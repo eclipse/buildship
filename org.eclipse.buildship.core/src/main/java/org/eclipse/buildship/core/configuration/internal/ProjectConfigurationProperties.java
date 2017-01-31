@@ -58,7 +58,7 @@ final class ProjectConfigurationProperties {
     private static String relativePathToRootProject(IProject project, File rootProjectDir) {
         IPath rootProjectPath = new org.eclipse.core.runtime.Path(rootProjectDir.getPath());
         IPath projectPath = project.getLocation();
-        return RelativePathUtils.getRelativePath(projectPath, rootProjectPath).toOSString();
+        return RelativePathUtils.getRelativePath(projectPath, rootProjectPath).toPortableString();
     }
 
     ProjectConfiguration toProjectConfiguration(IProject project) {

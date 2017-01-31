@@ -10,104 +10,81 @@ package org.eclipse.buildship.core.preferences.internal;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import org.gradle.internal.UncheckedException;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.Maps;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.io.Files;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.event.EventListener;
 import org.eclipse.buildship.core.preferences.ModelPersistence;
 import org.eclipse.buildship.core.preferences.PersistentModel;
 import org.eclipse.buildship.core.workspace.ProjectDeletedEvent;
 import org.eclipse.buildship.core.workspace.ProjectMovedEvent;
+import org.eclipse.buildship.core.workspace.WorkbenchShutdownEvent;
 
 /**
  * Default implementation for {@link PersistentModel}.
  *
  * @author Donat Csikos
  */
-public final class DefaultModelPersistence implements ModelPersistence, EventListener  {
+public final class DefaultModelPersistence implements ModelPersistence, EventListener {
+
+    // Cache holding (project name - persistent model property) pairs.
+    private final LoadingCache<IProject, DefaultPersistentModel> modelCache;
 
     private DefaultModelPersistence() {
+        this.modelCache = CacheBuilder.newBuilder().build(new CacheLoader<IProject, DefaultPersistentModel>() {
+
+            @Override
+            public DefaultPersistentModel load(IProject project) throws Exception {
+                return doLoadModel(project);
+            }
+        });
     }
 
     @Override
     public PersistentModel loadModel(IProject project) {
-        try {
-            return loadProjectPrefsChecked(project);
-        } catch (IOException e) {
-            throw new UncheckedException(e);
-        }
+        return this.modelCache.getUnchecked(project);
     }
 
-    private PersistentModel loadProjectPrefsChecked(IProject project) throws IOException {
-        File preferencesFile = preferencesFile(project);
-        if (preferencesFile.exists()) {
-            try (Reader reader = new InputStreamReader(new FileInputStream(preferencesFile(project)), Charsets.UTF_8)) {
-                Properties props = new Properties();
-                props.load(reader);
-                HashMap<String, String> preferences = Maps.newHashMap();
-                for (Object propKey : props.keySet()) {
-                    preferences.put(propKey.toString(), props.get(propKey).toString());
-                }
-                return new DefaultPersistentModel(this, project, preferences);
-            }
-        } else {
-            return new DefaultPersistentModel(this, project, Collections.<String, String>emptyMap());
+    @Override
+    public void saveModel(PersistentModel model) {
+        if (!(model instanceof DefaultPersistentModel)) {
+            throw new GradlePluginsRuntimeException("Can't save PersistentModel class " + model.getClass().getName());
         }
+        DefaultPersistentModel persistentModel = (DefaultPersistentModel) model;
+        this.modelCache.put(persistentModel.getProject(), persistentModel);
     }
 
-    void persistPrefs(DefaultPersistentModel preferences) {
-        try {
-            persistPrefsChecked(preferences);
-        } catch (IOException e) {
-            throw new UncheckedException(e);
-        }
-    }
-
-    private void persistPrefsChecked(DefaultPersistentModel preferences) throws IOException {
-        Map<String, String> added = preferences.getAdded();
-        Set<String> removed = preferences.getRemoved();
-        if (!added.isEmpty() || !removed.isEmpty()) {
-            File preferencesFile = preferencesFile(preferences.getProject());
-            if (!preferencesFile.exists()) {
-                Files.createParentDirs(preferencesFile);
-                Files.touch(preferencesFile);
-            }
-
-            Properties props = new Properties();
-            try (Reader reader = new InputStreamReader(new FileInputStream(preferencesFile), Charsets.UTF_8)) {
-                props.load(reader);
-            }
-
-            for (String key : removed) {
-                props.remove(key);
-            }
-            for (String key : added.keySet()) {
-                props.put(key, added.get(key));
-            }
-
-            try (Writer writer = new OutputStreamWriter(new FileOutputStream(preferencesFile), Charsets.UTF_8)) {
-                props.store(writer, "");
-            }
-        }
+    @Override
+    public void deleteModel(IProject project) {
+        preferencesFile(project).delete();
+        this.modelCache.invalidate(project);
     }
 
     @Override
@@ -117,6 +94,8 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
                 movePreferencesFile((ProjectMovedEvent) event);
             } else if (event instanceof ProjectDeletedEvent) {
                 deleteProjectPreferences((ProjectDeletedEvent) event);
+            } else if (event instanceof WorkbenchShutdownEvent) {
+                persistAllProjectPrefs();
             }
         } catch (IOException e) {
             throw new UncheckedException(e);
@@ -124,6 +103,15 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
     }
 
     private void movePreferencesFile(ProjectMovedEvent event) throws IOException {
+        String previousName = event.getPreviousName();
+        for (IProject cached : this.modelCache.asMap().keySet()) {
+            if (cached.getName().equals(previousName)) {
+                DefaultPersistentModel model = this.modelCache.getUnchecked(cached);
+                this.modelCache.put(event.getProject(), model);
+                this.modelCache.invalidate(cached);
+            }
+        }
+
         File preferencesFile = preferencesFile(event.getPreviousName());
         if (preferencesFile.exists()) {
             Files.move(preferencesFile, preferencesFile(event.getProject().getName()));
@@ -131,7 +119,51 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
     }
 
     private void deleteProjectPreferences(ProjectDeletedEvent event) {
-        preferencesFile(event.getProject()).delete();
+        deleteModel(event.getProject());
+    }
+
+    private static DefaultPersistentModel doLoadModel(IProject project) throws IOException, FileNotFoundException {
+        String projectName = project.getName();
+        File preferencesFile = preferencesFile(projectName);
+        if (preferencesFile.exists()) {
+            try (Reader reader = new InputStreamReader(new FileInputStream(preferencesFile(projectName)), Charsets.UTF_8)) {
+                Properties props = new Properties();
+                props.load(reader);
+                return DefaultPersistentModel.fromProperties(project, props);
+            }
+        } else {
+            return DefaultPersistentModel.empty(project);
+        }
+    }
+
+    private void persistAllProjectPrefs() {
+        Map<IProject, DefaultPersistentModel> modelCacheMap = this.modelCache.asMap();
+        for (Entry<IProject, DefaultPersistentModel> entry : modelCacheMap.entrySet()) {
+            persistPrefs(entry.getKey(), entry.getValue());
+        }
+    }
+
+    private static void persistPrefs(IProject project, DefaultPersistentModel model) {
+        try {
+            persistPrefsChecked(project, model);
+        } catch (IOException e) {
+            CorePlugin.logger().warn("Can't save persistent model for project " + project.getName(), e);
+        }
+    }
+
+    private static void persistPrefsChecked(IProject project, DefaultPersistentModel model) throws IOException {
+        File preferencesFile = preferencesFile(project);
+
+        if (!preferencesFile.exists()) {
+            Files.createParentDirs(preferencesFile);
+            Files.touch(preferencesFile);
+        }
+
+        Properties props = model.asProperties();
+
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(preferencesFile), Charsets.UTF_8)) {
+            props.store(writer, "");
+        }
     }
 
     private static File preferencesFile(IProject project) {
@@ -145,7 +177,29 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
     public static DefaultModelPersistence createAndRegister() {
         DefaultModelPersistence persistence = new DefaultModelPersistence();
         CorePlugin.listenerRegistry().addEventListener(persistence);
+        persistence.prefetchCacheAsync();
         return persistence;
+    }
+
+    private void prefetchCacheAsync() {
+        Job job = new Job("Load persistent model for all projects") {
+
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                for (IProject project : CorePlugin.workspaceOperations().getAllProjects()) {
+                    if (GradleProjectNature.isPresentOn(project)) {
+                        try {
+                            DefaultModelPersistence.this.modelCache.get(project);
+                        } catch (ExecutionException e) {
+                            CorePlugin.logger().warn("Can't load persistent model for project " + project.getName(), e);
+                        }
+                    }
+                }
+                return Status.OK_STATUS;
+            }
+        };
+        job.setSystem(true);
+        job.schedule();
     }
 
     public void close() {

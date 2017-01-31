@@ -5,8 +5,10 @@ import com.google.common.base.Optional
 import com.gradleware.tooling.toolingmodel.OmniEclipseBuildCommand
 
 import org.eclipse.core.resources.ICommand
+import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 
+import org.eclipse.buildship.core.configuration.GradleProjectBuilder
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
 class BuildCommandUpdaterTest extends WorkspaceSpecification {
@@ -16,12 +18,44 @@ class BuildCommandUpdaterTest extends WorkspaceSpecification {
         def project = newProject('sample-project')
 
         when:
-        BuildCommandUpdater.update(project, Optional.of([buildCommand('customBuildCommand', ['key' : 'value'])]), new NullProgressMonitor())
+        BuildCommandUpdater.update(project, oneBuildCommand('customBuildCommand', ['key' : 'value']), new NullProgressMonitor())
+
+        then:
+        hasBuildCommand(project, 'customBuildCommand', ['key' : 'value'])
+    }
+
+    def "Gradle builder is added when nature information is absent"() {
+        given:
+        def project = newProject('sample-project')
+
+        when:
+        BuildCommandUpdater.update(project, unsupportedBuildCommands(), new NullProgressMonitor())
+
+        then:
+        hasBuildCommand(project, GradleProjectBuilder.ID)
+    }
+
+    def "Gradle builder is added when nature information is present"() {
+        given:
+        def project = newProject('sample-project')
+
+        when:
+        BuildCommandUpdater.update(project, zeroBuildCommands(), new NullProgressMonitor())
+
+        then:
+        hasBuildCommand(project, GradleProjectBuilder.ID)
+    }
+
+    def "Gradle builder is added only once"() {
+        given:
+        def project = newProject('sample-project')
+
+        when:
+        BuildCommandUpdater.update(project, oneBuildCommand(GradleProjectBuilder.ID), new NullProgressMonitor())
 
         then:
         project.description.buildSpec.length == 1
-        project.description.buildSpec[0].builderName == 'customBuildCommand'
-        project.description.buildSpec[0].arguments == ['key' : 'value']
+        hasBuildCommand(project, GradleProjectBuilder.ID)
     }
 
     def "Can have two build commands with same id and different arguments"() {
@@ -29,23 +63,12 @@ class BuildCommandUpdaterTest extends WorkspaceSpecification {
         def project = newProject('sample-project')
 
         when:
-        BuildCommandUpdater.update(
-            project,
-            Optional.of(
-                [
-                    buildCommand('customBuildCommand', ['key' : 'value']),
-                    buildCommand('customBuildCommand', ['key' : 'otherValue']),
-                ]
-            ),
-            new NullProgressMonitor()
-        )
+        def buildCommands = twoBuildCommands('customBuildCommand', ['key' : 'value'], 'customBuildCommand', ['key' : 'otherValue'])
+        BuildCommandUpdater.update(project, buildCommands, new NullProgressMonitor())
 
         then:
-        project.description.buildSpec.length == 2
-        project.description.buildSpec[0].builderName == 'customBuildCommand'
-        project.description.buildSpec[0].arguments == ['key' : 'value']
-        project.description.buildSpec[0].builderName == 'customBuildCommand'
-        project.description.buildSpec[1].arguments == ['key' : 'otherValue']
+        hasBuildCommand(project, 'customBuildCommand', ['key' : 'value'])
+        hasBuildCommand(project, 'customBuildCommand', ['key' : 'otherValue'])
     }
 
     def "Build commands are removed if they no longer exist in the Gradle model"() {
@@ -53,11 +76,11 @@ class BuildCommandUpdaterTest extends WorkspaceSpecification {
         def project = newProject('sample-project')
 
         when:
-        BuildCommandUpdater.update(project, Optional.of([buildCommand('customBuildCommand', ['key' : 'value'])]), new NullProgressMonitor())
-        BuildCommandUpdater.update(project, Optional.of([]), new NullProgressMonitor())
+        BuildCommandUpdater.update(project, oneBuildCommand('customBuildCommand', ['key' : 'value']), new NullProgressMonitor())
+        BuildCommandUpdater.update(project, zeroBuildCommands(), new NullProgressMonitor())
 
         then:
-        project.description.buildSpec.length == 0
+        !hasBuildCommand(project,, 'customBuildCommand', ['key' : 'value'])
     }
 
     def "Manually added build commands are preserved if Gradle model does not provide them"() {
@@ -72,12 +95,10 @@ class BuildCommandUpdaterTest extends WorkspaceSpecification {
         project.setDescription(description, new NullProgressMonitor())
 
         when:
-        BuildCommandUpdater.update(project, Optional.absent(), new NullProgressMonitor())
+        BuildCommandUpdater.update(project, unsupportedBuildCommands(), new NullProgressMonitor())
 
         then:
-        project.description.buildSpec.length == 1
-        project.description.buildSpec[0].builderName == 'manuallyCreatedBuildCommand'
-        project.description.buildSpec[0].arguments == [:]
+        hasBuildCommand(project, 'manuallyCreatedBuildCommand')
     }
 
     def "Manually added build commands are removed if Gradle model provides them"() {
@@ -92,17 +113,37 @@ class BuildCommandUpdaterTest extends WorkspaceSpecification {
         project.setDescription(description, new NullProgressMonitor())
 
         when:
-        BuildCommandUpdater.update(project, Optional.of([]), new NullProgressMonitor())
+        BuildCommandUpdater.update(project, zeroBuildCommands(), new NullProgressMonitor())
 
         then:
-        project.description.buildSpec.length == 0
+        !hasBuildCommand(project, 'manuallyCreatedBuildCommand')
     }
 
-    private def buildCommand(name, arguments = [:]) {
-        def mockedBuildCommand = Mock(OmniEclipseBuildCommand)
+    private Optional unsupportedBuildCommands() {
+        Optional.absent()
+    }
+
+    private Optional zeroBuildCommands() {
+        Optional.of([])
+    }
+
+    private Optional oneBuildCommand(name, arguments = [:]) {
+        Optional.of([buildCommand(name, arguments)])
+    }
+
+    private Optional twoBuildCommands(name1, arguments1, name2, arguments2) {
+        Optional.of([buildCommand(name1, arguments1), buildCommand(name2, arguments2)])
+    }
+
+    private OmniEclipseBuildCommand buildCommand(name, arguments = [:]) {
+        OmniEclipseBuildCommand mockedBuildCommand = Mock(OmniEclipseBuildCommand)
         mockedBuildCommand.name >> name
         mockedBuildCommand.arguments >> arguments
         mockedBuildCommand
+    }
+
+    private Boolean hasBuildCommand(IProject project, String builderName, Map arguments = [:]) {
+        project.description.buildSpec.find { it.builderName == builderName && it.arguments == arguments } != null
     }
 
 }

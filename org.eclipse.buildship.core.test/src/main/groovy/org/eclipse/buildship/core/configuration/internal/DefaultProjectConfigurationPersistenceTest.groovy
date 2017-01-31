@@ -1,11 +1,17 @@
 package org.eclipse.buildship.core.configuration.internal
 
+import javax.jws.Oneway
+
+import groovy.lang.Closure
+import spock.lang.IgnoreIf
 import spock.lang.Shared
 import spock.lang.Subject
+import spock.util.environment.OperatingSystem
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.ProjectScope
 import org.eclipse.core.runtime.NullProgressMonitor
 
@@ -128,7 +134,34 @@ class DefaultProjectConfigurationPersistenceTest extends WorkspaceSpecification 
 
         then:
         !new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, null)
+    }
 
+    @IgnoreIf({!OperatingSystem.current.isWindows()}) // IPath implementation is os-dependent
+    def "Windows-style paths can can be read and are replaced with slashes"() {
+        setup:
+        fileTree(project.location.toFile()) {
+            dir('.settings') {
+                file "${CorePlugin.PLUGIN_ID}.prefs", """
+                    connection.gradle.distribution=GRADLE_DISTRIBUTION(WRAPPER)
+                    connection.project.dir=..\\\\..
+                    eclipse.preferences.version=1
+                """
+            }
+        }
+
+        when:
+        def configuration = persistence.readProjectConfiguration(project)
+
+        then:
+        configuration.rootProjectDirectory == project.location.toFile().parentFile.parentFile
+
+        when:
+        project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor())
+        persistence.saveProjectConfiguration(configuration, project)
+
+
+        then:
+        new File(project.location.toFile(), ".settings/${CorePlugin.PLUGIN_ID}.prefs").text.contains 'connection.project.dir=../..'
     }
 
     private ProjectConfiguration projectConfiguration() {

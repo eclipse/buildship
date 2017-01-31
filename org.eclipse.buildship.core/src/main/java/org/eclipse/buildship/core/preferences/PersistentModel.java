@@ -8,34 +8,39 @@
 
 package org.eclipse.buildship.core.preferences;
 
+import java.util.Collection;
+import java.util.List;
+
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.IClasspathEntry;
+
 /**
- * Interface to load and store Gradle model elements stored in the workspace plugin state area. The
- * model elements are stored and retrieved in a map-like fashion.
+ * Interface to load and store Gradle model elements stored in the workspace plugin state area.
+ * <p/>
+ * Each getter may return {@code null} values if the model element is not available. If a
+ * {@code null} value is passed to a setter then the model element is deleted.
  *
  * @author Donat Csikos
  */
 public interface PersistentModel {
 
-    /**
-     * Returns a value for the specified key.
-     *
-     * @param key the key
-     * @param defaultValue the to be returned if no value is present
-     * @return the value
-     */
-    String getValue(String key, String defaultValue);
+    IPath getBuildDir();
 
-    /**
-     * Stores a new key-value pair in this instance. To persist the update, the {@link #flush()}
-     * method should be called.
-     *
-     * @param key the key
-     * @param value the value
-     */
-    void setValue(String key, String value);
+    void setBuildDir(IPath buildDir);
 
-    /**
-     * Persists all changes on the disk.
-     */
-    void flush();
+    Collection<IPath> getSubprojectPaths();
+
+    void setSubprojectPaths(Collection<IPath> subprojectPaths);
+
+    List<IClasspathEntry> getClasspath();
+
+    void setClasspath(List<IClasspathEntry> classpath);
+
+    Collection<IPath> getDerivedResources();
+
+    void setDerivedResources(Collection<IPath> derivedResources);
+
+    Collection<IPath> getLinkedResources();
+
+    void setLinkedResources(Collection<IPath> linkedResources);
 }
