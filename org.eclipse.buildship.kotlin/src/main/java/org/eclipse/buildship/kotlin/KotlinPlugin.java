@@ -10,13 +10,10 @@ package org.eclipse.buildship.kotlin;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
 import org.gradle.script.lang.kotlin.support.KotlinBuildScriptModel;
-import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.ProjectConnection;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
@@ -26,6 +23,9 @@ import com.google.common.io.Files;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 
 /**
  * The activator class controls the plug-in life cycle.
@@ -79,28 +79,16 @@ public class KotlinPlugin extends AbstractUIPlugin {
     }
 
     private static List<String> templateClasspathFor(File projectDir) {
-        ProjectConnection connection = null;
-        try {
-            connection = GradleConnector.newConnector()
-                    .forProjectDirectory(projectDir)
-                    .useDistribution(new URI("https://repo.gradle.org/gradle/dist-snapshots/gradle-script-kotlin-3.3-20161205200654+0000-all.zip"))
-                    .connect();
-            KotlinBuildScriptModel model = connection.getModel(KotlinBuildScriptModel.class);
-            List<String> classpath = Lists.newArrayList();
-            for (File entry : model.getClassPath()) {
-                // an incompatible version of Groovy is already used in the compiler
-                if (!entry.getName().startsWith("groovy")) {
-                    classpath.add(entry.getAbsolutePath());
-                }
-            }
-            return classpath;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (connection != null) {
-                connection.close();
+        WorkspaceConfiguration config = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
+        KotlinBuildScriptModel model = KotlinModelQuery.execute(projectDir, config.getGradleUserHome(), config.isOffline());
+        List<String> classpath = Lists.newArrayList();
+        for (File entry : model.getClassPath()) {
+            // an incompatible version of Groovy is already used in the compiler
+            if (!entry.getName().startsWith("groovy")) {
+                classpath.add(entry.getAbsolutePath());
             }
         }
+        return classpath;
     }
 
     private static void appendPluginResourceIfExists(List<String> classpath, String path) {

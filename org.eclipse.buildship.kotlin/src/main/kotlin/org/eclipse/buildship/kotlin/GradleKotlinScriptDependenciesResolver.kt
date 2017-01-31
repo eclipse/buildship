@@ -40,7 +40,7 @@ class GradleKotlinScriptDependenciesResolver : ScriptDependenciesResolver {
         val gradleUserHome = environment["gradleUserHome"] as File?
         val isOffline = environment["isOffline"] as Boolean
 
-        val classpath = KotlinModelQuery.retrieveKotlinBuildScriptModelFrom(projectRoot, gradleUserHome, isOffline).classPath
+        val classpath = KotlinModelQuery.execute(projectRoot, gradleUserHome, isOffline).classPath
         val gradleKotlinJar = classpath.filter { cp -> cp.name.startsWith("gradle-script-kotlin-") }
         val gradleInstallation = classpath.find { it.absolutePath.contains("dists") && it.parentFile.name.equals("lib") }!!.parentFile.parentFile
         val sources = gradleKotlinJar + buildSrcRootsOf(projectRoot) + sourceRootsOf(gradleInstallation)
