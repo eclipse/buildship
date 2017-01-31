@@ -56,7 +56,7 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         }
 
         expect:
-        CorePlugin.instance.stateLocation.append("project-preferences").append("sample-project").toFile().delete()
+        CorePlugin.modelPersistence().deleteModel(findProject('sample-project'))
 
         when:
         reimportWithoutSynchronization(findProject("sample-project"))
@@ -102,7 +102,7 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
 
         expect:
         new File(projectDir, ".settings/org.eclipse.buildship.core.prefs").delete()
-        CorePlugin.instance.stateLocation.append("project-preferences").append("sample-project").toFile().delete()
+        CorePlugin.modelPersistence().deleteModel(findProject('sample-project'))
 
         when:
         reimportWithoutSynchronization(project)
@@ -113,12 +113,12 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
 
     private reimportWithoutSynchronization(IProject project) {
         def descriptor = project.description
-        def classpath = CorePlugin.modelPersistence().loadModel(project).getValue('classpath', null)
+        def classpath = CorePlugin.modelPersistence().loadModel(project).classpath
         project.delete(false, true, null)
         project.create(descriptor, null)
-        def preferences = CorePlugin.modelPersistence().loadModel(project)
-        preferences.setValue('classpath', classpath)
-        preferences.flush()
+        def model = CorePlugin.modelPersistence().loadModel(project)
+        model.setClasspath(classpath)
+        CorePlugin.modelPersistence().saveModel(model)
         project.open(null)
         waitForGradleJobsToFinish()
     }

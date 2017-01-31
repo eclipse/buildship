@@ -9,7 +9,9 @@
 package org.eclipse.buildship.ui.navigator;
 
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
@@ -31,7 +33,24 @@ public final class BuildFolderViewerFilter extends ViewerFilter {
     }
 
     private boolean isBuildFolder(IResource resource) {
-        return resource instanceof IFolder && CorePlugin.workspaceOperations().isBuildFolder((IFolder) resource);
+        if (resource instanceof IFolder) {
+            return isBuildFolderInPerstentModel((IFolder) resource);
+        } else {
+            return false;
+        }
     }
 
+    public static boolean isBuildFolderInPerstentModel(IFolder folder) {
+        try {
+            IProject project = folder.getProject();
+            IPath modelBuildDir = CorePlugin.modelPersistence().loadModel(project).getBuildDir();
+            if (modelBuildDir == null) {
+                return false;
+            }
+            return folder.getProjectRelativePath().equals(modelBuildDir);
+        } catch (Exception e) {
+            CorePlugin.logger().debug(String.format("Could not check whether folder %s is a build folder.", folder.getFullPath()), e);
+            return false;
+        }
+    }
 }

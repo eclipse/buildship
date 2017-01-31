@@ -8,8 +8,11 @@
 
 package org.eclipse.buildship.ui.navigator;
 
+import java.util.Collection;
+
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
@@ -31,7 +34,21 @@ public final class SubProjectViewerFilter extends ViewerFilter {
     }
 
     private boolean isSubProject(IResource resource) {
-        return resource instanceof IFolder && CorePlugin.workspaceOperations().isSubProject((IFolder) resource);
+        if (resource instanceof IFolder) {
+            IFolder folder = (IFolder) resource;
+            return isSubProjectFolder(folder);
+        } else {
+            return false;
+        }
     }
 
+    private boolean isSubProjectFolder(IFolder folder) {
+        try {
+            Collection<IPath> paths = CorePlugin.modelPersistence().loadModel(folder.getProject()).getSubprojectPaths();
+            return paths != null && paths.contains(folder.getFullPath());
+        } catch (Exception e) {
+            CorePlugin.logger().debug(String.format("Could not check whether folder %s is a sub project.", folder.getFullPath()), e);
+            return false;
+        }
+    }
 }
