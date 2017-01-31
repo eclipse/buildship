@@ -17,6 +17,10 @@ import java.io.File
 import java.util.concurrent.Future
 import java.util.concurrent.FutureTask
 import java.util.concurrent.Callable
+import org.gradle.script.lang.kotlin.support.KotlinBuildScriptDependenciesResolver
+import org.gradle.script.lang.kotlin.support.ImplicitImports
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType
 
 class GradleKotlinScriptDependenciesResolver : ScriptDependenciesResolver {
 
@@ -35,12 +39,10 @@ class GradleKotlinScriptDependenciesResolver : ScriptDependenciesResolver {
 	private fun retrieveDependenciesFromProject(environment: Map<String, Any?>): KotlinScriptExternalDependencies {
         val rtPath = environment["rtPath"] as List<File>
         val projectRoot = environment["rootProject"] as File
-        //val distributionType = environment["distributionType"] as String
-        //val distributionConfig = environment["distributionConfig"] as String?
+        val distribution = environment["distribution"] as String
         val gradleUserHome = environment["gradleUserHome"] as File?
         val isOffline = environment["isOffline"] as Boolean
-
-        val classpath = KotlinModelQuery.execute(projectRoot, gradleUserHome, isOffline).classPath
+        val classpath = KotlinModelQuery.execute(projectRoot, distribution, gradleUserHome, isOffline).classPath
         val gradleKotlinJar = classpath.filter { cp -> cp.name.startsWith("gradle-script-kotlin-") }
         val gradleInstallation = classpath.find { it.absolutePath.contains("dists") && it.parentFile.name.equals("lib") }!!.parentFile.parentFile
         val sources = gradleKotlinJar + buildSrcRootsOf(projectRoot) + sourceRootsOf(gradleInstallation)
@@ -72,8 +74,6 @@ class GradleKotlinScriptDependenciesResolver : ScriptDependenciesResolver {
         }
 
     companion object {
-        val implicitImports = listOf(
-            "org.gradle.api.plugins.*",
-            "org.gradle.script.lang.kotlin.*")
+        val implicitImports = ImplicitImports.list
     }
 }

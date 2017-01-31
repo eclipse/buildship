@@ -24,7 +24,7 @@ import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 
 /**
  * Contributes the Gradle Kotlin Script template to the Kotlin Eclipse integration.
@@ -44,12 +44,10 @@ public class GradleKotlinScriptTemplateProvider implements ScriptTemplateProvide
 
         WorkspaceConfiguration workspaceConfig = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
         ProjectConfiguration projectConfig = CorePlugin.projectConfigurationManager().readProjectConfiguration(file.getProject());
-        GradleDistributionWrapper distribution = GradleDistributionWrapper.from(projectConfig.getGradleDistribution());
 
         environment.put("rtPath", rtPath());
         environment.put("rootProject", projectConfig.getRootProjectDirectory());
-        environment.put("distributionType", distribution.getType().name());
-        environment.put("distributionConfig", distribution.getConfiguration());
+        environment.put("distribution", GradleDistributionSerializer.INSTANCE.serializeToString(projectConfig.getGradleDistribution()));
         environment.put("gradleUserHome", workspaceConfig.getGradleUserHome());
         environment.put("isOffline", workspaceConfig.isOffline());
 

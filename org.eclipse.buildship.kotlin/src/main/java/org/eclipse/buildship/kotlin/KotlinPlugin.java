@@ -20,12 +20,15 @@ import org.osgi.framework.BundleContext;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 
 /**
  * The activator class controls the plug-in life cycle.
@@ -80,7 +83,7 @@ public class KotlinPlugin extends AbstractUIPlugin {
 
     private static List<String> templateClasspathFor(File projectDir) {
         WorkspaceConfiguration config = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
-        KotlinBuildScriptModel model = KotlinModelQuery.execute(projectDir, config.getGradleUserHome(), config.isOffline());
+        KotlinBuildScriptModel model = KotlinModelQuery.execute(projectDir, GradleDistributionSerializer.INSTANCE.serializeToString(GradleDistribution.fromBuild()), config.getGradleUserHome(), config.isOffline());
         List<String> classpath = Lists.newArrayList();
         for (File entry : model.getClassPath()) {
             // an incompatible version of Groovy is already used in the compiler

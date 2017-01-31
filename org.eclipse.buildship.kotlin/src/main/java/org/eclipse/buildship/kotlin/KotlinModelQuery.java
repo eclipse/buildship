@@ -10,24 +10,25 @@ package org.eclipse.buildship.kotlin;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.gradle.script.lang.kotlin.support.KotlinBuildScriptModel;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
 
 /**
- * Queries the KotlinModel.
+ * Query {@link KotlinBuildScriptModel}.
  *
  * @author Donat Csikos
  */
 public class KotlinModelQuery {
 
-    public static KotlinBuildScriptModel execute(File projectDir, File gradleUserHome, boolean isOffline) {
+    public static KotlinBuildScriptModel execute(File projectDir, String distributionString, File gradleUserHome, boolean isOffline) {
         ProjectConnection connection = null;
         try {
-            connection = GradleConnector.newConnector()
-                    .forProjectDirectory(projectDir)
-                    .useDistribution(new URI("https://repo.gradle.org/gradle/dist-snapshots/gradle-script-kotlin-3.3-20161205200654+0000-all.zip")).connect();
+            GradleConnector connector = GradleConnector.newConnector().forProjectDirectory(projectDir);
+            applyGradleDistribution(connector, distributionString);
+            connection = connector.connect();
             return connection.model(KotlinBuildScriptModel.class)
                 .setJvmArguments("-Dorg.gradle.script.lang.kotlin.provider.mode=classpath") // from KotlinScriptPluginFactory
                 .withArguments(isOffline ? "--offline" : "")
@@ -38,6 +39,47 @@ public class KotlinModelQuery {
             if (connection != null) {
                 connection.close();
             }
+        }
+    }
+
+    /*
+     * TODO (donat) the plugin dependencies are not visible when called from GradleKotlinScriptDependenciesResolver
+     * so the GradleDistributionSerializer class is copied here.
+     */
+    private static void applyGradleDistribution(GradleConnector connector, String distributionString) {
+        String localInstallationPrefix = "GRADLE_DISTRIBUTION(LOCAL_INSTALLATION(";
+        if (distributionString.startsWith(localInstallationPrefix) && distributionString.endsWith("))")) {
+            String localInstallationDir = distributionString.substring(localInstallationPrefix.length(), distributionString.length() - 2);
+            connector.useInstallation(new File(localInstallationDir));
+            return;
+        }
+
+        String remoteDistributionPrefix = "GRADLE_DISTRIBUTION(REMOTE_DISTRIBUTION(";
+        if (distributionString.startsWith(remoteDistributionPrefix) && distributionString.endsWith("))")) {
+            String remoteDistributionUri = distributionString.substring(remoteDistributionPrefix.length(), distributionString.length() - 2);
+            connector.useDistribution(createURI(remoteDistributionUri));
+            return;
+        }
+
+        String versionPrefix = "GRADLE_DISTRIBUTION(VERSION(";
+        if (distributionString.startsWith(versionPrefix) && distributionString.endsWith("))")) {
+            String version = distributionString.substring(versionPrefix.length(), distributionString.length() - 2);
+            connector.useGradleVersion(version);
+            return;
+        }
+
+        String wrapperString = "GRADLE_DISTRIBUTION(WRAPPER)";
+        if (distributionString.equals(wrapperString)) {
+            connector.useBuildDistribution();
+            return;
+        }
+    }
+
+    private static URI createURI(String uri) {
+        try {
+            return new URI(uri);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 }
