@@ -17,17 +17,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.Maps;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency;
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -80,39 +79,50 @@ final class GradleClasspathContainerUpdater {
     }
 
     private ImmutableList<IClasspathEntry> collectClasspathContainerEntries() {
-        // project dependencies
-        List<IClasspathEntry> projectDependencies = FluentIterable.from(this.gradleProject.getProjectDependencies())
-                .transform(new Function<OmniEclipseProjectDependency, IClasspathEntry>() {
+        Builder<IClasspathEntry> result = ImmutableList.builder();
 
-                    @Override
-                    public IClasspathEntry apply(OmniEclipseProjectDependency dependency) {
-                        IPath path = new Path("/" + dependency.getPath());
-                        return JavaCore.newProjectEntry(path, ClasspathUtils.createAccessRules(dependency), true, ClasspathUtils.createClasspathAttributes(dependency), dependency.isExported());
-                    }
-                }).toList();
+        // first we add the external dependencies
+        for (OmniExternalDependency dependency : this.gradleProject.getExternalDependencies()) {
+            addExternalDependency(result, dependency);
+        }
 
-        // external dependencies
-        List<IClasspathEntry> externalDependencies = FluentIterable.from(this.gradleProject.getExternalDependencies()).filter(new Predicate<OmniExternalDependency>() {
+        // then we add the project dependencies
+        for (OmniEclipseProjectDependency dependency : this.gradleProject.getProjectDependencies()) {
+            addProjectDependency(result, dependency);
+        }
 
-            @Override
-            public boolean apply(OmniExternalDependency dependency) {
-                File file = dependency.getFile();
-                String name = file.getName();
-                // Eclipse only accepts folders and archives as external dependencies (but not, for example, a DLL)
-                return file.isDirectory() || name.endsWith(".jar") || name.endsWith(".zip");
+        // return all dependencies in a single list; the order of the dependencies is important see Bug 473348
+        return result.build();
+    }
+
+    private void addExternalDependency(Builder<IClasspathEntry> result, OmniExternalDependency dependency) {
+        File dependencyFile = dependency.getFile();
+        String dependencyName = dependencyFile.getName();
+        if (!dependencyFile.exists()) {
+            IPath path = new Path("/" + dependencyFile.getPath());
+            IResource member = this.eclipseProject.getProject().findMember(path);
+            if (member != null) {
+                IClasspathEntry entry = JavaCore.newLibraryEntry(member.getFullPath(), null, null);
+                result.add(entry);
+                return;
             }
-        }).transform(new Function<OmniExternalDependency, IClasspathEntry>() {
+        }
 
-            @Override
-            public IClasspathEntry apply(OmniExternalDependency dependency) {
-                IPath file = org.eclipse.core.runtime.Path.fromOSString(dependency.getFile().getAbsolutePath());
-                IPath sources = dependency.getSource() != null ? org.eclipse.core.runtime.Path.fromOSString(dependency.getSource().getAbsolutePath()) : null;
-                return JavaCore.newLibraryEntry(file, sources, null, ClasspathUtils.createAccessRules(dependency), ClasspathUtils.createClasspathAttributes(dependency), dependency.isExported());
-            }
-        }).toList();
+        // Eclipse only accepts folders and archives as external dependencies (but not, for example, a DLL)
+        if (dependencyFile.isDirectory() || dependencyName.endsWith(".jar") || dependencyName.endsWith(".zip")) {
+            IPath path = org.eclipse.core.runtime.Path.fromOSString(dependencyFile.getAbsolutePath());
+            File dependencySource = dependency.getSource();
+            IPath sourcePath = dependencySource != null ? org.eclipse.core.runtime.Path.fromOSString(dependencySource.getAbsolutePath()) : null;
+            IClasspathEntry entry = JavaCore.newLibraryEntry(path, sourcePath, null, ClasspathUtils.createAccessRules(dependency), ClasspathUtils
+                    .createClasspathAttributes(dependency), dependency.isExported());
+            result.add(entry);
+        }
+    }
 
-        // return all dependencies as a joined list - The order of the dependencies is important see Bug 473348
-        return ImmutableList.<IClasspathEntry>builder().addAll(externalDependencies).addAll(projectDependencies).build();
+    private void addProjectDependency(Builder<IClasspathEntry> result, OmniEclipseProjectDependency dependency) {
+        IPath path = new Path("/" + dependency.getPath());
+        IClasspathEntry entry = JavaCore.newProjectEntry(path, ClasspathUtils.createAccessRules(dependency), true, ClasspathUtils.createClasspathAttributes(dependency), dependency.isExported());
+        result.add(entry);
     }
 
     /**
