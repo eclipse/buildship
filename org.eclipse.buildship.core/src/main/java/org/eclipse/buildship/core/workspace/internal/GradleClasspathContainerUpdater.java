@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.Maps;
@@ -79,50 +81,64 @@ final class GradleClasspathContainerUpdater {
     }
 
     private ImmutableList<IClasspathEntry> collectClasspathContainerEntries() {
+        List<IClasspathEntry> externalDependencies = collectExternalDependencies();
+        List<IClasspathEntry> projectDependencies = collectProjectDependencies();
+
+        boolean hasExportedEntry = FluentIterable.from(externalDependencies).anyMatch(new Predicate<IClasspathEntry>() {
+
+            @Override
+            public boolean apply(IClasspathEntry entry) {
+                return entry.isExported();
+            }
+        });
+
+        // Gradle distributions <2.5 rely on exports to define the project classpath. Unfortunately
+        // that logic is broken if dependency excludes are defined in the build scripts. To work
+        // around that, external dependencies must be defined before project dependencies. For more
+        // details, visit Bug 473348.
+        if (hasExportedEntry) {
+            return ImmutableList.<IClasspathEntry>builder().addAll(externalDependencies).addAll(projectDependencies).build();
+        } else {
+            return ImmutableList.<IClasspathEntry>builder().addAll(projectDependencies).addAll(externalDependencies).build();
+        }
+    }
+
+    private List<IClasspathEntry> collectExternalDependencies() {
         Builder<IClasspathEntry> result = ImmutableList.builder();
-
-        // first we add the external dependencies
         for (OmniExternalDependency dependency : this.gradleProject.getExternalDependencies()) {
-            addExternalDependency(result, dependency);
-        }
+            File dependencyFile = dependency.getFile();
+            String dependencyName = dependencyFile.getName();
+            if (!dependencyFile.exists()) {
+                IPath path = new Path("/" + dependencyFile.getPath());
+                IResource member = this.eclipseProject.getProject().findMember(path);
+                if (member != null) {
+                    IClasspathEntry entry = JavaCore.newLibraryEntry(member.getFullPath(), null, null);
+                    result.add(entry);
+                    continue;
+                }
+            }
 
-        // then we add the project dependencies
-        for (OmniEclipseProjectDependency dependency : this.gradleProject.getProjectDependencies()) {
-            addProjectDependency(result, dependency);
+            // Eclipse only accepts folders and archives as external dependencies (but not, for example, a DLL)
+            if (dependencyFile.isDirectory() || dependencyName.endsWith(".jar") || dependencyName.endsWith(".zip")) {
+                IPath path = org.eclipse.core.runtime.Path.fromOSString(dependencyFile.getAbsolutePath());
+                File dependencySource = dependency.getSource();
+                IPath sourcePath = dependencySource != null ? org.eclipse.core.runtime.Path.fromOSString(dependencySource.getAbsolutePath()) : null;
+                IClasspathEntry entry = JavaCore.newLibraryEntry(path, sourcePath, null, ClasspathUtils.createAccessRules(dependency), ClasspathUtils
+                        .createClasspathAttributes(dependency), dependency.isExported());
+                result.add(entry);
+            }
         }
-
-        // return all dependencies in a single list; the order of the dependencies is important see Bug 473348
         return result.build();
     }
 
-    private void addExternalDependency(Builder<IClasspathEntry> result, OmniExternalDependency dependency) {
-        File dependencyFile = dependency.getFile();
-        String dependencyName = dependencyFile.getName();
-        if (!dependencyFile.exists()) {
-            IPath path = new Path("/" + dependencyFile.getPath());
-            IResource member = this.eclipseProject.getProject().findMember(path);
-            if (member != null) {
-                IClasspathEntry entry = JavaCore.newLibraryEntry(member.getFullPath(), null, null);
-                result.add(entry);
-                return;
-            }
-        }
-
-        // Eclipse only accepts folders and archives as external dependencies (but not, for example, a DLL)
-        if (dependencyFile.isDirectory() || dependencyName.endsWith(".jar") || dependencyName.endsWith(".zip")) {
-            IPath path = org.eclipse.core.runtime.Path.fromOSString(dependencyFile.getAbsolutePath());
-            File dependencySource = dependency.getSource();
-            IPath sourcePath = dependencySource != null ? org.eclipse.core.runtime.Path.fromOSString(dependencySource.getAbsolutePath()) : null;
-            IClasspathEntry entry = JavaCore.newLibraryEntry(path, sourcePath, null, ClasspathUtils.createAccessRules(dependency), ClasspathUtils
-                    .createClasspathAttributes(dependency), dependency.isExported());
+    private List<IClasspathEntry> collectProjectDependencies() {
+        Builder<IClasspathEntry> result = ImmutableList.builder();
+        for (OmniEclipseProjectDependency dependency : this.gradleProject.getProjectDependencies()) {
+            IPath path = new Path("/" + dependency.getPath());
+            IClasspathEntry entry = JavaCore.newProjectEntry(path, ClasspathUtils.createAccessRules(dependency), true, ClasspathUtils.createClasspathAttributes(dependency), dependency.isExported());
             result.add(entry);
         }
-    }
-
-    private void addProjectDependency(Builder<IClasspathEntry> result, OmniEclipseProjectDependency dependency) {
-        IPath path = new Path("/" + dependency.getPath());
-        IClasspathEntry entry = JavaCore.newProjectEntry(path, ClasspathUtils.createAccessRules(dependency), true, ClasspathUtils.createClasspathAttributes(dependency), dependency.isExported());
-        result.add(entry);
+        return result.build();
     }
 
     /**
