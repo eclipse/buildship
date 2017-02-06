@@ -24,10 +24,15 @@
         name="org.codehaus.groovy.eclipse.feature.feature.group"/>
     <requirement
         name="org.codehaus.groovy24.feature.feature.group"/>
+    <requirement
+        name="org.jetbrains.kotlin.feature.feature.group"
+        versionRange="0.8.0"/>
     <repository
         url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.6"/>
     <repository
         url="http://download.eclipse.org/buildship/updates/e46/snapshots/2.x"/>
+    <repository
+        url="https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_EclipsePlugin/scripts.tcbuildtag"/>
     <description>Installs the required plugins to the IDE.</description>
   </setupTask>
   <setupTask
