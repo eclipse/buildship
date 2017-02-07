@@ -1,18 +1,12 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import org.eclipse.core.resources.IProject
+
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.Logger;
 import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.preferences.ModelPersistence
-import org.eclipse.buildship.core.preferences.PersistentModel
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
-
-import org.eclipse.core.resources.IProject
-import org.eclipse.core.resources.IProjectDescription
-import org.eclipse.core.resources.IResource
-import org.eclipse.core.runtime.NullProgressMonitor
-import org.eclipse.jdt.core.JavaCore
 
 class ImportingHierarchicalMultiProjectBuild extends ProjectSynchronizationSpecification {
 
@@ -23,7 +17,7 @@ class ImportingHierarchicalMultiProjectBuild extends ProjectSynchronizationSpeci
         importAndWait(createSampleProject())
     }
 
-    def "Subproject folders are marked "() {
+    def "Subproject folders are marked"() {
         expect:
         def root = findProject("sample")
         def moduleA = root.getFolder("moduleA")

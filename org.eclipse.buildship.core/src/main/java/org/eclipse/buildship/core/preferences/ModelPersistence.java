@@ -13,18 +13,16 @@ import org.eclipse.core.resources.IProject;
 /**
  * Project-scoped storage holding Gradle model information in workspace plugin state area.
  * <p/>
- * The functionality is similar to {@code ProjectPreferences}, but here the stored key-value pairs
- * are not stored in the project's {@code .settings} folder, therefore they are not visible by the
- * users.
- * <p/>
  * The service should be accessed via {code CorePlugin#modelPersistence()}.
  *
  * @author Donat Csikos
  *
  */
 public interface ModelPersistence {
+
     /**
-     * Reads the project model and returns a snapshot of the current state.
+     * Reads the project model and returns a snapshot of the current state. If no model has been
+     * saved for the project then the result will be populated with default values.
      *
      * @param project the target project
      * @return the model
@@ -32,13 +30,15 @@ public interface ModelPersistence {
     PersistentModel loadModel(IProject project);
 
     /**
-     * Saves the project model in the storage.
-     * @param model the mode to save
+     * Saves the project model.
+     *
+     * @param model the model to save
      */
     void saveModel(PersistentModel model);
 
     /**
-     * Removes the project model from the storage.
+     * Removes the model associated to the target project.
+     *
      * @param project the target project
      */
     void deleteModel(IProject project);

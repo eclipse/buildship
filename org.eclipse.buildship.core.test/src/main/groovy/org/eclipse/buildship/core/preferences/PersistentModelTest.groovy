@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.preferences.internal
+package org.eclipse.buildship.core.preferences
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
@@ -8,10 +8,10 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.preferences.ModelPersistence
 import org.eclipse.buildship.core.preferences.PersistentModel
-import org.eclipse.buildship.core.preferences.PersistentModelBuilder
+import org.eclipse.buildship.core.preferences.internal.DefaultPersistentModel
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
-class DefaultModelPersistenceTest extends WorkspaceSpecification {
+class PersistentModelTest extends WorkspaceSpecification {
 
     IProject project
 
@@ -19,21 +19,35 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         project = newProject('sample-project')
     }
 
-    def "By default an empty model is returned"() {
+    def "Empty model has sensible defaults"() {
         setup:
-        PersistentModel model = CorePlugin.modelPersistence().loadModel(project)
+        def model = PersistentModel.empty(project)
 
         expect:
-        model.project == project
+        model.project.is project
+        model.buildDir == new Path('build')
         model.emptyModel
-        model.buildDir == new Path('build')
         model.subprojectPaths.isEmpty()
         model.classpath.isEmpty()
         model.derivedResources.isEmpty()
         model.linkedResources.isEmpty()
     }
 
-    def "Can store and load a model"() {
+    def "Nonempty model has sensible defaults"() {
+        setup:
+        def model = PersistentModel.builder(project).build()
+
+        expect:
+        model.project.is project
+        model.buildDir == new Path('build')
+        !model.emptyModel
+        model.subprojectPaths.isEmpty()
+        model.classpath.isEmpty()
+        model.derivedResources.isEmpty()
+        model.linkedResources.isEmpty()
+    }
+
+    def "Builder can set attributes"() {
         setup:
         def buildDir = new Path('buildDir')
         def subProjectPaths = [new Path('subproject')]
@@ -41,7 +55,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
 
-        PersistentModel model = PersistentModel.builder(project)
+        def model = PersistentModel.builder(project)
             .buildDir(buildDir)
             .subprojectPaths(subProjectPaths)
             .classpath(classpath)
@@ -49,12 +63,8 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
             .linkedResources(linkedResources)
             .build()
 
-        when:
-        CorePlugin.modelPersistence().saveModel(model)
-        model = CorePlugin.modelPersistence().loadModel(project)
-
-        then:
-        model.project == project
+        expect:
+        model.project.is project
         !model.emptyModel
         model.buildDir == buildDir
         model.subprojectPaths == subProjectPaths
@@ -63,7 +73,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         model.linkedResources == linkedResources
     }
 
-    def "Can delete a model"() {
+    def "Builder can be initialized from another model"() {
         setup:
         def buildDir = new Path('buildDir')
         def subProjectPaths = [new Path('subproject')]
@@ -71,56 +81,56 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
 
-        PersistentModel model = PersistentModel.builder(project)
+        def model = PersistentModel.builder(project)
             .buildDir(buildDir)
             .subprojectPaths(subProjectPaths)
             .classpath(classpath)
             .derivedResources(derivedResources)
             .linkedResources(linkedResources)
             .build()
-        CorePlugin.modelPersistence().saveModel(model)
+        model = PersistentModel.builder(model).build()
 
-        when:
-        CorePlugin.modelPersistence().deleteModel(project)
-        model = CorePlugin.modelPersistence().loadModel(project)
-
-        then:
-        model.project == project
-        model.isEmptyModel
-        model.buildDir == new Path('build')
-        model.subprojectPaths.isEmpty()
-        model.classpath.isEmpty()
-        model.derivedResources.isEmpty()
-        model.linkedResources.isEmpty()
-    }
-
-    def "Model is still accessible if the referenced project is renamed"() {
-        setup:
-        def buildDir = new Path('buildDir')
-        def subProjectPaths = [new Path('subproject')]
-        def classpath = [JavaCore.newProjectEntry(new Path('/project-path'))]
-        def derivedResources = [new Path('derived')]
-        def linkedResources = [project.getFolder('linked')]
-
-        PersistentModel model = PersistentModel.builder(project)
-            .buildDir(buildDir)
-            .subprojectPaths(subProjectPaths)
-            .classpath(classpath)
-            .derivedResources(derivedResources)
-            .linkedResources(linkedResources)
-            .build()
-        CorePlugin.modelPersistence().saveModel(model)
-
-        when:
-        project = CorePlugin.workspaceOperations().renameProject(project, 'new-project-name', new NullProgressMonitor())
-        model = CorePlugin.modelPersistence().loadModel(project)
-
-        then:
+        expect:
+        model.project.is project
         !model.emptyModel
         model.buildDir == buildDir
         model.subprojectPaths == subProjectPaths
         model.classpath == classpath
         model.derivedResources == derivedResources
         model.linkedResources == linkedResources
+    }
+
+
+    def "Setting null values revert to default"() {
+        setup:
+        def buildDir = new Path('buildDir')
+        def subProjectPaths = [new Path('subproject')]
+        def classpath = [JavaCore.newProjectEntry(new Path('/project-path'))]
+        def derivedResources = [new Path('derived')]
+        def linkedResources = [project.getFolder('linked')]
+
+        def model = PersistentModel.builder(project)
+            .buildDir(buildDir)
+            .subprojectPaths(subProjectPaths)
+            .classpath(classpath)
+            .derivedResources(derivedResources)
+            .linkedResources(linkedResources)
+            .build()
+
+        model = PersistentModel.builder(model)
+            .buildDir(null)
+            .subprojectPaths(null)
+            .classpath(null)
+            .derivedResources(null)
+            .linkedResources(null)
+            .build()
+
+        expect:
+        model.buildDir == new Path('build')
+        !model.emptyModel
+        model.subprojectPaths.isEmpty()
+        model.classpath.isEmpty()
+        model.derivedResources.isEmpty()
+        model.linkedResources.isEmpty()
     }
 }

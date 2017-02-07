@@ -63,15 +63,15 @@ class UncouplingProjectFromGradleBuild extends ProjectSynchronizationSpecificati
         synchronizeAndWait(projectDir)
 
         expect:
-        CorePlugin.modelPersistence().loadModel(findProject('sample-root')).buildDir != null
-        CorePlugin.modelPersistence().loadModel(findProject('sample-sub')).buildDir != null
+        !CorePlugin.modelPersistence().loadModel(findProject('sample-root')).isEmptyModel()
+        !CorePlugin.modelPersistence().loadModel(findProject('sample-sub')).isEmptyModel()
 
         when:
         file ('sample-root/settings.gradle').text = ''
         synchronizeAndWait(projectDir)
 
         then:
-        CorePlugin.modelPersistence().loadModel(findProject('sample-root')).buildDir != null
-        CorePlugin.modelPersistence().loadModel(findProject('sample-sub')).buildDir == null
+        !CorePlugin.modelPersistence().loadModel(findProject('sample-root')).isEmptyModel()
+        CorePlugin.modelPersistence().loadModel(findProject('sample-sub')).isEmptyModel()
     }
 }

@@ -37,7 +37,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.event.EventListener;
@@ -48,20 +47,20 @@ import org.eclipse.buildship.core.workspace.ProjectMovedEvent;
 import org.eclipse.buildship.core.workspace.WorkbenchShutdownEvent;
 
 /**
- * Default implementation for {@link PersistentModel}.
+ * Default implementation for {@link MutablePersistentModel}.
  *
  * @author Donat Csikos
  */
 public final class DefaultModelPersistence implements ModelPersistence, EventListener {
 
     // Cache holding (project name - persistent model property) pairs.
-    private final LoadingCache<IProject, DefaultPersistentModel> modelCache;
+    private final LoadingCache<IProject, PersistentModel> modelCache;
 
     private DefaultModelPersistence() {
-        this.modelCache = CacheBuilder.newBuilder().build(new CacheLoader<IProject, DefaultPersistentModel>() {
+        this.modelCache = CacheBuilder.newBuilder().build(new CacheLoader<IProject, PersistentModel>() {
 
             @Override
-            public DefaultPersistentModel load(IProject project) throws Exception {
+            public PersistentModel load(IProject project) throws Exception {
                 return doLoadModel(project);
             }
         });
@@ -74,11 +73,7 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
 
     @Override
     public void saveModel(PersistentModel model) {
-        if (!(model instanceof DefaultPersistentModel)) {
-            throw new GradlePluginsRuntimeException("Can't save PersistentModel class " + model.getClass().getName());
-        }
-        DefaultPersistentModel persistentModel = (DefaultPersistentModel) model;
-        this.modelCache.put(persistentModel.getProject(), persistentModel);
+        this.modelCache.put(model.getProject(), model);
     }
 
     @Override
@@ -106,7 +101,7 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
         String previousName = event.getPreviousName();
         for (IProject cached : this.modelCache.asMap().keySet()) {
             if (cached.getName().equals(previousName)) {
-                DefaultPersistentModel model = this.modelCache.getUnchecked(cached);
+                PersistentModel model = this.modelCache.getUnchecked(cached);
                 this.modelCache.put(event.getProject(), model);
                 this.modelCache.invalidate(cached);
             }
@@ -122,28 +117,28 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
         deleteModel(event.getProject());
     }
 
-    private static DefaultPersistentModel doLoadModel(IProject project) throws IOException, FileNotFoundException {
+    private static PersistentModel doLoadModel(IProject project) throws IOException, FileNotFoundException {
         String projectName = project.getName();
         File preferencesFile = preferencesFile(projectName);
         if (preferencesFile.exists()) {
             try (Reader reader = new InputStreamReader(new FileInputStream(preferencesFile(projectName)), Charsets.UTF_8)) {
                 Properties props = new Properties();
                 props.load(reader);
-                return DefaultPersistentModel.fromProperties(project, props);
+                return PersistentModelConverter.toModel(project, props);
             }
         } else {
-            return DefaultPersistentModel.empty(project);
+            return PersistentModel.empty(project);
         }
     }
 
     private void persistAllProjectPrefs() {
-        Map<IProject, DefaultPersistentModel> modelCacheMap = this.modelCache.asMap();
-        for (Entry<IProject, DefaultPersistentModel> entry : modelCacheMap.entrySet()) {
+        Map<IProject, PersistentModel> modelCacheMap = this.modelCache.asMap();
+        for (Entry<IProject, PersistentModel> entry : modelCacheMap.entrySet()) {
             persistPrefs(entry.getKey(), entry.getValue());
         }
     }
 
-    private static void persistPrefs(IProject project, DefaultPersistentModel model) {
+    private static void persistPrefs(IProject project, PersistentModel model) {
         try {
             persistPrefsChecked(project, model);
         } catch (IOException e) {
@@ -151,7 +146,7 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
         }
     }
 
-    private static void persistPrefsChecked(IProject project, DefaultPersistentModel model) throws IOException {
+    private static void persistPrefsChecked(IProject project, PersistentModel model) throws IOException {
         File preferencesFile = preferencesFile(project);
 
         if (!preferencesFile.exists()) {
@@ -159,7 +154,7 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
             Files.touch(preferencesFile);
         }
 
-        Properties props = model.asProperties();
+        Properties props = PersistentModelConverter.toProperties(model);
 
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(preferencesFile), Charsets.UTF_8)) {
             props.store(writer, "");

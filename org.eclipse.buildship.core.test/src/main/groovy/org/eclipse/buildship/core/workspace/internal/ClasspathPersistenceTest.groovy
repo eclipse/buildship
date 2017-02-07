@@ -7,6 +7,8 @@ import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.preferences.PersistentModel
+import org.eclipse.buildship.core.preferences.PersistentModelBuilder
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.workspace.GradleBuild
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager
@@ -116,8 +118,7 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         def classpath = CorePlugin.modelPersistence().loadModel(project).classpath
         project.delete(false, true, null)
         project.create(descriptor, null)
-        def model = CorePlugin.modelPersistence().loadModel(project)
-        model.setClasspath(classpath)
+        def model = PersistentModel.builder(CorePlugin.modelPersistence().loadModel(project)).classpath(classpath).build()
         CorePlugin.modelPersistence().saveModel(model)
         project.open(null)
         waitForGradleJobsToFinish()

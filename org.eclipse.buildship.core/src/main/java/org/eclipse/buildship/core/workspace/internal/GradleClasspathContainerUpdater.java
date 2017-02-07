@@ -39,6 +39,7 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.preferences.PersistentModel;
+import org.eclipse.buildship.core.preferences.PersistentModelBuilder;
 import org.eclipse.buildship.core.util.classpath.ClasspathUtils;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
@@ -71,12 +72,10 @@ final class GradleClasspathContainerUpdater {
         }
     }
 
-    private void updateClasspathContainer(IProgressMonitor monitor) throws JavaModelException {
+    private void updateClasspathContainer(PersistentModel model, PersistentModelBuilder updates, IProgressMonitor monitor) throws JavaModelException {
         ImmutableList<IClasspathEntry> containerEntries = collectClasspathContainerEntries();
         setClasspathContainer(this.eclipseProject, containerEntries, monitor);
-        PersistentModel model = CorePlugin.modelPersistence().loadModel(this.eclipseProject.getProject());
-        model.setClasspath(containerEntries);
-        CorePlugin.modelPersistence().saveModel(model);
+        updates.classpath(containerEntries);
     }
 
     private ImmutableList<IClasspathEntry> collectClasspathContainerEntries() {
@@ -118,42 +117,27 @@ final class GradleClasspathContainerUpdater {
     /**
      * Updates the classpath container of the target project based on the given Gradle model.
      * The container will be persisted so it does not have to be reloaded after the workbench is restarted.
-     *
-     * @param eclipseProject         the target project to update the classpath container on
-     * @param gradleProject          the Gradle model to read the dependencies from
-     * @param allGradleProjects      all other Gradle projects available as dependencies
-     * @param monitor                the monitor to report progress on
-     * @throws JavaModelException if the container assignment fails
      */
-    public static void updateFromModel(IJavaProject eclipseProject, OmniEclipseProject gradleProject, Set<OmniEclipseProject> allGradleProjects, IProgressMonitor monitor) throws JavaModelException {
+    public static void updateFromModel(IJavaProject eclipseProject, OmniEclipseProject gradleProject, Set<OmniEclipseProject> allGradleProjects, PersistentModel model, PersistentModelBuilder updates, IProgressMonitor monitor) throws JavaModelException {
         GradleClasspathContainerUpdater updater = new GradleClasspathContainerUpdater(eclipseProject, gradleProject, allGradleProjects);
-        updater.updateClasspathContainer(monitor);
+        updater.updateClasspathContainer(model, updates, monitor);
     }
 
     /**
      * Updates the classpath container from the state stored by the last call to {@link #updateFromModel(IJavaProject, OmniEclipseProject, IProgressMonitor)}.
-     *
-     * @param eclipseProject the target project to update the classpath container on
-     * @param monitor the monitor to report progress on
-     * @return true if the container could be loaded, false if the container remains uninitialized
-     * @throws JavaModelException if the classpath cannot be assigned
      */
     public static boolean updateFromStorage(IJavaProject eclipseProject, IProgressMonitor monitor) throws JavaModelException {
-        List<IClasspathEntry> storedClasspath = CorePlugin.modelPersistence().loadModel(eclipseProject.getProject()).getClasspath();
-        if (storedClasspath != null) {
-            setClasspathContainer(eclipseProject, storedClasspath, monitor);
-            return true;
-        } else {
+        PersistentModel model = CorePlugin.modelPersistence().loadModel(eclipseProject.getProject());
+        if (model.isEmptyModel()) {
             return false;
+        } else {
+            setClasspathContainer(eclipseProject, model.getClasspath(), monitor);
+            return true;
         }
     }
 
     /**
      * Resolves the classpath container to an empty list.
-     *
-     * @param eclipseProject      the target project to update the classpath container on
-     * @param monitor             the monitor to report progress on
-     * @throws JavaModelException if the container assignment fails
      */
     public static void clear(IJavaProject eclipseProject, IProgressMonitor monitor) throws JavaModelException {
         setClasspathContainer(eclipseProject, ImmutableList.<IClasspathEntry>of(), monitor);
