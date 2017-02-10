@@ -18,6 +18,7 @@ import com.google.common.base.Strings;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
@@ -98,10 +99,10 @@ public final class FileUtils {
     /**
      * Ensures the given folder's parent hierarchy is created if they do not already exist.
      *
-     * @param folder the folder whose parent's hierarchy to ensure to exist
+     * @param resource the folder whose parent's hierarchy to ensure to exist
      */
-    public static void ensureParentFolderHierarchyExists(IFolder folder) {
-        IContainer parent = folder.getParent();
+    public static void ensureParentFolderHierarchyExists(IResource resource) {
+        IContainer parent = resource.getParent();
         if (parent instanceof IFolder) {
             ensureFolderHierarchyExists((IFolder) parent);
         }
