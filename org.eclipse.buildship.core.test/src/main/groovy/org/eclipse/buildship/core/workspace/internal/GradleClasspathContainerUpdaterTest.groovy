@@ -93,6 +93,31 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         path << ['linked_folder', '/linked_folder']
     }
 
+    def "Verify container is only updated on project, if content has changed"(){
+        given:
+        def gradleProject = gradleProjectWithClasspath(
+                externalDependency(dir("foo")),
+                externalDependency(dir("bar"))
+                )
+
+        expect:
+        def initialContainer = gradleClasspathContainer
+        initialContainer
+
+        when:
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), null)
+
+        then:
+        def modifiedContainer = gradleClasspathContainer
+        !modifiedContainer.is(initialContainer)
+
+        when:
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), null)
+
+        then:
+        modifiedContainer.is(gradleClasspathContainer)
+    }
+
     OmniEclipseProject gradleProjectWithClasspath(Object... dependencies) {
         Stub(OmniEclipseProject) {
             getExternalDependencies() >> dependencies.findAll { it instanceof OmniExternalDependency }
@@ -115,5 +140,9 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
     IClasspathEntry[] getResolvedClasspath() {
         project.getResolvedClasspath(false)
+    }
+
+    GradleClasspathContainer getGradleClasspathContainer(){
+        JavaCore.getClasspathContainer(GradleClasspathContainer.CONTAINER_PATH, project)
     }
 }
