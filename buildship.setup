@@ -24,10 +24,15 @@
         name="org.codehaus.groovy.eclipse.feature.feature.group"/>
     <requirement
         name="org.codehaus.groovy24.feature.feature.group"/>
+    <requirement
+        name="org.jetbrains.kotlin.feature.feature.group"
+        versionRange="0.8.0"/>
     <repository
         url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.6"/>
     <repository
         url="http://download.eclipse.org/buildship/updates/e46/snapshots/2.x"/>
+    <repository
+        url="https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_EclipsePlugin/scripts.tcbuildtag"/>
     <description>Installs the required plugins to the IDE.</description>
   </setupTask>
   <setupTask
@@ -214,12 +219,6 @@
       <choice
           value="Juno"
           label="Eclipse Juno - 4.2"/>
-      <choice
-          value="Indigo"
-          label="Eclipse Indigo - 3.7"/>
-      <choice
-          value="Helios"
-          label="Eclipse Helios - 3.6"/>
       <description>Buildship Target Platform</description>
     </setupTask>
     <setupTask
@@ -301,66 +300,61 @@
       <requirement
           name="com.gradleware.tooling.utils"
           versionRange="0.17.0"/>
+      <requirement
+          name="org.jetbrains.kotlin.feature.feature.group"
+          versionRange="0.8.0"/>
       <repositoryList
           name="Neon">
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/release-neon"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-neon"/>
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
         <repository
             url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.17.0/p2-repository-0.17.0.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Mars">
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/release-mars"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-mars"/>
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
         <repository
             url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.17.0/p2-repository-0.17.0.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Luna">
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/release-luna-sr2"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-luna"/>
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
         <repository
             url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.17.0/p2-repository-0.17.0.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Kepler">
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/release-kepler-sr2"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-kepler"/>
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
         <repository
             url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.17.0/p2-repository-0.17.0.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Juno">
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/release-juno-sr2"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-juno"/>
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
         <repository
-            url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.17.0/p2-repository-0.17.0.zip!/"/>
-      </repositoryList>
-      <repositoryList
-          name="Indigo">
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/release-indigo-sr2"/>
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
-        <repository
-            url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.17.0/p2-repository-0.17.0.zip!/"/>
-      </repositoryList>
-      <repositoryList
-          name="Helios">
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/release-helios-sr2"/>
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
         <repository
             url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.17.0/p2-repository-0.17.0.zip!/"/>
       </repositoryList>
@@ -404,20 +398,6 @@
       </repositoryList>
       <repositoryList
           name="Juno">
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
-      </repositoryList>
-      <repositoryList
-          name="Indigo">
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
-      </repositoryList>
-      <repositoryList
-          name="Helios">
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
