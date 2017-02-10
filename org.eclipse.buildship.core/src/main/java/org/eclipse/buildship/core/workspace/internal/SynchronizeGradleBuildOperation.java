@@ -225,7 +225,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         IJavaProject javaProject = JavaCore.create(workspaceProject);
         OutputLocationUpdater.update(javaProject, project.getOutputLocation(), progress.newChild(1));
         SourceFolderUpdater.update(javaProject, project.getSourceDirectories(), progress.newChild(1));
-        ClasspathUpdater.update(javaProject, project, progress.newChild(1));
+        LibraryFilter.update(javaProject, project, progress.newChild(1));
         ClasspathContainerUpdater.update(javaProject, project.getClasspathContainers(), project.getJavaSourceSettings().get(), progress.newChild(1));
         JavaSourceSettingsUpdater.update(javaProject, project, progress.newChild(1));
         GradleClasspathContainerUpdater.updateFromModel(javaProject, project, SynchronizeGradleBuildOperation.this.allProjects, progress.newChild(1));

@@ -28,7 +28,7 @@ import org.eclipse.jdt.core.JavaModelException;
  *
  * @author Donat Csikos
  */
-final class ClasspathUpdater {
+final class LibraryFilter {
 
     public static void update(IJavaProject eclipseProject, OmniEclipseProject modelProject, IProgressMonitor monitor) throws JavaModelException {
         if (supportsClasspathCustomization(modelProject)) {

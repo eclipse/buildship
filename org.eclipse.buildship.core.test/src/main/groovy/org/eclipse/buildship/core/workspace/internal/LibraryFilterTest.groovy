@@ -12,7 +12,7 @@ import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
-class ClasspathUpdaterTest extends WorkspaceSpecification {
+class LibraryFilterTest extends WorkspaceSpecification {
 
     def "Deletes custom lib entries"() {
         setup:
@@ -24,7 +24,7 @@ class ClasspathUpdaterTest extends WorkspaceSpecification {
         when:
         OmniEclipseProject model = Mock(OmniEclipseProject)
         model.classpathContainers >> Optional.of(Mock(List))
-        ClasspathUpdater.update(project, model, new NullProgressMonitor())
+        LibraryFilter.update(project, model, new NullProgressMonitor())
 
         then:
         !hasLibsInClasspath(project)
@@ -40,7 +40,7 @@ class ClasspathUpdaterTest extends WorkspaceSpecification {
         when:
         OmniEclipseProject model = Mock(OmniEclipseProject)
         model.classpathContainers >> Optional.absent()
-        ClasspathUpdater.update(project, model, new NullProgressMonitor())
+        LibraryFilter.update(project, model, new NullProgressMonitor())
 
         then:
         hasLibsInClasspath(project)
