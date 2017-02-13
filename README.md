@@ -6,7 +6,7 @@ on [eclipse.org](https://projects.eclipse.org/projects/tools.buildship).
 
 ## Requirements
 
-Buildship can be used with Eclipse IDE 3.6.x or newer. Older versions of Eclipse the IDE might work but have not been tested explicitly. Depending
+Buildship can be used with Eclipse IDE 4.2.x or newer. Older versions of Eclipse the IDE might work but have not been tested explicitly. Depending
 on the version of Gradle that Buildship interacts with, certain features of Buildship may not be available.
 
 
@@ -24,19 +24,12 @@ More specifically, you can find
 
 ## Discussions &amp; News
 
-We are very interested in feedback from the Gradle and Eclipse communities. All things Buildship are discussed on
-
- * [Gradle Forums](http://discuss.gradle.org/c/help-discuss/buildship)
- * [Eclipse Mailinglist](https://dev.eclipse.org/mhonarc/lists/buildship-dev)
+We are very interested in feedback from the Gradle and Eclipse communities. All things Buildship are discussed on the [Gradle Forums](http://discuss.gradle.org/c/help-discuss/buildship).
 
 
 ## Issue Tracking
 
-You can report issues that you find in Buildship as well as in Gradle through
-
- * [Bugzilla](https://bugs.eclipse.org/bugs/enter_bug.cgi?product=Buildship) (for Buildship issues)
- * [Gradle Forums](http://discuss.gradle.org/c/bugs) (for Gradle issues)
-
+Issues are tracked on GitHub. Add your :thumbsup: for issues that you care about to help us prioritize them.
 
 ## License
 
