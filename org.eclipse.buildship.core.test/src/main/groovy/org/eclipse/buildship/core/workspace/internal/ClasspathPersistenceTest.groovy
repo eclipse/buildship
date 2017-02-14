@@ -125,12 +125,6 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
     }
 
     private PersistentModel persistentModel(project, classpath) {
-        PersistentModel.builder(project)
-            .buildDir(new Path("build"))
-            .subprojectPaths([])
-            .classpath(classpath)
-            .derivedResources([])
-            .linkedResources([])
-            .build()
+        return PersistentModel.from(project, new Path("build"), [], classpath, [], [])
     }
 }

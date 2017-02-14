@@ -22,8 +22,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.preferences.PersistentModel;
-import org.eclipse.buildship.core.preferences.PersistentModelBuilder;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
 
 /**
@@ -41,11 +39,11 @@ final class SubprojectMarkerUpdater {
         this.gradleProject = Preconditions.checkNotNull(gradleProject);
     }
 
-    public void update(PersistentModel model, PersistentModelBuilder updates, IProgressMonitor monitor) {
+    public void update(PersistentModelBuilder persistentModel, IProgressMonitor monitor) {
         SubMonitor progress = SubMonitor.convert(monitor, 1);
         try {
             List<IPath> subfolders = getNestedSubProjectFolderPaths(progress.newChild(1));
-            updates.subprojectPaths(subfolders);
+            persistentModel.subprojectPaths(subfolders);
         } catch (Exception e) {
             String message = String.format("Could not update sub-project markers on project %s.", this.project.getName());
             throw new GradlePluginsRuntimeException(message, e);
@@ -69,7 +67,7 @@ final class SubprojectMarkerUpdater {
         return subfolderPaths;
     }
 
-    public static void update(IProject workspaceProject, OmniEclipseProject gradleProject, PersistentModel model, PersistentModelBuilder updates, IProgressMonitor monitor) {
-        new SubprojectMarkerUpdater(workspaceProject, gradleProject).update(model, updates, monitor);
+    public static void update(IProject workspaceProject, OmniEclipseProject gradleProject, PersistentModelBuilder persistentModel, IProgressMonitor monitor) {
+        new SubprojectMarkerUpdater(workspaceProject, gradleProject).update(persistentModel, monitor);
     }
 }

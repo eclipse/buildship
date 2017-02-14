@@ -39,7 +39,6 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.preferences.PersistentModel;
-import org.eclipse.buildship.core.preferences.PersistentModelBuilder;
 import org.eclipse.buildship.core.util.classpath.ClasspathUtils;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
@@ -72,10 +71,10 @@ final class GradleClasspathContainerUpdater {
         }
     }
 
-    private void updateClasspathContainer(PersistentModel model, PersistentModelBuilder updates, IProgressMonitor monitor) throws JavaModelException {
+    private void updateClasspathContainer(PersistentModelBuilder persistentModel, IProgressMonitor monitor) throws JavaModelException {
         ImmutableList<IClasspathEntry> containerEntries = collectClasspathContainerEntries();
         setClasspathContainer(this.eclipseProject, containerEntries, monitor);
-        updates.classpath(containerEntries);
+        persistentModel.classpath(containerEntries);
     }
 
     private ImmutableList<IClasspathEntry> collectClasspathContainerEntries() {
@@ -118,9 +117,9 @@ final class GradleClasspathContainerUpdater {
      * Updates the classpath container of the target project based on the given Gradle model.
      * The container will be persisted so it does not have to be reloaded after the workbench is restarted.
      */
-    public static void updateFromModel(IJavaProject eclipseProject, OmniEclipseProject gradleProject, Set<OmniEclipseProject> allGradleProjects, PersistentModel model, PersistentModelBuilder updates, IProgressMonitor monitor) throws JavaModelException {
+    public static void updateFromModel(IJavaProject eclipseProject, OmniEclipseProject gradleProject, Set<OmniEclipseProject> allGradleProjects, PersistentModelBuilder persistentModel, IProgressMonitor monitor) throws JavaModelException {
         GradleClasspathContainerUpdater updater = new GradleClasspathContainerUpdater(eclipseProject, gradleProject, allGradleProjects);
-        updater.updateClasspathContainer(model, updates, monitor);
+        updater.updateClasspathContainer(persistentModel, monitor);
     }
 
     /**

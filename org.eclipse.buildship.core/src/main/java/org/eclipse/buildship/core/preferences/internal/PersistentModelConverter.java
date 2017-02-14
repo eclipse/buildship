@@ -121,8 +121,7 @@ final class PersistentModelConverter {
                 return new Path(path);
             }
         });
-        return PersistentModel.builder(project).buildDir(buildDir).subprojectPaths(subprojects).classpath(classpath).derivedResources(derivedResources)
-                .linkedResources(linkedResources).build();
+        return PersistentModel.from(project, buildDir, subprojects, classpath, derivedResources, linkedResources);
     }
 
     private static <T> T loadValue(Properties properties, String key, T defaultValue, Function<String, T> conversion) {

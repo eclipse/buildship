@@ -10,7 +10,6 @@ import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
 
 import org.eclipse.buildship.core.preferences.PersistentModel
-import org.eclipse.buildship.core.preferences.PersistentModelBuilder
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
 class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
@@ -20,11 +19,10 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         File externalDir = dir('another')
         IProject project = newProject('project-name')
         OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource(externalDir.name, externalDir)
-        PersistentModel persistentModel = emptyPersistentModel(project)
-        PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
+        PersistentModelBuilder persistentModel = builder(project)
 
         when:
-        LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, modelUpdates, new NullProgressMonitor())
+        LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, new NullProgressMonitor())
         Collection<IFolder> linkedFolders = linkedFolders(project)
 
         then:
@@ -39,11 +37,10 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
             File externalDir = getDir('another')
             IProject project = newProject('project-name')
             OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource(externalDir.name, externalDir)
-            PersistentModel persistentModel = emptyPersistentModel(project)
-            PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
+            PersistentModelBuilder persistentModel = builder(project)
 
             when:
-            LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, modelUpdates, new NullProgressMonitor())
+            LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, new NullProgressMonitor())
             Collection<IFolder> linkedFolders = linkedFolders(project)
 
             then:
@@ -58,16 +55,14 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         File externalDir = dir('another')
         IProject project = newProject('project-name')
         OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource(linkName, externalDir)
-        PersistentModel persistentModel = emptyPersistentModel(project)
-        PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
-        LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, modelUpdates, new NullProgressMonitor())
+        PersistentModelBuilder persistentModel = builder(project)
+        LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, new NullProgressMonitor())
         linkedResource = newFolderLinkedResource(linkName, externalDir)
 
-        persistentModel = modelUpdates.build()
-        modelUpdates = PersistentModel.builder(persistentModel)
+        persistentModel = builder(persistentModel.build())
 
         when:
-        LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, modelUpdates, new NullProgressMonitor())
+        LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, new NullProgressMonitor())
         Collection<IFolder> linkedFolders = linkedFolders(project)
 
         then:
@@ -89,11 +84,10 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         OmniEclipseLinkedResource localFolder =  newFolderLinkedResource(externalDir.name, externalDir)
         OmniEclipseLinkedResource localFile =  newFileLinkedResource(externalFile.name, externalFile)
         OmniEclipseLinkedResource virtualResource =  newVirtualLinkedResource()
-        PersistentModel persistentModel = emptyPersistentModel(project)
-        PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
+        PersistentModelBuilder persistentModel = builder(project)
 
         when:
-        LinkedResourcesUpdater.update(project, [localFile, localFolder, virtualResource], persistentModel, modelUpdates, new NullProgressMonitor())
+        LinkedResourcesUpdater.update(project, [localFile, localFolder, virtualResource], persistentModel, new NullProgressMonitor())
 
         then:
         linkedFolders(project).size() == 1
@@ -105,11 +99,10 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         project.getFolder('foldername').create(true, true, null)
         File externalDir = dir('foldername')
         OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource(externalDir.name, externalDir)
-        PersistentModel persistentModel = emptyPersistentModel(project)
-        PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
+        PersistentModelBuilder persistentModel = builder(project)
 
         when:
-        LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, modelUpdates, new NullProgressMonitor())
+        LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, new NullProgressMonitor())
         Collection<IFolder> linkedFolders = linkedFolders(project)
 
         then:
@@ -124,15 +117,13 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         IProject project = newProject('project-name')
         OmniEclipseLinkedResource linkedResourceA =  newFolderLinkedResource(linkName, externalDirA)
         OmniEclipseLinkedResource linkedResourceB =  newFolderLinkedResource(externalDirB.name, externalDirB)
-        PersistentModel persistentModel = emptyPersistentModel(project)
-        PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
-        LinkedResourcesUpdater.update(project, [linkedResourceA], persistentModel, modelUpdates, new NullProgressMonitor())
+        PersistentModelBuilder persistentModel = builder(project)
+        LinkedResourcesUpdater.update(project, [linkedResourceA], persistentModel, new NullProgressMonitor())
 
-        persistentModel = modelUpdates.build()
-        modelUpdates = PersistentModel.builder(persistentModel)
+        persistentModel = builder(persistentModel.build())
 
         when:
-        LinkedResourcesUpdater.update(project, [linkedResourceB], persistentModel, modelUpdates, new NullProgressMonitor())
+        LinkedResourcesUpdater.update(project, [linkedResourceB], persistentModel, new NullProgressMonitor())
         Collection<IFolder> linkedFolders = linkedFolders(project)
 
         then:
@@ -153,17 +144,15 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         IProject project = newProject('project-name')
         OmniEclipseLinkedResource linkedResourceA =  newFolderLinkedResource(externalDirA.name, externalDirA)
         OmniEclipseLinkedResource linkedResourceB =  newFolderLinkedResource(externalDirB.name, externalDirB)
-        PersistentModel persistentModel = emptyPersistentModel(project)
-        PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
-        LinkedResourcesUpdater.update(project, [linkedResourceA], persistentModel, modelUpdates, new NullProgressMonitor())
+        PersistentModelBuilder persistentModel = builder(project)
+        LinkedResourcesUpdater.update(project, [linkedResourceA], persistentModel, new NullProgressMonitor())
 
-        persistentModel = modelUpdates.build()
-        modelUpdates = PersistentModel.builder(persistentModel)
+        persistentModel = builder(persistentModel.build())
 
         when:
         project.getFolder('another1').delete(false, new NullProgressMonitor())
         project.getFolder('another1').create(true, true, new NullProgressMonitor())
-        LinkedResourcesUpdater.update(project, [linkedResourceB], persistentModel, modelUpdates, new NullProgressMonitor())
+        LinkedResourcesUpdater.update(project, [linkedResourceB], persistentModel, new NullProgressMonitor())
         Collection<IFolder> linkedFolders = linkedFolders(project)
 
         then:
@@ -175,18 +164,16 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         File externalDir = dir('another')
         IProject project = newProject('project-name')
         IPath linkedFolderPath = new Path(externalDir.absolutePath)
-        PersistentModel persistentModel = emptyPersistentModel(project)
-        PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
+        PersistentModelBuilder persistentModel = builder(project)
         IFolder manuallyDefinedLinkedFolder = project.getFolder(externalDir.name)
         manuallyDefinedLinkedFolder.createLink(linkedFolderPath, IResource.NONE, null);
         OmniEclipseLinkedResource linkedResource = newFolderLinkedResource(externalDir.name, externalDir)
-        LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, modelUpdates, new NullProgressMonitor())
+        LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, new NullProgressMonitor())
 
-        persistentModel = modelUpdates.build()
-        modelUpdates = PersistentModel.builder(persistentModel)
+        persistentModel = builder(persistentModel.build())
 
         when:
-        LinkedResourcesUpdater.update(project, [], persistentModel,modelUpdates, new NullProgressMonitor())
+        LinkedResourcesUpdater.update(project, [], persistentModel, new NullProgressMonitor())
 
         then:
         !project.getFolder('another').isLinked()
@@ -197,11 +184,10 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         File externalDir = dir('ext')
         IProject project = newProject('project-name')
         OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource('links/link-to-ext', externalDir)
-        PersistentModel persistentModel = emptyPersistentModel(project)
-        PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
+        PersistentModelBuilder persistentModel = builder(project)
 
         when:
-        LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, modelUpdates, new NullProgressMonitor())
+        LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, new NullProgressMonitor())
 
         then:
         linkedFolders(project).size() == 1
@@ -253,13 +239,15 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         result
     }
 
-    private PersistentModel emptyPersistentModel(IProject project) {
-        PersistentModel.builder(project)
-            .buildDir(new Path("build"))
-            .subprojectPaths([])
-            .classpath([])
-            .derivedResources([])
-            .linkedResources([])
-            .build()
+    private PersistentModelBuilder builder(PersistentModel model) {
+        new PersistentModelBuilder(model)
+    }
+
+    private PersistentModelBuilder builder(IProject project) {
+        new PersistentModelBuilder(emptyModel(project))
+    }
+
+    private PersistentModel emptyModel(IProject project) {
+        new PersistentModel(project, new Path("build"), [], [], [], [])
     }
 }

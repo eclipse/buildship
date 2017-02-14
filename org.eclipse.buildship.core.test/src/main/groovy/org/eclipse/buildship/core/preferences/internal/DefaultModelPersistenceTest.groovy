@@ -6,9 +6,7 @@ import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.preferences.ModelPersistence
 import org.eclipse.buildship.core.preferences.PersistentModel
-import org.eclipse.buildship.core.preferences.PersistentModelBuilder
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
 class DefaultModelPersistenceTest extends WorkspaceSpecification {
@@ -32,13 +30,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
 
-        PersistentModel model = PersistentModel.builder(project)
-            .buildDir(buildDir)
-            .subprojectPaths(subProjectPaths)
-            .classpath(classpath)
-            .derivedResources(derivedResources)
-            .linkedResources(linkedResources)
-            .build()
+        PersistentModel model = new PersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
 
         when:
         CorePlugin.modelPersistence().saveModel(model)
@@ -61,13 +53,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
 
-        PersistentModel model = PersistentModel.builder(project)
-            .buildDir(buildDir)
-            .subprojectPaths(subProjectPaths)
-            .classpath(classpath)
-            .derivedResources(derivedResources)
-            .linkedResources(linkedResources)
-            .build()
+        PersistentModel model = new PersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
         CorePlugin.modelPersistence().saveModel(model)
 
         when:
@@ -86,13 +72,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
 
-        PersistentModel model = PersistentModel.builder(project)
-            .buildDir(buildDir)
-            .subprojectPaths(subProjectPaths)
-            .classpath(classpath)
-            .derivedResources(derivedResources)
-            .linkedResources(linkedResources)
-            .build()
+        PersistentModel model = new PersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
         CorePlugin.modelPersistence().saveModel(model)
 
         when:

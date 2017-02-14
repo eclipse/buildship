@@ -6,28 +6,26 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.preferences.internal;
+package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.Collection;
 import java.util.List;
 
 import com.google.common.base.Preconditions;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 
 import org.eclipse.buildship.core.preferences.PersistentModel;
-import org.eclipse.buildship.core.preferences.PersistentModelBuilder;
 
 /**
- * Default implementation for {@link PersistentModelBuilder}.
+ * Builder for {@link PersistentModel}.
  *
  * @author Donat Csikos
  */
-public final class DefaultPersistentModelBuilder implements PersistentModelBuilder {
+public final class PersistentModelBuilder {
 
-    private final IProject project;
+    private final PersistentModel previous;
 
     private IPath buildDir;
     private Collection<IPath> subprojectPaths;
@@ -35,51 +33,45 @@ public final class DefaultPersistentModelBuilder implements PersistentModelBuild
     private Collection<IPath> derivedResources;
     private Collection<IPath> linkedResources;
 
-    public DefaultPersistentModelBuilder(IProject project) {
-        this.project = Preconditions.checkNotNull(project);
+    public PersistentModelBuilder(PersistentModel previous) {
+        this.previous = Preconditions.checkNotNull(previous);
+        this.buildDir = previous.getBuildDir();
+        this.subprojectPaths = previous.getSubprojectPaths();
+        this.classpath = previous.getClasspath();
+        this.derivedResources = previous.getDerivedResources();
+        this.linkedResources = previous.getLinkedResources();
     }
 
-    public DefaultPersistentModelBuilder(PersistentModel model) {
-        this(model.getProject());
-        this.buildDir = model.getBuildDir();
-        this.subprojectPaths = model.getSubprojectPaths();
-        this.classpath = model.getClasspath();
-        this.derivedResources = model.getDerivedResources();
-        this.linkedResources = model.getLinkedResources();
-    }
-
-    @Override
     public PersistentModelBuilder buildDir(IPath buildDir) {
         this.buildDir = buildDir;
         return this;
     }
 
-    @Override
     public PersistentModelBuilder subprojectPaths(Collection<IPath> subprojectPaths) {
         this.subprojectPaths = subprojectPaths;
         return this;
     }
 
-    @Override
     public PersistentModelBuilder classpath(List<IClasspathEntry> classpath) {
         this.classpath = classpath;
         return this;
     }
 
-    @Override
     public PersistentModelBuilder derivedResources(Collection<IPath> derivedResources) {
         this.derivedResources = derivedResources;
         return this;
     }
 
-    @Override
     public PersistentModelBuilder linkedResources(Collection<IPath> linkedResources) {
         this.linkedResources = linkedResources;
         return this;
     }
 
-    @Override
+    public PersistentModel getPrevious() {
+        return this.previous;
+    }
+
     public PersistentModel build() {
-        return new DefaultPersistentModel(this.project, this.buildDir, this.subprojectPaths, this.classpath, this.derivedResources, this.linkedResources);
+        return PersistentModel.from(this.previous.getProject(), this.buildDir, this.subprojectPaths, this.classpath, this.derivedResources, this.linkedResources);
     }
 }

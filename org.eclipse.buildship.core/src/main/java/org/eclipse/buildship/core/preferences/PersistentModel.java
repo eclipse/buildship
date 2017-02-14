@@ -11,36 +11,64 @@ package org.eclipse.buildship.core.preferences;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
-
-import org.eclipse.buildship.core.preferences.internal.DefaultPersistentModelBuilder;
 
 /**
  * Contract how to read Gradle model elements stored in the workspace plugin state area.
  *
  * @author Donat Csikos
  */
-public abstract class PersistentModel {
+public final class PersistentModel {
 
-    public abstract IProject getProject();
+    private final IProject project;
+    private final IPath buildDir;
+    private final Collection<IPath> subprojectPaths;
+    private final List<IClasspathEntry> classpath;
+    private final Collection<IPath> derivedResources;
+    private final Collection<IPath> linkedResources;
 
-    public abstract IPath getBuildDir();
-
-    public abstract Collection<IPath> getSubprojectPaths();
-
-    public abstract  List<IClasspathEntry> getClasspath();
-
-    public abstract Collection<IPath> getDerivedResources();
-
-    public abstract Collection<IPath> getLinkedResources();
-
-    public static PersistentModelBuilder builder(IProject project) {
-        return new DefaultPersistentModelBuilder(project);
+    private PersistentModel(IProject project, IPath buildDir, Collection<IPath> subprojectPaths, List<IClasspathEntry> classpath, Collection<IPath> derivedResources,
+            Collection<IPath> linkedResources) {
+        this.project = Preconditions.checkNotNull(project);
+        this.buildDir = Preconditions.checkNotNull(buildDir);
+        this.subprojectPaths = ImmutableList.copyOf(subprojectPaths);
+        this.classpath = ImmutableList.copyOf(classpath);
+        this.derivedResources = ImmutableList.copyOf(derivedResources);
+        this.linkedResources = ImmutableList.copyOf(linkedResources);
     }
 
-    public static PersistentModelBuilder builder(PersistentModel model) {
-        return new DefaultPersistentModelBuilder(model);
+    public IProject getProject() {
+        return this.project;
+    }
+
+    public IPath getBuildDir() {
+        return this.buildDir;
+    }
+
+    public Collection<IPath> getSubprojectPaths() {
+        return this.subprojectPaths;
+    }
+
+    public List<IClasspathEntry> getClasspath() {
+        return this.classpath;
+    }
+
+
+    public Collection<IPath> getDerivedResources() {
+        return this.derivedResources;
+    }
+
+    public Collection<IPath> getLinkedResources() {
+        return this.linkedResources;
+    }
+
+    public static PersistentModel from(IProject project, IPath buildDir, Collection<IPath> subprojectPaths, List<IClasspathEntry> classpath,
+            Collection<IPath> derivedResources, Collection<IPath> linkedResources) {
+        return new PersistentModel(project, buildDir, subprojectPaths, classpath, derivedResources, linkedResources);
     }
 }

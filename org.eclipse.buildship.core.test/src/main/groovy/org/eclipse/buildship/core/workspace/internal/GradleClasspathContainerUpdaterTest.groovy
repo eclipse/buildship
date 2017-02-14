@@ -13,7 +13,6 @@ import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.preferences.PersistentModel
-import org.eclipse.buildship.core.preferences.PersistentModelBuilder
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 
@@ -31,12 +30,11 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         def gradleProject = gradleProjectWithClasspath(
             externalDependency(dir("foo"))
         )
-        PersistentModel persistentModel = emptyPersistentModel(project.project)
-        PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
+        PersistentModelBuilder persistentModel = builder(project.project)
 
 
         when:
-        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), persistentModel, modelUpdates, null)
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), persistentModel, null)
 
         then:
         resolvedClasspath[0].entryKind == IClasspathEntry.CPE_LIBRARY
@@ -75,5 +73,13 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
             .derivedResources([])
             .linkedResources([])
             .build()
+    }
+
+    private PersistentModelBuilder builder(IProject project) {
+        new PersistentModelBuilder(emptyModel(project))
+    }
+
+    private PersistentModel emptyModel(IProject project) {
+        new PersistentModel(project, new Path("build"), [], [], [], [])
     }
 }

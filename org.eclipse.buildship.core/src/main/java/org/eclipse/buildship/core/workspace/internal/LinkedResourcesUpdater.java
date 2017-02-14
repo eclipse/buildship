@@ -34,7 +34,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 
 import org.eclipse.buildship.core.preferences.PersistentModel;
-import org.eclipse.buildship.core.preferences.PersistentModelBuilder;
 import org.eclipse.buildship.core.util.file.FileUtils;
 
 /**
@@ -58,14 +57,14 @@ final class LinkedResourcesUpdater {
         });
     }
 
-    private void updateLinkedResources(PersistentModel model, PersistentModelBuilder updates, IProgressMonitor monitor) throws CoreException {
+    private void updateLinkedResources(PersistentModelBuilder persistentModel, IProgressMonitor monitor) throws CoreException {
         SubMonitor progress = SubMonitor.convert(monitor, 2);
-        removeOutdatedLinkedResources(model, progress.newChild(1));
-        createLinkedResources(model, updates, progress.newChild(1));
+        removeOutdatedLinkedResources(persistentModel.getPrevious(), progress.newChild(1));
+        createLinkedResources(persistentModel, progress.newChild(1));
     }
 
-    private void removeOutdatedLinkedResources(PersistentModel model, SubMonitor progress) throws CoreException {
-        Collection<IPath> linkedPaths = model.getLinkedResources();
+    private void removeOutdatedLinkedResources(PersistentModel persistentModel, SubMonitor progress) throws CoreException {
+        Collection<IPath> linkedPaths = persistentModel.getLinkedResources();
         if (linkedPaths != null) {
             progress.setWorkRemaining(linkedPaths.size());
             for (IPath linkedPath : linkedPaths) {
@@ -90,7 +89,7 @@ final class LinkedResourcesUpdater {
         return this.linkedResources.containsKey(folder.getLocation().toString());
     }
 
-    private void createLinkedResources(PersistentModel model, PersistentModelBuilder updates, SubMonitor progress) throws CoreException {
+    private void createLinkedResources(PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
         progress.setWorkRemaining(this.linkedResources.size());
         Set<IPath> linkedPaths = Sets.newHashSet();
         for (OmniEclipseLinkedResource linkedResource : this.linkedResources.values()) {
@@ -98,7 +97,7 @@ final class LinkedResourcesUpdater {
             IFolder linkedFolder = createLinkedResourceFolder(linkedResource.getName(), linkedResource, childProgress);
             linkedPaths.add(linkedFolder.getProjectRelativePath());
         }
-        updates.linkedResources(linkedPaths);
+        persistentModel.linkedResources(linkedPaths);
     }
 
     private IFolder createLinkedResourceFolder(String name, OmniEclipseLinkedResource linkedResource, SubMonitor progress) throws CoreException {
@@ -109,9 +108,9 @@ final class LinkedResourcesUpdater {
        return folder;
     }
 
-    public static void update(IProject project, List<OmniEclipseLinkedResource> linkedResources, PersistentModel model, PersistentModelBuilder updates, IProgressMonitor monitor) throws CoreException {
+    public static void update(IProject project, List<OmniEclipseLinkedResource> linkedResources, PersistentModelBuilder persistentModel, IProgressMonitor monitor) throws CoreException {
         LinkedResourcesUpdater updater = new LinkedResourcesUpdater(project, linkedResources);
-        updater.updateLinkedResources(model, updates, monitor);
+        updater.updateLinkedResources(persistentModel, monitor);
     }
 
     /**
