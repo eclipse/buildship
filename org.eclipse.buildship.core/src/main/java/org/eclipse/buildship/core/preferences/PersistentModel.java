@@ -26,8 +26,6 @@ public abstract class PersistentModel {
 
     public abstract IProject getProject();
 
-    public abstract boolean isEmptyModel();
-
     public abstract IPath getBuildDir();
 
     public abstract Collection<IPath> getSubprojectPaths();
@@ -44,9 +42,5 @@ public abstract class PersistentModel {
 
     public static PersistentModelBuilder builder(PersistentModel model) {
         return new DefaultPersistentModelBuilder(model);
-    }
-
-    public static PersistentModel empty(IProject project) {
-        return DefaultPersistentModelBuilder.empty(project);
     }
 }

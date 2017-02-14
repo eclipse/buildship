@@ -28,17 +28,15 @@ import org.eclipse.buildship.core.preferences.PersistentModel;
 final class DefaultPersistentModel extends PersistentModel {
 
     private final IProject project;
-    private final boolean isEmptyModel;
     private final IPath buildDir;
     private final Collection<IPath> subprojectPaths;
     private final List<IClasspathEntry> classpath;
     private final Collection<IPath> derivedResources;
     private final Collection<IPath> linkedResources;
 
-    DefaultPersistentModel(IProject project, boolean isEmptyModel, IPath buildDir, Collection<IPath> subprojectPaths, List<IClasspathEntry> classpath,
-            Collection<IPath> derivedResources, Collection<IPath> linkedResources) {
+    DefaultPersistentModel(IProject project, IPath buildDir, Collection<IPath> subprojectPaths, List<IClasspathEntry> classpath, Collection<IPath> derivedResources,
+            Collection<IPath> linkedResources) {
         this.project = Preconditions.checkNotNull(project);
-        this.isEmptyModel = isEmptyModel;
         this.buildDir = Preconditions.checkNotNull(buildDir);
         this.subprojectPaths = ImmutableList.copyOf(subprojectPaths);
         this.classpath = ImmutableList.copyOf(classpath);
@@ -49,11 +47,6 @@ final class DefaultPersistentModel extends PersistentModel {
     @Override
     public IProject getProject() {
         return this.project;
-    }
-
-    @Override
-    public boolean isEmptyModel() {
-        return this.isEmptyModel;
     }
 
     @Override

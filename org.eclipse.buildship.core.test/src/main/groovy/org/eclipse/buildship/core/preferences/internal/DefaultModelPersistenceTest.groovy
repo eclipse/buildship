@@ -19,18 +19,9 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         project = newProject('sample-project')
     }
 
-    def "By default an empty model is returned"() {
-        setup:
-        PersistentModel model = CorePlugin.modelPersistence().loadModel(project)
-
+    def "If no models was saved for a project then null is returned"() {
         expect:
-        model.project == project
-        model.emptyModel
-        model.buildDir == new Path('build')
-        model.subprojectPaths.isEmpty()
-        model.classpath.isEmpty()
-        model.derivedResources.isEmpty()
-        model.linkedResources.isEmpty()
+        CorePlugin.modelPersistence().loadModel(project) == null
     }
 
     def "Can store and load a model"() {
@@ -55,7 +46,6 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
 
         then:
         model.project == project
-        !model.emptyModel
         model.buildDir == buildDir
         model.subprojectPaths == subProjectPaths
         model.classpath == classpath
@@ -85,13 +75,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         model = CorePlugin.modelPersistence().loadModel(project)
 
         then:
-        model.project == project
-        model.isEmptyModel
-        model.buildDir == new Path('build')
-        model.subprojectPaths.isEmpty()
-        model.classpath.isEmpty()
-        model.derivedResources.isEmpty()
-        model.linkedResources.isEmpty()
+        model == null
     }
 
     def "Model is still accessible if the referenced project is renamed"() {
@@ -116,7 +100,6 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         model = CorePlugin.modelPersistence().loadModel(project)
 
         then:
-        !model.emptyModel
         model.buildDir == buildDir
         model.subprojectPaths == subProjectPaths
         model.classpath == classpath

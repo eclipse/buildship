@@ -56,7 +56,7 @@ final class DerivedResourcesUpdater {
         try {
             IPath buildDirectoryPath = getBuildDirectoryPath();
             List<IPath> derivedResources = getDerivedResources(buildDirectoryPath, progress.newChild(1));
-            updates.buildDir(buildDirectoryPath);
+            updates.buildDir(buildDirectoryPath != null ?  buildDirectoryPath : new Path("build"));
             removePreviousMarkers(derivedResources,  model, progress.newChild(1));
             addNewMarkers(derivedResources, updates, progress.newChild(1));
         } catch (CoreException e) {

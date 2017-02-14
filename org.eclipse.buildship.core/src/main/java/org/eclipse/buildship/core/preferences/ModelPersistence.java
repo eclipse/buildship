@@ -22,7 +22,7 @@ public interface ModelPersistence {
 
     /**
      * Reads the project model and returns a snapshot of the current state. If no model has been
-     * saved for the project then the result will be populated with default values.
+     * saved for the project then the method returns {@code null}.
      *
      * @param project the target project
      * @return the model

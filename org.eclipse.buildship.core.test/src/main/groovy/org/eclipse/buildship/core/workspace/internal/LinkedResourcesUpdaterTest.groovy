@@ -11,7 +11,6 @@ import org.eclipse.core.runtime.Path
 
 import org.eclipse.buildship.core.preferences.PersistentModel
 import org.eclipse.buildship.core.preferences.PersistentModelBuilder
-import org.eclipse.buildship.core.preferences.internal.DefaultPersistentModel
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
 class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
@@ -21,7 +20,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         File externalDir = dir('another')
         IProject project = newProject('project-name')
         OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource(externalDir.name, externalDir)
-        PersistentModel persistentModel = PersistentModel.empty(project)
+        PersistentModel persistentModel = emptyPersistentModel(project)
         PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
 
         when:
@@ -40,7 +39,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
             File externalDir = getDir('another')
             IProject project = newProject('project-name')
             OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource(externalDir.name, externalDir)
-            PersistentModel persistentModel = PersistentModel.empty(project)
+            PersistentModel persistentModel = emptyPersistentModel(project)
             PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
 
             when:
@@ -59,7 +58,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         File externalDir = dir('another')
         IProject project = newProject('project-name')
         OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource(linkName, externalDir)
-        PersistentModel persistentModel = PersistentModel.empty(project)
+        PersistentModel persistentModel = emptyPersistentModel(project)
         PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
         LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, modelUpdates, new NullProgressMonitor())
         linkedResource = newFolderLinkedResource(linkName, externalDir)
@@ -90,7 +89,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         OmniEclipseLinkedResource localFolder =  newFolderLinkedResource(externalDir.name, externalDir)
         OmniEclipseLinkedResource localFile =  newFileLinkedResource(externalFile.name, externalFile)
         OmniEclipseLinkedResource virtualResource =  newVirtualLinkedResource()
-        PersistentModel persistentModel = PersistentModel.empty(project)
+        PersistentModel persistentModel = emptyPersistentModel(project)
         PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
 
         when:
@@ -106,7 +105,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         project.getFolder('foldername').create(true, true, null)
         File externalDir = dir('foldername')
         OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource(externalDir.name, externalDir)
-        PersistentModel persistentModel = PersistentModel.empty(project)
+        PersistentModel persistentModel = emptyPersistentModel(project)
         PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
 
         when:
@@ -125,7 +124,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         IProject project = newProject('project-name')
         OmniEclipseLinkedResource linkedResourceA =  newFolderLinkedResource(linkName, externalDirA)
         OmniEclipseLinkedResource linkedResourceB =  newFolderLinkedResource(externalDirB.name, externalDirB)
-        PersistentModel persistentModel = PersistentModel.empty(project)
+        PersistentModel persistentModel = emptyPersistentModel(project)
         PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
         LinkedResourcesUpdater.update(project, [linkedResourceA], persistentModel, modelUpdates, new NullProgressMonitor())
 
@@ -154,7 +153,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         IProject project = newProject('project-name')
         OmniEclipseLinkedResource linkedResourceA =  newFolderLinkedResource(externalDirA.name, externalDirA)
         OmniEclipseLinkedResource linkedResourceB =  newFolderLinkedResource(externalDirB.name, externalDirB)
-        PersistentModel persistentModel = PersistentModel.empty(project)
+        PersistentModel persistentModel = emptyPersistentModel(project)
         PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
         LinkedResourcesUpdater.update(project, [linkedResourceA], persistentModel, modelUpdates, new NullProgressMonitor())
 
@@ -176,7 +175,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         File externalDir = dir('another')
         IProject project = newProject('project-name')
         IPath linkedFolderPath = new Path(externalDir.absolutePath)
-        PersistentModel persistentModel = PersistentModel.empty(project)
+        PersistentModel persistentModel = emptyPersistentModel(project)
         PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
         IFolder manuallyDefinedLinkedFolder = project.getFolder(externalDir.name)
         manuallyDefinedLinkedFolder.createLink(linkedFolderPath, IResource.NONE, null);
@@ -198,7 +197,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         File externalDir = dir('ext')
         IProject project = newProject('project-name')
         OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource('links/link-to-ext', externalDir)
-        PersistentModel persistentModel = PersistentModel.empty(project)
+        PersistentModel persistentModel = emptyPersistentModel(project)
         PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
 
         when:
@@ -252,5 +251,15 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
             }
         }
         result
+    }
+
+    private PersistentModel emptyPersistentModel(IProject project) {
+        PersistentModel.builder(project)
+            .buildDir(new Path("build"))
+            .subprojectPaths([])
+            .classpath([])
+            .derivedResources([])
+            .linkedResources([])
+            .build()
     }
 }

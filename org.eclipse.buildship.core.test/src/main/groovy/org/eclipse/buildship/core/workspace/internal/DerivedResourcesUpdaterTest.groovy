@@ -6,7 +6,7 @@ import com.gradleware.tooling.toolingmodel.util.Maybe
 
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
-
+import org.eclipse.core.runtime.Path
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.preferences.PersistentModel
 import org.eclipse.buildship.core.preferences.PersistentModelBuilder
@@ -31,7 +31,7 @@ class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
 
     def "Derived resources can be marked on a project"() {
         given:
-        PersistentModel persistentModel = PersistentModel.empty(project)
+        PersistentModel persistentModel = emptyPersistentModel(project)
         PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
 
         when:
@@ -44,7 +44,7 @@ class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
 
     def "Derived resource markers are removed if they no longer exist in the Gradle model"() {
         setup:
-        PersistentModel persistentModel = PersistentModel.empty(project)
+        PersistentModel persistentModel = emptyPersistentModel(project)
         PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
         DerivedResourcesUpdater.update(project, model('build'), persistentModel, modelUpdates, null)
 
@@ -65,7 +65,7 @@ class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
         def manual = project.getFolder('manual')
         manual.create(true, true, null)
         manual.setDerived(true, null)
-        PersistentModel persistentModel = PersistentModel.empty(project)
+        PersistentModel persistentModel = emptyPersistentModel(project)
         PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
 
         when:
@@ -78,7 +78,7 @@ class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
     def "Derived resource markers that were defined manually are transformed to model elements"() {
         setup:
         buildFolder.setDerived(true, null)
-        PersistentModel persistentModel = PersistentModel.empty(project)
+        PersistentModel persistentModel = emptyPersistentModel(project)
         PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
         DerivedResourcesUpdater.update(project, model('build'), persistentModel, modelUpdates, null)
 
@@ -98,5 +98,15 @@ class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
         gradleProject.buildDirectory >> Maybe.of(new File(project.location.toFile(), buildDir))
         eclipseProject.gradleProject >> gradleProject
         eclipseProject
+    }
+
+    private PersistentModel emptyPersistentModel(IProject project) {
+        PersistentModel.builder(project)
+            .buildDir(new Path("build"))
+            .subprojectPaths([])
+            .classpath([])
+            .derivedResources([])
+            .linkedResources([])
+            .build()
     }
 }

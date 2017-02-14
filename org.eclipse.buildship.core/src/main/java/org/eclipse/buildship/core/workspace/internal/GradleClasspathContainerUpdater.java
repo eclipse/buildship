@@ -128,11 +128,11 @@ final class GradleClasspathContainerUpdater {
      */
     public static boolean updateFromStorage(IJavaProject eclipseProject, IProgressMonitor monitor) throws JavaModelException {
         PersistentModel model = CorePlugin.modelPersistence().loadModel(eclipseProject.getProject());
-        if (model.isEmptyModel()) {
-            return false;
-        } else {
+        if (model != null) {
             setClasspathContainer(eclipseProject, model.getClasspath(), monitor);
             return true;
+        } else {
+            return false;
         }
     }
 

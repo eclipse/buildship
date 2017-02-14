@@ -19,35 +19,15 @@ class PersistentModelTest extends WorkspaceSpecification {
         project = newProject('sample-project')
     }
 
-    def "Empty model has sensible defaults"() {
-        setup:
-        def model = PersistentModel.empty(project)
+    def "Can't create partial persistent model"() {
+        when:
+        PersistentModel.builder(project).build()
 
-        expect:
-        model.project.is project
-        model.buildDir == new Path('build')
-        model.emptyModel
-        model.subprojectPaths.isEmpty()
-        model.classpath.isEmpty()
-        model.derivedResources.isEmpty()
-        model.linkedResources.isEmpty()
+        then:
+        thrown NullPointerException
     }
 
-    def "Nonempty model has sensible defaults"() {
-        setup:
-        def model = PersistentModel.builder(project).build()
-
-        expect:
-        model.project.is project
-        model.buildDir == new Path('build')
-        !model.emptyModel
-        model.subprojectPaths.isEmpty()
-        model.classpath.isEmpty()
-        model.derivedResources.isEmpty()
-        model.linkedResources.isEmpty()
-    }
-
-    def "Builder can set attributes"() {
+    def "Can crate complete persistent model"() {
         setup:
         def buildDir = new Path('buildDir')
         def subProjectPaths = [new Path('subproject')]
@@ -65,7 +45,6 @@ class PersistentModelTest extends WorkspaceSpecification {
 
         expect:
         model.project.is project
-        !model.emptyModel
         model.buildDir == buildDir
         model.subprojectPaths == subProjectPaths
         model.classpath == classpath
@@ -73,7 +52,7 @@ class PersistentModelTest extends WorkspaceSpecification {
         model.linkedResources == linkedResources
     }
 
-    def "Builder can be initialized from another model"() {
+    def "Can create new model from existing one"() {
         setup:
         def buildDir = new Path('buildDir')
         def subProjectPaths = [new Path('subproject')]
@@ -92,7 +71,6 @@ class PersistentModelTest extends WorkspaceSpecification {
 
         expect:
         model.project.is project
-        !model.emptyModel
         model.buildDir == buildDir
         model.subprojectPaths == subProjectPaths
         model.classpath == classpath
@@ -101,7 +79,7 @@ class PersistentModelTest extends WorkspaceSpecification {
     }
 
 
-    def "Setting null values revert to default"() {
+    def "Null values cause NPE when the build method is called"() {
         setup:
         def buildDir = new Path('buildDir')
         def subProjectPaths = [new Path('subproject')]
@@ -117,20 +95,16 @@ class PersistentModelTest extends WorkspaceSpecification {
             .linkedResources(linkedResources)
             .build()
 
-        model = PersistentModel.builder(model)
-            .buildDir(null)
-            .subprojectPaths(null)
-            .classpath(null)
-            .derivedResources(null)
-            .linkedResources(null)
-            .build()
+        PersistentModelBuilder builder = PersistentModel.builder(model)
+        builder."${method}"(null)
 
-        expect:
-        model.buildDir == new Path('build')
-        !model.emptyModel
-        model.subprojectPaths.isEmpty()
-        model.classpath.isEmpty()
-        model.derivedResources.isEmpty()
-        model.linkedResources.isEmpty()
+        when:
+        builder.build()
+
+        then:
+        thrown NullPointerException
+
+        where:
+        method << [ 'buildDir', 'subprojectPaths', 'classpath', 'derivedResources', 'linkedResources' ]
     }
 }

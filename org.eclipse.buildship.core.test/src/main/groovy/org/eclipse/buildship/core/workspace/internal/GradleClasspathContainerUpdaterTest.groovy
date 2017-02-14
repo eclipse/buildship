@@ -6,6 +6,8 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProject
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency
 
+import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
@@ -29,7 +31,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         def gradleProject = gradleProjectWithClasspath(
             externalDependency(dir("foo"))
         )
-        PersistentModel persistentModel = PersistentModel.empty(project.project)
+        PersistentModel persistentModel = emptyPersistentModel(project.project)
         PersistentModelBuilder modelUpdates = PersistentModel.builder(persistentModel)
 
 
@@ -63,5 +65,15 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
     IClasspathEntry[] getResolvedClasspath() {
         project.getResolvedClasspath(false)
+    }
+
+    private PersistentModel emptyPersistentModel(IProject project) {
+        PersistentModel.builder(project)
+            .buildDir(new Path("build"))
+            .subprojectPaths([])
+            .classpath([])
+            .derivedResources([])
+            .linkedResources([])
+            .build()
     }
 }
