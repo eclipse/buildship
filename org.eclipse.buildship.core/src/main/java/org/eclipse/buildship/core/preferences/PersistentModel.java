@@ -58,7 +58,6 @@ public final class PersistentModel {
         return this.classpath;
     }
 
-
     public Collection<IPath> getDerivedResources() {
         return this.derivedResources;
     }

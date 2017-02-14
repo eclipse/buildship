@@ -51,7 +51,6 @@ import org.eclipse.buildship.core.workspace.WorkbenchShutdownEvent;
  */
 public final class DefaultModelPersistence implements ModelPersistence, EventListener {
 
-    // Cache holding (project name - persistent model property) pairs.
     private final Map<IProject, PersistentModel> cache;
 
     private DefaultModelPersistence() {
