@@ -19,12 +19,14 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 
+import org.eclipse.buildship.core.preferences.PersistentModel;
+
 /**
  * Default PersistentModel implementation.
  *
  * @author Donat Csikos
  */
-public final class DefaultPersistentModel extends AbstractPersistentModel {
+public final class DefaultPersistentModel implements PersistentModel {
 
     private final IProject project;
     private final IPath buildDir;

@@ -12,6 +12,7 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,20 +60,19 @@ final class LinkedResourcesUpdater {
 
     private void updateLinkedResources(PersistentModelBuilder persistentModel, IProgressMonitor monitor) throws CoreException {
         SubMonitor progress = SubMonitor.convert(monitor, 2);
-        removeOutdatedLinkedResources(persistentModel.getPrevious(), progress.newChild(1));
+        removeOutdatedLinkedResources(persistentModel, progress.newChild(1));
         createLinkedResources(persistentModel, progress.newChild(1));
     }
 
-    private void removeOutdatedLinkedResources(PersistentModel persistentModel, SubMonitor progress) throws CoreException {
-        Collection<IPath> linkedPaths = persistentModel.getLinkedResources();
-        if (linkedPaths != null) {
-            progress.setWorkRemaining(linkedPaths.size());
-            for (IPath linkedPath : linkedPaths) {
-                SubMonitor childProgress = progress.newChild(1);
-                IFolder linkedFolder = this.project.getFolder(linkedPath);
-                if (shouldDelete(linkedFolder)) {
-                    linkedFolder.delete(false, childProgress);
-                }
+    private void removeOutdatedLinkedResources(PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
+        PersistentModel previousModel = persistentModel.getPrevious();
+        Collection<IPath> linkedPaths = previousModel.isPresent() ? previousModel.getLinkedResources() : Collections.<IPath>emptyList();
+        progress.setWorkRemaining(linkedPaths.size());
+        for (IPath linkedPath : linkedPaths) {
+            SubMonitor childProgress = progress.newChild(1);
+            IFolder linkedFolder = this.project.getFolder(linkedPath);
+            if (shouldDelete(linkedFolder)) {
+                linkedFolder.delete(false, childProgress);
             }
         }
     }

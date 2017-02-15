@@ -10,6 +10,7 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.base.Preconditions;
@@ -29,6 +30,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.preferences.PersistentModel;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
 
 /**
@@ -76,16 +78,15 @@ final class DerivedResourcesUpdater {
     }
 
     private void removePreviousMarkers(List<IPath> derivedResources, PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
-        Collection<IPath> previouslyKnownDerivedResources = persistentModel.getPrevious().getDerivedResources();
-        if (previouslyKnownDerivedResources != null) {
-            progress.setWorkRemaining(previouslyKnownDerivedResources.size());
-            for (IPath resourcePath : previouslyKnownDerivedResources) {
-                IResource resource = this.project.findMember(resourcePath);
-                if (resource != null) {
-                    resource.setDerived(false, progress.newChild(1));
-                } else {
-                    progress.worked(1);
-                }
+        PersistentModel previousModel = persistentModel.getPrevious();
+        Collection<IPath> previouslyKnownDerivedResources = previousModel.isPresent() ? previousModel.getDerivedResources() : Collections.<IPath>emptyList();
+        progress.setWorkRemaining(previouslyKnownDerivedResources.size());
+        for (IPath resourcePath : previouslyKnownDerivedResources) {
+            IResource resource = this.project.findMember(resourcePath);
+            if (resource != null) {
+                resource.setDerived(false, progress.newChild(1));
+            } else {
+                progress.worked(1);
             }
         }
     }

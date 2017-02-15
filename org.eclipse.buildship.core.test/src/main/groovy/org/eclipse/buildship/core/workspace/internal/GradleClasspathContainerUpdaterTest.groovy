@@ -66,16 +66,6 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         project.getResolvedClasspath(false)
     }
 
-    private PersistentModel emptyPersistentModel(IProject project) {
-        PersistentModel.builder(project)
-            .buildDir(new Path("build"))
-            .subprojectPaths([])
-            .classpath([])
-            .derivedResources([])
-            .linkedResources([])
-            .build()
-    }
-
     private PersistentModelBuilder builder(IProject project) {
         new PersistentModelBuilder(emptyModel(project))
     }
