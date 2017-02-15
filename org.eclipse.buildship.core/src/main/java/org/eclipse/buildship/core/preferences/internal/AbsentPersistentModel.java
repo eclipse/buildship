@@ -11,6 +11,8 @@ package org.eclipse.buildship.core.preferences.internal;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.base.Preconditions;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -24,6 +26,11 @@ import org.eclipse.buildship.core.preferences.PersistentModel;
  */
 public final class AbsentPersistentModel implements PersistentModel {
 
+    private final IProject project;
+
+    public AbsentPersistentModel(IProject project) {
+        this.project = Preconditions.checkNotNull(project);
+    }
 
     @Override
     public boolean isPresent() {
@@ -32,7 +39,7 @@ public final class AbsentPersistentModel implements PersistentModel {
 
     @Override
     public IProject getProject() {
-        throw new IllegalStateException("Absent persistent model");
+        return this.project;
     }
 
     @Override

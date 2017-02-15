@@ -16,15 +16,14 @@ import org.eclipse.core.resources.IProject;
  * The service should be accessed via {code CorePlugin#modelPersistence()}.
  *
  * @author Donat Csikos
- *
  */
 public interface ModelPersistence {
 
     /**
      * Reads the project model and returns a snapshot of the current state. If no model has been
      * saved for the project then an empty model is returned. For an empty model the
-     * {@link PersistentModel#isPresent()} method returns {@code false} and the other getter methods
-     * throw a runtime exception.
+     * {@link PersistentModel#isPresent()} method returns {@code false} accessing attributes result
+     * in a runtime exception.
      *
      * @param project the target project
      * @return the model

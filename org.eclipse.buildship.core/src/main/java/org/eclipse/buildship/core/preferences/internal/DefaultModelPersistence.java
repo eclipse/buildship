@@ -126,7 +126,7 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
                 return PersistentModelConverter.toModel(project, props);
             }
         } else {
-            return new AbsentPersistentModel();
+            return new AbsentPersistentModel(project);
         }
     }
 

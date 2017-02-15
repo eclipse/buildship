@@ -36,11 +36,13 @@ public final class PersistentModelBuilder {
 
     public PersistentModelBuilder(PersistentModel previous) {
         this.previous = Preconditions.checkNotNull(previous);
-        this.buildDir = previous.getBuildDir();
-        this.subprojectPaths = previous.getSubprojectPaths();
-        this.classpath = previous.getClasspath();
-        this.derivedResources = previous.getDerivedResources();
-        this.linkedResources = previous.getLinkedResources();
+        if (previous.isPresent()) {
+            this.buildDir = previous.getBuildDir();
+            this.subprojectPaths = previous.getSubprojectPaths();
+            this.classpath = previous.getClasspath();
+            this.derivedResources = previous.getDerivedResources();
+            this.linkedResources = previous.getLinkedResources();
+        }
     }
 
     public PersistentModelBuilder buildDir(IPath buildDir) {
