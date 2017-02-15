@@ -226,12 +226,13 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
     }
 
     private void synchronizeJavaProjectInTransaction(final OmniEclipseProject project, final IProject workspaceProject, PersistentModelBuilder persistentModel, SubMonitor progress) throws JavaModelException, CoreException {
-        progress.setWorkRemaining(7);
+        progress.setWorkRemaining(8);
         //old Gradle versions did not expose natures, so we need to add the Java nature explicitly
         CorePlugin.workspaceOperations().addNature(workspaceProject, JavaCore.NATURE_ID, progress.newChild(1));
         IJavaProject javaProject = JavaCore.create(workspaceProject);
         OutputLocationUpdater.update(javaProject, project.getOutputLocation(), progress.newChild(1));
         SourceFolderUpdater.update(javaProject, project.getSourceDirectories(), progress.newChild(1));
+        LibraryFilter.update(javaProject, project, progress.newChild(1));
         ClasspathContainerUpdater.update(javaProject, project.getClasspathContainers(), project.getJavaSourceSettings().get(), progress.newChild(1));
         JavaSourceSettingsUpdater.update(javaProject, project, progress.newChild(1));
         GradleClasspathContainerUpdater.updateFromModel(javaProject, project, SynchronizeGradleBuildOperation.this.allProjects, persistentModel, progress.newChild(1));

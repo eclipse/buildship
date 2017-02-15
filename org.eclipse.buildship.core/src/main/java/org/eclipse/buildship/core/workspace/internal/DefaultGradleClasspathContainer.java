@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.base.Preconditions;
@@ -54,6 +55,30 @@ public final class DefaultGradleClasspathContainer extends GradleClasspathContai
     @Override
     public int getKind() {
         return IClasspathContainer.K_APPLICATION;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 1;
+        result = 31 * result + Arrays.hashCode(this.classpathEntries);
+        result = 31 * result + this.containerPath.hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        DefaultGradleClasspathContainer other = (DefaultGradleClasspathContainer) obj;
+        return Arrays.equals(this.classpathEntries, other.classpathEntries) && this.containerPath.equals(other.containerPath);
     }
 
 }

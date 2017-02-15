@@ -2,6 +2,7 @@ package org.eclipse.buildship.core.workspace.internal
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseLinkedResource
 
+import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
@@ -24,13 +25,13 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
 
         when:
         LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, new NullProgressMonitor())
-        Collection<IFolder> linkedFolders = linkedFolders(project)
+        Collection<IResource> linkedresources = linkedResources(project)
 
         then:
-        linkedFolders.size() == 1
-        linkedFolders[0].name == 'another'
-        linkedFolders[0].exists()
-        linkedFolders[0].location.toFile().equals(externalDir)
+        linkedresources.size() == 1
+        linkedresources[0].name == 'another'
+        linkedresources[0].exists()
+        linkedresources[0].location.toFile().equals(externalDir)
     }
 
     def "Can define a linked resource even if the resource does not exist"() {
@@ -42,13 +43,13 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
 
             when:
             LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, new NullProgressMonitor())
-            Collection<IFolder> linkedFolders = linkedFolders(project)
+            Collection<IResource> linkedResources = linkedResources(project)
 
             then:
-            linkedFolders.size() == 1
-            linkedFolders[0].name == 'another'
-            linkedFolders[0].exists()
-            linkedFolders[0].location.toFile().equals(externalDir)
+            linkedResources.size() == 1
+            linkedResources[0].name == 'another'
+            linkedResources[0].exists()
+            linkedResources[0].location.toFile().equals(externalDir)
     }
 
     def "Defining a linked resource is idempotent"() {
@@ -64,12 +65,17 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
 
         when:
         LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, new NullProgressMonitor())
-        Collection<IFolder> linkedFolders = linkedFolders(project)
+        linkedResource = newFolderLinkedResource(linkName, externalDir)
+
+        persistentModel = builder(persistentModel.build())
+
+        LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, new NullProgressMonitor())
+        Collection<IResource> linkedResources = linkedResources(project)
 
         then:
-        linkedFolders.size() == 1
-        linkedFolders[0].name == expectedFolderName
-        linkedFolders[0].fullPath.toPortableString() == expectedFolderPath
+        linkedResources.size() == 1
+        linkedResources[0].name == expectedFolderName
+        linkedResources[0].fullPath.toPortableString() == expectedFolderPath
 
         where:
         linkName  | expectedFolderName | expectedFolderPath
@@ -77,7 +83,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         'a/b/c'   | 'c'                | '/project-name/a/b/c'
     }
 
-    def "Only local folder linked resources are set on the project" () {
+    def "Only local linked resources are created" () {
         given:
         File externalDir = dir('another')
         File externalFile = file('file')
@@ -91,7 +97,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         LinkedResourcesUpdater.update(project, [localFile, localFolder, virtualResource], persistentModel, new NullProgressMonitor())
 
         then:
-        linkedFolders(project).size() == 1
+        linkedResources(project).size() == 2
     }
 
     def "If a linked resource name matches to an existing folder, then the folder is replaced" () {
@@ -104,11 +110,11 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
 
         when:
         LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, new NullProgressMonitor())
-        Collection<IFolder> linkedFolders = linkedFolders(project)
+        Collection<IResource> linkedResources = linkedResources(project)
 
         then:
-        linkedFolders.size() == 1
-        linkedFolders[0].name == 'foldername'
+        linkedResources.size() == 1
+        linkedResources[0].name == 'foldername'
     }
 
     def "A linked resource is deleted if no longer part of the Gradle model"() {
@@ -125,14 +131,14 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
 
         when:
         LinkedResourcesUpdater.update(project, [linkedResourceB], persistentModel, new NullProgressMonitor())
-        Collection<IFolder> linkedFolders = linkedFolders(project)
+        Collection<IResource> linkedResources = linkedResources(project)
 
         then:
         !project.getFolder(linkName).exists()
-        linkedFolders.size() == 1
-        linkedFolders[0].name == 'another2'
-        linkedFolders[0].exists()
-        linkedFolders[0].location.toFile().equals(externalDirB)
+        linkedResources.size() == 1
+        linkedResources[0].name == 'another2'
+        linkedResources[0].exists()
+        linkedResources[0].location.toFile().equals(externalDirB)
 
         where:
         linkName << ['another', 'a/b/c']
@@ -153,8 +159,9 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         when:
         project.getFolder('another1').delete(false, new NullProgressMonitor())
         project.getFolder('another1').create(true, true, new NullProgressMonitor())
+
         LinkedResourcesUpdater.update(project, [linkedResourceB], persistentModel, new NullProgressMonitor())
-        Collection<IFolder> linkedFolders = linkedFolders(project)
+        Collection<IResource> linkedResources = linkedResources(project)
 
         then:
         project.getFolder('another1').exists()
@@ -191,11 +198,11 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, new NullProgressMonitor())
 
         then:
-        linkedFolders(project).size() == 1
+        linkedResources(project).size() == 1
         project.getFolder('links/link-to-ext').isLinked()
     }
 
-    private def newFolderLinkedResource(String name, File location) {
+    private OmniEclipseLinkedResource newFolderLinkedResource(String name, File location) {
         OmniEclipseLinkedResource linkedResource = Mock()
         linkedResource.name >> name
         linkedResource.type >> '2'
@@ -204,7 +211,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         linkedResource
     }
 
-    private def newVirtualLinkedResource() {
+    private OmniEclipseLinkedResource newVirtualLinkedResource() {
         OmniEclipseLinkedResource linkedResource = Mock()
         linkedResource.name >> 'example'
         linkedResource.type >> '1'
@@ -213,7 +220,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         linkedResource
     }
 
-    private def newFileLinkedResource(String name, File file) {
+    private OmniEclipseLinkedResource newFileLinkedResource(String name, File file) {
         assert file.isFile()
         OmniEclipseLinkedResource linkedResource = Mock()
         linkedResource.name >> name
@@ -223,18 +230,16 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         linkedResource
     }
 
-    private def linkedFolders(IProject project) {
-        collectLinkedFolders(project.members() as List)
+    private Collection<IResource> linkedResources(IProject project) {
+        collectLinkedResources(project.members() as List)
     }
 
-    private def collectLinkedFolders(Collection resources, Collection result = []) {
-        resources.each { resource ->
-            if (resource instanceof IFolder) {
-                if (resource.linked) {
-                    result.add(resource)
-                } else {
-                    collectLinkedFolders(resource.members() as List, result)
-                }
+    private Collection<IResource> collectLinkedResources(Collection resources, Collection result = []) {
+        resources.each { IResource resource ->
+            if (resource.linked) {
+                result.add(resource)
+            } else if (resource instanceof IFolder) {
+                collectLinkedResources(resource.members() as List, result)
             }
         }
         result
