@@ -44,6 +44,7 @@ import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration.ConversionStrategy;
 import org.eclipse.buildship.core.preferences.PersistentModel;
+import org.eclipse.buildship.core.preferences.PersistentModelFactory;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
@@ -219,7 +220,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
     private PersistentModel loadCurrentModel(IProject workspaceProject) {
         PersistentModel model = CorePlugin.modelPersistence().loadModel(workspaceProject);
         if (model == null) {
-            model = PersistentModel.from(workspaceProject, new Path("build"), ImmutableList.<IPath>of(), ImmutableList.<IClasspathEntry>of(), ImmutableList.<IPath>of(), ImmutableList.<IPath>of());
+            model = PersistentModelFactory.from(workspaceProject, new Path("build"), ImmutableList.<IPath>of(), ImmutableList.<IClasspathEntry>of(), ImmutableList.<IPath>of(), ImmutableList.<IPath>of());
         }
         return model;
     }

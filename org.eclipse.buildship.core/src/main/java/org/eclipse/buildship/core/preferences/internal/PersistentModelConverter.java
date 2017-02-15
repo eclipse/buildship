@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
 import org.eclipse.buildship.core.preferences.PersistentModel;
+import org.eclipse.buildship.core.preferences.PersistentModelFactory;
 
 /**
  * Contains helper methods for the {@link PersistentModel} <-> {@link Properties} conversion.
@@ -121,7 +122,7 @@ final class PersistentModelConverter {
                 return new Path(path);
             }
         });
-        return PersistentModel.from(project, buildDir, subprojects, classpath, derivedResources, linkedResources);
+        return PersistentModelFactory.from(project, buildDir, subprojects, classpath, derivedResources, linkedResources);
     }
 
     private static <T> T loadValue(Properties properties, String key, T defaultValue, Function<String, T> conversion) {

@@ -5,6 +5,7 @@ import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.preferences.PersistentModel
+import org.eclipse.buildship.core.preferences.PersistentModelFactory
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.workspace.internal.PersistentModelBuilder
 
@@ -24,7 +25,7 @@ class PersistentModelBuilderTest extends WorkspaceSpecification {
         def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
 
-        def previous = PersistentModel.from(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
+        def previous = PersistentModelFactory.from(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
         def model = new PersistentModelBuilder(previous).build()
 
         expect:
@@ -45,7 +46,7 @@ class PersistentModelBuilderTest extends WorkspaceSpecification {
         def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
 
-        def previous = PersistentModel.from(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
+        def previous = PersistentModelFactory.from(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
         def builder = new PersistentModelBuilder(previous)
         builder."${method}"(null)
 

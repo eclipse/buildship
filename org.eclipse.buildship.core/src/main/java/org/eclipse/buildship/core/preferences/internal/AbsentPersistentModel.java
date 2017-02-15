@@ -1,0 +1,56 @@
+/*
+ * Copyright (c) 2017 the original author or authors.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+
+package org.eclipse.buildship.core.preferences.internal;
+
+import java.util.Collection;
+import java.util.List;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.IClasspathEntry;
+
+import org.eclipse.buildship.core.preferences.PersistentModel;
+
+/**
+ * Marker {@link PersistentModel} implementation to mark missing models.
+ *
+ * @author Donat Csikos
+ */
+public final class AbsentPersistentModel implements PersistentModel {
+
+    @Override
+    public IProject getProject() {
+        throw new IllegalStateException("Absent persistent model");
+    }
+
+    @Override
+    public IPath getBuildDir() {
+        throw new IllegalStateException("Absent persistent model");
+    }
+
+    @Override
+    public Collection<IPath> getSubprojectPaths() {
+        throw new IllegalStateException("Absent persistent model");
+    }
+
+    @Override
+    public List<IClasspathEntry> getClasspath() {
+        throw new IllegalStateException("Absent persistent model");
+    }
+
+    @Override
+    public Collection<IPath> getDerivedResources() {
+        throw new IllegalStateException("Absent persistent model");
+    }
+
+    @Override
+    public Collection<IPath> getLinkedResources() {
+        throw new IllegalStateException("Absent persistent model");
+    }
+}

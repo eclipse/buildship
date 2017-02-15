@@ -7,6 +7,7 @@ import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.preferences.PersistentModel
+import org.eclipse.buildship.core.preferences.PersistentModelFactory
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
 class DefaultModelPersistenceTest extends WorkspaceSpecification {
@@ -30,7 +31,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
 
-        PersistentModel model = new PersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
+        PersistentModel model = PersistentModelFactory.from(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
 
         when:
         CorePlugin.modelPersistence().saveModel(model)
@@ -53,7 +54,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
 
-        PersistentModel model = new PersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
+        PersistentModel model = PersistentModelFactory.from(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
         CorePlugin.modelPersistence().saveModel(model)
 
         when:
@@ -72,7 +73,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
 
-        PersistentModel model = new PersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
+        PersistentModel model = PersistentModelFactory.from(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
         CorePlugin.modelPersistence().saveModel(model)
 
         when:

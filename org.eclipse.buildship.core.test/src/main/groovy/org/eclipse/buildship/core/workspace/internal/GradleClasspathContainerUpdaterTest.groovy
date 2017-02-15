@@ -13,6 +13,7 @@ import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.preferences.PersistentModel
+import org.eclipse.buildship.core.preferences.PersistentModelFactory
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 
@@ -80,6 +81,6 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
     }
 
     private PersistentModel emptyModel(IProject project) {
-        new PersistentModel(project, new Path("build"), [], [], [], [])
+        PersistentModelFactory.from(project, new Path("build"), [], [], [], [])
     }
 }

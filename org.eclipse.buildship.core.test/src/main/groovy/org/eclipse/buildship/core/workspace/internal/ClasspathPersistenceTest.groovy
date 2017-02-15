@@ -9,6 +9,7 @@ import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.preferences.PersistentModel
+import org.eclipse.buildship.core.preferences.PersistentModelFactory
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.workspace.GradleBuild
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager
@@ -125,6 +126,6 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
     }
 
     private PersistentModel persistentModel(project, classpath) {
-        return PersistentModel.from(project, new Path("build"), [], classpath, [], [])
+        return PersistentModelFactory.from(project, new Path("build"), [], classpath, [], [])
     }
 }

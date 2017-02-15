@@ -9,6 +9,7 @@ import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.Path
 
 import org.eclipse.buildship.core.preferences.PersistentModel
+import org.eclipse.buildship.core.preferences.PersistentModelFactory
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
 class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
@@ -101,6 +102,6 @@ class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
     }
 
     private PersistentModel emptyModel(IProject project) {
-        new PersistentModel(project, new Path("build"), [], [], [], [])
+        PersistentModelFactory.from(project, new Path("build"), [], [], [], [])
     }
 }

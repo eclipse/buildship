@@ -11,9 +11,6 @@ package org.eclipse.buildship.core.preferences;
 import java.util.Collection;
 import java.util.List;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -23,51 +20,16 @@ import org.eclipse.jdt.core.IClasspathEntry;
  *
  * @author Donat Csikos
  */
-public final class PersistentModel {
+public interface PersistentModel {
+    IProject getProject();
 
-    private final IProject project;
-    private final IPath buildDir;
-    private final Collection<IPath> subprojectPaths;
-    private final List<IClasspathEntry> classpath;
-    private final Collection<IPath> derivedResources;
-    private final Collection<IPath> linkedResources;
+    IPath getBuildDir();
 
-    private PersistentModel(IProject project, IPath buildDir, Collection<IPath> subprojectPaths, List<IClasspathEntry> classpath, Collection<IPath> derivedResources,
-            Collection<IPath> linkedResources) {
-        this.project = Preconditions.checkNotNull(project);
-        this.buildDir = Preconditions.checkNotNull(buildDir);
-        this.subprojectPaths = ImmutableList.copyOf(subprojectPaths);
-        this.classpath = ImmutableList.copyOf(classpath);
-        this.derivedResources = ImmutableList.copyOf(derivedResources);
-        this.linkedResources = ImmutableList.copyOf(linkedResources);
-    }
+    Collection<IPath> getSubprojectPaths();
 
-    public IProject getProject() {
-        return this.project;
-    }
+    List<IClasspathEntry> getClasspath();
 
-    public IPath getBuildDir() {
-        return this.buildDir;
-    }
+    Collection<IPath> getDerivedResources();
 
-    public Collection<IPath> getSubprojectPaths() {
-        return this.subprojectPaths;
-    }
-
-    public List<IClasspathEntry> getClasspath() {
-        return this.classpath;
-    }
-
-    public Collection<IPath> getDerivedResources() {
-        return this.derivedResources;
-    }
-
-    public Collection<IPath> getLinkedResources() {
-        return this.linkedResources;
-    }
-
-    public static PersistentModel from(IProject project, IPath buildDir, Collection<IPath> subprojectPaths, List<IClasspathEntry> classpath,
-            Collection<IPath> derivedResources, Collection<IPath> linkedResources) {
-        return new PersistentModel(project, buildDir, subprojectPaths, classpath, derivedResources, linkedResources);
-    }
+    Collection<IPath> getLinkedResources();
 }

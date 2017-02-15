@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 
 import org.eclipse.buildship.core.preferences.PersistentModel;
+import org.eclipse.buildship.core.preferences.PersistentModelFactory;
 
 /**
  * Builder for {@link PersistentModel}.
@@ -72,6 +73,6 @@ public final class PersistentModelBuilder {
     }
 
     public PersistentModel build() {
-        return PersistentModel.from(this.previous.getProject(), this.buildDir, this.subprojectPaths, this.classpath, this.derivedResources, this.linkedResources);
+        return PersistentModelFactory.from(this.previous.getProject(), this.buildDir, this.subprojectPaths, this.classpath, this.derivedResources, this.linkedResources);
     }
 }

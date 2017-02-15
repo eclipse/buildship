@@ -20,12 +20,14 @@ import java.io.Writer;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
-import org.gradle.api.UncheckedIOException;
 import org.gradle.internal.UncheckedException;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.Maps;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.io.Files;
 
 import org.eclipse.core.resources.IProject;
@@ -51,33 +53,37 @@ import org.eclipse.buildship.core.workspace.WorkbenchShutdownEvent;
  */
 public final class DefaultModelPersistence implements ModelPersistence, EventListener {
 
-    private final Map<IProject, PersistentModel> cache;
+    private final LoadingCache<IProject, PersistentModel> modelCache;
 
     private DefaultModelPersistence() {
-        this.cache = Maps.newConcurrentMap();
+        this.modelCache = CacheBuilder.newBuilder().build(new CacheLoader<IProject, PersistentModel>() {
+
+            @Override
+            public PersistentModel load(IProject project) throws Exception {
+                return doLoadModel(project);
+            }
+        });
     }
 
     @Override
     public PersistentModel loadModel(IProject project) {
-        PersistentModel model = this.cache.get(project);
-        if (model == null) {
-            model = readModel(project);
-            if (model != null) {
-                this.cache.put(project, model);
-            }
+        PersistentModel model = this.modelCache.getUnchecked(project);
+        if (model instanceof AbsentPersistentModel) {
+            return null;
+        } else {
+            return model;
         }
-        return model;
     }
 
     @Override
     public void saveModel(PersistentModel model) {
-        this.cache.put(model.getProject(), model);
+        this.modelCache.put(model.getProject(), model);
     }
 
     @Override
     public void deleteModel(IProject project) {
-        this.cache.remove(project);
         preferencesFile(project).delete();
+        this.modelCache.invalidate(project);
     }
 
     @Override
@@ -97,11 +103,11 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
 
     private void movePreferencesFile(ProjectMovedEvent event) throws IOException {
         String previousName = event.getPreviousName();
-        for (IProject project : this.cache.keySet()) {
-            if (project.getName().equals(previousName)) {
-                PersistentModel model = this.cache.get(project);
-                this.cache.put(event.getProject(), model);
-                this.cache.remove(project);
+        for (IProject cached : this.modelCache.asMap().keySet()) {
+            if (cached.getName().equals(previousName)) {
+                PersistentModel model = this.modelCache.getUnchecked(cached);
+                this.modelCache.put(event.getProject(), model);
+                this.modelCache.invalidate(cached);
             }
         }
 
@@ -115,15 +121,7 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
         deleteModel(event.getProject());
     }
 
-    private static PersistentModel readModel(IProject project) {
-        try {
-            return readModelChecked(project);
-        } catch (Exception e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private static PersistentModel readModelChecked(IProject project) throws FileNotFoundException, IOException {
+    private static PersistentModel doLoadModel(IProject project) throws IOException, FileNotFoundException {
         String projectName = project.getName();
         File preferencesFile = preferencesFile(projectName);
         if (preferencesFile.exists()) {
@@ -133,12 +131,13 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
                 return PersistentModelConverter.toModel(project, props);
             }
         } else {
-            return null;
+            return new AbsentPersistentModel();
         }
     }
 
     private void persistAllProjectPrefs() {
-        for (Entry<IProject, PersistentModel> entry : this.cache.entrySet()) {
+        Map<IProject, PersistentModel> modelCacheMap = this.modelCache.asMap();
+        for (Entry<IProject, PersistentModel> entry : modelCacheMap.entrySet()) {
             persistPrefs(entry.getKey(), entry.getValue());
         }
     }
@@ -188,7 +187,11 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
             protected IStatus run(IProgressMonitor monitor) {
                 for (IProject project : CorePlugin.workspaceOperations().getAllProjects()) {
                     if (GradleProjectNature.isPresentOn(project)) {
-                        loadModel(project);
+                        try {
+                            DefaultModelPersistence.this.modelCache.get(project);
+                        } catch (ExecutionException e) {
+                            CorePlugin.logger().warn("Can't load persistent model for project " + project.getName(), e);
+                        }
                     }
                 }
                 return Status.OK_STATUS;
