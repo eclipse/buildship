@@ -30,8 +30,11 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -40,6 +43,8 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration.ConversionStrategy;
+import org.eclipse.buildship.core.preferences.PersistentModel;
+import org.eclipse.buildship.core.preferences.internal.DefaultPersistentModel;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
@@ -197,7 +202,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         ProjectConfiguration configuration = ProjectConfiguration.from(this.build, project);
         CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, workspaceProject);
 
-        PersistentModelBuilder persistentModel = new PersistentModelBuilder(CorePlugin.modelPersistence().loadModel(workspaceProject));
+        PersistentModelBuilder persistentModel = new PersistentModelBuilder(loadCurrentModel(workspaceProject));
 
         LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), persistentModel, progress.newChild(1));
         SubprojectMarkerUpdater.update(workspaceProject, project, persistentModel, progress.newChild(1));
@@ -210,6 +215,14 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         }
 
         CorePlugin.modelPersistence().saveModel(persistentModel.build());
+    }
+
+    private PersistentModel loadCurrentModel(IProject workspaceProject) {
+        PersistentModel model = CorePlugin.modelPersistence().loadModel(workspaceProject);
+        if (!model.isPresent()) {
+            model = new DefaultPersistentModel(workspaceProject, new Path("build"), ImmutableList.<IPath>of(), ImmutableList.<IClasspathEntry>of(), ImmutableList.<IPath>of(), ImmutableList.<IPath>of());
+        }
+        return model;
     }
 
     private void synchronizeJavaProject(final OmniEclipseProject project, final IProject workspaceProject, final PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
