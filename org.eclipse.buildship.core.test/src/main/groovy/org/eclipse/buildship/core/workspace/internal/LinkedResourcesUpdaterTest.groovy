@@ -10,7 +10,7 @@ import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
 
 import org.eclipse.buildship.core.preferences.PersistentModel
-import org.eclipse.buildship.core.preferences.PersistentModelFactory
+import org.eclipse.buildship.core.preferences.internal.DefaultPersistentModel
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
 class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
@@ -249,6 +249,6 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
     }
 
     private PersistentModel emptyModel(IProject project) {
-        PersistentModelFactory.from(project, new Path("build"), [], [], [], [])
+        new DefaultPersistentModel(project, new Path("build"), [], [], [], [])
     }
 }

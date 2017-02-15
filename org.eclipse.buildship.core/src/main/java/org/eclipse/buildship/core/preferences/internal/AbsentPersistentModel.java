@@ -15,14 +15,12 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 
-import org.eclipse.buildship.core.preferences.PersistentModel;
-
 /**
- * Marker {@link PersistentModel} implementation to mark missing models.
+ * Marker PersistentModel implementation for missing models.
  *
  * @author Donat Csikos
  */
-public final class AbsentPersistentModel implements PersistentModel {
+public final class AbsentPersistentModel extends AbstractPersistentModel {
 
     @Override
     public IProject getProject() {

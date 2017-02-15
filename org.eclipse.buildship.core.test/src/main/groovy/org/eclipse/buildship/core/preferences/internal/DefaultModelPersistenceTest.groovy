@@ -7,7 +7,6 @@ import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.preferences.PersistentModel
-import org.eclipse.buildship.core.preferences.PersistentModelFactory
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
 class DefaultModelPersistenceTest extends WorkspaceSpecification {
@@ -18,9 +17,26 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         project = newProject('sample-project')
     }
 
-    def "If no models was saved for a project then null is returned"() {
-        expect:
-        CorePlugin.modelPersistence().loadModel(project) == null
+    def "Absent model is returned if no models were saved for the project"() {
+        when:
+        PersistentModel model = CorePlugin.modelPersistence().loadModel(project)
+
+        then:
+        !model.present
+    }
+
+    def "Absent model throws runtime exceptions from all getters"() {
+        setup:
+        PersistentModel model = CorePlugin.modelPersistence().loadModel(project)
+
+        when:
+        model."$method"()
+
+        then:
+        thrown IllegalStateException
+
+        where:
+        method << [ 'getBuildDir', 'getSubprojectPaths', 'getClasspath', 'getDerivedResources', 'getLinkedResources' ]
     }
 
     def "Can store and load a model"() {
@@ -31,13 +47,14 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
 
-        PersistentModel model = PersistentModelFactory.from(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
+        PersistentModel model = new DefaultPersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
 
         when:
         CorePlugin.modelPersistence().saveModel(model)
         model = CorePlugin.modelPersistence().loadModel(project)
 
         then:
+        model.present
         model.project == project
         model.buildDir == buildDir
         model.subprojectPaths == subProjectPaths
@@ -54,7 +71,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
 
-        PersistentModel model = PersistentModelFactory.from(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
+        PersistentModel model = new DefaultPersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
         CorePlugin.modelPersistence().saveModel(model)
 
         when:
@@ -62,7 +79,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         model = CorePlugin.modelPersistence().loadModel(project)
 
         then:
-        model == null
+        !model.present
     }
 
     def "Model is still accessible if the referenced project is renamed"() {
@@ -73,7 +90,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
 
-        PersistentModel model = PersistentModelFactory.from(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
+        PersistentModel model = new DefaultPersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
         CorePlugin.modelPersistence().saveModel(model)
 
         when:
@@ -81,6 +98,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         model = CorePlugin.modelPersistence().loadModel(project)
 
         then:
+        model.present
         model.buildDir == buildDir
         model.subprojectPaths == subProjectPaths
         model.classpath == classpath

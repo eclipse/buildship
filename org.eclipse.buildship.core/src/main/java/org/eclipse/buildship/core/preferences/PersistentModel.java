@@ -21,6 +21,8 @@ import org.eclipse.jdt.core.IClasspathEntry;
  * @author Donat Csikos
  */
 public interface PersistentModel {
+    boolean isPresent();
+
     IProject getProject();
 
     IPath getBuildDir();

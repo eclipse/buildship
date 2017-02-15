@@ -4,10 +4,8 @@ import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.JavaCore
 
-import org.eclipse.buildship.core.preferences.PersistentModel
-import org.eclipse.buildship.core.preferences.PersistentModelFactory
+import org.eclipse.buildship.core.preferences.internal.DefaultPersistentModel
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.workspace.internal.PersistentModelBuilder
 
 class PersistentModelBuilderTest extends WorkspaceSpecification {
 
@@ -25,10 +23,11 @@ class PersistentModelBuilderTest extends WorkspaceSpecification {
         def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
 
-        def previous = PersistentModelFactory.from(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
+        def previous = new DefaultPersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
         def model = new PersistentModelBuilder(previous).build()
 
         expect:
+        model.present
         model.project.is project
         model.buildDir == buildDir
         model.subprojectPaths == subProjectPaths
@@ -46,7 +45,7 @@ class PersistentModelBuilderTest extends WorkspaceSpecification {
         def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
 
-        def previous = PersistentModelFactory.from(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
+        def previous = new DefaultPersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
         def builder = new PersistentModelBuilder(previous)
         builder."${method}"(null)
 

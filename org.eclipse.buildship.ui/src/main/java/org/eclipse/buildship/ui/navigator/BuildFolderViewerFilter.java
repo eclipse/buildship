@@ -45,7 +45,7 @@ public final class BuildFolderViewerFilter extends ViewerFilter {
         try {
             IProject project = folder.getProject();
             PersistentModel model = CorePlugin.modelPersistence().loadModel(project);
-            if (model == null) {
+            if (!model.isPresent()) {
                 return false;
             } else {
                 IPath modelBuildDir = model.getBuildDir();

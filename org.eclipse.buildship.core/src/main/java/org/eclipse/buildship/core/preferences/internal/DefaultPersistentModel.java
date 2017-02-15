@@ -11,6 +11,7 @@ package org.eclipse.buildship.core.preferences.internal;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
@@ -18,15 +19,12 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 
-import org.eclipse.buildship.core.preferences.PersistentModel;
-import com.google.common.base.Objects;
-
 /**
- * Default {@link PersistentModel} implementation.
+ * Default PersistentModel implementation.
  *
  * @author Donat Csikos
  */
-public final class DefaultPersistentModel implements PersistentModel {
+public final class DefaultPersistentModel extends AbstractPersistentModel {
 
     private final IProject project;
     private final IPath buildDir;
@@ -43,6 +41,11 @@ public final class DefaultPersistentModel implements PersistentModel {
         this.classpath = ImmutableList.copyOf(classpath);
         this.derivedResources = ImmutableList.copyOf(derivedResources);
         this.linkedResources = ImmutableList.copyOf(linkedResources);
+    }
+
+    @Override
+    public boolean isPresent() {
+        return true;
     }
 
     @Override

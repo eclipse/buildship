@@ -67,12 +67,7 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
 
     @Override
     public PersistentModel loadModel(IProject project) {
-        PersistentModel model = this.modelCache.getUnchecked(project);
-        if (model instanceof AbsentPersistentModel) {
-            return null;
-        } else {
-            return model;
-        }
+        return this.modelCache.getUnchecked(project);
     }
 
     @Override
