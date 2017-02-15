@@ -56,6 +56,7 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
 
     private Text gradleUserHomeText;
     private Button offlineModeCheckbox;
+    private Button buildScansCheckbox;
 
     public GradleWorkbenchPreferencePage() {
         this.defaultFont = FontUtils.getDefaultDialogFont();
@@ -81,6 +82,8 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
     private void createOfflineModeCheckbox(Composite page) {
         this.offlineModeCheckbox = new Button(page, SWT.CHECK);
         this.offlineModeCheckbox.setText(CoreMessages.Preference_Label_OfflineMode);
+        this.buildScansCheckbox = new Button(page, SWT.CHECK);
+        this.buildScansCheckbox.setText(CoreMessages.Preference_Label_BuildScans);
     }
 
     private Group createGroup(Composite parent, String groupName) {
@@ -138,7 +141,9 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
     @Override
     public boolean performOk() {
         String gradleUserHome = this.gradleUserHomeText.getText();
-        WorkspaceConfiguration config = new WorkspaceConfiguration(gradleUserHome.isEmpty() ? null : new File(gradleUserHome), this.offlineModeCheckbox.getSelection());
+        WorkspaceConfiguration config = new WorkspaceConfiguration(gradleUserHome.isEmpty() ? null : new File(gradleUserHome),
+                                                                   this.offlineModeCheckbox.getSelection(),
+                                                                   this.buildScansCheckbox.getSelection());
         CorePlugin.workspaceConfigurationManager().saveWorkspaceConfiguration(config);
         return super.performOk();
     }

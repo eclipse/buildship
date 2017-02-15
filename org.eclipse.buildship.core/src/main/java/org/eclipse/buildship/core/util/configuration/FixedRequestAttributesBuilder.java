@@ -79,6 +79,9 @@ public final class FixedRequestAttributesBuilder {
         if (configuration.isOffline()) {
             result.arguments.add("--offline");
         }
+        if (configuration.isBuildScansEnabled()) {
+            result.jvmArguments.add("-Dscan");
+        }
         result.arguments(CorePlugin.invocationCustomizer().getExtraArguments());
         return result;
      }
