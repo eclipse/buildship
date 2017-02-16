@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 the original author or authors.
+ * Copyright (c) 2017 the original author or authors.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,36 +11,27 @@ package org.eclipse.buildship.core.preferences;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 
 /**
- * Interface to load and store Gradle model elements stored in the workspace plugin state area.
- * <p/>
- * Each getter may return {@code null} values if the model element is not available. If a
- * {@code null} value is passed to a setter then the model element is deleted.
+ * Contract how to read Gradle model elements stored in the workspace plugin state area.
  *
  * @author Donat Csikos
  */
 public interface PersistentModel {
+    boolean isPresent();
+
+    IProject getProject();
 
     IPath getBuildDir();
 
-    void setBuildDir(IPath buildDir);
-
     Collection<IPath> getSubprojectPaths();
-
-    void setSubprojectPaths(Collection<IPath> subprojectPaths);
 
     List<IClasspathEntry> getClasspath();
 
-    void setClasspath(List<IClasspathEntry> classpath);
-
     Collection<IPath> getDerivedResources();
 
-    void setDerivedResources(Collection<IPath> derivedResources);
-
     Collection<IPath> getLinkedResources();
-
-    void setLinkedResources(Collection<IPath> linkedResources);
 }

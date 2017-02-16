@@ -6,6 +6,7 @@ import com.gradleware.tooling.toolingmodel.OmniEclipseProject
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectDependency
 import com.gradleware.tooling.toolingmodel.OmniExternalDependency
 
+import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
@@ -13,6 +14,8 @@ import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
+import org.eclipse.buildship.core.preferences.PersistentModel
+import org.eclipse.buildship.core.preferences.internal.DefaultPersistentModel
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 
@@ -36,9 +39,10 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         def gradleProject = gradleProjectWithClasspath(
             externalDependency(file)
         )
+        PersistentModelBuilder persistentModel = builder(project.project)
 
         when:
-        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), null)
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), persistentModel, null)
 
         then:
         resolvedClasspath[0].entryKind == IClasspathEntry.CPE_LIBRARY
@@ -50,9 +54,10 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         def gradleProject = gradleProjectWithClasspath(
             externalDependency(dir("foo"))
         )
+        PersistentModelBuilder persistentModel = builder(project.project)
 
         when:
-        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), null)
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), persistentModel, null)
 
         then:
         resolvedClasspath[0].entryKind == IClasspathEntry.CPE_LIBRARY
@@ -64,9 +69,10 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         def gradleProject = gradleProjectWithClasspath(
             externalDependency(new File(path))
         )
+        PersistentModelBuilder persistentModel = builder(project.project)
 
         when:
-        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), null)
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), persistentModel, null)
 
         then:
         resolvedClasspath[0].entryKind == IClasspathEntry.CPE_LIBRARY
@@ -81,9 +87,10 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         def gradleProject = gradleProjectWithClasspath(
             externalDependency(new File(path))
         )
+        PersistentModelBuilder persistentModel = builder(project.project)
 
         when:
-        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), null)
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), persistentModel, null)
 
         then:
         resolvedClasspath[0].entryKind == IClasspathEntry.CPE_LIBRARY
@@ -99,20 +106,22 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
                 externalDependency(dir("foo")),
                 externalDependency(dir("bar"))
                 )
+        PersistentModelBuilder persistentModel = builder(project.project)
 
         expect:
         def initialContainer = gradleClasspathContainer
         initialContainer
 
         when:
-        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), null)
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), persistentModel, null)
 
         then:
         def modifiedContainer = gradleClasspathContainer
         !modifiedContainer.is(initialContainer)
 
         when:
-        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), null)
+        persistentModel = builder(persistentModel.build())
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), persistentModel, null)
 
         then:
         modifiedContainer.is(gradleClasspathContainer)
@@ -142,7 +151,19 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         project.getResolvedClasspath(false)
     }
 
-    GradleClasspathContainer getGradleClasspathContainer(){
+    private PersistentModelBuilder builder(IProject project) {
+        new PersistentModelBuilder(emptyModel(project))
+    }
+
+    private PersistentModelBuilder builder(PersistentModel model) {
+        new PersistentModelBuilder(model)
+    }
+
+    private PersistentModel emptyModel(IProject project) {
+        new DefaultPersistentModel(project, new Path("build"), [], [], [], [])
+    }
+
+    GradleClasspathContainer getGradleClasspathContainer() {
         JavaCore.getClasspathContainer(GradleClasspathContainer.CONTAINER_PATH, project)
     }
 }

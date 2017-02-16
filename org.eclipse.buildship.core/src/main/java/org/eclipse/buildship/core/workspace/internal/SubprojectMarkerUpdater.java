@@ -16,15 +16,12 @@ import com.google.common.collect.Lists;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.preferences.PersistentModel;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
 
 /**
@@ -42,11 +39,11 @@ final class SubprojectMarkerUpdater {
         this.gradleProject = Preconditions.checkNotNull(gradleProject);
     }
 
-    public void update(IProgressMonitor monitor) {
-        SubMonitor progress = SubMonitor.convert(monitor, 2);
+    public void update(PersistentModelBuilder persistentModel, IProgressMonitor monitor) {
+        SubMonitor progress = SubMonitor.convert(monitor, 1);
         try {
             List<IPath> subfolders = getNestedSubProjectFolderPaths(progress.newChild(1));
-            updateSubProjectMarkers(subfolders, progress.newChild(1));
+            persistentModel.subprojectPaths(subfolders);
         } catch (Exception e) {
             String message = String.format("Could not update sub-project markers on project %s.", this.project.getName());
             throw new GradlePluginsRuntimeException(message, e);
@@ -70,13 +67,7 @@ final class SubprojectMarkerUpdater {
         return subfolderPaths;
     }
 
-    private void updateSubProjectMarkers(List<IPath> subProjectPaths, SubMonitor progress) throws CoreException {
-        PersistentModel model = CorePlugin.modelPersistence().loadModel(this.project);
-        model.setSubprojectPaths(subProjectPaths);
-        CorePlugin.modelPersistence().saveModel(model);
-    }
-
-    public static void update(IProject workspaceProject, OmniEclipseProject gradleProject, IProgressMonitor monitor) {
-        new SubprojectMarkerUpdater(workspaceProject, gradleProject).update(monitor);
+    public static void update(IProject workspaceProject, OmniEclipseProject gradleProject, PersistentModelBuilder persistentModel, IProgressMonitor monitor) {
+        new SubprojectMarkerUpdater(workspaceProject, gradleProject).update(persistentModel, monitor);
     }
 }

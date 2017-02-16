@@ -32,6 +32,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -197,28 +198,34 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         ProjectConfiguration configuration = ProjectConfiguration.from(this.build, project);
         CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, workspaceProject);
 
-        LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), progress.newChild(1));
-        SubprojectMarkerUpdater.update(workspaceProject, project, progress.newChild(1));
-        DerivedResourcesUpdater.update(workspaceProject, project, progress.newChild(1));
+        PersistentModelBuilder persistentModel = new PersistentModelBuilder(CorePlugin.modelPersistence().loadModel(workspaceProject));
+
+        LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), persistentModel, progress.newChild(1));
+        SubprojectMarkerUpdater.update(workspaceProject, project, persistentModel, progress.newChild(1));
+        DerivedResourcesUpdater.update(workspaceProject, project, persistentModel, progress.newChild(1));
         ProjectNatureUpdater.update(workspaceProject, project.getProjectNatures(), progress.newChild(1));
         BuildCommandUpdater.update(workspaceProject, project.getBuildCommands(), progress.newChild(1));
 
         if (isJavaProject(project)) {
-            synchronizeJavaProject(project, workspaceProject, progress);
+            synchronizeJavaProject(project, workspaceProject, persistentModel, progress);
+        } else {
+            persistentModel.classpath(ImmutableList.<IClasspathEntry>of());
         }
+
+        CorePlugin.modelPersistence().saveModel(persistentModel.build());
     }
 
-    private void synchronizeJavaProject(final OmniEclipseProject project, final IProject workspaceProject, SubMonitor progress) throws CoreException {
+    private void synchronizeJavaProject(final OmniEclipseProject project, final IProject workspaceProject, final PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
         JavaCore.run(new IWorkspaceRunnable() {
             @Override
             public void run(IProgressMonitor monitor) throws CoreException {
                 SubMonitor progress = SubMonitor.convert(monitor);
-                synchronizeJavaProjectInTransaction(project, workspaceProject, progress);
+                synchronizeJavaProjectInTransaction(project, workspaceProject, persistentModel, progress);
             }
         }, progress.newChild(1));
     }
 
-    private void synchronizeJavaProjectInTransaction(final OmniEclipseProject project, final IProject workspaceProject, SubMonitor progress) throws JavaModelException, CoreException {
+    private void synchronizeJavaProjectInTransaction(final OmniEclipseProject project, final IProject workspaceProject, PersistentModelBuilder persistentModel, SubMonitor progress) throws JavaModelException, CoreException {
         progress.setWorkRemaining(8);
         //old Gradle versions did not expose natures, so we need to add the Java nature explicitly
         CorePlugin.workspaceOperations().addNature(workspaceProject, JavaCore.NATURE_ID, progress.newChild(1));
@@ -228,7 +235,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         LibraryFilter.update(javaProject, project, progress.newChild(1));
         ClasspathContainerUpdater.update(javaProject, project.getClasspathContainers(), project.getJavaSourceSettings().get(), progress.newChild(1));
         JavaSourceSettingsUpdater.update(javaProject, project, progress.newChild(1));
-        GradleClasspathContainerUpdater.updateFromModel(javaProject, project, SynchronizeGradleBuildOperation.this.allProjects, progress.newChild(1));
+        GradleClasspathContainerUpdater.updateFromModel(javaProject, project, SynchronizeGradleBuildOperation.this.allProjects, persistentModel, progress.newChild(1));
         WtpClasspathUpdater.update(javaProject, project, progress.newChild(1));
     }
 

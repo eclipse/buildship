@@ -6,7 +6,10 @@ import com.gradleware.tooling.toolingmodel.util.Maybe
 
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.Path
 
+import org.eclipse.buildship.core.preferences.PersistentModel
+import org.eclipse.buildship.core.preferences.internal.DefaultPersistentModel
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
 class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
@@ -26,8 +29,11 @@ class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
     }
 
     def "Derived resources can be marked on a project"() {
+        given:
+        PersistentModelBuilder persistentModel = builder(project)
+
         when:
-        DerivedResourcesUpdater.update(project, model(), null)
+        DerivedResourcesUpdater.update(project, model(), persistentModel, null)
 
         then:
         buildFolder.isDerived()
@@ -35,9 +41,15 @@ class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
     }
 
     def "Derived resource markers are removed if they no longer exist in the Gradle model"() {
+        setup:
+        PersistentModelBuilder persistentModel = builder(project)
+        DerivedResourcesUpdater.update(project, model('build'), persistentModel, null)
+
+        persistentModel =  builder(persistentModel.build())
+
         when:
-        DerivedResourcesUpdater.update(project, model('build'), null)
-        DerivedResourcesUpdater.update(project, model('target'), null)
+        DerivedResourcesUpdater.update(project, model('build'), persistentModel, null)
+        DerivedResourcesUpdater.update(project, model('target'), persistentModel, null)
 
         then:
         !buildFolder.isDerived()
@@ -45,25 +57,29 @@ class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
     }
 
     def "Manual derived markers are preserved"() {
-        given:
+        setup:
         def manual = project.getFolder('manual')
         manual.create(true, true, null)
         manual.setDerived(true, null)
+        PersistentModelBuilder persistentModel = builder(project)
 
         when:
-        DerivedResourcesUpdater.update(project, model(), null)
+        DerivedResourcesUpdater.update(project, model(), persistentModel, null)
 
         then:
         manual.isDerived()
     }
 
     def "Derived resource markers that were defined manually are transformed to model elements"() {
-        given:
+        setup:
         buildFolder.setDerived(true, null)
+        PersistentModelBuilder persistentModel = builder(project)
+        DerivedResourcesUpdater.update(project, model('build'), persistentModel, null)
+
+        persistentModel = builder(persistentModel.build())
 
         when:
-        DerivedResourcesUpdater.update(project, model('build'), null)
-        DerivedResourcesUpdater.update(project, model('target'), null)
+        DerivedResourcesUpdater.update(project, model('target'), persistentModel, null)
 
         then:
         !buildFolder.isDerived()
@@ -77,4 +93,15 @@ class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
         eclipseProject
     }
 
+    private PersistentModelBuilder builder(PersistentModel model) {
+        new PersistentModelBuilder(model)
+    }
+
+    private PersistentModelBuilder builder(IProject project) {
+        new PersistentModelBuilder(emptyModel(project))
+    }
+
+    private PersistentModel emptyModel(IProject project) {
+        new DefaultPersistentModel(project, new Path("build"), [], [], [], [])
+    }
 }

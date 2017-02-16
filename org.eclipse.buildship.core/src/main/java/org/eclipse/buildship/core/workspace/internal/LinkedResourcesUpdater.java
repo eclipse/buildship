@@ -12,6 +12,7 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -32,7 +33,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.preferences.PersistentModel;
 import org.eclipse.buildship.core.util.file.FileUtils;
@@ -67,23 +67,21 @@ final class LinkedResourcesUpdater {
         return linkedResource.getLocation() != null;
     }
 
-    private void updateLinkedResources(IProgressMonitor monitor) throws CoreException {
+    private void updateLinkedResources(PersistentModelBuilder persistentModel, IProgressMonitor monitor) throws CoreException {
         SubMonitor progress = SubMonitor.convert(monitor, 2);
-        removeOutdatedLinkedResources(progress.newChild(1));
-        createLinkedResources(progress.newChild(1));
+        removeOutdatedLinkedResources(persistentModel, progress.newChild(1));
+        createLinkedResources(persistentModel, progress.newChild(1));
     }
 
-    private void removeOutdatedLinkedResources(SubMonitor progress) throws CoreException {
-        PersistentModel model = CorePlugin.modelPersistence().loadModel(this.project);
-        Collection<IPath> linkedPaths = model.getLinkedResources();
-        if (linkedPaths != null) {
-            progress.setWorkRemaining(linkedPaths.size());
-            for (IPath linkedPath : linkedPaths) {
-                SubMonitor childProgress = progress.newChild(1);
-                IResource linkedResource = this.project.findMember(linkedPath);
-                if (shouldDelete(linkedResource)) {
-                    linkedResource.delete(false, childProgress);
-                }
+    private void removeOutdatedLinkedResources(PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
+        PersistentModel previousModel = persistentModel.getPrevious();
+        Collection<IPath> linkedPaths = previousModel.isPresent() ? previousModel.getLinkedResources() : Collections.<IPath>emptyList();
+        progress.setWorkRemaining(linkedPaths.size());
+        for (IPath linkedPath : linkedPaths) {
+            SubMonitor childProgress = progress.newChild(1);
+            IResource linkedResource = this.project.findMember(linkedPath);
+            if (shouldDelete(linkedResource)) {
+                linkedResource.delete(false, childProgress);
             }
         }
     }
@@ -100,7 +98,7 @@ final class LinkedResourcesUpdater {
         return this.resourcePaths.contains(resource.getProjectRelativePath());
     }
 
-    private void createLinkedResources(SubMonitor progress) throws CoreException {
+    private void createLinkedResources(PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
         progress.setWorkRemaining(this.resources.size());
         Set<IPath> linkedPaths = Sets.newHashSet();
         for (OmniEclipseLinkedResource linkedFile : this.resources) {
@@ -108,9 +106,7 @@ final class LinkedResourcesUpdater {
             IResource file = createLinkedResource(linkedFile, childProgress);
             linkedPaths.add(file.getProjectRelativePath());
         }
-        PersistentModel model = CorePlugin.modelPersistence().loadModel(this.project);
-        model.setLinkedResources(linkedPaths);
-        CorePlugin.modelPersistence().saveModel(model);
+        persistentModel.linkedResources(linkedPaths);
     }
 
     private IResource createLinkedResource(OmniEclipseLinkedResource linkedResource, SubMonitor progress) throws CoreException {
@@ -132,8 +128,8 @@ final class LinkedResourcesUpdater {
         }
     }
 
-    public static void update(IProject project, List<OmniEclipseLinkedResource> linkedResources, IProgressMonitor monitor) throws CoreException {
+    public static void update(IProject project, List<OmniEclipseLinkedResource> linkedResources, PersistentModelBuilder persistentModel, IProgressMonitor monitor) throws CoreException {
         LinkedResourcesUpdater updater = new LinkedResourcesUpdater(project, linkedResources);
-        updater.updateLinkedResources(monitor);
+        updater.updateLinkedResources(persistentModel, monitor);
     }
 }
