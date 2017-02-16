@@ -285,6 +285,9 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
         // leave the controls empty
     }
 
+    /**
+     * Listener implementation to update the dialog buttons and messages.
+     */
     private class DialogUpdater extends SelectionAdapter implements ModifyListener {
         @Override
         public void widgetSelected(SelectionEvent e) {
