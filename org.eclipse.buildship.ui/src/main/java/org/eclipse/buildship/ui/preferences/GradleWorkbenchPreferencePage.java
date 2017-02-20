@@ -42,6 +42,7 @@ import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.buildship.ui.launch.LaunchMessages;
 import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.font.FontUtils;
+import org.eclipse.buildship.ui.util.widget.GradleHoverHelp;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
 
 /**
@@ -73,17 +74,22 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
         Group gradleUserHomeGroup = createGroup(page, CoreMessages.Preference_Label_GradleUserHome + ":");
         createGradleUserHomeSelectionControl(gradleUserHomeGroup);
         createOfflineModeCheckbox(page);
+        createBuildScansCheckbox(page);
 
         initFields();
 
         return page;
     }
 
-    private void createOfflineModeCheckbox(Composite page) {
-        this.offlineModeCheckbox = new Button(page, SWT.CHECK);
+    private void createOfflineModeCheckbox(Composite parent) {
+        this.offlineModeCheckbox = new Button(parent, SWT.CHECK);
         this.offlineModeCheckbox.setText(CoreMessages.Preference_Label_OfflineMode);
-        this.buildScansCheckbox = new Button(page, SWT.CHECK);
+    }
+
+    private void createBuildScansCheckbox(Composite parent) {
+        this.buildScansCheckbox = new Button(parent, SWT.CHECK);
         this.buildScansCheckbox.setText(CoreMessages.Preference_Label_BuildScans);
+        GradleHoverHelp.createAndAttach(this.buildScansCheckbox, CoreMessages.Preference_Label_BuildScansHover);
     }
 
     private Group createGroup(Composite parent, String groupName) {

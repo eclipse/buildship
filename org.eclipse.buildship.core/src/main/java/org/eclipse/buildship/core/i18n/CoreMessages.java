@@ -62,6 +62,7 @@ public final class CoreMessages extends NLS {
     public static String Preference_Label_GradleUserHome;
     public static String Preference_Label_OfflineMode;
     public static String Preference_Label_BuildScans;
+    public static String Preference_Label_BuildScansHover;
 
     static {
         // initialize resource bundle
