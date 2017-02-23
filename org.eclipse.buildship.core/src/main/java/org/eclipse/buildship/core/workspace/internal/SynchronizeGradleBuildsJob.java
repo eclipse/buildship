@@ -8,11 +8,13 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.io.File;
 import java.util.Set;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
@@ -106,8 +108,20 @@ public final class SynchronizeGradleBuildsJob extends ToolingApiJob {
     }
 
     private boolean isCoveredBy(SynchronizeGradleBuildsJob other) {
-        return Objects.equal(this.builds, other.builds) && (this.newProjectHandler == NewProjectHandler.NO_OP || Objects.equal(this.newProjectHandler, other.newProjectHandler))
+        return sameRootProjects(this.builds, other.builds) && (this.newProjectHandler == NewProjectHandler.NO_OP || Objects.equal(this.newProjectHandler, other.newProjectHandler))
                 && (this.initializer == AsyncHandler.NO_OP || Objects.equal(this.initializer, other.initializer));
+    }
+
+    private boolean sameRootProjects(Set<GradleBuild> s1, Set<GradleBuild> s2) {
+        Set<File> f1 = Sets.newHashSet();
+        Set<File> f2 = Sets.newHashSet();
+        for (GradleBuild build : s1) {
+            f1.add(build.getRequestAttributes().getProjectDir());
+        }
+        for (GradleBuild build : s2) {
+            f2.add(build.getRequestAttributes().getProjectDir());
+        }
+        return Objects.equal(f1, f2);
     }
 
     public static SynchronizeGradleBuildsJob forSingleGradleBuild(GradleBuild build, NewProjectHandler newProjectHandler, AsyncHandler initializer) {
