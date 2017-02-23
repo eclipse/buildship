@@ -1,20 +1,30 @@
 package org.eclipse.buildship.core.launch
 
-import com.gradleware.tooling.toolingclient.TestLaunchRequest
-import org.gradle.tooling.events.test.TestOperationDescriptor
+import org.eclipse.jdt.core.IType
 
 class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
-    TestLaunchRequest testLaunchRequest
+    File projectDir
 
-    def setup(){
-        testLaunchRequest = Mock(TestLaunchRequest)
-        toolingClient.newTestLaunchRequest(_) >> testLaunchRequest
+    void setup() {
+        projectDir = dir('java-launch-config') {
+            file 'build.gradle', """
+                apply plugin: 'java'
+                repositories.jcenter()
+                dependencies.testCompile 'junit:junit:4.12'
+            """
+            dir('src/test/java').mkdirs()
+            file 'src/test/java/MyTest.java', """
+                public class MyTest {
+                    public @org.junit.Test void test() { org.junit.Assert.assertTrue(true); }
+                }
+            """
+        }
     }
 
     def "Job launches a Gradle test"() {
         setup:
-        def job = new RunGradleTestLaunchRequestJob(createTestOperationDescriptorsMock(), createRunConfigurationAttributesMock())
+        def job = new RunGradleJvmTestLaunchRequestJob(testTargets(), runConfigAttributes(projectDir))
 
         when:
         job.schedule()
@@ -22,12 +32,13 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
         then:
         job.getResult().isOK()
-        1 * testLaunchRequest.executeAndWait()
+        buildOutput.contains ':test'
+        buildOutput.contains 'BUILD SUCCESSFUL'
     }
 
     def "Job prints its configuration"() {
         setup:
-        def job = new RunGradleTestLaunchRequestJob(createTestOperationDescriptorsMock(), createRunConfigurationAttributesMock())
+        def job = new RunGradleJvmTestLaunchRequestJob(testTargets(), runConfigAttributes(projectDir))
 
         when:
         job.schedule()
@@ -35,19 +46,19 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
         then:
         job.getResult().isOK()
-        1 * processStreamsProvider.createProcessStreams(null).getConfiguration().flush()
+        buildConfig.contains 'Working Directory'
+        buildConfig.contains 'Tests: MyTest'
     }
 
-    GradleRunConfigurationAttributes createRunConfigurationAttributesMock() {
-        def launchConfiguration = createLaunchConfigurationMock()
+    GradleRunConfigurationAttributes runConfigAttributes(projectDir) {
+        def launchConfiguration = createLaunchConfiguration(projectDir, [])
         GradleRunConfigurationAttributes.from(launchConfiguration)
     }
 
-    def createTestOperationDescriptorsMock() {
-        TestOperationDescriptor descriptor = Mock(TestOperationDescriptor)
-        descriptor.getName() >> 'testName'
-        descriptor.getDisplayName() >> 'display name'
-        [descriptor]
+    List<TestTarget> testTargets() {
+        IType type = Mock(IType)
+        type.elementName >> 'MyTest'
+        type.fullyQualifiedName >> 'MyTest'
+        [new TestType(type)]
     }
-
 }

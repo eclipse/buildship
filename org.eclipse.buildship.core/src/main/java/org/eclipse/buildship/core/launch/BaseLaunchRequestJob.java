@@ -16,13 +16,15 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.List;
 
+import org.gradle.tooling.GradleConnector;
+import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.ProjectConnection;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
-import com.gradleware.tooling.toolingclient.BuildRequest;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
@@ -41,21 +43,32 @@ import org.eclipse.buildship.core.launch.internal.DefaultExecuteLaunchRequestEve
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 
 /**
- * Base class to execute {@link SingleBuildRequest} instances in job.
+ * Base class to execute Gradle builds in a job.
  */
 public abstract class BaseLaunchRequestJob extends ToolingApiJob {
+
+    /**
+     * Common interface to retrieve and execute build and test launch requests. This interface is
+     * needed since there's no common {@code run()} method defined on the
+     * {@link LongRunningOperation} subclasses.
+     */
+    public static interface Launcher {
+        LongRunningOperation getOperation();
+        void run();
+    }
 
     protected BaseLaunchRequestJob(String name, boolean notifyUserAboutBuildFailures) {
         super(name, notifyUserAboutBuildFailures);
     }
 
     @Override
-    protected final void runToolingApiJob(IProgressMonitor monitor) {
+    protected final void runToolingApiJob(final IProgressMonitor monitor) throws Exception {
         // todo (etst) close streams when done
 
         // activate all plugins which contribute to a build execution
@@ -64,34 +77,52 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
         // start tracking progress
         monitor.beginTask(getJobTaskName(), IProgressMonitor.UNKNOWN);
 
-        ProcessDescription processDescription = createProcessDescription();
-        ProcessStreams processStreams = CorePlugin.processStreamsProvider().createProcessStreams(processDescription);
+        final ProcessDescription processDescription = createProcessDescription();
+        final ProcessStreams processStreams = CorePlugin.processStreamsProvider().createProcessStreams(processDescription);
 
         // fetch build environment
         List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(DelegatingProgressListener.withFullOutput(monitor));
 
-        // apply the fixed attributes on the request o
-        BuildRequest<Void> request = createRequest();
-        FixedRequestAttributes fixedAttributes = getConfigurationAttributes().toFixedRequestAttributes();
-        fixedAttributes.apply(request);
+        final FixedRequestAttributes attributes = getConfigurationAttributes().toFixedRequestAttributes();
+        ProjectConnection connection = null;
+        try {
+            // apply FixedRequestAttributes on connector and establish TAPI connection
+            GradleConnector connector = GradleConnector.newConnector().forProjectDirectory(attributes.getProjectDir());
+            GradleDistributionWrapper.from(attributes.getGradleDistribution()).apply(connector);
+            connector.useGradleUserHomeDir(attributes.getGradleUserHome());
+            connection = connector.connect();
 
-        // configure the request's transient attributes
-        request.standardOutput(processStreams.getOutput());
-        request.standardError(processStreams.getError());
-        request.standardInput(processStreams.getInput());
-        request.progressListeners(listeners.toArray(new ProgressListener[listeners.size()]));
-        request.cancellationToken(getToken());
+            // apply FixedRequestAttributes on build launcher
+            Launcher launcher = createLauncher(connection);
+            LongRunningOperation operation = launcher.getOperation();
+            operation.setJavaHome(attributes.getJavaHome());
+            operation.withArguments(attributes.getArguments());
+            operation.setJvmArguments(attributes.getJvmArguments());
 
-        // print the applied run configuration settings at the beginning of the console output
-        OutputStreamWriter writer = new OutputStreamWriter(processStreams.getConfiguration());
-        writeFixedRequestAttributes(fixedAttributes, writer, monitor);
+            // transient attributes
+            operation.setStandardOutput(processStreams.getOutput());
+            operation.setStandardError(processStreams.getError());
+            operation.setStandardInput(processStreams.getInput());
+            for (ProgressListener listener : listeners) {
+                operation.addProgressListener(listener);
+            }
+            operation.withCancellationToken(getToken());
 
-        // notify the listeners before executing the build launch request
-        Event event = new DefaultExecuteLaunchRequestEvent(processDescription, request);
-        CorePlugin.listenerRegistry().dispatch(event);
+            // notify the listeners before executing the build launch request
+            Event event = new DefaultExecuteLaunchRequestEvent(processDescription, operation);
+            CorePlugin.listenerRegistry().dispatch(event);
 
-        // launch the build
-        request.executeAndWait();
+            // print the applied run configuration settings at the beginning of the console output
+            OutputStreamWriter writer = new OutputStreamWriter(processStreams.getConfiguration());
+            writeFixedRequestAttributes(attributes, writer, monitor);
+
+            // execute the build
+            launcher.run();
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
     }
 
     private void writeFixedRequestAttributes(FixedRequestAttributes fixedAttributes, OutputStreamWriter writer, IProgressMonitor monitor) {
@@ -162,11 +193,11 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
     protected abstract ProcessDescription createProcessDescription();
 
     /**
-     * Creates a new {@link SingleBuildRequest} object to execute in the job.
+     * Creates a new launcher object to execute in the job.
      *
-     * @return the new request object
+     * @return the new launcher
      */
-    protected abstract BuildRequest<Void> createRequest();
+    protected abstract Launcher createLauncher(ProjectConnection connection);
 
     /**
      * Writes extra information on the configuration console.

@@ -11,7 +11,7 @@
 
 package org.eclipse.buildship.core.launch;
 
-import com.gradleware.tooling.toolingclient.TestConfig;
+import org.gradle.tooling.TestLauncher;
 
 /**
  * Represents an input item for a Gradle test execution.
@@ -36,8 +36,8 @@ public interface TestTarget {
     /**
      * Adds the current element to the target test configuration.
      *
-     * @param testConfig the configuration to apply the current element on
+     * @param launcher the configuration to apply the current element on
      */
-    void apply(TestConfig.Builder testConfig);
+    void apply(TestLauncher launcher);
 
 }
