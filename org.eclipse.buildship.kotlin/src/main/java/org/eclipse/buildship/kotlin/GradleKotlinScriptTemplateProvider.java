@@ -9,7 +9,8 @@
 package org.eclipse.buildship.kotlin;
 
 import java.io.File;
-import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,9 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import org.eclipse.core.resources.IFile;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration.ConversionStrategy;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 
 /**
  * Contributes the Gradle Kotlin Script template to the Kotlin Eclipse integration.
@@ -38,49 +41,69 @@ public class GradleKotlinScriptTemplateProvider implements ScriptTemplateProvide
 
     // properties names defined in gradle-script-kotlin
     private static final String GSK_PROJECT_ROOT = "projectRoot";
-    private static final String GSK_GRADLE_HOME = "gradleHome";
+    private static final String GSK_GRADLE_USER_HOME = "gradleUserHome";
     private static final String GSK_JAVA_HOME = "gradleJavaHome";
+    private static final String GSK_OPTIONS = "gradleOptions";
     private static final String GSK_JVM_OPTIONS = "gradleJvmOptions";
-    // properties names not yet used by gradle-script-kotlin
-    // see https://github.com/gradle/gradle-script-kotlin/issues/265
-    private static final String NON_GSK_GRADLE_USER_HOME = "gradleUserHome";
-    private static final String NON_GSK_OPTIONS = "gradleOptions";
+    private static final String GSK_INSTALLATION_LOCAL = "gradleHome";
+    private static final String GSK_INSTALLATION_REMOTE = "gradleUri";
+    private static final String GSK_INSTALLATION_VERSION = "gradleVersion";
 
     @Override
     @SuppressWarnings("unchecked")
     public Iterable<String> getTemplateClasspath(Map<String, ? extends Object> environment) {
         File projectDir = (File) environment.get(GSK_PROJECT_ROOT);
-        File gradleDist = (File) environment.get(GSK_GRADLE_HOME);
-        File gradleUserHome = (File) environment.get(NON_GSK_GRADLE_USER_HOME);
+        File gradleUserHome = (File) environment.get(GSK_GRADLE_USER_HOME);
         File javaHome = (File)environment.get(GSK_JAVA_HOME);
-        List<String> arguments = (List<String>) environment.get(NON_GSK_OPTIONS);
+        List<String> arguments = (List<String>) environment.get(GSK_OPTIONS);
         List<String> jvmArguments = (List<String>) environment.get(GSK_JVM_OPTIONS);
 
-        KotlinBuildScriptModel model = execute(projectDir, gradleDist, javaHome, gradleUserHome, arguments, jvmArguments);
+        GradleDistribution gradleDistribution = gradleDistributionFor(environment);
+
+        List<String> effectiveJvmArguments = Lists.newArrayList("-Dorg.gradle.script.lang.kotlin.provider.mode=classpath"); // from KotlinScriptPluginFactory
+        effectiveJvmArguments.addAll(jvmArguments);
+
+        KotlinBuildScriptModel model = queryTemplateClasspath(projectDir, gradleDistribution, gradleUserHome, javaHome, arguments, effectiveJvmArguments);
 
         List<String> result = Lists.newArrayList();
-        for (File f : model.getClassPath()) {
-            result.add(f.getAbsolutePath());
+        if (model != null) {
+            for (File f : model.getClassPath()) {
+                result.add(f.getAbsolutePath());
+            }
         }
         return result;
     }
 
-    private static KotlinBuildScriptModel execute(File projectDir, File gradleDist, File gradleUserHome, File javaHome, List<String> arguments, List<String> jvmArguments) {
-        List<String> effectiveJvmArguments = Lists.newArrayList("-Dorg.gradle.script.lang.kotlin.provider.mode=classpath"); // from KotlinScriptPluginFactory
-        effectiveJvmArguments.addAll(jvmArguments);
+    private static GradleDistribution gradleDistributionFor(Map<String, ? extends Object> environment) {
+        File gradleLocal = (File) environment.get(GSK_INSTALLATION_LOCAL);
+        URI gradleRemote = (URI) environment.get(GSK_INSTALLATION_REMOTE);
+        String gradleVersion = (String) environment.get(GSK_INSTALLATION_VERSION);
+        if (gradleLocal != null) {
+            return GradleDistribution.forLocalInstallation(gradleLocal);
+        } else if (gradleRemote != null) {
+            return GradleDistribution.forRemoteDistribution(gradleRemote);
+        } else if (gradleVersion != null) {
+            return GradleDistribution.forVersion(gradleVersion);
+        } else {
+            return GradleDistribution.fromBuild();
+        }
+    }
+
+    private static KotlinBuildScriptModel queryTemplateClasspath(File projectDir, GradleDistribution gradleDistribution, File gradleUserHome, File javaHome, List<String> arguments, List<String> jvmArguments) {
         ProjectConnection connection = null;
         try {
-            // see https://github.com/gradle/gradle-script-kotlin/issues/266
-            GradleConnector connector = GradleConnector.newConnector().forProjectDirectory(projectDir).useInstallation(gradleDist);
+            GradleConnector connector = GradleConnector.newConnector().forProjectDirectory(projectDir);
             connector.useGradleUserHomeDir(gradleUserHome);
+            gradleDistribution.apply(connector);
             connection = connector.connect();
             return connection.model(KotlinBuildScriptModel.class)
-                .setJvmArguments(effectiveJvmArguments)
+                .setJvmArguments(jvmArguments)
                 .withArguments(arguments)
                 .setJavaHome(javaHome)
                 .get();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            CorePlugin.logger().warn("Cannot query Kotlin build script classpath model", e);
+            return null;
         } finally {
             if (connection != null) {
                 connection.close();
@@ -92,26 +115,27 @@ public class GradleKotlinScriptTemplateProvider implements ScriptTemplateProvide
     public Map<String, Object> getEnvironment(IFile file) {
         HashMap<String, Object> environment = new HashMap<String, Object>();
         FixedRequestAttributes attributes = CorePlugin.projectConfigurationManager().readProjectConfiguration(file.getProject()).toRequestAttributes(ConversionStrategy.MERGE_WORKSPACE_SETTINGS);
-        File gradleDistributionDir;
-        try {
-            // see https://github.com/gradle/gradle-script-kotlin/issues/266
-            GradleDistribution distribution = attributes.getGradleDistribution();
-            Field localInstallationDirField = GradleDistribution.class.getDeclaredField("localInstallationDir");
-            localInstallationDirField.setAccessible(true);
-            gradleDistributionDir = (File) localInstallationDirField.get(distribution);
-            if (gradleDistributionDir == null) {
-                throw new RuntimeException("Only local installation is supported");
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
 
         environment.put(GSK_PROJECT_ROOT, attributes.getProjectDir());
-        environment.put(GSK_GRADLE_HOME, gradleDistributionDir);
-        environment.put(NON_GSK_GRADLE_USER_HOME, attributes.getGradleUserHome());
+        environment.put(GSK_GRADLE_USER_HOME, attributes.getGradleUserHome());
         environment.put(GSK_JAVA_HOME, attributes.getJavaHome());
-        environment.put(NON_GSK_OPTIONS, attributes.getArguments());
+        environment.put(GSK_OPTIONS, attributes.getArguments());
         environment.put(GSK_JVM_OPTIONS, attributes.getJvmArguments());
+
+        GradleDistributionWrapper gradleDistribution = GradleDistributionWrapper.from(attributes.getGradleDistribution());
+        switch (gradleDistribution.getType()) {
+            case LOCAL_INSTALLATION:
+                environment.put(GSK_INSTALLATION_LOCAL, new File(gradleDistribution.getConfiguration()));
+                break;
+            case REMOTE_DISTRIBUTION:
+                environment.put(GSK_INSTALLATION_REMOTE, createURI(gradleDistribution.getConfiguration()));
+                break;
+            case VERSION:
+                environment.put(GSK_INSTALLATION_VERSION, gradleDistribution.getConfiguration());
+                break;
+            default:
+                break;
+        }
 
         return environment;
     }
@@ -119,5 +143,13 @@ public class GradleKotlinScriptTemplateProvider implements ScriptTemplateProvide
     @Override
     public String getTemplateClassName() {
         return "org.gradle.script.lang.kotlin.KotlinBuildScript";
+    }
+
+    private URI createURI(String uri) {
+        try {
+            return new URI(uri);
+        } catch (URISyntaxException e) {
+            throw new GradlePluginsRuntimeException(e);
+        }
     }
 }

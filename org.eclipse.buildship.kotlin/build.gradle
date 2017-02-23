@@ -11,7 +11,7 @@ dependencies {
     compile "org.gradle:gradle-core:$toolingApiVersion"
     compile "org.gradle:gradle-process-services:$toolingApiVersion"
     compile "org.gradle:gradle-tooling-api:$toolingApiVersion"
-    compile "org.gradle:gradle-script-kotlin:0.7.0"
+    compile "org.gradle:gradle-script-kotlin:0.8.0-SNAPSHOT"
 }
 
 task updateBundledJars(type: Copy) {
