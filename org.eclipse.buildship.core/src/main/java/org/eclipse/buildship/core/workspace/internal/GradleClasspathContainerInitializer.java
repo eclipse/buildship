@@ -50,10 +50,13 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
 
         if (!updatedFromStorage) {
             Optional<GradleBuild> gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(project);
-            if (gradleBuild.isPresent()) {
-                gradleBuild.get().synchronize();
-            } else {
+            if (!gradleBuild.isPresent()) {
                 GradleClasspathContainerUpdater.clear(javaProject, null);
+            } else {
+                GradleBuild build = gradleBuild.get();
+                if (!build.isSyncRunning()) {
+                    build.synchronize();
+                }
             }
         }
     }
