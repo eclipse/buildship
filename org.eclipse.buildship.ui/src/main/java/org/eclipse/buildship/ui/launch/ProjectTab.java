@@ -240,8 +240,8 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
         this.overriddenOfflineModeCheckbox.setEnabled(overrideWorkspaceSettings);
         this.overriddenBuildScansEnabledCheckbox.setEnabled(overrideWorkspaceSettings);
         if(overrideWorkspaceSettings) {
-            this.overriddenOfflineModeCheckbox.setSelection(configurationAttributes.isOverriddenOffline());
-            this.overriddenBuildScansEnabledCheckbox.setSelection(configurationAttributes.isOverriddenBuildScansEnabled());
+            this.overriddenOfflineModeCheckbox.setSelection(configurationAttributes.isOffline());
+            this.overriddenBuildScansEnabledCheckbox.setSelection(configurationAttributes.isBuildScansEnabled());
         } else {
             WorkspaceConfiguration workspaceConfig = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
             this.overriddenOfflineModeCheckbox.setSelection(workspaceConfig.isOffline());
