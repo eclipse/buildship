@@ -68,12 +68,6 @@ public final class GradleRunConfigurationAttributes {
     private final boolean isOffline;
     private final boolean isBuildScansEnabled;
 
-    private GradleRunConfigurationAttributes(List<String> tasks, String workingDirExpression, String gradleDistribution, String javaHomeExpression,
-            List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean showExecutionView, boolean showConsoleView, boolean useGradleDistributionFromImport) {
-        this(tasks, workingDirExpression, gradleDistribution, javaHomeExpression, jvmArgumentExpressions, argumentExpressions, showExecutionView, showConsoleView,
-                useGradleDistributionFromImport, false, false, false);
-    }
-
     private GradleRunConfigurationAttributes(List<String> tasks, String workingDirExpression, String gradleDistribution,
             String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean showExecutionView, boolean showConsoleView, boolean useGradleDistributionFromImport,
             boolean overrideWorkspaceSettings, boolean isOffline, boolean isBuildScansEnabled) {
@@ -291,7 +285,7 @@ public final class GradleRunConfigurationAttributes {
     public static GradleRunConfigurationAttributes with(List<String> tasks, String workingDirExpression, String serializedGradleDistribution,
             String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean showExecutionView, boolean showConsoleView, boolean useGradleDistributionFromImport) {
         return new GradleRunConfigurationAttributes(tasks, workingDirExpression, serializedGradleDistribution, javaHomeExpression, jvmArgumentExpressions,
-                argumentExpressions, showExecutionView, showConsoleView, useGradleDistributionFromImport);
+                argumentExpressions, showExecutionView, showConsoleView, useGradleDistributionFromImport, false, false, false);
     }
 
     public static GradleRunConfigurationAttributes with(List<String> tasks, String workingDirExpression, String serializedGradleDistribution,
@@ -305,7 +299,7 @@ public final class GradleRunConfigurationAttributes {
             String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean showExecutionView, boolean showConsoleView, boolean useGradleDistributionFromImport) {
         String serializedDistribution = GradleDistributionSerializer.INSTANCE.serializeToString(gradleDistribution);
         return new GradleRunConfigurationAttributes(tasks, workingDirExpression, serializedDistribution, javaHomeExpression, jvmArgumentExpressions,
-                argumentExpressions, showExecutionView, showConsoleView, useGradleDistributionFromImport);
+                argumentExpressions, showExecutionView, showConsoleView, useGradleDistributionFromImport, false, false, false);
     }
 
     public static GradleRunConfigurationAttributes from(ILaunchConfiguration launchConfiguration) {
