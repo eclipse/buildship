@@ -31,20 +31,20 @@ import org.eclipse.swt.widgets.Widget;
  *
  * @author Donat Csikos
  */
-public final class GradleHoverHelp {
+public final class HoverText {
 
     private final Control target;
     private final String text;
 
     private AbstractInformationControl hover;
 
-    private GradleHoverHelp(Control target, String text) {
+    private HoverText(Control target, String text) {
         this.target = Preconditions.checkNotNull(target);
         this.text =  Preconditions.checkNotNull(text);
     }
 
-    public static GradleHoverHelp createAndAttach(Control target, String text) {
-        GradleHoverHelp hoverHelp = new GradleHoverHelp(target, text);
+    public static HoverText createAndAttach(Control target, String text) {
+        HoverText hoverHelp = new HoverText(target, text);
         hoverHelp.createControl(target.getShell());
         return hoverHelp;
     }
@@ -77,7 +77,7 @@ public final class GradleHoverHelp {
             Point point = new Point(event.x, event.y);
             Widget widget = event.widget;
             if (widget == null) {
-               GradleHoverHelp.this.hover.setVisible(false);
+               HoverText.this.hover.setVisible(false);
                 this.currentWidget = null;
                 return;
             }
@@ -85,24 +85,24 @@ public final class GradleHoverHelp {
                 return;
             }
             this.currentWidget = widget;
-            GradleHoverHelp.this.hover.setInformation(GradleHoverHelp.this.text);
-            Point currentPosition = GradleHoverHelp.this.target.toDisplay(point);
+            HoverText.this.hover.setInformation(HoverText.this.text);
+            Point currentPosition = HoverText.this.target.toDisplay(point);
             setHoverLocation(currentPosition);
-            GradleHoverHelp.this.hover.setVisible(true);
+            HoverText.this.hover.setVisible(true);
         }
 
         private void setHoverLocation(Point position) {
-            Rectangle displayBounds = GradleHoverHelp.this.target.getDisplay().getBounds();
-            Rectangle shellBounds = GradleHoverHelp.this.hover.getBounds();
+            Rectangle displayBounds = HoverText.this.target.getDisplay().getBounds();
+            Rectangle shellBounds = HoverText.this.hover.getBounds();
             int x = Math.max(Math.min(position.x, displayBounds.width - shellBounds.width), 0);
             int y = Math.max(Math.min(position.y + 16, displayBounds.height - shellBounds.height), 0);
-            GradleHoverHelp.this.hover.setLocation(new Point(x, y));
+            HoverText.this.hover.setLocation(new Point(x, y));
         }
 
         @Override
         public void mouseExit(MouseEvent event) {
-            if (GradleHoverHelp.this.hover.isVisible()) {
-                GradleHoverHelp.this.hover.setVisible(false);
+            if (HoverText.this.hover.isVisible()) {
+                HoverText.this.hover.setVisible(false);
             }
             this.currentWidget = null;
         }
@@ -110,8 +110,8 @@ public final class GradleHoverHelp {
         @Override
         public void mouseDown(MouseEvent event) {
             // remote tooltip if the users clicks on the control
-            if (GradleHoverHelp.this.hover.isVisible()) {
-                GradleHoverHelp.this.hover.setVisible(false);
+            if (HoverText.this.hover.isVisible()) {
+                HoverText.this.hover.setVisible(false);
             }
         }
 
