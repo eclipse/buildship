@@ -12,7 +12,6 @@
 package org.eclipse.buildship.core.launch;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.base.Function;
@@ -212,29 +211,17 @@ public final class GradleRunConfigurationAttributes {
     }
 
     public FixedRequestAttributes toFixedRequestAttributes() {
+        FixedRequestAttributesBuilder builder = FixedRequestAttributesBuilder.fromWorkspaceSettings(getWorkingDir())
+                .gradleUserHome(getGradleUserHome())
+                .gradleDistribution(getGradleDistribution())
+                .javaHome(getJavaHome())
+                .jvmArguments(getJvmArguments())
+                .arguments(getArguments());
         if (isOverrideWorkspaceSettings()) {
-            FixedRequestAttributesBuilder builder = FixedRequestAttributesBuilder.fromEmptySettings(getWorkingDir())
-                    .gradleUserHome(getGradleUserHome())
-                    .gradleDistribution(getGradleDistribution())
-                    .javaHome(getJavaHome())
-                    .jvmArguments(getJvmArguments())
-                    .arguments(getArguments());
-            if (isOffline()) {
-                builder.arguments(Arrays.asList("--offline"));
-            }
-            if (isBuildScansEnabled()) {
-                builder.jvmArguments(Arrays.asList("-Dscan"));
-            }
-            return builder.build();
-        } else {
-            return FixedRequestAttributesBuilder.fromWorkspaceSettings(getWorkingDir())
-                    .gradleUserHome(getGradleUserHome())
-                    .gradleDistribution(getGradleDistribution())
-                    .javaHome(getJavaHome())
-                    .jvmArguments(getJvmArguments())
-                    .arguments(getArguments())
-                    .build();
+            builder.buildScansEnabled(isBuildScansEnabled());
+            builder.offlineMode(isOffline());
         }
+        return builder.build();
     }
 
     public void apply(ILaunchConfigurationWorkingCopy launchConfiguration) {
