@@ -283,16 +283,10 @@ public final class GradleRunConfigurationAttributes {
     }
 
     public static GradleRunConfigurationAttributes with(List<String> tasks, String workingDirExpression, String serializedGradleDistribution,
-            String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean showExecutionView, boolean showConsoleView, boolean useGradleDistributionFromImport) {
-        return new GradleRunConfigurationAttributes(tasks, workingDirExpression, serializedGradleDistribution, javaHomeExpression, jvmArgumentExpressions,
-                argumentExpressions, showExecutionView, showConsoleView, useGradleDistributionFromImport, false, false, false);
-    }
-
-    public static GradleRunConfigurationAttributes with(List<String> tasks, String workingDirExpression, String serializedGradleDistribution,
             String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean showExecutionView, boolean showConsoleView, boolean useGradleDistributionFromImport,
-            boolean isOffline, boolean isBuildScansEnabled) {
+            boolean overrideWorkspaceSettings, boolean isOffline, boolean isBuildScansEnabled) {
         return new GradleRunConfigurationAttributes(tasks, workingDirExpression, serializedGradleDistribution, javaHomeExpression, jvmArgumentExpressions,
-                argumentExpressions, showExecutionView, showConsoleView, useGradleDistributionFromImport, true, isOffline, isBuildScansEnabled);
+                argumentExpressions, showExecutionView, showConsoleView, useGradleDistributionFromImport, overrideWorkspaceSettings, isOffline, isBuildScansEnabled);
     }
 
     public static GradleRunConfigurationAttributes with(List<String> tasks, String workingDirExpression, GradleDistribution gradleDistribution,
@@ -319,10 +313,10 @@ public final class GradleRunConfigurationAttributes {
             boolean isOffline = getBooleanAttribute(OFFLINE_MODE, false, launchConfiguration);
             boolean isBuildScansEnabled = getBooleanAttribute(BUILD_SCANS_ENABLED, false, launchConfiguration);
             return with(tasks, workingDirExpression, gradleDistribution, javaHomeExpression, jvmArgumentExpressions, argumentExpressions,
-                    showExecutionView, showConsoleView, useGradleDistributionFromImport, isOffline, isBuildScansEnabled);
+                    showExecutionView, showConsoleView, useGradleDistributionFromImport, true, isOffline, isBuildScansEnabled);
         } else {
             return with(tasks, workingDirExpression, gradleDistribution, javaHomeExpression, jvmArgumentExpressions, argumentExpressions,
-                    showExecutionView, showConsoleView, useGradleDistributionFromImport);
+                    showExecutionView, showConsoleView, useGradleDistributionFromImport, false, false, false);
         }
     }
 
