@@ -18,7 +18,6 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.TestLauncher;
 import org.gradle.tooling.events.OperationDescriptor;
@@ -40,7 +39,7 @@ import org.eclipse.buildship.core.i18n.CoreMessages;
 /**
  * Executes tests through Gradle based on a given list of {@code TestOperationDescriptor} instances and a given set of {@code GradleRunConfigurationAttributes}.
  */
-public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
+public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob<TestLauncher> {
 
     private final ImmutableList<TestOperationDescriptor> testDescriptors;
     private final GradleRunConfigurationAttributes configurationAttributes;
@@ -93,20 +92,13 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
     }
 
     @Override
-    protected Launcher createLauncher(ProjectConnection connection) {
-        final TestLauncher launcher = connection.newTestLauncher().withTests(this.testDescriptors);
-        return new Launcher() {
+    protected TestLauncher createLauncher(ProjectConnection connection) {
+        return connection.newTestLauncher().withTests(this.testDescriptors);
+    }
 
-            @Override
-            public void run() {
-                launcher.run();
-            }
-
-            @Override
-            public LongRunningOperation getOperation() {
-                return launcher;
-            }
-        };
+    @Override
+    protected void launch(TestLauncher launcher) {
+        launcher.run();
     }
 
     @Override

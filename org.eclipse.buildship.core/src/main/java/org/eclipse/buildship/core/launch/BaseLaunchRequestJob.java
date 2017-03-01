@@ -51,17 +51,7 @@ import org.eclipse.buildship.core.workspace.ModelProvider;
 /**
  * Base class to execute Gradle builds in a job.
  */
-public abstract class BaseLaunchRequestJob extends ToolingApiJob {
-
-    /**
-     * Common interface to retrieve and execute build and test launch requests. This interface is
-     * needed since there's no common {@code run()} method defined on the
-     * {@link LongRunningOperation} subclasses.
-     */
-    public static interface Launcher {
-        LongRunningOperation getOperation();
-        void run();
-    }
+public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> extends ToolingApiJob {
 
     protected BaseLaunchRequestJob(String name, boolean notifyUserAboutBuildFailures) {
         super(name, notifyUserAboutBuildFailures);
@@ -93,23 +83,22 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
             connection = connector.connect();
 
             // apply FixedRequestAttributes on build launcher
-            Launcher launcher = createLauncher(connection);
-            LongRunningOperation operation = launcher.getOperation();
-            operation.setJavaHome(attributes.getJavaHome());
-            operation.withArguments(attributes.getArguments());
-            operation.setJvmArguments(attributes.getJvmArguments());
+            T launcher = createLauncher(connection);
+            launcher.setJavaHome(attributes.getJavaHome());
+            launcher.withArguments(attributes.getArguments());
+            launcher.setJvmArguments(attributes.getJvmArguments());
 
             // transient attributes
-            operation.setStandardOutput(processStreams.getOutput());
-            operation.setStandardError(processStreams.getError());
-            operation.setStandardInput(processStreams.getInput());
+            launcher.setStandardOutput(processStreams.getOutput());
+            launcher.setStandardError(processStreams.getError());
+            launcher.setStandardInput(processStreams.getInput());
             for (ProgressListener listener : listeners) {
-                operation.addProgressListener(listener);
+                launcher.addProgressListener(listener);
             }
-            operation.withCancellationToken(getToken());
+            launcher.withCancellationToken(getToken());
 
             // notify the listeners before executing the build launch request
-            Event event = new DefaultExecuteLaunchRequestEvent(processDescription, operation);
+            Event event = new DefaultExecuteLaunchRequestEvent(processDescription, launcher);
             CorePlugin.listenerRegistry().dispatch(event);
 
             // print the applied run configuration settings at the beginning of the console output
@@ -117,7 +106,7 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
             writeFixedRequestAttributes(attributes, writer, monitor);
 
             // execute the build
-            launcher.run();
+            launch(launcher);
         } finally {
             if (connection != null) {
                 connection.close();
@@ -197,7 +186,14 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
      *
      * @return the new launcher
      */
-    protected abstract Launcher createLauncher(ProjectConnection connection);
+    protected abstract T createLauncher(ProjectConnection connection);
+
+    /**
+     * Executes the target launcher.
+     *
+     * @param launcher the launcher to executes
+     */
+    protected abstract void launch(T launcher);
 
     /**
      * Writes extra information on the configuration console.

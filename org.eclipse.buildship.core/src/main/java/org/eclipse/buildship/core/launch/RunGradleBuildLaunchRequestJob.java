@@ -19,7 +19,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.gradle.tooling.BuildLauncher;
-import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProjectConnection;
 
 import com.google.common.base.Joiner;
@@ -39,7 +38,7 @@ import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 /**
  * Executes Gradle tasks based on a given {@code ILaunch} and {@code ILaunchConfiguration} instance.
  */
-public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob {
+public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob<BuildLauncher> {
 
     private final ILaunch launch;
     private final GradleRunConfigurationAttributes configurationAttributes;
@@ -72,20 +71,13 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob {
     }
 
     @Override
-    protected Launcher createLauncher(ProjectConnection connection) {
-        final BuildLauncher launcher = connection.newBuild().forTasks(this.configurationAttributes.getTasks().toArray(new String[0]));
-        return new Launcher() {
+    protected BuildLauncher createLauncher(ProjectConnection connection) {
+        return connection.newBuild().forTasks(this.configurationAttributes.getTasks().toArray(new String[0]));
+    }
 
-            @Override
-            public void run() {
-                launcher.run();
-            }
-
-            @Override
-            public LongRunningOperation getOperation() {
-                return launcher;
-            }
-        };
+    @Override
+    protected void launch(BuildLauncher launcher) {
+        launcher.run();
     }
 
     @Override
