@@ -18,7 +18,6 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.TestLauncher;
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.task.TaskOperationDescriptor;
@@ -33,13 +32,21 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
+
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.launch.internal.DefaultExecuteLaunchRequestEvent;
+import org.eclipse.buildship.core.workspace.GradleBuild;
+import org.eclipse.buildship.core.workspace.GradleBuild.TestLauncherConfig;
+import org.eclipse.buildship.core.workspace.GradleInvocation;
 
 /**
  * Executes tests through Gradle based on a given list of {@code TestOperationDescriptor} instances and a given set of {@code GradleRunConfigurationAttributes}.
  */
-public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob<TestLauncher> {
+public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
 
     private final ImmutableList<TestOperationDescriptor> testDescriptors;
     private final GradleRunConfigurationAttributes configurationAttributes;
@@ -92,13 +99,16 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob<Te
     }
 
     @Override
-    protected TestLauncher createLauncher(ProjectConnection connection) {
-        return connection.newTestLauncher().withTests(this.testDescriptors);
-    }
+    protected GradleInvocation createInvocation(GradleBuild gradleBuild, TransientRequestAttributes transientAttributes, final ProcessDescription processDescription) {
+        return gradleBuild.newTestInvocation(transientAttributes, new TestLauncherConfig() {
 
-    @Override
-    protected void launch(TestLauncher launcher) {
-        launcher.run();
+            @Override
+            public void apply(TestLauncher launcher) {
+                Event event = new DefaultExecuteLaunchRequestEvent(processDescription, launcher);
+                CorePlugin.listenerRegistry().dispatch(event);
+                launcher.withTests(RunGradleTestLaunchRequestJob.this.testDescriptors);
+            }
+        });
     }
 
     @Override

@@ -14,12 +14,10 @@ package org.eclipse.buildship.core.launch;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.Collections;
 import java.util.List;
 
-import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.ProjectConnection;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -28,6 +26,7 @@ import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
@@ -36,22 +35,21 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.console.ProcessStreams;
-import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.internal.BuildExecutionParticipants;
-import org.eclipse.buildship.core.launch.internal.DefaultExecuteLaunchRequestEvent;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
+import org.eclipse.buildship.core.workspace.GradleBuild;
+import org.eclipse.buildship.core.workspace.GradleInvocation;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 
 /**
  * Base class to execute Gradle builds in a job.
  */
-public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> extends ToolingApiJob {
+public abstract class BaseLaunchRequestJob extends ToolingApiJob {
 
     protected BaseLaunchRequestJob(String name, boolean notifyUserAboutBuildFailures) {
         super(name, notifyUserAboutBuildFailures);
@@ -61,57 +59,28 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
     protected final void runToolingApiJob(final IProgressMonitor monitor) throws Exception {
         // todo (etst) close streams when done
 
-        // activate all plugins which contribute to a build execution
         BuildExecutionParticipants.activateParticipantPlugins();
-
-        // start tracking progress
         monitor.beginTask(getJobTaskName(), IProgressMonitor.UNKNOWN);
 
-        final ProcessDescription processDescription = createProcessDescription();
-        final ProcessStreams processStreams = CorePlugin.processStreamsProvider().createProcessStreams(processDescription);
+        ProcessDescription processDescription = createProcessDescription();
+        ProcessStreams processStreams = CorePlugin.processStreamsProvider().createProcessStreams(processDescription);
 
-        // fetch build environment
+        FixedRequestAttributes fixedAttributes = getConfigurationAttributes().toFixedRequestAttributes();
         List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(DelegatingProgressListener.withFullOutput(monitor));
+        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, processStreams.getOutput(), processStreams.getError(), processStreams.getInput(),
+                listeners, Collections.<org.gradle.tooling.events.ProgressListener>emptyList(), getToken());
 
-        final FixedRequestAttributes attributes = getConfigurationAttributes().toFixedRequestAttributes();
-        ProjectConnection connection = null;
-        try {
-            // apply FixedRequestAttributes on connector and establish TAPI connection
-            GradleConnector connector = GradleConnector.newConnector().forProjectDirectory(attributes.getProjectDir());
-            GradleDistributionWrapper.from(attributes.getGradleDistribution()).apply(connector);
-            connector.useGradleUserHomeDir(attributes.getGradleUserHome());
-            connection = connector.connect();
+        GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(fixedAttributes);
 
-            // apply FixedRequestAttributes on build launcher
-            T launcher = createLauncher(connection);
-            launcher.setJavaHome(attributes.getJavaHome());
-            launcher.withArguments(attributes.getArguments());
-            launcher.setJvmArguments(attributes.getJvmArguments());
+        // apply FixedRequestAttributes on build launcher
+        GradleInvocation launcher = createInvocation(gradleBuild, transientAttributes, processDescription);
 
-            // transient attributes
-            launcher.setStandardOutput(processStreams.getOutput());
-            launcher.setStandardError(processStreams.getError());
-            launcher.setStandardInput(processStreams.getInput());
-            for (ProgressListener listener : listeners) {
-                launcher.addProgressListener(listener);
-            }
-            launcher.withCancellationToken(getToken());
+        // print the applied run configuration settings at the beginning of the console output
+        OutputStreamWriter writer = new OutputStreamWriter(processStreams.getConfiguration());
+        writeFixedRequestAttributes(fixedAttributes, writer, monitor);
 
-            // notify the listeners before executing the build launch request
-            Event event = new DefaultExecuteLaunchRequestEvent(processDescription, launcher);
-            CorePlugin.listenerRegistry().dispatch(event);
-
-            // print the applied run configuration settings at the beginning of the console output
-            OutputStreamWriter writer = new OutputStreamWriter(processStreams.getConfiguration());
-            writeFixedRequestAttributes(attributes, writer, monitor);
-
-            // execute the build
-            launch(launcher);
-        } finally {
-            if (connection != null) {
-                connection.close();
-            }
-        }
+        // execute the build
+        launcher.run();
     }
 
     private void writeFixedRequestAttributes(FixedRequestAttributes fixedAttributes, OutputStreamWriter writer, IProgressMonitor monitor) {
@@ -186,14 +155,7 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
      *
      * @return the new launcher
      */
-    protected abstract T createLauncher(ProjectConnection connection);
-
-    /**
-     * Executes the target launcher.
-     *
-     * @param launcher the launcher to executes
-     */
-    protected abstract void launch(T launcher);
+    protected abstract GradleInvocation createInvocation(GradleBuild gradleBuild, TransientRequestAttributes transientAttributes, ProcessDescription processDescription);
 
     /**
      * Writes extra information on the configuration console.

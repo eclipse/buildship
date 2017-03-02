@@ -19,11 +19,12 @@ import java.util.Date;
 import java.util.List;
 
 import org.gradle.tooling.BuildLauncher;
-import org.gradle.tooling.ProjectConnection;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
@@ -32,13 +33,18 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.launch.internal.DefaultExecuteLaunchRequestEvent;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
+import org.eclipse.buildship.core.workspace.GradleBuild;
+import org.eclipse.buildship.core.workspace.GradleBuild.BuildLauncherConfig;
+import org.eclipse.buildship.core.workspace.GradleInvocation;
 
 /**
  * Executes Gradle tasks based on a given {@code ILaunch} and {@code ILaunchConfiguration} instance.
  */
-public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob<BuildLauncher> {
+public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob {
 
     private final ILaunch launch;
     private final GradleRunConfigurationAttributes configurationAttributes;
@@ -71,13 +77,16 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob<B
     }
 
     @Override
-    protected BuildLauncher createLauncher(ProjectConnection connection) {
-        return connection.newBuild().forTasks(this.configurationAttributes.getTasks().toArray(new String[0]));
-    }
+    protected GradleInvocation createInvocation(GradleBuild gradleBuild, TransientRequestAttributes transientAttributes, final ProcessDescription processDescription) {
+        return gradleBuild.newBuildInvocation(transientAttributes, new BuildLauncherConfig() {
 
-    @Override
-    protected void launch(BuildLauncher launcher) {
-        launcher.run();
+            @Override
+            public void apply(BuildLauncher launcher) {
+                Event event = new DefaultExecuteLaunchRequestEvent(processDescription, launcher);
+                CorePlugin.listenerRegistry().dispatch(event);
+                launcher.forTasks(RunGradleBuildLaunchRequestJob.this.configurationAttributes.getTasks().toArray(new String[0]));
+            }
+        });
     }
 
     @Override

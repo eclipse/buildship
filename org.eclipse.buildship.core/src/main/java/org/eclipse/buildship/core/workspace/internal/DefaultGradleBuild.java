@@ -8,17 +8,22 @@
  */
 package org.eclipse.buildship.core.workspace.internal;
 
+import org.gradle.tooling.BuildLauncher;
+import org.gradle.tooling.TestLauncher;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
+import org.eclipse.buildship.core.workspace.GradleInvocation;
 
 /**
  * Default implementation of {@link GradleBuild}.
@@ -55,6 +60,16 @@ public class DefaultGradleBuild implements GradleBuild {
     @Override
     public FixedRequestAttributes getRequestAttributes() {
         return this.attributes;
+    }
+
+    @Override
+    public GradleInvocation newBuildInvocation(TransientRequestAttributes transientAttributes, BuildLauncherConfig config) {
+       return new GradleBuildInvocation(this.attributes, transientAttributes,config);
+    }
+
+    @Override
+    public GradleInvocation newTestInvocation(TransientRequestAttributes transientAttributes, TestLauncherConfig config) {
+        return new GradleTestInvocation(this.attributes, transientAttributes, config);
     }
 
     @Override

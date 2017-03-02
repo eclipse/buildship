@@ -8,7 +8,13 @@
  */
 package org.eclipse.buildship.core.workspace;
 
+import org.gradle.tooling.BuildLauncher;
+import org.gradle.tooling.TestLauncher;
+
+import com.google.common.base.Function;
+
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 //TODO this should eventually also contain the methods to launch tasks etc.
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
@@ -77,4 +83,16 @@ public interface GradleBuild {
      * @return the request attributes, never null
      */
     FixedRequestAttributes getRequestAttributes();
+
+    GradleInvocation newBuildInvocation(TransientRequestAttributes transientAttributes, BuildLauncherConfig config);
+
+    GradleInvocation newTestInvocation(TransientRequestAttributes transientAttributes, TestLauncherConfig config);
+
+    public interface BuildLauncherConfig {
+        void apply(BuildLauncher launcher);
+    }
+
+    public interface TestLauncherConfig {
+        void apply(TestLauncher launcher);
+    }
 }
