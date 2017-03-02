@@ -11,8 +11,6 @@ package org.eclipse.buildship.core.workspace;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.TestLauncher;
 
-import com.google.common.base.Function;
-
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
@@ -84,14 +82,34 @@ public interface GradleBuild {
      */
     FixedRequestAttributes getRequestAttributes();
 
+    /**
+     * Creates a new Gradle build invocation
+     *
+     * @param transientAttributes the transient attributes for the invocation
+     * @param config the configuration for the build launcher
+     * @return the object that can run the Gradle build
+     */
     GradleInvocation newBuildInvocation(TransientRequestAttributes transientAttributes, BuildLauncherConfig config);
 
+    /**
+     * Creates a new Gradle test build invocation
+     *
+     * @param transientAttributes the transient attributes for the invocation
+     * @param config the configuration for the test launcher
+     * @return the object that can run the Gradle test build
+     */
     GradleInvocation newTestInvocation(TransientRequestAttributes transientAttributes, TestLauncherConfig config);
 
+    /**
+     * Configures the build launcher before execution.
+     */
     public interface BuildLauncherConfig {
         void apply(BuildLauncher launcher);
     }
 
+    /**
+     * Configures the test launcher before execution.
+     */
     public interface TestLauncherConfig {
         void apply(TestLauncher launcher);
     }

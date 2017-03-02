@@ -80,7 +80,7 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
         writeFixedRequestAttributes(fixedAttributes, writer, monitor);
 
         // execute the build
-        launcher.run();
+        launcher.executeAndWait();
     }
 
     private void writeFixedRequestAttributes(FixedRequestAttributes fixedAttributes, OutputStreamWriter writer, IProgressMonitor monitor) {

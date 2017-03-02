@@ -8,9 +8,6 @@
  */
 package org.eclipse.buildship.core.workspace.internal;
 
-import org.gradle.tooling.BuildLauncher;
-import org.gradle.tooling.TestLauncher;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
@@ -21,9 +18,9 @@ import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.GradleBuild;
+import org.eclipse.buildship.core.workspace.GradleInvocation;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
-import org.eclipse.buildship.core.workspace.GradleInvocation;
 
 /**
  * Default implementation of {@link GradleBuild}.

@@ -23,7 +23,9 @@ import org.eclipse.buildship.core.workspace.GradleInvocation;
 
 /**
  * Common base class for the {@link GradleInvocation} implementations.
- * @author donat
+ *
+ * @param <T> the launcher type the invocation works with
+ * @author Donat Csikos
  */
 public abstract class BaseGradleInvocation<T extends LongRunningOperation> implements GradleInvocation {
 
@@ -36,7 +38,7 @@ public abstract class BaseGradleInvocation<T extends LongRunningOperation> imple
     }
 
     @Override
-    public void run() {
+    public void executeAndWait() {
         ProjectConnection connection = null;
         try {
             // apply FixedRequestAttributes on connector and establish TAPI connection

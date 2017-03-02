@@ -20,5 +20,5 @@ public interface GradleInvocation {
      * Executes a Gradle build. Opens a new tooling API connection, executes the build and and
      * closes the connection.
      */
-    void run();
+    void executeAndWait();
 }

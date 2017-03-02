@@ -117,7 +117,7 @@ public class RunOnImportTasksOperation {
                 launcher.forTasks(tasksToRun.toArray(new String[tasksToRun.size()]));
             }
         });
-        buildInvocation.run();
+        buildInvocation.executeAndWait();
     }
 
     private TransientRequestAttributes getTransientRequestAttributes(CancellationToken token, IProgressMonitor monitor) {

@@ -292,7 +292,7 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
                                 launcher.forTasks(tasks.toArray(new String[tasks.size()]));
                             }
                         });
-                        invocation.run();
+                        invocation.executeAndWait();
                     }
                 }
             } finally {
