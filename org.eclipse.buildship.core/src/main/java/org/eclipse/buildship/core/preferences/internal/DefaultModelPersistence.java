@@ -133,7 +133,10 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
     private void persistAllProjectPrefs() {
         Map<IProject, PersistentModel> modelCacheMap = this.modelCache.asMap();
         for (Entry<IProject, PersistentModel> entry : modelCacheMap.entrySet()) {
-            persistPrefs(entry.getKey(), entry.getValue());
+            PersistentModel model = entry.getValue();
+            if (model.isPresent()) {
+                persistPrefs(entry.getKey(), model);
+            }
         }
     }
 
