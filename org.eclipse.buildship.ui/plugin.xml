@@ -540,7 +540,7 @@
     <extension
           point="org.eclipse.ui.propertyPages">
        <page
-             class="org.eclipse.buildship.ui.preferences.ProjectProperyPage"
+             class="org.eclipse.buildship.ui.preferences.GradleProjectPreferencePage"
              id="org.eclipse.buildship.ui.projectproperties"
              name="Gradle">
          <enabledWhen>
