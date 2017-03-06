@@ -8,6 +8,8 @@
 
 package org.eclipse.buildship.ui.preferences;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -17,6 +19,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.dialogs.PropertyPage;
 
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
 import org.eclipse.buildship.ui.util.selection.Enabler;
 
 /**
@@ -24,7 +29,7 @@ import org.eclipse.buildship.ui.util.selection.Enabler;
  *
  * @author Donat Csikos
  */
-public class GradleProjectPreferencePage extends PropertyPage {
+public final class GradleProjectPreferencePage extends PropertyPage {
 
     private Button overrideWorkspaceSettingsCheckbox;
     private Button offlineModeCheckbox;
@@ -38,6 +43,7 @@ public class GradleProjectPreferencePage extends PropertyPage {
 
         Group overridePreferencesGroup = createGroup(page, "");
         createOverrideWorkspacePreferencesControl(overridePreferencesGroup);
+        initialize();
 
         return page;
     }
@@ -62,5 +68,31 @@ public class GradleProjectPreferencePage extends PropertyPage {
         this.buildScansEnabledCheckbox.setText("Build Scans");
 
         new Enabler(this.overrideWorkspaceSettingsCheckbox).enables(this.offlineModeCheckbox, this.buildScansEnabledCheckbox);
+    }
+
+    @SuppressWarnings({"cast", "RedundantCast"})
+    private void initialize() {
+        IProject project = (IProject) Platform.getAdapterManager().getAdapter(getElement(), IProject.class);
+        ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
+        boolean overrideWorkspaceSettings = configuration.isOverrideWorkspaceSettings();
+        this.overrideWorkspaceSettingsCheckbox.setSelection(overrideWorkspaceSettings);
+        this.buildScansEnabledCheckbox.setEnabled(overrideWorkspaceSettings);
+        this.buildScansEnabledCheckbox.setSelection(configuration.isBuildScansEnabled());
+        this.offlineModeCheckbox.setEnabled(overrideWorkspaceSettings);
+        this.offlineModeCheckbox.setSelection(configuration.isOfflineMode());
+    }
+
+    @Override
+    public boolean performOk() {
+       IProject project = (IProject) Platform.getAdapterManager().getAdapter(getElement(), IProject.class);
+       ProjectConfigurationManager configurationManager = CorePlugin.projectConfigurationManager();
+       ProjectConfiguration configuration = configurationManager.readProjectConfiguration(project);
+       configuration = ProjectConfiguration.from(configuration.getRootProjectDirectory(),
+                                                 configuration.getGradleDistribution(),
+                                                 this.overrideWorkspaceSettingsCheckbox.getSelection(),
+                                                 this.buildScansEnabledCheckbox.getSelection(),
+                                                 this.offlineModeCheckbox.getSelection());
+       configurationManager.saveProjectConfiguration(configuration, project);
+       return true;
     }
 }
