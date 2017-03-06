@@ -36,6 +36,9 @@ abstract class PreferenceStore {
      */
     abstract String read(String key);
 
+    // TODO (donat) javadoc
+    abstract boolean readBoolean(String key, boolean defaultValue);
+
     /**
      * Writes a preference key-value pair. The changes can be persisted by calling {@link #flush()}.
      * If the value is {@code null}, the preference is removed.
@@ -44,6 +47,9 @@ abstract class PreferenceStore {
      * @param value the preference value
      */
     abstract void write(String key, String value);
+
+    // TODO (donat) javadoc
+    abstract void writeBoolean(String key, boolean value);
 
     /**
      * Deletes an entry from the preference store. Does nothing if the key doesn't exist in the
@@ -107,12 +113,22 @@ abstract class PreferenceStore {
         }
 
         @Override
+        boolean readBoolean(String key, boolean defaultValue) {
+            return this.preferences.getBoolean(key, defaultValue);
+        }
+
+        @Override
         void write(String key, String value) {
             if (value == null) {
                 this.preferences.remove(key);
             } else {
                 this.preferences.put(key, value);
             }
+        }
+
+        @Override
+        void writeBoolean(String key, boolean value) {
+            this.preferences.putBoolean(key, value);
         }
 
         @Override
@@ -170,12 +186,23 @@ abstract class PreferenceStore {
         }
 
         @Override
+        boolean readBoolean(String key, boolean defaultValue) {
+            String value = getProperties().getProperty(key, null);
+            return value == null ? defaultValue : Boolean.parseBoolean(value);
+        }
+
+        @Override
         void write(String key, String value) {
             if (value == null) {
                 getProperties().remove(value);
             } else {
                 getProperties().put(key, value);
             }
+        }
+
+        @Override
+        void writeBoolean(String key, boolean value) {
+            getProperties().put(key, String.valueOf(value));
         }
 
         @Override

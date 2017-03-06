@@ -21,6 +21,7 @@ import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder;
 
 /**
@@ -115,7 +116,8 @@ public final class ProjectConfiguration {
     }
 
     public static ProjectConfiguration from(FixedRequestAttributes build, OmniEclipseProject project) {
-        return from(build, project, false, false, false);
+        WorkspaceConfiguration wsConfig = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
+        return from(build, project, false, wsConfig.isBuildScansEnabled(), wsConfig.isOffline());
     }
 
     public static ProjectConfiguration from(FixedRequestAttributes build, OmniEclipseProject project, boolean overrideWorkspaceSettings, boolean buildScansEnabled, boolean offlineMode) {
