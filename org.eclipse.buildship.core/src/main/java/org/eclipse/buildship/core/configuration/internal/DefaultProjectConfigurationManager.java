@@ -50,7 +50,8 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
                 // calculate the root configuration to which the current configuration belongs
                 Optional<ProjectConfiguration> projectConfiguration = tryReadProjectConfiguration(workspaceProject);
                 if (projectConfiguration.isPresent()) {
-                    ProjectConfiguration rootProjectConfiguration = ProjectConfiguration.from(projectConfiguration.get().getRootProjectDirectory(), projectConfiguration.get().getGradleDistribution());
+                    ProjectConfiguration config = projectConfiguration.get();
+                    ProjectConfiguration rootProjectConfiguration = ProjectConfiguration.from(config.getRootProjectDirectory(), config.getGradleDistribution(), config.isOverrideWorkspaceSettings(), config.isBuildScansEnabled(), config.isOfflineMode());
                     rootConfigurations.add(rootProjectConfiguration);
                 }
             }

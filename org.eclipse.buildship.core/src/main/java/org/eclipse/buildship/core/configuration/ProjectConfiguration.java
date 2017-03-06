@@ -52,10 +52,16 @@ public final class ProjectConfiguration {
 
     private final File rootProjectDirectory;
     private final GradleDistribution gradleDistribution;
+    private final boolean overrideWorkspaceSettings;
+    private final boolean buildScansEnabled;
+    private final boolean offlineMode;
 
-    private ProjectConfiguration(File rootProjectDirectory, GradleDistribution gradleDistribution) {
+    private ProjectConfiguration(File rootProjectDirectory, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings, boolean buildScansEnabled, boolean offlineMode) {
         this.rootProjectDirectory = canonicalize(rootProjectDirectory);
         this.gradleDistribution = Preconditions.checkNotNull(gradleDistribution);
+        this.overrideWorkspaceSettings = overrideWorkspaceSettings;
+        this.buildScansEnabled = buildScansEnabled;
+        this.offlineMode = offlineMode;
     }
 
     private static File canonicalize(File file) {
@@ -78,27 +84,46 @@ public final class ProjectConfiguration {
         return this.gradleDistribution;
     }
 
+    public boolean isOverrideWorkspaceSettings() {
+        return this.overrideWorkspaceSettings;
+    }
+
+    public boolean isBuildScansEnabled() {
+        return this.buildScansEnabled;
+    }
+
+    public boolean isOfflineMode() {
+        return this.offlineMode;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof ProjectConfiguration) {
             ProjectConfiguration other = (ProjectConfiguration) obj;
             return Objects.equal(this.rootProjectDirectory, other.rootProjectDirectory)
-                    && Objects.equal(this.gradleDistribution, other.gradleDistribution);
+                    && Objects.equal(this.gradleDistribution, other.gradleDistribution)
+                    && Objects.equal(this.overrideWorkspaceSettings, other.overrideWorkspaceSettings)
+                    && Objects.equal(this.buildScansEnabled, other.buildScansEnabled)
+                    && Objects.equal(this.offlineMode, other.offlineMode);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.rootProjectDirectory, this.gradleDistribution);
+        return Objects.hashCode(this.rootProjectDirectory, this.gradleDistribution, this.overrideWorkspaceSettings, this.buildScansEnabled, this.offlineMode);
     }
 
     public static ProjectConfiguration from(FixedRequestAttributes build, OmniEclipseProject project) {
-        return from(build.getProjectDir(), build.getGradleDistribution());
+        return from(build, project, false, false, false);
     }
 
-    public static ProjectConfiguration from(File rootProjectDir, GradleDistribution gradleDistribution) {
-        return new ProjectConfiguration(rootProjectDir, gradleDistribution);
+    public static ProjectConfiguration from(FixedRequestAttributes build, OmniEclipseProject project, boolean overrideWorkspaceSettings, boolean buildScansEnabled, boolean offlineMode) {
+        return from(build.getProjectDir(), build.getGradleDistribution(), overrideWorkspaceSettings, buildScansEnabled, offlineMode);
+    }
+
+    public static ProjectConfiguration from(File rootProjectDir, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings, boolean buildScansEnabled, boolean offlineMode) {
+        return new ProjectConfiguration(rootProjectDir, gradleDistribution, overrideWorkspaceSettings, buildScansEnabled, offlineMode);
     }
 
 }

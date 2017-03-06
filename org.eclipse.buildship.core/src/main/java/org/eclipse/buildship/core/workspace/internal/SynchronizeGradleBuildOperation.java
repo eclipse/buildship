@@ -195,7 +195,11 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
 
         CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, progress.newChild(1));
 
-        ProjectConfiguration configuration = ProjectConfiguration.from(this.build, project);
+        // TODO (donat) merge project and import configuration properly
+        Optional<ProjectConfiguration> existingConfig = CorePlugin.projectConfigurationManager().tryReadProjectConfiguration(workspaceProject);
+        ProjectConfiguration configuration = existingConfig.isPresent()
+            ? ProjectConfiguration.from(this.build, project, existingConfig.get().isOverrideWorkspaceSettings(), existingConfig.get().isBuildScansEnabled(), existingConfig.get().isOfflineMode())
+            : ProjectConfiguration.from(this.build, project);
         CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, workspaceProject);
 
         PersistentModelBuilder persistentModel = new PersistentModelBuilder(CorePlugin.modelPersistence().loadModel(workspaceProject));

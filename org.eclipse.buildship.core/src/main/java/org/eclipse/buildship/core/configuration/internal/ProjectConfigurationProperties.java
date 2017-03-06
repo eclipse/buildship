@@ -30,10 +30,16 @@ final class ProjectConfigurationProperties {
 
     private final String projectDir;
     private final String gradleDistribution;
+    private final String overrideWorkspaceSettings;
+    private final String buildScansEnabled;
+    private final String offlineMode;
 
-    private ProjectConfigurationProperties(String projectDir, String gradleDistribution) {
+    private ProjectConfigurationProperties(String projectDir, String gradleDistribution, String overrideWorkspaceSettings, String buildScansEnabled, String offlineMode) {
         this.projectDir = projectDir;
         this.gradleDistribution = gradleDistribution;
+        this.overrideWorkspaceSettings = overrideWorkspaceSettings;
+        this.buildScansEnabled = buildScansEnabled;
+        this.offlineMode = offlineMode;
     }
 
     String getProjectDir() {
@@ -44,15 +50,30 @@ final class ProjectConfigurationProperties {
         return this.gradleDistribution;
     }
 
-    static ProjectConfigurationProperties from(String projectDir, String gradleDistribution) {
-        return new ProjectConfigurationProperties(projectDir, gradleDistribution);
+    String overrideWorkspaceSettings() {
+        return this.overrideWorkspaceSettings;
+    }
+
+    String buildScansEnabled() {
+        return this.buildScansEnabled;
+    }
+
+    String offlineMode() {
+        return this.offlineMode;
+    }
+
+    static ProjectConfigurationProperties from(String projectDir, String gradleDistribution, String overrideWorkspaceSettings, String buildScansEnabled, String offlineMode) {
+        return new ProjectConfigurationProperties(projectDir, gradleDistribution, overrideWorkspaceSettings, buildScansEnabled, offlineMode);
     }
 
     static ProjectConfigurationProperties from(IProject project, ProjectConfiguration projectConfiguration) {
         FixedRequestAttributes requestAttributes = projectConfiguration.toRequestAttributes(ConversionStrategy.IGNORE_WORKSPACE_SETTINGS);
         String projectDir = relativePathToRootProject(project, requestAttributes.getProjectDir());
         String gradleDistribution = GradleDistributionSerializer.INSTANCE.serializeToString(requestAttributes.getGradleDistribution());
-        return from(projectDir, gradleDistribution);
+        String overrideWorkspaceSettings = String.valueOf(projectConfiguration.isOverrideWorkspaceSettings());
+        String buildScansEnabled = String.valueOf(projectConfiguration.isBuildScansEnabled());
+        String offlineMode = String.valueOf(projectConfiguration.isOfflineMode());
+        return from(projectDir, gradleDistribution, overrideWorkspaceSettings, buildScansEnabled, offlineMode);
     }
 
     private static String relativePathToRootProject(IProject project, File rootProjectDir) {
@@ -62,7 +83,10 @@ final class ProjectConfigurationProperties {
     }
 
     ProjectConfiguration toProjectConfiguration(IProject project) {
-        return ProjectConfiguration.from(rootProjectFile(project, getProjectDir()), GradleDistributionSerializer.INSTANCE.deserializeFromString(getGradleDistribution()));
+        boolean overrideWorkspaceSettings = Boolean.valueOf(this.overrideWorkspaceSettings);
+        boolean buildScansEnabled = Boolean.valueOf(this.buildScansEnabled);
+        boolean offlineMode = Boolean.valueOf(this.offlineMode);
+        return ProjectConfiguration.from(rootProjectFile(project, getProjectDir()), GradleDistributionSerializer.INSTANCE.deserializeFromString(getGradleDistribution()), overrideWorkspaceSettings, buildScansEnabled, offlineMode);
     }
 
     private static File rootProjectFile(IProject project, String pathToRootProject) {

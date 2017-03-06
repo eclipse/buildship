@@ -31,6 +31,9 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
 
     private static final String PREF_KEY_CONNECTION_PROJECT_DIR = "connection.project.dir";
     private static final String PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION = "connection.gradle.distribution";
+    private static final String PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS = "override.workspace.settings";
+    private static final String PREF_KEY_BUILD_SCANS_ENABLED = "build.scans.enabled";
+    private static final String PREF_KEY_OFFLINE_MODE = "offline.mode";
 
     @Override
     public ProjectConfiguration readProjectConfiguration(IProject project) {
@@ -55,7 +58,10 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
     private static ProjectConfiguration readProjectConfiguration(IProject project, PreferenceStore preferences) {
         String projectDir = preferences.read(PREF_KEY_CONNECTION_PROJECT_DIR);
         String gradleDistribution = preferences.read(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
-        return ProjectConfigurationProperties.from(projectDir, gradleDistribution).toProjectConfiguration(project);
+        String overrideWorkspaceSettings = preferences.read(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS);
+        String buildScansEnabled = preferences.read(PREF_KEY_BUILD_SCANS_ENABLED);
+        String offlineMode = preferences.read(PREF_KEY_OFFLINE_MODE);
+        return ProjectConfigurationProperties.from(projectDir, gradleDistribution, overrideWorkspaceSettings, buildScansEnabled, offlineMode).toProjectConfiguration(project);
     }
 
     private static ProjectConfiguration loadFromPropertiesFile(IProject project) throws IOException {
@@ -82,6 +88,9 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
             PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
             preferences.write(PREF_KEY_CONNECTION_PROJECT_DIR, properties.getProjectDir());
             preferences.write(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, properties.getGradleDistribution());
+            preferences.write(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, properties.overrideWorkspaceSettings());
+            preferences.write(PREF_KEY_BUILD_SCANS_ENABLED, properties.buildScansEnabled());
+            preferences.write(PREF_KEY_OFFLINE_MODE, properties.offlineMode());
             preferences.flush();
         } catch (Exception e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot store project-scope preferences in project %s.", project.getName()), e);
@@ -97,6 +106,9 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
             PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
             preferences.delete(PREF_KEY_CONNECTION_PROJECT_DIR);
             preferences.delete(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
+            preferences.delete(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS);
+            preferences.delete(PREF_KEY_BUILD_SCANS_ENABLED);
+            preferences.delete(PREF_KEY_OFFLINE_MODE);
             preferences.flush();
         } catch (Exception e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot delete project-scope preferences in project %s.", project.getName()), e);
