@@ -16,11 +16,17 @@ import java.io.IOException;
 
 import com.google.common.base.Preconditions;
 
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IPath;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
+import org.eclipse.buildship.core.util.file.RelativePathUtils;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 
 /**
  * Default implementation for {@link ProjectConfigurationPersistence}.
@@ -56,11 +62,28 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
 
     private static ProjectConfiguration readProjectConfiguration(IProject project, PreferenceStore preferences) {
         String projectDir = preferences.read(PREF_KEY_CONNECTION_PROJECT_DIR);
-        String gradleDistribution = preferences.read(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
-        String overrideWorkspaceSettings = preferences.read(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS);
-        String buildScansEnabled = preferences.read(PREF_KEY_BUILD_SCANS_ENABLED);
-        String offlineMode = preferences.read(PREF_KEY_OFFLINE_MODE);
-        return ProjectConfigurationProperties.from(projectDir, gradleDistribution, overrideWorkspaceSettings, buildScansEnabled, offlineMode).toProjectConfiguration(project);
+        String distribution = preferences.read(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
+        boolean overrideWorkspaceSettings = preferences.readBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, false);
+        boolean buildScansEnabled = preferences.readBoolean(PREF_KEY_BUILD_SCANS_ENABLED, false);
+        boolean offlineMode = preferences.readBoolean(PREF_KEY_OFFLINE_MODE, false);
+
+        File rootDir = rootProjectFile(project, projectDir);
+        GradleDistribution gradleDistribution = GradleDistributionSerializer.INSTANCE.deserializeFromString(distribution);
+        if (overrideWorkspaceSettings) {
+            return ProjectConfiguration.from(rootDir, gradleDistribution, overrideWorkspaceSettings, buildScansEnabled, offlineMode);
+        } else {
+            WorkspaceConfiguration workspaceConfig = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
+            return ProjectConfiguration.from(rootDir, gradleDistribution, false, workspaceConfig.isBuildScansEnabled(), workspaceConfig.isOffline());
+        }
+    }
+
+    private static File rootProjectFile(IProject project, String pathToRootProject) {
+        org.eclipse.core.runtime.Path rootPath = new org.eclipse.core.runtime.Path(pathToRootProject);
+        if (rootPath.isAbsolute()) {
+            return rootPath.toFile();
+        } else {
+            return RelativePathUtils.getAbsolutePath(project.getLocation(), rootPath).toFile();
+        }
     }
 
     private static ProjectConfiguration loadFromPropertiesFile(IProject project) throws IOException {
@@ -82,18 +105,31 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
         Preconditions.checkNotNull(project);
         Preconditions.checkArgument(project.isAccessible());
 
-        ProjectConfigurationProperties properties = ProjectConfigurationProperties.from(project, projectConfiguration);
+        String projectDir = relativePathToRootProject(project, projectConfiguration.getRootProjectDirectory());
+        String gradleDistribution = GradleDistributionSerializer.INSTANCE.serializeToString(projectConfiguration.getGradleDistribution());
         try {
             PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
-            preferences.write(PREF_KEY_CONNECTION_PROJECT_DIR, properties.getProjectDir());
-            preferences.write(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, properties.getGradleDistribution());
-            preferences.write(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, properties.overrideWorkspaceSettings());
-            preferences.write(PREF_KEY_BUILD_SCANS_ENABLED, properties.buildScansEnabled());
-            preferences.write(PREF_KEY_OFFLINE_MODE, properties.offlineMode());
+            preferences.write(PREF_KEY_CONNECTION_PROJECT_DIR, projectDir);
+            preferences.write(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, gradleDistribution);
+            if (projectConfiguration.isOverrideWorkspaceSettings()) {
+                preferences.writeBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, projectConfiguration.isOverrideWorkspaceSettings());
+                preferences.writeBoolean(PREF_KEY_BUILD_SCANS_ENABLED, projectConfiguration.isBuildScansEnabled());
+                preferences.writeBoolean(PREF_KEY_OFFLINE_MODE, projectConfiguration.isOfflineMode());
+            } else {
+                preferences.delete(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS);
+                preferences.delete(PREF_KEY_BUILD_SCANS_ENABLED);
+                preferences.delete(PREF_KEY_OFFLINE_MODE);
+            }
             preferences.flush();
         } catch (Exception e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot store project-scope preferences in project %s.", project.getName()), e);
         }
+    }
+
+    private static String relativePathToRootProject(IProject project, File rootProjectDir) {
+        IPath rootProjectPath = new org.eclipse.core.runtime.Path(rootProjectDir.getPath());
+        IPath projectPath = project.getLocation();
+        return RelativePathUtils.getRelativePath(projectPath, rootProjectPath).toPortableString();
     }
 
     @Override
