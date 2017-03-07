@@ -50,7 +50,7 @@ public final class GradleRunConfigurationAttributes {
     private static final String JVM_ARGUMENTS = "jvm_arguments";    private static final String ARGUMENTS = "arguments";
     private static final String SHOW_EXECUTION_VIEW = "show_execution_view";
     private static final String SHOW_CONSOLE_VIEW = "show_console_view";
-    private static final String OVERRIDE_WORKSPACE_SETTINGS = "override_workspace_settings";
+    private static final String OVERRIDE_PROJECT_SETTINGS = "override_project_settings";
     private static final String OFFLINE_MODE = "offline_mode";
     private static final String BUILD_SCANS_ENABLED = "build_scans_enabled";
 
@@ -63,13 +63,13 @@ public final class GradleRunConfigurationAttributes {
     private final ImmutableList<String> argumentExpressions;
     private final boolean showExecutionView;
     private final boolean showConsoleView;
-    private final boolean overrideWorkspaceSettings;
+    private final boolean overrideProjectSettings;
     private final boolean isOffline;
     private final boolean isBuildScansEnabled;
 
     private GradleRunConfigurationAttributes(List<String> tasks, String workingDirExpression, String gradleDistribution,
             String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean showExecutionView, boolean showConsoleView, boolean useGradleDistributionFromImport,
-            boolean overrideWorkspaceSettings, boolean isOffline, boolean isBuildScansEnabled) {
+            boolean overrideProjectSettings, boolean isOffline, boolean isBuildScansEnabled) {
         this.tasks = ImmutableList.copyOf(tasks);
         this.workingDirExpression = Preconditions.checkNotNull(workingDirExpression);
         this.gradleDistribution = gradleDistribution;
@@ -79,7 +79,7 @@ public final class GradleRunConfigurationAttributes {
         this.showExecutionView = showExecutionView;
         this.showConsoleView = showConsoleView;
         this.useGradleDistributionFromImport = useGradleDistributionFromImport;
-        this.overrideWorkspaceSettings = overrideWorkspaceSettings;
+        this.overrideProjectSettings = overrideProjectSettings;
         this.isOffline = isOffline;
         this.isBuildScansEnabled = isBuildScansEnabled;
     }
@@ -180,9 +180,8 @@ public final class GradleRunConfigurationAttributes {
         return this.showConsoleView;
     }
 
-    public boolean isOverrideWorkspaceSettings() {
-        // TODO (donat) this should be 'override project settings'
-        return this.overrideWorkspaceSettings;
+    public boolean isOverrideProjectSettings() {
+        return this.overrideProjectSettings;
     }
 
     public boolean isOffline() {
@@ -218,7 +217,7 @@ public final class GradleRunConfigurationAttributes {
                .javaHome(getJavaHome())
                .jvmArguments(getJvmArguments())
                .arguments(getArguments());
-        if (isOverrideWorkspaceSettings()) {
+        if (isOverrideProjectSettings()) {
             builder.buildScansEnabled(isBuildScansEnabled());
             builder.offlineMode(isOffline());
         }
@@ -235,7 +234,7 @@ public final class GradleRunConfigurationAttributes {
         applyArgumentExpressions(this.argumentExpressions, launchConfiguration);
         applyShowExecutionView(this.showExecutionView, launchConfiguration);
         applyShowConsoleView(this.showConsoleView, launchConfiguration);
-        applyWorkspaceOverride(this.overrideWorkspaceSettings, this.isOffline, this.isBuildScansEnabled, launchConfiguration);
+        applyProjectOverride(this.overrideProjectSettings, this.isOffline, this.isBuildScansEnabled, launchConfiguration);
     }
 
     public static void applyTasks(List<String> tasks, ILaunchConfigurationWorkingCopy launchConfiguration) {
@@ -278,9 +277,9 @@ public final class GradleRunConfigurationAttributes {
         launchConfiguration.setAttribute(SHOW_CONSOLE_VIEW, showConsoleView);
     }
 
-    public static void applyWorkspaceOverride(boolean overrideWorkspaceSettings, boolean offlineMode, boolean buildScansEnabled, ILaunchConfigurationWorkingCopy launchConfiguration) {
-        launchConfiguration.setAttribute(OVERRIDE_WORKSPACE_SETTINGS, overrideWorkspaceSettings);
-        if (overrideWorkspaceSettings) {
+    public static void applyProjectOverride(boolean overrideProjectSettings, boolean offlineMode, boolean buildScansEnabled, ILaunchConfigurationWorkingCopy launchConfiguration) {
+        launchConfiguration.setAttribute(OVERRIDE_PROJECT_SETTINGS, overrideProjectSettings);
+        if (overrideProjectSettings) {
             launchConfiguration.setAttribute(OFFLINE_MODE, offlineMode);
             launchConfiguration.setAttribute(BUILD_SCANS_ENABLED, buildScansEnabled);
         } else {
@@ -291,9 +290,9 @@ public final class GradleRunConfigurationAttributes {
 
     public static GradleRunConfigurationAttributes with(List<String> tasks, String workingDirExpression, String serializedGradleDistribution,
             String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean showExecutionView, boolean showConsoleView, boolean useGradleDistributionFromImport,
-            boolean overrideWorkspaceSettings, boolean isOffline, boolean isBuildScansEnabled) {
+            boolean overrideProjectSettings, boolean isOffline, boolean isBuildScansEnabled) {
         return new GradleRunConfigurationAttributes(tasks, workingDirExpression, serializedGradleDistribution, javaHomeExpression, jvmArgumentExpressions,
-                argumentExpressions, showExecutionView, showConsoleView, useGradleDistributionFromImport, overrideWorkspaceSettings, isOffline, isBuildScansEnabled);
+                argumentExpressions, showExecutionView, showConsoleView, useGradleDistributionFromImport, overrideProjectSettings, isOffline, isBuildScansEnabled);
     }
 
     public static GradleRunConfigurationAttributes with(List<String> tasks, String workingDirExpression, GradleDistribution gradleDistribution,
@@ -314,8 +313,8 @@ public final class GradleRunConfigurationAttributes {
         List<String> argumentExpressions = getListAttribute(ARGUMENTS, launchConfiguration);
         boolean showExecutionView = getBooleanAttribute(SHOW_EXECUTION_VIEW, true, launchConfiguration);
         boolean showConsoleView = getBooleanAttribute(SHOW_CONSOLE_VIEW, true, launchConfiguration);
-        boolean overrideWorkspaceSettings = getBooleanAttribute(OVERRIDE_WORKSPACE_SETTINGS, false, launchConfiguration);
-        if (overrideWorkspaceSettings) {
+        boolean overrideProjectSettings = getBooleanAttribute(OVERRIDE_PROJECT_SETTINGS, false, launchConfiguration);
+        if (overrideProjectSettings) {
             boolean isOffline = getBooleanAttribute(OFFLINE_MODE, false, launchConfiguration);
             boolean isBuildScansEnabled = getBooleanAttribute(BUILD_SCANS_ENABLED, false, launchConfiguration);
             return with(tasks, workingDirExpression, gradleDistribution, javaHomeExpression, jvmArgumentExpressions, argumentExpressions,
