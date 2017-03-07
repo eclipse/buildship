@@ -113,7 +113,7 @@ public final class TaskNodeSelectionUtils {
         Optional<IProject> workspaceProject = projectNode.getWorkspaceProject();
         if (workspaceProject.isPresent() && GradleProjectNature.isPresentOn(workspaceProject.get())) {
             ProjectConfiguration projectConfiguration = CorePlugin.projectConfigurationManager().readProjectConfiguration(workspaceProject.get());
-            return Optional.of(projectConfiguration.toRequestAttributes(ConversionStrategy.IGNORE_WORKSPACE_SETTINGS));
+            return Optional.of(projectConfiguration.toRequestAttributes(ConversionStrategy.IGNORE_PROJECT_SETTINGS));
         } else {
             return Optional.absent();
         }

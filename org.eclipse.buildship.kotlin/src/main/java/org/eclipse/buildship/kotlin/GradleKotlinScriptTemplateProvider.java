@@ -166,9 +166,7 @@ public final class GradleKotlinScriptTemplateProvider implements ScriptTemplateP
     @Override
     public Map<String, Object> getEnvironment(IFile file) {
         HashMap<String, Object> environment = new HashMap<String, Object>();
-        FixedRequestAttributes attributes = CorePlugin.projectConfigurationManager()
-                .readProjectConfiguration(file.getProject())
-                .toRequestAttributes(ConversionStrategy.MERGE_WORKSPACE_SETTINGS);
+        FixedRequestAttributes attributes = CorePlugin.projectConfigurationManager().readProjectConfiguration(file.getProject()).toRequestAttributes(ConversionStrategy.MERGE_PROJECT_SETTINGS);
 
         environment.put(GSK_PROJECT_ROOT, attributes.getProjectDir());
         environment.put(GSK_GRADLE_USER_HOME, attributes.getGradleUserHome());

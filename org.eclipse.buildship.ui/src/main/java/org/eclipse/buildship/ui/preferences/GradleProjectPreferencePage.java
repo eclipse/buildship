@@ -87,7 +87,8 @@ public final class GradleProjectPreferencePage extends PropertyPage {
        IProject project = (IProject) Platform.getAdapterManager().getAdapter(getElement(), IProject.class);
        ProjectConfigurationManager configurationManager = CorePlugin.projectConfigurationManager();
        ProjectConfiguration configuration = configurationManager.readProjectConfiguration(project);
-       configuration = ProjectConfiguration.from(configuration.getRootProjectDirectory(),
+       configuration = ProjectConfiguration.from(project,
+                                                 configuration.getRootProjectDirectory(),
                                                  configuration.getGradleDistribution(),
                                                  this.overrideWorkspaceSettingsCheckbox.getSelection(),
                                                  this.buildScansEnabledCheckbox.getSelection(),

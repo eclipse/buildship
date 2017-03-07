@@ -70,10 +70,10 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
         File rootDir = rootProjectFile(project, projectDir);
         GradleDistribution gradleDistribution = GradleDistributionSerializer.INSTANCE.deserializeFromString(distribution);
         if (overrideWorkspaceSettings) {
-            return ProjectConfiguration.from(rootDir, gradleDistribution, overrideWorkspaceSettings, buildScansEnabled, offlineMode);
+            return ProjectConfiguration.from(project, rootDir, gradleDistribution, overrideWorkspaceSettings, buildScansEnabled, offlineMode);
         } else {
             WorkspaceConfiguration workspaceConfig = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
-            return ProjectConfiguration.from(rootDir, gradleDistribution, false, workspaceConfig.isBuildScansEnabled(), workspaceConfig.isOffline());
+            return ProjectConfiguration.from(project, rootDir, gradleDistribution, false, workspaceConfig.isBuildScansEnabled(), workspaceConfig.isOffline());
         }
     }
 

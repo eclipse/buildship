@@ -66,7 +66,7 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
 
     @SuppressWarnings("ConstantConditions")
     private GradleRunConfigurationAttributes collectRunConfigurationAttributes(IProject project) {
-        FixedRequestAttributes requestAttributes = CorePlugin.projectConfigurationManager().readProjectConfiguration(project).toRequestAttributes(ConversionStrategy.IGNORE_WORKSPACE_SETTINGS);
+        FixedRequestAttributes requestAttributes = CorePlugin.projectConfigurationManager().readProjectConfiguration(project).toRequestAttributes(ConversionStrategy.IGNORE_PROJECT_SETTINGS);
 
         // configure the project directory
         String projectDir = requestAttributes.getProjectDir().getAbsolutePath();

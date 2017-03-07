@@ -56,8 +56,7 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
     public Optional<GradleBuild> getGradleBuild(IProject project) {
         Optional<ProjectConfiguration> configuration = CorePlugin.projectConfigurationManager().tryReadProjectConfiguration(project);
         if (configuration.isPresent()) {
-            FixedRequestAttributes attributes = configuration.get().toRequestAttributes(ConversionStrategy.MERGE_WORKSPACE_SETTINGS);
-            return Optional.<GradleBuild>of(this.cache.getUnchecked(attributes));
+            return Optional.<GradleBuild>of(new DefaultGradleBuild(configuration.get().toRequestAttributes(ConversionStrategy.MERGE_PROJECT_SETTINGS)));
         } else {
             return Optional.absent();
         }
@@ -89,7 +88,7 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
             @Override
             public FixedRequestAttributes apply(IProject project) {
                 Optional<ProjectConfiguration> configuration = CorePlugin.projectConfigurationManager().tryReadProjectConfiguration(project);
-                return configuration.isPresent() ? configuration.get().toRequestAttributes(ConversionStrategy.MERGE_WORKSPACE_SETTINGS) : null;
+                return configuration.isPresent() ? configuration.get().toRequestAttributes(ConversionStrategy.MERGE_PROJECT_SETTINGS) : null;
             }
         }).filter(Predicates.notNull()).toSet();
     }
