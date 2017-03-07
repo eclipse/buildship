@@ -24,6 +24,8 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.ProjectConfiguration
 import org.eclipse.buildship.core.configuration.ProjectConfigurationManager
+import org.eclipse.buildship.core.configuration.WorkspaceConfiguration
+import org.eclipse.buildship.core.configuration.WorkspaceConfigurationManager
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 
@@ -295,21 +297,54 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         configurations.size() == 2
     }
 
-    def "can read configuration for closed projects"() {
+    def "project configuration respects workspace configuration"(boolean wsBuildScansEnabled, boolean wsOfflineMode) {
         setup:
-        def rootDir = dir("root") {
-            file('settings.gradle').text = "include 'sub'"
-            file('build.gradle').text = "project(':sub')"
-            dir 'sub'
-        }
-        importAndWait(rootDir)
+        WorkspaceConfiguration initialWsConfig = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration()
+        CorePlugin.workspaceConfigurationManager().saveWorkspaceConfiguration(new WorkspaceConfiguration(initialWsConfig.getGradleUserHome(), wsOfflineMode, wsBuildScansEnabled))
+
+        IProject project = workspaceOperations.createProject("sample-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
+        ProjectConfiguration projectConfiguration = ProjectConfiguration.from(project, project.getLocation().toFile(), GradleDistribution.fromBuild(), false, true, true)
 
         when:
-        IProject sub = findProject('sub')
-        sub.close(null)
+        configurationManager.saveProjectConfiguration(projectConfiguration)
+        projectConfiguration = configurationManager.readProjectConfiguration(project)
 
         then:
-        configurationManager.readProjectConfiguration(sub)
+        projectConfiguration.isOverrideWorkspaceSettings() == false
+        projectConfiguration.isOfflineMode() == wsOfflineMode
+        projectConfiguration.isBuildScansEnabled() == wsBuildScansEnabled
+
+        cleanup:
+        CorePlugin.workspaceConfigurationManager().saveWorkspaceConfiguration(initialWsConfig)
+
+        where:
+        wsBuildScansEnabled | wsOfflineMode
+        false               | false
+        false               | true
+        true                | false
+        true                | true
+    }
+
+    def "project configuration can override workspace configuration"(boolean buildScansEnabled, boolean offlineMode) {
+        setup:
+        IProject project = workspaceOperations.createProject("sample-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
+        ProjectConfiguration projectConfiguration = ProjectConfiguration.from(project, project.getLocation().toFile(), GradleDistribution.fromBuild(), true, buildScansEnabled, offlineMode)
+
+        when:
+        configurationManager.saveProjectConfiguration(projectConfiguration)
+        projectConfiguration = configurationManager.readProjectConfiguration(project)
+
+        then:
+        projectConfiguration.isOverrideWorkspaceSettings() ==true
+        projectConfiguration.isOfflineMode() == offlineMode
+        projectConfiguration.isBuildScansEnabled() == buildScansEnabled
+
+        where:
+        buildScansEnabled | offlineMode
+        false             | false
+        false             | true
+        true              | false
+        true              | true
     }
 
     private void setInvalidPreferenceOn(IProject project) {
