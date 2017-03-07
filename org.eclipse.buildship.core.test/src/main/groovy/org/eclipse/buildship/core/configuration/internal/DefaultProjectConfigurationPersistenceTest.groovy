@@ -31,30 +31,17 @@ class DefaultProjectConfigurationPersistenceTest extends WorkspaceSpecification 
         project = newProject("sample-project")
     }
 
-    def "save validates input"() {
+    def "can't save null as preferences"() {
         when:
-        persistence.saveProjectConfiguration(null, project)
+        persistence.saveProjectConfiguration(null)
 
         then:
         thrown NullPointerException
-
-        when:
-        persistence.saveProjectConfiguration(projectConfiguration(), null)
-
-        then:
-        thrown NullPointerException
-
-        when:
-        project.close(new NullProgressMonitor())
-        persistence.saveProjectConfiguration(projectConfiguration(), project)
-
-        then:
-        thrown IllegalArgumentException
     }
 
     def "can save preferences"() {
         setup:
-        persistence.saveProjectConfiguration(projectConfiguration(), project)
+        persistence.saveProjectConfiguration(projectConfiguration())
 
         expect:
         def node = new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID)
@@ -79,7 +66,7 @@ class DefaultProjectConfigurationPersistenceTest extends WorkspaceSpecification 
 
     def "can read preferences"() {
         setup:
-        persistence.saveProjectConfiguration(projectConfiguration(), project)
+        persistence.saveProjectConfiguration(projectConfiguration())
 
         when:
         def configuration = persistence.readProjectConfiguration(project)
@@ -124,7 +111,7 @@ class DefaultProjectConfigurationPersistenceTest extends WorkspaceSpecification 
 
     def "can delete preferences"() {
         setup:
-        persistence.saveProjectConfiguration(projectConfiguration(), project)
+        persistence.saveProjectConfiguration(projectConfiguration())
 
         expect:
         new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, null)
@@ -166,6 +153,7 @@ class DefaultProjectConfigurationPersistenceTest extends WorkspaceSpecification 
 
     private ProjectConfiguration projectConfiguration() {
         ProjectConfiguration.fromWorkspaceConfig(
+            project,
             project.location.toFile(),
             GradleDistribution.fromBuild()
         )

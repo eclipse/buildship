@@ -11,16 +11,12 @@
 
 package org.eclipse.buildship.core.configuration.internal;
 
-import java.util.Map;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 
 import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
@@ -41,8 +37,6 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
 
     @Override
     public ImmutableSet<ProjectConfiguration> getRootProjectConfigurations() {
-        // TODO (donat) this has to be cleaned up
-
         // collect all Gradle root project configurations in the workspace by asking each Eclipse
         // project with a Gradle nature for the Gradle root project it belongs to
         ImmutableSet.Builder<ProjectConfiguration> rootConfigurations = ImmutableSet.builder();
@@ -56,20 +50,6 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
                         rootConfigurations.add(config);
                     }
                 }
-            }
-        }
-
-        // make sure there are no projects that point to the same root project but with a different
-        // configuration (different java home, etc.)
-        // if such an inconsistent state is detected, it means that the Gradle configurations were
-        // changed/corrupted manually
-        Map<String, ProjectConfiguration> rootProjectDirs = Maps.newHashMap();
-        for (ProjectConfiguration rootProjectConfiguration : rootConfigurations.build()) {
-            String rootProjectDirPath = rootProjectConfiguration.toRequestAttributes().getProjectDir().getAbsolutePath();
-            if (!rootProjectDirs.containsKey(rootProjectDirPath)) {
-                rootProjectDirs.put(rootProjectDirPath, rootProjectConfiguration);
-            } else {
-                throw new GradlePluginsRuntimeException(String.format("Inconsistent Gradle project configuration for project at %s.", rootProjectDirPath));
             }
         }
 
@@ -115,7 +95,7 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
             return this.projectConfigurationPersistence.readProjectConfiguration(workspaceProject);
         } catch (RuntimeException e) {
             if (suppressErrors) {
-                CorePlugin.logger().warn(String.format("Cannot load project configuration for project %s.", workspaceProject.getName()), e);
+                CorePlugin.logger().debug(String.format("Cannot load project configuration for project %s.", workspaceProject.getName()), e);
                 return null;
             } else {
                 throw e;
