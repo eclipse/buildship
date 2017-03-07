@@ -41,16 +41,15 @@ public final class GradleProjectPreferencePage extends PropertyPage {
         GridLayout layout = new GridLayout(1, false);
         page.setLayout(layout);
 
-        Group overridePreferencesGroup = createGroup(page, "");
+        Group overridePreferencesGroup = createGroup(page);
         createOverrideWorkspacePreferencesControl(overridePreferencesGroup);
         initialize();
 
         return page;
     }
 
-    private Group createGroup(Composite parent, String groupName) {
+    private Group createGroup(Composite parent) {
         Group group = new Group(parent, SWT.NONE);
-        group.setText(groupName);
         group.setLayout(new GridLayout());
         group.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
         return group;
@@ -70,9 +69,9 @@ public final class GradleProjectPreferencePage extends PropertyPage {
         new Enabler(this.overrideWorkspaceSettingsCheckbox).enables(this.offlineModeCheckbox, this.buildScansEnabledCheckbox);
     }
 
-    @SuppressWarnings({"cast", "RedundantCast"})
+
     private void initialize() {
-        IProject project = (IProject) Platform.getAdapterManager().getAdapter(getElement(), IProject.class);
+        IProject project = getTargetProject();
         ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
         boolean overrideWorkspaceSettings = configuration.isOverrideWorkspaceSettings();
         this.overrideWorkspaceSettingsCheckbox.setSelection(overrideWorkspaceSettings);
@@ -84,7 +83,7 @@ public final class GradleProjectPreferencePage extends PropertyPage {
 
     @Override
     public boolean performOk() {
-       IProject project = (IProject) Platform.getAdapterManager().getAdapter(getElement(), IProject.class);
+       IProject project = getTargetProject();
        ProjectConfigurationManager manager = CorePlugin.projectConfigurationManager();
        ProjectConfiguration currentConfig = manager.readProjectConfiguration(project);
        for (ProjectConfiguration configuration : manager.getAllProjectConfigurations()) {
@@ -99,5 +98,10 @@ public final class GradleProjectPreferencePage extends PropertyPage {
            }
        }
        return true;
+    }
+
+    @SuppressWarnings({"cast", "RedundantCast"})
+    private IProject getTargetProject() {
+        return (IProject) Platform.getAdapterManager().getAdapter(getElement(), IProject.class);
     }
 }

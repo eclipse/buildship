@@ -86,6 +86,7 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         }
 
         importAndWait(rootDir)
+        IProject root = findProject('project one')
 
         when:
         Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
@@ -93,6 +94,7 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         then:
         rootProjectConfigurations == [
                 ProjectConfiguration.fromWorkspaceConfig(
+                    root,
                     rootDir,
                     GradleDistribution.fromBuild()
                 )
@@ -139,6 +141,8 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
 
         importAndWait(rootDirOne)
         importAndWait(rootDirTwo, GradleDistribution.forVersion("1.12"))
+        IProject rootProjectOne = findProject('project one')
+        IProject rootProjectTwo = findProject('project two')
 
         when:
         Set<ProjectConfiguration> rootProjectConfigurations = configurationManager.getRootProjectConfigurations()
@@ -146,33 +150,16 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         then:
         rootProjectConfigurations == [
                 ProjectConfiguration.fromWorkspaceConfig(
+                    rootProjectOne,
                     rootDirOne,
                     GradleDistribution.fromBuild()
                 ),
                 ProjectConfiguration.fromWorkspaceConfig(
+                    rootProjectTwo,
                     rootDirTwo,
                     GradleDistribution.forVersion('1.12')
                 )
             ] as Set
-    }
-
-    def "error thrown when projects of same multi-project build have different shared project configurations"() {
-        given:
-        // create root project and use Gradle version 2.0 in the persisted configuration
-        IProject rootProject = workspaceOperations.createProject("root-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
-        def projectConfiguration = ProjectConfiguration.fromWorkspaceConfig(rootProject, testDir, GradleDistribution.forVersion("2.0"))
-        configurationManager.saveProjectConfiguration(projectConfiguration)
-
-        // create child project and use Gradle version 1.0 in the persisted configuration
-        IProject childProject = workspaceOperations.createProject("child-project", dir("child-project"), Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
-        def childProjectConfiguration = ProjectConfiguration.fromWorkspaceConfig(childProject, testDir, GradleDistribution.forVersion("1.0"))
-        configurationManager.saveProjectConfiguration(childProjectConfiguration)
-
-        when:
-        configurationManager.getRootProjectConfigurations()
-
-        then:
-        thrown(GradlePluginsRuntimeException)
     }
 
     def "save and read project with full configuration"() {
