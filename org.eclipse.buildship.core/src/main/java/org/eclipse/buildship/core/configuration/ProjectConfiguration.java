@@ -18,7 +18,6 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
@@ -120,21 +119,19 @@ public final class ProjectConfiguration {
         return Objects.hashCode(this.workspaceProject, this.rootProjectDirectory, this.gradleDistribution, this.overrideWorkspaceSettings, this.buildScansEnabled, this.offlineMode);
     }
 
-    // TODO (donat) do we really need all these static factories?
-    // TODO (donat) there are some redundant arguments below
-    // TODO (donat) consolidate argument names
+    // TODO (donat) the factory arguments doesn't match the functionality. Perhaps we should introduce a builder here
 
-    public static ProjectConfiguration from(IProject workspaceProject, FixedRequestAttributes build, OmniEclipseProject project) {
+    public static ProjectConfiguration fromWorkspaceConfig(IProject project, File rootProjectDir, GradleDistribution gradleDistribution) {
         WorkspaceConfiguration wsConfig = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
-        return from(workspaceProject, build, project, false, wsConfig.isBuildScansEnabled(), wsConfig.isOffline());
+        return new ProjectConfiguration(project, rootProjectDir, gradleDistribution, false, wsConfig.isBuildScansEnabled(), wsConfig.isOffline());
     }
 
-    public static ProjectConfiguration from(IProject workspaceProject, FixedRequestAttributes build, OmniEclipseProject project, boolean overrideWorkspaceSettings, boolean buildScansEnabled, boolean offlineMode) {
-        return from(workspaceProject, build.getProjectDir(), build.getGradleDistribution(), overrideWorkspaceSettings, buildScansEnabled, offlineMode);
+    public static ProjectConfiguration fromProjectConfig(ProjectConfiguration configuration, File rootProjectDir, GradleDistribution gradleDistribution) {
+        return from(configuration.workspaceProject, rootProjectDir, gradleDistribution, configuration.isOverrideWorkspaceSettings(), configuration.isBuildScansEnabled(), configuration.isOfflineMode());
     }
 
-    public static ProjectConfiguration from(IProject workspaceProject, File rootProjectDir, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings, boolean buildScansEnabled, boolean offlineMode) {
-        return new ProjectConfiguration(workspaceProject, rootProjectDir, gradleDistribution, overrideWorkspaceSettings, buildScansEnabled, offlineMode);
+    public static ProjectConfiguration from(IProject project, File rootProjectDir, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings, boolean buildScansEnabled, boolean offlineMode) {
+        return new ProjectConfiguration(project, rootProjectDir, gradleDistribution, overrideWorkspaceSettings, buildScansEnabled, offlineMode);
     }
 
 }

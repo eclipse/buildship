@@ -158,7 +158,7 @@ class DefaultProjectConfigurationPersistenceTest extends WorkspaceSpecification 
     }
 
     private ProjectConfiguration projectConfiguration() {
-        ProjectConfiguration.from(
+        ProjectConfiguration.fromWorkspaceConfig(
             project.location.toFile(),
             GradleDistribution.fromBuild()
         )

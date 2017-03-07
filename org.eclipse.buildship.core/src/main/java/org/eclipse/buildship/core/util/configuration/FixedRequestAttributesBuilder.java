@@ -97,7 +97,6 @@ public final class FixedRequestAttributesBuilder {
         return new FixedRequestAttributesBuilder(projectDir);
     }
 
-    // TODO (donat) check out all usecases where the project settings can be loaded
     public static FixedRequestAttributesBuilder fromWorkspaceSettings(File projectDir) {
         WorkspaceConfiguration configuration = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
         return fromEmptySettings(projectDir)
