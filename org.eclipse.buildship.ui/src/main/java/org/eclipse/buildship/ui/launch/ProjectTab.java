@@ -69,7 +69,7 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
     private Text workingDirectoryText;
     private Button showExecutionViewCheckbox;
     private Button showConsoleViewCheckbox;
-    private Button overrideWorkspaceSettingsCheckbox;
+    private Button overrideProjectSettingsCheckbox;
     private Button overriddenOfflineModeCheckbox;
     private Button overriddenBuildScansEnabledCheckbox;
 
@@ -103,8 +103,8 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
         Group buildExecutionGroup = createGroup(parent, CoreMessages.RunConfiguration_Label_BuildExecution + ":"); //$NON-NLS-1$
         createBuildExecutionControl(buildExecutionGroup);
 
-        Group overridePreferencesGroup = createGroup(parent, CoreMessages.RunConfiguration_Label_OverrideWorkspaceSettings + ":"); //$NON-NLS-1$
-        createOverrideWorkspacePreferencesControl(overridePreferencesGroup);
+        Group overridePreferencesGroup = createGroup(parent, CoreMessages.RunConfiguration_Label_OverrideProjectSettings + ":"); //$NON-NLS-1$
+        createOverrideProjectPreferencesControl(overridePreferencesGroup);
     }
 
     private Group createGroup(Composite parent, String groupName) {
@@ -208,22 +208,22 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
         this.showConsoleViewCheckbox.addSelectionListener(new DialogUpdater());
     }
 
-    private void createOverrideWorkspacePreferencesControl(Composite container) {
+    private void createOverrideProjectPreferencesControl(Composite container) {
         GridLayout layout = new GridLayout(3, false);
         container.setLayout(layout);
 
-        this.overrideWorkspaceSettingsCheckbox = new Button(container, SWT.CHECK);
-        this.overrideWorkspaceSettingsCheckbox.setText("Override workspace settings");
+        this.overrideProjectSettingsCheckbox = new Button(container, SWT.CHECK);
+        this.overrideProjectSettingsCheckbox.setText("Override project settings");
         this.overriddenOfflineModeCheckbox = new Button(container, SWT.CHECK);
         this.overriddenOfflineModeCheckbox.setText("Offline Mode");
         this.overriddenBuildScansEnabledCheckbox = new Button(container, SWT.CHECK);
         this.overriddenBuildScansEnabledCheckbox.setText("Build Scans");
 
-        this.overrideWorkspaceSettingsCheckbox.addSelectionListener(new DialogUpdater());
+        this.overrideProjectSettingsCheckbox.addSelectionListener(new DialogUpdater());
         this.overriddenOfflineModeCheckbox.addSelectionListener(new DialogUpdater());
         this.overriddenBuildScansEnabledCheckbox.addSelectionListener(new DialogUpdater());
 
-        new Enabler(this.overrideWorkspaceSettingsCheckbox).enables(this.overriddenOfflineModeCheckbox, this.overriddenBuildScansEnabledCheckbox);
+        new Enabler(this.overrideProjectSettingsCheckbox).enables(this.overriddenOfflineModeCheckbox, this.overriddenBuildScansEnabledCheckbox);
     }
 
     @Override
@@ -234,9 +234,9 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
         this.showExecutionViewCheckbox.setSelection(configurationAttributes.isShowExecutionView());
         this.showConsoleViewCheckbox.setSelection(configurationAttributes.isShowConsoleView());
 
-        boolean overrideWorkspaceSettings = configurationAttributes.isOverrideWorkspaceSettings();
+        boolean overrideWorkspaceSettings = configurationAttributes.isOverrideProjectSettings();
 
-        this.overrideWorkspaceSettingsCheckbox.setSelection(overrideWorkspaceSettings);
+        this.overrideProjectSettingsCheckbox.setSelection(overrideWorkspaceSettings);
         this.overriddenOfflineModeCheckbox.setEnabled(overrideWorkspaceSettings);
         this.overriddenBuildScansEnabledCheckbox.setEnabled(overrideWorkspaceSettings);
         if(overrideWorkspaceSettings) {
@@ -255,7 +255,7 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
         GradleRunConfigurationAttributes.applyWorkingDirExpression(this.workingDirectoryText.getText(), configuration);
         GradleRunConfigurationAttributes.applyShowExecutionView(this.showExecutionViewCheckbox.getSelection(), configuration);
         GradleRunConfigurationAttributes.applyShowConsoleView(this.showConsoleViewCheckbox.getSelection(), configuration);
-        GradleRunConfigurationAttributes.applyWorkspaceOverride(this.overrideWorkspaceSettingsCheckbox.getSelection(),
+        GradleRunConfigurationAttributes.applyProjectOverride(this.overrideProjectSettingsCheckbox.getSelection(),
                                                                 this.overriddenOfflineModeCheckbox.getSelection(),
                                                                 this.overriddenBuildScansEnabledCheckbox.getSelection(),
                                                                 configuration);
