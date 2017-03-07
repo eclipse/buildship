@@ -84,17 +84,21 @@ public final class GradleProjectPreferencePage extends PropertyPage {
 
     @Override
     public boolean performOk() {
-       // TODO (donat) we should save the preference for all subprojects
        IProject project = (IProject) Platform.getAdapterManager().getAdapter(getElement(), IProject.class);
-       ProjectConfigurationManager configurationManager = CorePlugin.projectConfigurationManager();
-       ProjectConfiguration configuration = configurationManager.readProjectConfiguration(project);
-       configuration = ProjectConfiguration.from(project,
-                                                 configuration.getRootProjectDirectory(),
-                                                 configuration.getGradleDistribution(),
-                                                 this.overrideWorkspaceSettingsCheckbox.getSelection(),
-                                                 this.buildScansEnabledCheckbox.getSelection(),
-                                                 this.offlineModeCheckbox.getSelection());
-       configurationManager.saveProjectConfiguration(configuration, project);
+       ProjectConfigurationManager manager = CorePlugin.projectConfigurationManager();
+       ProjectConfiguration currentConfig = manager.readProjectConfiguration(project);
+       for (ProjectConfiguration configuration : manager.getAllProjectConfigurations()) {
+           if (configuration.getRootProjectDirectory().equals(currentConfig.getRootProjectDirectory())) {
+               ProjectConfiguration updatedConfiguration = ProjectConfiguration.from(configuration.getProject(),
+                       configuration.getRootProjectDirectory(),
+                       configuration.getGradleDistribution(),
+                       this.overrideWorkspaceSettingsCheckbox.getSelection(),
+                       this.buildScansEnabledCheckbox.getSelection(),
+                       this.offlineModeCheckbox.getSelection());
+               // TODO (donat) eliminate redundant arguments
+               manager.saveProjectConfiguration(updatedConfiguration, updatedConfiguration.getProject());
+           }
+       }
        return true;
     }
 }
