@@ -95,8 +95,7 @@ public final class GradleProjectPreferencePage extends PropertyPage {
                        this.overrideWorkspaceSettingsCheckbox.getSelection(),
                        this.buildScansEnabledCheckbox.getSelection(),
                        this.offlineModeCheckbox.getSelection());
-               // TODO (donat) eliminate redundant arguments
-               manager.saveProjectConfiguration(updatedConfiguration, updatedConfiguration.getProject());
+               manager.saveProjectConfiguration(updatedConfiguration);
            }
        }
        return true;

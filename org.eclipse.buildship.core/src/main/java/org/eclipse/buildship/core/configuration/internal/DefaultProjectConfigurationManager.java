@@ -94,8 +94,8 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
     }
 
     @Override
-    public void saveProjectConfiguration(ProjectConfiguration projectConfiguration, IProject workspaceProject) {
-        this.projectConfigurationPersistence.saveProjectConfiguration(projectConfiguration, workspaceProject);
+    public void saveProjectConfiguration(ProjectConfiguration projectConfiguration) {
+        this.projectConfigurationPersistence.saveProjectConfiguration(projectConfiguration);
     }
 
     @Override

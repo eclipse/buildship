@@ -199,7 +199,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         ProjectConfiguration configuration = projectConfig.isPresent()
             ? ProjectConfiguration.fromProjectConfig(projectConfig.get(), this.build.getProjectDir(), this.build.getGradleDistribution())
             : ProjectConfiguration.fromWorkspaceConfig(workspaceProject, this.build.getProjectDir(), this.build.getGradleDistribution());
-        CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, workspaceProject);
+        CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration);
 
         PersistentModelBuilder persistentModel = new PersistentModelBuilder(CorePlugin.modelPersistence().loadModel(workspaceProject));
 

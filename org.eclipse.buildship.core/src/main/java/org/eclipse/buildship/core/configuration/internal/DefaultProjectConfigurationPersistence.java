@@ -99,11 +99,11 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
     }
 
     @Override
-    public void saveProjectConfiguration(ProjectConfiguration projectConfiguration, IProject project) {
+    public void saveProjectConfiguration(ProjectConfiguration projectConfiguration) {
         Preconditions.checkNotNull(projectConfiguration);
-        Preconditions.checkNotNull(project);
-        Preconditions.checkArgument(project.isAccessible());
+        Preconditions.checkArgument(projectConfiguration.getProject().isAccessible());
 
+        IProject project = projectConfiguration.getProject();
         String projectDir = relativePathToRootProject(project, projectConfiguration.getRootProjectDirectory());
         String gradleDistribution = GradleDistributionSerializer.INSTANCE.serializeToString(projectConfiguration.getGradleDistribution());
         try {
