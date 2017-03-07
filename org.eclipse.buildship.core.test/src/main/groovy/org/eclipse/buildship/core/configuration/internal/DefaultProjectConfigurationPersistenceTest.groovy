@@ -137,7 +137,7 @@ class DefaultProjectConfigurationPersistenceTest extends WorkspaceSpecification 
 
         when:
         project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor())
-        persistence.saveProjectConfiguration(configuration, project)
+        persistence.saveProjectConfiguration(configuration)
 
 
         then:
