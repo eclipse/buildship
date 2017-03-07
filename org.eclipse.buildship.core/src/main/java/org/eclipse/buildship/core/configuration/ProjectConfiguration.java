@@ -29,6 +29,8 @@ import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuild
  */
 public final class ProjectConfiguration {
 
+    // TODO (donat) should reference the represented IProject in order to use FRAB.fromProjectSetttings()
+
     /**
      * Strategy that defines whether the workspace settings should be merged when a
      * ProjectConfiguration instance is converted to FixedRequestAttributes.

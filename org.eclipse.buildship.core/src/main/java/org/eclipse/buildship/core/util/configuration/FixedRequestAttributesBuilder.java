@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 the original author or authors.
+* Copyright (c) 2016 the original author or authors.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,14 +17,19 @@ import com.google.common.collect.Lists;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
+import org.eclipse.core.resources.IProject;
+
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 
 /**
+ *
  * Builder object for {@link FixedRequestAttributes}. The {@link #fromEmptySettings(File)} creates an empty builder object,
  * whereas the object created by {@link #fromWorkspaceSettings(File)} is preconfigured with the workspace settings.
  *
  * @author Donat Csikos
+ * TODO (donat) adjust javadoc
  */
 public final class FixedRequestAttributesBuilder {
 
@@ -92,6 +97,7 @@ public final class FixedRequestAttributesBuilder {
         return new FixedRequestAttributesBuilder(projectDir);
     }
 
+    // TODO (donat) check out all usecases where the project settings can be loaded
     public static FixedRequestAttributesBuilder fromWorkspaceSettings(File projectDir) {
         WorkspaceConfiguration configuration = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
         return fromEmptySettings(projectDir)
@@ -100,4 +106,14 @@ public final class FixedRequestAttributesBuilder {
                 .buildScansEnabled(configuration.isBuildScansEnabled())
                 .arguments(CorePlugin.invocationCustomizer().getExtraArguments());
      }
+
+    public static FixedRequestAttributesBuilder fromProjectSettings(IProject project) {
+        WorkspaceConfiguration workspaceConfig = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
+        ProjectConfiguration projectConfig = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
+        return fromEmptySettings(projectConfig.getRootProjectDirectory())
+                .gradleUserHome(workspaceConfig.getGradleUserHome())
+                .offlineMode(projectConfig.isOfflineMode())
+                .buildScansEnabled(projectConfig.isBuildScansEnabled())
+                .arguments(CorePlugin.invocationCustomizer().getExtraArguments());
+    }
 }

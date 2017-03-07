@@ -47,8 +47,7 @@ public final class GradleRunConfigurationAttributes {
     private static final String USE_GRADLE_DISTRIBUTION_FROM_IMPORT = "use_gradle_distribution_from_import";
     private static final String GRADLE_DISTRIBUTION = "gradle_distribution";
     private static final String JAVA_HOME = "java_home";
-    private static final String JVM_ARGUMENTS = "jvm_arguments";
-    private static final String ARGUMENTS = "arguments";
+    private static final String JVM_ARGUMENTS = "jvm_arguments";    private static final String ARGUMENTS = "arguments";
     private static final String SHOW_EXECUTION_VIEW = "show_execution_view";
     private static final String SHOW_CONSOLE_VIEW = "show_console_view";
     private static final String OVERRIDE_WORKSPACE_SETTINGS = "override_workspace_settings";
@@ -182,6 +181,7 @@ public final class GradleRunConfigurationAttributes {
     }
 
     public boolean isOverrideWorkspaceSettings() {
+        // TODO (donat) this should be 'override project settings'
         return this.overrideWorkspaceSettings;
     }
 
@@ -205,12 +205,19 @@ public final class GradleRunConfigurationAttributes {
     }
 
     public FixedRequestAttributes toFixedRequestAttributes() {
-        FixedRequestAttributesBuilder builder = FixedRequestAttributesBuilder.fromWorkspaceSettings(getWorkingDir())
-                .gradleUserHome(getGradleUserHome())
-                .gradleDistribution(getGradleDistribution())
-                .javaHome(getJavaHome())
-                .jvmArguments(getJvmArguments())
-                .arguments(getArguments());
+        File workingDir = getWorkingDir();
+        Optional<IProject> project = CorePlugin.workspaceOperations().findProjectByLocation(workingDir);
+        FixedRequestAttributesBuilder builder;
+        if (project.isPresent()) {
+            builder = FixedRequestAttributesBuilder.fromProjectSettings(project.get());
+        } else {
+            builder = FixedRequestAttributesBuilder.fromWorkspaceSettings(getWorkingDir());
+        }
+        builder.gradleUserHome(getGradleUserHome())
+               .gradleDistribution(getGradleDistribution())
+               .javaHome(getJavaHome())
+               .jvmArguments(getJvmArguments())
+               .arguments(getArguments());
         if (isOverrideWorkspaceSettings()) {
             builder.buildScansEnabled(isBuildScansEnabled());
             builder.offlineMode(isOffline());
