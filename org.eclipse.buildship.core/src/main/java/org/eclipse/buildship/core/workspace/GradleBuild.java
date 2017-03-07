@@ -83,7 +83,7 @@ public interface GradleBuild {
     FixedRequestAttributes getRequestAttributes();
 
     /**
-     * Creates a new Gradle build invocation
+     * Creates a new Gradle build invocation.
      *
      * @param transientAttributes the transient attributes for the invocation
      * @param config the configuration for the build launcher
@@ -92,7 +92,7 @@ public interface GradleBuild {
     GradleInvocation newBuildInvocation(TransientRequestAttributes transientAttributes, BuildLauncherConfig config);
 
     /**
-     * Creates a new Gradle test build invocation
+     * Creates a new Gradle test build invocation.
      *
      * @param transientAttributes the transient attributes for the invocation
      * @param config the configuration for the test launcher
