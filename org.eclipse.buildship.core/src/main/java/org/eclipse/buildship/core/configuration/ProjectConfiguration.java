@@ -52,15 +52,15 @@ public final class ProjectConfiguration {
         protected abstract FixedRequestAttributesBuilder getFixedRequestAttributesBuilder(IProject project);
     }
 
-    private final IProject workspaceProject;
+    private final IProject project;
     private final File rootProjectDirectory;
     private final GradleDistribution gradleDistribution;
     private final boolean overrideWorkspaceSettings;
     private final boolean buildScansEnabled;
     private final boolean offlineMode;
 
-    private ProjectConfiguration(IProject workspaceProject, File rootProjectDirectory, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings, boolean buildScansEnabled, boolean offlineMode) {
-        this.workspaceProject = Preconditions.checkNotNull(workspaceProject);
+    private ProjectConfiguration(IProject project, File rootProjectDirectory, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings, boolean buildScansEnabled, boolean offlineMode) {
+        this.project = Preconditions.checkNotNull(project);
         this.rootProjectDirectory = canonicalize(rootProjectDirectory);
         this.gradleDistribution = Preconditions.checkNotNull(gradleDistribution);
         this.overrideWorkspaceSettings = overrideWorkspaceSettings;
@@ -77,7 +77,11 @@ public final class ProjectConfiguration {
     }
 
     public FixedRequestAttributes toRequestAttributes(ConversionStrategy strategy) {
-        return strategy.getFixedRequestAttributesBuilder(this.workspaceProject).gradleDistribution(this.gradleDistribution).build();
+        return strategy.getFixedRequestAttributesBuilder(this.project).gradleDistribution(this.gradleDistribution).build();
+    }
+
+    public IProject getProject() {
+        return this.project;
     }
 
     public File getRootProjectDirectory() {
@@ -104,7 +108,7 @@ public final class ProjectConfiguration {
     public boolean equals(Object obj) {
         if (obj instanceof ProjectConfiguration) {
             ProjectConfiguration other = (ProjectConfiguration) obj;
-            return Objects.equal(this.workspaceProject, other.workspaceProject)
+            return Objects.equal(this.project, other.project)
                     && Objects.equal(this.rootProjectDirectory, other.rootProjectDirectory)
                     && Objects.equal(this.gradleDistribution, other.gradleDistribution)
                     && Objects.equal(this.overrideWorkspaceSettings, other.overrideWorkspaceSettings)
@@ -116,7 +120,7 @@ public final class ProjectConfiguration {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.workspaceProject, this.rootProjectDirectory, this.gradleDistribution, this.overrideWorkspaceSettings, this.buildScansEnabled, this.offlineMode);
+        return Objects.hashCode(this.project, this.rootProjectDirectory, this.gradleDistribution, this.overrideWorkspaceSettings, this.buildScansEnabled, this.offlineMode);
     }
 
     // TODO (donat) the factory arguments doesn't match the functionality. Perhaps we should introduce a builder here
@@ -127,7 +131,7 @@ public final class ProjectConfiguration {
     }
 
     public static ProjectConfiguration fromProjectConfig(ProjectConfiguration configuration, File rootProjectDir, GradleDistribution gradleDistribution) {
-        return from(configuration.workspaceProject, rootProjectDir, gradleDistribution, configuration.isOverrideWorkspaceSettings(), configuration.isBuildScansEnabled(), configuration.isOfflineMode());
+        return from(configuration.project, rootProjectDir, gradleDistribution, configuration.isOverrideWorkspaceSettings(), configuration.isBuildScansEnabled(), configuration.isOfflineMode());
     }
 
     public static ProjectConfiguration from(IProject project, File rootProjectDir, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings, boolean buildScansEnabled, boolean offlineMode) {
