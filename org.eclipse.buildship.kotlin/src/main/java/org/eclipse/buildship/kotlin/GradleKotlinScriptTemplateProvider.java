@@ -38,7 +38,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration.ConversionStrategy;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 
 /**
@@ -166,7 +165,7 @@ public final class GradleKotlinScriptTemplateProvider implements ScriptTemplateP
     @Override
     public Map<String, Object> getEnvironment(IFile file) {
         HashMap<String, Object> environment = new HashMap<String, Object>();
-        FixedRequestAttributes attributes = CorePlugin.projectConfigurationManager().readProjectConfiguration(file.getProject()).toRequestAttributes(ConversionStrategy.MERGE_PROJECT_SETTINGS);
+        FixedRequestAttributes attributes = CorePlugin.projectConfigurationManager().readProjectConfiguration(file.getProject()).toRequestAttributes();
 
         environment.put(GSK_PROJECT_ROOT, attributes.getProjectDir());
         environment.put(GSK_GRADLE_USER_HOME, attributes.getGradleUserHome());

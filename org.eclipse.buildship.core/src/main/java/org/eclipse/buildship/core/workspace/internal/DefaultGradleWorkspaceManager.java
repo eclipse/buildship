@@ -28,7 +28,6 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration.ConversionStrategy;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.GradleBuilds;
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
@@ -56,7 +55,7 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
     public Optional<GradleBuild> getGradleBuild(IProject project) {
         Optional<ProjectConfiguration> configuration = CorePlugin.projectConfigurationManager().tryReadProjectConfiguration(project);
         if (configuration.isPresent()) {
-            return Optional.<GradleBuild>of(new DefaultGradleBuild(configuration.get().toRequestAttributes(ConversionStrategy.MERGE_PROJECT_SETTINGS)));
+            return Optional.<GradleBuild>of(new DefaultGradleBuild(configuration.get().toRequestAttributes()));
         } else {
             return Optional.absent();
         }
@@ -88,7 +87,7 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
             @Override
             public FixedRequestAttributes apply(IProject project) {
                 Optional<ProjectConfiguration> configuration = CorePlugin.projectConfigurationManager().tryReadProjectConfiguration(project);
-                return configuration.isPresent() ? configuration.get().toRequestAttributes(ConversionStrategy.MERGE_PROJECT_SETTINGS) : null;
+                return configuration.isPresent() ? configuration.get().toRequestAttributes() : null;
             }
         }).filter(Predicates.notNull()).toSet();
     }
