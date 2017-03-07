@@ -44,9 +44,8 @@ public interface ProjectConfigurationManager {
      * folder.
      *
      * @param projectConfiguration the Gradle configuration to persist
-     * @param workspaceProject the Eclipse project for which to persist the Gradle configuration
      */
-    void saveProjectConfiguration(ProjectConfiguration projectConfiguration, IProject workspaceProject);
+    void saveProjectConfiguration(ProjectConfiguration projectConfiguration);
 
     /**
      * Reads the Gradle project configuration from the Eclipse project's <i>.settings</i> folder.

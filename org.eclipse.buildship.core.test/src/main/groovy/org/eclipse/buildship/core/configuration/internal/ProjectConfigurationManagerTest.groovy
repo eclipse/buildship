@@ -160,13 +160,13 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         given:
         // create root project and use Gradle version 2.0 in the persisted configuration
         IProject rootProject = workspaceOperations.createProject("root-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
-        def projectConfiguration = ProjectConfiguration.fromWorkspaceConfig(testDir, GradleDistribution.forVersion("2.0"))
-        configurationManager.saveProjectConfiguration(projectConfiguration, rootProject)
+        def projectConfiguration = ProjectConfiguration.fromWorkspaceConfig(rootProject, testDir, GradleDistribution.forVersion("2.0"))
+        configurationManager.saveProjectConfiguration(projectConfiguration)
 
         // create child project and use Gradle version 1.0 in the persisted configuration
         IProject childProject = workspaceOperations.createProject("child-project", dir("child-project"), Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
-        def childProjectConfiguration = ProjectConfiguration.fromWorkspaceConfig(testDir, GradleDistribution.forVersion("1.0"))
-        configurationManager.saveProjectConfiguration(childProjectConfiguration, childProject)
+        def childProjectConfiguration = ProjectConfiguration.fromWorkspaceConfig(childProject, testDir, GradleDistribution.forVersion("1.0"))
+        configurationManager.saveProjectConfiguration(childProjectConfiguration)
 
         when:
         configurationManager.getRootProjectConfigurations()
@@ -179,10 +179,10 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         given:
         IProject project = workspaceOperations.createProject("sample-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
 
-        def projectConfiguration = ProjectConfiguration.fromWorkspaceConfig(project.getLocation().toFile(), GradleDistribution.forVersion("1.12"))
+        def projectConfiguration = ProjectConfiguration.fromWorkspaceConfig(project, project.getLocation().toFile(), GradleDistribution.forVersion("1.12"))
 
         when:
-        configurationManager.saveProjectConfiguration(projectConfiguration, project)
+        configurationManager.saveProjectConfiguration(projectConfiguration)
 
         then:
         configurationManager.readProjectConfiguration(project) == projectConfiguration
@@ -192,10 +192,10 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         given:
         IProject project = workspaceOperations.createProject("sample-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
 
-        def projectConfiguration = ProjectConfiguration.fromWorkspaceConfig(project.location.toFile(), GradleDistribution.fromBuild())
+        def projectConfiguration = ProjectConfiguration.fromWorkspaceConfig(project, project.location.toFile(), GradleDistribution.fromBuild())
 
         when:
-        configurationManager.saveProjectConfiguration(projectConfiguration, project)
+        configurationManager.saveProjectConfiguration(projectConfiguration)
 
         then:
         configurationManager.readProjectConfiguration(project) == projectConfiguration
@@ -205,8 +205,8 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         given:
         IProject project = workspaceOperations.createProject("sample-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
 
-        def projectConfiguration = ProjectConfiguration.fromWorkspaceConfig(project.location.toFile(), GradleDistribution.fromBuild())
-        configurationManager.saveProjectConfiguration(projectConfiguration, project)
+        def projectConfiguration = ProjectConfiguration.fromWorkspaceConfig(project, project.location.toFile(), GradleDistribution.fromBuild())
+        configurationManager.saveProjectConfiguration(projectConfiguration)
 
         def projectDescription = project.description
         project.delete(false, true, null)
@@ -241,8 +241,8 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         given:
         IProject project = workspaceOperations.createProject("sample-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
 
-        def projectConfiguration = ProjectConfiguration.fromWorkspaceConfig(project.location.toFile(), GradleDistribution.fromBuild())
-        configurationManager.saveProjectConfiguration(projectConfiguration, project)
+        def projectConfiguration = ProjectConfiguration.fromWorkspaceConfig(project, project.location.toFile(), GradleDistribution.fromBuild())
+        configurationManager.saveProjectConfiguration(projectConfiguration)
 
         when:
         setInvalidPreferenceOn(project)
