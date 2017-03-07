@@ -29,26 +29,37 @@ abstract class PreferenceStore {
     }
 
     /**
-     * Reads the preference value. May return {@code null}, if the key was not present.
+     * Reads a string. May return {@code null}, if the key was not present.
      *
      * @param key the preference key
      * @return the preference value
      */
-    abstract String read(String key);
+    abstract String readString(String key);
 
-    // TODO (donat) javadoc
+    /**
+     * Reads a boolean value. If the key was not present, the default value is returned.
+     *
+     * @param key the preference key
+     * @param defaultValue the default value to return if the key is not present
+     * @return the preference value
+     */
     abstract boolean readBoolean(String key, boolean defaultValue);
 
     /**
      * Writes a preference key-value pair. The changes can be persisted by calling {@link #flush()}.
      * If the value is {@code null}, the preference is removed.
      *
-     * @param key   the preference key
+     * @param key the preference key
      * @param value the preference value
      */
     abstract void write(String key, String value);
 
-    // TODO (donat) javadoc
+    /**
+     * Writes a preference key-value pair. The changes can be persisted by calling {@link #flush()}.
+     *
+     * @param key the preference key
+     * @param value the preference value
+     */
     abstract void writeBoolean(String key, boolean value);
 
     /**
@@ -72,7 +83,7 @@ abstract class PreferenceStore {
      * Creates a new preference store based on Eclipse project-scoped preferences.
      *
      * @param project the target project where to access the preferences
-     * @param node    the target node under the project where to access the preferences
+     * @param node the target node under the project where to access the preferences
      * @return the preference store
      * @throws GradlePluginsRuntimeException if the the preferences can't be loaded
      */
@@ -86,7 +97,7 @@ abstract class PreferenceStore {
      * @param propertiesFile the target properties file
      * @return the preference store
      * @throws GradlePluginsRuntimeException if the the preferences can't be loaded from the
-     *                                       properties file location
+     *             properties file location
      */
     static PreferenceStore forPreferenceFile(File propertiesFile) {
         return new PropertiesFilePreferenceStore(propertiesFile);
@@ -108,7 +119,7 @@ abstract class PreferenceStore {
         }
 
         @Override
-        String read(String key) {
+        String readString(String key) {
             return this.preferences.get(key, null);
         }
 
@@ -181,7 +192,7 @@ abstract class PreferenceStore {
         }
 
         @Override
-        String read(String key) {
+        String readString(String key) {
             return getProperties().getProperty(key, null);
         }
 

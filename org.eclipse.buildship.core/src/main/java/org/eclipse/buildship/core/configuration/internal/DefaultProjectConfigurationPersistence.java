@@ -60,8 +60,8 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
     }
 
     private static ProjectConfiguration readProjectConfiguration(IProject project, PreferenceStore preferences) {
-        String projectDir = preferences.read(PREF_KEY_CONNECTION_PROJECT_DIR);
-        String distribution = preferences.read(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
+        String projectDir = preferences.readString(PREF_KEY_CONNECTION_PROJECT_DIR);
+        String distribution = preferences.readString(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
         boolean overrideWorkspaceSettings = preferences.readBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, false);
         boolean buildScansEnabled = preferences.readBoolean(PREF_KEY_BUILD_SCANS_ENABLED, false);
         boolean offlineMode = preferences.readBoolean(PREF_KEY_OFFLINE_MODE, false);
