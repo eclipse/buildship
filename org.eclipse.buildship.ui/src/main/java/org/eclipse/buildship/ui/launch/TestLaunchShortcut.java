@@ -11,15 +11,16 @@
 
 package org.eclipse.buildship.ui.launch;
 
+import java.util.Collection;
+import java.util.List;
+
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration.ConversionStrategy;
-import org.eclipse.buildship.core.launch.*;
-import org.eclipse.buildship.core.util.file.FileUtils;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.jdt.core.IMethod;
@@ -30,8 +31,13 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 
-import java.util.Collection;
-import java.util.List;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.launch.RunGradleJvmTestLaunchRequestJob;
+import org.eclipse.buildship.core.launch.TestMethod;
+import org.eclipse.buildship.core.launch.TestTarget;
+import org.eclipse.buildship.core.launch.TestType;
+import org.eclipse.buildship.core.util.file.FileUtils;
 
 /**
  * Shortcut for Gradle test launches from the Java editor or from the current selection.
@@ -66,7 +72,7 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
 
     @SuppressWarnings("ConstantConditions")
     private GradleRunConfigurationAttributes collectRunConfigurationAttributes(IProject project) {
-        FixedRequestAttributes requestAttributes = CorePlugin.projectConfigurationManager().readProjectConfiguration(project).toRequestAttributes(ConversionStrategy.IGNORE_PROJECT_SETTINGS);
+        FixedRequestAttributes requestAttributes = CorePlugin.projectConfigurationManager().readProjectConfiguration(project).toRequestAttributes();
 
         // configure the project directory
         String projectDir = requestAttributes.getProjectDir().getAbsolutePath();

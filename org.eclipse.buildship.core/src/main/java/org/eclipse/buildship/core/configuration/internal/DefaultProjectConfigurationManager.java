@@ -23,7 +23,6 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration.ConversionStrategy;
 import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
@@ -42,6 +41,8 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
 
     @Override
     public ImmutableSet<ProjectConfiguration> getRootProjectConfigurations() {
+        // TODO (donat) this has to be cleaned up
+
         // collect all Gradle root project configurations in the workspace by asking each Eclipse
         // project with a Gradle nature for the Gradle root project it belongs to
         ImmutableSet.Builder<ProjectConfiguration> rootConfigurations = ImmutableSet.builder();
@@ -64,7 +65,7 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
         // changed/corrupted manually
         Map<String, ProjectConfiguration> rootProjectDirs = Maps.newHashMap();
         for (ProjectConfiguration rootProjectConfiguration : rootConfigurations.build()) {
-            String rootProjectDirPath = rootProjectConfiguration.toRequestAttributes(ConversionStrategy.IGNORE_PROJECT_SETTINGS).getProjectDir().getAbsolutePath();
+            String rootProjectDirPath = rootProjectConfiguration.toRequestAttributes().getProjectDir().getAbsolutePath();
             if (!rootProjectDirs.containsKey(rootProjectDirPath)) {
                 rootProjectDirs.put(rootProjectDirPath, rootProjectConfiguration);
             } else {

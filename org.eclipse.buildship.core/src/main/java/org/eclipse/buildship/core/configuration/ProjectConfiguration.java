@@ -30,28 +30,6 @@ import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuild
  */
 public final class ProjectConfiguration {
 
-    /**
-     * Strategy that defines whether the workspace settings should be merged when a
-     * ProjectConfiguration instance is converted to FixedRequestAttributes.
-     */
-    public enum ConversionStrategy {
-        MERGE_PROJECT_SETTINGS {
-            @Override
-            protected FixedRequestAttributesBuilder getFixedRequestAttributesBuilder(IProject project) {
-                return FixedRequestAttributesBuilder.fromProjectSettings(project);
-            }
-        },
-
-        IGNORE_PROJECT_SETTINGS {
-            @Override
-            protected FixedRequestAttributesBuilder getFixedRequestAttributesBuilder(IProject project) {
-                return FixedRequestAttributesBuilder.fromEmptySettings(project.getLocation().toFile());
-            }
-        };
-
-        protected abstract FixedRequestAttributesBuilder getFixedRequestAttributesBuilder(IProject project);
-    }
-
     private final IProject project;
     private final File rootProjectDirectory;
     private final GradleDistribution gradleDistribution;
@@ -76,8 +54,8 @@ public final class ProjectConfiguration {
         }
     }
 
-    public FixedRequestAttributes toRequestAttributes(ConversionStrategy strategy) {
-        return strategy.getFixedRequestAttributesBuilder(this.project).gradleDistribution(this.gradleDistribution).build();
+    public FixedRequestAttributes toRequestAttributes() {
+        return FixedRequestAttributesBuilder.fromProjectSettings(this.project).build();
     }
 
     public IProject getProject() {
@@ -123,15 +101,13 @@ public final class ProjectConfiguration {
         return Objects.hashCode(this.project, this.rootProjectDirectory, this.gradleDistribution, this.overrideWorkspaceSettings, this.buildScansEnabled, this.offlineMode);
     }
 
-    // TODO (donat) the factory arguments doesn't match the functionality. Perhaps we should introduce a builder here
-
     public static ProjectConfiguration fromWorkspaceConfig(IProject project, File rootProjectDir, GradleDistribution gradleDistribution) {
-        WorkspaceConfiguration wsConfig = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
-        return new ProjectConfiguration(project, rootProjectDir, gradleDistribution, false, wsConfig.isBuildScansEnabled(), wsConfig.isOffline());
+        WorkspaceConfiguration configuration = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
+        return new ProjectConfiguration(project, rootProjectDir, gradleDistribution, false, configuration.isBuildScansEnabled(), configuration.isOffline());
     }
 
     public static ProjectConfiguration fromProjectConfig(ProjectConfiguration configuration, File rootProjectDir, GradleDistribution gradleDistribution) {
-        return from(configuration.project, rootProjectDir, gradleDistribution, configuration.isOverrideWorkspaceSettings(), configuration.isBuildScansEnabled(), configuration.isOfflineMode());
+        return new ProjectConfiguration(configuration.project, rootProjectDir, gradleDistribution, configuration.isOverrideWorkspaceSettings(), configuration.isBuildScansEnabled(), configuration.isOfflineMode());
     }
 
     public static ProjectConfiguration from(IProject project, File rootProjectDir, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings, boolean buildScansEnabled, boolean offlineMode) {

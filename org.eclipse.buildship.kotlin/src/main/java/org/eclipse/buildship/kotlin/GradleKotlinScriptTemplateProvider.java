@@ -27,7 +27,6 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import org.eclipse.core.resources.IFile;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration.ConversionStrategy;
 
 /**
  * Contributes the Gradle Kotlin Script template to the Kotlin Eclipse integration.
@@ -91,7 +90,7 @@ public class GradleKotlinScriptTemplateProvider implements ScriptTemplateProvide
     @Override
     public Map<String, Object> getEnvironment(IFile file) {
         HashMap<String, Object> environment = new HashMap<String, Object>();
-        FixedRequestAttributes attributes = CorePlugin.projectConfigurationManager().readProjectConfiguration(file.getProject()).toRequestAttributes(ConversionStrategy.MERGE_PROJECT_SETTINGS);
+        FixedRequestAttributes attributes = CorePlugin.projectConfigurationManager().readProjectConfiguration(file.getProject()).toRequestAttributes();
         File gradleDistributionDir;
         try {
             // see https://github.com/gradle/gradle-script-kotlin/issues/266

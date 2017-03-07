@@ -107,6 +107,7 @@ public final class FixedRequestAttributesBuilder {
         WorkspaceConfiguration workspaceConfig = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
         ProjectConfiguration projectConfig = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
         return fromEmptySettings(projectConfig.getRootProjectDirectory())
+                .gradleDistribution(projectConfig.getGradleDistribution())
                 .gradleUserHome(workspaceConfig.getGradleUserHome())
                 .offlineMode(projectConfig.isOfflineMode())
                 .buildScansEnabled(projectConfig.isBuildScansEnabled())
