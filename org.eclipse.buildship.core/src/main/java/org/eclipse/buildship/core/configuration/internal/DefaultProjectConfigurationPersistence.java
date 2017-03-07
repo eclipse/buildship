@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 
@@ -73,8 +72,7 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
         if (overrideWorkspaceSettings) {
             return ProjectConfiguration.from(project, rootDir, gradleDistribution, overrideWorkspaceSettings, buildScansEnabled, offlineMode);
         } else {
-            WorkspaceConfiguration workspaceConfig = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
-            return ProjectConfiguration.from(project, rootDir, gradleDistribution, false, workspaceConfig.isBuildScansEnabled(), workspaceConfig.isOffline());
+            return ProjectConfiguration.fromWorkspaceConfig(project, rootDir, gradleDistribution);
         }
     }
 

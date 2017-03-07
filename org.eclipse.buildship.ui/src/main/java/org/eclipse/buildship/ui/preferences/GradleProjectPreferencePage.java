@@ -84,6 +84,7 @@ public final class GradleProjectPreferencePage extends PropertyPage {
 
     @Override
     public boolean performOk() {
+       // TODO (donat) we should save the preference for all subprojects
        IProject project = (IProject) Platform.getAdapterManager().getAdapter(getElement(), IProject.class);
        ProjectConfigurationManager configurationManager = CorePlugin.projectConfigurationManager();
        ProjectConfiguration configuration = configurationManager.readProjectConfiguration(project);

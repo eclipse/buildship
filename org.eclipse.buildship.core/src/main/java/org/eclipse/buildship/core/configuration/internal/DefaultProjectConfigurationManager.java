@@ -51,8 +51,9 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
                 Optional<ProjectConfiguration> projectConfiguration = tryReadProjectConfiguration(workspaceProject);
                 if (projectConfiguration.isPresent()) {
                     ProjectConfiguration config = projectConfiguration.get();
-                    ProjectConfiguration rootProjectConfiguration = ProjectConfiguration.from(workspaceProject, config.getRootProjectDirectory(), config.getGradleDistribution(), config.isOverrideWorkspaceSettings(), config.isBuildScansEnabled(), config.isOfflineMode());
-                    rootConfigurations.add(rootProjectConfiguration);
+                    if (config.getRootProjectDirectory().equals(workspaceProject.getLocation().toFile())) {
+                        rootConfigurations.add(config);
+                    }
                 }
             }
         }
