@@ -156,7 +156,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
             public boolean apply(IProject project) {
                 Optional<ProjectConfiguration> projectConfiguration = CorePlugin.projectConfigurationManager().tryReadProjectConfiguration(project);
                 return projectConfiguration.isPresent()
-                        && projectConfiguration.get().toRequestAttributes(ConversionStrategy.MERGE_WORKSPACE_SETTINGS).getProjectDir().equals(SynchronizeGradleBuildOperation.this.build.getProjectDir())
+                        && projectConfiguration.get().toRequestAttributes(ConversionStrategy.MERGE_PROJECT_SETTINGS).getProjectDir().equals(SynchronizeGradleBuildOperation.this.build.getProjectDir())
                         && (project.getLocation() == null || !gradleProjectDirectories.contains(project.getLocation().toFile()));
             }
         }).toList();
@@ -198,8 +198,8 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         // TODO (donat) merge project and import configuration properly
         Optional<ProjectConfiguration> existingConfig = CorePlugin.projectConfigurationManager().tryReadProjectConfiguration(workspaceProject);
         ProjectConfiguration configuration = existingConfig.isPresent()
-            ? ProjectConfiguration.from(this.build, project, existingConfig.get().isOverrideWorkspaceSettings(), existingConfig.get().isBuildScansEnabled(), existingConfig.get().isOfflineMode())
-            : ProjectConfiguration.from(this.build, project);
+            ? ProjectConfiguration.from(workspaceProject, this.build, project, existingConfig.get().isOverrideWorkspaceSettings(), existingConfig.get().isBuildScansEnabled(), existingConfig.get().isOfflineMode())
+            : ProjectConfiguration.from(workspaceProject, this.build, project);
         CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, workspaceProject);
 
         PersistentModelBuilder persistentModel = new PersistentModelBuilder(CorePlugin.modelPersistence().loadModel(workspaceProject));

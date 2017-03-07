@@ -91,7 +91,7 @@ public class GradleKotlinScriptTemplateProvider implements ScriptTemplateProvide
     @Override
     public Map<String, Object> getEnvironment(IFile file) {
         HashMap<String, Object> environment = new HashMap<String, Object>();
-        FixedRequestAttributes attributes = CorePlugin.projectConfigurationManager().readProjectConfiguration(file.getProject()).toRequestAttributes(ConversionStrategy.MERGE_WORKSPACE_SETTINGS);
+        FixedRequestAttributes attributes = CorePlugin.projectConfigurationManager().readProjectConfiguration(file.getProject()).toRequestAttributes(ConversionStrategy.MERGE_PROJECT_SETTINGS);
         File gradleDistributionDir;
         try {
             // see https://github.com/gradle/gradle-script-kotlin/issues/266

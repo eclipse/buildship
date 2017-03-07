@@ -51,7 +51,7 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
                 Optional<ProjectConfiguration> projectConfiguration = tryReadProjectConfiguration(workspaceProject);
                 if (projectConfiguration.isPresent()) {
                     ProjectConfiguration config = projectConfiguration.get();
-                    ProjectConfiguration rootProjectConfiguration = ProjectConfiguration.from(config.getRootProjectDirectory(), config.getGradleDistribution(), config.isOverrideWorkspaceSettings(), config.isBuildScansEnabled(), config.isOfflineMode());
+                    ProjectConfiguration rootProjectConfiguration = ProjectConfiguration.from(workspaceProject, config.getRootProjectDirectory(), config.getGradleDistribution(), config.isOverrideWorkspaceSettings(), config.isBuildScansEnabled(), config.isOfflineMode());
                     rootConfigurations.add(rootProjectConfiguration);
                 }
             }
@@ -63,7 +63,7 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
         // changed/corrupted manually
         Map<String, ProjectConfiguration> rootProjectDirs = Maps.newHashMap();
         for (ProjectConfiguration rootProjectConfiguration : rootConfigurations.build()) {
-            String rootProjectDirPath = rootProjectConfiguration.toRequestAttributes(ConversionStrategy.IGNORE_WORKSPACE_SETTINGS).getProjectDir().getAbsolutePath();
+            String rootProjectDirPath = rootProjectConfiguration.toRequestAttributes(ConversionStrategy.IGNORE_PROJECT_SETTINGS).getProjectDir().getAbsolutePath();
             if (!rootProjectDirs.containsKey(rootProjectDirPath)) {
                 rootProjectDirs.put(rootProjectDirPath, rootProjectConfiguration);
             } else {

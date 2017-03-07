@@ -21,6 +21,8 @@ import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
+import org.eclipse.core.resources.IProject;
+
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder;
 
@@ -29,37 +31,37 @@ import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuild
  */
 public final class ProjectConfiguration {
 
-    // TODO (donat) should reference the represented IProject in order to use FRAB.fromProjectSetttings()
-
     /**
      * Strategy that defines whether the workspace settings should be merged when a
      * ProjectConfiguration instance is converted to FixedRequestAttributes.
      */
     public enum ConversionStrategy {
-        MERGE_WORKSPACE_SETTINGS {
+        MERGE_PROJECT_SETTINGS {
             @Override
-            protected FixedRequestAttributesBuilder getFixedRequestAttributesBuilder(File rootDir) {
-                return FixedRequestAttributesBuilder.fromWorkspaceSettings(rootDir);
+            protected FixedRequestAttributesBuilder getFixedRequestAttributesBuilder(IProject project) {
+                return FixedRequestAttributesBuilder.fromProjectSettings(project);
             }
         },
 
-        IGNORE_WORKSPACE_SETTINGS {
+        IGNORE_PROJECT_SETTINGS {
             @Override
-            protected FixedRequestAttributesBuilder getFixedRequestAttributesBuilder(File rootDir) {
-                return FixedRequestAttributesBuilder.fromEmptySettings(rootDir);
+            protected FixedRequestAttributesBuilder getFixedRequestAttributesBuilder(IProject project) {
+                return FixedRequestAttributesBuilder.fromEmptySettings(project.getLocation().toFile());
             }
         };
 
-        protected abstract FixedRequestAttributesBuilder getFixedRequestAttributesBuilder(File rootDir);
+        protected abstract FixedRequestAttributesBuilder getFixedRequestAttributesBuilder(IProject project);
     }
 
+    private final IProject workspaceProject;
     private final File rootProjectDirectory;
     private final GradleDistribution gradleDistribution;
     private final boolean overrideWorkspaceSettings;
     private final boolean buildScansEnabled;
     private final boolean offlineMode;
 
-    private ProjectConfiguration(File rootProjectDirectory, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings, boolean buildScansEnabled, boolean offlineMode) {
+    private ProjectConfiguration(IProject workspaceProject, File rootProjectDirectory, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings, boolean buildScansEnabled, boolean offlineMode) {
+        this.workspaceProject = Preconditions.checkNotNull(workspaceProject);
         this.rootProjectDirectory = canonicalize(rootProjectDirectory);
         this.gradleDistribution = Preconditions.checkNotNull(gradleDistribution);
         this.overrideWorkspaceSettings = overrideWorkspaceSettings;
@@ -76,7 +78,7 @@ public final class ProjectConfiguration {
     }
 
     public FixedRequestAttributes toRequestAttributes(ConversionStrategy strategy) {
-        return strategy.getFixedRequestAttributesBuilder(this.rootProjectDirectory).gradleDistribution(this.gradleDistribution).build();
+        return strategy.getFixedRequestAttributesBuilder(this.workspaceProject).gradleDistribution(this.gradleDistribution).build();
     }
 
     public File getRootProjectDirectory() {
@@ -103,7 +105,8 @@ public final class ProjectConfiguration {
     public boolean equals(Object obj) {
         if (obj instanceof ProjectConfiguration) {
             ProjectConfiguration other = (ProjectConfiguration) obj;
-            return Objects.equal(this.rootProjectDirectory, other.rootProjectDirectory)
+            return Objects.equal(this.workspaceProject, other.workspaceProject)
+                    && Objects.equal(this.rootProjectDirectory, other.rootProjectDirectory)
                     && Objects.equal(this.gradleDistribution, other.gradleDistribution)
                     && Objects.equal(this.overrideWorkspaceSettings, other.overrideWorkspaceSettings)
                     && Objects.equal(this.buildScansEnabled, other.buildScansEnabled)
@@ -114,20 +117,24 @@ public final class ProjectConfiguration {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.rootProjectDirectory, this.gradleDistribution, this.overrideWorkspaceSettings, this.buildScansEnabled, this.offlineMode);
+        return Objects.hashCode(this.workspaceProject, this.rootProjectDirectory, this.gradleDistribution, this.overrideWorkspaceSettings, this.buildScansEnabled, this.offlineMode);
     }
 
-    public static ProjectConfiguration from(FixedRequestAttributes build, OmniEclipseProject project) {
+    // TODO (donat) do we really need all these static factories?
+    // TODO (donat) there are some redundant arguments below
+    // TODO (donat) consolidate argument names
+
+    public static ProjectConfiguration from(IProject workspaceProject, FixedRequestAttributes build, OmniEclipseProject project) {
         WorkspaceConfiguration wsConfig = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
-        return from(build, project, false, wsConfig.isBuildScansEnabled(), wsConfig.isOffline());
+        return from(workspaceProject, build, project, false, wsConfig.isBuildScansEnabled(), wsConfig.isOffline());
     }
 
-    public static ProjectConfiguration from(FixedRequestAttributes build, OmniEclipseProject project, boolean overrideWorkspaceSettings, boolean buildScansEnabled, boolean offlineMode) {
-        return from(build.getProjectDir(), build.getGradleDistribution(), overrideWorkspaceSettings, buildScansEnabled, offlineMode);
+    public static ProjectConfiguration from(IProject workspaceProject, FixedRequestAttributes build, OmniEclipseProject project, boolean overrideWorkspaceSettings, boolean buildScansEnabled, boolean offlineMode) {
+        return from(workspaceProject, build.getProjectDir(), build.getGradleDistribution(), overrideWorkspaceSettings, buildScansEnabled, offlineMode);
     }
 
-    public static ProjectConfiguration from(File rootProjectDir, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings, boolean buildScansEnabled, boolean offlineMode) {
-        return new ProjectConfiguration(rootProjectDir, gradleDistribution, overrideWorkspaceSettings, buildScansEnabled, offlineMode);
+    public static ProjectConfiguration from(IProject workspaceProject, File rootProjectDir, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings, boolean buildScansEnabled, boolean offlineMode) {
+        return new ProjectConfiguration(workspaceProject, rootProjectDir, gradleDistribution, overrideWorkspaceSettings, buildScansEnabled, offlineMode);
     }
 
 }
