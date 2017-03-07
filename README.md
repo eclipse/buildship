@@ -29,7 +29,7 @@ We are very interested in feedback from the Gradle and Eclipse communities. All 
 
 ## Issue Tracking
 
-Issues are tracked on GitHub. Add your :thumbsup: for issues that you care about to help us prioritize them.
+Issues are tracked on GitHub. Add your :thumbsup: for issues that you care about to help us prioritize them. If you want to follow our priorities and progress, install the [ZenHub](https://www.zenhub.io) extension and have a look at our [board](https://github.com/eclipse/buildship#boards).
 
 ## License
 

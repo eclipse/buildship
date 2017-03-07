@@ -7,15 +7,20 @@ buildscript {
 apply plugin: eclipsebuild.BundlePlugin
 apply plugin: 'kotlin'
 
+configurations {
+    lib
+}
+
 dependencies {
     compile "org.gradle:gradle-core:$toolingApiVersion"
     compile "org.gradle:gradle-process-services:$toolingApiVersion"
     compile "org.gradle:gradle-tooling-api:$toolingApiVersion"
-    compile "org.gradle:gradle-script-kotlin:0.8.0-SNAPSHOT"
+    compile fileTree(dir: '.', include: ['*.jar'])
+    lib "org.gradle:gradle-script-kotlin:0.8.0-SNAPSHOT"
 }
 
 task updateBundledJars(type: Copy) {
-    into 'lib'
+    into '.'
     from configurations.compile.filter { it.name.startsWith('gradle-script-kotlin') }
     from configurations.compile.filter { it.name.startsWith('gradle-core') }
 }

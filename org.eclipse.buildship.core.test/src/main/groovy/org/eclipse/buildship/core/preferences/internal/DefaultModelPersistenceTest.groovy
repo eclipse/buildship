@@ -1,5 +1,7 @@
 package org.eclipse.buildship.core.preferences.internal
 
+import spock.lang.Issue
+
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
@@ -104,5 +106,18 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         model.classpath == classpath
         model.derivedResources == derivedResources
         model.linkedResources == linkedResources
+    }
+
+    @Issue('https://github.com/eclipse/buildship/issues/404')
+    def "Cached absent model is not persisted"() {
+        setup:
+        DefaultModelPersistence persistence = CorePlugin.modelPersistence()
+        persistence.loadModel(project)
+
+        when:
+        persistence.persistAllProjectPrefs()
+
+        then:
+        notThrown RuntimeException
     }
 }

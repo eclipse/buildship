@@ -15,6 +15,8 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
+import org.eclipse.core.runtime.jobs.Job;
+
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.GradleBuild;
@@ -46,6 +48,21 @@ public class DefaultGradleBuild implements GradleBuild {
     @Override
     public void synchronize(NewProjectHandler newProjectHandler, AsyncHandler initializer) {
         SynchronizeGradleBuildsJob.forSingleGradleBuild(this, newProjectHandler, initializer).schedule();
+    }
+
+    @Override
+    public boolean isSyncRunning() {
+        Job[] syncJobs = Job.getJobManager().find(CorePlugin.GRADLE_JOB_FAMILY);
+        for (Job job : syncJobs) {
+            if (job instanceof SynchronizeGradleBuildsJob) {
+                for (GradleBuild gradleBuild : ((SynchronizeGradleBuildsJob) job).getBuilds()) {
+                    if (gradleBuild.getRequestAttributes().getProjectDir().equals(this.attributes.getProjectDir())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     @Override
