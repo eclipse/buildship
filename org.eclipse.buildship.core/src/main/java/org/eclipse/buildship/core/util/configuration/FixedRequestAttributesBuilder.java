@@ -24,12 +24,9 @@ import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 
 /**
- *
- * Builder object for {@link FixedRequestAttributes}. The {@link #fromEmptySettings(File)} creates an empty builder object,
- * whereas the object created by {@link #fromWorkspaceSettings(File)} is preconfigured with the workspace settings.
+ * Builder class for {@link FixedRequestAttributes}.
  *
  * @author Donat Csikos
- * TODO (donat) adjust javadoc
  */
 public final class FixedRequestAttributesBuilder {
 
