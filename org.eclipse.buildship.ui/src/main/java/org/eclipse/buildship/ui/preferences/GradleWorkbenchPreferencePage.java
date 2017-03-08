@@ -42,7 +42,7 @@ import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.buildship.ui.launch.LaunchMessages;
 import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.font.FontUtils;
-import org.eclipse.buildship.ui.util.widget.GradleHoverHelp;
+import org.eclipse.buildship.ui.util.widget.HoverText;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
 
 /**
@@ -89,7 +89,7 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
     private void createBuildScansCheckbox(Composite parent) {
         this.buildScansCheckbox = new Button(parent, SWT.CHECK);
         this.buildScansCheckbox.setText(CoreMessages.Preference_Label_BuildScans);
-        GradleHoverHelp.createAndAttach(this.buildScansCheckbox, CoreMessages.Preference_Label_BuildScansHover);
+        HoverText.createAndAttach(this.buildScansCheckbox, CoreMessages.Preference_Label_BuildScansHover);
     }
 
     private Group createGroup(Composite parent, String groupName) {
