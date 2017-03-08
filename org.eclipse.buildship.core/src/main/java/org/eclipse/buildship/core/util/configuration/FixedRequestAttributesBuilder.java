@@ -34,6 +34,8 @@ public final class FixedRequestAttributesBuilder {
     private File javaHome = null;
     private final List<String> jvmArguments = Lists.newArrayList();
     private final List<String> arguments = Lists.newArrayList();
+    private boolean isOfflineMode = false;
+    private boolean isBuildScansEnabled = false;
 
     private FixedRequestAttributesBuilder(File projectDir) {
         this.projectDir = Preconditions.checkNotNull(projectDir);
@@ -64,8 +66,26 @@ public final class FixedRequestAttributesBuilder {
         return this;
     }
 
+    public FixedRequestAttributesBuilder offlineMode(boolean isOfflineMode) {
+        this.isOfflineMode = isOfflineMode;
+        return this;
+    }
+
+    public FixedRequestAttributesBuilder buildScansEnabled(boolean isBuildScansEnabled) {
+        this.isBuildScansEnabled = isBuildScansEnabled;
+        return this;
+    }
+
     public FixedRequestAttributes build() {
-        return new FixedRequestAttributes(this.projectDir, this.gradleUserHome, this.gradleDistribution, this.javaHome, Lists.newArrayList(this.jvmArguments), Lists.newArrayList(this.arguments));
+        List<String> jvmArgs = Lists.newArrayList(this.jvmArguments);
+        List<String> args = Lists.newArrayList(this.arguments);
+        if (this.isBuildScansEnabled) {
+            jvmArgs.add("-Dscans");
+        }
+        if (this.isOfflineMode) {
+            args.add("--offline");
+        }
+        return new FixedRequestAttributes(this.projectDir, this.gradleUserHome, this.gradleDistribution, this.javaHome, jvmArgs, args);
     }
 
     public static FixedRequestAttributesBuilder fromEmptySettings(File projectDir) {
@@ -73,16 +93,11 @@ public final class FixedRequestAttributesBuilder {
     }
 
     public static FixedRequestAttributesBuilder fromWorkspaceSettings(File projectDir) {
-        FixedRequestAttributesBuilder result = fromEmptySettings(projectDir);
         WorkspaceConfiguration configuration = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
-        result.gradleUserHome(configuration.getGradleUserHome());
-        if (configuration.isOffline()) {
-            result.arguments.add("--offline");
-        }
-        if (configuration.isBuildScansEnabled()) {
-            result.jvmArguments.add("-Dscan");
-        }
-        result.arguments(CorePlugin.invocationCustomizer().getExtraArguments());
-        return result;
+        return fromEmptySettings(projectDir)
+                .gradleUserHome(configuration.getGradleUserHome())
+                .offlineMode(configuration.isOffline())
+                .buildScansEnabled(configuration.isBuildScansEnabled())
+                .arguments(CorePlugin.invocationCustomizer().getExtraArguments());
      }
 }
