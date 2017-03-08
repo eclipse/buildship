@@ -28,8 +28,11 @@ class ConnectionAwareTestLauncherDelegate extends ConnectionAwareLongRunningOper
 
     @Override
     public void run() {
-        this.delegate.run();
-        this.connection.close();
+        try {
+            this.delegate.run();
+        } finally {
+            this.connection.close();
+        }
     }
 
     @Override
@@ -38,14 +41,20 @@ class ConnectionAwareTestLauncherDelegate extends ConnectionAwareLongRunningOper
 
             @Override
             public void onComplete(Void result) {
-                resultHandler.onComplete(result);
+                try {
+                    resultHandler.onComplete(result);
+                } finally {
                 ConnectionAwareTestLauncherDelegate.this.connection.close();
+                }
             }
 
             @Override
             public void onFailure(GradleConnectionException exception) {
-                resultHandler.onFailure(exception);
-                ConnectionAwareTestLauncherDelegate.this.connection.close();
+                try {
+                    resultHandler.onFailure(exception);
+                } finally {
+                    ConnectionAwareTestLauncherDelegate.this.connection.close();
+                }
             }
         });
     }

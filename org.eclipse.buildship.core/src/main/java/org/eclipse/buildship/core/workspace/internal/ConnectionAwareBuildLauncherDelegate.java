@@ -29,8 +29,11 @@ final class ConnectionAwareBuildLauncherDelegate extends ConnectionAwareLongRunn
 
     @Override
     public void run() {
-        this.delegate.run();
-        this.connection.close();
+        try {
+            this.delegate.run();
+        } finally {
+            this.connection.close();
+        }
     }
 
     @Override
@@ -39,14 +42,20 @@ final class ConnectionAwareBuildLauncherDelegate extends ConnectionAwareLongRunn
 
             @Override
             public void onComplete(Void result) {
-                resultHandler.onComplete(result);
-                ConnectionAwareBuildLauncherDelegate.this.connection.close();
+                try {
+                    resultHandler.onComplete(result);
+                } finally {
+                    ConnectionAwareBuildLauncherDelegate.this.connection.close();
+                }
             }
 
             @Override
             public void onFailure(GradleConnectionException exception) {
-                resultHandler.onFailure(exception);
-            ConnectionAwareBuildLauncherDelegate.this.connection.close();
+                try {
+                    resultHandler.onFailure(exception);
+                } finally {
+                    ConnectionAwareBuildLauncherDelegate.this.connection.close();
+                }
             }
         });
     }
