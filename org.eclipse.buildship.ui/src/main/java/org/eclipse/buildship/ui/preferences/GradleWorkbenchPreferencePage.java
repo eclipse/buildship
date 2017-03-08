@@ -42,6 +42,7 @@ import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.buildship.ui.launch.LaunchMessages;
 import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.font.FontUtils;
+import org.eclipse.buildship.ui.util.widget.GradleHoverHelp;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
 
 /**
@@ -56,6 +57,7 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
 
     private Text gradleUserHomeText;
     private Button offlineModeCheckbox;
+    private Button buildScansCheckbox;
 
     public GradleWorkbenchPreferencePage() {
         this.defaultFont = FontUtils.getDefaultDialogFont();
@@ -72,15 +74,22 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
         Group gradleUserHomeGroup = createGroup(page, CoreMessages.Preference_Label_GradleUserHome + ":");
         createGradleUserHomeSelectionControl(gradleUserHomeGroup);
         createOfflineModeCheckbox(page);
+        createBuildScansCheckbox(page);
 
         initFields();
 
         return page;
     }
 
-    private void createOfflineModeCheckbox(Composite page) {
-        this.offlineModeCheckbox = new Button(page, SWT.CHECK);
+    private void createOfflineModeCheckbox(Composite parent) {
+        this.offlineModeCheckbox = new Button(parent, SWT.CHECK);
         this.offlineModeCheckbox.setText(CoreMessages.Preference_Label_OfflineMode);
+    }
+
+    private void createBuildScansCheckbox(Composite parent) {
+        this.buildScansCheckbox = new Button(parent, SWT.CHECK);
+        this.buildScansCheckbox.setText(CoreMessages.Preference_Label_BuildScans);
+        GradleHoverHelp.createAndAttach(this.buildScansCheckbox, CoreMessages.Preference_Label_BuildScansHover);
     }
 
     private Group createGroup(Composite parent, String groupName) {
@@ -138,7 +147,9 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
     @Override
     public boolean performOk() {
         String gradleUserHome = this.gradleUserHomeText.getText();
-        WorkspaceConfiguration config = new WorkspaceConfiguration(gradleUserHome.isEmpty() ? null : new File(gradleUserHome), this.offlineModeCheckbox.getSelection());
+        WorkspaceConfiguration config = new WorkspaceConfiguration(gradleUserHome.isEmpty() ? null : new File(gradleUserHome),
+                                                                   this.offlineModeCheckbox.getSelection(),
+                                                                   this.buildScansCheckbox.getSelection());
         CorePlugin.workspaceConfigurationManager().saveWorkspaceConfiguration(config);
         return super.performOk();
     }

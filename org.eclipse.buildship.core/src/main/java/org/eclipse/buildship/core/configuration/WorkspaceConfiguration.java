@@ -21,10 +21,12 @@ public final class WorkspaceConfiguration {
 
     private final File gradleUserHome;
     private final boolean gradleIsOffline;
+    private final boolean buildScansEnabled;
 
-    public WorkspaceConfiguration(File gradleUserHome, boolean gradleIsOffline) {
+    public WorkspaceConfiguration(File gradleUserHome, boolean gradleIsOffline, boolean buildScansEnabled) {
         this.gradleUserHome = gradleUserHome;
         this.gradleIsOffline = gradleIsOffline;
+        this.buildScansEnabled = buildScansEnabled;
     }
 
     @Nullable
@@ -34,5 +36,9 @@ public final class WorkspaceConfiguration {
 
     public boolean isOffline() {
         return this.gradleIsOffline;
+    }
+
+    public boolean isBuildScansEnabled() {
+        return this.buildScansEnabled;
     }
 }

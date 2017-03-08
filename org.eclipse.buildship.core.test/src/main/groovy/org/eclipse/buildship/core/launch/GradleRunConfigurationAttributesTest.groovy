@@ -39,7 +39,8 @@ class GradleRunConfigurationAttributesTest extends Specification {
         jvmArguments : ["-ea"],
         showExecutionView :  true,
         showConsoleView : true,
-        useGradleDistributionFromImport : true
+        useGradleDistributionFromImport : true,
+        overrideWorkspaceSettings : false
     )
 
     def "Can create a new valid instance"() {
@@ -235,6 +236,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         def showExecutionView
         def showConsoleView
         def useGradleDistributionFromImport
+        def overrideWorkspaceSettings
 
         def GradleRunConfigurationAttributes toConfiguration() {
             GradleRunConfigurationAttributes.with(tasks, workingDir, gradleDistr, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView, useGradleDistributionFromImport)

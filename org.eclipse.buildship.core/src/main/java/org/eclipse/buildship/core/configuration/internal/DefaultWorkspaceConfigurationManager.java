@@ -30,13 +30,15 @@ public class DefaultWorkspaceConfigurationManager implements WorkspaceConfigurat
 
     private static final String GRADLE_USER_HOME = "gradle.user.home";
     private static final String GRADLE_OFFLINE_MODE = "gradle.offline.mode";
+    private static final String GRADLE_BUILD_SCANS = "gradle.build.scans";
 
     @Override
     public WorkspaceConfiguration loadWorkspaceConfiguration() {
         IEclipsePreferences preferences = getPreferences();
         String userHome = preferences.get(GRADLE_USER_HOME, null);
         boolean offlineMode = preferences.getBoolean(GRADLE_OFFLINE_MODE, false);
-        return new WorkspaceConfiguration(userHome == null ? null : new File(userHome), offlineMode);
+        boolean buildScansEnabled = preferences.getBoolean(GRADLE_BUILD_SCANS, false);
+        return new WorkspaceConfiguration(userHome == null ? null : new File(userHome), offlineMode, buildScansEnabled);
     }
 
     @Override
@@ -49,6 +51,7 @@ public class DefaultWorkspaceConfigurationManager implements WorkspaceConfigurat
             preferences.put(GRADLE_USER_HOME, config.getGradleUserHome().getPath());
         }
         preferences.putBoolean(GRADLE_OFFLINE_MODE, config.isOffline());
+        preferences.putBoolean(GRADLE_BUILD_SCANS, config.isBuildScansEnabled());
         try {
             preferences.flush();
         } catch (BackingStoreException e) {
