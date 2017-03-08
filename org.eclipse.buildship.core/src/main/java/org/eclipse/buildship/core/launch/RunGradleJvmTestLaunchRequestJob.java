@@ -29,19 +29,14 @@ import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.launch.internal.DefaultExecuteLaunchRequestEvent;
 import org.eclipse.buildship.core.workspace.GradleBuild;
-import org.eclipse.buildship.core.workspace.GradleBuild.TestLauncherConfig;
-import org.eclipse.buildship.core.workspace.GradleInvocation;
 
 /**
  * Runs a Gradle test build which executes a list of test classes.
  */
-public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob {
+public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob<TestLauncher> {
 
     private final ImmutableList<TestTarget> testTargets;
     private final GradleRunConfigurationAttributes configurationAttributes;
@@ -75,17 +70,17 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
     }
 
     @Override
-    protected GradleInvocation createInvocation(GradleBuild gradleBuild, TransientRequestAttributes transientAttributes, final ProcessDescription processDescription) {
-        return gradleBuild.newTestInvocation(transientAttributes, new TestLauncherConfig() {
-            @Override
-            public void apply(TestLauncher launcher) {
-                Event event = new DefaultExecuteLaunchRequestEvent(processDescription, launcher);
-                CorePlugin.listenerRegistry().dispatch(event);
-                for (TestTarget testTarget : RunGradleJvmTestLaunchRequestJob.this.testTargets) {
-                    testTarget.apply(launcher);
-                }
-            }
-        });
+    protected TestLauncher createLaunch(GradleBuild gradleBuild, TransientRequestAttributes transientAttributes, final ProcessDescription processDescription) {
+        TestLauncher launcher = gradleBuild.newTestLauncher(transientAttributes);
+        for (TestTarget testTarget : RunGradleJvmTestLaunchRequestJob.this.testTargets) {
+            testTarget.apply(launcher);
+        }
+        return launcher;
+    }
+
+    @Override
+    protected void executeLaunch(TestLauncher launcher) {
+        launcher.run();
     }
 
     @Override

@@ -34,8 +34,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
-import org.eclipse.buildship.core.workspace.GradleBuild.BuildLauncherConfig;
-import org.eclipse.buildship.core.workspace.GradleInvocation;
 
 /**
  * Runs extra tasks that set up the project so it can be used in Eclipse.
@@ -110,14 +108,8 @@ public class RunOnImportTasksOperation {
     }
 
     private void runTasks(final List<String> tasksToRun, IProgressMonitor monitor, CancellationToken token) {
-        GradleInvocation buildInvocation = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.build).newBuildInvocation(getTransientRequestAttributes(token, monitor), new BuildLauncherConfig() {
-
-            @Override
-            public void apply(BuildLauncher launcher) {
-                launcher.forTasks(tasksToRun.toArray(new String[tasksToRun.size()]));
-            }
-        });
-        buildInvocation.executeAndWait();
+        BuildLauncher launcher = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.build).newBuildLauncher(getTransientRequestAttributes(token, monitor));
+        launcher.forTasks(tasksToRun.toArray(new String[tasksToRun.size()])).run();
     }
 
     private TransientRequestAttributes getTransientRequestAttributes(CancellationToken token, IProgressMonitor monitor) {

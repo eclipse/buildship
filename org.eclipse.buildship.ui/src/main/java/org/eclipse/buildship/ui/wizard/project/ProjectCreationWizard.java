@@ -14,7 +14,6 @@ package org.eclipse.buildship.ui.wizard.project;
 import java.io.File;
 import java.util.List;
 
-import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
 
@@ -49,8 +48,6 @@ import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.workspace.GradleBuild;
-import org.eclipse.buildship.core.workspace.GradleBuild.BuildLauncherConfig;
-import org.eclipse.buildship.core.workspace.GradleInvocation;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
@@ -285,14 +282,7 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
                         List<ProgressListener> progressListeners = this.listeners.isPresent() ? this.listeners.get() : ImmutableList.of(DelegatingProgressListener.withFullOutput(monitor));
                         GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.fixedAttributes);
                         TransientRequestAttributes transientAttributes = getTransientRequestAttributes(progressListeners, token, monitor);
-                        GradleInvocation invocation = gradleBuild.newBuildInvocation(transientAttributes, new BuildLauncherConfig() {
-
-                            @Override
-                            public void apply(BuildLauncher launcher) {
-                                launcher.forTasks(tasks.toArray(new String[tasks.size()]));
-                            }
-                        });
-                        invocation.executeAndWait();
+                        gradleBuild.newBuildLauncher(transientAttributes).forTasks(tasks.toArray(new String[tasks.size()])).run();
                     }
                 }
             } finally {

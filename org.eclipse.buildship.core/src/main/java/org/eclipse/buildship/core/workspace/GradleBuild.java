@@ -90,34 +90,20 @@ public interface GradleBuild {
     FixedRequestAttributes getRequestAttributes();
 
     /**
-     * Creates a new Gradle build invocation.
+     * Creates a new Gradle build launcher. The method automatically opens a new Tooling API
+     * connection which is closed after the {@code run()} method is finished.
      *
-     * @param transientAttributes the transient attributes for the invocation
-     * @param config the configuration for the build launcher
-     * @return the object that can run the Gradle build
+     * @param transientAttributes the transient attributes for the launcher.
+     * @return the build launcher
      */
-    GradleInvocation newBuildInvocation(TransientRequestAttributes transientAttributes, BuildLauncherConfig config);
+    BuildLauncher newBuildLauncher(TransientRequestAttributes transientAttributes);
 
     /**
-     * Creates a new Gradle test build invocation.
+     * Creates a new Gradle test launcher. The method automatically opens a new Tooling API
+     * connection which is closed after the {@code run()} method is finished.
      *
-     * @param transientAttributes the transient attributes for the invocation
-     * @param config the configuration for the test launcher
-     * @return the object that can run the Gradle test build
+     * @param transientAttributes the transient attributes for the launcher.
+     * @return the test launcher
      */
-    GradleInvocation newTestInvocation(TransientRequestAttributes transientAttributes, TestLauncherConfig config);
-
-    /**
-     * Configures the build launcher before execution.
-     */
-    public interface BuildLauncherConfig {
-        void apply(BuildLauncher launcher);
-    }
-
-    /**
-     * Configures the test launcher before execution.
-     */
-    public interface TestLauncherConfig {
-        void apply(TestLauncher launcher);
-    }
+    TestLauncher newTestLauncher(TransientRequestAttributes transientAttributes);
 }

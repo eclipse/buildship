@@ -8,6 +8,9 @@
  */
 package org.eclipse.buildship.core.workspace.internal;
 
+import org.gradle.tooling.BuildLauncher;
+import org.gradle.tooling.TestLauncher;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
@@ -20,7 +23,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.GradleBuild;
-import org.eclipse.buildship.core.workspace.GradleInvocation;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
@@ -77,13 +79,13 @@ public class DefaultGradleBuild implements GradleBuild {
     }
 
     @Override
-    public GradleInvocation newBuildInvocation(TransientRequestAttributes transientAttributes, BuildLauncherConfig config) {
-       return new GradleBuildInvocation(this.attributes, transientAttributes,config);
+    public BuildLauncher newBuildLauncher(TransientRequestAttributes transientAttributes) {
+        return ConnectionAwareBuildLauncherDelegate.create(this.attributes, transientAttributes);
     }
 
     @Override
-    public GradleInvocation newTestInvocation(TransientRequestAttributes transientAttributes, TestLauncherConfig config) {
-        return new GradleTestInvocation(this.attributes, transientAttributes, config);
+    public TestLauncher newTestLauncher(TransientRequestAttributes transientAttributes) {
+        return ConnectionAwareTestLauncherDelegate.create(this.attributes, transientAttributes);
     }
 
     @Override

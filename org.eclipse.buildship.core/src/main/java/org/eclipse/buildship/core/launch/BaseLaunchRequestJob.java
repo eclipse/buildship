@@ -17,6 +17,7 @@ import java.io.OutputStreamWriter;
 import java.util.Collections;
 import java.util.List;
 
+import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Preconditions;
@@ -35,21 +36,22 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.internal.BuildExecutionParticipants;
+import org.eclipse.buildship.core.launch.internal.DefaultExecuteLaunchRequestEvent;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.workspace.GradleBuild;
-import org.eclipse.buildship.core.workspace.GradleInvocation;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 
 /**
  * Base class to execute Gradle builds in a job.
  */
-public abstract class BaseLaunchRequestJob extends ToolingApiJob {
+public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> extends ToolingApiJob {
 
     protected BaseLaunchRequestJob(String name, boolean notifyUserAboutBuildFailures) {
         super(name, notifyUserAboutBuildFailures);
@@ -73,14 +75,18 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
         GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(fixedAttributes);
 
         // apply FixedRequestAttributes on build launcher
-        GradleInvocation launcher = createInvocation(gradleBuild, transientAttributes, processDescription);
+        T launcher = createLaunch(gradleBuild, transientAttributes, processDescription);
+
+        // let participants add listeners to the build
+        Event event = new DefaultExecuteLaunchRequestEvent(processDescription, launcher);
+        CorePlugin.listenerRegistry().dispatch(event);
 
         // print the applied run configuration settings at the beginning of the console output
         OutputStreamWriter writer = new OutputStreamWriter(processStreams.getConfiguration());
         writeFixedRequestAttributes(fixedAttributes, writer, monitor);
 
         // execute the build
-        launcher.executeAndWait();
+        executeLaunch(launcher);
     }
 
     private void writeFixedRequestAttributes(FixedRequestAttributes fixedAttributes, OutputStreamWriter writer, IProgressMonitor monitor) {
@@ -155,7 +161,14 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
      *
      * @return the new launcher
      */
-    protected abstract GradleInvocation createInvocation(GradleBuild gradleBuild, TransientRequestAttributes transientAttributes, ProcessDescription processDescription);
+    protected abstract T createLaunch(GradleBuild gradleBuild, TransientRequestAttributes transientAttributes, ProcessDescription processDescription);
+
+    /**
+     * Execute the launcher created by {@code #createLaunch()}.
+     *
+     * @param launcher the launcher to execute
+     */
+    protected abstract void executeLaunch(T launcher);
 
     /**
      * Writes extra information on the configuration console.
