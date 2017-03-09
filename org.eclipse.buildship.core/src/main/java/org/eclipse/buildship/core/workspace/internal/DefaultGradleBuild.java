@@ -85,14 +85,14 @@ public class DefaultGradleBuild implements GradleBuild {
 
     @Override
     public BuildLauncher newBuildLauncher(TransientRequestAttributes transientAttributes) {
-        BuildLauncher launcher = new ConnectionAwareBuildLauncherDelegate(openConnection(this.attributes));
+        BuildLauncher launcher = ConnectionAwareLauncherProxy.newBuildLauncher(openConnection(this.attributes));
         applyRequestAttributes(launcher, this.attributes, transientAttributes);
         return launcher;
     }
 
     @Override
     public TestLauncher newTestLauncher(TransientRequestAttributes transientAttributes) {
-        TestLauncher launcher = new ConnectionAwareTestLauncherDelegate(openConnection(this.attributes));
+        TestLauncher launcher = ConnectionAwareLauncherProxy.newTestLauncher(openConnection(this.attributes));
         applyRequestAttributes(launcher, this.attributes, transientAttributes);
         return launcher;
     }
