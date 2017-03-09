@@ -48,7 +48,7 @@ public final class SubProjectViewerFilter extends ViewerFilter {
             PersistentModel model = CorePlugin.modelPersistence().loadModel(folder.getProject());
             if (model.isPresent()) {
                 Collection<IPath> paths = model.getSubprojectPaths();
-                return paths != null && paths.contains(folder.getFullPath());
+                return paths != null && paths.contains(folder.getProjectRelativePath());
             } else {
                 return false;
             }
