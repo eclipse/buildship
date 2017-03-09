@@ -9,6 +9,8 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import org.gradle.tooling.BuildLauncher;
+import org.gradle.tooling.GradleConnector;
+import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.TestLauncher;
 
 import com.google.common.base.Objects;
@@ -21,6 +23,7 @@ import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.ModelProvider;
@@ -80,12 +83,19 @@ public class DefaultGradleBuild implements GradleBuild {
 
     @Override
     public BuildLauncher newBuildLauncher(TransientRequestAttributes transientAttributes) {
-        return ConnectionAwareBuildLauncherDelegate.create(this.attributes, transientAttributes);
+        return ConnectionAwareBuildLauncherDelegate.create(openConnection(this.attributes), this.attributes, transientAttributes);
     }
 
     @Override
     public TestLauncher newTestLauncher(TransientRequestAttributes transientAttributes) {
-        return ConnectionAwareTestLauncherDelegate.create(this.attributes, transientAttributes);
+        return ConnectionAwareTestLauncherDelegate.create(openConnection(this.attributes), this.attributes, transientAttributes);
+    }
+
+    private static ProjectConnection openConnection(FixedRequestAttributes fixedAttributes) {
+        GradleConnector connector = GradleConnector.newConnector().forProjectDirectory(fixedAttributes.getProjectDir());
+        GradleDistributionWrapper.from(fixedAttributes.getGradleDistribution()).apply(connector);
+        connector.useGradleUserHomeDir(fixedAttributes.getGradleUserHome());
+        return connector.connect();
     }
 
     @Override

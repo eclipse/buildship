@@ -61,8 +61,7 @@ class ConnectionAwareTestLauncherDelegate extends ConnectionAwareLongRunningOper
 
     // -- delegate methods --
 
-    static TestLauncher create(FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientAttributes) {
-        ProjectConnection connection = openConnection(fixedAttributes);
+    static TestLauncher create(ProjectConnection connection, FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientAttributes) {
         TestLauncher launcher = connection.newTestLauncher();
         ConnectionAwareTestLauncherDelegate result = new ConnectionAwareTestLauncherDelegate(connection, launcher);
         result.applyRequestAttributes(fixedAttributes, transientAttributes);

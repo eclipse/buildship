@@ -60,8 +60,7 @@ final class ConnectionAwareBuildLauncherDelegate extends ConnectionAwareLongRunn
         });
     }
 
-    static BuildLauncher create(FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientAttributes) {
-        ProjectConnection connection = openConnection(fixedAttributes);
+    static BuildLauncher create(ProjectConnection connection, FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientAttributes) {
         BuildLauncher launcher = connection.newBuild();
         ConnectionAwareBuildLauncherDelegate result = new ConnectionAwareBuildLauncherDelegate(connection, launcher);
         result.applyRequestAttributes(fixedAttributes, transientAttributes);

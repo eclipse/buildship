@@ -6,16 +6,12 @@ import java.io.OutputStream;
 import java.util.Set;
 
 import org.gradle.tooling.CancellationToken;
-import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.events.OperationType;
 
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
-
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 
 abstract class ConnectionAwareLongRunningOperationDelegate<T extends LongRunningOperation> implements LongRunningOperation {
 
@@ -23,13 +19,6 @@ abstract class ConnectionAwareLongRunningOperationDelegate<T extends LongRunning
 
     ConnectionAwareLongRunningOperationDelegate(T delegate) {
         this.delegate = delegate;
-    }
-
-    protected static ProjectConnection openConnection(FixedRequestAttributes fixedAttributes) {
-        GradleConnector connector = GradleConnector.newConnector().forProjectDirectory(fixedAttributes.getProjectDir());
-        GradleDistributionWrapper.from(fixedAttributes.getGradleDistribution()).apply(connector);
-        connector.useGradleUserHomeDir(fixedAttributes.getGradleUserHome());
-        return connector.connect();
     }
 
     protected void applyRequestAttributes(FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientAttributes) {
