@@ -11,21 +11,6 @@
 
 package org.eclipse.buildship.core.launch;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.gradleware.tooling.toolingclient.LaunchableConfig;
-import com.gradleware.tooling.toolingclient.BuildRequest;
-
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.util.collections.CollectionsUtils;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.ILaunchConfiguration;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -33,10 +18,29 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.gradle.tooling.BuildLauncher;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
+
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.util.collections.CollectionsUtils;
+import org.eclipse.buildship.core.workspace.GradleBuild;
+
 /**
  * Executes Gradle tasks based on a given {@code ILaunch} and {@code ILaunchConfiguration} instance.
  */
-public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob {
+public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob<BuildLauncher> {
 
     private final ILaunch launch;
     private final GradleRunConfigurationAttributes configurationAttributes;
@@ -69,8 +73,15 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob {
     }
 
     @Override
-    protected BuildRequest<Void> createRequest() {
-        return CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(this.configurationAttributes.getTasks()));
+    protected BuildLauncher createLaunch(GradleBuild gradleBuild, TransientRequestAttributes transientAttributes, final ProcessDescription processDescription) {
+        BuildLauncher launcher = gradleBuild.newBuildLauncher(transientAttributes);
+        launcher.forTasks(RunGradleBuildLaunchRequestJob.this.configurationAttributes.getTasks().toArray(new String[0]));
+        return launcher;
+    }
+
+    @Override
+    protected void executeLaunch(BuildLauncher launcher) {
+        launcher.run();
     }
 
     @Override

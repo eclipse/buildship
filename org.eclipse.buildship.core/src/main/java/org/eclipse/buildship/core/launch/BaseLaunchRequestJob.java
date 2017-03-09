@@ -14,18 +14,20 @@ package org.eclipse.buildship.core.launch;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.Collections;
 import java.util.List;
 
+import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
-import com.gradleware.tooling.toolingclient.BuildRequest;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
@@ -43,55 +45,50 @@ import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
+import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 
 /**
- * Base class to execute {@link SingleBuildRequest} instances in job.
+ * Base class to execute Gradle builds in a job.
+ *
+ * @param <T> the operation type the subclasses can create and execute
  */
-public abstract class BaseLaunchRequestJob extends ToolingApiJob {
+public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> extends ToolingApiJob {
 
     protected BaseLaunchRequestJob(String name, boolean notifyUserAboutBuildFailures) {
         super(name, notifyUserAboutBuildFailures);
     }
 
     @Override
-    protected final void runToolingApiJob(IProgressMonitor monitor) {
+    protected final void runToolingApiJob(final IProgressMonitor monitor) throws Exception {
         // todo (etst) close streams when done
 
-        // activate all plugins which contribute to a build execution
         BuildExecutionParticipants.activateParticipantPlugins();
-
-        // start tracking progress
         monitor.beginTask(getJobTaskName(), IProgressMonitor.UNKNOWN);
 
         ProcessDescription processDescription = createProcessDescription();
         ProcessStreams processStreams = CorePlugin.processStreamsProvider().createProcessStreams(processDescription);
 
-        // fetch build environment
-        List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(DelegatingProgressListener.withFullOutput(monitor));
-
-        // apply the fixed attributes on the request o
-        BuildRequest<Void> request = createRequest();
         FixedRequestAttributes fixedAttributes = getConfigurationAttributes().toFixedRequestAttributes();
-        fixedAttributes.apply(request);
+        List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(DelegatingProgressListener.withFullOutput(monitor));
+        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, processStreams.getOutput(), processStreams.getError(), processStreams.getInput(),
+                listeners, Collections.<org.gradle.tooling.events.ProgressListener>emptyList(), getToken());
 
-        // configure the request's transient attributes
-        request.standardOutput(processStreams.getOutput());
-        request.standardError(processStreams.getError());
-        request.standardInput(processStreams.getInput());
-        request.progressListeners(listeners.toArray(new ProgressListener[listeners.size()]));
-        request.cancellationToken(getToken());
+        GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(fixedAttributes);
+
+        // apply FixedRequestAttributes on build launcher
+        T launcher = createLaunch(gradleBuild, transientAttributes, processDescription);
+
+        // let participants add listeners to the build
+        Event event = new DefaultExecuteLaunchRequestEvent(processDescription, launcher);
+        CorePlugin.listenerRegistry().dispatch(event);
 
         // print the applied run configuration settings at the beginning of the console output
         OutputStreamWriter writer = new OutputStreamWriter(processStreams.getConfiguration());
         writeFixedRequestAttributes(fixedAttributes, writer, monitor);
 
-        // notify the listeners before executing the build launch request
-        Event event = new DefaultExecuteLaunchRequestEvent(processDescription, request);
-        CorePlugin.listenerRegistry().dispatch(event);
-
-        // launch the build
-        request.executeAndWait();
+        // execute the build
+        executeLaunch(launcher);
     }
 
     private void writeFixedRequestAttributes(FixedRequestAttributes fixedAttributes, OutputStreamWriter writer, IProgressMonitor monitor) {
@@ -162,11 +159,18 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
     protected abstract ProcessDescription createProcessDescription();
 
     /**
-     * Creates a new {@link SingleBuildRequest} object to execute in the job.
+     * Creates a new launcher object to execute in the job.
      *
-     * @return the new request object
+     * @return the new launcher
      */
-    protected abstract BuildRequest<Void> createRequest();
+    protected abstract T createLaunch(GradleBuild gradleBuild, TransientRequestAttributes transientAttributes, ProcessDescription processDescription);
+
+    /**
+     * Execute the launcher created by {@code #createLaunch()}.
+     *
+     * @param launcher the launcher to execute
+     */
+    protected abstract void executeLaunch(T launcher);
 
     /**
      * Writes extra information on the configuration console.

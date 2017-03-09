@@ -12,9 +12,9 @@
 
 package org.eclipse.buildship.core.launch.internal;
 
-import com.google.common.base.Preconditions;
+import org.gradle.tooling.LongRunningOperation;
 
-import com.gradleware.tooling.toolingclient.Request;
+import com.google.common.base.Preconditions;
 
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.launch.ExecuteLaunchRequestEvent;
@@ -23,13 +23,12 @@ import org.eclipse.buildship.core.launch.ExecuteLaunchRequestEvent;
  * Default implementation of {@link ExecuteLaunchRequestEvent}.
  */
 public final class DefaultExecuteLaunchRequestEvent implements ExecuteLaunchRequestEvent {
-
     private final ProcessDescription processDescription;
-    private final Request<Void> request;
+    private final LongRunningOperation operation;
 
-    public DefaultExecuteLaunchRequestEvent(ProcessDescription processDescription, Request<Void> request) {
+    public DefaultExecuteLaunchRequestEvent(ProcessDescription processDescription, LongRunningOperation operation) {
         this.processDescription =  Preconditions.checkNotNull(processDescription);
-        this.request = Preconditions.checkNotNull(request);
+        this.operation = Preconditions.checkNotNull(operation);
     }
 
     @Override
@@ -38,8 +37,8 @@ public final class DefaultExecuteLaunchRequestEvent implements ExecuteLaunchRequ
     }
 
     @Override
-    public Request<Void> getRequest() {
-        return this.request;
+    public LongRunningOperation getOperation() {
+        return this.operation;
     }
 
 }

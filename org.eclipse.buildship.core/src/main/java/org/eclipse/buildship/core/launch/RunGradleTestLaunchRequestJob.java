@@ -11,23 +11,6 @@
 
 package org.eclipse.buildship.core.launch;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.gradleware.tooling.toolingclient.BuildRequest;
-import com.gradleware.tooling.toolingclient.TestConfig;
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.gradle.tooling.events.OperationDescriptor;
-import org.gradle.tooling.events.task.TaskOperationDescriptor;
-import org.gradle.tooling.events.test.JvmTestOperationDescriptor;
-import org.gradle.tooling.events.test.TestOperationDescriptor;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -35,10 +18,30 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.gradle.tooling.TestLauncher;
+import org.gradle.tooling.events.OperationDescriptor;
+import org.gradle.tooling.events.task.TaskOperationDescriptor;
+import org.gradle.tooling.events.test.JvmTestOperationDescriptor;
+import org.gradle.tooling.events.test.TestOperationDescriptor;
+
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
+
+import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.workspace.GradleBuild;
+
 /**
  * Executes tests through Gradle based on a given list of {@code TestOperationDescriptor} instances and a given set of {@code GradleRunConfigurationAttributes}.
  */
-public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
+public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob<TestLauncher> {
 
     private final ImmutableList<TestOperationDescriptor> testDescriptors;
     private final GradleRunConfigurationAttributes configurationAttributes;
@@ -91,8 +94,15 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob {
     }
 
     @Override
-    protected BuildRequest<Void> createRequest() {
-        return CorePlugin.toolingClient().newTestLaunchRequest(TestConfig.forTests(this.testDescriptors));
+    protected TestLauncher createLaunch(GradleBuild gradleBuild, TransientRequestAttributes transientAttributes, final ProcessDescription processDescription) {
+        TestLauncher launcher = gradleBuild.newTestLauncher(transientAttributes);
+        launcher.withTests(RunGradleTestLaunchRequestJob.this.testDescriptors);
+        return launcher;
+    }
+
+    @Override
+    protected void executeLaunch(TestLauncher launcher) {
+        launcher.run();
     }
 
     @Override

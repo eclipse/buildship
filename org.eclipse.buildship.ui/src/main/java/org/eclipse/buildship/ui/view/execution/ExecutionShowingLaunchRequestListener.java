@@ -51,7 +51,7 @@ public final class ExecutionShowingLaunchRequestListener implements EventListene
                 ExecutionsView view = WorkbenchUtils.showView(ExecutionsView.ID, null, mode);
 
                 // show the launched build in a new page of the Executions View
-                view.addExecutionPage(processDescription, event.getRequest());
+                view.addExecutionPage(processDescription, event.getOperation());
             }
         });
     }
