@@ -10,7 +10,6 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.lang.reflect.Proxy;
 
 import org.gradle.tooling.BuildLauncher;
@@ -57,10 +56,9 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
         // BuildLauncher and TestLauncher have the same method signature for execution:
         // #run() and #run(ResultHandler)
         if (m.getName().equals("run")) {
-            Parameter[] params = m.getParameters();
-            if (params.length == 0) {
+            if (args == null) {
                 return invokeRun(m);
-            } else if (params.length == 1 && params[0].getType() == ResultHandler.class) {
+            } else if (args.length == 1 && args[0].getClass() == ResultHandler.class) {
                 return invokeRun(m, args[0]);
             }
         }
