@@ -50,6 +50,8 @@ import org.eclipse.buildship.core.workspace.ModelProvider;
 
 /**
  * Base class to execute Gradle builds in a job.
+ *
+ * @param <T> the operation type the subclasses can create and execute
  */
 public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> extends ToolingApiJob {
 
