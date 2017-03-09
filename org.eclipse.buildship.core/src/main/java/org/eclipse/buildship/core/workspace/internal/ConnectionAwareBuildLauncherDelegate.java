@@ -15,15 +15,12 @@ import org.gradle.tooling.events.OperationType;
 import org.gradle.tooling.model.Launchable;
 import org.gradle.tooling.model.Task;
 
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
-
 final class ConnectionAwareBuildLauncherDelegate extends ConnectionAwareLongRunningOperationDelegate<BuildLauncher> implements BuildLauncher {
 
     private final ProjectConnection connection;
 
-    ConnectionAwareBuildLauncherDelegate(ProjectConnection connection, BuildLauncher delegate) {
-        super(delegate);
+    ConnectionAwareBuildLauncherDelegate(ProjectConnection connection) {
+        super(connection.newBuild());
         this.connection = connection;
     }
 
@@ -58,13 +55,6 @@ final class ConnectionAwareBuildLauncherDelegate extends ConnectionAwareLongRunn
                 }
             }
         });
-    }
-
-    static BuildLauncher create(ProjectConnection connection, FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientAttributes) {
-        BuildLauncher launcher = connection.newBuild();
-        ConnectionAwareBuildLauncherDelegate result = new ConnectionAwareBuildLauncherDelegate(connection, launcher);
-        result.applyRequestAttributes(fixedAttributes, transientAttributes);
-        return result;
     }
 
     // -- delegate methods --

@@ -10,6 +10,8 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnector;
+import org.gradle.tooling.LongRunningOperation;
+import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.TestLauncher;
 
@@ -83,12 +85,16 @@ public class DefaultGradleBuild implements GradleBuild {
 
     @Override
     public BuildLauncher newBuildLauncher(TransientRequestAttributes transientAttributes) {
-        return ConnectionAwareBuildLauncherDelegate.create(openConnection(this.attributes), this.attributes, transientAttributes);
+        BuildLauncher launcher = new ConnectionAwareBuildLauncherDelegate(openConnection(this.attributes));
+        applyRequestAttributes(launcher, this.attributes, transientAttributes);
+        return launcher;
     }
 
     @Override
     public TestLauncher newTestLauncher(TransientRequestAttributes transientAttributes) {
-        return ConnectionAwareTestLauncherDelegate.create(openConnection(this.attributes), this.attributes, transientAttributes);
+        TestLauncher launcher = new ConnectionAwareTestLauncherDelegate(openConnection(this.attributes));
+        applyRequestAttributes(launcher, this.attributes, transientAttributes);
+        return launcher;
     }
 
     private static ProjectConnection openConnection(FixedRequestAttributes fixedAttributes) {
@@ -96,6 +102,22 @@ public class DefaultGradleBuild implements GradleBuild {
         GradleDistributionWrapper.from(fixedAttributes.getGradleDistribution()).apply(connector);
         connector.useGradleUserHomeDir(fixedAttributes.getGradleUserHome());
         return connector.connect();
+    }
+
+    private void applyRequestAttributes(LongRunningOperation operation, FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientAttributes) {
+        // fixed attributes
+        operation.setJavaHome(fixedAttributes.getJavaHome());
+        operation.withArguments(fixedAttributes.getArguments());
+        operation.setJvmArguments(fixedAttributes.getJvmArguments());
+
+        // transient attributes
+        operation.setStandardOutput(transientAttributes.getStandardOutput());
+        operation.setStandardError(transientAttributes.getStandardError());
+        operation.setStandardInput(transientAttributes.getStandardInput());
+        for (ProgressListener listener : transientAttributes.getProgressListeners()) {
+            operation.addProgressListener(listener);
+        }
+        operation. withCancellationToken(transientAttributes.getCancellationToken());
     }
 
     @Override

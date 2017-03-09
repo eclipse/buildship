@@ -14,15 +14,12 @@ import org.gradle.tooling.TestLauncher;
 import org.gradle.tooling.events.OperationType;
 import org.gradle.tooling.events.test.TestOperationDescriptor;
 
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
-
 class ConnectionAwareTestLauncherDelegate extends ConnectionAwareLongRunningOperationDelegate<TestLauncher> implements TestLauncher {
 
     private final ProjectConnection connection;
 
-    public ConnectionAwareTestLauncherDelegate(ProjectConnection connection, TestLauncher delegate) {
-        super(delegate);
+    public ConnectionAwareTestLauncherDelegate(ProjectConnection connection) {
+        super(connection.newTestLauncher());
         this.connection = connection;
     }
 
@@ -60,13 +57,6 @@ class ConnectionAwareTestLauncherDelegate extends ConnectionAwareLongRunningOper
     }
 
     // -- delegate methods --
-
-    static TestLauncher create(ProjectConnection connection, FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientAttributes) {
-        TestLauncher launcher = connection.newTestLauncher();
-        ConnectionAwareTestLauncherDelegate result = new ConnectionAwareTestLauncherDelegate(connection, launcher);
-        result.applyRequestAttributes(fixedAttributes, transientAttributes);
-        return result;
-    }
 
     @Override
     public TestLauncher addProgressListener(ProgressListener listener) {

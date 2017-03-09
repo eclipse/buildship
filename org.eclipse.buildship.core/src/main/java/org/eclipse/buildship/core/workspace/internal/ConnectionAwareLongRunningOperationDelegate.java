@@ -10,33 +10,12 @@ import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.events.OperationType;
 
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
-
 abstract class ConnectionAwareLongRunningOperationDelegate<T extends LongRunningOperation> implements LongRunningOperation {
 
     protected final T delegate;
 
     ConnectionAwareLongRunningOperationDelegate(T delegate) {
         this.delegate = delegate;
-    }
-
-    protected void applyRequestAttributes(FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientAttributes) {
-        // TODO (donat) this should be moved to the Fixed/Transient attribute classes
-
-        // fixed attributes
-        setJavaHome(fixedAttributes.getJavaHome());
-        withArguments(fixedAttributes.getArguments());
-        setJvmArguments(fixedAttributes.getJvmArguments());
-
-        // transient attributes
-        setStandardOutput(transientAttributes.getStandardOutput());
-        setStandardError(transientAttributes.getStandardError());
-        setStandardInput(transientAttributes.getStandardInput());
-        for (ProgressListener listener : transientAttributes.getProgressListeners()) {
-            addProgressListener(listener);
-        }
-        withCancellationToken(transientAttributes.getCancellationToken());
     }
 
     // -- delegate methods --
