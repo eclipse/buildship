@@ -104,13 +104,10 @@ public final class FixedRequestAttributesBuilder {
      }
 
     public static FixedRequestAttributesBuilder fromProjectSettings(IProject project) {
-        WorkspaceConfiguration workspaceConfig = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
         ProjectConfiguration projectConfig = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
-        return fromEmptySettings(projectConfig.getRootProjectDirectory())
+        return fromWorkspaceSettings(projectConfig.getRootProjectDirectory())
                 .gradleDistribution(projectConfig.getGradleDistribution())
-                .gradleUserHome(workspaceConfig.getGradleUserHome())
                 .offlineMode(projectConfig.isOfflineMode())
-                .buildScansEnabled(projectConfig.isBuildScansEnabled())
-                .arguments(CorePlugin.invocationCustomizer().getExtraArguments());
+                .buildScansEnabled(projectConfig.isBuildScansEnabled());
     }
 }
