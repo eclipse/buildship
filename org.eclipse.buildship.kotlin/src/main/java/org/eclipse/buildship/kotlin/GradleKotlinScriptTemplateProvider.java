@@ -24,6 +24,8 @@ import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.build.GradleEnvironment;
 import org.jetbrains.kotlin.core.model.ScriptTemplateProviderEx;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 
@@ -45,7 +47,7 @@ import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
  *
  * @author Donat Csikos
  */
-public class GradleKotlinScriptTemplateProvider implements ScriptTemplateProviderEx {
+public final class GradleKotlinScriptTemplateProvider implements ScriptTemplateProviderEx {
 
     // properties names defined in gradle-script-kotlin
     private static final String GSK_PROJECT_ROOT = "projectRoot";
@@ -65,34 +67,22 @@ public class GradleKotlinScriptTemplateProvider implements ScriptTemplateProvide
 
     @Override
     public Iterable<String> getTemplateClasspath(Map<String, ? extends Object> environment, IProgressMonitor monitor) {
-        BuildEnvironment buildEnvironment = queryBuildEnvironment(environment);
-        GradleEnvironment gradleEnvironment = buildEnvironment.getGradle();
-
-        File gradleUserHome = gradleEnvironment.getGradleUserHome();
-        String gradleVersion = gradleEnvironment.getGradleVersion();
-        File distroRoot = findDistributionRoot(gradleUserHome, gradleVersion);
-
+        File distroRoot = (File) environment.get(GSK_INSTALLATION_LOCAL);
+        if (distroRoot == null) {
+            BuildEnvironment buildEnvironment = queryBuildEnvironment(environment);
+            GradleEnvironment gradleEnvironment = buildEnvironment.getGradle();
+            File gradleUserHome = gradleEnvironment.getGradleUserHome();
+            String gradleVersion = gradleEnvironment.getGradleVersion();
+            distroRoot = findDistributionRoot(gradleUserHome, gradleVersion);
+        }
         if (distroRoot == null) {
             return Collections.emptyList();
         }
-
-        List<String> result = Lists.newArrayList();
-        addGradleScriptKotlinJar(distroRoot, result);
-        addGeneratedGradleJars(gradleUserHome, gradleVersion, result);
-
-        // TODO (donat) add the ${gradleUserHome}/caches/3.5-20170305000422+0000/gradle-script-kotlin/${scriptMd5Hash} to the classpath
-        // The classes defining the accessors (`application { ... }` and friends) are compiled dynamically to that folder
-        // The related MD5 calculation logic in GSK: https://github.com/gradle/gradle-script-kotlin/blob/98ec7c0c42f740ef14c21aa39a2bc9ae98f96397/src/main/kotlin/org/gradle/script/lang/kotlin/resolver/KotlinBuildScriptDependenciesResolver.kt#L72-L92
-        return result;
+        return jarPathsFromDistributionLibDirectory(distroRoot);
     }
 
     @SuppressWarnings("unchecked")
     private static BuildEnvironment queryBuildEnvironment(Map<String, ? extends Object> environment) {
-        List<String> jvmArguments = Lists.newArrayList((List<String>) environment.get(GSK_JVM_OPTIONS));
-        jvmArguments.add("-Dorg.slf4j.simpleLogger.defaultLogLevel=debug");
-        List<String> effectiveJvmArguments = Lists.newArrayList("-Dorg.gradle.script.lang.kotlin.provider.mode=classpath"); // from  KotlinScriptPluginFactory
-        effectiveJvmArguments.addAll(jvmArguments);
-
         ProjectConnection connection = null;
         try {
             GradleConnector connector = GradleConnector.newConnector().forProjectDirectory((File) environment.get(GSK_PROJECT_ROOT));
@@ -100,7 +90,7 @@ public class GradleKotlinScriptTemplateProvider implements ScriptTemplateProvide
             applyGradleDistribution(environment, connector);
             connection = connector.connect();
             return connection.model(BuildEnvironment.class)
-                    .setJvmArguments(effectiveJvmArguments)
+                    .setJvmArguments((List<String>) environment.get(GSK_JVM_OPTIONS))
                     .withArguments((List<String>) environment.get(GSK_OPTIONS))
                     .setJavaHome((File) environment.get(GSK_JAVA_HOME))
                     .get();
@@ -147,30 +137,27 @@ public class GradleKotlinScriptTemplateProvider implements ScriptTemplateProvide
         }
     }
 
-    private static void addGradleScriptKotlinJar(File distroRoot, List<String> result) {
-        for (File f1 : Files.fileTreeTraverser().breadthFirstTraversal(distroRoot)) {
-            if (f1.isDirectory() && f1.getName().equals("lib")) {
-                for (File f2 : f1.listFiles()) {
-                    if (f2.getName().endsWith(".jar") && f2.getName().startsWith("gradle-script-kotlin")) {
-                        result.add(f2.getAbsolutePath());
-                        return;
-                    }
+    private static List<String> jarPathsFromDistributionLibDirectory(File distroRoot) {
+        Optional<File> libFolder = findLibFolder(distroRoot);
+        List<String> result = Lists.newArrayList();
+        if (libFolder.isPresent()) {
+            for (File jar : libFolder.get().listFiles()) {
+                if (jar.getName().endsWith(".jar")) {
+                    result.add(jar.getAbsolutePath());
                 }
             }
         }
-        CorePlugin.logger().warn("Can't find gradle-script-kotlin jar in " + distroRoot.getAbsolutePath());
+        return result;
     }
 
-    private static void addGeneratedGradleJars(File gradleUserHome, String gradleVersion, List<String> result) {
-        File cacheDir = new File(gradleUserHome, "caches/" + gradleVersion);
-        File generatedJarsDir = new File(cacheDir, "generated-gradle-jars");
-        if (generatedJarsDir.exists()) {
-            for (File f : Files.fileTreeTraverser().breadthFirstTraversal(generatedJarsDir)) {
-                if (f.getName().endsWith("jar")) {
-                    result.add(f.getAbsolutePath());
-                }
+    private static Optional<File> findLibFolder(File distroRoot) {
+        return Files.fileTreeTraverser().breadthFirstTraversal(distroRoot).firstMatch(new Predicate<File>() {
+
+            @Override
+            public boolean apply(File f1) {
+                return f1.isDirectory() && f1.getName().equals("lib");
             }
-        }
+        });
     }
 
     @Override

@@ -14,7 +14,7 @@
 <repository location="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.18.0/p2-repository-0.18.0.zip!/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.jetbrains.kotlin.feature.feature.group" version="0.8.0.v20170216-0107"/>
+<unit id="org.jetbrains.kotlin.feature.feature.group" version="0.8.0.v20170307-1258"/>
 <repository location="https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_EclipsePlugin/1005902:id/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
