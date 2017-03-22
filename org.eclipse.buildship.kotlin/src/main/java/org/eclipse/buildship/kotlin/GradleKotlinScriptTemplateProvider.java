@@ -67,6 +67,7 @@ public final class GradleKotlinScriptTemplateProvider implements ScriptTemplateP
 
     @Override
     public Iterable<String> getTemplateClasspath(Map<String, ? extends Object> environment, IProgressMonitor monitor) {
+        // TODO (donat) the Gradle home should be available in the BuildEnvirontment TAPI model
         File distroRoot = (File) environment.get(GSK_INSTALLATION_LOCAL);
         if (distroRoot == null) {
             BuildEnvironment buildEnvironment = queryBuildEnvironment(environment);
