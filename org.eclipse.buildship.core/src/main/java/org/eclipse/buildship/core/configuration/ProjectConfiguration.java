@@ -18,49 +18,35 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-
-import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder;
 
 /**
- * Describes the Gradle-specific configuration of an Eclipse project.
+ * Configuration for a Gradle build.
  */
 public final class ProjectConfiguration {
 
-    private final IProject project;
     private final File rootProjectDirectory;
     private final GradleDistribution gradleDistribution;
     private final boolean overrideWorkspaceSettings;
     private final boolean buildScansEnabled;
     private final boolean offlineMode;
 
-    private ProjectConfiguration(IProject project, File rootProjectDirectory, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings, boolean buildScansEnabled, boolean offlineMode) {
-        this.project = Preconditions.checkNotNull(project);
-        this.rootProjectDirectory = canonicalize(rootProjectDirectory);
+    private ProjectConfiguration(File rootProjectDirectory, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings, boolean buildScansEnabled, boolean offlineMode) {
+        this.rootProjectDirectory = canonicalize(rootProjectDirectory);;
         this.gradleDistribution = Preconditions.checkNotNull(gradleDistribution);
         this.overrideWorkspaceSettings = overrideWorkspaceSettings;
         this.buildScansEnabled = buildScansEnabled;
         this.offlineMode = offlineMode;
     }
 
-    private static File canonicalize(File file) {
-        try {
-            return file.getCanonicalFile();
-        } catch (IOException e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
-
-    public FixedRequestAttributes toRequestAttributes() {
-        return FixedRequestAttributesBuilder.fromProjectSettings(this.project).build();
-    }
-
-    public IProject getProject() {
-        return this.project;
-    }
+     private static File canonicalize(File file) {
+         try {
+             return file.getCanonicalFile();
+         } catch (IOException e) {
+             throw new IllegalArgumentException(e);
+         }
+     }
 
     public File getRootProjectDirectory() {
         return this.rootProjectDirectory;
@@ -86,8 +72,7 @@ public final class ProjectConfiguration {
     public boolean equals(Object obj) {
         if (obj instanceof ProjectConfiguration) {
             ProjectConfiguration other = (ProjectConfiguration) obj;
-            return Objects.equal(this.project, other.project)
-                    && Objects.equal(this.rootProjectDirectory, other.rootProjectDirectory)
+            return Objects.equal(this.rootProjectDirectory, other.rootProjectDirectory)
                     && Objects.equal(this.gradleDistribution, other.gradleDistribution)
                     && Objects.equal(this.overrideWorkspaceSettings, other.overrideWorkspaceSettings)
                     && Objects.equal(this.buildScansEnabled, other.buildScansEnabled)
@@ -98,20 +83,20 @@ public final class ProjectConfiguration {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.project, this.rootProjectDirectory, this.gradleDistribution, this.overrideWorkspaceSettings, this.buildScansEnabled, this.offlineMode);
+        return Objects.hashCode(this.gradleDistribution, this.overrideWorkspaceSettings, this.buildScansEnabled, this.offlineMode);
     }
 
-    public static ProjectConfiguration fromWorkspaceConfig(IProject project, File rootProjectDir, GradleDistribution gradleDistribution) {
+    public static ProjectConfiguration fromWorkspaceConfig(File rootProjectDir, GradleDistribution gradleDistribution) {
         WorkspaceConfiguration configuration = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
-        return new ProjectConfiguration(project, rootProjectDir, gradleDistribution, false, configuration.isBuildScansEnabled(), configuration.isOffline());
+        return new ProjectConfiguration(rootProjectDir, gradleDistribution, false, configuration.isBuildScansEnabled(), configuration.isOffline());
     }
 
-    public static ProjectConfiguration fromProjectConfig(ProjectConfiguration configuration, File rootProjectDir, GradleDistribution gradleDistribution) {
-        return new ProjectConfiguration(configuration.project, rootProjectDir, gradleDistribution, configuration.isOverrideWorkspaceSettings(), configuration.isBuildScansEnabled(), configuration.isOfflineMode());
+    public static ProjectConfiguration fromProjectConfig(File rootProjectDir, ProjectConfiguration configuration, GradleDistribution gradleDistribution) {
+        return new ProjectConfiguration(rootProjectDir, gradleDistribution, configuration.isOverrideWorkspaceSettings(), configuration.isBuildScansEnabled(), configuration.isOfflineMode());
     }
 
-    public static ProjectConfiguration from(IProject project, File rootProjectDir, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings, boolean buildScansEnabled, boolean offlineMode) {
-        return new ProjectConfiguration(project, rootProjectDir, gradleDistribution, overrideWorkspaceSettings, buildScansEnabled, offlineMode);
+    public static ProjectConfiguration from(File rootProjectDir, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings, boolean buildScansEnabled, boolean offlineMode) {
+        return new ProjectConfiguration(rootProjectDir, gradleDistribution, overrideWorkspaceSettings, buildScansEnabled, offlineMode);
     }
 
 }

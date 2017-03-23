@@ -11,6 +11,9 @@
 
 package org.eclipse.buildship.core.configuration.internal;
 
+import java.io.File;
+import java.util.Set;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 
@@ -36,30 +39,7 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
     }
 
     @Override
-    public ImmutableSet<ProjectConfiguration> getRootProjectConfigurations() {
-        // collect all Gradle root project configurations in the workspace by asking each Eclipse
-        // project with a Gradle nature for the Gradle root project it belongs to
-        ImmutableSet.Builder<ProjectConfiguration> rootConfigurations = ImmutableSet.builder();
-        for (IProject workspaceProject : this.workspaceOperations.getAllProjects()) {
-            if (GradleProjectNature.isPresentOn(workspaceProject)) {
-                // calculate the root configuration to which the current configuration belongs
-                Optional<ProjectConfiguration> projectConfiguration = tryReadProjectConfiguration(workspaceProject);
-                if (projectConfiguration.isPresent()) {
-                    ProjectConfiguration config = projectConfiguration.get();
-                    if (config.getRootProjectDirectory().equals(workspaceProject.getLocation().toFile())) {
-                        rootConfigurations.add(config);
-                    }
-                }
-            }
-        }
-
-        // return the validated, unique set of root project configurations
-        return rootConfigurations.build();
-    }
-
-    @Override
     public ImmutableSet<ProjectConfiguration> getAllProjectConfigurations() {
-        // collect all the Gradle project configurations in the workspace
         ImmutableSet.Builder<ProjectConfiguration> allConfigurations = ImmutableSet.builder();
         for (IProject workspaceProject : this.workspaceOperations.getAllProjects()) {
             if (GradleProjectNature.isPresentOn(workspaceProject)) {
@@ -69,19 +49,41 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
                 }
             }
         }
-
-        // return the complete set of project configurations
         return allConfigurations.build();
     }
 
     @Override
     public void saveProjectConfiguration(ProjectConfiguration projectConfiguration) {
-        this.projectConfigurationPersistence.saveProjectConfiguration(projectConfiguration);
+        File rootDir = projectConfiguration.getRootProjectDirectory();
+        Optional<IProject> rootProject = CorePlugin.workspaceOperations().findProjectByLocation(rootDir);
+        if (rootProject.isPresent()) {
+            this.projectConfigurationPersistence.saveProjectConfiguration(projectConfiguration, rootProject.get());
+        } else {
+            this.projectConfigurationPersistence.saveProjectConfiguration(projectConfiguration, rootDir);
+        }
     }
 
     @Override
-    public ProjectConfiguration readProjectConfiguration(IProject workspaceProject) {
-        return tryReadProjectConfiguration(workspaceProject, false);
+    public void attachProjectsToConfiguration(Set<File> projectDirs, ProjectConfiguration projectConfiguration) {
+        File rootDir = projectConfiguration.getRootProjectDirectory();
+        for (File projectDir : projectDirs) {
+            Optional<IProject> project = CorePlugin.workspaceOperations().findProjectByLocation(projectDir);
+            if (project.isPresent()) {
+                this.projectConfigurationPersistence.saveRootProjectLocation(project.get(), rootDir);
+            } else {
+                this.projectConfigurationPersistence.saveRootProjectLocation(projectDir, rootDir);
+            }
+        }
+    }
+
+    @Override
+    public void detachProjectConfiguration(IProject project) {
+        this.projectConfigurationPersistence.deleteRootProjectLocation(project);
+    }
+
+    @Override
+    public ProjectConfiguration readProjectConfiguration(IProject project) {
+        return tryReadProjectConfiguration(project, false);
     }
 
     @Override
@@ -90,9 +92,21 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
         return Optional.fromNullable(configuration);
     }
 
+    @Override
+    public Optional<ProjectConfiguration> tryReadProjectConfiguration(File projectDir) {
+        ProjectConfiguration configuration = tryReadProjectConfiguration(projectDir, true);
+        return Optional.fromNullable(configuration);
+    }
+
     private ProjectConfiguration tryReadProjectConfiguration(IProject workspaceProject, boolean suppressErrors) {
         try {
-            return this.projectConfigurationPersistence.readProjectConfiguration(workspaceProject);
+            File rootDir = this.projectConfigurationPersistence.readRootProjectLocation(workspaceProject);
+            Optional<IProject> rootProject = CorePlugin.workspaceOperations().findProjectByLocation(rootDir);
+            if (rootProject.isPresent()) {
+                return this.projectConfigurationPersistence.readProjectConfiguration(rootProject.get());
+            } else {
+                return this.projectConfigurationPersistence.readProjectConfiguration(rootDir);
+            }
         } catch (RuntimeException e) {
             if (suppressErrors) {
                 CorePlugin.logger().debug(String.format("Cannot load project configuration for project %s.", workspaceProject.getName()), e);
@@ -103,9 +117,33 @@ public final class DefaultProjectConfigurationManager implements ProjectConfigur
         }
     }
 
-    @Override
-    public void deleteProjectConfiguration(IProject workspaceProject) {
-        this.projectConfigurationPersistence.deleteProjectConfiguration(workspaceProject);
+    private ProjectConfiguration tryReadProjectConfiguration(File projectDir, boolean suppressErrors) {
+        try {
+            File rootDir = this.projectConfigurationPersistence.readRootProjectLocation(projectDir);
+            Optional<IProject> rootProject = CorePlugin.workspaceOperations().findProjectByLocation(rootDir);
+            if (rootProject.isPresent()) {
+                return this.projectConfigurationPersistence.readProjectConfiguration(rootProject.get());
+            } else {
+                return this.projectConfigurationPersistence.readProjectConfiguration(rootDir);
+            }
+        } catch (RuntimeException e) {
+            if (suppressErrors) {
+                CorePlugin.logger().debug(String.format("Cannot load project configuration for project in %s.", projectDir.getAbsolutePath()), e);
+                return null;
+            } else {
+                throw e;
+            }
+        }
     }
 
+    @Override
+    public void deleteProjectConfiguration(IProject project) {
+        File rootDir = this.projectConfigurationPersistence.readRootProjectLocation(project);
+        Optional<IProject> rootProject = CorePlugin.workspaceOperations().findProjectByLocation(rootDir);
+        if (rootProject.isPresent()) {
+            this.projectConfigurationPersistence.deleteProjectConfiguration(rootProject.get());
+        } else {
+            this.projectConfigurationPersistence.deleteProjectConfiguration(rootDir);
+        }
+    }
 }

@@ -22,10 +22,9 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
@@ -113,12 +112,13 @@ public final class TaskNodeSelectionUtils {
 
     private static Optional<FixedRequestAttributes> getFixedRequestAttributes(ProjectNode projectNode) {
         Optional<IProject> workspaceProject = projectNode.getWorkspaceProject();
-        if (workspaceProject.isPresent() && GradleProjectNature.isPresentOn(workspaceProject.get())) {
-            ProjectConfiguration projectConfiguration = CorePlugin.projectConfigurationManager().readProjectConfiguration(workspaceProject.get());
-            return Optional.of(projectConfiguration.toRequestAttributes());
-        } else {
-            return Optional.absent();
+        if (workspaceProject.isPresent()) {
+            IProject project = workspaceProject.get();
+            if (GradleProjectNature.isPresentOn(project)) {
+                return Optional.of(FixedRequestAttributesBuilder.fromProjectSettings(project).build());
+            }
         }
+        return Optional.absent();
     }
 
     private static ImmutableList<String> getTaskPathStrings(NodeSelection selection) {

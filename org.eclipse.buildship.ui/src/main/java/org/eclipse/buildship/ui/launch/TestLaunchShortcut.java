@@ -31,12 +31,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.launch.RunGradleJvmTestLaunchRequestJob;
 import org.eclipse.buildship.core.launch.TestMethod;
 import org.eclipse.buildship.core.launch.TestTarget;
 import org.eclipse.buildship.core.launch.TestType;
+import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder;
 import org.eclipse.buildship.core.util.file.FileUtils;
 
 /**
@@ -72,7 +72,7 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
 
     @SuppressWarnings("ConstantConditions")
     private GradleRunConfigurationAttributes collectRunConfigurationAttributes(IProject project) {
-        FixedRequestAttributes requestAttributes = CorePlugin.projectConfigurationManager().readProjectConfiguration(project).toRequestAttributes();
+        FixedRequestAttributes requestAttributes = FixedRequestAttributesBuilder.fromProjectSettings(project).build();
 
         // configure the project directory
         String projectDir = requestAttributes.getProjectDir().getAbsolutePath();
