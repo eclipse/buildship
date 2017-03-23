@@ -86,17 +86,12 @@ public final class GradleProjectPreferencePage extends PropertyPage {
        IProject project = getTargetProject();
        ProjectConfigurationManager manager = CorePlugin.projectConfigurationManager();
        ProjectConfiguration currentConfig = manager.readProjectConfiguration(project);
-       for (ProjectConfiguration configuration : manager.getAllProjectConfigurations()) {
-           if (configuration.getRootProjectDirectory().equals(currentConfig.getRootProjectDirectory())) {
-               ProjectConfiguration updatedConfiguration = ProjectConfiguration.from(configuration.getProject(),
-                       configuration.getRootProjectDirectory(),
-                       configuration.getGradleDistribution(),
-                       this.overrideWorkspaceSettingsCheckbox.getSelection(),
-                       this.buildScansEnabledCheckbox.getSelection(),
-                       this.offlineModeCheckbox.getSelection());
-               manager.saveProjectConfiguration(updatedConfiguration);
-           }
-       }
+       ProjectConfiguration updatedConfig = ProjectConfiguration.from(currentConfig.getRootProjectDirectory(),
+                                                                      currentConfig.getGradleDistribution(),
+                                                                      this.overrideWorkspaceSettingsCheckbox.getSelection(),
+                                                                      this.buildScansEnabledCheckbox.getSelection(),
+                                                                      this.offlineModeCheckbox.getSelection());
+       manager.saveProjectConfiguration(updatedConfig);
        return true;
     }
 

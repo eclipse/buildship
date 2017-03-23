@@ -11,6 +11,8 @@
 
 package org.eclipse.buildship.core.configuration.internal;
 
+import java.io.File;
+
 import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
@@ -20,10 +22,25 @@ import org.eclipse.buildship.core.configuration.ProjectConfiguration;
  */
 interface ProjectConfigurationPersistence {
 
-    void saveProjectConfiguration(ProjectConfiguration projectConfiguration);
+    void saveProjectConfiguration(ProjectConfiguration projectConfiguration, IProject project);
 
-    void deleteProjectConfiguration(IProject project);
+    void saveProjectConfiguration(ProjectConfiguration projectConfiguration, File projectDir);
+
+    void saveRootProjectLocation(IProject project, File rootProjectDir);
+
+    void saveRootProjectLocation(File projectDir, File rootProjectDir);
+
+    void deleteRootProjectLocation(IProject project);
 
     ProjectConfiguration readProjectConfiguration(IProject project);
 
+    ProjectConfiguration readProjectConfiguration(File projectDir);
+
+    File readRootProjectLocation(IProject project);
+
+    File readRootProjectLocation(File projectDir);
+
+    void deleteProjectConfiguration(IProject project);
+
+    void deleteProjectConfiguration(File projectDir);
 }

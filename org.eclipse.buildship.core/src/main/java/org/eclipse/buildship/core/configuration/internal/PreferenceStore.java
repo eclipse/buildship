@@ -12,6 +12,8 @@
 package org.eclipse.buildship.core.configuration.internal;
 
 import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
@@ -175,9 +177,11 @@ abstract class PreferenceStore {
         private void loadProperties() {
             InputStreamReader reader = null;
             try {
-                reader = new InputStreamReader(new FileInputStream(this.propertiesFile), Charsets.UTF_8);
                 this.properties = new Properties();
-                this.properties.load(reader);
+                if (this.propertiesFile.exists()) {
+                    reader = new InputStreamReader(new FileInputStream(this.propertiesFile), Charsets.UTF_8);
+                    this.properties.load(reader);
+                }
             } catch (IOException e) {
                 throw new GradlePluginsRuntimeException(String.format("Cannot read preference from file %s", this.propertiesFile.getAbsolutePath()), e);
             } finally {
@@ -205,7 +209,7 @@ abstract class PreferenceStore {
         @Override
         void write(String key, String value) {
             if (value == null) {
-                getProperties().remove(value);
+                getProperties().remove(key);
             } else {
                 getProperties().put(key, value);
             }
@@ -220,6 +224,10 @@ abstract class PreferenceStore {
         void flush() {
             OutputStreamWriter writer = null;
             try {
+                if (!this.propertiesFile.exists()) {
+                    this.propertiesFile.getParentFile().mkdirs();
+                    Files.touch(this.propertiesFile);
+                }
                 writer = new OutputStreamWriter(new FileOutputStream(this.propertiesFile), Charsets.UTF_8);
                 getProperties().store(writer, null);
             } catch (IOException e) {
@@ -236,5 +244,4 @@ abstract class PreferenceStore {
         }
 
     }
-
 }

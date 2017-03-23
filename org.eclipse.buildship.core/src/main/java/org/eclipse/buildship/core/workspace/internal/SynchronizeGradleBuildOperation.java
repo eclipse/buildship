@@ -155,7 +155,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
             public boolean apply(IProject project) {
                 Optional<ProjectConfiguration> projectConfiguration = CorePlugin.projectConfigurationManager().tryReadProjectConfiguration(project);
                 return projectConfiguration.isPresent()
-                        && projectConfiguration.get().toRequestAttributes().getProjectDir().equals(SynchronizeGradleBuildOperation.this.build.getProjectDir())
+                        && projectConfiguration.get().getRootProjectDirectory().equals(SynchronizeGradleBuildOperation.this.build.getProjectDir())
                         && (project.getLocation() == null || !gradleProjectDirectories.contains(project.getLocation().toFile()));
             }
         }).toList();
@@ -193,12 +193,6 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         workspaceProject = ProjectNameUpdater.updateProjectName(workspaceProject, project, this.allProjects, progress.newChild(1));
 
         CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, progress.newChild(1));
-
-        Optional<ProjectConfiguration> projectConfig = CorePlugin.projectConfigurationManager().tryReadProjectConfiguration(workspaceProject);
-        ProjectConfiguration configuration = projectConfig.isPresent()
-            ? ProjectConfiguration.fromProjectConfig(projectConfig.get(), this.build.getProjectDir(), this.build.getGradleDistribution())
-            : ProjectConfiguration.fromWorkspaceConfig(workspaceProject, this.build.getProjectDir(), this.build.getGradleDistribution());
-        CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration);
 
         PersistentModelBuilder persistentModel = new PersistentModelBuilder(CorePlugin.modelPersistence().loadModel(workspaceProject));
 
@@ -286,6 +280,6 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         CorePlugin.workspaceOperations().refreshProject(workspaceProject, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
         CorePlugin.workspaceOperations().removeNature(workspaceProject, GradleProjectNature.ID, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
         CorePlugin.modelPersistence().deleteModel(workspaceProject);
-        CorePlugin.projectConfigurationManager().deleteProjectConfiguration(workspaceProject);
+        CorePlugin.projectConfigurationManager().detachProjectConfiguration(workspaceProject);
     }
 }

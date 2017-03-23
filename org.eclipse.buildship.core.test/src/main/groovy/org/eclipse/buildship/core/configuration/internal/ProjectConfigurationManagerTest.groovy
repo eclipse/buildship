@@ -171,7 +171,7 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         def projectConfiguration = ProjectConfiguration.fromWorkspaceConfig(project, project.getLocation().toFile(), GradleDistribution.forVersion("1.12"))
 
         when:
-        configurationManager.saveProjectConfiguration(projectConfiguration)
+        configurationManager.saceProjectConfiguration(projectConfiguration)
 
         then:
         configurationManager.readProjectConfiguration(project) == projectConfiguration
@@ -184,7 +184,7 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         def projectConfiguration = ProjectConfiguration.fromWorkspaceConfig(project, project.location.toFile(), GradleDistribution.fromBuild())
 
         when:
-        configurationManager.saveProjectConfiguration(projectConfiguration)
+        configurationManager.saceProjectConfiguration(projectConfiguration)
 
         then:
         configurationManager.readProjectConfiguration(project) == projectConfiguration
@@ -195,7 +195,7 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         IProject project = workspaceOperations.createProject("sample-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
 
         def projectConfiguration = ProjectConfiguration.fromWorkspaceConfig(project, project.location.toFile(), GradleDistribution.fromBuild())
-        configurationManager.saveProjectConfiguration(projectConfiguration)
+        configurationManager.saceProjectConfiguration(projectConfiguration)
 
         def projectDescription = project.description
         project.delete(false, true, null)
@@ -231,7 +231,7 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         IProject project = workspaceOperations.createProject("sample-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
 
         def projectConfiguration = ProjectConfiguration.fromWorkspaceConfig(project, project.location.toFile(), GradleDistribution.fromBuild())
-        configurationManager.saveProjectConfiguration(projectConfiguration)
+        configurationManager.saceProjectConfiguration(projectConfiguration)
 
         when:
         setInvalidPreferenceOn(project)
@@ -306,7 +306,7 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         ProjectConfiguration projectConfiguration = ProjectConfiguration.from(project, project.getLocation().toFile(), GradleDistribution.fromBuild(), false, true, true)
 
         when:
-        configurationManager.saveProjectConfiguration(projectConfiguration)
+        configurationManager.saceProjectConfiguration(projectConfiguration)
         projectConfiguration = configurationManager.readProjectConfiguration(project)
 
         then:
@@ -331,7 +331,7 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         ProjectConfiguration projectConfiguration = ProjectConfiguration.from(project, project.getLocation().toFile(), GradleDistribution.fromBuild(), true, buildScansEnabled, offlineMode)
 
         when:
-        configurationManager.saveProjectConfiguration(projectConfiguration)
+        configurationManager.saceProjectConfiguration(projectConfiguration)
         projectConfiguration = configurationManager.readProjectConfiguration(project)
 
         then:

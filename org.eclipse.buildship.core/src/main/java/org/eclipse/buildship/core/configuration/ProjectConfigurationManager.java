@@ -11,6 +11,9 @@
 
 package org.eclipse.buildship.core.configuration;
 
+import java.io.File;
+import java.util.Set;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 
@@ -22,15 +25,6 @@ import org.eclipse.core.resources.IProject;
 public interface ProjectConfigurationManager {
 
     /**
-     * Returns the unique set of {@link ProjectConfiguration} roots found in the workspace.
-     * <p/>
-     * If a project configuration cannot be read, then the project is omitted from the result.
-     *
-     * @return the unique set of {@code ProjectConfiguration} roots
-     */
-    ImmutableSet<ProjectConfiguration> getRootProjectConfigurations();
-
-    /**
      * Returns the complete set of {@link ProjectConfiguration} instances found in the workspace.
      * <p/>
      * If a project configuration cannot be read, then the project is omitted from the result.
@@ -40,37 +34,60 @@ public interface ProjectConfigurationManager {
     ImmutableSet<ProjectConfiguration> getAllProjectConfigurations();
 
     /**
-     * Saves the given Gradle project configuration in the Eclipse project's <i>.settings</i>
-     * folder.
+     * Saves the target project configuration.
      *
-     * @param projectConfiguration the Gradle configuration to persist
+     * @param project the target project
+     * @param config the Gradle configuration to persist
      */
-    void saveProjectConfiguration(ProjectConfiguration projectConfiguration);
+    void saveProjectConfiguration(ProjectConfiguration config);
 
     /**
-     * Reads the Gradle project configuration from the Eclipse project's <i>.settings</i> folder.
+     * Associates the target project configuration to a set of projects
      *
-     * @param workspaceProject the Eclipse project from which to read the Gradle configuration
+     * @param projectDirs the project directories to which the configuration should be associated
+     * @param config the configuration to save
+     */
+    void attachProjectsToConfiguration(Set<File> projectDirs, ProjectConfiguration config);
+
+    /**
+     * Removes the association from a target project to the referenced project configuration
+     *
+     * @param project the target project
+     */
+    void detachProjectConfiguration(IProject project);
+
+    /**
+     * Reads the Gradle project configuration.
+     *
+     * @param project the Eclipse project from which to read the Gradle configuration
      * @return the persisted Gradle configuration
      */
-    ProjectConfiguration readProjectConfiguration(IProject workspaceProject);
+    ProjectConfiguration readProjectConfiguration(IProject project);
 
     /**
-     * Tries to read the Gradle project configuration from the Eclipse project's <i>.settings</i>
-     * folder. If the configuration is not present or cannot be read, then the method returns
-     * {@code Optional#absent()}.
+     * Tries to read the Gradle project configuration. If the configuration is not present or cannot
+     * be read, then the method returns {@code Optional#absent()}.
      *
-     * @param workspaceProject the Eclipse project from which to read the Gradle configuration
+     * @param project the project directory from which to read the Gradle configuration
      * @return the persisted Gradle configuration or {@code Optional#absent()} if the configuration
      *         cannot be read.
      */
-    Optional<ProjectConfiguration> tryReadProjectConfiguration(IProject workspaceProject);
+    Optional<ProjectConfiguration> tryReadProjectConfiguration(IProject project);
 
     /**
-     * Deletes the Gradle project configuration from the Eclipse project's <i>.settings</i> folder.
+     * Tries to read the Gradle project configuration. If the configuration is not present or cannot
+     * be read, then the method returns {@code Optional#absent()}.
      *
-     * @param workspaceProject the Eclipse project from which to delete the Gradle configuration
+     * @param project the Eclipse project from which to read the Gradle configuration
+     * @return the persisted Gradle configuration or {@code Optional#absent()} if the configuration
+     *         cannot be read.
      */
-    void deleteProjectConfiguration(IProject workspaceProject);
+    Optional<ProjectConfiguration> tryReadProjectConfiguration(File projectDir);
 
+    /**
+     * Deletes the Gradle project configuration.
+     *
+     * @param project the Eclipse project from which to delete the Gradle configuration
+     */
+    void deleteProjectConfiguration(IProject project);
 }

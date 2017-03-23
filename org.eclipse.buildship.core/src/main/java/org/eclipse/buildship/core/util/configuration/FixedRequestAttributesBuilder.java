@@ -21,6 +21,7 @@ import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 
 /**
