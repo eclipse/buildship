@@ -141,9 +141,11 @@ public final class GradleKotlinScriptTemplateProvider implements ScriptTemplateP
     private static List<String> jarPathsFromDistributionLibDirectory(File distroRoot) {
         Optional<File> libFolder = findLibFolder(distroRoot);
         List<String> result = Lists.newArrayList();
+
         if (libFolder.isPresent()) {
             for (File jar : libFolder.get().listFiles()) {
-                if (jar.getName().endsWith(".jar")) {
+                String name = jar.getName();
+                if (name.endsWith(".jar")) {
                     result.add(jar.getAbsolutePath());
                 }
             }
@@ -151,7 +153,7 @@ public final class GradleKotlinScriptTemplateProvider implements ScriptTemplateP
         return result;
     }
 
-    private static Optional<File> findLibFolder(File distroRoot) {
+	private static Optional<File> findLibFolder(File distroRoot) {
         return Files.fileTreeTraverser().breadthFirstTraversal(distroRoot).firstMatch(new Predicate<File>() {
 
             @Override
