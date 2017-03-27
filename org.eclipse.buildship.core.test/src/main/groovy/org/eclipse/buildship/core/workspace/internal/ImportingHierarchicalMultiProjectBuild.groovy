@@ -21,7 +21,7 @@ class ImportingHierarchicalMultiProjectBuild extends ProjectSynchronizationSpeci
         expect:
         def root = findProject("sample")
         def moduleA = root.getFolder("moduleA")
-        !moduleA.isDerived()
+        moduleA.isDerived()
         CorePlugin.modelPersistence().loadModel(root).getSubprojectPaths()
     }
 

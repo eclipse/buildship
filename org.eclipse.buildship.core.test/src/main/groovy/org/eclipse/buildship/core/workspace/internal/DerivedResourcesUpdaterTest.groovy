@@ -17,6 +17,7 @@ class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
     IFolder buildFolder
     IFolder newBuildFolder
     IFolder dotGradleFolder
+    IFolder childProjectFolder
 
     void setup() {
         project = newProject('sample')
@@ -26,6 +27,8 @@ class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
         newBuildFolder.create(true, true, null)
         dotGradleFolder = project.getFolder('.gradle')
         dotGradleFolder.create(true, true, null)
+        childProjectFolder = project.getFolder('child')
+        childProjectFolder.create(true, true, null)
     }
 
     def "Derived resources can be marked on a project"() {
@@ -38,6 +41,7 @@ class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
         then:
         buildFolder.isDerived()
         dotGradleFolder.isDerived()
+        childProjectFolder.isDerived()
     }
 
     def "Derived resource markers are removed if they no longer exist in the Gradle model"() {
@@ -88,8 +92,11 @@ class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
     private def model(String buildDir = 'build') {
         OmniEclipseProject eclipseProject = Mock(OmniEclipseProject)
         OmniGradleProject gradleProject = Mock(OmniGradleProject)
+        OmniEclipseProject childProject = Mock(OmniEclipseProject)
+        childProject.projectDirectory >> childProjectFolder.location.toFile()
         gradleProject.buildDirectory >> Maybe.of(new File(project.location.toFile(), buildDir))
         eclipseProject.gradleProject >> gradleProject
+        eclipseProject.children >> [childProject]
         eclipseProject
     }
 

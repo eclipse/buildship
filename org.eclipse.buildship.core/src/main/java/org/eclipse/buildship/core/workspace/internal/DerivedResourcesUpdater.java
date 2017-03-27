@@ -52,11 +52,13 @@ final class DerivedResourcesUpdater {
     }
 
     private void update(PersistentModelBuilder persistentModel, IProgressMonitor monitor) {
-        SubMonitor progress = SubMonitor.convert(monitor, 2);
+        SubMonitor progress = SubMonitor.convert(monitor, 3);
         try {
             IPath buildDirectoryPath = getBuildDirectoryPath();
-            List<IPath> derivedResources = getDerivedResources(buildDirectoryPath, progress.newChild(1));
+            List<IPath> subprojectPaths = getNestedSubProjectFolderPaths(progress.newChild(1));
+            List<IPath> derivedResources = getDerivedResources(buildDirectoryPath, subprojectPaths, progress.newChild(1));
             persistentModel.buildDir(buildDirectoryPath != null ?  buildDirectoryPath : new Path("build"));
+            persistentModel.subprojectPaths(subprojectPaths);
             removePreviousMarkers(derivedResources,  persistentModel, progress.newChild(1));
             addNewMarkers(derivedResources, persistentModel, progress.newChild(1));
         } catch (CoreException e) {
@@ -69,12 +71,26 @@ final class DerivedResourcesUpdater {
         }
     }
 
-    private List<IPath> getDerivedResources(IPath possibleBuildDirectoryPath, SubMonitor progress) {
+    private List<IPath> getDerivedResources(IPath possibleBuildDirectoryPath, List<IPath> subprojectPaths, SubMonitor progress) {
         List<IPath> derivedResources = Lists.<IPath>newArrayList(new Path(".gradle"));
         if (possibleBuildDirectoryPath != null) {
             derivedResources.add(possibleBuildDirectoryPath);
         }
+        derivedResources.addAll(subprojectPaths);
         return derivedResources;
+    }
+
+    private List<IPath> getNestedSubProjectFolderPaths(SubMonitor progress) {
+        List<IPath> subfolderPaths = Lists.newArrayList();
+        final IPath parentPath = this.project.getLocation();
+        for (OmniEclipseProject child : this.modelProject.getChildren()) {
+            IPath childPath = Path.fromOSString(child.getProjectDirectory().getPath());
+            if (parentPath.isPrefixOf(childPath)) {
+                IPath relativePath = RelativePathUtils.getRelativePath(parentPath, childPath);
+                subfolderPaths.add(relativePath);
+            }
+        }
+        return subfolderPaths;
     }
 
     private void removePreviousMarkers(List<IPath> derivedResources, PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
