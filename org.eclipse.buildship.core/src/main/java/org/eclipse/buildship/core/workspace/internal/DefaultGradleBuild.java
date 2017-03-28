@@ -83,14 +83,14 @@ public class DefaultGradleBuild implements GradleBuild {
     }
 
     @Override
-    public <T> T queryModel(Class<T> model, CancellationToken token, IProgressMonitor monitor) {
+    public <T> T fetchModel(Class<T> model, CancellationToken token, IProgressMonitor monitor) {
         ModelBuilder<T> modelBuilder = ConnectionAwareLauncherProxy.newModelBuilder(openConnection(this.attributes), model);
         applyRequestAttributes(modelBuilder, this.attributes, getTransientRequestAttributes(token, monitor));
         return modelBuilder.get();
     }
 
     @Override
-    public <T> Collection<T> queryCompositeModel(Class<T> model, CancellationToken token, IProgressMonitor monitor) {
+    public <T> Collection<T> fetchCompositeModel(Class<T> model, CancellationToken token, IProgressMonitor monitor) {
         TransientRequestAttributes transientAttributes = getTransientRequestAttributes(token, monitor);
         ProjectConnection connection = openConnection(this.attributes);
         if (supportsCompositeBuilds(token, monitor)) {
@@ -105,7 +105,7 @@ public class DefaultGradleBuild implements GradleBuild {
     }
 
     private boolean supportsCompositeBuilds(CancellationToken token, IProgressMonitor monitor) {
-        BuildEnvironment buildEnvironment = queryModel(BuildEnvironment.class, token, monitor);
+        BuildEnvironment buildEnvironment = fetchModel(BuildEnvironment.class, token, monitor);
         GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
         return gradleVersion.getBaseVersion().compareTo(GradleVersion.version("3.3")) >= 0;
     }

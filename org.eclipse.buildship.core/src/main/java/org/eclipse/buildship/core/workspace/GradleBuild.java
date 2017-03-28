@@ -80,9 +80,9 @@ public interface GradleBuild {
      */
     boolean isSyncRunning();
 
-    <T> T queryModel(Class<T> model, CancellationToken token, IProgressMonitor monitor);
+    <T> T fetchModel(Class<T> model, CancellationToken token, IProgressMonitor monitor);
 
-    <T> Collection<T> queryCompositeModel(Class<T> model, CancellationToken token, IProgressMonitor monitor);
+    <T> Collection<T> fetchCompositeModel(Class<T> model, CancellationToken token, IProgressMonitor monitor);
 
     /**
      * Returns the request attributes for this build.

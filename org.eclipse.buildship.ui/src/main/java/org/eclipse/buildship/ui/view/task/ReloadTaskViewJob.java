@@ -83,7 +83,7 @@ final class ReloadTaskViewJob extends ToolingApiJob {
                 }
             }
         }
-        Collection<EclipseProject> models = gradleBuild.queryCompositeModel(EclipseProject.class, getToken(), monitor);
+        Collection<EclipseProject> models = gradleBuild.fetchCompositeModel(EclipseProject.class, getToken(), monitor);
         ImmutableSet.Builder<OmniEclipseProject> projects = ImmutableSet.builder();
         for (EclipseProject model : models) {
             projects.addAll(DefaultOmniEclipseProject.from(model).getAll());

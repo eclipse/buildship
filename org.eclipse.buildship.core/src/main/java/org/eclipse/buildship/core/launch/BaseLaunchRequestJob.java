@@ -134,7 +134,7 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
 
     private OmniBuildEnvironment fetchBuildEnvironment(FixedRequestAttributes fixedRequestAttributes, IProgressMonitor monitor) {
         GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(fixedRequestAttributes);
-        BuildEnvironment buildEnvironment = gradleBuild.queryModel(BuildEnvironment.class, getToken(), monitor);
+        BuildEnvironment buildEnvironment = gradleBuild.fetchModel(BuildEnvironment.class, getToken(), monitor);
         return DefaultOmniBuildEnvironment.from(buildEnvironment);
     }
 

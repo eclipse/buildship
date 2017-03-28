@@ -85,7 +85,7 @@ public final class SynchronizeGradleBuildsJob extends ToolingApiJob {
 
     private Set<OmniEclipseProject> fetchEclipseProjects(GradleBuild build, SubMonitor progress) {
         progress.setTaskName("Loading Gradle project models");
-        Collection<EclipseProject> models = build.queryCompositeModel(EclipseProject.class, getToken(), progress);
+        Collection<EclipseProject> models = build.fetchCompositeModel(EclipseProject.class, getToken(), progress);
         ImmutableSet.Builder<OmniEclipseProject> projects = ImmutableSet.builder();
         for (EclipseProject model : models) {
             projects.addAll(DefaultOmniEclipseProject.from(model).getAll());

@@ -80,13 +80,13 @@ public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
 
     private OmniBuildEnvironment fetchBuildEnvironment(IProgressMonitor monitor) {
         org.eclipse.buildship.core.workspace.GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.fixedAttributes);
-        BuildEnvironment model = gradleBuild.queryModel(BuildEnvironment.class, getToken(), monitor);
+        BuildEnvironment model = gradleBuild.fetchModel(BuildEnvironment.class, getToken(), monitor);
         return DefaultOmniBuildEnvironment.from(model);
     }
 
     private OmniGradleBuild fetchGradleBuildStructure(IProgressMonitor monitor) {
         org.eclipse.buildship.core.workspace.GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.fixedAttributes);
-        GradleBuild model = gradleBuild.queryModel(GradleBuild.class, getToken(), monitor);
+        GradleBuild model = gradleBuild.fetchModel(GradleBuild.class, getToken(), monitor);
         return DefaultOmniGradleBuild.from(model);
     }
 
