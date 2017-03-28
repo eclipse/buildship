@@ -15,21 +15,15 @@
  */
 package org.eclipse.buildship.ui.view.task
 
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
-
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Item
 import org.eclipse.swt.widgets.Widget;
-import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.ui.IWorkbenchPage
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.ui.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification;
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
+import org.eclipse.buildship.ui.view.task.TaskView.ReloadStrategy
 
 class TaskViewContentSpec extends ProjectSynchronizationSpecification {
 
@@ -178,7 +172,7 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
     }
 
     private def reloadTaskView() {
-        view.reload(FetchStrategy.FORCE_RELOAD)
+        view.reload(ReloadStrategy.FORCE_RELOAD)
         waitForTaskView()
     }
 

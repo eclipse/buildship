@@ -20,7 +20,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.internal.DefaultOmniEclipseProject;
 
@@ -33,6 +32,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.workspace.GradleBuild;
+import org.eclipse.buildship.ui.view.task.TaskView.ReloadStrategy;
 
 /**
  * Loads the tasks for all projects into the cache and refreshes the task view afterwards.
@@ -40,12 +40,12 @@ import org.eclipse.buildship.core.workspace.GradleBuild;
 final class ReloadTaskViewJob extends ToolingApiJob {
 
     private final TaskView taskView;
-    private final FetchStrategy modelFetchStrategy;
+    private final ReloadStrategy reloadStrategy;
 
-    public ReloadTaskViewJob(TaskView taskView, FetchStrategy fetchStrategy) {
+    public ReloadTaskViewJob(TaskView taskView, ReloadStrategy fetchStrategy) {
         super("Loading tasks of all Gradle projects");
         this.taskView = Preconditions.checkNotNull(taskView);
-        this.modelFetchStrategy = Preconditions.checkNotNull(fetchStrategy);
+        this.reloadStrategy = Preconditions.checkNotNull(fetchStrategy);
     }
 
     @Override
@@ -74,7 +74,7 @@ final class ReloadTaskViewJob extends ToolingApiJob {
     }
 
     private Set<OmniEclipseProject> fetchEclipseGradleProjects(GradleBuild gradleBuild, IProgressMonitor monitor) {
-        if (this.modelFetchStrategy == FetchStrategy.LOAD_IF_NOT_CACHED) {
+        if (this.reloadStrategy == ReloadStrategy.LOAD_IF_NOT_CACHED) {
             TaskViewContent input = (TaskViewContent) this.taskView.getTreeViewer().getInput();
             if (input != null) {
                 Set<OmniEclipseProject> cached = input.findProjectsFor(gradleBuild.getRequestAttributes());
