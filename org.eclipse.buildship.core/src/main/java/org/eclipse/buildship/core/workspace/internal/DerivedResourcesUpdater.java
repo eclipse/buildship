@@ -12,9 +12,11 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseLinkedResource;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
@@ -41,28 +43,25 @@ import org.eclipse.buildship.core.util.file.RelativePathUtils;
  */
 final class DerivedResourcesUpdater {
 
-    private final IProject project;
     private final IProject workspaceProject;
     private final OmniEclipseProject modelProject;
 
-    private DerivedResourcesUpdater(IProject project, OmniEclipseProject modelProject) {
-        this.project = Preconditions.checkNotNull(project);
-        this.workspaceProject = Preconditions.checkNotNull(project);
+    private DerivedResourcesUpdater(IProject workspaceProject, OmniEclipseProject modelProject) {
+        this.workspaceProject = Preconditions.checkNotNull(workspaceProject);
         this.modelProject = Preconditions.checkNotNull(modelProject);
     }
 
     private void update(PersistentModelBuilder persistentModel, IProgressMonitor monitor) {
         SubMonitor progress = SubMonitor.convert(monitor, 3);
         try {
-            IPath buildDirectoryPath = getBuildDirectoryPath();
-            List<IPath> subprojectPaths = getNestedSubProjectFolderPaths(progress.newChild(1));
-            List<IPath> derivedResources = getDerivedResources(buildDirectoryPath, subprojectPaths, progress.newChild(1));
-            persistentModel.buildDir(buildDirectoryPath != null ?  buildDirectoryPath : new Path("build"));
-            persistentModel.subprojectPaths(subprojectPaths);
-            removePreviousMarkers(derivedResources,  persistentModel, progress.newChild(1));
-            addNewMarkers(derivedResources, persistentModel, progress.newChild(1));
+            DerivedResourcesInfo derivedResources = collectDerivedResources(progress.newChild(1));
+            Collection<IPath> derivedResourcePaths = derivedResources.toPathList();
+            persistentModel.buildDir(derivedResources.getProjectBuildDir());
+            persistentModel.subprojectPaths(derivedResources.getNestedProjectPaths());
+            removePreviousMarkers(derivedResourcePaths, persistentModel, progress.newChild(1));
+            addNewMarkers(derivedResourcePaths, persistentModel, progress.newChild(1));
         } catch (CoreException e) {
-            String message = String.format("Could not update derived resources on project %s.", this.project.getName());
+            String message = String.format("Could not update derived resources on project %s.", this.workspaceProject.getName());
             throw new GradlePluginsRuntimeException(message, e);
         } finally {
             if (monitor != null) {
@@ -71,34 +70,39 @@ final class DerivedResourcesUpdater {
         }
     }
 
-    private List<IPath> getDerivedResources(IPath possibleBuildDirectoryPath, List<IPath> subprojectPaths, SubMonitor progress) {
-        List<IPath> derivedResources = Lists.<IPath>newArrayList(new Path(".gradle"));
-        if (possibleBuildDirectoryPath != null) {
-            derivedResources.add(possibleBuildDirectoryPath);
-        }
-        derivedResources.addAll(subprojectPaths);
-        return derivedResources;
-    }
+    private DerivedResourcesInfo collectDerivedResources(IProgressMonitor monitor) {
+        IPath currentProjectPath = this.workspaceProject.getLocation();
 
-    private List<IPath> getNestedSubProjectFolderPaths(SubMonitor progress) {
-        List<IPath> subfolderPaths = Lists.newArrayList();
-        final IPath parentPath = this.project.getLocation();
-        for (OmniEclipseProject child : this.modelProject.getChildren()) {
-            IPath childPath = Path.fromOSString(child.getProjectDirectory().getPath());
-            if (parentPath.isPrefixOf(childPath)) {
-                IPath relativePath = RelativePathUtils.getRelativePath(parentPath, childPath);
-                subfolderPaths.add(relativePath);
+        IPath currentProjectBuildDirPath = null;
+        List<IPath> nestedProjectPaths = Lists.newArrayList();
+        List<IPath> nestedBuildDirPaths = Lists.newArrayList();
+
+        for (OmniEclipseProject project : this.modelProject.getAll()) {
+            OmniGradleProject gradleProject = project.getGradleProject();
+            IPath projectPath = Path.fromOSString(project.getProjectDirectory().getPath());
+            if (currentProjectPath.isPrefixOf(projectPath)) {
+                IPath relativePath = RelativePathUtils.getRelativePath(currentProjectPath, projectPath);
+                IPath buildDirPath = getBuildDirectoryPath(gradleProject.getBuildDirectory(), relativePath);
+                if (relativePath.segmentCount() == 0) {
+                    currentProjectBuildDirPath = buildDirPath;
+                } else {
+                    nestedProjectPaths.add(relativePath);
+                    if (buildDirPath != null) {
+                        nestedBuildDirPaths.add(buildDirPath);
+                    }
+                }
             }
         }
-        return subfolderPaths;
+
+        return new DerivedResourcesInfo(currentProjectBuildDirPath, nestedProjectPaths, nestedBuildDirPaths);
     }
 
-    private void removePreviousMarkers(List<IPath> derivedResources, PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
+    private void removePreviousMarkers(Collection<IPath> derivedResources, PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
         PersistentModel previousModel = persistentModel.getPrevious();
         Collection<IPath> previouslyKnownDerivedResources = previousModel.isPresent() ? previousModel.getDerivedResources() : Collections.<IPath>emptyList();
         progress.setWorkRemaining(previouslyKnownDerivedResources.size());
         for (IPath resourcePath : previouslyKnownDerivedResources) {
-            IResource resource = this.project.findMember(resourcePath);
+            IResource resource = this.workspaceProject.findMember(resourcePath);
             if (resource != null) {
                 resource.setDerived(false, progress.newChild(1));
             } else {
@@ -107,10 +111,10 @@ final class DerivedResourcesUpdater {
         }
     }
 
-    private void addNewMarkers(List<IPath> derivedResources, PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
+    private void addNewMarkers(Collection<IPath> derivedResources, PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
         progress.setWorkRemaining(derivedResources.size());
         for (IPath resourcePath : derivedResources) {
-            IResource resource = this.project.findMember(resourcePath);
+            IResource resource = this.workspaceProject.findMember(resourcePath);
             if (resource != null) {
                 resource.setDerived(true, progress.newChild(1));
             } else {
@@ -125,18 +129,16 @@ final class DerivedResourcesUpdater {
      * physically contained in the project, use that folder. If build directory is a linked
      * resource, use the linked folder. Optional.absent() if all of the above fail.
      */
-    private IPath getBuildDirectoryPath() {
-        OmniGradleProject gradleProject = this.modelProject.getGradleProject();
-        Maybe<File> buildDirectory = gradleProject.getBuildDirectory();
+    private IPath getBuildDirectoryPath(Maybe<File> buildDirectory, IPath prefix) {
         if (buildDirectory.isPresent() && buildDirectory.get() != null) {
             Path buildDirLocation = new Path(buildDirectory.get().getPath());
             return normalizeBuildDirectoryPath(buildDirLocation);
         } else {
-            return new Path("build");
+            return prefix.append("build");
         }
     }
 
-    private IPath normalizeBuildDirectoryPath(Path buildDirLocation) {
+    private IPath normalizeBuildDirectoryPath(IPath buildDirLocation) {
         IPath projectLocation = this.workspaceProject.getLocation();
         if (projectLocation.isPrefixOf(buildDirLocation)) {
             IPath relativePath = RelativePathUtils.getRelativePath(projectLocation, buildDirLocation);
@@ -155,4 +157,34 @@ final class DerivedResourcesUpdater {
         new DerivedResourcesUpdater(workspaceProject, project).update(persistentModel, monitor);
     }
 
+    private static final class DerivedResourcesInfo {
+
+        private final IPath projectBuildDir;
+        private final Collection<IPath> nestedProjectPaths;
+        private final Collection<IPath> nestedProjectBuildDirs;
+
+        public DerivedResourcesInfo(IPath projectBuildDir, Collection<IPath> nestedProjectPaths, Collection<IPath> nestedProjectBuildDirs) {
+            this.projectBuildDir = projectBuildDir;
+            this.nestedProjectPaths = nestedProjectPaths;
+            this.nestedProjectBuildDirs = nestedProjectBuildDirs;
+        }
+
+        public IPath getProjectBuildDir() {
+            return this.projectBuildDir == null ? new Path("build") : this.projectBuildDir;
+        }
+
+        public Collection<IPath> getNestedProjectPaths() {
+            return this.nestedProjectPaths;
+        }
+
+        public Collection<IPath> toPathList() {
+            Set<IPath> derivedResources = Sets.newLinkedHashSet();
+            derivedResources.add(new Path(".gradle"));
+            if (this.projectBuildDir != null) {
+                derivedResources.add(this.projectBuildDir);
+            }
+            derivedResources.addAll(this.nestedProjectBuildDirs);
+            return derivedResources;
+        }
+    }
 }
