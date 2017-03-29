@@ -80,8 +80,24 @@ public interface GradleBuild {
      */
     boolean isSyncRunning();
 
+    /**
+     * Synchronously queries a target model from this build.
+     *
+     * @param model the model to query
+     * @param token the cancellation token
+     * @param monitor the monitor to report the progress on
+     * @return the returned model
+     */
     <T> T fetchModel(Class<T> model, CancellationToken token, IProgressMonitor monitor);
 
+    /**
+     * Synchronously queries a target model from this build and from all included builds.
+     *
+     * @param model the model to query
+     * @param token the cancellation token
+     * @param monitor the monitor to report the progress on
+     * @return the returned model
+     */
     <T> Collection<T> fetchCompositeModel(Class<T> model, CancellationToken token, IProgressMonitor monitor);
 
     /**

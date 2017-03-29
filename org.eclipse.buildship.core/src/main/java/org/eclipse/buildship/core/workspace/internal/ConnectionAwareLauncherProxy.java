@@ -31,7 +31,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
- * Creates build and test launchers that closes their project connection after the execution is
+ * Creates long-running TAPI operations that closes their project connection after the execution is
  * finished.
  *
  * @author Donat Csikos
@@ -68,10 +68,11 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
 
     @SuppressWarnings({ "resource", "unchecked" })
     private static <T> BuildAction<Collection<T>> ideFriendlyCompositeModelQuery(Class<T> model) {
-        // When Buildship is launched from the IDE (as an Eclipse application or as a plugin-in
-        // tests) the URLs returned by the Equinox classloader is incorrect, which makes the TAPI
-        // fail with a CNF exception. To work around that we resolve the local file URL and load the
-        // build via an isolated URL classloader.
+        // When Buildship is launched from the IDE - as an Eclipse application or as a plugin-in
+        // test - the URLs returned by the Equinox class loader is incorrect. This means, the
+        // Tooling API is unable to find the referenced build actions and fails with a CNF
+        // exception. To work around that, we look up the build action class locations and load the
+        // classes via an isolated URClassLoader.
         try {
             ClassLoader coreClassloader = ConnectionAwareLauncherProxy.class.getClassLoader();
             ClassLoader tapiClassloader = ProjectConnection.class.getClassLoader();
@@ -95,7 +96,9 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
     }
 
     private static Object newProxyInstance(ProjectConnection connection, LongRunningOperation launcher) {
-        return Proxy.newProxyInstance(launcher.getClass().getClassLoader(), launcher.getClass().getInterfaces(), new ConnectionAwareLauncherProxy(connection, launcher));
+        return Proxy.newProxyInstance(launcher.getClass().getClassLoader(),
+                                      launcher.getClass().getInterfaces(),
+                                      new ConnectionAwareLauncherProxy(connection, launcher));
     }
 
     @Override
