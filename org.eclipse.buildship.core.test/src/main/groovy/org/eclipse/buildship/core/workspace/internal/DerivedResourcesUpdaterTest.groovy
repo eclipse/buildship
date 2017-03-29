@@ -90,6 +90,8 @@ class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
         OmniGradleProject gradleProject = Mock(OmniGradleProject)
         gradleProject.buildDirectory >> Maybe.of(new File(project.location.toFile(), buildDir))
         eclipseProject.gradleProject >> gradleProject
+        eclipseProject.projectDirectory >> project.location.toFile()
+        eclipseProject.all >> [eclipseProject]
         eclipseProject
     }
 
