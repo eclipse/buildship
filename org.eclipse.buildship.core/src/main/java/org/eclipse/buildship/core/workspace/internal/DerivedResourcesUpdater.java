@@ -157,6 +157,9 @@ final class DerivedResourcesUpdater {
         new DerivedResourcesUpdater(workspaceProject, project).update(persistentModel, monitor);
     }
 
+    /**
+     * Helper class to collect derived resources.
+     */
     private static final class DerivedResourcesInfo {
 
         private final IPath projectBuildDir;
