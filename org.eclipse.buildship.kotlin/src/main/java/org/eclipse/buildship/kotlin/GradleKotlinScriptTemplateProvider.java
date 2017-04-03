@@ -153,7 +153,7 @@ public final class GradleKotlinScriptTemplateProvider implements ScriptTemplateP
         return result;
     }
 
-	private static Optional<File> findLibFolder(File distroRoot) {
+    private static Optional<File> findLibFolder(File distroRoot) {
         return Files.fileTreeTraverser().breadthFirstTraversal(distroRoot).firstMatch(new Predicate<File>() {
 
             @Override
