@@ -1,7 +1,7 @@
 package org.eclipse.buildship.core.workspace.internal
 
 import org.eclipse.core.resources.IProject
-
+import org.eclipse.core.runtime.Path
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.Logger;
 import org.eclipse.buildship.core.configuration.GradleProjectNature
@@ -22,7 +22,15 @@ class ImportingHierarchicalMultiProjectBuild extends ProjectSynchronizationSpeci
         def root = findProject("sample")
         def moduleA = root.getFolder("moduleA")
         !moduleA.isDerived()
-        CorePlugin.modelPersistence().loadModel(root).getSubprojectPaths()
+        CorePlugin.modelPersistence().loadModel(root).subprojectPaths == [new Path('moduleA'), new Path('moduleA/moduleAsub')]
+    }
+
+    def "Build folders for current and nested projects are marked as derived"() {
+        expect:
+        def root = findProject("sample")
+        root.getFolder('build').isDerived()
+        root.getFolder('moduleA/build').isDerived()
+        root.getFolder('moduleA/moduleAsub/build').isDerived()
     }
 
     def "If a new project is added to the Gradle build, it is imported into the workspace"() {
@@ -88,10 +96,14 @@ class ImportingHierarchicalMultiProjectBuild extends ProjectSynchronizationSpeci
             '''
             file 'settings.gradle', """
                 include 'moduleA'
+                include 'moduleA:moduleAsub'
             """
+            dir 'build'
             moduleADir = moduleA {
                 file 'build.gradle', "apply plugin: 'java'"
                 dir 'src/main/java'
+                dir 'build'
+                dir 'moduleAsub/build'
             }
         }
     }
