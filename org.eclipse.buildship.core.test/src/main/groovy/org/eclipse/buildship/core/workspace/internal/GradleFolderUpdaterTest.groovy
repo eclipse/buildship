@@ -12,7 +12,7 @@ import org.eclipse.buildship.core.preferences.PersistentModel
 import org.eclipse.buildship.core.preferences.internal.DefaultPersistentModel
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
-class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
+class GradleFolderUpdaterTest extends WorkspaceSpecification {
     IProject project
     IFolder buildFolder
     IFolder newBuildFolder
@@ -33,7 +33,7 @@ class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
         PersistentModelBuilder persistentModel = builder(project)
 
         when:
-        DerivedResourcesUpdater.update(project, model(), persistentModel, null)
+        GradleFolderUpdater.update(project, model(), persistentModel, null)
 
         then:
         buildFolder.isDerived()
@@ -43,13 +43,13 @@ class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
     def "Derived resource markers are removed if they no longer exist in the Gradle model"() {
         setup:
         PersistentModelBuilder persistentModel = builder(project)
-        DerivedResourcesUpdater.update(project, model('build'), persistentModel, null)
+        GradleFolderUpdater.update(project, model('build'), persistentModel, null)
 
         persistentModel =  builder(persistentModel.build())
 
         when:
-        DerivedResourcesUpdater.update(project, model('build'), persistentModel, null)
-        DerivedResourcesUpdater.update(project, model('target'), persistentModel, null)
+        GradleFolderUpdater.update(project, model('build'), persistentModel, null)
+        GradleFolderUpdater.update(project, model('target'), persistentModel, null)
 
         then:
         !buildFolder.isDerived()
@@ -64,7 +64,7 @@ class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
         PersistentModelBuilder persistentModel = builder(project)
 
         when:
-        DerivedResourcesUpdater.update(project, model(), persistentModel, null)
+        GradleFolderUpdater.update(project, model(), persistentModel, null)
 
         then:
         manual.isDerived()
@@ -74,12 +74,12 @@ class DerivedResourcesUpdaterTest extends WorkspaceSpecification {
         setup:
         buildFolder.setDerived(true, null)
         PersistentModelBuilder persistentModel = builder(project)
-        DerivedResourcesUpdater.update(project, model('build'), persistentModel, null)
+        GradleFolderUpdater.update(project, model('build'), persistentModel, null)
 
         persistentModel = builder(persistentModel.build())
 
         when:
-        DerivedResourcesUpdater.update(project, model('target'), persistentModel, null)
+        GradleFolderUpdater.update(project, model('target'), persistentModel, null)
 
         then:
         !buildFolder.isDerived()

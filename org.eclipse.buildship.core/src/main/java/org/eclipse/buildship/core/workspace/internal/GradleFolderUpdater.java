@@ -36,17 +36,17 @@ import org.eclipse.buildship.core.preferences.PersistentModel;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
 
 /**
- * Updates the derived resource markers of a project. Stores the last state in the preferences, so
+ * Updates the derived resource markers on a project. Stores the last state in the preferences, so
  * we can remove the derived markers later.
  *
  * @author Stefan Oehme
  */
-final class DerivedResourcesUpdater {
+final class GradleFolderUpdater {
 
     private final IProject workspaceProject;
     private final OmniEclipseProject modelProject;
 
-    private DerivedResourcesUpdater(IProject workspaceProject, OmniEclipseProject modelProject) {
+    private GradleFolderUpdater(IProject workspaceProject, OmniEclipseProject modelProject) {
         this.workspaceProject = Preconditions.checkNotNull(workspaceProject);
         this.modelProject = Preconditions.checkNotNull(modelProject);
     }
@@ -54,14 +54,14 @@ final class DerivedResourcesUpdater {
     private void update(PersistentModelBuilder persistentModel, IProgressMonitor monitor) {
         SubMonitor progress = SubMonitor.convert(monitor, 3);
         try {
-            DerivedResourcesInfo derivedResources = collectDerivedResources(progress.newChild(1));
-            Collection<IPath> derivedResourcePaths = derivedResources.toPathList();
-            persistentModel.buildDir(derivedResources.getProjectBuildDir());
-            persistentModel.subprojectPaths(derivedResources.getNestedProjectPaths());
-            removePreviousMarkers(derivedResourcePaths, persistentModel, progress.newChild(1));
-            addNewMarkers(derivedResourcePaths, persistentModel, progress.newChild(1));
+            GradleFolderInfo folderInfo = collectFolderInfo(progress.newChild(1));
+            Collection<IPath> folderPaths = folderInfo.toPathList();
+            persistentModel.buildDir(folderInfo.getProjectBuildDir());
+            persistentModel.subprojectPaths(folderInfo.getNestedProjectPaths());
+            removePreviousMarkers(folderPaths, persistentModel, progress.newChild(1));
+            addNewMarkers(folderPaths, persistentModel, progress.newChild(1));
         } catch (CoreException e) {
-            String message = String.format("Could not update derived resources on project %s.", this.workspaceProject.getName());
+            String message = String.format("Could not update folder information on project %s.", this.workspaceProject.getName());
             throw new GradlePluginsRuntimeException(message, e);
         } finally {
             if (monitor != null) {
@@ -70,7 +70,7 @@ final class DerivedResourcesUpdater {
         }
     }
 
-    private DerivedResourcesInfo collectDerivedResources(IProgressMonitor monitor) {
+    private GradleFolderInfo collectFolderInfo(IProgressMonitor monitor) {
         IPath currentProjectPath = this.workspaceProject.getLocation();
 
         IPath currentProjectBuildDirPath = null;
@@ -94,14 +94,14 @@ final class DerivedResourcesUpdater {
             }
         }
 
-        return new DerivedResourcesInfo(currentProjectBuildDirPath, nestedProjectPaths, nestedBuildDirPaths);
+        return new GradleFolderInfo(currentProjectBuildDirPath, nestedProjectPaths, nestedBuildDirPaths);
     }
 
-    private void removePreviousMarkers(Collection<IPath> derivedResources, PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
+    private void removePreviousMarkers(Collection<IPath> folderPaths, PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
         PersistentModel previousModel = persistentModel.getPrevious();
-        Collection<IPath> previouslyKnownDerivedResources = previousModel.isPresent() ? previousModel.getDerivedResources() : Collections.<IPath>emptyList();
-        progress.setWorkRemaining(previouslyKnownDerivedResources.size());
-        for (IPath resourcePath : previouslyKnownDerivedResources) {
+        Collection<IPath> previouslyKnownPaths = previousModel.isPresent() ? previousModel.getDerivedResources() : Collections.<IPath>emptyList();
+        progress.setWorkRemaining(previouslyKnownPaths.size());
+        for (IPath resourcePath : previouslyKnownPaths) {
             IResource resource = this.workspaceProject.findMember(resourcePath);
             if (resource != null) {
                 resource.setDerived(false, progress.newChild(1));
@@ -111,9 +111,9 @@ final class DerivedResourcesUpdater {
         }
     }
 
-    private void addNewMarkers(Collection<IPath> derivedResources, PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
-        progress.setWorkRemaining(derivedResources.size());
-        for (IPath resourcePath : derivedResources) {
+    private void addNewMarkers(Collection<IPath> folderPaths, PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
+        progress.setWorkRemaining(folderPaths.size());
+        for (IPath resourcePath : folderPaths) {
             IResource resource = this.workspaceProject.findMember(resourcePath);
             if (resource != null) {
                 resource.setDerived(true, progress.newChild(1));
@@ -121,7 +121,7 @@ final class DerivedResourcesUpdater {
                 progress.worked(1);
             }
         }
-        persistentModel.derivedResources(derivedResources);
+        persistentModel.derivedResources(folderPaths);
     }
 
     /*
@@ -154,19 +154,19 @@ final class DerivedResourcesUpdater {
     }
 
     static void update(IProject workspaceProject, OmniEclipseProject project, PersistentModelBuilder persistentModel, IProgressMonitor monitor) {
-        new DerivedResourcesUpdater(workspaceProject, project).update(persistentModel, monitor);
+        new GradleFolderUpdater(workspaceProject, project).update(persistentModel, monitor);
     }
 
     /**
-     * Helper class to collect derived resources.
+     * Helper class to hold Gradle-specific folders.
      */
-    private static final class DerivedResourcesInfo {
+    private static final class GradleFolderInfo {
 
         private final IPath projectBuildDir;
         private final Collection<IPath> nestedProjectPaths;
         private final Collection<IPath> nestedProjectBuildDirs;
 
-        public DerivedResourcesInfo(IPath projectBuildDir, Collection<IPath> nestedProjectPaths, Collection<IPath> nestedProjectBuildDirs) {
+        public GradleFolderInfo(IPath projectBuildDir, Collection<IPath> nestedProjectPaths, Collection<IPath> nestedProjectBuildDirs) {
             this.projectBuildDir = projectBuildDir;
             this.nestedProjectPaths = nestedProjectPaths;
             this.nestedProjectBuildDirs = nestedProjectBuildDirs;
@@ -181,13 +181,13 @@ final class DerivedResourcesUpdater {
         }
 
         public Collection<IPath> toPathList() {
-            Set<IPath> derivedResources = Sets.newLinkedHashSet();
-            derivedResources.add(new Path(".gradle"));
+            Set<IPath> result = Sets.newLinkedHashSet();
+            result.add(new Path(".gradle"));
             if (this.projectBuildDir != null) {
-                derivedResources.add(this.projectBuildDir);
+                result.add(this.projectBuildDir);
             }
-            derivedResources.addAll(this.nestedProjectBuildDirs);
-            return derivedResources;
+            result.addAll(this.nestedProjectBuildDirs);
+            return result;
         }
     }
 }

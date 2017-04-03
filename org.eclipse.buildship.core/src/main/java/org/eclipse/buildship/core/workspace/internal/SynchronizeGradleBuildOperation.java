@@ -201,7 +201,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         PersistentModelBuilder persistentModel = new PersistentModelBuilder(CorePlugin.modelPersistence().loadModel(workspaceProject));
 
         LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), persistentModel, progress.newChild(1));
-        DerivedResourcesUpdater.update(workspaceProject, project, persistentModel, progress.newChild(1));
+        GradleFolderUpdater.update(workspaceProject, project, persistentModel, progress.newChild(1));
         ProjectNatureUpdater.update(workspaceProject, project.getProjectNatures(), progress.newChild(1));
         BuildCommandUpdater.update(workspaceProject, project.getBuildCommands(), progress.newChild(1));
 
