@@ -149,6 +149,7 @@ final class GradleFolderUpdater {
                     return new Path(linkedResource.getName());
                 }
             }
+            // TODO (donat) if an external build folder is not added as a linked resource than we should treat it as absent and not use the default 'build' folder
             return null;
         }
     }
