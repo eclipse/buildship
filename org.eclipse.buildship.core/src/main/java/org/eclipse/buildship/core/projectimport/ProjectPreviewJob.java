@@ -22,6 +22,7 @@ import com.google.common.util.concurrent.FutureCallback;
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.internal.DefaultOmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.repository.internal.DefaultOmniGradleBuild;
@@ -80,13 +81,13 @@ public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
 
     private OmniBuildEnvironment fetchBuildEnvironment(IProgressMonitor monitor) {
         org.eclipse.buildship.core.workspace.GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.fixedAttributes);
-        BuildEnvironment model = gradleBuild.fetchModel(BuildEnvironment.class, getToken(), monitor);
+        BuildEnvironment model = gradleBuild.getModelProvider().fetchModel(BuildEnvironment.class, FetchStrategy.FORCE_RELOAD, getToken(), monitor);
         return DefaultOmniBuildEnvironment.from(model);
     }
 
     private OmniGradleBuild fetchGradleBuildStructure(IProgressMonitor monitor) {
         org.eclipse.buildship.core.workspace.GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.fixedAttributes);
-        GradleBuild model = gradleBuild.fetchModel(GradleBuild.class, getToken(), monitor);
+        GradleBuild model = gradleBuild.getModelProvider().fetchModel(GradleBuild.class, FetchStrategy.FORCE_RELOAD, getToken(), monitor);
         return DefaultOmniGradleBuild.from(model);
     }
 

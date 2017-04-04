@@ -26,6 +26,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.internal.DefaultOmniBuildEnvironment;
@@ -134,7 +135,7 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
 
     private OmniBuildEnvironment fetchBuildEnvironment(FixedRequestAttributes fixedRequestAttributes, IProgressMonitor monitor) {
         GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(fixedRequestAttributes);
-        BuildEnvironment buildEnvironment = gradleBuild.fetchModel(BuildEnvironment.class, getToken(), monitor);
+        BuildEnvironment buildEnvironment = gradleBuild.getModelProvider().fetchModel(BuildEnvironment.class, FetchStrategy.FORCE_RELOAD, getToken(), monitor);
         return DefaultOmniBuildEnvironment.from(buildEnvironment);
     }
 

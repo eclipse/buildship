@@ -9,18 +9,20 @@
 package org.eclipse.buildship.ui.view.task;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.internal.DefaultOmniEclipseProject;
 
 import org.eclipse.core.resources.IProject;
@@ -32,7 +34,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.workspace.GradleBuild;
-import org.eclipse.buildship.ui.view.task.TaskView.ReloadStrategy;
+import org.eclipse.buildship.core.workspace.ModelProvider;
 
 /**
  * Loads the tasks for all projects into the cache and refreshes the task view afterwards.
@@ -40,12 +42,12 @@ import org.eclipse.buildship.ui.view.task.TaskView.ReloadStrategy;
 final class ReloadTaskViewJob extends ToolingApiJob {
 
     private final TaskView taskView;
-    private final ReloadStrategy reloadStrategy;
+    private final FetchStrategy modelFetchStrategy;
 
-    public ReloadTaskViewJob(TaskView taskView, ReloadStrategy fetchStrategy) {
+    public ReloadTaskViewJob(TaskView taskView, FetchStrategy modelFetchStrategy) {
         super("Loading tasks of all Gradle projects");
         this.taskView = Preconditions.checkNotNull(taskView);
-        this.reloadStrategy = Preconditions.checkNotNull(fetchStrategy);
+        this.modelFetchStrategy = Preconditions.checkNotNull(modelFetchStrategy);
     }
 
     @Override
@@ -55,40 +57,22 @@ final class ReloadTaskViewJob extends ToolingApiJob {
     }
 
     private TaskViewContent loadContent(IProgressMonitor monitor) {
-        Map<FixedRequestAttributes, Set<OmniEclipseProject>> resultProjects = Maps.newHashMap();
+        List<OmniEclipseProject> projects = Lists.newArrayList();
         Map<String, IProject> faultyProjects = allGradleWorkspaceProjects();
 
          for (GradleBuild gradleBuild : CorePlugin.gradleWorkspaceManager().getGradleBuilds()) {
              try {
-                 Set<OmniEclipseProject> eclipseProjects = fetchEclipseGradleProjects(gradleBuild, monitor);
+                 Set<OmniEclipseProject> eclipseProjects = fetchEclipseGradleProjects(gradleBuild.getModelProvider(), monitor);
                  for (OmniEclipseProject eclipseProject : eclipseProjects) {
                      faultyProjects.remove(eclipseProject.getName());
                  }
-                 resultProjects.put(gradleBuild.getRequestAttributes(), eclipseProjects);
+                 projects.addAll(eclipseProjects);
              } catch (RuntimeException e) {
                  CorePlugin.logger().warn("Tasks can't be loaded for project located at " + gradleBuild.getRequestAttributes().getProjectDir().getAbsolutePath(), e);
              }
          }
 
-        return new TaskViewContent(resultProjects, Lists.newArrayList(faultyProjects.values()));
-    }
-
-    private Set<OmniEclipseProject> fetchEclipseGradleProjects(GradleBuild gradleBuild, IProgressMonitor monitor) {
-        if (this.reloadStrategy == ReloadStrategy.LOAD_IF_NOT_CACHED) {
-            TaskViewContent input = (TaskViewContent) this.taskView.getTreeViewer().getInput();
-            if (input != null) {
-                Set<OmniEclipseProject> cached = input.findProjectsFor(gradleBuild.getRequestAttributes());
-                if (cached != null) {
-                    return cached;
-                }
-            }
-        }
-        Collection<EclipseProject> models = gradleBuild.fetchCompositeModel(EclipseProject.class, getToken(), monitor);
-        ImmutableSet.Builder<OmniEclipseProject> projects = ImmutableSet.builder();
-        for (EclipseProject model : models) {
-            projects.addAll(DefaultOmniEclipseProject.from(model).getAll());
-        }
-        return projects.build();
+        return new TaskViewContent(projects, Lists.newArrayList(faultyProjects.values()));
     }
 
     private Map<String, IProject> allGradleWorkspaceProjects() {
@@ -99,6 +83,15 @@ final class ReloadTaskViewJob extends ToolingApiJob {
             }
         }
         return result;
+    }
+
+    private Set<OmniEclipseProject> fetchEclipseGradleProjects(ModelProvider modelProvider, IProgressMonitor monitor) {
+        Collection<EclipseProject> models = modelProvider.fetchModels(EclipseProject.class, this.modelFetchStrategy, getToken(), monitor);
+        LinkedHashSet<OmniEclipseProject> projects = Sets.newLinkedHashSet();
+        for (EclipseProject model : models) {
+            projects.addAll(DefaultOmniEclipseProject.from(model).getAll());
+        }
+        return projects;
     }
 
     private void refreshTaskView(final TaskViewContent content) {

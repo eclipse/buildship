@@ -1,16 +1,18 @@
 package org.eclipse.buildship.ui.workspace
 
+import org.gradle.tooling.CancellationToken
 import org.gradle.tooling.GradleConnector
+import org.gradle.tooling.model.eclipse.EclipseProject
 
-import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 
 import org.eclipse.core.commands.Command
 import org.eclipse.core.commands.ExecutionEvent
 import org.eclipse.core.expressions.IEvaluationContext
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.IProgressMonitor
+import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jface.viewers.StructuredSelection
 
 import org.eclipse.buildship.core.CorePlugin
@@ -18,7 +20,6 @@ import org.eclipse.buildship.core.configuration.WorkspaceConfiguration
 import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder;
 import org.eclipse.buildship.ui.test.fixtures.EclipseProjects
 import org.eclipse.buildship.ui.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.ui.view.task.TaskView.ReloadStrategy
 
 class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
 
@@ -55,7 +56,10 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
     }
 
     private boolean eclipseModelLoadedWithGradleUserHome(File projectLocation, File gradleUserHome) {
-        FixedRequestAttributesBuilder.fromWorkspaceSettings(projectLocation).gradleUserHome == gradleUserHome
+        FixedRequestAttributes attributes = FixedRequestAttributesBuilder.fromEmptySettings(projectLocation).gradleUserHome(gradleUserHome).build();
+        CancellationToken token = GradleConnector.newCancellationTokenSource().token()
+        IProgressMonitor monitor = new NullProgressMonitor()
+        return CorePlugin.gradleWorkspaceManager().getGradleBuild(attributes).getModelProvider().fetchModels(EclipseProject.class, FetchStrategy.FROM_CACHE_ONLY, token, monitor) != null
     }
 
 }

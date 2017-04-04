@@ -8,16 +8,11 @@
  */
 package org.eclipse.buildship.core.workspace;
 
-import java.util.Collection;
-
 import org.gradle.tooling.BuildLauncher;
-import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.TestLauncher;
 
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
-
-import org.eclipse.core.runtime.IProgressMonitor;
 
 //TODO this should eventually also contain the methods to launch tasks etc.
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
@@ -81,24 +76,11 @@ public interface GradleBuild {
     boolean isSyncRunning();
 
     /**
-     * Synchronously queries a target model from this build.
+     * Returns the model provider for this build.
      *
-     * @param model the model to query
-     * @param token the cancellation token
-     * @param monitor the monitor to report the progress on
-     * @return the returned model
+     * @return the model provider, never null
      */
-    <T> T fetchModel(Class<T> model, CancellationToken token, IProgressMonitor monitor);
-
-    /**
-     * Synchronously queries a target model from this build and from all included builds.
-     *
-     * @param model the model to query
-     * @param token the cancellation token
-     * @param monitor the monitor to report the progress on
-     * @return the returned model
-     */
-    <T> Collection<T> fetchCompositeModel(Class<T> model, CancellationToken token, IProgressMonitor monitor);
+    ModelProvider getModelProvider();
 
     /**
      * Returns the request attributes for this build.

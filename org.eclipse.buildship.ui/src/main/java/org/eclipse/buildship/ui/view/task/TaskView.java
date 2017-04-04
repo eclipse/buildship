@@ -15,6 +15,7 @@ package org.eclipse.buildship.ui.view.task;
 import java.util.List;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -53,14 +54,6 @@ import org.eclipse.buildship.ui.util.nodeselection.SelectionHistoryManager;
  * A view displaying the Gradle tasks of the Gradle projects in the workspace.
  */
 public final class TaskView extends ViewPart implements NodeSelectionProvider {
-
-    /**
-     * Possible strategies for view reloading.
-     */
-    public enum ReloadStrategy {
-        LOAD_IF_NOT_CACHED,
-        FORCE_RELOAD
-    }
 
     // view id declared in the plugin.xml
     public static final String ID = "org.eclipse.buildship.ui.views.taskview"; //$NON-NLS-1$
@@ -173,7 +166,7 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
         // set initial content (use fetch strategy LOAD_IF_NOT_CACHED since
         // the model might already be available in case a project import has
         // just happened)
-        reload(ReloadStrategy.LOAD_IF_NOT_CACHED);
+        reload(FetchStrategy.LOAD_IF_NOT_CACHED);
     }
 
     /**
@@ -201,8 +194,8 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
      * Can be safely called outside the UI thread.
      * @param fetchStrategy determines how to get the model being visualized from the cache
      */
-    public void reload(ReloadStrategy reloadStrategy) {
-        new ReloadTaskViewJob(this, reloadStrategy).schedule();
+    public void reload(FetchStrategy fetchStrategy) {
+        new ReloadTaskViewJob(this, fetchStrategy).schedule();
     }
 
     @Override

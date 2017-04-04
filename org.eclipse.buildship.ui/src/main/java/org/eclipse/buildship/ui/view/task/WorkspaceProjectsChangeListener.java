@@ -13,11 +13,12 @@ package org.eclipse.buildship.ui.view.task;
 
 import com.google.common.base.Preconditions;
 
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
+
 import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.event.EventListener;
 import org.eclipse.buildship.core.workspace.ProjectCreatedEvent;
 import org.eclipse.buildship.core.workspace.ProjectDeletedEvent;
-import org.eclipse.buildship.ui.view.task.TaskView.ReloadStrategy;
 
 /**
  * Tracks the creation/deletion of projects in the workspace and updates the {@link TaskView}
@@ -37,7 +38,7 @@ public final class WorkspaceProjectsChangeListener implements EventListener {
     @Override
     public void onEvent(Event event) {
         if (event instanceof ProjectCreatedEvent || event instanceof ProjectDeletedEvent) {
-            this.taskView.reload(ReloadStrategy.LOAD_IF_NOT_CACHED);
+            this.taskView.reload(FetchStrategy.LOAD_IF_NOT_CACHED);
         }
     }
 }

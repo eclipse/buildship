@@ -8,37 +8,21 @@
  */
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.util.Collection;
-import java.util.List;
-
-import org.gradle.tooling.BuildActionExecuter;
 import org.gradle.tooling.BuildLauncher;
-import org.gradle.tooling.CancellationToken;
-import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.LongRunningOperation;
-import org.gradle.tooling.ModelBuilder;
-import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.TestLauncher;
-import org.gradle.tooling.model.build.BuildEnvironment;
-import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.console.ProcessStreams;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
-import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.workspace.GradleBuild;
+import org.eclipse.buildship.core.workspace.ModelProvider;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
@@ -83,31 +67,8 @@ public class DefaultGradleBuild implements GradleBuild {
     }
 
     @Override
-    public <T> T fetchModel(Class<T> model, CancellationToken token, IProgressMonitor monitor) {
-        ModelBuilder<T> modelBuilder = ConnectionAwareLauncherProxy.newModelBuilder(openConnection(this.attributes), model);
-        applyRequestAttributes(modelBuilder, this.attributes, getTransientRequestAttributes(token, monitor));
-        return modelBuilder.get();
-    }
-
-    @Override
-    public <T> Collection<T> fetchCompositeModel(Class<T> model, CancellationToken token, IProgressMonitor monitor) {
-        TransientRequestAttributes transientAttributes = getTransientRequestAttributes(token, monitor);
-        ProjectConnection connection = openConnection(this.attributes);
-        if (supportsCompositeBuilds(token, monitor)) {
-            BuildActionExecuter<Collection<T>> action = ConnectionAwareLauncherProxy.newCompositeModelQueryExecuter(connection, model);
-            applyRequestAttributes(action, this.attributes, transientAttributes);
-            return action.run();
-        } else {
-            ModelBuilder<T> modelBuilder = ConnectionAwareLauncherProxy.newModelBuilder(connection, model);
-            applyRequestAttributes(modelBuilder, this.attributes, transientAttributes);
-            return ImmutableList.of(modelBuilder.get());
-        }
-    }
-
-    private boolean supportsCompositeBuilds(CancellationToken token, IProgressMonitor monitor) {
-        BuildEnvironment buildEnvironment = fetchModel(BuildEnvironment.class, token, monitor);
-        GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
-        return gradleVersion.getBaseVersion().compareTo(GradleVersion.version("3.3")) >= 0;
+    public ModelProvider getModelProvider() {
+        return DefaultModelProvider.forAttributes(this.attributes);
     }
 
     @Override
@@ -117,49 +78,12 @@ public class DefaultGradleBuild implements GradleBuild {
 
     @Override
     public BuildLauncher newBuildLauncher(TransientRequestAttributes transientAttributes) {
-        BuildLauncher launcher = ConnectionAwareLauncherProxy.newBuildLauncher(openConnection(this.attributes));
-        applyRequestAttributes(launcher, this.attributes, transientAttributes);
-        return launcher;
+        return ConnectionAwareLauncherProxy.newBuildLauncher(this.attributes, transientAttributes);
     }
 
     @Override
     public TestLauncher newTestLauncher(TransientRequestAttributes transientAttributes) {
-        TestLauncher launcher = ConnectionAwareLauncherProxy.newTestLauncher(openConnection(this.attributes));
-        applyRequestAttributes(launcher, this.attributes, transientAttributes);
-        return launcher;
-    }
-
-    private static ProjectConnection openConnection(FixedRequestAttributes fixedAttributes) {
-        GradleConnector connector = GradleConnector.newConnector().forProjectDirectory(fixedAttributes.getProjectDir());
-        GradleDistributionWrapper.from(fixedAttributes.getGradleDistribution()).apply(connector);
-        connector.useGradleUserHomeDir(fixedAttributes.getGradleUserHome());
-        return connector.connect();
-    }
-
-    private void applyRequestAttributes(LongRunningOperation operation, FixedRequestAttributes fixedAttributes, TransientRequestAttributes transientAttributes) {
-        // fixed attributes
-        operation.setJavaHome(fixedAttributes.getJavaHome());
-        operation.withArguments(fixedAttributes.getArguments());
-        operation.setJvmArguments(fixedAttributes.getJvmArguments());
-
-        // transient attributes
-        operation.setStandardOutput(transientAttributes.getStandardOutput());
-        operation.setStandardError(transientAttributes.getStandardError());
-        operation.setStandardInput(transientAttributes.getStandardInput());
-        for (ProgressListener listener : transientAttributes.getProgressListeners()) {
-            operation.addProgressListener(listener);
-        }
-        operation. withCancellationToken(transientAttributes.getCancellationToken());
-    }
-
-    private final TransientRequestAttributes getTransientRequestAttributes(CancellationToken token, IProgressMonitor monitor) {
-        ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-        List<ProgressListener> progressListeners = ImmutableList.<ProgressListener> of(DelegatingProgressListener.withoutDuplicateLifecycleEvents(monitor));
-        ImmutableList<org.gradle.tooling.events.ProgressListener> noEventListeners = ImmutableList.<org.gradle.tooling.events.ProgressListener> of();
-        if (token == null) {
-            token = GradleConnector.newCancellationTokenSource().token();
-        }
-        return new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), progressListeners, noEventListeners, token);
+        return ConnectionAwareLauncherProxy.newTestLauncher(this.attributes, transientAttributes);
     }
 
     @Override

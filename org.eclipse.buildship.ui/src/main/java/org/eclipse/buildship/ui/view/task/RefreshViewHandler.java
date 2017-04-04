@@ -11,12 +11,12 @@
 
 package org.eclipse.buildship.ui.view.task;
 
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.handlers.HandlerUtil;
-
-import org.eclipse.buildship.ui.view.task.TaskView.ReloadStrategy;
 
 /**
  * A command handler on the {@link TaskView} to reload/refresh the content of the task view.
@@ -27,7 +27,7 @@ public final class RefreshViewHandler extends AbstractHandler {
     public Object execute(ExecutionEvent event) {
         IViewPart taskView = HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().findView(TaskView.ID);
         if (taskView != null) {
-            ((TaskView) taskView).reload(ReloadStrategy.FORCE_RELOAD);
+            ((TaskView) taskView).reload(FetchStrategy.FORCE_RELOAD);
         }
 
         // todo (etst) disable the Refresh button while the model updates are in progress

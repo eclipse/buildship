@@ -12,15 +12,10 @@
 package org.eclipse.buildship.ui.view.task;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
 
@@ -29,21 +24,18 @@ import org.eclipse.core.resources.IProject;
  */
 public final class TaskViewContent {
 
-    private final Map<FixedRequestAttributes, Set<OmniEclipseProject>> projects;
+    private final List<OmniEclipseProject> projects;
     private final List<IProject> faultyProjects;
 
-    public TaskViewContent(Map<FixedRequestAttributes, Set<OmniEclipseProject>> resultProjects, List<IProject> faultyProjects) {
-        this.projects = ImmutableMap.copyOf(resultProjects);
+    public TaskViewContent(List<OmniEclipseProject> projects, List<IProject> faultyProjects) {
+        this.projects = ImmutableList.copyOf(projects);
         this.faultyProjects = faultyProjects;
     }
 
     public List<OmniEclipseProject> getProjects() {
-        return ImmutableList.copyOf(Iterables.concat(this.projects.values()));
+        return this.projects;
     }
 
-    public Set<OmniEclipseProject> findProjectsFor(FixedRequestAttributes attributes) {
-        return this.projects.get(attributes);
-    }
 
     public List<IProject> getFaultyProjects() {
         return this.faultyProjects;
