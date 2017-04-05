@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.workspace.GradleBuild;
@@ -70,12 +71,13 @@ public final class SynchronizeGradleBuildsJob extends ToolingApiJob {
     }
 
     private void synchronizeBuild(GradleBuild build, SubMonitor progress) throws CoreException {
-        progress.setTaskName((String.format("Synchronizing Gradle build at %s with workspace", build.getRequestAttributes().getProjectDir())));
+        BuildConfiguration buildConfig = build.getBuildConfig();
+        progress.setTaskName((String.format("Synchronizing Gradle build at %s with workspace", buildConfig.getRootProjectDirectory())));
         progress.setWorkRemaining(3);
         Set<OmniEclipseProject> allProjects = fetchEclipseProjects(build, progress.newChild(1));
-        new SynchronizeProjectConfigOperation(build.getRequestAttributes(), allProjects).run(progress.newChild(1), getToken());
-        new RunOnImportTasksOperation(allProjects, build.getRequestAttributes()).run(progress.newChild(1), getToken());
-        new SynchronizeGradleBuildOperation(allProjects, build.getRequestAttributes(), SynchronizeGradleBuildsJob.this.newProjectHandler).run(progress.newChild(1));
+        new SynchronizeProjectConfigOperation(buildConfig).run(progress.newChild(1), getToken());
+        new RunOnImportTasksOperation(allProjects, buildConfig).run(progress.newChild(1), getToken());
+        new SynchronizeGradleBuildOperation(allProjects, buildConfig, SynchronizeGradleBuildsJob.this.newProjectHandler).run(progress.newChild(1));
     }
 
     private Set<OmniEclipseProject> fetchEclipseProjects(GradleBuild build, SubMonitor progress) {
@@ -99,7 +101,9 @@ public final class SynchronizeGradleBuildsJob extends ToolingApiJob {
     @Override
     public boolean shouldSchedule() {
         for (Job job : Job.getJobManager().find(CorePlugin.GRADLE_JOB_FAMILY)) {
+            System.err.println("job in gradle job family=" + job.getClass().getName());
             if (job instanceof SynchronizeGradleBuildsJob && isCoveredBy((SynchronizeGradleBuildsJob) job)) {
+                System.err.println("false");
                 return false;
             }
         }

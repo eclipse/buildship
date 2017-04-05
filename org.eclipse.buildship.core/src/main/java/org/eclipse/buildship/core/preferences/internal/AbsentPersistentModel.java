@@ -8,7 +8,6 @@
 
 package org.eclipse.buildship.core.preferences.internal;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.List;
 

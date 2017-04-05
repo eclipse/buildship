@@ -1,5 +1,7 @@
 package org.eclipse.buildship.core.test.fixtures
 
+import java.io.File
+
 import com.google.common.util.concurrent.FutureCallback
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
@@ -12,6 +14,7 @@ import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.jobs.Job
 
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
@@ -34,8 +37,8 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
     }
 
     protected void startSynchronization(File location, GradleDistribution distribution = DEFAULT_DISTRIBUTION, NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
-        FixedRequestAttributes attributes = new FixedRequestAttributes(location, null, distribution, null, [], [])
-        CorePlugin.gradleWorkspaceManager().getGradleBuild(attributes).synchronize(newProjectHandler)
+        BuildConfiguration buildConfiguration = CorePlugin.configurationManager().createBuildConfiguration(location, distribution, false, false, false)
+        CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfiguration).synchronize(newProjectHandler)
     }
 
     protected void synchronizeAndWait(IProject... projects) {

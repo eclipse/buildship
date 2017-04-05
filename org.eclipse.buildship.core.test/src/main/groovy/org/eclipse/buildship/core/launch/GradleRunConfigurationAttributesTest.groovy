@@ -25,6 +25,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
+import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType
 
@@ -33,19 +34,20 @@ class GradleRunConfigurationAttributesTest extends Specification {
     @Shared def Attributes defaults = new Attributes (
         tasks : ['clean'],
         workingDir : "/home/user/workspace",
-        gradleDistr : GradleDistributionWrapper.from(DistributionType.WRAPPER, null).toGradleDistribution(),
+        gradleDistr : GradleDistributionSerializer.INSTANCE.serializeToString(GradleDistribution.fromBuild()),
         javaHome : "/.java",
         arguments : ["-q"],
         jvmArguments : ["-ea"],
         showExecutionView :  true,
         showConsoleView : true,
-        useGradleDistributionFromImport : true,
-        overrideWorkspaceSettings : false
+        overrideWorkspaceSettings : false,
+        isOffline: false,
+        buildScansEnabled: false,
     )
 
     def "Can create a new valid instance"() {
         when:
-        def configuration = defaults.toConfiguration()
+        GradleRunConfigurationAttributes configuration = defaults.toConfiguration()
 
         then:
         // not null
@@ -53,18 +55,20 @@ class GradleRunConfigurationAttributesTest extends Specification {
         // check non-calculated values
         configuration.getTasks() == defaults.tasks
         configuration.getWorkingDirExpression() == defaults.workingDir
-        configuration.getGradleDistribution() == defaults.gradleDistr
         configuration.getJavaHomeExpression() == defaults.javaHome
         configuration.getJvmArguments() == defaults.jvmArguments
         configuration.getArguments() == defaults.arguments
         configuration.isShowExecutionView() == defaults.showExecutionView
         configuration.isShowConsoleView() == defaults.showConsoleView
-        configuration.isUseGradleDistributionFromImport() == defaults.useGradleDistributionFromImport
-        // check calculated value
+        configuration.isOverrideWorkspaceSettings() == defaults.overrideWorkspaceSettings
+        configuration.isOffline() == defaults.isOffline
+        configuration.isBuildScansEnabled() == defaults.buildScansEnabled
+        // check calculated values
         configuration.getArgumentExpressions() == defaults.arguments
         configuration.getJvmArgumentExpressions() == defaults.jvmArguments
         configuration.getWorkingDir().getAbsolutePath() == new File(defaults.workingDir).getAbsolutePath()
         configuration.getJavaHome().getAbsolutePath() == new File(defaults.javaHome).getAbsolutePath()
+        configuration.getGradleDistribution() == GradleDistributionSerializer.INSTANCE.deserializeFromString(defaults.gradleDistr)
     }
 
     def "Can create a new valid instance with valid null arguments"(Attributes attributes) {
@@ -203,7 +207,9 @@ class GradleRunConfigurationAttributesTest extends Specification {
         gradleConfig1.getJvmArguments() == gradleConfig2.getJvmArguments()
         gradleConfig1.getArguments() == gradleConfig2.getArguments()
         gradleConfig1.isShowExecutionView() == gradleConfig2.isShowExecutionView()
-        gradleConfig1.isUseGradleDistributionFromImport() == gradleConfig2.isUseGradleDistributionFromImport()
+        gradleConfig1.isOverrideWorkspaceSettings() == gradleConfig2.isOverrideWorkspaceSettings()
+        gradleConfig1.isOffline() == gradleConfig2.isOffline()
+        gradleConfig1.isBuildScansEnabled() == gradleConfig2.isBuildScansEnabled()
 
         where:
         attributes << [
@@ -223,7 +229,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         gradleConfig.apply(eclipseConfig)
 
         then:
-        gradleConfig.hasSameUniqueAttributes(eclipseConfig)
+        gradleConfig.hasSameAttributes(eclipseConfig)
     }
 
     static class Attributes implements Cloneable {
@@ -235,11 +241,12 @@ class GradleRunConfigurationAttributesTest extends Specification {
         def jvmArguments
         def showExecutionView
         def showConsoleView
-        def useGradleDistributionFromImport
         def overrideWorkspaceSettings
+        def isOffline
+        def buildScansEnabled
 
         def GradleRunConfigurationAttributes toConfiguration() {
-            GradleRunConfigurationAttributes.with(tasks, workingDir, gradleDistr, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView, useGradleDistributionFromImport)
+            new GradleRunConfigurationAttributes(tasks, workingDir, gradleDistr, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView, overrideWorkspaceSettings, isOffline, buildScansEnabled)
         }
 
         def Attributes copy(@DelegatesTo(value = Attributes, strategy=Closure.DELEGATE_FIRST) Closure closure) {

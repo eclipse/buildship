@@ -25,13 +25,15 @@ import com.google.common.collect.ImmutableList;
 import com.gradleware.tooling.toolingclient.BuildRequest;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.configuration.RunConfiguration;
+import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.event.Event;
@@ -70,12 +72,22 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
         // fetch build environment
         List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(DelegatingProgressListener.withFullOutput(monitor));
 
-        // apply the fixed attributes on the request o
         BuildRequest<Void> request = createRequest();
-        FixedRequestAttributes fixedAttributes = getConfigurationAttributes().toFixedRequestAttributes();
-        fixedAttributes.apply(request);
+        RunConfiguration runConfig = getRunConfig();
+        // TODO (donat) this won't be necessary once the project config can override Gradle user home
+        WorkspaceConfiguration workspaceConfig = CorePlugin.configurationManager().loadWorkspaceConfiguration();
 
-        // configure the request's transient attributes
+        request.gradleDistribution(runConfig.getGradleDistribution());
+
+        // apply the fixed attributes
+        request.projectDir(runConfig.getRootProjectDirectory());
+        request.gradleUserHomeDir(workspaceConfig.getGradleUserHome());
+        request.gradleDistribution(runConfig.getGradleDistribution());
+        request.javaHomeDir(runConfig.getJavaHome());
+        request.jvmArguments(runConfig.getJvmArguments().toArray(new String[0]));
+        request.arguments(runConfig.getArguments().toArray(new String[0]));
+
+        // configure the transient attributes
         request.standardOutput(processStreams.getOutput());
         request.standardError(processStreams.getError());
         request.standardInput(processStreams.getInput());
@@ -84,7 +96,7 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
 
         // print the applied run configuration settings at the beginning of the console output
         OutputStreamWriter writer = new OutputStreamWriter(processStreams.getConfiguration());
-        writeFixedRequestAttributes(fixedAttributes, writer, monitor);
+        writeConfig(workspaceConfig, runConfig, writer, monitor);
 
         // notify the listeners before executing the build launch request
         Event event = new DefaultExecuteLaunchRequestEvent(processDescription, request);
@@ -94,29 +106,29 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
         request.executeAndWait();
     }
 
-    private void writeFixedRequestAttributes(FixedRequestAttributes fixedAttributes, OutputStreamWriter writer, IProgressMonitor monitor) {
-        OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(fixedAttributes, monitor);
+    private void writeConfig(WorkspaceConfiguration workspaceConfig, RunConfiguration runConfig, OutputStreamWriter writer, IProgressMonitor monitor) {
+        OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(runConfig, monitor);
         // should the user not specify values for the gradleUserHome and javaHome, their default
         // values will not be specified in the launch configurations
         // as such, these attributes are retrieved separately from the build environment
-        File gradleUserHome = fixedAttributes.getGradleUserHome();
+        File gradleUserHome = workspaceConfig.getGradleUserHome();
         if (gradleUserHome == null) {
             gradleUserHome = buildEnvironment.getGradle().getGradleUserHome().or(null);
         }
-        File javaHome = fixedAttributes.getJavaHome();
+        File javaHome = runConfig.getJavaHome();
         if (javaHome == null) {
             javaHome = buildEnvironment.getJava().getJavaHome();
         }
         String gradleVersion = buildEnvironment.getGradle().getGradleVersion();
 
         try {
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_WorkingDirectory, fixedAttributes.getProjectDir().getAbsolutePath()));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_WorkingDirectory, runConfig.getRootProjectDirectory().getAbsolutePath()));
             writer.write(String.format("%s: %s%n", CoreMessages.Preference_Label_GradleUserHome, toNonEmpty(gradleUserHome, CoreMessages.Value_UseGradleDefault)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleDistribution, GradleDistributionFormatter.toString(fixedAttributes.getGradleDistribution())));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleDistribution, GradleDistributionFormatter.toString(runConfig.getGradleDistribution())));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleVersion, gradleVersion));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JavaHome, toNonEmpty(javaHome, CoreMessages.Value_UseGradleDefault)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JvmArguments, toNonEmpty(fixedAttributes.getJvmArguments(), CoreMessages.Value_None)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Arguments, toNonEmpty(fixedAttributes.getArguments(), CoreMessages.Value_None)));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JvmArguments, toNonEmpty(runConfig.getJvmArguments(), CoreMessages.Value_None)));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Arguments, toNonEmpty(runConfig.getArguments(), CoreMessages.Value_None)));
             writeExtraConfigInfo(writer);
             writer.write('\n');
             writer.flush();
@@ -135,8 +147,8 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
         return string != null ? string : defaultMessage;
     }
 
-    private OmniBuildEnvironment fetchBuildEnvironment(FixedRequestAttributes fixedRequestAttributes, IProgressMonitor monitor) {
-        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(fixedRequestAttributes).getModelProvider();
+    private OmniBuildEnvironment fetchBuildEnvironment(BuildConfiguration buildConfig, IProgressMonitor monitor) {
+        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig).getModelProvider();
         return modelProvider.fetchBuildEnvironment(FetchStrategy.FORCE_RELOAD, getToken(), monitor);
     }
 
@@ -152,7 +164,7 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
      *
      * @return the run configuration attributes
      */
-    protected abstract GradleRunConfigurationAttributes getConfigurationAttributes();
+    protected abstract RunConfiguration getRunConfig();
 
     /**
      * The process description.
@@ -183,12 +195,12 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
 
         private final String name;
         private final Job job;
-        private final GradleRunConfigurationAttributes configurationAttributes;
+        private final RunConfiguration runConfig;
 
-        protected BaseProcessDescription(String name, Job job, GradleRunConfigurationAttributes configurationAttributes) {
+        protected BaseProcessDescription(String name, Job job, RunConfiguration runConfig) {
             this.name = Preconditions.checkNotNull(name);
             this.job = Preconditions.checkNotNull(job);
-            this.configurationAttributes = Preconditions.checkNotNull(configurationAttributes);
+            this.runConfig = Preconditions.checkNotNull(runConfig);
         }
 
         @Override
@@ -202,8 +214,8 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
         }
 
         @Override
-        public GradleRunConfigurationAttributes getConfigurationAttributes() {
-            return this.configurationAttributes;
+        public RunConfiguration getRunConfig() {
+            return this.runConfig;
         }
 
     }

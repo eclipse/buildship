@@ -8,7 +8,7 @@ import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.ProjectScope
 
 import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigurationPersistence
+import org.eclipse.buildship.core.configuration.internal.BuildConfigurationPersistence
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
 
 @IgnoreIf({OperatingSystem.current.isWindows()})
@@ -43,7 +43,7 @@ class ImportingSymlinkedProject extends ProjectSynchronizationSpecification {
         IProject child = findProject("child")
         root.location.toFile() == new File(testDir, 'projects/sample').canonicalFile
         child.location.toFile() == new File(testDir, 'projects/sample/child').canonicalFile
-        new ProjectScope(root).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null) == ""
-        new ProjectScope(child).getNode(CorePlugin.PLUGIN_ID).get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null) == ".."
+        new ProjectScope(root).getNode(CorePlugin.PLUGIN_ID).get(BuildConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null) == ""
+        new ProjectScope(child).getNode(CorePlugin.PLUGIN_ID).get(BuildConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null) == ".."
     }
 }

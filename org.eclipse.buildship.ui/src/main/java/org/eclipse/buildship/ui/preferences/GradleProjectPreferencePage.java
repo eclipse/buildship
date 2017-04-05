@@ -20,8 +20,8 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.dialogs.PropertyPage;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.configuration.ConfigurationManager;
 import org.eclipse.buildship.ui.util.selection.Enabler;
 
 /**
@@ -72,26 +72,26 @@ public final class GradleProjectPreferencePage extends PropertyPage {
 
     private void initialize() {
         IProject project = getTargetProject();
-        ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project);
-        boolean overrideWorkspaceSettings = configuration.isOverrideWorkspaceSettings();
+        BuildConfiguration buildConfig = CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
+        boolean overrideWorkspaceSettings = buildConfig.isOverrideWorkspaceSettings();
         this.overrideWorkspaceSettingsCheckbox.setSelection(overrideWorkspaceSettings);
         this.buildScansEnabledCheckbox.setEnabled(overrideWorkspaceSettings);
-        this.buildScansEnabledCheckbox.setSelection(configuration.isBuildScansEnabled());
+        this.buildScansEnabledCheckbox.setSelection(buildConfig.isBuildScansEnabled());
         this.offlineModeCheckbox.setEnabled(overrideWorkspaceSettings);
-        this.offlineModeCheckbox.setSelection(configuration.isOfflineMode());
+        this.offlineModeCheckbox.setSelection(buildConfig.isOfflineMode());
     }
 
     @Override
     public boolean performOk() {
        IProject project = getTargetProject();
-       ProjectConfigurationManager manager = CorePlugin.projectConfigurationManager();
-       ProjectConfiguration currentConfig = manager.readProjectConfiguration(project);
-       ProjectConfiguration updatedConfig = ProjectConfiguration.from(currentConfig.getRootProjectDirectory(),
-                                                                      currentConfig.getGradleDistribution(),
-                                                                      this.overrideWorkspaceSettingsCheckbox.getSelection(),
-                                                                      this.buildScansEnabledCheckbox.getSelection(),
-                                                                      this.offlineModeCheckbox.getSelection());
-       manager.saveProjectConfiguration(updatedConfig);
+       ConfigurationManager manager = CorePlugin.configurationManager();
+       BuildConfiguration currentConfig = manager.loadProjectConfiguration(project).getBuildConfiguration();
+       BuildConfiguration updatedConfig = manager.createBuildConfiguration(currentConfig.getRootProjectDirectory(),
+                                                            currentConfig.getGradleDistribution(),
+                                                            this.overrideWorkspaceSettingsCheckbox.getSelection(),
+                                                            this.buildScansEnabledCheckbox.getSelection(),
+                                                            this.offlineModeCheckbox.getSelection());
+       manager.saveBuildConfiguration(updatedConfig);
        return true;
     }
 

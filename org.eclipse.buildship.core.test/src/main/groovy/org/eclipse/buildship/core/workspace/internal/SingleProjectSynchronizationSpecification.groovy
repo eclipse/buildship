@@ -10,7 +10,7 @@ import org.eclipse.jdt.launching.JavaRuntime
 
 import org.eclipse.buildship.core.Logger
 import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigurationPersistence
+import org.eclipse.buildship.core.configuration.internal.BuildConfigurationPersistence
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 
@@ -73,7 +73,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
 
         then:
         def project = findProject('sample-project')
-        new DefaultProjectConfigurationPersistence().readProjectConfiguration(project)
+        new BuildConfigurationPersistence().readPathToRoot(project) == ''
     }
 
     def "Derived resources are marked"() {

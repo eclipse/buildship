@@ -1,11 +1,17 @@
 package org.eclipse.buildship.core.invocation
 
-import spock.lang.Specification
+import org.eclipse.core.resources.IProject
+import org.eclipse.debug.core.DebugPlugin
+import org.eclipse.debug.core.ILaunchConfigurationType
+import org.eclipse.debug.core.ILaunchManager
 
-import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder
+import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes
+import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate
+import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.util.extension.InvocationCustomizerCollector
 
-class InvocationCustomizerTest extends Specification {
+class InvocationCustomizerTest extends ProjectSynchronizationSpecification {
 
     static final List<String> EXTRA_ARGUMENTS = ['-PSampleInvocationCustomizer']
 
@@ -28,12 +34,24 @@ class InvocationCustomizerTest extends Specification {
 
     def "Can contribute extra arguments"() {
         expect:
-       new InvocationCustomizerCollector().extraArguments == EXTRA_ARGUMENTS
+        new InvocationCustomizerCollector().extraArguments == EXTRA_ARGUMENTS
     }
 
-    def "FixedRequestAttributesBuilder receive extra arguments"() {
+    def "Run configuration contains extra arguments"() {
+        setup:
+        File projectDir = dir('sample-project') {
+            file 'settings.gradle'
+        }
+        synchronizeAndWait(projectDir)
+        IProject project = findProject('sample-project')
+
         expect:
-        FixedRequestAttributesBuilder.fromWorkspaceSettings(new File('/')).build().arguments == EXTRA_ARGUMENTS
-        FixedRequestAttributesBuilder.fromEmptySettings(new File('/')).build().arguments == []
+        CorePlugin.configurationManager().loadRunConfiguration(runConfigAttributes()).arguments == EXTRA_ARGUMENTS
+    }
+
+    private GradleRunConfigurationAttributes runConfigAttributes() {
+        ILaunchManager launchManager = DebugPlugin.default.launchManager
+        ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(GradleRunConfigurationDelegate.ID)
+        GradleRunConfigurationAttributes.from(type.newInstance(null, "launch-config-name"))
     }
 }
