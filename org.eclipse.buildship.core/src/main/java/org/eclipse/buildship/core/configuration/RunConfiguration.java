@@ -9,16 +9,24 @@
 package org.eclipse.buildship.core.configuration;
 
 import java.io.File;
+import java.util.List;
 
 /**
- * Configuration for a project in a Gradle build.
+ * Configuration to launch tasks and tests.
  *
  * @author Donat Csikos
  */
-public interface ProjectConfiguration {
+public interface RunConfiguration extends BuildConfiguration {
 
-    File getProjectDir();
+    List<String> getTasks();
 
-    BuildConfiguration getBuildConfiguration();
+    File getJavaHome();
 
+    List<String> getArguments();
+
+    List<String> getJvmArguments();
+
+    boolean isShowExecutionView();
+
+    boolean isShowConsoleView();
 }

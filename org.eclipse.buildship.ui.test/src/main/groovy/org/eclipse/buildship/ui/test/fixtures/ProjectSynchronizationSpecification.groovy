@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.Path
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob
-import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.NewProjectHandler

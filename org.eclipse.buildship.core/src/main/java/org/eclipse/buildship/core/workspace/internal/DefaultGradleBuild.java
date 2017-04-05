@@ -14,12 +14,12 @@ import org.gradle.tooling.TestLauncher;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.ModelProvider;
@@ -32,12 +32,12 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
  */
 public class DefaultGradleBuild implements GradleBuild {
 
-    private final FixedRequestAttributes attributes;
+    private final BuildConfiguration buildConfig;
     private final ModelProvider modelProvider;
 
-    public DefaultGradleBuild(FixedRequestAttributes builds) {
-        this.attributes = Preconditions.checkNotNull(builds);
-        this.modelProvider = new DefaultModelProvider(this.attributes);
+    public DefaultGradleBuild(BuildConfiguration buildConfig) {
+        this.buildConfig = Preconditions.checkNotNull(buildConfig);
+        this.modelProvider = new DefaultModelProvider(this.buildConfig.toRequestAttributes());
     }
 
     @Override
@@ -59,7 +59,7 @@ public class DefaultGradleBuild implements GradleBuild {
         for (Job job : syncJobs) {
             if (job instanceof SynchronizeGradleBuildsJob) {
                 for (GradleBuild gradleBuild : ((SynchronizeGradleBuildsJob) job).getBuilds()) {
-                    if (gradleBuild.getRequestAttributes().getProjectDir().equals(this.attributes.getProjectDir())) {
+                    if (gradleBuild.getBuildConfig().getRootProjectDirectory().equals(this.buildConfig.getRootProjectDirectory())) {
                         return true;
                     }
                 }
@@ -74,31 +74,31 @@ public class DefaultGradleBuild implements GradleBuild {
     }
 
     @Override
-    public FixedRequestAttributes getRequestAttributes() {
-        return this.attributes;
+    public BuildConfiguration getBuildConfig() {
+        return this.buildConfig;
     }
 
     @Override
     public BuildLauncher newBuildLauncher(TransientRequestAttributes transientAttributes) {
-        return ConnectionAwareLauncherProxy.newBuildLauncher(this.attributes, transientAttributes);
+        return ConnectionAwareLauncherProxy.newBuildLauncher(this.buildConfig.toRequestAttributes(), transientAttributes);
     }
 
     @Override
     public TestLauncher newTestLauncher(TransientRequestAttributes transientAttributes) {
-        return ConnectionAwareLauncherProxy.newTestLauncher(this.attributes, transientAttributes);
+        return ConnectionAwareLauncherProxy.newTestLauncher(this.buildConfig.toRequestAttributes(), transientAttributes);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof DefaultGradleBuild) {
             DefaultGradleBuild other = (DefaultGradleBuild) obj;
-            return Objects.equal(this.attributes, other.attributes);
+            return Objects.equal(this.buildConfig, other.buildConfig);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.attributes);
+        return Objects.hashCode(this.buildConfig);
     }
 }

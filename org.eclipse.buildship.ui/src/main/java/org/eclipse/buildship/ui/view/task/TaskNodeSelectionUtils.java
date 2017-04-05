@@ -11,21 +11,20 @@
 
 package org.eclipse.buildship.ui.view.task;
 
+import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-
 import org.eclipse.core.resources.IProject;
 
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
-import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder;
-import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 
@@ -71,54 +70,45 @@ public final class TaskNodeSelectionUtils {
     @SuppressWarnings("ConstantConditions")
     public static GradleRunConfigurationAttributes getRunConfigurationAttributes(NodeSelection selection) {
         Preconditions.checkNotNull(selection);
+        List<String> tasks = getTaskPathStrings(selection);
 
-        // read the project configuration from the workspace project of the selected nodes (if accessible)
-        Optional<FixedRequestAttributes> requestAttributes = getFixedRequestAttributes(selection);
-
-        // determine the string representation of the tasks to run, relative to the project directory
-        // (we currently work with Strings since Launchable is only available as of 1.12)
-        ImmutableList<String> tasks = getTaskPathStrings(selection);
-
-        // determine the project directory from the selected nodes
-        // (we build on the invariant that all selected tasks have the same parent directory and
-        // they are all either of type ProjectTaskNode or TaskSelectorNode)
-        String projectDirectoryExpression = getProjectDirectoryExpression(selection);
-
-        // determine the advanced options
-        GradleDistribution gradleDistribution = requestAttributes.isPresent() ? requestAttributes.get().getGradleDistribution() : GradleDistribution.fromBuild();
-        String javaHome = requestAttributes.isPresent() ? FileUtils.getAbsolutePath(requestAttributes.get().getJavaHome()).orNull() : null;
-        List<String> jvmArguments = requestAttributes.isPresent() ? requestAttributes.get().getJvmArguments() : ImmutableList.<String>of();
-        List<String> arguments = requestAttributes.isPresent() ? requestAttributes.get().getArguments() : ImmutableList.<String>of();
-
-        // have execution view and console view enabled by default
-        boolean showExecutionView = true;
-        boolean showConsoleView = true;
-
-        // create the run configuration
-        return GradleRunConfigurationAttributes.with(tasks, projectDirectoryExpression, gradleDistribution, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView, true);
-    }
-
-    private static Optional<FixedRequestAttributes> getFixedRequestAttributes(NodeSelection selection) {
         if (TaskViewActionStateRules.taskScopedTaskExecutionActionsEnabledFor(selection)) {
             TaskNode taskNode = selection.getFirstElement(TaskNode.class);
-            return getFixedRequestAttributes(taskNode.getParentProjectNode());
+            return getRunConfigurationAttributes(taskNode.getParentProjectNode(), tasks);
         } else if (TaskViewActionStateRules.projectScopedTaskExecutionActionsEnabledFor(selection)) {
             ProjectNode projectNode = selection.getFirstElement(ProjectNode.class);
-            return getFixedRequestAttributes(projectNode);
+            return getRunConfigurationAttributes(projectNode, tasks);
         } else {
             throw new IllegalStateException("Unsupported selection: " + selection);
         }
     }
 
-    private static Optional<FixedRequestAttributes> getFixedRequestAttributes(ProjectNode projectNode) {
-        Optional<IProject> workspaceProject = projectNode.getWorkspaceProject();
-        if (workspaceProject.isPresent()) {
-            IProject project = workspaceProject.get();
-            if (GradleProjectNature.isPresentOn(project)) {
-                return Optional.of(FixedRequestAttributesBuilder.fromProjectSettings(project).build());
-            }
+
+    private static GradleRunConfigurationAttributes getRunConfigurationAttributes(ProjectNode projectNode, List<String> tasks) {
+        File rootDir = projectNode.getEclipseProject().getRoot().getProjectDirectory();
+        BuildConfiguration buildConfig = CorePlugin.configurationManager().loadBuildConfiguration(rootDir);
+        return new GradleRunConfigurationAttributes(tasks,
+                                                    projectDirectoryExpression(projectNode.getEclipseProject().getProjectDirectory()),
+                                                    GradleDistributionSerializer.INSTANCE.serializeToString(buildConfig.getGradleDistribution()),
+                                                    null,
+                                                    Collections.<String>emptyList(),
+                                                    Collections.<String>emptyList(),
+                                                    true,
+                                                    true,
+                                                    buildConfig.isOverrideWorkspaceSettings(),
+                                                    buildConfig.isOfflineMode(),
+                                                    buildConfig.isBuildScansEnabled());
+    }
+
+    private static String projectDirectoryExpression(File rootProjectDir) {
+        // return the directory as an expression if the project is part of the workspace, otherwise
+        // return the absolute path of the project directory available on the Eclipse project model
+        Optional<IProject> project = CorePlugin.workspaceOperations().findProjectByLocation(rootProjectDir);
+        if (project.isPresent()) {
+            return ExpressionUtils.encodeWorkspaceLocation(project.get());
+        } else {
+            return rootProjectDir.getAbsolutePath();
         }
-        return Optional.absent();
     }
 
     private static ImmutableList<String> getTaskPathStrings(NodeSelection selection) {
@@ -146,34 +136,4 @@ public final class TaskNodeSelectionUtils {
             throw new IllegalStateException("Unsupported selection: " + selection);
         }
     }
-
-    private static String getProjectDirectoryExpression(NodeSelection selection) {
-        if (TaskViewActionStateRules.taskScopedTaskExecutionActionsEnabledFor(selection)) {
-            TaskNode taskNode = selection.getFirstElement(TaskNode.class);
-            if (taskNode instanceof ProjectTaskNode) {
-                //project tasks should be run from the root directory to support flat project layouts
-                return getProjectDirectoryExpression(taskNode.getParentProjectNode().getRootProjectNode());
-            } else if (taskNode instanceof TaskSelectorNode) {
-                //task selectors need to be run from the project containing the selector
-                return getProjectDirectoryExpression(taskNode.getParentProjectNode());
-            }
-        } else if (TaskViewActionStateRules.projectScopedTaskExecutionActionsEnabledFor(selection)) {
-            // the default tasks of a project must be run from that project's directory
-            ProjectNode projectNode = selection.getFirstElement(ProjectNode.class);
-            return getProjectDirectoryExpression(projectNode);
-        }
-        throw new IllegalStateException("Unsupported selection: " + selection);
-    }
-
-    private static String getProjectDirectoryExpression(ProjectNode projectNode) {
-        // return the directory as an expression if the project is part of the workspace, otherwise
-        // return the absolute path of the project directory available on the Eclipse project model
-        Optional<IProject> workspaceProject = projectNode.getWorkspaceProject();
-        if (workspaceProject.isPresent()) {
-            return ExpressionUtils.encodeWorkspaceLocation(workspaceProject.get());
-        } else {
-            return projectNode.getEclipseProject().getProjectDirectory().getAbsolutePath();
-        }
-    }
-
 }

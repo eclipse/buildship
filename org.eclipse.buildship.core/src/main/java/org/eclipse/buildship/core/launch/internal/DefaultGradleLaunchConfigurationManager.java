@@ -47,7 +47,7 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
     public Optional<ILaunchConfiguration> getRunConfiguration(GradleRunConfigurationAttributes configurationAttributes) {
         Preconditions.checkNotNull(configurationAttributes);
         for (ILaunchConfiguration launchConfiguration : getGradleLaunchConfigurations()) {
-            if (configurationAttributes.hasSameUniqueAttributes(launchConfiguration)) {
+            if (configurationAttributes.hasSameAttributes(launchConfiguration)) {
                 return Optional.of(launchConfiguration);
             }
         }

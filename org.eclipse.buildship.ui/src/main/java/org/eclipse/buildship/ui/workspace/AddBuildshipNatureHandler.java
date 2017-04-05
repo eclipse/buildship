@@ -13,7 +13,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingclient.GradleDistribution;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -25,9 +25,9 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.util.collections.AdapterFunction;
-import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
@@ -44,31 +44,31 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
         ISelection selection = HandlerUtil.getCurrentSelection(event);
         if (selection instanceof StructuredSelection) {
             List<?> elements = ((StructuredSelection) selection).toList();
-            Set<FixedRequestAttributes> builds = collectGradleBuilds(elements);
-            synchronize(builds);
+            Set<BuildConfiguration> buildConfigs = collectBuildConfigs(elements);
+            synchronize(buildConfigs);
         }
         return null;
     }
 
-    private Set<FixedRequestAttributes> collectGradleBuilds(List<?> elements) {
-        Set<FixedRequestAttributes> builds = Sets.newLinkedHashSet();
+    private Set<BuildConfiguration> collectBuildConfigs(List<?> elements) {
+        Set<BuildConfiguration> buildConfigs = Sets.newLinkedHashSet();
         AdapterFunction<IProject> adapterFunction = AdapterFunction.forType(IProject.class);
         for (Object element : elements) {
             IProject project = adapterFunction.apply(element);
             if (project != null && !GradleProjectNature.isPresentOn(project)) {
                 IPath location = project.getLocation();
                 if (location != null) {
-                    builds.add(FixedRequestAttributesBuilder.fromWorkspaceSettings(location.toFile()).build());
+                    buildConfigs.add(CorePlugin.configurationManager().createBuildConfiguration(location.toFile(), GradleDistribution.fromBuild(), false, false, false));
                 }
             }
 
         }
-        return builds;
+        return buildConfigs;
     }
 
-    private void synchronize(Set<FixedRequestAttributes> builds) {
-        for (final FixedRequestAttributes build : builds) {
-            GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(build);
+    private void synchronize(Set<BuildConfiguration> buildConfigs) {
+        for (final BuildConfiguration buildConfig : buildConfigs) {
+            GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);
             gradleBuild.synchronize(NewProjectHandler.IMPORT_AND_MERGE);
         }
     }

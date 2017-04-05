@@ -46,7 +46,6 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.util.binding.Validators;
@@ -69,9 +68,9 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
     private Text workingDirectoryText;
     private Button showExecutionViewCheckbox;
     private Button showConsoleViewCheckbox;
-    private Button overrideProjectSettingsCheckbox;
-    private Button overriddenOfflineModeCheckbox;
-    private Button overriddenBuildScansEnabledCheckbox;
+    private Button overrideWorkspaceSettingsCheckbox;
+    private Button offlineModeCheckbox;
+    private Button buildScansEnabledCheckbox;
 
     public ProjectTab() {
         this.workingDirValidator = Validators.requiredDirectoryValidator(CoreMessages.RunConfiguration_Label_WorkingDirectory);
@@ -212,18 +211,18 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
         GridLayout layout = new GridLayout(3, false);
         container.setLayout(layout);
 
-        this.overrideProjectSettingsCheckbox = new Button(container, SWT.CHECK);
-        this.overrideProjectSettingsCheckbox.setText("Override project settings");
-        this.overriddenOfflineModeCheckbox = new Button(container, SWT.CHECK);
-        this.overriddenOfflineModeCheckbox.setText("Offline Mode");
-        this.overriddenBuildScansEnabledCheckbox = new Button(container, SWT.CHECK);
-        this.overriddenBuildScansEnabledCheckbox.setText("Build Scans");
+        this.overrideWorkspaceSettingsCheckbox = new Button(container, SWT.CHECK);
+        this.overrideWorkspaceSettingsCheckbox.setText("Override workspace settings");
+        this.offlineModeCheckbox = new Button(container, SWT.CHECK);
+        this.offlineModeCheckbox.setText("Offline Mode");
+        this.buildScansEnabledCheckbox = new Button(container, SWT.CHECK);
+        this.buildScansEnabledCheckbox.setText("Build Scans");
 
-        this.overrideProjectSettingsCheckbox.addSelectionListener(new DialogUpdater());
-        this.overriddenOfflineModeCheckbox.addSelectionListener(new DialogUpdater());
-        this.overriddenBuildScansEnabledCheckbox.addSelectionListener(new DialogUpdater());
+        this.overrideWorkspaceSettingsCheckbox.addSelectionListener(new DialogUpdater());
+        this.offlineModeCheckbox.addSelectionListener(new DialogUpdater());
+        this.buildScansEnabledCheckbox.addSelectionListener(new DialogUpdater());
 
-        new Enabler(this.overrideProjectSettingsCheckbox).enables(this.overriddenOfflineModeCheckbox, this.overriddenBuildScansEnabledCheckbox);
+        new Enabler(this.overrideWorkspaceSettingsCheckbox).enables(this.offlineModeCheckbox, this.buildScansEnabledCheckbox);
     }
 
     @Override
@@ -234,19 +233,13 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
         this.showExecutionViewCheckbox.setSelection(configurationAttributes.isShowExecutionView());
         this.showConsoleViewCheckbox.setSelection(configurationAttributes.isShowConsoleView());
 
-        boolean overrideWorkspaceSettings = configurationAttributes.isOverrideProjectSettings();
+        boolean overrideWorkspaceSettings = configurationAttributes.isOverrideWorkspaceSettings();
 
-        this.overrideProjectSettingsCheckbox.setSelection(overrideWorkspaceSettings);
-        this.overriddenOfflineModeCheckbox.setEnabled(overrideWorkspaceSettings);
-        this.overriddenBuildScansEnabledCheckbox.setEnabled(overrideWorkspaceSettings);
-        if(overrideWorkspaceSettings) {
-            this.overriddenOfflineModeCheckbox.setSelection(configurationAttributes.isOffline());
-            this.overriddenBuildScansEnabledCheckbox.setSelection(configurationAttributes.isBuildScansEnabled());
-        } else {
-            WorkspaceConfiguration workspaceConfig = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
-            this.overriddenOfflineModeCheckbox.setSelection(workspaceConfig.isOffline());
-            this.overriddenBuildScansEnabledCheckbox.setSelection(workspaceConfig.isBuildScansEnabled());
-        }
+        this.overrideWorkspaceSettingsCheckbox.setSelection(overrideWorkspaceSettings);
+        this.offlineModeCheckbox.setEnabled(overrideWorkspaceSettings);
+        this.buildScansEnabledCheckbox.setEnabled(overrideWorkspaceSettings);
+        this.offlineModeCheckbox.setSelection(configurationAttributes.isOffline());
+        this.buildScansEnabledCheckbox.setSelection(configurationAttributes.isBuildScansEnabled());
     }
 
     @Override
@@ -255,10 +248,9 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
         GradleRunConfigurationAttributes.applyWorkingDirExpression(this.workingDirectoryText.getText(), configuration);
         GradleRunConfigurationAttributes.applyShowExecutionView(this.showExecutionViewCheckbox.getSelection(), configuration);
         GradleRunConfigurationAttributes.applyShowConsoleView(this.showConsoleViewCheckbox.getSelection(), configuration);
-        GradleRunConfigurationAttributes.applyProjectOverride(this.overrideProjectSettingsCheckbox.getSelection(),
-                                                                this.overriddenOfflineModeCheckbox.getSelection(),
-                                                                this.overriddenBuildScansEnabledCheckbox.getSelection(),
-                                                                configuration);
+        GradleRunConfigurationAttributes.applyOverrideWorkspaceSettings(this.overrideWorkspaceSettingsCheckbox.getSelection(), configuration);
+        GradleRunConfigurationAttributes.applyOfflineMode(this.offlineModeCheckbox.getSelection(), configuration);
+        GradleRunConfigurationAttributes.applyBuildScansEnabled(this.buildScansEnabledCheckbox.getSelection(), configuration);
     }
 
     @SuppressWarnings("Contract")

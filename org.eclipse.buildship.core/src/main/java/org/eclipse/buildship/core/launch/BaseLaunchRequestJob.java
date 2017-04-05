@@ -19,7 +19,6 @@ import java.util.List;
 
 import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.model.build.BuildEnvironment;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -27,15 +26,16 @@ import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.internal.DefaultOmniBuildEnvironment;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.configuration.RunConfiguration;
+import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.event.Event;
@@ -48,6 +48,7 @@ import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.workspace.GradleBuild;
+import org.eclipse.buildship.core.workspace.ModelProvider;
 
 /**
  * Base class to execute Gradle builds in a job.
@@ -70,12 +71,13 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
         ProcessDescription processDescription = createProcessDescription();
         ProcessStreams processStreams = CorePlugin.processStreamsProvider().createProcessStreams(processDescription);
 
-        FixedRequestAttributes fixedAttributes = getConfigurationAttributes().toFixedRequestAttributes();
+        WorkspaceConfiguration workspaceConfig = CorePlugin.configurationManager().loadWorkspaceConfiguration();
+        RunConfiguration runConfig = getRunConfig(); 
         List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(DelegatingProgressListener.withFullOutput(monitor));
         TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, processStreams.getOutput(), processStreams.getError(), processStreams.getInput(),
                 listeners, Collections.<org.gradle.tooling.events.ProgressListener>emptyList(), getToken());
 
-        GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(fixedAttributes);
+        GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(runConfig);
 
         // apply FixedRequestAttributes on build launcher
         T launcher = createLaunch(gradleBuild, transientAttributes, processDescription);
@@ -86,35 +88,35 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
 
         // print the applied run configuration settings at the beginning of the console output
         OutputStreamWriter writer = new OutputStreamWriter(processStreams.getConfiguration());
-        writeFixedRequestAttributes(fixedAttributes, writer, monitor);
+        writeConfig(workspaceConfig, runConfig, writer, monitor);
 
         // execute the build
         executeLaunch(launcher);
     }
 
-    private void writeFixedRequestAttributes(FixedRequestAttributes fixedAttributes, OutputStreamWriter writer, IProgressMonitor monitor) {
-        OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(fixedAttributes, monitor);
+    private void writeConfig(WorkspaceConfiguration workspaceConfig, RunConfiguration runConfig, OutputStreamWriter writer, IProgressMonitor monitor) {
+        OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(runConfig, monitor);
         // should the user not specify values for the gradleUserHome and javaHome, their default
         // values will not be specified in the launch configurations
         // as such, these attributes are retrieved separately from the build environment
-        File gradleUserHome = fixedAttributes.getGradleUserHome();
+        File gradleUserHome = workspaceConfig.getGradleUserHome();
         if (gradleUserHome == null) {
             gradleUserHome = buildEnvironment.getGradle().getGradleUserHome().or(null);
         }
-        File javaHome = fixedAttributes.getJavaHome();
+        File javaHome = runConfig.getJavaHome();
         if (javaHome == null) {
             javaHome = buildEnvironment.getJava().getJavaHome();
         }
         String gradleVersion = buildEnvironment.getGradle().getGradleVersion();
 
         try {
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_WorkingDirectory, fixedAttributes.getProjectDir().getAbsolutePath()));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_WorkingDirectory, runConfig.getRootProjectDirectory().getAbsolutePath()));
             writer.write(String.format("%s: %s%n", CoreMessages.Preference_Label_GradleUserHome, toNonEmpty(gradleUserHome, CoreMessages.Value_UseGradleDefault)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleDistribution, GradleDistributionFormatter.toString(fixedAttributes.getGradleDistribution())));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleDistribution, GradleDistributionFormatter.toString(runConfig.getGradleDistribution())));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleVersion, gradleVersion));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JavaHome, toNonEmpty(javaHome, CoreMessages.Value_UseGradleDefault)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JvmArguments, toNonEmpty(fixedAttributes.getJvmArguments(), CoreMessages.Value_None)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Arguments, toNonEmpty(fixedAttributes.getArguments(), CoreMessages.Value_None)));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JvmArguments, toNonEmpty(runConfig.getJvmArguments(), CoreMessages.Value_None)));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Arguments, toNonEmpty(runConfig.getArguments(), CoreMessages.Value_None)));
             writeExtraConfigInfo(writer);
             writer.write('\n');
             writer.flush();
@@ -133,10 +135,9 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
         return string != null ? string : defaultMessage;
     }
 
-    private OmniBuildEnvironment fetchBuildEnvironment(FixedRequestAttributes fixedRequestAttributes, IProgressMonitor monitor) {
-        GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(fixedRequestAttributes);
-        BuildEnvironment buildEnvironment = gradleBuild.getModelProvider().fetchModel(BuildEnvironment.class, FetchStrategy.FORCE_RELOAD, getToken(), monitor);
-        return DefaultOmniBuildEnvironment.from(buildEnvironment);
+    private OmniBuildEnvironment fetchBuildEnvironment(BuildConfiguration buildConfig, IProgressMonitor monitor) {
+        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig).getModelProvider();
+        return modelProvider.fetchBuildEnvironment(FetchStrategy.FORCE_RELOAD, getToken(), monitor);
     }
 
     /**
@@ -151,7 +152,7 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
      *
      * @return the run configuration attributes
      */
-    protected abstract GradleRunConfigurationAttributes getConfigurationAttributes();
+    protected abstract RunConfiguration getRunConfig();
 
     /**
      * The process description.
@@ -189,12 +190,12 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
 
         private final String name;
         private final Job job;
-        private final GradleRunConfigurationAttributes configurationAttributes;
+        private final RunConfiguration runConfig;
 
-        protected BaseProcessDescription(String name, Job job, GradleRunConfigurationAttributes configurationAttributes) {
+        protected BaseProcessDescription(String name, Job job, RunConfiguration runConfig) {
             this.name = Preconditions.checkNotNull(name);
             this.job = Preconditions.checkNotNull(job);
-            this.configurationAttributes = Preconditions.checkNotNull(configurationAttributes);
+            this.runConfig = Preconditions.checkNotNull(runConfig);
         }
 
         @Override
@@ -208,8 +209,8 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
         }
 
         @Override
-        public GradleRunConfigurationAttributes getConfigurationAttributes() {
-            return this.configurationAttributes;
+        public RunConfiguration getRunConfig() {
+            return this.runConfig;
         }
 
     }

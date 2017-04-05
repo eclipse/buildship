@@ -17,8 +17,6 @@ import org.eclipse.jface.viewers.StructuredSelection
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration
-import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder;
-import org.eclipse.buildship.ui.test.fixtures.EclipseProjects
 import org.eclipse.buildship.ui.test.fixtures.WorkspaceSpecification
 
 class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {

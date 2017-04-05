@@ -12,7 +12,9 @@ import java.util.Iterator;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSet.Builder;
 
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.GradleBuilds;
@@ -25,8 +27,12 @@ public class DefaultGradleBuilds implements GradleBuilds {
 
     private final ImmutableSet<GradleBuild> gradleBuilds;
 
-    public DefaultGradleBuilds(Set<GradleBuild> gradleBuilds) {
-        this.gradleBuilds = ImmutableSet.copyOf(gradleBuilds);
+    public DefaultGradleBuilds(Set<BuildConfiguration> buildConfigs) {
+        Builder<GradleBuild> builds = ImmutableSet.builder();
+        for (BuildConfiguration buildConfig : buildConfigs) {
+            builds.add(new DefaultGradleBuild(buildConfig));
+        }
+        this.gradleBuilds = builds.build();
     }
 
     @Override

@@ -9,7 +9,6 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.Collection;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -18,16 +17,12 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableSet;
-
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.GradleBuilds;
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
@@ -39,22 +34,23 @@ import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
  */
 public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
 
-    private final LoadingCache<FixedRequestAttributes, GradleBuild> cache = CacheBuilder.newBuilder().build(new CacheLoader<FixedRequestAttributes, GradleBuild>() {
+    private final LoadingCache<BuildConfiguration, GradleBuild> cache = CacheBuilder.newBuilder().build(new CacheLoader<BuildConfiguration, GradleBuild>() {
 
         @Override
-        public GradleBuild load(FixedRequestAttributes attributes) {
-            return new DefaultGradleBuild(attributes);
+        public GradleBuild load(BuildConfiguration buildConfiguration) {
+            return new DefaultGradleBuild(buildConfiguration);
         }});
 
     @Override
-    public GradleBuild getGradleBuild(FixedRequestAttributes attributes) {
-        return this.cache.getUnchecked(attributes);
+    public GradleBuild getGradleBuild(BuildConfiguration buildConfig) {
+        return this.cache.getUnchecked(buildConfig);
     }
 
     @Override
     public Optional<GradleBuild> getGradleBuild(IProject project) {
         if (GradleProjectNature.isPresentOn(project)) {
-            return Optional.<GradleBuild>of(new DefaultGradleBuild(FixedRequestAttributesBuilder.fromProjectSettings(project).build()));
+            BuildConfiguration buildConfig = CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
+            return Optional.<GradleBuild>of(new DefaultGradleBuild(buildConfig));
         } else {
             return Optional.absent();
         }
@@ -62,30 +58,20 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
 
     @Override
     public GradleBuilds getGradleBuilds() {
-        Set<FixedRequestAttributes> attributes = attributesFor(CorePlugin.workspaceOperations().getAllProjects());
-        return new DefaultGradleBuilds(getBuilds(attributes));
+        return new DefaultGradleBuilds(getBuildConfigs(CorePlugin.workspaceOperations().getAllProjects()));
     }
 
     @Override
     public GradleBuilds getGradleBuilds(Set<IProject> projects) {
-        Set<GradleBuild> gradleBuilds = getBuilds(attributesFor(projects));
-        return new DefaultGradleBuilds(gradleBuilds);
+        return new DefaultGradleBuilds(getBuildConfigs(projects));
     }
 
-    private Set<GradleBuild> getBuilds(Set<FixedRequestAttributes> attributes) {
-        try {
-            return ImmutableSet.copyOf(this.cache.getAll(attributes).values());
-        } catch (ExecutionException e) {
-            throw new GradlePluginsRuntimeException(e);
-        }
-    }
-
-    private static Set<FixedRequestAttributes> attributesFor(Collection<IProject> projects) {
-        return FluentIterable.from(projects).filter(GradleProjectNature.isPresentOn()).transform(new Function<IProject, FixedRequestAttributes>() {
+    private Set<BuildConfiguration> getBuildConfigs(Collection<IProject> projects) {
+        return FluentIterable.from(projects).filter(GradleProjectNature.isPresentOn()).transform(new Function<IProject, BuildConfiguration>() {
 
             @Override
-            public FixedRequestAttributes apply(IProject project) {
-                return FixedRequestAttributesBuilder.fromProjectSettings(project).build();
+            public BuildConfiguration apply(IProject project) {
+                return CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
             }
         }).filter(Predicates.notNull()).toSet();
     }

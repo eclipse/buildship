@@ -31,12 +31,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             """
         }
 
-        WorkspaceOperations operations = Stub(WorkspaceOperations) {
-            isNatureRecognizedByEclipse(WTP_COMPONENT_NATURE) >> {
-                environment.close()
-                true
-            }
-        }
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: true)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -56,12 +51,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             """
         }
 
-        WorkspaceOperations operations = Stub(WorkspaceOperations) {
-            isNatureRecognizedByEclipse(WTP_COMPONENT_NATURE) >> {
-                environment.close()
-                false
-            }
-        }
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: false)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -81,12 +71,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             """
         }
 
-        WorkspaceOperations operations = Stub(WorkspaceOperations) {
-            isNatureRecognizedByEclipse(WTP_COMPONENT_NATURE) >>  {
-                environment.close()
-                true
-            }
-        }
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: true)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -107,12 +92,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             """
         }
 
-        WorkspaceOperations operations = Stub(WorkspaceOperations) {
-            isNatureRecognizedByEclipse(WTP_COMPONENT_NATURE) >>  {
-                environment.close()
-                true
-            }
-        }
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: true)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -333,12 +313,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
     @Issue("https://bugs.eclipse.org/bugs/show_bug.cgi?id=506627")
     def "Cleans up outdated component configuration"() {
         setup:
-        WorkspaceOperations operations = Stub(WorkspaceOperations) {
-            isNatureRecognizedByEclipse(WTP_COMPONENT_NATURE) >> {
-                environment.close()
-                true
-            }
-        }
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: true)
         registerService(WorkspaceOperations, operations)
 
         File root = dir("wtp-project") {
@@ -389,12 +364,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             file 'settings.gradle', "includeBuild 'included'"
         }
 
-        WorkspaceOperations operations = Stub(WorkspaceOperations) {
-            isNatureRecognizedByEclipse(WTP_COMPONENT_NATURE) >> {
-                environment.close()
-                true
-            }
-        }
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: true)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -405,6 +375,15 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         findProject('included')
         !hasComponentDescriptor(included)
         !hasFacetDescriptor(included)
+    }
+
+    class WorkspaceOperationsDelegate {
+        @Delegate WorkspaceOperations delegate = new DefaultWorkspaceOperations()
+        boolean recognizeWtpComponentNature
+
+        boolean isNatureRecognizedByEclipse(String nature) {
+            nature == WTP_COMPONENT_NATURE ? recognizeWtpComponentNature : delegate.isNatureRecognizedByEclipse(nature)
+        }
     }
 
     private IClasspathEntry[] resolvedClasspath(IProject project) {
