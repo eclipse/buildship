@@ -308,6 +308,23 @@ class ProjectConfigurationManagerTest extends ProjectSynchronizationSpecificatio
         configurations.size() == 2
     }
 
+    def "can read configuration for closed projects"() {
+        setup:
+        def rootDir = dir("root") {
+            file('settings.gradle').text = "include 'sub'"
+            file('build.gradle').text = "project(':sub')"
+            dir 'sub'
+        }
+        importAndWait(rootDir)
+
+        when:
+        IProject sub = findProject('sub')
+        sub.close(null)
+
+        then:
+        configurationManager.readProjectConfiguration(sub)
+    }
+
     private void setInvalidPreferenceOn(IProject project) {
         PreferenceStore preferences = PreferenceStore.forProjectScope(project, CorePlugin.PLUGIN_ID)
         preferences.write(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, 'I am error.')

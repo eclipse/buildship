@@ -35,7 +35,6 @@ final class DefaultProjectConfigurationPersistence implements ProjectConfigurati
     @Override
     public ProjectConfiguration readProjectConfiguration(IProject project) {
         Preconditions.checkNotNull(project);
-        Preconditions.checkArgument(project.isAccessible());
         try {
             return loadFromPreferencesApi(project);
         } catch (Exception e1) {
