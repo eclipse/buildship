@@ -10,7 +10,6 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -26,7 +25,6 @@ import com.google.common.base.Supplier;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
 
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
@@ -47,12 +45,10 @@ import org.eclipse.buildship.core.workspace.ModelProvider;
  */
 final class DefaultModelProvider implements ModelProvider {
 
-    private static final Map<FixedRequestAttributes, ModelProvider> providerCache = Maps.newHashMap();
-
     private final FixedRequestAttributes fixedAttributes;
     private final Cache<Object, Object> cache = CacheBuilder.newBuilder().build();
 
-    private DefaultModelProvider(FixedRequestAttributes fixedAttributes) {
+    public DefaultModelProvider(FixedRequestAttributes fixedAttributes) {
         this.fixedAttributes = fixedAttributes;
     }
 
@@ -145,16 +141,5 @@ final class DefaultModelProvider implements ModelProvider {
             token = GradleConnector.newCancellationTokenSource().token();
         }
         return new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), progressListeners, noEventListeners, token);
-    }
-
-    public static ModelProvider forAttributes(FixedRequestAttributes attributes) {
-        synchronized (providerCache) {
-            ModelProvider modelProvider = providerCache.get(attributes);
-            if (modelProvider == null) {
-                providerCache.put(attributes, modelProvider = new DefaultModelProvider(attributes));
-            }
-            return modelProvider;
-        }
-
     }
 }

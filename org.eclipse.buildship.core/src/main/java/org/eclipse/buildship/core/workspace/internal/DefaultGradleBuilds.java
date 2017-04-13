@@ -12,9 +12,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSet.Builder;
-
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.GradleBuild;
@@ -28,12 +25,8 @@ public class DefaultGradleBuilds implements GradleBuilds {
 
     private final ImmutableSet<GradleBuild> gradleBuilds;
 
-    public DefaultGradleBuilds(Set<FixedRequestAttributes> attributes) {
-        Builder<GradleBuild> builds = ImmutableSet.builder();
-        for (FixedRequestAttributes attribute : attributes) {
-            builds.add(new DefaultGradleBuild(attribute));
-        }
-        this.gradleBuilds = builds.build();
+    public DefaultGradleBuilds(Set<GradleBuild> gradleBuilds) {
+        this.gradleBuilds = ImmutableSet.copyOf(gradleBuilds);
     }
 
     @Override

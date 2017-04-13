@@ -33,9 +33,11 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
 public class DefaultGradleBuild implements GradleBuild {
 
     private final FixedRequestAttributes attributes;
+    private final ModelProvider modelProvider;
 
     public DefaultGradleBuild(FixedRequestAttributes builds) {
         this.attributes = Preconditions.checkNotNull(builds);
+        this.modelProvider = new DefaultModelProvider(this.attributes);
     }
 
     @Override
@@ -68,7 +70,7 @@ public class DefaultGradleBuild implements GradleBuild {
 
     @Override
     public ModelProvider getModelProvider() {
-        return DefaultModelProvider.forAttributes(this.attributes);
+        return this.modelProvider;
     }
 
     @Override
