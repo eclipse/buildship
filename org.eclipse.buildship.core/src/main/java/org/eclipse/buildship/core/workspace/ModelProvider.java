@@ -8,6 +8,7 @@
  */
 package org.eclipse.buildship.core.workspace;
 
+import java.util.Collection;
 import java.util.Set;
 
 import org.gradle.tooling.CancellationToken;
@@ -15,7 +16,6 @@ import org.gradle.tooling.CancellationToken;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
-import com.gradleware.tooling.toolingmodel.OmniGradleProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -25,46 +25,57 @@ import org.eclipse.core.runtime.IProgressMonitor;
  *
  * @author Stefan Oehme
  */
-//TODO we should refactor this and tooling-commons to allow arbitrary models instead of a fixed set
 public interface ModelProvider {
 
     /**
-     * Fetches the {@link OmniBuildEnvironment}.
+     * Synchronously queries a target model from this build.
      *
-     * @param fetchStrategy the caching strategy
-     * @param token the cancellation token or null if cancellation is not required
-     * @param monitor the monitor to report progress on or null if progress reporting is not required
-     * @return the model or null if caching was disabled and no value was cached
+     * @param model the model to query
+     * @param strategy the fetch strategy
+     * @param token the cancellation token
+     * @param monitor the monitor to report the progress on
+     * @return the returned model
      */
-    OmniBuildEnvironment fetchBuildEnvironment(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor);
+    <T> T fetchModel(Class<T> model, FetchStrategy strategy, CancellationToken token, IProgressMonitor monitor);
 
     /**
-     * Fetches the {@link OmniGradleBuild}.
+     * Synchronously queries a target model from this build and from all included builds.
      *
-     * @param fetchStrategy the caching strategy
-     * @param token the cancellation token or null if cancellation is not required
-     * @param monitor the monitor to report progress on or null if progress reporting is not required
-     * @return the model or null if caching was disabled and no value was cached
+     * @param model the model to query
+     * @param strategy the fetch strategy
+     * @param token the cancellation token
+     * @param monitor the monitor to report the progress on
+     * @return the returned models
      */
-    OmniGradleBuild fetchGradleBuild(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor);
+    <T> Collection<T> fetchModels(Class<T> model, FetchStrategy strategy, CancellationToken token, IProgressMonitor monitor);
 
     /**
-     * Fetches the {@link OmniGradleProject} models for all projects in the build.
+     * Synchronously queries The {@link OmniBuildEnvironment} model from this build.
      *
-     * @param fetchStrategy the caching strategy
-     * @param token the cancellation token or null if cancellation is not required
-     * @param monitor the monitor to report progress on or null if progress reporting is not required
-     * @return the models or null if caching was disabled and no value was cached
+     * @param strategy the fetch strategy
+     * @param token the cancellation token
+     * @param monitor the monitor to report the progress on
+     * @return the returned model
      */
-    Set<OmniGradleProject> fetchGradleProjects(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor);
+    OmniBuildEnvironment fetchBuildEnvironment(FetchStrategy strategy, CancellationToken token, IProgressMonitor monitor);
 
     /**
-     * Fetches the {@link OmniEclipseProject} models for all projects in the build.
+     * Synchronously queries The {@link OmniGradleBuild} model from this build.
      *
-     * @param fetchStrategy the caching strategy
-     * @param token the cancellation token or null if cancellation is not required
-     * @param monitor the monitor to report progress on or null if progress reporting is not required
-     * @return the models or null if caching was disabled and no value was cached
+     * @param strategy the fetch strategy
+     * @param token the cancellation token
+     * @param monitor the monitor to report the progress on
+     * @return the returned model
      */
-    Set<OmniEclipseProject> fetchEclipseGradleProjects(FetchStrategy fetchStrategy, CancellationToken token, IProgressMonitor monitor);
+    OmniGradleBuild fetchGradleBuild(FetchStrategy strategy, CancellationToken token, IProgressMonitor monitor);
+
+    /**
+     * Synchronously queries The {@link OmniEclipseProject} models from this build.
+     *
+     * @param strategy the fetch strategy
+     * @param token the cancellation token
+     * @param monitor the monitor to report the progress on
+     * @return the returned model
+     */
+    Set<OmniEclipseProject> fetchEclipseGradleProjects(FetchStrategy strategy, CancellationToken token, IProgressMonitor monitor);
 }

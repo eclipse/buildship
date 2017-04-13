@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.model.build.BuildEnvironment;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -28,6 +29,7 @@ import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
+import com.gradleware.tooling.toolingmodel.repository.internal.DefaultOmniBuildEnvironment;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
@@ -46,7 +48,6 @@ import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.workspace.GradleBuild;
-import org.eclipse.buildship.core.workspace.ModelProvider;
 
 /**
  * Base class to execute Gradle builds in a job.
@@ -133,8 +134,9 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
     }
 
     private OmniBuildEnvironment fetchBuildEnvironment(FixedRequestAttributes fixedRequestAttributes, IProgressMonitor monitor) {
-        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(fixedRequestAttributes).getModelProvider();
-        return modelProvider.fetchBuildEnvironment(FetchStrategy.FORCE_RELOAD, getToken(), monitor);
+        GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(fixedRequestAttributes);
+        BuildEnvironment buildEnvironment = gradleBuild.getModelProvider().fetchModel(BuildEnvironment.class, FetchStrategy.FORCE_RELOAD, getToken(), monitor);
+        return DefaultOmniBuildEnvironment.from(buildEnvironment);
     }
 
     /**

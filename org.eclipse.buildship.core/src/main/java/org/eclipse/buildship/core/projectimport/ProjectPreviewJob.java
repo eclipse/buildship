@@ -85,5 +85,4 @@ public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
         ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.fixedAttributes).getModelProvider();
         return modelProvider.fetchGradleBuild(FetchStrategy.FORCE_RELOAD, getToken(), monitor);
     }
-
 }
