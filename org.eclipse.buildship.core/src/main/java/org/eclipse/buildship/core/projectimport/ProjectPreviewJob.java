@@ -14,8 +14,6 @@ package org.eclipse.buildship.core.projectimport;
 import java.util.List;
 
 import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.model.build.BuildEnvironment;
-import org.gradle.tooling.model.gradle.GradleBuild;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
@@ -24,8 +22,6 @@ import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.internal.DefaultOmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.repository.internal.DefaultOmniGradleBuild;
 import com.gradleware.tooling.toolingmodel.util.Pair;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -36,6 +32,7 @@ import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
+import org.eclipse.buildship.core.workspace.ModelProvider;
 
 /**
  * A job that fetches the models required for the project import preview.
@@ -80,15 +77,12 @@ public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
     }
 
     private OmniBuildEnvironment fetchBuildEnvironment(IProgressMonitor monitor) {
-        org.eclipse.buildship.core.workspace.GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.fixedAttributes);
-        BuildEnvironment model = gradleBuild.getModelProvider().fetchModel(BuildEnvironment.class, FetchStrategy.FORCE_RELOAD, getToken(), monitor);
-        return DefaultOmniBuildEnvironment.from(model);
+        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.fixedAttributes).getModelProvider();
+        return modelProvider.fetchBuildEnvironment(FetchStrategy.FORCE_RELOAD, getToken(), monitor);
     }
 
     private OmniGradleBuild fetchGradleBuildStructure(IProgressMonitor monitor) {
-        org.eclipse.buildship.core.workspace.GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.fixedAttributes);
-        GradleBuild model = gradleBuild.getModelProvider().fetchModel(GradleBuild.class, FetchStrategy.FORCE_RELOAD, getToken(), monitor);
-        return DefaultOmniGradleBuild.from(model);
+        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.fixedAttributes).getModelProvider();
+        return modelProvider.fetchGradleBuild(FetchStrategy.FORCE_RELOAD, getToken(), monitor);
     }
-
 }
