@@ -65,4 +65,8 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
         return GradleClasspathContainerUpdater.updateFromStorage(javaProject, null);
     }
 
+    @Override
+    public Object getComparisonID(IPath containerPath, IJavaProject project) {
+        return project;
+    }
 }

@@ -298,7 +298,7 @@ public final class GradleRunConfigurationAttributes {
 
         String gradleDistribution;
         try {
-            gradleDistribution = launchConfiguration.getAttribute(GRADLE_DISTRIBUTION, "");
+            gradleDistribution = launchConfiguration.getAttribute(GRADLE_DISTRIBUTION, GradleDistributionSerializer.INSTANCE.serializeToString(GradleDistribution.fromBuild()));
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot read launch configuration attribute '%s'.", USE_GRADLE_DISTRIBUTION_FROM_IMPORT));
         }
