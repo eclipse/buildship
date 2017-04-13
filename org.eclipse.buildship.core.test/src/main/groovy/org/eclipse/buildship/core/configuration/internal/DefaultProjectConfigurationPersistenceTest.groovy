@@ -68,13 +68,6 @@ class DefaultProjectConfigurationPersistenceTest extends WorkspaceSpecification 
 
         then:
         thrown NullPointerException
-
-        when:
-        project.close(new NullProgressMonitor())
-        persistence.readProjectConfiguration(project)
-
-        then:
-        thrown IllegalArgumentException
     }
 
     def "can read preferences"() {
