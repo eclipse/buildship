@@ -97,20 +97,16 @@ final class DefaultModelProvider implements ModelProvider {
     }
 
     private <T> T executeOperation(final Supplier<T> operation, FetchStrategy fetchStrategy, Class<?> cacheKey) {
-        // if model is only accessed from the cache, we can return immediately
         if (FetchStrategy.FROM_CACHE_ONLY == fetchStrategy) {
             @SuppressWarnings("unchecked")
             T result = (T) this.cache.getIfPresent(cacheKey);
             return result;
         }
 
-        // if model must be reloaded, we can invalidate the cache entry and then proceed as for
-        // FetchStrategy.LOAD_IF_NOT_CACHED
         if (FetchStrategy.FORCE_RELOAD == fetchStrategy) {
             this.cache.invalidate(cacheKey);
         }
 
-        // load the values from the cache iff not already cached
         final AtomicBoolean modelLoaded = new AtomicBoolean(false);
         T value = getFromCache(cacheKey, new Callable<T>() {
 
