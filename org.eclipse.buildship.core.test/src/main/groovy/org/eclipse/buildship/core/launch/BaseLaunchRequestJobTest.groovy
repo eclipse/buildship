@@ -1,46 +1,44 @@
 package org.eclipse.buildship.core.launch
 
-import com.gradleware.tooling.toolingclient.ToolingClient
+import org.eclipse.debug.core.ILaunchConfiguration
+
 import org.eclipse.buildship.core.console.ProcessStreams
 import org.eclipse.buildship.core.console.ProcessStreamsProvider
-import org.eclipse.buildship.core.test.fixtures.TestEnvironment
-import org.eclipse.debug.core.ILaunchConfiguration
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import spock.lang.AutoCleanup;
-import spock.lang.Specification
+import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
-class BaseLaunchRequestJobTest extends Specification {
+class BaseLaunchRequestJobTest extends WorkspaceSpecification {
 
-    @Rule
-    TemporaryFolder tempFolder
+    private ProcessStreamsProvider processStreamsProvider
+    private ByteArrayOutputStream buildOutputStream
+    private ByteArrayOutputStream buildConfigurationStream
 
-    @AutoCleanup
-    TestEnvironment environment = TestEnvironment.INSTANCE
-
-    ToolingClient toolingClient
-    ProcessStreamsProvider processStreamsProvider
-
-    def setup() {
-        toolingClient = Mock(ToolingClient)
-
-        OutputStream configurationStream = Mock(OutputStream)
+    void setup() {
         ProcessStreams processStreams = Mock(ProcessStreams)
-        processStreams.getConfiguration() >> configurationStream
+        buildOutputStream = new ByteArrayOutputStream()
+        buildConfigurationStream = new ByteArrayOutputStream()
+        processStreams.output >> buildOutputStream
+        processStreams.configuration >> buildConfigurationStream
 
         processStreamsProvider = Mock(ProcessStreamsProvider)
         processStreamsProvider.createProcessStreams(_) >> processStreams
         processStreamsProvider.getBackgroundJobProcessStreams() >> processStreams
 
-        environment.registerService(ToolingClient, toolingClient)
         environment.registerService(ProcessStreamsProvider, processStreamsProvider)
     }
 
-    def createLaunchConfigurationMock() {
-        ILaunchConfiguration launchConfiguration = Mock()
+    String getBuildOutput() {
+        buildOutputStream.toString()
+    }
+
+    String getBuildConfig() {
+        buildConfigurationStream.toString()
+    }
+
+    ILaunchConfiguration createLaunchConfiguration(File projectDir, tasks = ['clean', 'build']) {
+        ILaunchConfiguration launchConfiguration = Mock(ILaunchConfiguration)
         launchConfiguration.getName() >> 'name'
-        launchConfiguration.getAttribute('tasks', _) >> ['clean', 'build']
-        launchConfiguration.getAttribute('working_dir', _) >> tempFolder.newFolder().absolutePath
+        launchConfiguration.getAttribute('tasks', _) >> tasks
+        launchConfiguration.getAttribute('working_dir', _) >> projectDir
         launchConfiguration.getAttribute('gradle_distribution', _) >> 'GRADLE_DISTRIBUTION(WRAPPER)'
         launchConfiguration.getAttribute('arguments', _) >> []
         launchConfiguration.getAttribute('jvm_arguments', _) >> []

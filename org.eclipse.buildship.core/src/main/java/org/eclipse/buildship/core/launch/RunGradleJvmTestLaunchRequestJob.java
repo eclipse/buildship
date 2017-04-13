@@ -11,17 +11,6 @@
 
 package org.eclipse.buildship.core.launch;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingclient.BuildRequest;
-import com.gradleware.tooling.toolingclient.TestConfig;
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.i18n.CoreMessages;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -29,6 +18,19 @@ import java.text.DateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+
+import org.gradle.tooling.LongRunningOperation;
+import org.gradle.tooling.ProjectConnection;
+import org.gradle.tooling.TestLauncher;
+
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+
+import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.core.i18n.CoreMessages;
 
 /**
  * Runs a Gradle test build which executes a list of test classes.
@@ -67,12 +69,23 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
     }
 
     @Override
-    protected BuildRequest<Void> createRequest() {
-        TestConfig.Builder testConfig = new TestConfig.Builder();
+    protected Launcher createLauncher(ProjectConnection connection) {
+        final TestLauncher launcher = connection.newTestLauncher();
         for (TestTarget testTarget : this.testTargets) {
-            testTarget.apply(testConfig);
+            testTarget.apply(launcher);
         }
-        return CorePlugin.toolingClient().newTestLaunchRequest(testConfig.build());
+        return new Launcher() {
+
+            @Override
+            public LongRunningOperation getOperation() {
+                return launcher;
+            }
+
+            @Override
+            public void run() {
+                launcher.run();
+            }
+        };
     }
 
     @Override

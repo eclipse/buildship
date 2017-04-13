@@ -11,8 +11,10 @@
 
 package org.eclipse.buildship.core.launch;
 
+import org.gradle.tooling.TestLauncher;
+
 import com.google.common.base.Preconditions;
-import com.gradleware.tooling.toolingclient.TestConfig.Builder;
+
 import org.eclipse.jdt.core.IType;
 
 /**
@@ -37,8 +39,8 @@ public final class TestType implements TestTarget {
     }
 
     @Override
-    public void apply(Builder testConfig) {
-        testConfig.jvmTestClasses(this.type.getFullyQualifiedName());
+    public void apply(TestLauncher launcher) {
+        launcher.withJvmTestClasses(this.type.getFullyQualifiedName());
     }
 
     public static TestType from(IType type) {

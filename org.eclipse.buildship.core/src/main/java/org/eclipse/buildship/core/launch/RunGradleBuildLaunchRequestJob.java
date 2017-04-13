@@ -11,27 +11,30 @@
 
 package org.eclipse.buildship.core.launch;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.gradleware.tooling.toolingclient.LaunchableConfig;
-import com.gradleware.tooling.toolingclient.BuildRequest;
-
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.util.collections.CollectionsUtils;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.ILaunchConfiguration;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
+
+import org.gradle.tooling.BuildLauncher;
+import org.gradle.tooling.LongRunningOperation;
+import org.gradle.tooling.ProjectConnection;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
+
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 
 /**
  * Executes Gradle tasks based on a given {@code ILaunch} and {@code ILaunchConfiguration} instance.
@@ -69,8 +72,20 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob {
     }
 
     @Override
-    protected BuildRequest<Void> createRequest() {
-        return CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(this.configurationAttributes.getTasks()));
+    protected Launcher createLauncher(ProjectConnection connection) {
+        final BuildLauncher launcher = connection.newBuild().forTasks(this.configurationAttributes.getTasks().toArray(new String[0]));
+        return new Launcher() {
+
+            @Override
+            public void run() {
+                launcher.run();
+            }
+
+            @Override
+            public LongRunningOperation getOperation() {
+                return launcher;
+            }
+        };
     }
 
     @Override
