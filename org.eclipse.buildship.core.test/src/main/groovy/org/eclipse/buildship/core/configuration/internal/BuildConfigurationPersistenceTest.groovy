@@ -118,32 +118,32 @@ class BuildConfigurationPersistenceTest extends WorkspaceSpecification {
 //        then:
 //        !new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID).get(BuildConfigurationPersistence.PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, null)
 //    }
-
-    @IgnoreIf({!OperatingSystem.current.isWindows()}) // IPath implementation is os-dependent
-    def "Windows-style paths can can be read and are replaced with slashes"() {
-        setup:
-        fileTree(project.location.toFile()) {
-            dir('.settings') { file "${CorePlugin.PLUGIN_ID}.prefs", """
-                    connection.gradle.distribution=GRADLE_DISTRIBUTION(WRAPPER)
-                    connection.project.dir=../..
-                    eclipse.preferences.version=1
-                """ }
-        }
-
-        when:
-        def configuration = persistence.readBuildConfiguratonProperties(project)
-
-        then:
-        configuration.rootProjectDirectory == project.location.toFile().parentFile.parentFile
-
-        when:
-        project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor())
-        persistence.saveBuildConfiguration(project, configuration)
-
-
-        then:
-        new File(project.location.toFile(), ".settings/${CorePlugin.PLUGIN_ID}.prefs").text.contains 'connection.project.dir=../..'
-    }
+//
+//    @IgnoreIf({!OperatingSystem.current.isWindows()}) // IPath implementation is os-dependent
+//    def "Windows-style paths can can be read and are replaced with slashes"() {
+//        setup:
+//        fileTree(project.location.toFile()) {
+//            dir('.settings') { file "${CorePlugin.PLUGIN_ID}.prefs", """
+//                    connection.gradle.distribution=GRADLE_DISTRIBUTION(WRAPPER)
+//                    connection.project.dir=../..
+//                    eclipse.preferences.version=1
+//                """ }
+//        }
+//
+//        when:
+//        def configuration = persistence.readBuildConfiguratonProperties(project)
+//
+//        then:
+//        configuration.rootProjectDirectory == project.location.toFile().parentFile.parentFile
+//
+//        when:
+//        project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor())
+//        persistence.saveBuildConfiguration(project, configuration)
+//
+//
+//        then:
+//        new File(project.location.toFile(), ".settings/${CorePlugin.PLUGIN_ID}.prefs").text.contains 'connection.project.dir=../..'
+//    }
 
     private BuildConfigurationProperties buildConfigProperties() {
         new BuildConfigurationProperties(project.getLocation().toFile(), GradleDistribution.fromBuild(), false, false, false)

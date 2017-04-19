@@ -69,7 +69,7 @@ class DefaultBuildConfiguration implements BuildConfiguration {
 
     @Override
     public FixedRequestAttributes toRequestAttributes() {
-        return new FixedRequestAttributes(getRootProjectDirectory(), null, getGradleDistribution(), null, Collections.<String>emptyList(), Collections.<String>emptyList());
+        return new FixedRequestAttributes(getRootProjectDirectory(), this.workspaceConfiguration.getGradleUserHome(), getGradleDistribution(), null, Collections.<String>emptyList(), Collections.<String>emptyList());
     }
 
     @Override
