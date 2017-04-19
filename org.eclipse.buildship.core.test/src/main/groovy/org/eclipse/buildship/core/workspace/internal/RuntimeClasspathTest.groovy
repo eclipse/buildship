@@ -4,6 +4,9 @@ import spock.lang.Issue
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
+import org.eclipse.core.runtime.Path
+import org.eclipse.debug.core.ILaunchConfiguration
+import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.launching.IRuntimeClasspathEntry
@@ -195,6 +198,27 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
         then:
         classpath.find { it.type == IRuntimeClasspathEntry.ARCHIVE && it.path.lastSegment() == 'custom-output-dir' }
         classpath.find { it.type == IRuntimeClasspathEntry.ARCHIVE && it.path.lastSegment() == 'default-output-dir' }
+    }
+
+    def "Gradle classpath containers from different projects always considered unequal"() { //
+        setup:
+        File external = dir('external-gradle-project') {
+            file('build.gradle') << """
+                apply plugin: 'java'
+                repositories.mavenCentral()
+                dependencies.compile 'com.google.guava:guava:18.0'
+            """
+        }
+        importAndWait(external)
+        importAndWait(location)
+
+        IJavaProject project = findJavaProject('a')
+        project.setRawClasspath(project.rawClasspath + [JavaCore.newProjectEntry(new Path('/external-gradle-project'))] as IClasspathEntry[], null)
+        IRuntimeClasspathEntry[] unresolvedClasspath = JavaRuntime.computeUnresolvedRuntimeClasspath(project)
+        IRuntimeClasspathEntry[] resolvedClasspath = JavaRuntime.resolveRuntimeClasspath(unresolvedClasspath, Mock(ILaunchConfiguration))
+
+        expect:
+        resolvedClasspath.find { it.path.lastSegment().contains 'guava' }
     }
 
     private IRuntimeClasspathEntry[] projectRuntimeClasspath(IJavaProject project) {

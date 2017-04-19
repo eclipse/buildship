@@ -30,8 +30,6 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         when:
         synchronizeAndWait(projectDir)
 
-        expect:
-
         then:
         def project = findProject('sample-project')
         project.hasNature(GradleProjectNature.ID)
