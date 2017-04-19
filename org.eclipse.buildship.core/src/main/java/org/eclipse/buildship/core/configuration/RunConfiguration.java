@@ -16,7 +16,9 @@ import java.util.List;
  *
  * @author Donat Csikos
  */
-public interface RunConfiguration extends BuildConfiguration {
+public interface RunConfiguration {
+
+    BuildConfiguration getBuildConfiguration();
 
     List<String> getTasks();
 

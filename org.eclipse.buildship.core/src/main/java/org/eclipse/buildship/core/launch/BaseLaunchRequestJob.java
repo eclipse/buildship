@@ -74,15 +74,16 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
 
         BuildRequest<Void> request = createRequest();
         RunConfiguration runConfig = getRunConfig();
+        BuildConfiguration buildConfig = runConfig.getBuildConfiguration();
         // TODO (donat) this won't be necessary once the project config can override Gradle user home
         WorkspaceConfiguration workspaceConfig = CorePlugin.configurationManager().loadWorkspaceConfiguration();
 
-        request.gradleDistribution(runConfig.getGradleDistribution());
+        request.gradleDistribution(buildConfig.getGradleDistribution());
 
         // apply the fixed attributes
-        request.projectDir(runConfig.getRootProjectDirectory());
+        request.projectDir(buildConfig.getRootProjectDirectory());
         request.gradleUserHomeDir(workspaceConfig.getGradleUserHome());
-        request.gradleDistribution(runConfig.getGradleDistribution());
+        request.gradleDistribution(buildConfig.getGradleDistribution());
         request.javaHomeDir(runConfig.getJavaHome());
         request.jvmArguments(runConfig.getJvmArguments().toArray(new String[0]));
         request.arguments(runConfig.getArguments().toArray(new String[0]));
@@ -107,7 +108,8 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
     }
 
     private void writeConfig(WorkspaceConfiguration workspaceConfig, RunConfiguration runConfig, OutputStreamWriter writer, IProgressMonitor monitor) {
-        OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(runConfig, monitor);
+        BuildConfiguration buildConfig = runConfig.getBuildConfiguration();
+        OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(buildConfig, monitor);
         // should the user not specify values for the gradleUserHome and javaHome, their default
         // values will not be specified in the launch configurations
         // as such, these attributes are retrieved separately from the build environment
@@ -122,9 +124,9 @@ public abstract class BaseLaunchRequestJob extends ToolingApiJob {
         String gradleVersion = buildEnvironment.getGradle().getGradleVersion();
 
         try {
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_WorkingDirectory, runConfig.getRootProjectDirectory().getAbsolutePath()));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_WorkingDirectory, buildConfig.getRootProjectDirectory().getAbsolutePath()));
             writer.write(String.format("%s: %s%n", CoreMessages.Preference_Label_GradleUserHome, toNonEmpty(gradleUserHome, CoreMessages.Value_UseGradleDefault)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleDistribution, GradleDistributionFormatter.toString(runConfig.getGradleDistribution())));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleDistribution, GradleDistributionFormatter.toString(buildConfig.getGradleDistribution())));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleVersion, gradleVersion));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JavaHome, toNonEmpty(javaHome, CoreMessages.Value_UseGradleDefault)));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JvmArguments, toNonEmpty(runConfig.getJvmArguments(), CoreMessages.Value_None)));

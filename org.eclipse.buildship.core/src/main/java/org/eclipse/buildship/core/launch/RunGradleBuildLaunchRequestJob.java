@@ -62,7 +62,7 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob {
 
     @Override
     protected ProcessDescription createProcessDescription() {
-        String processName = createProcessName(this.runConfig.getTasks(), this.runConfig.getRootProjectDirectory(), this.launch.getLaunchConfiguration().getName());
+        String processName = createProcessName(this.runConfig.getTasks(), this.runConfig.getBuildConfiguration().getRootProjectDirectory(), this.launch.getLaunchConfiguration().getName());
         return new BuildLaunchProcessDescription(processName);
     }
 

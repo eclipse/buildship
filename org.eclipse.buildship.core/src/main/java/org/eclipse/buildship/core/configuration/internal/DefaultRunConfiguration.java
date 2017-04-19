@@ -15,35 +15,42 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 
 /**
  * Default implementation for {@link RunConfiguration}.
  */
-public class DefaultRunConfiguration extends DefaultBuildConfiguration implements RunConfiguration {
+public class DefaultRunConfiguration implements RunConfiguration {
 
-    private final RunConfigurationProperties runConfigurationProperties;
+    private final BuildConfiguration buildConfiguration;
+    private final RunConfigurationProperties runProperties;
 
-    public DefaultRunConfiguration(WorkspaceConfiguration workspaceConfiguration, BuildConfigurationProperties buildConfigurationProperties, RunConfigurationProperties runConfigurationProperties) {
-        super(buildConfigurationProperties, workspaceConfiguration);
-        this.runConfigurationProperties = runConfigurationProperties;
+    public DefaultRunConfiguration(WorkspaceConfiguration workspaceConfiguration, BuildConfigurationProperties buildProperties, RunConfigurationProperties runProperties) {
+        this.buildConfiguration = new DefaultBuildConfiguration(buildProperties, workspaceConfiguration);
+        this.runProperties = runProperties;
+    }
+
+    @Override
+    public BuildConfiguration getBuildConfiguration() {
+        return this.buildConfiguration;
     }
 
     @Override
     public List<String> getTasks() {
-        return this.runConfigurationProperties.getTasks();
+        return this.runProperties.getTasks();
     }
 
     @Override
     public File getJavaHome() {
-        return this.runConfigurationProperties.getJavaHome();
+        return this.runProperties.getJavaHome();
     }
 
     @Override
     public List<String> getJvmArguments() {
-        List<String> result = Lists.newArrayList(this.runConfigurationProperties.getJvmArguments());
-        if (isBuildScansEnabled()) {
+        List<String> result = Lists.newArrayList(this.runProperties.getJvmArguments());
+        if (this.buildConfiguration.isBuildScansEnabled()) {
             result.add("-Dscan");
         }
         return result;
@@ -51,8 +58,8 @@ public class DefaultRunConfiguration extends DefaultBuildConfiguration implement
 
     @Override
     public List<String> getArguments() {
-        List<String> result = Lists.newArrayList(this.runConfigurationProperties.getArguments());
-        if (isOfflineMode()) {
+        List<String> result = Lists.newArrayList(this.runProperties.getArguments());
+        if (this.buildConfiguration.isOfflineMode()) {
             result.add("--offline");
         }
         result.addAll(CorePlugin.invocationCustomizer().getExtraArguments());
@@ -61,25 +68,26 @@ public class DefaultRunConfiguration extends DefaultBuildConfiguration implement
 
     @Override
     public boolean isShowExecutionView() {
-        return this.runConfigurationProperties.isShowExecutionView();
+        return this.runProperties.isShowExecutionView();
     }
 
     @Override
     public boolean isShowConsoleView() {
-        return this.runConfigurationProperties.isShowConsoleView();
+        return this.runProperties.isShowConsoleView();
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof DefaultRunConfiguration) {
             DefaultRunConfiguration other = (DefaultRunConfiguration) obj;
-            return super.equals(other) && Objects.equal(this.runConfigurationProperties, other.runConfigurationProperties);
+            return Objects.equal(this.buildConfiguration, other.buildConfiguration)
+                    && Objects.equal(this.runProperties, other.runProperties);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), this.runConfigurationProperties);
+        return Objects.hashCode(this.buildConfiguration, this.runProperties);
     }
 }
