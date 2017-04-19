@@ -65,7 +65,7 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob<Te
 
     @Override
     protected ProcessDescription createProcessDescription() {
-        String processName = createProcessName(this.runConfig.getRootProjectDirectory());
+        String processName = createProcessName(this.runConfig.getBuildConfiguration().getRootProjectDirectory());
         return new TestLaunchProcessDescription(processName);
     }
 
