@@ -29,6 +29,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -71,7 +72,7 @@ final class ClasspathConverter {
 
     private Element readClasspathNode(String classpath) throws IOException, ParserConfigurationException, SAXException {
         DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Element classpathNode = parser.parse(new InputSource(new ByteArrayInputStream(classpath.getBytes()))).getDocumentElement();
+        Element classpathNode = parser.parse(new InputSource(new ByteArrayInputStream(classpath.getBytes(Charsets.UTF_8)))).getDocumentElement();
         if (!classpathNode.getNodeName().equalsIgnoreCase("classpath")) {
             throw new IllegalStateException("Classpath file does not contain a <classpath> element.");
         }
