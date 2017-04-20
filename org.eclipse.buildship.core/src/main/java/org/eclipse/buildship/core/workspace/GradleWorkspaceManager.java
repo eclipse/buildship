@@ -12,9 +12,9 @@ import java.util.Set;
 
 import com.google.common.base.Optional;
 
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-
 import org.eclipse.core.resources.IProject;
+
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 
 /**
  * Manages the Gradle builds that are contained in the current Eclipse workspace.
@@ -26,10 +26,10 @@ public interface GradleWorkspaceManager {
     /**
      * Returns the {@link GradleBuild} represented by the given request attributes.
      *
-     * @param attributes the request attributes, must not be null
+     * @param buildConfiguration the configuration for the requested build
      * @return the Gradle build, never null
      */
-    public GradleBuild getGradleBuild(FixedRequestAttributes attributes);
+    public GradleBuild getGradleBuild(BuildConfiguration buildConfiguration);
 
     /**
      * Returns the {@link GradleBuild} that contains the given project.

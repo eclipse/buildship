@@ -14,12 +14,12 @@ package org.eclipse.buildship.core.projectimport;
 import java.io.File;
 import java.util.List;
 
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingutils.binding.Property;
 import com.gradleware.tooling.toolingutils.binding.Validator;
 import com.gradleware.tooling.toolingutils.binding.Validators;
 
-import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 
 /**
@@ -76,10 +76,7 @@ public final class ProjectImportConfiguration {
         this.workingSets.setValue(workingSets);
     }
 
-    public FixedRequestAttributes toFixedAttributes() {
-        return FixedRequestAttributesBuilder.fromWorkspaceSettings(getProjectDir().getValue())
-            .gradleDistribution(getGradleDistribution().getValue().toGradleDistribution())
-            .build();
+    public BuildConfiguration toBuildConfig() {
+        return CorePlugin.configurationManager().createBuildConfiguration(getProjectDir().getValue(), getGradleDistribution().getValue().toGradleDistribution(), false, false, false);
     }
-
 }

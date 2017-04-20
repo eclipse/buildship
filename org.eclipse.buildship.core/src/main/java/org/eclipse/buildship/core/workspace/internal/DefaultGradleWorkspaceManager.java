@@ -15,14 +15,11 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-
 import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration.ConversionStrategy;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.GradleBuilds;
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
@@ -35,15 +32,15 @@ import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
 public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
 
     @Override
-    public GradleBuild getGradleBuild(FixedRequestAttributes attributes) {
-        return new DefaultGradleBuild(attributes);
+    public GradleBuild getGradleBuild(BuildConfiguration buildConfig) {
+        return new DefaultGradleBuild(buildConfig);
     }
 
     @Override
     public Optional<GradleBuild> getGradleBuild(IProject project) {
-        Optional<ProjectConfiguration> configuration = CorePlugin.projectConfigurationManager().tryReadProjectConfiguration(project);
-        if (configuration.isPresent()) {
-            return Optional.<GradleBuild>of(new DefaultGradleBuild(configuration.get().toRequestAttributes(ConversionStrategy.MERGE_WORKSPACE_SETTINGS)));
+        if (GradleProjectNature.isPresentOn(project)) {
+            BuildConfiguration buildConfig = CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
+            return Optional.<GradleBuild>of(new DefaultGradleBuild(buildConfig));
         } else {
             return Optional.absent();
         }
@@ -51,21 +48,20 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
 
     @Override
     public GradleBuilds getGradleBuilds() {
-        return new DefaultGradleBuilds(getBuilds(CorePlugin.workspaceOperations().getAllProjects()));
+        return new DefaultGradleBuilds(getBuildConfigs(CorePlugin.workspaceOperations().getAllProjects()));
     }
 
     @Override
     public GradleBuilds getGradleBuilds(Set<IProject> projects) {
-        return new DefaultGradleBuilds(getBuilds(projects));
+        return new DefaultGradleBuilds(getBuildConfigs(projects));
     }
 
-    private Set<FixedRequestAttributes> getBuilds(Collection<IProject> projects) {
-        return FluentIterable.from(projects).filter(GradleProjectNature.isPresentOn()).transform(new Function<IProject, FixedRequestAttributes>() {
+    private Set<BuildConfiguration> getBuildConfigs(Collection<IProject> projects) {
+        return FluentIterable.from(projects).filter(GradleProjectNature.isPresentOn()).transform(new Function<IProject, BuildConfiguration>() {
 
             @Override
-            public FixedRequestAttributes apply(IProject project) {
-                Optional<ProjectConfiguration> configuration = CorePlugin.projectConfigurationManager().tryReadProjectConfiguration(project);
-                return configuration.isPresent() ? configuration.get().toRequestAttributes(ConversionStrategy.MERGE_WORKSPACE_SETTINGS) : null;
+            public BuildConfiguration apply(IProject project) {
+                return CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
             }
         }).filter(Predicates.notNull()).toSet();
     }

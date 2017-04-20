@@ -25,7 +25,6 @@ import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
 import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.Pair;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -41,6 +40,7 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
 import org.eclipse.buildship.core.util.file.FileUtils;
@@ -256,16 +256,16 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
      */
     private static final class NewGradleProjectInitializer implements AsyncHandler {
 
-        private final FixedRequestAttributes fixedAttributes;
+        private final BuildConfiguration buildConfig;
         private final Optional<List<ProgressListener>> listeners;
 
         private NewGradleProjectInitializer(ProjectImportConfiguration configuration) {
-            this.fixedAttributes = configuration.toFixedAttributes();
+            this.buildConfig = configuration.toBuildConfig();
             this.listeners = Optional.absent();
         }
 
         private NewGradleProjectInitializer(ProjectImportConfiguration configuration, List<ProgressListener> listeners) {
-            this.fixedAttributes = configuration.toFixedAttributes();
+            this.buildConfig = configuration.toBuildConfig();
             this.listeners = Optional.of((List<ProgressListener>) ImmutableList.copyOf(listeners));
         }
 
@@ -273,7 +273,7 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
         public void run(IProgressMonitor monitor, CancellationToken token) {
             monitor.beginTask("Init Gradle project", IProgressMonitor.UNKNOWN);
             try {
-                File projectDir = this.fixedAttributes.getProjectDir().getAbsoluteFile();
+                File projectDir = this.buildConfig.getRootProjectDirectory().getAbsoluteFile();
                 if (!projectDir.exists()) {
                     if (projectDir.mkdir()) {
                         // prepare the request
@@ -283,7 +283,7 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
 
                         // configure the request
                         BuildLaunchRequest request = CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(tasks));
-                        this.fixedAttributes.apply(request);
+                        this.buildConfig.toRequestAttributes().apply(request);
                         request.projectDir(projectDir);
                         request.progressListeners(progressListeners);
                         request.cancellationToken(token);

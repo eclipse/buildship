@@ -15,7 +15,6 @@ import org.eclipse.jface.viewers.StructuredSelection
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration
-import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder;
 import org.eclipse.buildship.ui.test.fixtures.EclipseProjects
 import org.eclipse.buildship.ui.test.fixtures.WorkspaceSpecification
 
@@ -23,13 +22,13 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
 
     def "Uses custom Gradle user home"() {
         setup:
-        WorkspaceConfiguration originalWorkspaceConfig = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration()
+        WorkspaceConfiguration originalWorkspaceConfig = CorePlugin.configurationManager().loadWorkspaceConfiguration()
 
         // if not the default location is specified then the Gradle
         // distribution is downloaded every time the test is executed
         File  gradleUserHome = new File(System.getProperty('user.home'), '.gradle')
         WorkspaceConfiguration config = new WorkspaceConfiguration(gradleUserHome, false, false)
-        CorePlugin.workspaceConfigurationManager().saveWorkspaceConfiguration(config)
+        CorePlugin.configurationManager().saveWorkspaceConfiguration(config)
 
         IProject project = EclipseProjects.newProject('add-buildship-nature')
         waitForResourceChangeEvents()
@@ -43,7 +42,7 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
         eclipseModelLoadedWithGradleUserHome(project.location.toFile(), gradleUserHome)
 
         cleanup:
-        CorePlugin.workspaceConfigurationManager().saveWorkspaceConfiguration(originalWorkspaceConfig)
+        CorePlugin.configurationManager().saveWorkspaceConfiguration(originalWorkspaceConfig)
     }
 
     private ExecutionEvent projectSelectionEvent(IProject selection) {
@@ -54,7 +53,7 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
     }
 
     private boolean eclipseModelLoadedWithGradleUserHome(File projectLocation, File gradleUserHome) {
-        FixedRequestAttributes attributes = FixedRequestAttributesBuilder.fromEmptySettings(projectLocation).gradleUserHome(gradleUserHome).build();
+        FixedRequestAttributes attributes = CorePlugin.configurationManager().createBuildConfiguration(projectLocation, GradleDistribution.fromBuild(), false, false, false).toRequestAttributes()
         TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, System.out, System.err, System.in, [], [], GradleConnector.newCancellationTokenSource().token())
         return CorePlugin.modelRepositoryProvider().getModelRepository(attributes).fetchEclipseGradleProjects(transientAttributes, FetchStrategy.FROM_CACHE_ONLY) != null
     }

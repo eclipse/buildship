@@ -121,6 +121,7 @@ final class PersistentModelConverter {
                 return new Path(path);
             }
         });
+
         return new DefaultPersistentModel(project, buildDir, subprojects, classpath, derivedResources, linkedResources);
     }
 

@@ -8,8 +8,7 @@
  */
 package org.eclipse.buildship.core.workspace;
 
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 //TODO this should eventually also contain the methods to launch tasks etc.
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 
@@ -79,9 +78,9 @@ public interface GradleBuild {
     ModelProvider getModelProvider();
 
     /**
-     * Returns the request attributes for this build.
+     * Returns build config used for this build.
      *
-     * @return the request attributes, never null
+     * @return the build config, never null
      */
-    FixedRequestAttributes getRequestAttributes();
+    BuildConfiguration getBuildConfig();
 }

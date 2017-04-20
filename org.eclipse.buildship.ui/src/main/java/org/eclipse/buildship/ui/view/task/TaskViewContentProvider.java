@@ -31,6 +31,7 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 
 /**
@@ -102,13 +103,15 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
             return false;
         }
 
-        Optional<ProjectConfiguration> configuration = CorePlugin.projectConfigurationManager().tryReadProjectConfiguration(workspaceProject.get());
-        if (!configuration.isPresent()) {
+        IProject project = workspaceProject.get();
+        if (!GradleProjectNature.isPresentOn(project)) {
             return false;
         }
 
-        File projectDirectory = modelProject.getProjectIdentifier().getBuildIdentifier().getRootDir();
-        return !projectDirectory.equals(configuration.get().getRootProjectDirectory());
+        ProjectConfiguration projectConfig = CorePlugin.configurationManager().loadProjectConfiguration(project);
+        File configRootDir = projectConfig.getBuildConfiguration().getRootProjectDirectory();
+        File modelRootDir = modelProject.getProjectIdentifier().getBuildIdentifier().getRootDir();
+        return !modelRootDir.equals(configRootDir);
     }
 
     @Override

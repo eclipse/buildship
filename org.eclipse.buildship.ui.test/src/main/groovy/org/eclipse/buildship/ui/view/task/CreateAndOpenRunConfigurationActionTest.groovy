@@ -17,10 +17,7 @@ class CreateAndOpenRunConfigurationActionTest extends ViewSpecification {
     CreateRunConfigurationAction createAction
     OpenRunConfigurationAction openAction
 
-    @AutoCleanup
-    TestEnvironment environment = TestEnvironment.INSTANCE
-
-    def setup() {
+    void setup() {
         createAction = new CreateRunConfigurationAction(UiPluginConstants.OPEN_RUN_CONFIGURATION_COMMAND_ID)
         openAction = new OpenRunConfigurationAction(UiPluginConstants.OPEN_RUN_CONFIGURATION_COMMAND_ID)
     }

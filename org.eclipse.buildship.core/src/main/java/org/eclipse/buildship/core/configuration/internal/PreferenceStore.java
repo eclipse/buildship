@@ -12,6 +12,8 @@
 package org.eclipse.buildship.core.configuration.internal;
 
 import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
@@ -29,21 +31,38 @@ abstract class PreferenceStore {
     }
 
     /**
-     * Reads the preference value. May return {@code null}, if the key was not present.
+     * Reads a string. May return {@code null}, if the key was not present.
      *
      * @param key the preference key
      * @return the preference value
      */
-    abstract String read(String key);
+    abstract String readString(String key);
+
+    /**
+     * Reads a boolean value. If the key was not present, the default value is returned.
+     *
+     * @param key the preference key
+     * @param defaultValue the default value to return if the key is not present
+     * @return the preference value
+     */
+    abstract boolean readBoolean(String key, boolean defaultValue);
 
     /**
      * Writes a preference key-value pair. The changes can be persisted by calling {@link #flush()}.
      * If the value is {@code null}, the preference is removed.
      *
-     * @param key   the preference key
+     * @param key the preference key
      * @param value the preference value
      */
     abstract void write(String key, String value);
+
+    /**
+     * Writes a preference key-value pair. The changes can be persisted by calling {@link #flush()}.
+     *
+     * @param key the preference key
+     * @param value the preference value
+     */
+    abstract void writeBoolean(String key, boolean value);
 
     /**
      * Deletes an entry from the preference store. Does nothing if the key doesn't exist in the
@@ -66,7 +85,7 @@ abstract class PreferenceStore {
      * Creates a new preference store based on Eclipse project-scoped preferences.
      *
      * @param project the target project where to access the preferences
-     * @param node    the target node under the project where to access the preferences
+     * @param node the target node under the project where to access the preferences
      * @return the preference store
      * @throws GradlePluginsRuntimeException if the the preferences can't be loaded
      */
@@ -80,7 +99,7 @@ abstract class PreferenceStore {
      * @param propertiesFile the target properties file
      * @return the preference store
      * @throws GradlePluginsRuntimeException if the the preferences can't be loaded from the
-     *                                       properties file location
+     *             properties file location
      */
     static PreferenceStore forPreferenceFile(File propertiesFile) {
         return new PropertiesFilePreferenceStore(propertiesFile);
@@ -102,8 +121,13 @@ abstract class PreferenceStore {
         }
 
         @Override
-        String read(String key) {
+        String readString(String key) {
             return this.preferences.get(key, null);
+        }
+
+        @Override
+        boolean readBoolean(String key, boolean defaultValue) {
+            return this.preferences.getBoolean(key, defaultValue);
         }
 
         @Override
@@ -113,6 +137,11 @@ abstract class PreferenceStore {
             } else {
                 this.preferences.put(key, value);
             }
+        }
+
+        @Override
+        void writeBoolean(String key, boolean value) {
+            this.preferences.putBoolean(key, value);
         }
 
         @Override
@@ -148,9 +177,11 @@ abstract class PreferenceStore {
         private void loadProperties() {
             InputStreamReader reader = null;
             try {
-                reader = new InputStreamReader(new FileInputStream(this.propertiesFile), Charsets.UTF_8);
                 this.properties = new Properties();
-                this.properties.load(reader);
+                if (this.propertiesFile.exists()) {
+                    reader = new InputStreamReader(new FileInputStream(this.propertiesFile), Charsets.UTF_8);
+                    this.properties.load(reader);
+                }
             } catch (IOException e) {
                 throw new GradlePluginsRuntimeException(String.format("Cannot read preference from file %s", this.propertiesFile.getAbsolutePath()), e);
             } finally {
@@ -165,23 +196,38 @@ abstract class PreferenceStore {
         }
 
         @Override
-        String read(String key) {
+        String readString(String key) {
             return getProperties().getProperty(key, null);
+        }
+
+        @Override
+        boolean readBoolean(String key, boolean defaultValue) {
+            String value = getProperties().getProperty(key, null);
+            return value == null ? defaultValue : Boolean.parseBoolean(value);
         }
 
         @Override
         void write(String key, String value) {
             if (value == null) {
-                getProperties().remove(value);
+                getProperties().remove(key);
             } else {
                 getProperties().put(key, value);
             }
         }
 
         @Override
+        void writeBoolean(String key, boolean value) {
+            getProperties().put(key, String.valueOf(value));
+        }
+
+        @Override
         void flush() {
             OutputStreamWriter writer = null;
             try {
+                if (!this.propertiesFile.exists()) {
+                    this.propertiesFile.getParentFile().mkdirs();
+                    Files.touch(this.propertiesFile);
+                }
                 writer = new OutputStreamWriter(new FileOutputStream(this.propertiesFile), Charsets.UTF_8);
                 getProperties().store(writer, null);
             } catch (IOException e) {
@@ -198,5 +244,4 @@ abstract class PreferenceStore {
         }
 
     }
-
 }

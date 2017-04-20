@@ -23,7 +23,6 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -38,9 +37,10 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.configuration.ConfigurationManager;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration.ConversionStrategy;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**
@@ -99,19 +99,19 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
 final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
 
     private final Set<OmniEclipseProject> allProjects;
-    private final FixedRequestAttributes build;
+    private final BuildConfiguration buildConfig;
     private final NewProjectHandler newProjectHandler;
 
-    SynchronizeGradleBuildOperation(Set<OmniEclipseProject> allProjects, FixedRequestAttributes build, NewProjectHandler newProjectHandler) {
+    SynchronizeGradleBuildOperation(Set<OmniEclipseProject> allProjects, BuildConfiguration buildConfig, NewProjectHandler newProjectHandler) {
         this.allProjects = allProjects;
-        this.build = build;
+        this.buildConfig = buildConfig;
         this.newProjectHandler = newProjectHandler;
     }
 
     @Override
     public void run(IProgressMonitor monitor) throws CoreException {
         SubMonitor progress = SubMonitor.convert(monitor);
-        progress.setTaskName(String.format("Synchronizing Gradle build at %s", this.build.getProjectDir()));
+        progress.setTaskName(String.format("Synchronizing Gradle build at %s", this.buildConfig.getRootProjectDirectory()));
         synchronizeProjectsWithWorkspace(progress);
     }
 
@@ -154,9 +154,8 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
 
             @Override
             public boolean apply(IProject project) {
-                Optional<ProjectConfiguration> projectConfiguration = CorePlugin.projectConfigurationManager().tryReadProjectConfiguration(project);
-                return projectConfiguration.isPresent()
-                        && projectConfiguration.get().toRequestAttributes(ConversionStrategy.MERGE_WORKSPACE_SETTINGS).getProjectDir().equals(SynchronizeGradleBuildOperation.this.build.getProjectDir())
+                BuildConfiguration buildConfiguration = CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
+                return buildConfiguration.getRootProjectDirectory().equals(SynchronizeGradleBuildOperation.this.buildConfig.getRootProjectDirectory())
                         && (project.getLocation() == null || !gradleProjectDirectories.contains(project.getLocation().toFile()));
             }
         }).toList();
@@ -193,10 +192,11 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
 
         workspaceProject = ProjectNameUpdater.updateProjectName(workspaceProject, project, this.allProjects, progress.newChild(1));
 
-        CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, progress.newChild(1));
+        ConfigurationManager configManager = CorePlugin.configurationManager();
+        ProjectConfiguration projectConfig = configManager.createProjectConfiguration(this.buildConfig, project.getProjectDirectory());
+        configManager.saveProjectConfiguration(projectConfig);
 
-        ProjectConfiguration configuration = ProjectConfiguration.from(this.build, project);
-        CorePlugin.projectConfigurationManager().saveProjectConfiguration(configuration, workspaceProject);
+        CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, progress.newChild(1));
 
         PersistentModelBuilder persistentModel = new PersistentModelBuilder(CorePlugin.modelPersistence().loadModel(workspaceProject));
 
@@ -283,6 +283,6 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         CorePlugin.workspaceOperations().refreshProject(workspaceProject, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
         CorePlugin.workspaceOperations().removeNature(workspaceProject, GradleProjectNature.ID, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
         CorePlugin.modelPersistence().deleteModel(workspaceProject);
-        CorePlugin.projectConfigurationManager().deleteProjectConfiguration(workspaceProject);
+        CorePlugin.configurationManager().deleteProjectConfiguration(workspaceProject);
     }
 }
