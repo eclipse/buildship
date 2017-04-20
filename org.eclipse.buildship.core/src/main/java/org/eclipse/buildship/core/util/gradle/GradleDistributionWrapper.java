@@ -16,6 +16,8 @@ import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.gradle.tooling.GradleConnector;
+
 import com.google.common.base.Preconditions;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
@@ -59,6 +61,18 @@ public final class GradleDistributionWrapper {
             return new URI(path);
         } catch (URISyntaxException e) {
             throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public void apply(GradleConnector connector) {
+        if (this.type == DistributionType.LOCAL_INSTALLATION) {
+            connector.useInstallation(new File(this.configuration));
+        } else if (this.type == DistributionType.REMOTE_DISTRIBUTION) {
+           connector.useDistribution(createURI(this.configuration));
+        } else if (this.type == DistributionType.VERSION) {
+            connector.useGradleVersion(this.configuration);
+        } else {
+            connector.useBuildDistribution();
         }
     }
 

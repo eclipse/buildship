@@ -14,22 +14,14 @@ package org.eclipse.buildship.ui.view.execution;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.ui.external.viewer.FilteredTree;
-import org.eclipse.buildship.ui.external.viewer.PatternFilter;
-import org.eclipse.buildship.ui.util.color.ColorUtils;
-import org.eclipse.buildship.ui.util.nodeselection.ActionShowingContextMenuListener;
-import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
-import org.eclipse.buildship.ui.util.nodeselection.NodeSelectionProvider;
-import org.eclipse.buildship.ui.util.nodeselection.SelectionHistoryManager;
-import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
-import org.eclipse.buildship.ui.view.BasePage;
-import org.eclipse.buildship.ui.view.CollapseTreeNodesAction;
-import org.eclipse.buildship.ui.view.ExpandTreeNodesAction;
-import org.eclipse.buildship.ui.view.MultiPageView;
-import org.eclipse.buildship.ui.view.ObservableMapCellWithIconLabelProvider;
-import org.eclipse.buildship.ui.view.PageSite;
-import org.eclipse.buildship.ui.view.ShowFilterAction;
+import org.gradle.tooling.LongRunningOperation;
+
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.TreeTraverser;
+
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.beans.IBeanValueProperty;
 import org.eclipse.core.databinding.observable.set.IObservableSet;
@@ -56,12 +48,22 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IActionBars;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.TreeTraverser;
-import com.gradleware.tooling.toolingclient.Request;
+import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.ui.external.viewer.FilteredTree;
+import org.eclipse.buildship.ui.external.viewer.PatternFilter;
+import org.eclipse.buildship.ui.util.color.ColorUtils;
+import org.eclipse.buildship.ui.util.nodeselection.ActionShowingContextMenuListener;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelectionProvider;
+import org.eclipse.buildship.ui.util.nodeselection.SelectionHistoryManager;
+import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
+import org.eclipse.buildship.ui.view.BasePage;
+import org.eclipse.buildship.ui.view.CollapseTreeNodesAction;
+import org.eclipse.buildship.ui.view.ExpandTreeNodesAction;
+import org.eclipse.buildship.ui.view.MultiPageView;
+import org.eclipse.buildship.ui.view.ObservableMapCellWithIconLabelProvider;
+import org.eclipse.buildship.ui.view.PageSite;
+import org.eclipse.buildship.ui.view.ShowFilterAction;
 
 /**
  * Displays the tree of a single build execution.
@@ -70,16 +72,16 @@ import com.gradleware.tooling.toolingclient.Request;
 public final class ExecutionPage extends BasePage<FilteredTree> implements NodeSelectionProvider {
 
     private final ProcessDescription processDescription;
-    private final Request<Void> request;
+    private final LongRunningOperation operation;
     private final ExecutionViewState state;
 
     private SelectionHistoryManager selectionHistoryManager;
     private TreeViewerColumn nameColumn;
     private TreeViewerColumn durationColumn;
 
-    public ExecutionPage(ProcessDescription processDescription, Request<Void> request, ExecutionViewState state) {
+    public ExecutionPage(ProcessDescription processDescription, LongRunningOperation operation, ExecutionViewState state) {
         this.processDescription = processDescription;
-        this.request = request;
+        this.operation = operation;
         this.state = state;
     }
 
@@ -163,7 +165,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         filteredTree.getViewer().setInput(root);
 
         // listen to progress events
-        this.request.addTypedProgressListeners(new ExecutionProgressListener(this, root));
+        this.operation.addProgressListener(new ExecutionProgressListener(this, root));
 
         // return the tree as the outermost page control
         return filteredTree;

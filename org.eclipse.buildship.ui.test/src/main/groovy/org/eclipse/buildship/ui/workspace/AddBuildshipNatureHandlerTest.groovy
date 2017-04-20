@@ -1,16 +1,18 @@
 package org.eclipse.buildship.ui.workspace
 
+import org.gradle.tooling.CancellationToken
 import org.gradle.tooling.GradleConnector
+import org.gradle.tooling.model.eclipse.EclipseProject
 
-import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 
 import org.eclipse.core.commands.Command
 import org.eclipse.core.commands.ExecutionEvent
 import org.eclipse.core.expressions.IEvaluationContext
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.IProgressMonitor
+import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jface.viewers.StructuredSelection
 
 import org.eclipse.buildship.core.CorePlugin
@@ -55,8 +57,9 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
 
     private boolean eclipseModelLoadedWithGradleUserHome(File projectLocation, File gradleUserHome) {
         FixedRequestAttributes attributes = FixedRequestAttributesBuilder.fromEmptySettings(projectLocation).gradleUserHome(gradleUserHome).build();
-        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, System.out, System.err, System.in, [], [], GradleConnector.newCancellationTokenSource().token())
-        return CorePlugin.modelRepositoryProvider().getModelRepository(attributes).fetchEclipseGradleProjects(transientAttributes, FetchStrategy.FROM_CACHE_ONLY) != null
+        CancellationToken token = GradleConnector.newCancellationTokenSource().token()
+        IProgressMonitor monitor = new NullProgressMonitor()
+        return CorePlugin.gradleWorkspaceManager().getGradleBuild(attributes).getModelProvider().fetchModels(EclipseProject.class, FetchStrategy.FROM_CACHE_ONLY, token, monitor) != null
     }
 
 }

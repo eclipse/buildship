@@ -84,7 +84,7 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
         CorePlugin.listenerRegistry().addEventListener(new EventListener() {
             void onEvent(Event event) {
                 if (event instanceof ExecuteLaunchRequestEvent) {
-                    ((ExecuteLaunchRequestEvent) event).request.addTypedProgressListeners(progressListener)
+                    ((ExecuteLaunchRequestEvent) event).operation.addProgressListener(progressListener)
                 }
             }
         })

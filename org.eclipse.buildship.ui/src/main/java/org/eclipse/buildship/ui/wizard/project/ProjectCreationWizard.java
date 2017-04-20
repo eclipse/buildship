@@ -21,11 +21,10 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest;
-import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.Pair;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -41,12 +40,14 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
+import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
@@ -277,25 +278,23 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
                 if (!projectDir.exists()) {
                     if (projectDir.mkdir()) {
                         // prepare the request
-                        List<String> tasks = GRADLE_INIT_TASK_CMD_LINE;
-                        ProgressListener[] progressListeners = this.listeners.isPresent() ? this.listeners.get().toArray(new ProgressListener[this.listeners.get().size()]) :
-                                new ProgressListener[]{DelegatingProgressListener.withFullOutput(monitor)};
-
-                        // configure the request
-                        BuildLaunchRequest request = CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(tasks));
-                        this.fixedAttributes.apply(request);
-                        request.projectDir(projectDir);
-                        request.progressListeners(progressListeners);
-                        request.cancellationToken(token);
-
-                        // launch the build
-                        request.executeAndWait();
+                        final List<String> tasks = GRADLE_INIT_TASK_CMD_LINE;
+                        List<ProgressListener> progressListeners = this.listeners.isPresent() ? this.listeners.get() : ImmutableList.of(DelegatingProgressListener.withFullOutput(monitor));
+                        GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.fixedAttributes);
+                        TransientRequestAttributes transientAttributes = getTransientRequestAttributes(progressListeners, token, monitor);
+                        gradleBuild.newBuildLauncher(transientAttributes).forTasks(tasks.toArray(new String[tasks.size()])).run();
                     }
                 }
             } finally {
                 monitor.done();
             }
         }
+    }
+
+    private static TransientRequestAttributes getTransientRequestAttributes(List<ProgressListener> progressListeners, CancellationToken token, IProgressMonitor monitor) {
+        ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
+        ImmutableList<org.gradle.tooling.events.ProgressListener> noEventListeners = ImmutableList.<org.gradle.tooling.events.ProgressListener> of();
+        return new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), progressListeners, noEventListeners, token);
     }
 
 }
