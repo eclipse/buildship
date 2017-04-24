@@ -79,7 +79,7 @@ public final class SynchronizeGradleBuildsJob extends ToolingApiJob {
         progress.setTaskName((String.format("Synchronizing Gradle build at %s with workspace", buildConfig.getRootProjectDirectory())));
         progress.setWorkRemaining(3);
         Set<OmniEclipseProject> allProjects = fetchEclipseProjects(build, progress.newChild(1));
-        new SynchronizeProjectConfigOperation(buildConfig).run(progress.newChild(1), getToken());
+        new SynchronizeBuildConfigurationOperation(buildConfig).run(progress.newChild(1), getToken());
         new RunOnImportTasksOperation(allProjects, buildConfig).run(progress.newChild(1), getToken());
         new SynchronizeGradleBuildOperation(allProjects, buildConfig, SynchronizeGradleBuildsJob.this.newProjectHandler).run(progress.newChild(1));
     }

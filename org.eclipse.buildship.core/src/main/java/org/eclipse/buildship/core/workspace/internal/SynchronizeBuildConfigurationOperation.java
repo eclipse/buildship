@@ -17,19 +17,19 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 
 /**
- * Synchronizes the project configuration.
+ * Synchronizes the build configuration.
  *
  * @author Donat Csikos
  */
-public final class SynchronizeProjectConfigOperation {
+public final class SynchronizeBuildConfigurationOperation {
 
-    private final BuildConfiguration buildConfig;
+    private final BuildConfiguration buildConfiguration;
 
-    public SynchronizeProjectConfigOperation(BuildConfiguration buildConfig) {
-        this.buildConfig = Preconditions.checkNotNull(buildConfig);
+    public SynchronizeBuildConfigurationOperation(BuildConfiguration buildConfiguration) {
+        this.buildConfiguration = Preconditions.checkNotNull(buildConfiguration);
     }
 
     public void run(IProgressMonitor monitor, CancellationToken token) {
-        CorePlugin.configurationManager().saveBuildConfiguration(this.buildConfig);
+        CorePlugin.configurationManager().saveBuildConfiguration(this.buildConfiguration);
     }
 }
