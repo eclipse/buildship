@@ -293,13 +293,13 @@
           versionRange="15.0.0"/>
       <requirement
           name="com.gradleware.tooling.client"
-          versionRange="0.18.0"/>
+          versionRange="0.19.0"/>
       <requirement
           name="com.gradleware.tooling.model"
-          versionRange="0.18.0"/>
+          versionRange="0.19.0"/>
       <requirement
           name="com.gradleware.tooling.utils"
-          versionRange="0.18.0"/>
+          versionRange="0.19.0"/>
       <requirement
           name="org.jetbrains.kotlin.feature.feature.group"
           versionRange="0.8.0"/>
@@ -312,7 +312,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
         <repository
-            url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.18.0/p2-repository-0.18.0.zip!/"/>
+            url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.0/p2-repository-0.19.0.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Mars">
@@ -323,7 +323,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
         <repository
-            url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.18.0/p2-repository-0.18.0.zip!/"/>
+            url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.0/p2-repository-0.19.0.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Luna">
@@ -334,7 +334,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
         <repository
-            url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.18.0/p2-repository-0.18.0.zip!/"/>
+            url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.0/p2-repository-0.19.0.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Kepler">
@@ -345,7 +345,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
         <repository
-            url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.18.0/p2-repository-0.18.0.zip!/"/>
+            url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.0/p2-repository-0.19.0.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Juno">
@@ -356,7 +356,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
         <repository
-            url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.18.0/p2-repository-0.18.0.zip!/"/>
+            url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.0/p2-repository-0.19.0.zip!/"/>
       </repositoryList>
     </targlet>
     <targlet

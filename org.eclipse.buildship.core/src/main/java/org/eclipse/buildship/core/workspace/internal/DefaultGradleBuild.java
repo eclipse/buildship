@@ -8,11 +8,16 @@
  */
 package org.eclipse.buildship.core.workspace.internal;
 
+import org.gradle.tooling.BuildLauncher;
+import org.gradle.tooling.TestLauncher;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.ModelRepository;
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
+
+import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
@@ -28,9 +33,11 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
 public class DefaultGradleBuild implements GradleBuild {
 
     private final FixedRequestAttributes attributes;
+    private final ModelProvider modelProvider;
 
     public DefaultGradleBuild(FixedRequestAttributes builds) {
         this.attributes = Preconditions.checkNotNull(builds);
+        this.modelProvider = new DefaultModelProvider(this.attributes);
     }
 
     @Override
@@ -47,14 +54,38 @@ public class DefaultGradleBuild implements GradleBuild {
     }
 
     @Override
+    public boolean isSyncRunning() {
+        Job[] syncJobs = Job.getJobManager().find(CorePlugin.GRADLE_JOB_FAMILY);
+        for (Job job : syncJobs) {
+            if (job instanceof SynchronizeGradleBuildsJob) {
+                for (GradleBuild gradleBuild : ((SynchronizeGradleBuildsJob) job).getBuilds()) {
+                    if (gradleBuild.getRequestAttributes().getProjectDir().equals(this.attributes.getProjectDir())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
     public ModelProvider getModelProvider() {
-        ModelRepository modelRepository = CorePlugin.modelRepositoryProvider().getModelRepository(this.attributes);
-        return new DefaultModelProvider(modelRepository);
+        return this.modelProvider;
     }
 
     @Override
     public FixedRequestAttributes getRequestAttributes() {
         return this.attributes;
+    }
+
+    @Override
+    public BuildLauncher newBuildLauncher(TransientRequestAttributes transientAttributes) {
+        return ConnectionAwareLauncherProxy.newBuildLauncher(this.attributes, transientAttributes);
+    }
+
+    @Override
+    public TestLauncher newTestLauncher(TransientRequestAttributes transientAttributes) {
+        return ConnectionAwareLauncherProxy.newTestLauncher(this.attributes, transientAttributes);
     }
 
     @Override

@@ -298,11 +298,10 @@ public final class GradleRunConfigurationAttributes {
 
     public static GradleRunConfigurationAttributes from(ILaunchConfiguration launchConfiguration) {
         Preconditions.checkNotNull(launchConfiguration);
-
         List<String> tasks = getListAttribute(TASKS, launchConfiguration);
         String workingDirExpression = getStringAttribute(WORKING_DIR, "", launchConfiguration);
         boolean useGradleDistributionFromImport = getBooleanAttribute(USE_GRADLE_DISTRIBUTION_FROM_IMPORT, false, launchConfiguration);
-        String gradleDistribution = getStringAttribute(GRADLE_DISTRIBUTION, "", launchConfiguration);
+        String gradleDistribution = getStringAttribute(GRADLE_DISTRIBUTION, GradleDistributionSerializer.INSTANCE.serializeToString(GradleDistribution.fromBuild()), launchConfiguration);
         String javaHomeExpression = getStringAttribute(JAVA_HOME, null, launchConfiguration);
         List<String> jvmArgumentExpressions = getListAttribute(JVM_ARGUMENTS, launchConfiguration);
         List<String> argumentExpressions = getListAttribute(ARGUMENTS, launchConfiguration);

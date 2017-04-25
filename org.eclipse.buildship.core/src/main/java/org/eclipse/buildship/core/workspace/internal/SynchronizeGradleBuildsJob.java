@@ -55,6 +55,10 @@ public final class SynchronizeGradleBuildsJob extends ToolingApiJob {
         setRule(ResourcesPlugin.getWorkspace().getRoot());
     }
 
+    Set<GradleBuild> getBuilds() {
+        return this.builds;
+    }
+
     @Override
     protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
         final SubMonitor progress = SubMonitor.convert(monitor, this.builds.size() + 1);

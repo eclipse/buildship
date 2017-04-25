@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
 
@@ -21,8 +22,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
-import com.gradleware.tooling.toolingclient.BuildRequest;
-import com.gradleware.tooling.toolingclient.LaunchableConfig;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature;
 import com.gradleware.tooling.toolingmodel.OmniProjectTask;
@@ -108,11 +107,9 @@ public class RunOnImportTasksOperation {
         return !buildRoot.equals(projectRoot);
     }
 
-    private void runTasks(List<String> tasksToRun, IProgressMonitor monitor, CancellationToken token) {
-        BuildRequest<Void> request = CorePlugin.toolingClient().newBuildLaunchRequest(LaunchableConfig.forTasks(tasksToRun));
-        this.build.apply(request);
-        getTransientRequestAttributes(token, monitor).apply(request);
-        request.executeAndWait();
+    private void runTasks(final List<String> tasksToRun, IProgressMonitor monitor, CancellationToken token) {
+        BuildLauncher launcher = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.build).newBuildLauncher(getTransientRequestAttributes(token, monitor));
+        launcher.forTasks(tasksToRun.toArray(new String[tasksToRun.size()])).run();
     }
 
     private TransientRequestAttributes getTransientRequestAttributes(CancellationToken token, IProgressMonitor monitor) {

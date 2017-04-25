@@ -20,6 +20,9 @@ import com.gradleware.tooling.toolingmodel.Path;
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.debug.core.DebugPlugin
+import org.eclipse.debug.core.ILaunchConfiguration
+import org.eclipse.debug.core.ILaunchConfigurationType
+import org.eclipse.debug.core.ILaunchManager
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException
@@ -30,7 +33,7 @@ import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.Distribu
 
 class GradleRunConfigurationAttributesTest extends Specification {
 
-    @Shared def Attributes defaults = new Attributes (
+    @Shared def Attributes validAttributes = new Attributes (
         tasks : ['clean'],
         workingDir : "/home/user/workspace",
         gradleDistr : GradleDistributionWrapper.from(DistributionType.WRAPPER, null).toGradleDistribution(),
@@ -43,28 +46,50 @@ class GradleRunConfigurationAttributesTest extends Specification {
         overrideWorkspaceSettings : false
     )
 
+    def "Can create an instance from empty run configuration"() {
+        setup:
+        ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+        ILaunchConfigurationType launchConfigType = launchManager.getLaunchConfigurationType(GradleRunConfigurationDelegate.ID);
+        ILaunchConfiguration launchConfig = launchConfigType.newInstance(null, "empty-config")
+
+        when:
+        GradleRunConfigurationAttributes attributes = GradleRunConfigurationAttributes.from(launchConfig)
+
+        then:
+        attributes.tasks == []
+        attributes.workingDir.absolutePath == new File('').absolutePath
+        attributes.gradleDistribution == GradleDistribution.fromBuild()
+        attributes.javaHome == null
+        attributes.arguments == []
+        attributes.jvmArguments == []
+        attributes.showExecutionView == true
+        attributes.showConsoleView == true
+        attributes.useGradleDistributionFromImport == false
+
+    }
+
     def "Can create a new valid instance"() {
         when:
-        def configuration = defaults.toConfiguration()
+        def configuration = validAttributes.toConfiguration()
 
         then:
         // not null
         configuration != null
         // check non-calculated values
-        configuration.getTasks() == defaults.tasks
-        configuration.getWorkingDirExpression() == defaults.workingDir
-        configuration.getGradleDistribution() == defaults.gradleDistr
-        configuration.getJavaHomeExpression() == defaults.javaHome
-        configuration.getJvmArguments() == defaults.jvmArguments
-        configuration.getArguments() == defaults.arguments
-        configuration.isShowExecutionView() == defaults.showExecutionView
-        configuration.isShowConsoleView() == defaults.showConsoleView
-        configuration.isUseGradleDistributionFromImport() == defaults.useGradleDistributionFromImport
+        configuration.getTasks() == validAttributes.tasks
+        configuration.getWorkingDirExpression() == validAttributes.workingDir
+        configuration.getGradleDistribution() == validAttributes.gradleDistr
+        configuration.getJavaHomeExpression() == validAttributes.javaHome
+        configuration.getJvmArguments() == validAttributes.jvmArguments
+        configuration.getArguments() == validAttributes.arguments
+        configuration.isShowExecutionView() == validAttributes.showExecutionView
+        configuration.isShowConsoleView() == validAttributes.showConsoleView
+        configuration.isUseGradleDistributionFromImport() == validAttributes.useGradleDistributionFromImport
         // check calculated value
-        configuration.getArgumentExpressions() == defaults.arguments
-        configuration.getJvmArgumentExpressions() == defaults.jvmArguments
-        configuration.getWorkingDir().getAbsolutePath() == new File(defaults.workingDir).getAbsolutePath()
-        configuration.getJavaHome().getAbsolutePath() == new File(defaults.javaHome).getAbsolutePath()
+        configuration.getArgumentExpressions() == validAttributes.arguments
+        configuration.getJvmArgumentExpressions() == validAttributes.jvmArguments
+        configuration.getWorkingDir().getAbsolutePath() == new File(validAttributes.workingDir).getAbsolutePath()
+        configuration.getJavaHome().getAbsolutePath() == new File(validAttributes.javaHome).getAbsolutePath()
     }
 
     def "Can create a new valid instance with valid null arguments"(Attributes attributes) {
@@ -77,7 +102,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
 
         where:
         attributes << [
-            defaults.copy { javaHome = null },
+            validAttributes.copy { javaHome = null },
         ]
     }
 
@@ -90,16 +115,16 @@ class GradleRunConfigurationAttributesTest extends Specification {
 
         where:
         attributes << [
-            defaults.copy { tasks = null },
-            defaults.copy { workingDir = null },
-            defaults.copy { jvmArguments = null},
-            defaults.copy { arguments = null}
+            validAttributes.copy { tasks = null },
+            validAttributes.copy { workingDir = null },
+            validAttributes.copy { jvmArguments = null},
+            validAttributes.copy { arguments = null}
         ]
     }
 
     def "Expressions can be resolved in the parameters"() {
         when:
-        def Attributes attributes = defaults.copy {
+        def Attributes attributes = validAttributes.copy {
             workingDir = '${workspace_loc}/working_dir'
             javaHome = '${workspace_loc}/java_home'
         }
@@ -114,7 +139,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
 
     def "Unresolvable expressions in Java home results in runtime exception"() {
         setup:
-        def Attributes attributes = defaults.copy {
+        def Attributes attributes = validAttributes.copy {
             javaHome = '${nonexistingvariable}/java_home'
         }
         def configuration = attributes.toConfiguration()
@@ -129,7 +154,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
 
     def "Unresolvable expressions in working directory results in runtime exception"() {
         setup:
-        def Attributes attributes = defaults.copy {
+        def Attributes attributes = validAttributes.copy {
             workingDir = '${nonexistingvariable}/working_dir'
         }
         def configuration = attributes.toConfiguration()
@@ -143,7 +168,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
 
     def "Unresolvable expressions in arguments results in runtime exception"() {
         setup:
-        def Attributes attributes = defaults.copy {
+        def Attributes attributes = validAttributes.copy {
             arguments = ['${nonexistingvariable}/arguments']
         }
         def configuration = attributes.toConfiguration()
@@ -157,7 +182,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
 
     def "Unresolvable expressions in jvm arguments results in runtime exception"() {
         setup:
-        def Attributes attributes = defaults.copy {
+        def Attributes attributes = validAttributes.copy {
             jvmArguments = ['${nonexistingvariable}/jvmarguments']
         }
         def configuration = attributes.toConfiguration()
@@ -177,11 +202,11 @@ class GradleRunConfigurationAttributesTest extends Specification {
 
         when:
         assert eclipseConfig.getAttributes().isEmpty()
-        def gradleConfig = defaults.toConfiguration()
+        def gradleConfig = validAttributes.toConfiguration()
         gradleConfig.apply(eclipseConfig)
 
         then:
-        eclipseConfig.getAttributes().size() == defaults.size()
+        eclipseConfig.getAttributes().size() == validAttributes.size()
     }
 
     def "All valid configuration settings can be stored and retrieved"(Attributes attributes) {
@@ -207,8 +232,8 @@ class GradleRunConfigurationAttributesTest extends Specification {
 
         where:
         attributes << [
-            defaults,
-            defaults.copy { javaHome = null },
+            validAttributes,
+            validAttributes.copy { javaHome = null },
         ]
     }
 
@@ -219,7 +244,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         def eclipseConfig = type.newInstance(null, "launch-config-name")
 
         when:
-        def gradleConfig = defaults.toConfiguration()
+        def gradleConfig = validAttributes.toConfiguration()
         gradleConfig.apply(eclipseConfig)
 
         then:

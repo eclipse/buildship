@@ -8,7 +8,11 @@
  */
 package org.eclipse.buildship.core.workspace;
 
+import org.gradle.tooling.BuildLauncher;
+import org.gradle.tooling.TestLauncher;
+
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 //TODO this should eventually also contain the methods to launch tasks etc.
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
@@ -65,6 +69,13 @@ public interface GradleBuild {
     void synchronize(NewProjectHandler newProjectHandler, AsyncHandler initializer);
 
     /**
+     * Returns {@code true} if a synchronization job is already running for the same root project.
+     *
+     * @return true if a synchronization is running.
+     */
+    boolean isSyncRunning();
+
+    /**
      * Returns the model provider for this build.
      *
      * @return the model provider, never null
@@ -77,4 +88,22 @@ public interface GradleBuild {
      * @return the request attributes, never null
      */
     FixedRequestAttributes getRequestAttributes();
+
+    /**
+     * Creates a new Gradle build launcher. The method automatically opens a new Tooling API
+     * connection which is closed after the {@code run()} method is finished.
+     *
+     * @param transientAttributes the transient attributes for the launcher.
+     * @return the build launcher
+     */
+    BuildLauncher newBuildLauncher(TransientRequestAttributes transientAttributes);
+
+    /**
+     * Creates a new Gradle test launcher. The method automatically opens a new Tooling API
+     * connection which is closed after the {@code run()} method is finished.
+     *
+     * @param transientAttributes the transient attributes for the launcher.
+     * @return the test launcher
+     */
+    TestLauncher newTestLauncher(TransientRequestAttributes transientAttributes);
 }

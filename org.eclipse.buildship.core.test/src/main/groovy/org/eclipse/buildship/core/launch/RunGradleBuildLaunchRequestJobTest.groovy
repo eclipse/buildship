@@ -1,33 +1,34 @@
 package org.eclipse.buildship.core.launch
 
-import com.gradleware.tooling.toolingclient.BuildLaunchRequest
 import org.eclipse.debug.core.ILaunch
+import org.eclipse.debug.core.ILaunchConfiguration
 
 class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
-    BuildLaunchRequest buildLaunchRequest
+    File projectDir
 
-    def setup() {
-        buildLaunchRequest = Mock(BuildLaunchRequest)
-        toolingClient.newBuildLaunchRequest(_) >> buildLaunchRequest
+    void setup() {
+        projectDir = dir('java-launch-config') {
+            file 'build.gradle', "apply plugin: 'java'"
+        }
     }
 
     def "Job launches a Gradle build"() {
         setup:
-        def job = new RunGradleBuildLaunchRequestJob(createLaunchMock())
+        def job = new RunGradleBuildLaunchRequestJob(createLaunch(projectDir))
 
         when:
         job.schedule()
         job.join()
 
         then:
-        job.getResult().isOK()
-        1 * buildLaunchRequest.executeAndWait()
+            job.getResult().isOK()
+        buildOutput.contains 'BUILD SUCCESSFUL'
     }
 
     def "Job prints its configuration"() {
         setup:
-        def job = new RunGradleBuildLaunchRequestJob(createLaunchMock())
+        def job = new RunGradleBuildLaunchRequestJob(createLaunch(projectDir))
 
         when:
         job.schedule()
@@ -35,13 +36,14 @@ class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
         then:
         job.getResult().isOK()
-        1 * processStreamsProvider.createProcessStreams(null).getConfiguration().flush()
+        buildConfig.contains 'Working Directory'
+        buildConfig.contains 'Gradle Tasks: clean build'
     }
 
-    def createLaunchMock() {
-        def launchConfiguration = createLaunchConfigurationMock()
+    ILaunch createLaunch(File projectDir) {
+        ILaunchConfiguration launchConfiguration = createLaunchConfiguration(projectDir)
         ILaunch launch = Mock(ILaunch)
-        launch.getLaunchConfiguration() >> launchConfiguration
+        launch.launchConfiguration >> launchConfiguration
         launch
     }
 
