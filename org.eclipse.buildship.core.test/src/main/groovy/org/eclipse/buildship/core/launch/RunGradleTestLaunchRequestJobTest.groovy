@@ -2,12 +2,6 @@ package org.eclipse.buildship.core.launch
 
 
 import org.eclipse.jdt.core.IType
-import com.gradleware.tooling.toolingclient.TestLaunchRequest
-
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.configuration.RunConfiguration
-
-import org.gradle.tooling.events.test.TestOperationDescriptor
 
 class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 

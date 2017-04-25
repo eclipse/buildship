@@ -20,6 +20,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
@@ -33,6 +34,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
+import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager.SaveStrategy;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.launch.RunGradleJvmTestLaunchRequestJob;
 import org.eclipse.buildship.core.launch.TestMethod;
@@ -75,7 +77,6 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
     private RunConfiguration collectRunConfigurationAttributes(IProject project) {
         ProjectConfiguration projectConfig = CorePlugin.configurationManager().loadProjectConfiguration(project);
         BuildConfiguration buildConfig = projectConfig.getBuildConfiguration();
-        // TODO donat maybe this belongs to the ConfigManager interface
         GradleRunConfigurationAttributes attributes = new GradleRunConfigurationAttributes(Collections.<String>emptyList(),
                 buildConfig.getRootProjectDirectory().getAbsolutePath(),
                 GradleDistributionSerializer.INSTANCE.serializeToString(buildConfig.getGradleDistribution()),
@@ -87,7 +88,8 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
                 buildConfig.isOverrideWorkspaceSettings(),
                 buildConfig.isOfflineMode(),
                 buildConfig.isBuildScansEnabled());
-        return CorePlugin.configurationManager().loadRunConfiguration(attributes);
+        ILaunchConfiguration launchConfig = CorePlugin.gradleLaunchConfigurationManager().getOrCreateRunConfiguration(attributes, SaveStrategy.DONT_PERSIST);
+        return CorePlugin.configurationManager().loadRunConfiguration(launchConfig);
     }
 
     private void showNoTestsFoundDialog() {

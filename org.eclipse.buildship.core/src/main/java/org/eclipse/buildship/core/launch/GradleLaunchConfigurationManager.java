@@ -21,6 +21,13 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 public interface GradleLaunchConfigurationManager {
 
     /**
+     * Determines whether the created launch configuration should be saved upon creation.
+     */
+    public enum SaveStrategy {
+        PERSIST,
+        DONT_PERSIST
+    }
+    /**
      * Returns the existing Gradle {@link ILaunchConfiguration} instance for the given set of
      * attributes, if such a configuration exists.
      *
@@ -33,12 +40,23 @@ public interface GradleLaunchConfigurationManager {
     /**
      * Returns either a new Gradle {@link ILaunchConfiguration} instance or an existing one,
      * depending on whether there is already a Gradle run configuration for the given set of
-     * attributes or not.
+     * attributes or not. The result is saved to the disk.
      *
      * @param configurationAttributes the run configuration attributes, must not be not null
      * @return the new or existing Gradle run configuration
      */
     ILaunchConfiguration getOrCreateRunConfiguration(GradleRunConfigurationAttributes configurationAttributes);
+
+    /**
+     * Returns either a new Gradle {@link ILaunchConfiguration} instance or an existing one,
+     * depending on whether there is already a Gradle run configuration for the given set of
+     * attributes or not.
+     *
+     * @param configurationAttributes the run configuration attributes, must not be not null
+     * @param saveStrategy determines whether the new run configuration should be saved to the disk.
+     * @return the new or existing Gradle run configuration
+     */
+    ILaunchConfiguration getOrCreateRunConfiguration(GradleRunConfigurationAttributes configurationAttributes, SaveStrategy saveStrategy);
 
     /**
      * Launches the given target configuration.

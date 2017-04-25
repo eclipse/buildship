@@ -10,10 +10,13 @@ import com.gradleware.tooling.toolingclient.GradleDistribution
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.debug.core.ILaunch
+import org.eclipse.debug.core.ILaunchConfiguration
 
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.configuration.RunConfiguration
 import org.eclipse.buildship.core.event.Event
 import org.eclipse.buildship.core.event.EventListener
+import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager.SaveStrategy
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer
 
@@ -42,11 +45,13 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
             false,
             false,
             false)
-        executeCleanTestAndWait(attributes)
+        ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateRunConfiguration(attributes, SaveStrategy.DONT_PERSIST)
+        RunConfiguration runConfig = CorePlugin.configurationManager().loadRunConfiguration(launchConfiguration)
+        executeCleanTestAndWait(runConfig)
 
         when:
         // execute only the tests containing the word 'test1'
-        def testJob = new RunGradleTestLaunchRequestJob(descriptors.findAll { it.name.contains('test1') }, CorePlugin.configurationManager().loadRunConfiguration(attributes))
+        def testJob = new RunGradleTestLaunchRequestJob(descriptors.findAll { it.name.contains('test1') }, runConfig)
         descriptors.clear()
         testJob.schedule()
         testJob.join()
@@ -95,7 +100,19 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
         })
     }
 
-    private def executeCleanTestAndWait(GradleRunConfigurationAttributes attributes) {
+    private def executeCleanTestAndWait(RunConfiguration runConfig) {
+        GradleRunConfigurationAttributes attributes = new GradleRunConfigurationAttributes(
+            runConfig.tasks,
+            runConfig.buildConfiguration.rootProjectDirectory.absolutePath,
+            GradleDistributionSerializer.INSTANCE.serializeToString(runConfig.buildConfiguration.gradleDistribution),
+            runConfig.javaHome,
+            runConfig.jvmArguments,
+            runConfig.arguments,
+            runConfig.showExecutionView,
+            runConfig.showConsoleView,
+            runConfig.buildConfiguration.overrideWorkspaceSettings,
+            runConfig.buildConfiguration.offlineMode,
+            runConfig.buildConfiguration.buildScansEnabled)
         ILaunch launch = Mock()
         launch.getLaunchConfiguration() >> CorePlugin.gradleLaunchConfigurationManager().getOrCreateRunConfiguration(attributes)
         RunGradleBuildLaunchRequestJob job = new RunGradleBuildLaunchRequestJob(launch)

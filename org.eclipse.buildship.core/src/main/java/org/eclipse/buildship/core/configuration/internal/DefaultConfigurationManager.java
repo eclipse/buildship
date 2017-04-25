@@ -22,6 +22,7 @@ import com.gradleware.tooling.toolingclient.GradleDistribution;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.debug.core.ILaunchConfiguration;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
@@ -144,18 +145,19 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     }
 
     @Override
-    public RunConfiguration loadRunConfiguration(GradleRunConfigurationAttributes attributes) {
+    public RunConfiguration loadRunConfiguration(ILaunchConfiguration launchConfiguration) {
+        GradleRunConfigurationAttributes attributes = GradleRunConfigurationAttributes.from(launchConfiguration);
         BuildConfigurationProperties buildConfig = new BuildConfigurationProperties(attributes.getWorkingDir(),
-                                                                                    attributes.getGradleDistribution(),
-                                                                                    attributes.isOverrideWorkspaceSettings(),
-                                                                                    attributes.isBuildScansEnabled(),
-                                                                                    attributes.isOffline());
+                attributes.getGradleDistribution(),
+                attributes.isOverrideWorkspaceSettings(),
+                attributes.isBuildScansEnabled(),
+                attributes.isOffline());
         RunConfigurationProperties runConfig = new RunConfigurationProperties(attributes.getTasks(),
-                                                                              attributes.getJavaHome(),
-                                                                              attributes.getJvmArguments(),
-                                                                              attributes.getArgumentExpressions(),
-                                                                              attributes.isShowConsoleView(),
-                                                                              attributes.isShowExecutionView());
+                  attributes.getJavaHome(),
+                  attributes.getJvmArguments(),
+                  attributes.getArgumentExpressions(),
+                  attributes.isShowConsoleView(),
+                  attributes.isShowExecutionView());
         return new DefaultRunConfiguration(loadWorkspaceConfiguration(), buildConfig, runConfig);
     }
 

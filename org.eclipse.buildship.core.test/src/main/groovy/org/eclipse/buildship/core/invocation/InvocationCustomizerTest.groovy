@@ -2,11 +2,11 @@ package org.eclipse.buildship.core.invocation
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.debug.core.DebugPlugin
+import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.debug.core.ILaunchConfigurationType
 import org.eclipse.debug.core.ILaunchManager
 
 import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes
 import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.util.extension.InvocationCustomizerCollector
@@ -46,12 +46,12 @@ class InvocationCustomizerTest extends ProjectSynchronizationSpecification {
         IProject project = findProject('sample-project')
 
         expect:
-        CorePlugin.configurationManager().loadRunConfiguration(runConfigAttributes()).arguments == EXTRA_ARGUMENTS
+        CorePlugin.configurationManager().loadRunConfiguration(emptyLaunchConfiguration()).arguments == EXTRA_ARGUMENTS
     }
 
-    private GradleRunConfigurationAttributes runConfigAttributes() {
+    private ILaunchConfiguration emptyLaunchConfiguration() {
         ILaunchManager launchManager = DebugPlugin.default.launchManager
         ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(GradleRunConfigurationDelegate.ID)
-        GradleRunConfigurationAttributes.from(type.newInstance(null, "launch-config-name"))
+        type.newInstance(null, "launch-config-name")
     }
 }

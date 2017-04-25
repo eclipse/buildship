@@ -44,6 +44,11 @@ public final class UiGradleLaunchConfigurationManager implements GradleLaunchCon
     }
 
     @Override
+    public ILaunchConfiguration getOrCreateRunConfiguration(GradleRunConfigurationAttributes configurationAttributes, SaveStrategy saveStrategy) {
+        return this.delegate.getOrCreateRunConfiguration(configurationAttributes, saveStrategy);
+    }
+
+    @Override
     public void launch(ILaunchConfiguration configuration, String mode) {
         DebugUITools.launch(configuration, mode);
     }

@@ -58,10 +58,17 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
     public ILaunchConfiguration getOrCreateRunConfiguration(GradleRunConfigurationAttributes configurationAttributes) {
         Preconditions.checkNotNull(configurationAttributes);
         Optional<ILaunchConfiguration> launchConfiguration = getRunConfiguration(configurationAttributes);
-        return launchConfiguration.isPresent() ? launchConfiguration.get() : createLaunchConfiguration(configurationAttributes);
+        return launchConfiguration.isPresent() ? launchConfiguration.get() : createLaunchConfiguration(configurationAttributes, SaveStrategy.PERSIST);
     }
 
-    private ILaunchConfiguration createLaunchConfiguration(GradleRunConfigurationAttributes configurationAttributes) {
+    @Override
+    public ILaunchConfiguration getOrCreateRunConfiguration(GradleRunConfigurationAttributes configurationAttributes, SaveStrategy saveStrategy) {
+        Preconditions.checkNotNull(configurationAttributes);
+        Optional<ILaunchConfiguration> launchConfiguration = getRunConfiguration(configurationAttributes);
+        return launchConfiguration.isPresent() ? launchConfiguration.get() : createLaunchConfiguration(configurationAttributes, saveStrategy);
+    }
+
+    private ILaunchConfiguration createLaunchConfiguration(GradleRunConfigurationAttributes configurationAttributes, SaveStrategy saveStrategy) {
         // derive the name of the launch configuration from the configuration attributes
         // since the launch configuration name must not contain ':', we replace all ':' with '.'
         String taskNamesOrDefault = configurationAttributes.getTasks().isEmpty() ? "(default tasks)" : CollectionsUtils.joinWithSpace(configurationAttributes.getTasks());
@@ -77,7 +84,7 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
             configurationAttributes.apply(launchConfiguration);
 
             // persist the launch configuration and return it
-            return launchConfiguration.doSave();
+            return saveStrategy == SaveStrategy.PERSIST ? launchConfiguration.doSave() : launchConfiguration;
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot create Gradle launch configuration %s.", launchConfigurationName), e);
         }

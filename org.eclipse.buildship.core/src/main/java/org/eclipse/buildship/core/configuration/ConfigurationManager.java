@@ -14,8 +14,7 @@ import java.util.Set;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 
 import org.eclipse.core.resources.IProject;
-
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.debug.core.ILaunchConfiguration;
 
 /**
  * Defines how to access a hierarchy of preferences for the Gradle projects in the workspace.
@@ -45,5 +44,5 @@ public interface ConfigurationManager {
 
     void deleteProjectConfiguration(IProject project);
 
-    RunConfiguration loadRunConfiguration(GradleRunConfigurationAttributes attributes);
+    RunConfiguration loadRunConfiguration(ILaunchConfiguration launchConfiguration);
 }
