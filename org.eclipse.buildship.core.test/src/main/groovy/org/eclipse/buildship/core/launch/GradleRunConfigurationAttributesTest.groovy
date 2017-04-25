@@ -69,7 +69,6 @@ class GradleRunConfigurationAttributesTest extends Specification {
         attributes.overrideWorkspaceSettings == false
         attributes.isOffline == false
         attributes.buildScansEnabled ==false
-
     }
 
     def "Can create a new valid instance"() {
@@ -82,7 +81,6 @@ class GradleRunConfigurationAttributesTest extends Specification {
         // check non-calculated values
         configuration.getTasks() == validAttributes.tasks
         configuration.getWorkingDirExpression() == validAttributes.workingDir
-        configuration.getGradleDistribution() == validAttributes.gradleDistr
         configuration.getJavaHomeExpression() == validAttributes.javaHome
         configuration.getJvmArguments() == validAttributes.jvmArguments
         configuration.getArguments() == validAttributes.arguments

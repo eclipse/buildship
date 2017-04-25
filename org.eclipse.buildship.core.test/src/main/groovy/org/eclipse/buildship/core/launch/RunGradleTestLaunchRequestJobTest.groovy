@@ -3,6 +3,9 @@ package org.eclipse.buildship.core.launch
 
 import org.eclipse.jdt.core.IType
 
+import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.configuration.RunConfiguration
+
 class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
     File projectDir
@@ -25,7 +28,7 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
     def "Job launches a Gradle test"() {
         setup:
-        def job = new RunGradleJvmTestLaunchRequestJob(testTargets(), runConfigAttributes(projectDir))
+        def job = new RunGradleJvmTestLaunchRequestJob(testTargets(), createRunConfigurationMock())
 
         when:
         job.schedule()
@@ -39,7 +42,7 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
     def "Job prints its configuration"() {
         setup:
-        def job = new RunGradleJvmTestLaunchRequestJob(testTargets(), runConfigAttributes(projectDir))
+        def job = new RunGradleJvmTestLaunchRequestJob(testTargets(), createRunConfigurationMock())
 
         when:
         job.schedule()
@@ -51,9 +54,8 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
         buildConfig.contains 'Tests: MyTest'
     }
 
-    GradleRunConfigurationAttributes runConfigAttributes(projectDir) {
-        def launchConfiguration = createLaunchConfiguration(projectDir, [])
-        GradleRunConfigurationAttributes.from(launchConfiguration)
+    RunConfiguration createRunConfigurationMock() {
+        CorePlugin.configurationManager().loadRunConfiguration(createLaunchConfiguration(projectDir))
     }
 
     List<TestTarget> testTargets() {
