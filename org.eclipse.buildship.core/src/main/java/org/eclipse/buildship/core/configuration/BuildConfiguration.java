@@ -20,6 +20,8 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
  */
 public interface BuildConfiguration {
 
+    WorkspaceConfiguration getWorkspaceConfiguration();
+
     File getRootProjectDirectory();
 
     GradleDistribution getGradleDistribution();

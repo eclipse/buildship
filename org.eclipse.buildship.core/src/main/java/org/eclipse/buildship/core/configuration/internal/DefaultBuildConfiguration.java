@@ -29,9 +29,14 @@ class DefaultBuildConfiguration implements BuildConfiguration {
     private final BuildConfigurationProperties properties;
     private final WorkspaceConfiguration workspaceConfiguration;
 
-    public DefaultBuildConfiguration(BuildConfigurationProperties persistentProperties, WorkspaceConfiguration workspaceConfig) {
+    public DefaultBuildConfiguration(BuildConfigurationProperties persistentProperties, WorkspaceConfiguration workspaceConfiguration) {
         this.properties = persistentProperties;
-        this.workspaceConfiguration = workspaceConfig;
+        this.workspaceConfiguration = workspaceConfiguration;
+    }
+
+    @Override
+    public WorkspaceConfiguration getWorkspaceConfiguration() {
+        return this.workspaceConfiguration;
     }
 
     @Override

@@ -71,8 +71,6 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
         ProcessDescription processDescription = createProcessDescription();
         ProcessStreams processStreams = CorePlugin.processStreamsProvider().createProcessStreams(processDescription);
 
-        // TODO (donat) this won't be necessary once the project config can override Gradle user home
-        WorkspaceConfiguration workspaceConfig = CorePlugin.configurationManager().loadWorkspaceConfiguration();
         RunConfiguration runConfig = getRunConfig();
         List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(DelegatingProgressListener.withFullOutput(monitor));
         TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, processStreams.getOutput(), processStreams.getError(), processStreams.getInput(),
@@ -89,14 +87,15 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
 
         // print the applied run configuration settings at the beginning of the console output
         OutputStreamWriter writer = new OutputStreamWriter(processStreams.getConfiguration());
-        writeConfig(workspaceConfig, runConfig, writer, monitor);
+        writeConfig(runConfig, writer, monitor);
 
         // execute the build
         executeLaunch(launcher);
     }
 
-    private void writeConfig(WorkspaceConfiguration workspaceConfig, RunConfiguration runConfig, OutputStreamWriter writer, IProgressMonitor monitor) {
+    private void writeConfig(RunConfiguration runConfig, OutputStreamWriter writer, IProgressMonitor monitor) {
         BuildConfiguration buildConfig = runConfig.getBuildConfiguration();
+        WorkspaceConfiguration workspaceConfig = buildConfig.getWorkspaceConfiguration();
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(buildConfig, monitor);
         // should the user not specify values for the gradleUserHome and javaHome, their default
         // values will not be specified in the launch configurations
