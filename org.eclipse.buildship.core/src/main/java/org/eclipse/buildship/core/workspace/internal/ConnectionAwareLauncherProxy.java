@@ -8,7 +8,6 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -34,7 +33,6 @@ import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 
@@ -112,30 +110,22 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
         }
     }
 
+    @SuppressWarnings("resource")
     private static <T> BuildAction<Collection<T>> ideFriendlyCompositeModelQuery(Class<T> model) {
         // When Buildship is launched from the IDE - as an Eclipse application or as a plugin-in
         // test - the URLs returned by the Equinox class loader is incorrect. This means, the
         // Tooling API is unable to find the referenced build actions and fails with a CNF
         // exception. To work around that, we look up the build action class locations and load the
         // classes via an isolated URClassLoader.
-        URLClassLoader actionClassLoader = null;
         try {
             ClassLoader coreClassloader = ConnectionAwareLauncherProxy.class.getClassLoader();
             ClassLoader tapiClassloader = ProjectConnection.class.getClassLoader();
             URL actionRootUrl = FileLocator.resolve(coreClassloader.getResource(""));
-            actionClassLoader = new URLClassLoader(new URL[] { actionRootUrl }, tapiClassloader);
+            URLClassLoader actionClassLoader = new URLClassLoader(new URL[] { actionRootUrl }, tapiClassloader);
             Class<?> actionClass = actionClassLoader.loadClass(CompositeModelQuery.class.getName());
             return (BuildAction<Collection<T>>) actionClass.getConstructor(Class.class).newInstance(model);
         } catch (Exception e) {
             throw new GradlePluginsRuntimeException(e);
-        } finally {
-            if (actionClassLoader != null) {
-                try {
-                    actionClassLoader.close();
-                } catch (IOException e) {
-                    CorePlugin.logger().error("Can't close URL class loader", e);
-                }
-            }
         }
     }
 
