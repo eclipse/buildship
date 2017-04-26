@@ -8,6 +8,7 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -33,6 +34,7 @@ import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 
@@ -47,6 +49,7 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
 
     private final LongRunningOperation launcher;
     private final ProjectConnection connection;
+    private static URLClassLoader ideFriendlyCustomActionClassLoader;
 
     private ConnectionAwareLauncherProxy(ProjectConnection connection, LongRunningOperation target) {
         this.connection = connection;
@@ -110,7 +113,6 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
         }
     }
 
-    @SuppressWarnings("resource")
     private static <T> BuildAction<Collection<T>> ideFriendlyCompositeModelQuery(Class<T> model) {
         // When Buildship is launched from the IDE - as an Eclipse application or as a plugin-in
         // test - the URLs returned by the Equinox class loader is incorrect. This means, the
@@ -121,8 +123,8 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
             ClassLoader coreClassloader = ConnectionAwareLauncherProxy.class.getClassLoader();
             ClassLoader tapiClassloader = ProjectConnection.class.getClassLoader();
             URL actionRootUrl = FileLocator.resolve(coreClassloader.getResource(""));
-            URLClassLoader actionClassLoader = new URLClassLoader(new URL[] { actionRootUrl }, tapiClassloader);
-            Class<?> actionClass = actionClassLoader.loadClass(CompositeModelQuery.class.getName());
+            ideFriendlyCustomActionClassLoader = new URLClassLoader(new URL[] { actionRootUrl }, tapiClassloader);
+            Class<?> actionClass = ideFriendlyCustomActionClassLoader.loadClass(CompositeModelQuery.class.getName());
             return (BuildAction<Collection<T>>) actionClass.getConstructor(Class.class).newInstance(model);
         } catch (Exception e) {
             throw new GradlePluginsRuntimeException(e);
@@ -153,7 +155,7 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
         try {
             return m.invoke(this.launcher);
         } finally {
-            this.connection.close();
+            closeConnection();
         }
     }
 
@@ -166,7 +168,7 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
                 try {
                     handler.onComplete(result);
                 } finally {
-                    ConnectionAwareLauncherProxy.this.connection.close();
+                    closeConnection();
                 }
             }
 
@@ -175,10 +177,21 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
                 try {
                     handler.onFailure(e);
                 } finally {
-                    ConnectionAwareLauncherProxy.this.connection.close();
+                    closeConnection();
                 }
             }
         });
+    }
+
+    private void closeConnection() {
+        this.connection.close();
+        if (ideFriendlyCustomActionClassLoader != null) {
+            try {
+                ideFriendlyCustomActionClassLoader.close();
+            } catch (IOException e) {
+                CorePlugin.logger().error("Can't close URL class loader", e);
+            }
+        }
     }
 
     private Object invokeOther(Method m, Object[] args) throws Throwable {
