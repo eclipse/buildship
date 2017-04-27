@@ -64,13 +64,13 @@ final class BuildConfigurationPersistence {
 
     public String readPathToRoot(IProject project) {
         PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
-        return preferences.readString(PREF_KEY_CONNECTION_PROJECT_DIR);
+        return preferences.readString(PREF_KEY_CONNECTION_PROJECT_DIR, null);
     }
 
     public String readPathToRoot(File projectDir) {
         Preconditions.checkNotNull(projectDir);
         PreferenceStore preferences = PreferenceStore.forPreferenceFile(getProjectPrefsFile(projectDir, PREF_NODE));
-        return preferences.readString(PREF_KEY_CONNECTION_PROJECT_DIR);
+        return preferences.readString(PREF_KEY_CONNECTION_PROJECT_DIR, null);
     }
 
     public void savePathToRoot(IProject project, String pathToRoot) {
@@ -95,7 +95,7 @@ final class BuildConfigurationPersistence {
     }
 
     private static BuildConfigurationProperties readPreferences(PreferenceStore preferences, File rootDir) {
-        String distribution = preferences.readString(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
+        String distribution = preferences.readString(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, GradleDistributionSerializer.INSTANCE.serializeToString(GradleDistribution.fromBuild()));
         boolean overrideWorkspaceSettings = preferences.readBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, false);
         boolean buildScansEnabled = preferences.readBoolean(PREF_KEY_BUILD_SCANS_ENABLED, false);
         boolean offlineMode = preferences.readBoolean(PREF_KEY_OFFLINE_MODE, false);

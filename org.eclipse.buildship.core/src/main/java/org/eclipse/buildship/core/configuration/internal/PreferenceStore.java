@@ -31,12 +31,13 @@ abstract class PreferenceStore {
     }
 
     /**
-     * Reads a string. May return {@code null}, if the key was not present.
+     * Reads a string. If the key was not present, the default value is returned.
      *
      * @param key the preference key
+     * @param defaultValue the default value to return if the key is not present
      * @return the preference value
      */
-    abstract String readString(String key);
+    abstract String readString(String key, String defaultValue);
 
     /**
      * Reads a boolean value. If the key was not present, the default value is returned.
@@ -121,8 +122,8 @@ abstract class PreferenceStore {
         }
 
         @Override
-        String readString(String key) {
-            return this.preferences.get(key, null);
+        String readString(String key, String defaultValue) {
+            return this.preferences.get(key, defaultValue);
         }
 
         @Override
@@ -196,8 +197,8 @@ abstract class PreferenceStore {
         }
 
         @Override
-        String readString(String key) {
-            return getProperties().getProperty(key, null);
+        String readString(String key, String defaultValue) {
+            return getProperties().getProperty(key, defaultValue);
         }
 
         @Override
