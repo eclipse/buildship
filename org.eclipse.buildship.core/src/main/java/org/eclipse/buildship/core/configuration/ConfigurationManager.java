@@ -9,7 +9,6 @@
 package org.eclipse.buildship.core.configuration;
 
 import java.io.File;
-import java.util.Set;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 
@@ -29,8 +28,6 @@ public interface ConfigurationManager {
 
     BuildConfiguration createBuildConfiguration(File rootProjectDirectory, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings, boolean buildScansEnabled,
             boolean offlineMode);
-
-    Set<BuildConfiguration> loadAllBuildConfigurations();
 
     BuildConfiguration loadBuildConfiguration(File rootProject);
 

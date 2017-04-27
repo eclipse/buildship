@@ -10,12 +10,9 @@ package org.eclipse.buildship.core.configuration.internal;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 
@@ -27,7 +24,6 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.ConfigurationManager;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
@@ -61,22 +57,6 @@ public class DefaultConfigurationManager implements ConfigurationManager {
                                                                                                         buildScansEnabled,
                                                                                                         offlineMode);
         return new DefaultBuildConfiguration(persistentBuildConfigProperties, loadWorkspaceConfiguration());
-    }
-
-    @Override
-    public Set<BuildConfiguration> loadAllBuildConfigurations() {
-        LinkedHashSet<BuildConfiguration> result = Sets.newLinkedHashSet();
-        for (IProject project : CorePlugin.workspaceOperations().getAllProjects()) {
-            if(project.isAccessible() && GradleProjectNature.isPresentOn(project)) {
-                try {
-                    result.add(loadProjectConfiguration(project).getBuildConfiguration());
-                } catch(Exception e) {
-                    CorePlugin.logger().debug("Can't load build configuration for project " + project.getName(), e);
-                }
-            }
-        }
-
-        return result;
     }
 
     @Override

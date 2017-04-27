@@ -93,141 +93,27 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
         true              | false
     }
 
-    def "no Gradle root project configurations available when there are no projects"() {
-        expect:
-        configurationManager.loadAllBuildConfigurations().isEmpty()
-    }
-
-    def "no Gradle root project configurations available when there are no Eclipse projects with Gradle nature"() {
-        given:
-        newProject("sample-project")
-
-        expect:
-        configurationManager.loadAllBuildConfigurations().isEmpty()
-    }
-
-    def "no Gradle root project configurations available when there are no open Eclipse projects with Gradle nature"() {
-        given:
-        IProject project = workspaceOperations.createProject("sample-project", testDir, Arrays.asList(GradleProjectNature.ID), new NullProgressMonitor())
-        project.close(null)
-
-        expect:
-        configurationManager.loadAllBuildConfigurations().isEmpty()
-    }
-
-    def "one Gradle root project configuration when one Gradle multi-project build is imported"() {
-        setup:
-        def rootDir = dir("root") {
-            file('settings.gradle').text = '''
-                rootProject.name = 'project one'
-                include 'sub1'
-                include 'sub2'
-            '''
-            sub1 {
-                file('build.gradle').text = '''
-                   apply plugin: 'java'
-                '''
-            }
-            sub2 {
-                file('build.gradle').text = '''
-                   apply plugin: 'java'
-                '''
-            }
-        }
-
+    def "can't load invalid build configuration"() {
         when:
-        importAndWait(rootDir)
-        IProject root = findProject('project one')
-        Set<BuildConfiguration> configurations = configurationManager.loadAllBuildConfigurations()
+        configurationManager.loadBuildConfiguration(new File('nonexistent'))
 
         then:
-        configurations.size() == 1
-        configurations[0].gradleDistribution == GradleDistribution.fromBuild()
-        configurations[0].overrideWorkspaceSettings == false
-        configurations[0].buildScansEnabled == false
-        configurations[0].offlineMode == false
-    }
-
-    def "two Gradle root project configurations when two Gradle multi-project builds are imported"() {
-        setup:
-        def rootDirOne = dir("root1") {
-            file('settings.gradle').text = '''
-                rootProject.name = 'project one'
-                include 'sub1'
-                include 'sub2'
-            '''
-            sub1 {
-                file('build.gradle').text = '''
-                   apply plugin: 'java'
-                '''
-            }
-            sub2 {
-                file('build.gradle').text = '''
-                   apply plugin: 'java'
-                '''
-            }
-        }
-
-        def rootDirTwo = dir("root2") {
-            file('settings.gradle').text = '''
-                rootProject.name = 'project two'
-                include 'alpha'
-                include 'beta'
-            '''
-            alpha {
-                file('build.gradle').text = '''
-                   apply plugin: 'java'
-                '''
-            }
-            beta {
-                file('build.gradle').text = '''
-                   apply plugin: 'java'
-                '''
-            }
-        }
+        thrown RuntimeException
 
         when:
-        importAndWait(rootDirOne)
-        importAndWait(rootDirTwo, GradleDistribution.forVersion("1.12"))
-        IProject rootProjectOne = findProject('project one')
-        IProject rootProjectTwo = findProject('project two')
-        Set<BuildConfiguration> configurations = configurationManager.loadAllBuildConfigurations()
-        BuildConfiguration configuration1 = configurations.find { it.rootProjectDirectory.name == 'root1' }
-        BuildConfiguration configuration2 = configurations.find { it.rootProjectDirectory.name == 'root2' }
+        def projectDir = dir('project-dir').canonicalFile
+        configurationManager.loadBuildConfiguration(projectDir)
 
         then:
-        configurations.size() == 2
-        configuration1.gradleDistribution == GradleDistribution.fromBuild()
-        configuration1.overrideWorkspaceSettings == false
-        configuration1.buildScansEnabled == false
-        configuration1.offlineMode == false
-        configuration2.gradleDistribution == GradleDistribution.forVersion('1.12')
-        configuration2.overrideWorkspaceSettings == false
-        configuration2.buildScansEnabled == false
-        configuration2.offlineMode == false
+        thrown RuntimeException
+
+        when:
+        new File(projectDir,"${CorePlugin.PLUGIN_ID}.prefs").text = "connection.gradle.distribution=INVALID_GRADLE_DISTRO"
+        configurationManager.loadBuildConfiguration(projectDir)
+
+        then:
+        thrown RuntimeException
     }
-
-        def "broken project configurations are excluded from the root configurations"() {
-            setup:
-            def rootDirOne = dir("root1") {
-                file('settings.gradle').text = "rootProject.name = 'one'"
-            }
-
-            def rootDirTwo = dir("root2") {
-                file('settings.gradle').text = "rootProject.name = 'two'"
-            }
-
-            importAndWait(rootDirOne)
-            importAndWait(rootDirTwo)
-
-            when:
-            setInvalidPreferenceOn(findProject('two'))
-            Set<BuildConfiguration> configurations = configurationManager.loadAllBuildConfigurations()
-
-            then:
-            configurations.size() == 1
-            configurations[0].rootProjectDirectory.name == 'root1'
-        }
 
     def "can save and load build configuration"() {
         setup:
@@ -235,6 +121,25 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
         BuildConfiguration configuration = configurationManager.createBuildConfiguration(projectDir, GradleDistribution.forVersion('2.0'), false, false, false)
 
         when:
+        configurationManager.saveBuildConfiguration(configuration)
+        configuration = configurationManager.loadBuildConfiguration(projectDir)
+
+        then:
+        configuration.rootProjectDirectory == projectDir
+        configuration.gradleDistribution == GradleDistribution.forVersion('2.0')
+        configuration.overrideWorkspaceSettings == false
+        configuration.buildScansEnabled == false
+        configuration.offlineMode == false
+    }
+
+    def "can load build configuration from closed projects"() {
+        setup:
+        IProject project = newProject('project')
+        File projectDir = project.location.toFile()
+        BuildConfiguration configuration = configurationManager.createBuildConfiguration(projectDir, GradleDistribution.forVersion('2.0'), false, false, false)
+
+        when:
+        project.close(new NullProgressMonitor())
         configurationManager.saveBuildConfiguration(configuration)
         configuration = configurationManager.loadBuildConfiguration(projectDir)
 
