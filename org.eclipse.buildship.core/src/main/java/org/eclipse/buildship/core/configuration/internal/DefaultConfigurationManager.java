@@ -147,9 +147,9 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     @Override
     public void deleteProjectConfiguration(IProject project) {
         if (project.isAccessible()) {
-            this.buildConfigurationPersistence.deleteProjectConfiguration(project);
+            this.buildConfigurationPersistence.deletePathToRoot(project);
         } else {
-            this.buildConfigurationPersistence.deleteProjectConfiguration(project.getLocation().toFile());
+            this.buildConfigurationPersistence.deletePathToRoot(project.getLocation().toFile());
         }
     }
 

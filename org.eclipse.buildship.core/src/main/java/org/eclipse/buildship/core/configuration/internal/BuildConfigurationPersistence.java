@@ -96,13 +96,13 @@ final class BuildConfigurationPersistence {
         saveRootDirPreference(pathToRoot, preferences);
     }
 
-    public void deleteProjectConfiguration(IProject project) {
+    public void deletePathToRoot(IProject project) {
         Preconditions.checkNotNull(project);
         PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
         deleteRootDirPreference(preferences);
     }
 
-    public void deleteProjectConfiguration(File projectDir) {
+    public void deletePathToRoot(File projectDir) {
         Preconditions.checkNotNull(projectDir);
         PreferenceStore preferences = PreferenceStore.forPreferenceFile(getProjectPrefsFile(projectDir, PREF_NODE));
         deleteRootDirPreference(preferences);
