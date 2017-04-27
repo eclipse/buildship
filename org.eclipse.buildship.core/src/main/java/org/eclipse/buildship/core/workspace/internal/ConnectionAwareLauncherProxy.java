@@ -49,6 +49,7 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
 
     private final LongRunningOperation launcher;
     private final ProjectConnection connection;
+    private static URLClassLoader ideFriendlyCustomActionClassLoader;
 
     private ConnectionAwareLauncherProxy(ProjectConnection connection, LongRunningOperation target) {
         this.connection = connection;
@@ -118,24 +119,15 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
         // Tooling API is unable to find the referenced build actions and fails with a CNF
         // exception. To work around that, we look up the build action class locations and load the
         // classes via an isolated URClassLoader.
-        URLClassLoader actionClassLoader = null;
         try {
             ClassLoader coreClassloader = ConnectionAwareLauncherProxy.class.getClassLoader();
             ClassLoader tapiClassloader = ProjectConnection.class.getClassLoader();
             URL actionRootUrl = FileLocator.resolve(coreClassloader.getResource(""));
-            actionClassLoader = new URLClassLoader(new URL[] { actionRootUrl }, tapiClassloader);
-            Class<?> actionClass = actionClassLoader.loadClass(CompositeModelQuery.class.getName());
+            ideFriendlyCustomActionClassLoader = new URLClassLoader(new URL[] { actionRootUrl }, tapiClassloader);
+            Class<?> actionClass = ideFriendlyCustomActionClassLoader.loadClass(CompositeModelQuery.class.getName());
             return (BuildAction<Collection<T>>) actionClass.getConstructor(Class.class).newInstance(model);
         } catch (Exception e) {
             throw new GradlePluginsRuntimeException(e);
-        } finally {
-            if (actionClassLoader != null) {
-                try {
-                    actionClassLoader.close();
-                } catch (IOException e) {
-                    CorePlugin.logger().error("Can't close URL class loader", e);
-                }
-            }
         }
     }
 
@@ -163,7 +155,7 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
         try {
             return m.invoke(this.launcher);
         } finally {
-            this.connection.close();
+            closeConnection();
         }
     }
 
@@ -176,7 +168,7 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
                 try {
                     handler.onComplete(result);
                 } finally {
-                    ConnectionAwareLauncherProxy.this.connection.close();
+                    closeConnection();
                 }
             }
 
@@ -185,10 +177,21 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
                 try {
                     handler.onFailure(e);
                 } finally {
-                    ConnectionAwareLauncherProxy.this.connection.close();
+                    closeConnection();
                 }
             }
         });
+    }
+
+    private void closeConnection() {
+        this.connection.close();
+        if (ideFriendlyCustomActionClassLoader != null) {
+            try {
+                ideFriendlyCustomActionClassLoader.close();
+            } catch (IOException e) {
+                CorePlugin.logger().error("Can't close URL class loader", e);
+            }
+        }
     }
 
     private Object invokeOther(Method m, Object[] args) throws Throwable {
