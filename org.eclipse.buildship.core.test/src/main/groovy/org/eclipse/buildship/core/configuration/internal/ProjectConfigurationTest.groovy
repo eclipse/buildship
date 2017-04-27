@@ -36,6 +36,14 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
         rootProject = workspaceOperations.createProject("root-project", rootProjectDir, [], new NullProgressMonitor())
     }
 
+    def "missing project configuration"() {
+        when:
+        configurationManager.loadProjectConfiguration(project)
+
+        then:
+        thrown RuntimeException
+    }
+
     def "can save and load project configuration"() {
         given:
         BuildConfiguration buildConfig = configurationManager.createBuildConfiguration(rootProjectDir, GradleDistribution.forVersion('2.0'), false, false, false)
@@ -48,6 +56,35 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
         then:
         projectConfig.projectDir == projectDir
         projectConfig.buildConfiguration == buildConfig
+    }
+
+    def "can save and load project configuration if projects are closed"() {
+        given:
+        BuildConfiguration buildConfig = configurationManager.createBuildConfiguration(rootProjectDir, GradleDistribution.fromBuild(), false, false, false)
+        ProjectConfiguration projectConfig = configurationManager.createProjectConfiguration(buildConfig, projectDir);
+        project.close(new NullProgressMonitor())
+        rootProject.close(new NullProgressMonitor())
+
+        when:
+        configurationManager.saveProjectConfiguration(projectConfig)
+        ProjectConfiguration loadedConfig = configurationManager.loadProjectConfiguration(project)
+
+        then:
+        loadedConfig == projectConfig
+    }
+
+    def "can save and load project configuration if root project is not in the workspace"() {
+        given:
+        BuildConfiguration buildConfig = configurationManager.createBuildConfiguration(rootProjectDir, GradleDistribution.fromBuild(), false, false, false)
+        ProjectConfiguration projectConfig = configurationManager.createProjectConfiguration(buildConfig, projectDir);
+        rootProject.delete(false, false, new NullProgressMonitor())
+
+        when:
+        configurationManager.saveProjectConfiguration(projectConfig)
+        ProjectConfiguration loadedConfig = configurationManager.loadProjectConfiguration(project)
+
+        then:
+        loadedConfig == projectConfig
     }
 
     def "project configuration can be read if project is not yet refreshed"() {
@@ -173,6 +210,35 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
         false             | true
         true              | true
         true              | false
+    }
+
+    def "can delete project configuration"() {
+        setup:
+        BuildConfiguration buildConfig = configurationManager.createBuildConfiguration(rootProjectDir, GradleDistribution.forVersion('2.0'), false, false, false)
+        ProjectConfiguration projectConfig = configurationManager.createProjectConfiguration(buildConfig, projectDir);
+        configurationManager.saveProjectConfiguration(projectConfig)
+        configurationManager.deleteProjectConfiguration(project)
+
+        when:
+        configurationManager.loadProjectConfiguration(project)
+
+        then:
+        thrown RuntimeException
+    }
+
+    def "can delete project configuration on closed projects"() {
+        setup:
+        BuildConfiguration buildConfig = configurationManager.createBuildConfiguration(rootProjectDir, GradleDistribution.forVersion('2.0'), false, false, false)
+        ProjectConfiguration projectConfig = configurationManager.createProjectConfiguration(buildConfig, projectDir);
+        configurationManager.saveProjectConfiguration(projectConfig)
+        project.close(new NullProgressMonitor())
+        configurationManager.deleteProjectConfiguration(project)
+
+        when:
+        configurationManager.loadProjectConfiguration(project)
+
+        then:
+        thrown RuntimeException
     }
 
     private void setInvalidPreferenceOn(IProject project) {
