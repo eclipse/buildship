@@ -83,10 +83,19 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     public BuildConfiguration loadBuildConfiguration(File rootDir) {
         Preconditions.checkNotNull(rootDir);
         Preconditions.checkArgument(rootDir.exists());
-        Optional<IProject> rootProject = CorePlugin.workspaceOperations().findProjectByLocation(rootDir);
+        Optional<IProject> projectCandidate = CorePlugin.workspaceOperations().findProjectByLocation(rootDir);
         BuildConfigurationProperties buildConfigProperties;
-        if (rootProject.isPresent() && rootProject.get().isAccessible()) {
-            buildConfigProperties = this.buildConfigurationPersistence.readBuildConfiguratonProperties(rootProject.get());
+        if (projectCandidate.isPresent()) {
+            IProject project = projectCandidate.get();
+            try {
+                buildConfigProperties = this.buildConfigurationPersistence.readBuildConfiguratonProperties(project);
+            } catch (Exception e) {
+                // when the project is being imported, the configuration file might not be visible from the
+                // Eclipse resource API; in that case we fall back to raw IO operations
+                // a similar approach is used in JDT core to load the .classpath file
+                // see org.eclipse.jdt.internal.core.JavaProject.readFileEntriesWithException(Map)
+                buildConfigProperties = this.buildConfigurationPersistence.readBuildConfiguratonProperties(project.getLocation().toFile());
+            }
         } else {
             buildConfigProperties = this.buildConfigurationPersistence.readBuildConfiguratonProperties(rootDir);
         }

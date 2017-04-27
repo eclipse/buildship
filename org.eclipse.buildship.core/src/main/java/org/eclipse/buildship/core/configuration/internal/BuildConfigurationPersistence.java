@@ -17,6 +17,7 @@ import com.gradleware.tooling.toolingclient.GradleDistribution;
 import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 
 /**
@@ -35,67 +36,83 @@ final class BuildConfigurationPersistence {
     private static final String PREF_KEY_OFFLINE_MODE = "offline.mode";
 
     public BuildConfigurationProperties readBuildConfiguratonProperties(IProject project) {
-        try {
-            PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
-            return readPreferences(preferences, project.getLocation().toFile());
-        } catch (Exception e) {
-            // when the project is being imported, the configuration file might not be visible from the
-            // Eclipse resource API; in that case we fall back to raw IO operations
-            // a similar approach is used in JDT core to load the .classpath file
-            // see org.eclipse.jdt.internal.core.JavaProject.readFileEntriesWithException(Map)
-            return readBuildConfiguratonProperties(project.getLocation().toFile());
-        }
+        Preconditions.checkNotNull(project);
+        PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
+        return readPreferences(preferences, project.getLocation().toFile());
     }
 
     public BuildConfigurationProperties readBuildConfiguratonProperties(File projectDir) {
+        Preconditions.checkNotNull(projectDir);
         PreferenceStore preferences = PreferenceStore.forPreferenceFile(getProjectPrefsFile(projectDir, PREF_NODE));
         return readPreferences(preferences, projectDir);
     }
 
     public void saveBuildConfiguration(IProject project, BuildConfigurationProperties properties) {
+        Preconditions.checkNotNull(project);
+        Preconditions.checkNotNull(properties);
         PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
         savePreferences(properties, preferences);
     }
 
     public void saveBuildConfiguration(File projectDir, BuildConfigurationProperties properties) {
+        Preconditions.checkNotNull(projectDir);
+        Preconditions.checkNotNull(properties);
         PreferenceStore preferences = PreferenceStore.forPreferenceFile(getProjectPrefsFile(projectDir, PREF_NODE));
         savePreferences(properties, preferences);
     }
 
     public String readPathToRoot(IProject project) {
+        Preconditions.checkNotNull(project);
         PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
-        return preferences.readString(PREF_KEY_CONNECTION_PROJECT_DIR, null);
+        String result = preferences.readString(PREF_KEY_CONNECTION_PROJECT_DIR, null);
+        if (result == null) {
+            throw new GradlePluginsRuntimeException("Can't read root project location for project " + project.getName());
+        }
+        return result;
     }
 
     public String readPathToRoot(File projectDir) {
         Preconditions.checkNotNull(projectDir);
         PreferenceStore preferences = PreferenceStore.forPreferenceFile(getProjectPrefsFile(projectDir, PREF_NODE));
-        return preferences.readString(PREF_KEY_CONNECTION_PROJECT_DIR, null);
+        String result = preferences.readString(PREF_KEY_CONNECTION_PROJECT_DIR, null);
+        if (result == null) {
+            throw new GradlePluginsRuntimeException("Can't read root project location for project located at " + projectDir.getAbsolutePath());
+        }
+        return result;
     }
 
     public void savePathToRoot(IProject project, String pathToRoot) {
+        Preconditions.checkNotNull(project);
+        Preconditions.checkNotNull(pathToRoot);
         PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
         saveRootDirPreference(pathToRoot, preferences);
 
     }
 
     public void savePathToRoot(File projectDir, String pathToRoot) {
+        Preconditions.checkNotNull(projectDir);
+        Preconditions.checkNotNull(pathToRoot);
         PreferenceStore preferences = PreferenceStore.forPreferenceFile(getProjectPrefsFile(projectDir, PREF_NODE));
         saveRootDirPreference(pathToRoot, preferences);
     }
 
     public void deleteProjectConfiguration(IProject project) {
+        Preconditions.checkNotNull(project);
         PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
         deleteRootDirPreference(preferences);
     }
 
     public void deleteProjectConfiguration(File projectDir) {
+        Preconditions.checkNotNull(projectDir);
         PreferenceStore preferences = PreferenceStore.forPreferenceFile(getProjectPrefsFile(projectDir, PREF_NODE));
         deleteRootDirPreference(preferences);
     }
 
     private static BuildConfigurationProperties readPreferences(PreferenceStore preferences, File rootDir) {
-        String distribution = preferences.readString(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, GradleDistributionSerializer.INSTANCE.serializeToString(GradleDistribution.fromBuild()));
+        String distribution = preferences.readString(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, null);
+        if (distribution == null) {
+            throw new GradlePluginsRuntimeException("Invalid build configuration for project located at " + rootDir.getAbsolutePath());
+        }
         boolean overrideWorkspaceSettings = preferences.readBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, false);
         boolean buildScansEnabled = preferences.readBoolean(PREF_KEY_BUILD_SCANS_ENABLED, false);
         boolean offlineMode = preferences.readBoolean(PREF_KEY_OFFLINE_MODE, false);
