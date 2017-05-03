@@ -11,10 +11,10 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.event.EventListener;
 import org.eclipse.buildship.core.launch.ExecuteLaunchRequestEvent;
@@ -55,5 +55,4 @@ public final class ExecutionShowingLaunchRequestListener implements EventListene
             }
         });
     }
-
 }

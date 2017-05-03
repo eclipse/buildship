@@ -11,18 +11,20 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import org.eclipse.buildship.ui.view.ObservableItem;
-import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.resource.ImageDescriptor;
+import java.util.List;
+
 import org.gradle.tooling.events.FinishEvent;
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.StartEvent;
 
-import java.util.List;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.Platform;
+
+import org.eclipse.buildship.ui.view.ObservableItem;
 
 /**
  * <p>
@@ -41,30 +43,19 @@ import java.util.List;
  *     }
  * }
  * </pre>
- * Note that all of the current APIs are required since they are called reflectively
- * by the Eclipse Data Binding framework.
  */
-@SuppressWarnings("unchecked")
 public final class OperationItem extends ObservableItem implements IAdaptable {
-
-    public static final String FIELD_NAME = "name";         //$NON-NLS-1$
-    public static final String FIELD_DURATION = "duration"; //$NON-NLS-1$
-    public static final String FIELD_IMAGE = "image";       //$NON-NLS-1$
-    public static final String FIELD_CHILDREN = "children"; //$NON-NLS-1$
 
     private final StartEvent startEvent;
     private FinishEvent finishEvent;
     private String name;
-    private String duration;
-    private ImageDescriptor image;
+    private OperationItem parent;
     private List<OperationItem> children;
 
     public OperationItem() {
         this.startEvent = null;
         this.finishEvent = null;
         this.name = null;
-        this.duration = null;
-        this.image = null;
         this.children = Lists.newArrayList();
     }
 
@@ -72,8 +63,6 @@ public final class OperationItem extends ObservableItem implements IAdaptable {
         this.startEvent = Preconditions.checkNotNull(startEvent);
         this.finishEvent = null;
         this.name = startEvent.getDescriptor().getDisplayName();
-        this.duration = null;
-        this.image = null;
         this.children = Lists.newArrayList();
     }
 
@@ -89,36 +78,16 @@ public final class OperationItem extends ObservableItem implements IAdaptable {
         this.finishEvent = finishEvent;
     }
 
-    @SuppressWarnings("UnusedDeclaration")
     public String getName() {
         return this.name;
     }
 
-    public void setName(String name) {
-        firePropertyChange(FIELD_NAME, this.name, this.name = name);
-    }
-
-    @SuppressWarnings("UnusedDeclaration")
-    public String getDuration() {
-        return this.duration;
-    }
-
-    public void setDuration(String duration) {
-        firePropertyChange(FIELD_DURATION, this.duration, this.duration = duration);
-    }
-
-    @SuppressWarnings("UnusedDeclaration")
-    public ImageDescriptor getImage() {
-        return this.image;
-    }
-
-    public void setImage(ImageDescriptor image) {
-        firePropertyChange(FIELD_IMAGE, this.image, this.image = image);
-    }
-
-    @SuppressWarnings("UnusedDeclaration")
     public List<OperationItem> getChildren() {
         return ImmutableList.copyOf(this.children);
+    }
+
+    public OperationItem getParent() {
+        return this.parent;
     }
 
     public void addChild(OperationItem operationItem) {
@@ -129,7 +98,6 @@ public final class OperationItem extends ObservableItem implements IAdaptable {
         }
     }
 
-    @SuppressWarnings("UnusedDeclaration")
     public void removeChild(OperationItem operationItem) {
         if (this.children.contains(operationItem)) {
             List<OperationItem> children = Lists.newArrayList(this.children);
@@ -139,10 +107,13 @@ public final class OperationItem extends ObservableItem implements IAdaptable {
     }
 
     private void setChildren(List<OperationItem> children) {
-        firePropertyChange(FIELD_CHILDREN, this.children, this.children = children);
+        for (OperationItem child : children) {
+            child.parent = this;
+        }
+        this.children = children;
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public Object getAdapter(Class adapter) {
         if (OperationDescriptor.class.equals(adapter)) {
