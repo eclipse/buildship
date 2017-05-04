@@ -25,11 +25,11 @@ import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 public class DefaultRunConfiguration implements RunConfiguration {
 
     private final BuildConfiguration buildConfiguration;
-    private final RunConfigurationProperties runProperties;
+    private final RunConfigurationProperties properties;
 
-    public DefaultRunConfiguration(WorkspaceConfiguration workspaceConfiguration, BuildConfigurationProperties buildProperties, RunConfigurationProperties runProperties) {
+    public DefaultRunConfiguration(WorkspaceConfiguration workspaceConfiguration, BuildConfigurationProperties buildProperties, RunConfigurationProperties properties) {
         this.buildConfiguration = new DefaultBuildConfiguration(buildProperties, workspaceConfiguration);
-        this.runProperties = runProperties;
+        this.properties = properties;
     }
 
     @Override
@@ -39,41 +39,57 @@ public class DefaultRunConfiguration implements RunConfiguration {
 
     @Override
     public List<String> getTasks() {
-        return this.runProperties.getTasks();
+        return this.properties.getTasks();
     }
 
     @Override
     public File getJavaHome() {
-        return this.runProperties.getJavaHome();
+        return this.properties.getJavaHome();
     }
 
     @Override
     public List<String> getJvmArguments() {
-        List<String> result = Lists.newArrayList(this.runProperties.getJvmArguments());
-        if (this.buildConfiguration.isBuildScansEnabled()) {
+        List<String> result = Lists.newArrayList(this.properties.getJvmArguments());
+        if (isBuildScansEnabled()) {
             result.add("-Dscan");
         }
         return result;
     }
 
+    private boolean isBuildScansEnabled() {
+        if (this.properties.isOverrideBuildSettings()) {
+            return this.properties.isBuildScansEnabled();
+        } else {
+            return this.buildConfiguration.isBuildScansEnabled();
+        }
+    }
+
     @Override
     public List<String> getArguments() {
-        List<String> result = Lists.newArrayList(this.runProperties.getArguments());
-        if (this.buildConfiguration.isOfflineMode()) {
+        List<String> result = Lists.newArrayList(this.properties.getArguments());
+        if (isOfflineMOde()) {
             result.add("--offline");
         }
         result.addAll(CorePlugin.invocationCustomizer().getExtraArguments());
         return result;
     }
 
+    private boolean isOfflineMOde() {
+        if (this.properties.isOverrideBuildSettings()) {
+            return this.properties.isOfflineMode();
+        } else {
+            return this.buildConfiguration.isOfflineMode();
+        }
+    }
+
     @Override
     public boolean isShowExecutionView() {
-        return this.runProperties.isShowExecutionView();
+        return this.properties.isShowExecutionView();
     }
 
     @Override
     public boolean isShowConsoleView() {
-        return this.runProperties.isShowConsoleView();
+        return this.properties.isShowConsoleView();
     }
 
     @Override
@@ -81,13 +97,13 @@ public class DefaultRunConfiguration implements RunConfiguration {
         if (obj instanceof DefaultRunConfiguration) {
             DefaultRunConfiguration other = (DefaultRunConfiguration) obj;
             return Objects.equal(this.buildConfiguration, other.buildConfiguration)
-                    && Objects.equal(this.runProperties, other.runProperties);
+                    && Objects.equal(this.properties, other.properties);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.buildConfiguration, this.runProperties);
+        return Objects.hashCode(this.buildConfiguration, this.properties);
     }
 }

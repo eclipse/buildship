@@ -147,13 +147,16 @@ public class DefaultConfigurationManager implements ConfigurationManager {
                   attributes.getJvmArguments(),
                   attributes.getArgumentExpressions(),
                   attributes.isShowConsoleView(),
-                  attributes.isShowExecutionView());
+                  attributes.isShowExecutionView(),
+                  attributes.isOverrideWorkspaceSettings(),
+                  attributes.isBuildScansEnabled(),
+                  attributes.isOffline());
         return new DefaultRunConfiguration(loadWorkspaceConfiguration(), buildConfig, runConfig);
     }
 
     @Override
     public RunConfiguration createRunConfiguration(BuildConfiguration configuration, List<String> tasks, File javaHome, List<String> jvmArguments, List<String> arguments,
-            boolean showExecutionsView, boolean showConsoleView) {
+            boolean showExecutionsView, boolean showConsoleView, boolean overrideBuildSettings, boolean buildScansEnabled, boolean offlineMode) {
         Preconditions.checkArgument(configuration instanceof DefaultBuildConfiguration, "Unknow configuration type: ", configuration.getClass());
         DefaultBuildConfiguration buildConfiguration = (DefaultBuildConfiguration) configuration;
         RunConfigurationProperties runConfig = new RunConfigurationProperties(tasks,
@@ -161,7 +164,10 @@ public class DefaultConfigurationManager implements ConfigurationManager {
                 jvmArguments,
                 arguments,
                 showConsoleView,
-                showExecutionsView);
+                showExecutionsView,
+                overrideBuildSettings,
+                buildScansEnabled,
+                offlineMode);
         return new DefaultRunConfiguration(loadWorkspaceConfiguration(), buildConfiguration.getProperties(), runConfig);
     }
 

@@ -73,7 +73,16 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
     private RunConfiguration collectRunConfiguration(IProject project) {
         ProjectConfiguration projectConfig = CorePlugin.configurationManager().loadProjectConfiguration(project);
         BuildConfiguration buildConfig = projectConfig.getBuildConfiguration();
-        return CorePlugin.configurationManager().createRunConfiguration(buildConfig, Collections.<String>emptyList(), null, Collections.<String>emptyList(), Collections.<String>emptyList(), true, true);
+        return CorePlugin.configurationManager().createRunConfiguration(buildConfig,
+                                                                        Collections.<String>emptyList(),
+                                                                        null,
+                                                                        Collections.<String>emptyList(),
+                                                                        Collections.<String>emptyList(),
+                                                                        true,
+                                                                        true,
+                                                                        false,
+                                                                        false,
+                                                                        false);
     }
 
     private void showNoTestsFoundDialog() {
