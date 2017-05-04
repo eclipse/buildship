@@ -164,8 +164,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
     private void synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject project, SubMonitor progress) throws CoreException {
         progress.setWorkRemaining(1);
 
-        // save the project config before creating/opening workspace project to avoid any premature updates
-        // This ensures that events like `ProjectCreatedEvents` are not fired before the configuration is available
+        // save the project configuration
         ConfigurationManager configManager = CorePlugin.configurationManager();
         ProjectConfiguration projectConfig = configManager.createProjectConfiguration(this.buildConfig, project.getProjectDirectory());
         configManager.saveProjectConfiguration(projectConfig);

@@ -106,7 +106,6 @@ public final class SynchronizeGradleBuildsJob extends ToolingApiJob {
     public boolean shouldSchedule() {
         for (Job job : Job.getJobManager().find(CorePlugin.GRADLE_JOB_FAMILY)) {
             if (job instanceof SynchronizeGradleBuildsJob && isCoveredBy((SynchronizeGradleBuildsJob) job)) {
-                System.err.println("false");
                 return false;
             }
         }
