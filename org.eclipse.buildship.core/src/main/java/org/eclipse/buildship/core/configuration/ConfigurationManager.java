@@ -9,6 +9,7 @@
 package org.eclipse.buildship.core.configuration;
 
 import java.io.File;
+import java.util.List;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 
@@ -42,4 +43,7 @@ public interface ConfigurationManager {
     void deleteProjectConfiguration(IProject project);
 
     RunConfiguration loadRunConfiguration(ILaunchConfiguration launchConfiguration);
+
+    RunConfiguration createRunConfiguration(BuildConfiguration configuration, List<String> tasks, File javaHome, List<String> jvmArguments, List<String> arguments,
+            boolean showExecutionsView, boolean showConsoleView);
 }

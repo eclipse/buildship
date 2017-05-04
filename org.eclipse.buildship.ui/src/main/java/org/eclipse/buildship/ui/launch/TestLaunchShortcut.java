@@ -20,7 +20,6 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
@@ -34,13 +33,10 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
-import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager.SaveStrategy;
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.launch.RunGradleJvmTestLaunchRequestJob;
 import org.eclipse.buildship.core.launch.TestMethod;
 import org.eclipse.buildship.core.launch.TestTarget;
 import org.eclipse.buildship.core.launch.TestType;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 
 /**
  * Shortcut for Gradle test launches from the Java editor or from the current selection.
@@ -66,30 +62,18 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
             ImmutableList.Builder<TestTarget> targets = ImmutableList.builder();
             targets.addAll(convertTypesToTestTargets(types));
             targets.addAll(convertMethodsToTestTargets(methods));
-            RunConfiguration runConfigurationAttributes = collectRunConfigurationAttributes(resolver.findFirstContainerProject().get());
-            new RunGradleJvmTestLaunchRequestJob(targets.build(), runConfigurationAttributes).schedule();
+            RunConfiguration runConfiguration = collectRunConfiguration(resolver.findFirstContainerProject().get());
+            new RunGradleJvmTestLaunchRequestJob(targets.build(), runConfiguration).schedule();
         } else {
             showNoTestsFoundDialog();
         }
     }
 
     @SuppressWarnings("ConstantConditions")
-    private RunConfiguration collectRunConfigurationAttributes(IProject project) {
+    private RunConfiguration collectRunConfiguration(IProject project) {
         ProjectConfiguration projectConfig = CorePlugin.configurationManager().loadProjectConfiguration(project);
         BuildConfiguration buildConfig = projectConfig.getBuildConfiguration();
-        GradleRunConfigurationAttributes attributes = new GradleRunConfigurationAttributes(Collections.<String>emptyList(),
-                buildConfig.getRootProjectDirectory().getAbsolutePath(),
-                GradleDistributionSerializer.INSTANCE.serializeToString(buildConfig.getGradleDistribution()),
-                null,
-                Collections.<String>emptyList(),
-                Collections.<String>emptyList(),
-                true,
-                true,
-                buildConfig.isOverrideWorkspaceSettings(),
-                buildConfig.isOfflineMode(),
-                buildConfig.isBuildScansEnabled());
-        ILaunchConfiguration launchConfig = CorePlugin.gradleLaunchConfigurationManager().getOrCreateRunConfiguration(attributes, SaveStrategy.DONT_PERSIST);
-        return CorePlugin.configurationManager().loadRunConfiguration(launchConfig);
+        return CorePlugin.configurationManager().createRunConfiguration(buildConfig, Collections.<String>emptyList(), null, Collections.<String>emptyList(), Collections.<String>emptyList(), true, true);
     }
 
     private void showNoTestsFoundDialog() {

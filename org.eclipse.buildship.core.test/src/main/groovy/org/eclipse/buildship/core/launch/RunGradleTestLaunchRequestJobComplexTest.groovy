@@ -45,7 +45,7 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
             false,
             false,
             false)
-        ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateRunConfiguration(attributes, SaveStrategy.DONT_PERSIST)
+        ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateRunConfiguration(attributes)
         RunConfiguration runConfig = CorePlugin.configurationManager().loadRunConfiguration(launchConfiguration)
         executeCleanTestAndWait(runConfig)
 

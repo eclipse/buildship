@@ -10,6 +10,7 @@ package org.eclipse.buildship.core.configuration.internal;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -148,6 +149,20 @@ public class DefaultConfigurationManager implements ConfigurationManager {
                   attributes.isShowConsoleView(),
                   attributes.isShowExecutionView());
         return new DefaultRunConfiguration(loadWorkspaceConfiguration(), buildConfig, runConfig);
+    }
+
+    @Override
+    public RunConfiguration createRunConfiguration(BuildConfiguration configuration, List<String> tasks, File javaHome, List<String> jvmArguments, List<String> arguments,
+            boolean showExecutionsView, boolean showConsoleView) {
+        Preconditions.checkArgument(configuration instanceof DefaultBuildConfiguration, "Unknow configuration type: ", configuration.getClass());
+        DefaultBuildConfiguration buildConfiguration = (DefaultBuildConfiguration) configuration;
+        RunConfigurationProperties runConfig = new RunConfigurationProperties(tasks,
+                javaHome,
+                jvmArguments,
+                arguments,
+                showConsoleView,
+                showExecutionsView);
+        return new DefaultRunConfiguration(loadWorkspaceConfiguration(), buildConfiguration.getProperties(), runConfig);
     }
 
     private static File relativePathToProjectRoot(IProject project, String path) {
