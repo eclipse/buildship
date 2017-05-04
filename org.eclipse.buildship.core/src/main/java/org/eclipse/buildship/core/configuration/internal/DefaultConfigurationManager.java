@@ -139,7 +139,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
         GradleRunConfigurationAttributes attributes = GradleRunConfigurationAttributes.from(launchConfiguration);
         BuildConfigurationProperties buildConfig = new BuildConfigurationProperties(attributes.getWorkingDir(),
                 attributes.getGradleDistribution(),
-                attributes.isOverrideWorkspaceSettings(),
+                attributes.isOverrideBuildSettings(),
                 attributes.isBuildScansEnabled(),
                 attributes.isOffline());
         RunConfigurationProperties runConfig = new RunConfigurationProperties(attributes.getTasks(),
@@ -148,7 +148,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
                   attributes.getArgumentExpressions(),
                   attributes.isShowConsoleView(),
                   attributes.isShowExecutionView(),
-                  attributes.isOverrideWorkspaceSettings(),
+                  attributes.isOverrideBuildSettings(),
                   attributes.isBuildScansEnabled(),
                   attributes.isOffline());
         return new DefaultRunConfiguration(loadWorkspaceConfiguration(), buildConfig, runConfig);

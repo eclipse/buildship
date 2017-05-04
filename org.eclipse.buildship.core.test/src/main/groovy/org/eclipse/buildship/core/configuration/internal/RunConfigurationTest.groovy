@@ -53,7 +53,7 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         boolean showExecutionView = false
         File rootDir = dir('projectDir').canonicalFile
         GradleDistribution distribution = GradleDistribution.forVersion("3.3")
-        boolean overrideWorkspaceSettings = true
+        boolean overrideBuildSettings = true
         boolean buildScansEnabled = true
         boolean offlineMode = true
 
@@ -66,7 +66,7 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         GradleRunConfigurationAttributes.applyShowExecutionView(showExecutionView, launchConfig)
         GradleRunConfigurationAttributes.applyWorkingDirExpression(rootDir.absolutePath, launchConfig)
         GradleRunConfigurationAttributes.applyGradleDistribution(distribution, launchConfig)
-        GradleRunConfigurationAttributes.applyOverrideWorkspaceSettings(overrideWorkspaceSettings, launchConfig)
+        GradleRunConfigurationAttributes.applyOverrideBuildSettings(overrideBuildSettings, launchConfig)
         GradleRunConfigurationAttributes.applyBuildScansEnabled(buildScansEnabled, launchConfig)
         GradleRunConfigurationAttributes.applyOfflineMode(offlineMode, launchConfig)
 
@@ -82,7 +82,7 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         runConfig.showExecutionView == showExecutionView
         runConfig.buildConfiguration.rootProjectDirectory == rootDir
         runConfig.buildConfiguration.gradleDistribution == distribution
-        runConfig.buildConfiguration.overrideWorkspaceSettings == overrideWorkspaceSettings
+        runConfig.buildConfiguration.overrideWorkspaceSettings == overrideBuildSettings
         runConfig.buildConfiguration.buildScansEnabled == buildScansEnabled
         runConfig.buildConfiguration.offlineMode == offlineMode
         runConfig.buildConfiguration.workspaceConfiguration.gradleUserHome == null

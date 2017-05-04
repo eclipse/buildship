@@ -43,7 +43,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         jvmArguments : ["-ea"],
         showExecutionView :  true,
         showConsoleView : true,
-        overrideWorkspaceSettings : false,
+        overrideBuildSettings : false,
         isOffline: false,
         buildScansEnabled: false,
     )
@@ -66,7 +66,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         attributes.jvmArguments == []
         attributes.showExecutionView == true
         attributes.showConsoleView == true
-        attributes.overrideWorkspaceSettings == false
+        attributes.overrideBuildSettings == false
         attributes.isOffline == false
         attributes.buildScansEnabled ==false
     }
@@ -86,7 +86,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         configuration.getArguments() == validAttributes.arguments
         configuration.isShowExecutionView() == validAttributes.showExecutionView
         configuration.isShowConsoleView() == validAttributes.showConsoleView
-        configuration.isOverrideWorkspaceSettings() == validAttributes.overrideWorkspaceSettings
+        configuration.isOverrideBuildSettings() == validAttributes.overrideBuildSettings
         configuration.isOffline() == validAttributes.isOffline
         configuration.isBuildScansEnabled() == validAttributes.buildScansEnabled
         // check calculated value
@@ -233,7 +233,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         gradleConfig1.getJvmArguments() == gradleConfig2.getJvmArguments()
         gradleConfig1.getArguments() == gradleConfig2.getArguments()
         gradleConfig1.isShowExecutionView() == gradleConfig2.isShowExecutionView()
-        gradleConfig1.isOverrideWorkspaceSettings() == gradleConfig2.isOverrideWorkspaceSettings()
+        gradleConfig1.isOverrideBuildSettings() == gradleConfig2.isOverrideBuildSettings()
         gradleConfig1.isOffline() == gradleConfig2.isOffline()
         gradleConfig1.isBuildScansEnabled() == gradleConfig2.isBuildScansEnabled()
 
@@ -267,12 +267,12 @@ class GradleRunConfigurationAttributesTest extends Specification {
         def jvmArguments
         def showExecutionView
         def showConsoleView
-        def overrideWorkspaceSettings
+        def overrideBuildSettings
         def isOffline
         def buildScansEnabled
 
         def GradleRunConfigurationAttributes toConfiguration() {
-            new GradleRunConfigurationAttributes(tasks, workingDir, gradleDistr, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView, overrideWorkspaceSettings, isOffline, buildScansEnabled)
+            new GradleRunConfigurationAttributes(tasks, workingDir, gradleDistr, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView, overrideBuildSettings, isOffline, buildScansEnabled)
         }
 
         def Attributes copy(@DelegatesTo(value = Attributes, strategy=Closure.DELEGATE_FIRST) Closure closure) {

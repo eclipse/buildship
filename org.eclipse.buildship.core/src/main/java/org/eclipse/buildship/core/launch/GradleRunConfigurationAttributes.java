@@ -46,7 +46,7 @@ public final class GradleRunConfigurationAttributes {
     private static final String ARGUMENTS = "arguments";
     private static final String SHOW_EXECUTION_VIEW = "show_execution_view";
     private static final String SHOW_CONSOLE_VIEW = "show_console_view";
-    private static final String OVERRIDE_WORKSPACE_SETTINGS = "override_workspace_settings";
+    private static final String OVERRIDE_BUILD_SETTINGS = "override_workspace_settings";
     private static final String OFFLINE_MODE = "offline_mode";
     private static final String BUILD_SCANS_ENABLED = "build_scans_enabled";
 
@@ -58,7 +58,7 @@ public final class GradleRunConfigurationAttributes {
     private final ImmutableList<String> argumentExpressions;
     private final boolean showExecutionView;
     private final boolean showConsoleView;
-    private final boolean overrideWorkspaceSettings;
+    private final boolean overrideBuildSettings;
     private final boolean isOffline;
     private final boolean isBuildScansEnabled;
 
@@ -72,7 +72,7 @@ public final class GradleRunConfigurationAttributes {
         this.argumentExpressions = ImmutableList.copyOf(argumentExpressions);
         this.showExecutionView = showExecutionView;
         this.showConsoleView = showConsoleView;
-        this.overrideWorkspaceSettings = overrideWorkspaceSettings;
+        this.overrideBuildSettings = overrideWorkspaceSettings;
         this.isOffline = isOffline;
         this.isBuildScansEnabled = isBuildScansEnabled;
     }
@@ -159,8 +159,8 @@ public final class GradleRunConfigurationAttributes {
         return this.showConsoleView;
     }
 
-    public boolean isOverrideWorkspaceSettings() {
-        return this.overrideWorkspaceSettings;
+    public boolean isOverrideBuildSettings() {
+        return this.overrideBuildSettings;
     }
 
     public boolean isOffline() {
@@ -185,7 +185,7 @@ public final class GradleRunConfigurationAttributes {
         applyArgumentExpressions(this.argumentExpressions, launchConfiguration);
         applyShowExecutionView(this.showExecutionView, launchConfiguration);
         applyShowConsoleView(this.showConsoleView, launchConfiguration);
-        applyOverrideWorkspaceSettings(this.overrideWorkspaceSettings, launchConfiguration);
+        applyOverrideBuildSettings(this.overrideBuildSettings, launchConfiguration);
         applyOfflineMode(this.isOffline, launchConfiguration);
         applyBuildScansEnabled(this.isBuildScansEnabled, launchConfiguration);
     }
@@ -226,8 +226,8 @@ public final class GradleRunConfigurationAttributes {
         launchConfiguration.setAttribute(SHOW_CONSOLE_VIEW, showConsoleView);
     }
 
-    public static void applyOverrideWorkspaceSettings(boolean overrideWorkspaceSettings, ILaunchConfigurationWorkingCopy launchConfiguration) {
-        launchConfiguration.setAttribute(OVERRIDE_WORKSPACE_SETTINGS, overrideWorkspaceSettings);
+    public static void applyOverrideBuildSettings(boolean overrideWorkspaceSettings, ILaunchConfigurationWorkingCopy launchConfiguration) {
+        launchConfiguration.setAttribute(OVERRIDE_BUILD_SETTINGS, overrideWorkspaceSettings);
     }
 
     public static void applyOfflineMode(boolean offlineMode, ILaunchConfigurationWorkingCopy launchConfiguration) {
@@ -248,7 +248,7 @@ public final class GradleRunConfigurationAttributes {
         List<String> argumentExpressions = getListAttribute(ARGUMENTS, launchConfiguration);
         boolean showExecutionView = getBooleanAttribute(SHOW_EXECUTION_VIEW, true, launchConfiguration);
         boolean showConsoleView = getBooleanAttribute(SHOW_CONSOLE_VIEW, true, launchConfiguration);
-        boolean overrideWorkspaceSettings = getBooleanAttribute(OVERRIDE_WORKSPACE_SETTINGS, false, launchConfiguration);
+        boolean overrideWorkspaceSettings = getBooleanAttribute(OVERRIDE_BUILD_SETTINGS, false, launchConfiguration);
         boolean isOffline = getBooleanAttribute(OFFLINE_MODE, false, launchConfiguration);
         boolean isBuildScansEnabled = getBooleanAttribute(BUILD_SCANS_ENABLED, false, launchConfiguration);
         return new GradleRunConfigurationAttributes(tasks, workingDirExpression, gradleDistribution, javaHomeExpression, jvmArgumentExpressions, argumentExpressions,
@@ -290,7 +290,7 @@ public final class GradleRunConfigurationAttributes {
                     && Objects.equal(this.argumentExpressions, other.argumentExpressions)
                     && Objects.equal(this.showExecutionView, other.showExecutionView)
                     && Objects.equal(this.showConsoleView, other.showConsoleView)
-                    && Objects.equal(this.overrideWorkspaceSettings, other.overrideWorkspaceSettings)
+                    && Objects.equal(this.overrideBuildSettings, other.overrideBuildSettings)
                     && Objects.equal(this.isOffline, other.isOffline)
                     && Objects.equal(this.isBuildScansEnabled, other.isBuildScansEnabled);
         }
@@ -306,7 +306,7 @@ public final class GradleRunConfigurationAttributes {
                     this.argumentExpressions,
                     this.showExecutionView,
                     this.showConsoleView,
-                    this.overrideWorkspaceSettings,
+                    this.overrideBuildSettings,
                     this.isOffline,
                     this.isBuildScansEnabled);
     }
