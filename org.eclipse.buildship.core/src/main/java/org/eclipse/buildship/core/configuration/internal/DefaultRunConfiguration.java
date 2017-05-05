@@ -67,14 +67,14 @@ public class DefaultRunConfiguration implements RunConfiguration {
     @Override
     public List<String> getArguments() {
         List<String> result = Lists.newArrayList(this.properties.getArguments());
-        if (isOfflineMOde()) {
+        if (isOfflineMode()) {
             result.add("--offline");
         }
         result.addAll(CorePlugin.invocationCustomizer().getExtraArguments());
         return result;
     }
 
-    private boolean isOfflineMOde() {
+    private boolean isOfflineMode() {
         if (this.properties.isOverrideBuildSettings()) {
             return this.properties.isOfflineMode();
         } else {

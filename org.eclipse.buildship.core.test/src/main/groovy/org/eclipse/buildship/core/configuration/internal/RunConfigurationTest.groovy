@@ -10,6 +10,7 @@ import org.eclipse.debug.core.ILaunchConfigurationType
 import org.eclipse.debug.core.ILaunchManager
 
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.configuration.ConfigurationManager
 import org.eclipse.buildship.core.configuration.RunConfiguration
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes
@@ -20,6 +21,59 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
 
     @Shared
     ConfigurationManager configurationManager = CorePlugin.configurationManager()
+
+    def "create run configuration"(buildBuildScansEnabled, buildOfflineMode, runConfigOverride, runConfigBuildScansEnabled, runConfigOfflineMode, expectedRunConfigBuildScansEnabled, expectedRunConfigOfflineMode) {
+        setup:
+        List<String> tasks = ['compileGroovy', 'publish']
+        File javaHome = dir('java-home')
+        List arguments = ['-q', '-Pkey=value']
+        List jvmArguments = ['-ea', '-Dkey=value']
+        boolean showConsoleView = false
+        boolean showExecutionView = false
+        File rootDir = dir('projectDir').canonicalFile
+
+        when:
+        BuildConfiguration buildConfig = configurationManager.createBuildConfiguration(rootDir,
+                GradleDistribution.fromBuild(),
+                true,
+                buildBuildScansEnabled,
+                buildOfflineMode)
+        RunConfiguration runConfig = configurationManager.createRunConfiguration(buildConfig,
+                tasks,
+                javaHome,
+                jvmArguments,
+                arguments,
+                showExecutionView,
+                showConsoleView,
+                runConfigOverride,
+                runConfigBuildScansEnabled,
+                runConfigOfflineMode)
+
+        then:
+        runConfig.tasks == tasks
+        runConfig.javaHome == javaHome
+        runConfig.arguments == arguments + (expectedRunConfigOfflineMode ? ['--offline']: [])
+        runConfig.jvmArguments == jvmArguments + (expectedRunConfigBuildScansEnabled ? ['-Dscan']: [])
+        runConfig.showConsoleView == showConsoleView
+        runConfig.showExecutionView == showExecutionView
+        runConfig.buildScansEnabled == expectedRunConfigBuildScansEnabled
+        runConfig.offlineMode == expectedRunConfigOfflineMode
+        runConfig.buildConfiguration.rootProjectDirectory == rootDir
+        runConfig.buildConfiguration.gradleDistribution == GradleDistribution.fromBuild()
+        runConfig.buildConfiguration.overrideWorkspaceSettings == true
+        runConfig.buildConfiguration.buildScansEnabled == buildBuildScansEnabled
+        runConfig.buildConfiguration.offlineMode == buildOfflineMode
+        runConfig.buildConfiguration.workspaceConfiguration.gradleUserHome == null
+        runConfig.buildConfiguration.workspaceConfiguration.gradleIsOffline == false
+        runConfig.buildConfiguration.workspaceConfiguration.buildScansEnabled == false
+
+        where:
+        buildBuildScansEnabled | buildOfflineMode | runConfigOverride | runConfigBuildScansEnabled | runConfigOfflineMode | expectedRunConfigBuildScansEnabled | expectedRunConfigOfflineMode
+        false                  | true             | false             | false                      | false                | false                              | true
+        true                   | false            | false             | false                      | false                | true                               | false
+        false                  | false            | true              | false                      | true                 | false                              | true
+        true                   | false            | true              | true                       | true                 | true                               | true
+    }
 
     def "load default settings"() {
         given:
