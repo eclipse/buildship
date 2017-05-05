@@ -21,13 +21,6 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 public interface GradleLaunchConfigurationManager {
 
     /**
-     * Determines whether the created launch configuration should be saved upon creation.
-     */
-    public enum SaveStrategy {
-        PERSIST,
-        DONT_PERSIST
-    }
-    /**
      * Returns the existing Gradle {@link ILaunchConfiguration} instance for the given set of
      * attributes, if such a configuration exists.
      *

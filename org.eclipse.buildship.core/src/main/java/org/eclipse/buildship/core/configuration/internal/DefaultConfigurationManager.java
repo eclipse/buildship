@@ -104,9 +104,16 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     @Override
     public ProjectConfiguration loadProjectConfiguration(IProject project) {
         String pathToRoot = this.buildConfigurationPersistence.readPathToRoot(project.getLocation().toFile());
-        File rootDir = relativePathToProjectRoot(project, pathToRoot);
+        File rootDir = relativePathToProjectRoot(project.getLocation(), pathToRoot);
         BuildConfiguration buildConfig = loadBuildConfiguration(rootDir);
         return new DefaultProjectConfiguration(project.getLocation().toFile(), buildConfig);
+    }
+
+    private ProjectConfiguration loadProjectConfiguration(File projectDir) {
+        String pathToRoot = this.buildConfigurationPersistence.readPathToRoot(projectDir);
+        File rootDir = relativePathToProjectRoot(new Path(projectDir.getAbsolutePath()), pathToRoot);
+        BuildConfiguration buildConfig = loadBuildConfiguration(rootDir);
+        return new DefaultProjectConfiguration(projectDir, buildConfig);
     }
 
     @Override
@@ -137,12 +144,19 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     @Override
     public RunConfiguration loadRunConfiguration(ILaunchConfiguration launchConfiguration) {
         GradleRunConfigurationAttributes attributes = GradleRunConfigurationAttributes.from(launchConfiguration);
-        BuildConfigurationProperties buildConfig = new BuildConfigurationProperties(attributes.getWorkingDir(),
-                attributes.getGradleDistribution(),
-                attributes.isOverrideBuildSettings(),
-                attributes.isBuildScansEnabled(),
-                attributes.isOffline());
-        RunConfigurationProperties runConfig = new RunConfigurationProperties(attributes.getTasks(),
+        BuildConfigurationProperties buildConfigProperties;
+        try {
+            BuildConfiguration buildConfig = loadProjectConfiguration(attributes.getWorkingDir()).getBuildConfiguration();
+            buildConfigProperties = ((DefaultBuildConfiguration)buildConfig).getProperties();
+        } catch (Exception e) {
+            CorePlugin.logger().debug("Can't load build config from " + attributes.getWorkingDir(), e);
+            buildConfigProperties = new BuildConfigurationProperties(attributes.getWorkingDir(),
+                    attributes.getGradleDistribution(),
+                    attributes.isOverrideBuildSettings(),
+                    attributes.isBuildScansEnabled(),
+                    attributes.isOffline());
+        }
+        RunConfigurationProperties runConfigProperties = new RunConfigurationProperties(attributes.getTasks(),
                   attributes.getJavaHome(),
                   attributes.getJvmArguments(),
                   attributes.getArgumentExpressions(),
@@ -151,7 +165,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
                   attributes.isOverrideBuildSettings(),
                   attributes.isBuildScansEnabled(),
                   attributes.isOffline());
-        return new DefaultRunConfiguration(loadWorkspaceConfiguration(), buildConfig, runConfig);
+        return new DefaultRunConfiguration(loadWorkspaceConfiguration(), buildConfigProperties, runConfigProperties);
     }
 
     @Override
@@ -171,9 +185,9 @@ public class DefaultConfigurationManager implements ConfigurationManager {
         return new DefaultRunConfiguration(loadWorkspaceConfiguration(), buildConfiguration.getProperties(), runConfig);
     }
 
-    private static File relativePathToProjectRoot(IProject project, String path) {
+    private static File relativePathToProjectRoot(IPath projectPath, String path) {
         IPath pathToRoot = new Path(path);
-        return canonicalize(RelativePathUtils.getAbsolutePath(project.getLocation(), pathToRoot).toFile());
+        return canonicalize(RelativePathUtils.getAbsolutePath(projectPath, pathToRoot).toFile());
     }
 
     private static File canonicalize(File file) {

@@ -16,7 +16,6 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.RunConfiguration
 import org.eclipse.buildship.core.event.Event
 import org.eclipse.buildship.core.event.EventListener
-import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager.SaveStrategy
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer
 
