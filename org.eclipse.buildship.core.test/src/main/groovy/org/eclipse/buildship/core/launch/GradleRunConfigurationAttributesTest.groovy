@@ -255,7 +255,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         gradleConfig.apply(eclipseConfig)
 
         then:
-        gradleConfig.hasSameAttributes(eclipseConfig)
+        gradleConfig.hasSameUniqueAttributes(eclipseConfig)
     }
 
     static class Attributes implements Cloneable {
