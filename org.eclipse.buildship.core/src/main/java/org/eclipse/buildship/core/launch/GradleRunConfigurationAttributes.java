@@ -171,9 +171,15 @@ public final class GradleRunConfigurationAttributes {
         return this.isBuildScansEnabled;
     }
 
-    public boolean hasSameAttributes(ILaunchConfiguration launchConfiguration) {
-        GradleRunConfigurationAttributes that = GradleRunConfigurationAttributes.from(launchConfiguration);
-        return this.equals(that);
+    public boolean hasSameUniqueAttributes(ILaunchConfiguration launchConfiguration) {
+        // reuse an existing run configuration if the working directory and the tasks are the same,
+        // regardless of the other settings of the launch configuration
+        try {
+            return this.tasks.equals(launchConfiguration.getAttribute(TASKS, ImmutableList.<String> of()))
+                    && this.workingDirExpression.equals(launchConfiguration.getAttribute(WORKING_DIR, ""));
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(String.format("Cannot read Gradle launch configuration %s.", launchConfiguration), e);
+        }
     }
 
     public void apply(ILaunchConfigurationWorkingCopy launchConfiguration) {
