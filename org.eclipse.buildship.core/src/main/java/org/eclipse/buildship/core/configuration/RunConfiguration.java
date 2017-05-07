@@ -11,6 +11,8 @@ package org.eclipse.buildship.core.configuration;
 import java.io.File;
 import java.util.List;
 
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+
 /**
  * Configuration to launch tasks and tests.
  *
@@ -31,4 +33,6 @@ public interface RunConfiguration {
     boolean isShowExecutionView();
 
     boolean isShowConsoleView();
+
+    FixedRequestAttributes toRequestAttributes();
 }

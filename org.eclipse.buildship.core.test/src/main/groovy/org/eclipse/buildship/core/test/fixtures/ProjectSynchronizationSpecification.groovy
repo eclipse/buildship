@@ -38,7 +38,7 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
 
     protected void startSynchronization(File location, GradleDistribution distribution = DEFAULT_DISTRIBUTION, NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
         BuildConfiguration buildConfiguration = CorePlugin.configurationManager().createBuildConfiguration(location, distribution, false, false, false)
-        CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfiguration).synchronize(newProjectHandler)
+        CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfiguration.toDefaultRunConfiguration()).synchronize(newProjectHandler)
     }
 
     protected void synchronizeAndWait(IProject... projects) {

@@ -80,7 +80,7 @@ public final class SynchronizeGradleBuildsJob extends ToolingApiJob {
         progress.setWorkRemaining(3);
         Set<OmniEclipseProject> allProjects = fetchEclipseProjects(build, progress.newChild(1));
         new SynchronizeBuildConfigurationOperation(buildConfig).run(progress.newChild(1), getToken());
-        new RunOnImportTasksOperation(allProjects, buildConfig).run(progress.newChild(1), getToken());
+        new RunOnImportTasksOperation(build, allProjects).run(progress.newChild(1), getToken());
         new SynchronizeGradleBuildOperation(allProjects, buildConfig, SynchronizeGradleBuildsJob.this.newProjectHandler).run(progress.newChild(1));
     }
 

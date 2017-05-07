@@ -22,7 +22,9 @@ import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.configuration.ConfigurationManager;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.GradleBuilds;
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
@@ -34,23 +36,24 @@ import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
  */
 public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
 
-    private final LoadingCache<BuildConfiguration, GradleBuild> cache = CacheBuilder.newBuilder().build(new CacheLoader<BuildConfiguration, GradleBuild>() {
+    private final LoadingCache<RunConfiguration, GradleBuild> cache = CacheBuilder.newBuilder().build(new CacheLoader<RunConfiguration, GradleBuild>() {
 
         @Override
-        public GradleBuild load(BuildConfiguration buildConfiguration) {
-            return new DefaultGradleBuild(buildConfiguration);
+        public GradleBuild load(RunConfiguration runConfiguration) {
+            return new DefaultGradleBuild(runConfiguration);
         }});
 
     @Override
-    public GradleBuild getGradleBuild(BuildConfiguration buildConfig) {
-        return this.cache.getUnchecked(buildConfig);
+    public GradleBuild getGradleBuild(RunConfiguration runConfiguration) {
+        return this.cache.getUnchecked(runConfiguration);
     }
 
     @Override
     public Optional<GradleBuild> getGradleBuild(IProject project) {
         if (GradleProjectNature.isPresentOn(project)) {
-            BuildConfiguration buildConfig = CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
-            return Optional.<GradleBuild>of(new DefaultGradleBuild(buildConfig));
+            ConfigurationManager configurationManager = CorePlugin.configurationManager();
+            BuildConfiguration buildConfig = configurationManager.loadProjectConfiguration(project).getBuildConfiguration();
+            return Optional.<GradleBuild>of(new DefaultGradleBuild(buildConfig.toDefaultRunConfiguration()));
         } else {
             return Optional.absent();
         }
@@ -58,20 +61,21 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
 
     @Override
     public GradleBuilds getGradleBuilds() {
-        return new DefaultGradleBuilds(getBuildConfigs(CorePlugin.workspaceOperations().getAllProjects()));
+        return new DefaultGradleBuilds(getRunConfigurations(CorePlugin.workspaceOperations().getAllProjects()));
     }
 
     @Override
     public GradleBuilds getGradleBuilds(Set<IProject> projects) {
-        return new DefaultGradleBuilds(getBuildConfigs(projects));
+        return new DefaultGradleBuilds(getRunConfigurations(projects));
     }
 
-    private Set<BuildConfiguration> getBuildConfigs(Collection<IProject> projects) {
-        return FluentIterable.from(projects).filter(GradleProjectNature.isPresentOn()).transform(new Function<IProject, BuildConfiguration>() {
+    private Set<RunConfiguration> getRunConfigurations(Collection<IProject> projects) {
+        return FluentIterable.from(projects).filter(GradleProjectNature.isPresentOn()).transform(new Function<IProject, RunConfiguration>() {
 
             @Override
-            public BuildConfiguration apply(IProject project) {
-                return CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
+            public RunConfiguration apply(IProject project) {
+                BuildConfiguration buildConfiguration = CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
+                return buildConfiguration.toDefaultRunConfiguration();
             }
         }).filter(Predicates.notNull()).toSet();
     }

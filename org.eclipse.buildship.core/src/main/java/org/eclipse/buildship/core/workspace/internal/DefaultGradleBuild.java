@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.ModelProvider;
@@ -32,12 +33,12 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
  */
 public class DefaultGradleBuild implements GradleBuild {
 
-    private final BuildConfiguration buildConfig;
+    private final RunConfiguration runConfiguration;
     private final ModelProvider modelProvider;
 
-    public DefaultGradleBuild(BuildConfiguration buildConfig) {
-        this.buildConfig = Preconditions.checkNotNull(buildConfig);
-        this.modelProvider = new DefaultModelProvider(this.buildConfig.toRequestAttributes());
+    public DefaultGradleBuild(RunConfiguration runConfiguration) {
+        this.runConfiguration = Preconditions.checkNotNull(runConfiguration);
+        this.modelProvider = new DefaultModelProvider(this.runConfiguration.toRequestAttributes());
     }
 
     @Override
@@ -59,7 +60,7 @@ public class DefaultGradleBuild implements GradleBuild {
         for (Job job : syncJobs) {
             if (job instanceof SynchronizeGradleBuildsJob) {
                 for (GradleBuild gradleBuild : ((SynchronizeGradleBuildsJob) job).getBuilds()) {
-                    if (gradleBuild.getBuildConfig().getRootProjectDirectory().equals(this.buildConfig.getRootProjectDirectory())) {
+                    if (gradleBuild.getBuildConfig().getRootProjectDirectory().equals(this.runConfiguration.getBuildConfiguration().getRootProjectDirectory())) {
                         return true;
                     }
                 }
@@ -75,30 +76,30 @@ public class DefaultGradleBuild implements GradleBuild {
 
     @Override
     public BuildConfiguration getBuildConfig() {
-        return this.buildConfig;
+        return this.runConfiguration.getBuildConfiguration();
     }
 
     @Override
     public BuildLauncher newBuildLauncher(TransientRequestAttributes transientAttributes) {
-        return ConnectionAwareLauncherProxy.newBuildLauncher(this.buildConfig.toRequestAttributes(), transientAttributes);
+        return ConnectionAwareLauncherProxy.newBuildLauncher(this.runConfiguration.toRequestAttributes(), transientAttributes);
     }
 
     @Override
     public TestLauncher newTestLauncher(TransientRequestAttributes transientAttributes) {
-        return ConnectionAwareLauncherProxy.newTestLauncher(this.buildConfig.toRequestAttributes(), transientAttributes);
+        return ConnectionAwareLauncherProxy.newTestLauncher(this.runConfiguration.toRequestAttributes(), transientAttributes);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof DefaultGradleBuild) {
             DefaultGradleBuild other = (DefaultGradleBuild) obj;
-            return Objects.equal(this.buildConfig, other.buildConfig);
+            return Objects.equal(this.runConfiguration, other.runConfiguration);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.buildConfig);
+        return Objects.hashCode(this.runConfiguration);
     }
 }

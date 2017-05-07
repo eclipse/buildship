@@ -76,7 +76,7 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
         TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, processStreams.getOutput(), processStreams.getError(), processStreams.getInput(),
                 listeners, Collections.<org.gradle.tooling.events.ProgressListener>emptyList(), getToken());
 
-        GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(runConfig.getBuildConfiguration());
+        GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(runConfig);
 
         // apply FixedRequestAttributes on build launcher
         T launcher = createLaunch(gradleBuild, transientAttributes, processDescription);
@@ -96,7 +96,7 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
     private void writeConfig(RunConfiguration runConfig, OutputStreamWriter writer, IProgressMonitor monitor) {
         BuildConfiguration buildConfig = runConfig.getBuildConfiguration();
         WorkspaceConfiguration workspaceConfig = buildConfig.getWorkspaceConfiguration();
-        OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(buildConfig, monitor);
+        OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(runConfig, monitor);
         // should the user not specify values for the gradleUserHome and javaHome, their default
         // values will not be specified in the launch configurations
         // as such, these attributes are retrieved separately from the build environment
@@ -136,8 +136,8 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
         return string != null ? string : defaultMessage;
     }
 
-    private OmniBuildEnvironment fetchBuildEnvironment(BuildConfiguration buildConfig, IProgressMonitor monitor) {
-        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig).getModelProvider();
+    private OmniBuildEnvironment fetchBuildEnvironment(RunConfiguration runConfiguration, IProgressMonitor monitor) {
+        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(runConfiguration).getModelProvider();
         return modelProvider.fetchBuildEnvironment(FetchStrategy.FORCE_RELOAD, getToken(), monitor);
     }
 

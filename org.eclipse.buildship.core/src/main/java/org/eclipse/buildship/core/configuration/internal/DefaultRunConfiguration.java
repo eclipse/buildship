@@ -14,6 +14,8 @@ import java.util.List;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
@@ -90,6 +92,16 @@ public class DefaultRunConfiguration implements RunConfiguration {
     @Override
     public boolean isShowConsoleView() {
         return this.properties.isShowConsoleView();
+    }
+
+    @Override
+    public FixedRequestAttributes toRequestAttributes() {
+        return new FixedRequestAttributes(this.buildConfiguration.getRootProjectDirectory(),
+                this.buildConfiguration.getWorkspaceConfiguration().getGradleUserHome(),
+                this.buildConfiguration.getGradleDistribution(),
+                getJavaHome(),
+                getJvmArguments(),
+                getArguments());
     }
 
     @Override

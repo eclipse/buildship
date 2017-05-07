@@ -14,9 +14,10 @@ import java.util.Collections;
 import com.google.common.base.Objects;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 
 /**
@@ -73,8 +74,17 @@ class DefaultBuildConfiguration implements BuildConfiguration {
     }
 
     @Override
-    public FixedRequestAttributes toRequestAttributes() {
-        return new FixedRequestAttributes(getRootProjectDirectory(), this.workspaceConfiguration.getGradleUserHome(), getGradleDistribution(), null, Collections.<String>emptyList(), Collections.<String>emptyList());
+    public RunConfiguration toDefaultRunConfiguration() {
+        return CorePlugin.configurationManager().createRunConfiguration(this,
+                Collections.<String>emptyList(),
+                null,
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList(),
+                false,
+                false,
+                false,
+                false,
+                false);
     }
 
     @Override

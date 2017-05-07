@@ -68,7 +68,7 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
 
     private void synchronize(Set<BuildConfiguration> buildConfigs) {
         for (final BuildConfiguration buildConfig : buildConfigs) {
-            GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);
+            GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig.toDefaultRunConfiguration());
             gradleBuild.synchronize(NewProjectHandler.IMPORT_AND_MERGE);
         }
     }

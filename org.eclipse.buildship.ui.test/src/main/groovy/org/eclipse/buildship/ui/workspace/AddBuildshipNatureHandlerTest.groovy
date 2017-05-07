@@ -59,6 +59,6 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
         BuildConfiguration buildConfig = CorePlugin.configurationManager().createBuildConfiguration(projectLocation, GradleDistribution.fromBuild(), false, false, false)
         CancellationToken token = GradleConnector.newCancellationTokenSource().token()
         IProgressMonitor monitor = new NullProgressMonitor()
-        return CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig).getModelProvider().fetchModels(EclipseProject.class, FetchStrategy.FROM_CACHE_ONLY, token, monitor) != null
+        return CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig.toDefaultRunConfiguration()).getModelProvider().fetchModels(EclipseProject.class, FetchStrategy.FROM_CACHE_ONLY, token, monitor) != null
     }
 }

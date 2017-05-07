@@ -14,7 +14,7 @@ import com.google.common.base.Optional;
 
 import org.eclipse.core.resources.IProject;
 
-import org.eclipse.buildship.core.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.configuration.RunConfiguration;
 
 /**
  * Manages the Gradle builds that are contained in the current Eclipse workspace.
@@ -26,10 +26,10 @@ public interface GradleWorkspaceManager {
     /**
      * Returns the {@link GradleBuild} represented by the given request attributes.
      *
-     * @param buildConfiguration the configuration for the requested build
+     * @param runConfiguration for the configuration for the requested build
      * @return the Gradle build, never null
      */
-    public GradleBuild getGradleBuild(BuildConfiguration buildConfiguration);
+    public GradleBuild getGradleBuild(RunConfiguration runConfiguration);
 
     /**
      * Returns the {@link GradleBuild} that contains the given project.
