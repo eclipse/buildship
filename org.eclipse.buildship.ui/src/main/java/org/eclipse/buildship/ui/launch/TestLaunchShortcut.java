@@ -19,6 +19,8 @@ import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.jdt.core.IMethod;
@@ -76,6 +78,7 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
         return CorePlugin.configurationManager().createRunConfiguration(buildConfig,
                                                                         Collections.<String>emptyList(),
                                                                         null,
+                                                                        GradleDistribution.fromBuild(),
                                                                         Collections.<String>emptyList(),
                                                                         Collections.<String>emptyList(),
                                                                         true,

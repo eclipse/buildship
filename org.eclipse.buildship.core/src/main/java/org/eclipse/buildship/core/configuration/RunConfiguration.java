@@ -11,6 +11,7 @@ package org.eclipse.buildship.core.configuration;
 import java.io.File;
 import java.util.List;
 
+import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 /**
@@ -23,6 +24,8 @@ public interface RunConfiguration {
     BuildConfiguration getBuildConfiguration();
 
     List<String> getTasks();
+
+    GradleDistribution getGradleDistribution();
 
     File getJavaHome();
 

@@ -157,6 +157,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
                     attributes.isOffline());
         }
         RunConfigurationProperties runConfigProperties = new RunConfigurationProperties(attributes.getTasks(),
+                  attributes.getGradleDistribution(),
                   attributes.getJavaHome(),
                   attributes.getJvmArguments(),
                   attributes.getArgumentExpressions(),
@@ -169,11 +170,12 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     }
 
     @Override
-    public RunConfiguration createRunConfiguration(BuildConfiguration configuration, List<String> tasks, File javaHome, List<String> jvmArguments, List<String> arguments,
-            boolean showExecutionsView, boolean showConsoleView, boolean overrideBuildSettings, boolean buildScansEnabled, boolean offlineMode) {
+    public RunConfiguration createRunConfiguration(BuildConfiguration configuration, List<String> tasks, File javaHome, GradleDistribution gradleDistribution, List<String> jvmArguments,
+            List<String> arguments, boolean showExecutionsView, boolean showConsoleView, boolean overrideBuildSettings, boolean buildScansEnabled, boolean offlineMode) {
         Preconditions.checkArgument(configuration instanceof DefaultBuildConfiguration, "Unknow configuration type: ", configuration.getClass());
         DefaultBuildConfiguration buildConfiguration = (DefaultBuildConfiguration) configuration;
         RunConfigurationProperties runConfig = new RunConfigurationProperties(tasks,
+                gradleDistribution,
                 javaHome,
                 jvmArguments,
                 arguments,

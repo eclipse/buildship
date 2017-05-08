@@ -62,8 +62,4 @@ public interface GradleWorkspaceManager {
      * @return the build aggregate, never null
      */
     public GradleBuilds getGradleBuilds(Set<IProject> projects);
-
-
-
-
 }

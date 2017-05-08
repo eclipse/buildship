@@ -78,13 +78,13 @@ class DefaultBuildConfiguration implements BuildConfiguration {
         return CorePlugin.configurationManager().createRunConfiguration(this,
                 Collections.<String>emptyList(),
                 null,
+                GradleDistribution.fromBuild(),
                 Collections.<String>emptyList(),
                 Collections.<String>emptyList(),
                 false,
                 false,
                 false,
-                false,
-                false);
+                false, false);
     }
 
     @Override

@@ -14,6 +14,7 @@ import java.util.List;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
+import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.buildship.core.CorePlugin;
@@ -42,6 +43,15 @@ public class DefaultRunConfiguration implements RunConfiguration {
     @Override
     public List<String> getTasks() {
         return this.properties.getTasks();
+    }
+
+    @Override
+    public GradleDistribution getGradleDistribution() {
+        if (this.properties.isOverrideBuildSettings()) {
+            return this.properties.getGradleDistribution();
+        } else {
+            return this.buildConfiguration.getGradleDistribution();
+        }
     }
 
     @Override
@@ -98,7 +108,7 @@ public class DefaultRunConfiguration implements RunConfiguration {
     public FixedRequestAttributes toRequestAttributes() {
         return new FixedRequestAttributes(this.buildConfiguration.getRootProjectDirectory(),
                 this.buildConfiguration.getWorkspaceConfiguration().getGradleUserHome(),
-                this.buildConfiguration.getGradleDistribution(),
+                getGradleDistribution(),
                 getJavaHome(),
                 getJvmArguments(),
                 getArguments());
