@@ -143,6 +143,7 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
         File gradleUserHome = config.getGradleUserHome();
         this.gradleUserHomeText.setText(gradleUserHome == null ? "" : gradleUserHome.getPath());
         this.offlineModeCheckbox.setSelection(config.isOffline());
+        this.buildScansCheckbox.setSelection(config.isBuildScansEnabled());
     }
 
     @Override
