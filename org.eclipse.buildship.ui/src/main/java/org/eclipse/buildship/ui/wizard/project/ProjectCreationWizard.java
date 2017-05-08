@@ -39,7 +39,7 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.RunConfiguration;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
@@ -257,16 +257,16 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
      */
     private static final class NewGradleProjectInitializer implements AsyncHandler {
 
-        private final RunConfiguration configuration;
+        private final BuildConfiguration buildConfig;
         private final Optional<List<ProgressListener>> listeners;
 
         private NewGradleProjectInitializer(ProjectImportConfiguration configuration) {
-            this.configuration = configuration.toRunConfiguration();
+            this.buildConfig = configuration.toBuildConfig();
             this.listeners = Optional.absent();
         }
 
         private NewGradleProjectInitializer(ProjectImportConfiguration configuration, List<ProgressListener> listeners) {
-            this.configuration = configuration.toRunConfiguration();
+            this.buildConfig = configuration.toBuildConfig();
             this.listeners = Optional.of((List<ProgressListener>) ImmutableList.copyOf(listeners));
         }
 
@@ -274,12 +274,12 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
         public void run(IProgressMonitor monitor, CancellationToken token) {
             monitor.beginTask("Init Gradle project", IProgressMonitor.UNKNOWN);
             try {
-                File projectDir = this.configuration.getBuildConfiguration().getRootProjectDirectory().getAbsoluteFile();
+                File projectDir = this.buildConfig.getRootProjectDirectory().getAbsoluteFile();
                 if (!projectDir.exists()) {
                     if (projectDir.mkdir()) {
                         final List<String> tasks = GRADLE_INIT_TASK_CMD_LINE;
                         List<ProgressListener> progressListeners = this.listeners.isPresent() ? this.listeners.get() : ImmutableList.of(DelegatingProgressListener.withFullOutput(monitor));
-                        GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.configuration);
+                        GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.buildConfig);
                         TransientRequestAttributes transientAttributes = getTransientRequestAttributes(progressListeners, token, monitor);
                         gradleBuild.newBuildLauncher(transientAttributes).forTasks(tasks.toArray(new String[tasks.size()])).run();
                     }

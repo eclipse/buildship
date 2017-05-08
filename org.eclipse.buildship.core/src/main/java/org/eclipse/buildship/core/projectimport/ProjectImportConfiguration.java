@@ -20,7 +20,6 @@ import com.gradleware.tooling.toolingutils.binding.Validators;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 
 /**
@@ -77,8 +76,7 @@ public final class ProjectImportConfiguration {
         this.workingSets.setValue(workingSets);
     }
 
-    public RunConfiguration toRunConfiguration() {
-        BuildConfiguration buildConfiguration = CorePlugin.configurationManager().createBuildConfiguration(getProjectDir().getValue(), getGradleDistribution().getValue().toGradleDistribution(), false, false, false);
-        return buildConfiguration.toDefaultRunConfiguration();
+    public BuildConfiguration toBuildConfig() {
+        return CorePlugin.configurationManager().createBuildConfiguration(getProjectDir().getValue(), getGradleDistribution().getValue().toGradleDistribution(), false, false, false);
     }
 }

@@ -31,9 +31,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
-import org.eclipse.buildship.core.workspace.GradleBuild;
 
 /**
  * Runs extra tasks that set up the project so it can be used in Eclipse.
@@ -48,12 +48,12 @@ public class RunOnImportTasksOperation {
     private static final String CLEAN_WTP_TASK = "cleanEclipseWtp";
     private static final String WTP_COMPONENT_NATURE = "org.eclipse.wst.common.modulecore.ModuleCoreNature";
 
-    private final GradleBuild gradleBuild;
+    private final BuildConfiguration buildConfig;
     private final Set<OmniEclipseProject> allprojects;
 
-    public RunOnImportTasksOperation(GradleBuild gradleBuild, Set<OmniEclipseProject> allProjects) {
-        this.gradleBuild = Preconditions.checkNotNull(gradleBuild);
+    public RunOnImportTasksOperation(Set<OmniEclipseProject> allProjects, BuildConfiguration buildConfig) {
         this.allprojects = ImmutableSet.copyOf(allProjects);
+        this.buildConfig = Preconditions.checkNotNull(buildConfig);
     }
 
     public void run(IProgressMonitor monitor, CancellationToken token) throws CoreException {
@@ -102,13 +102,13 @@ public class RunOnImportTasksOperation {
     }
 
     private boolean isIncludedProject(OmniEclipseProject eclipseProject) {
-        File buildRoot = this.gradleBuild.getBuildConfig().getRootProjectDirectory();
+        File buildRoot = this.buildConfig.getRootProjectDirectory();
         File projectRoot = eclipseProject.getProjectIdentifier().getBuildIdentifier().getRootDir();
         return !buildRoot.equals(projectRoot);
     }
 
     private void runTasks(final List<String> tasksToRun, IProgressMonitor monitor, CancellationToken token) {
-        BuildLauncher launcher = this.gradleBuild.newBuildLauncher(getTransientRequestAttributes(token, monitor));
+        BuildLauncher launcher = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.buildConfig).newBuildLauncher(getTransientRequestAttributes(token, monitor));
         launcher.forTasks(tasksToRun.toArray(new String[tasksToRun.size()])).run();
     }
 

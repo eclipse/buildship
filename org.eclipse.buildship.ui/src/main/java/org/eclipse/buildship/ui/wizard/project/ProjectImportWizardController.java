@@ -32,7 +32,7 @@ import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.RunConfiguration;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
@@ -145,9 +145,9 @@ public class ProjectImportWizardController {
     }
 
     public boolean performImportProject(AsyncHandler initializer, NewProjectHandler newProjectHandler) {
-        RunConfiguration runConfiguration = this.configuration.toRunConfiguration();
+        BuildConfiguration buildConfig = this.configuration.toBuildConfig();
         ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler = new ImportWizardNewProjectHandler(newProjectHandler, this.configuration);
-        GradleBuild build = CorePlugin.gradleWorkspaceManager().getGradleBuild(runConfiguration);
+        GradleBuild build = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);
         build.synchronize(workingSetsAddingNewProjectHandler, initializer);
         return true;
     }
