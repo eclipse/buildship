@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.ModelProvider;
@@ -79,13 +80,15 @@ public class DefaultGradleBuild implements GradleBuild {
     }
 
     @Override
-    public BuildLauncher newBuildLauncher(TransientRequestAttributes transientAttributes) {
-        return ConnectionAwareLauncherProxy.newBuildLauncher(this.buildConfig.toRequestAttributes(), transientAttributes);
+    public BuildLauncher newBuildLauncher(RunConfiguration runConfiguration, TransientRequestAttributes transientAttributes) {
+        Preconditions.checkArgument(runConfiguration.getBuildConfiguration().equals(this.buildConfig), "Run configuration references unknown build configuration");
+        return ConnectionAwareLauncherProxy.newBuildLauncher(runConfiguration.toRequestAttributes(), transientAttributes);
     }
 
     @Override
-    public TestLauncher newTestLauncher(TransientRequestAttributes transientAttributes) {
-        return ConnectionAwareLauncherProxy.newTestLauncher(this.buildConfig.toRequestAttributes(), transientAttributes);
+    public TestLauncher newTestLauncher(RunConfiguration runConfiguration, TransientRequestAttributes transientAttributes) {
+        Preconditions.checkArgument(runConfiguration.getBuildConfiguration().equals(this.buildConfig), "Run configuration references unknown build configuration");
+        return ConnectionAwareLauncherProxy.newTestLauncher(runConfiguration.toRequestAttributes(), transientAttributes);
     }
 
     @Override

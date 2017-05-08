@@ -74,8 +74,8 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob<B
     }
 
     @Override
-    protected BuildLauncher createLaunch(GradleBuild gradleBuild, TransientRequestAttributes transientAttributes, final ProcessDescription processDescription) {
-        BuildLauncher launcher = gradleBuild.newBuildLauncher(transientAttributes);
+    protected BuildLauncher createLaunch(GradleBuild gradleBuild, RunConfiguration runConfiguration, TransientRequestAttributes transientAttributes, final ProcessDescription processDescription) {
+        BuildLauncher launcher = gradleBuild.newBuildLauncher(runConfiguration, transientAttributes);
         launcher.forTasks(RunGradleBuildLaunchRequestJob.this.runConfig.getTasks().toArray(new String[0]));
         return launcher;
     }

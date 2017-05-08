@@ -95,8 +95,8 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob<Te
     }
 
     @Override
-    protected TestLauncher createLaunch(GradleBuild gradleBuild, TransientRequestAttributes transientAttributes, final ProcessDescription processDescription) {
-        TestLauncher launcher = gradleBuild.newTestLauncher(transientAttributes);
+    protected TestLauncher createLaunch(GradleBuild gradleBuild, RunConfiguration runConfiguration, TransientRequestAttributes transientAttributes, final ProcessDescription processDescription) {
+        TestLauncher launcher = gradleBuild.newTestLauncher(runConfiguration, transientAttributes);
         launcher.withTests(RunGradleTestLaunchRequestJob.this.testDescriptors);
         return launcher;
     }

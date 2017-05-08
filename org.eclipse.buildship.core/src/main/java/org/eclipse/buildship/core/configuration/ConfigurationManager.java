@@ -44,6 +44,8 @@ public interface ConfigurationManager {
 
     RunConfiguration loadRunConfiguration(ILaunchConfiguration launchConfiguration);
 
+    RunConfiguration createDefaultRunConfiguration(BuildConfiguration configuration);
+
     RunConfiguration createRunConfiguration(BuildConfiguration configuration, List<String> tasks, File javaHome, GradleDistribution gradleDistribution, List<String> jvmArguments,
             List<String> arguments, boolean showExecutionsView, boolean showConsoleView, boolean overrideBuildSettings, boolean buildScansEnabled, boolean offlineMode);
 }

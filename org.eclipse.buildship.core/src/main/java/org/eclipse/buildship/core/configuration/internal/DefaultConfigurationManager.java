@@ -10,6 +10,7 @@ package org.eclipse.buildship.core.configuration.internal;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.base.Optional;
@@ -167,6 +168,21 @@ public class DefaultConfigurationManager implements ConfigurationManager {
                   attributes.isBuildScansEnabled(),
                   attributes.isOffline());
         return new DefaultRunConfiguration(loadWorkspaceConfiguration(), buildConfigProperties, runConfigProperties);
+    }
+
+    @Override
+    public RunConfiguration createDefaultRunConfiguration(BuildConfiguration configuration) {
+        return createRunConfiguration(configuration,
+                Collections.<String>emptyList(),
+                null,
+                GradleDistribution.fromBuild(),
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList(),
+                false,
+                false,
+                false,
+                false,
+                false);
     }
 
     @Override

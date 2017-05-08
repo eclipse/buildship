@@ -79,7 +79,7 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
         GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(runConfig.getBuildConfiguration());
 
         // apply FixedRequestAttributes on build launcher
-        T launcher = createLaunch(gradleBuild, transientAttributes, processDescription);
+        T launcher = createLaunch(gradleBuild, runConfig, transientAttributes, processDescription);
 
         // let participants add listeners to the build
         Event event = new DefaultExecuteLaunchRequestEvent(processDescription, launcher);
@@ -167,7 +167,7 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
      *
      * @return the new launcher
      */
-    protected abstract T createLaunch(GradleBuild gradleBuild, TransientRequestAttributes transientAttributes, ProcessDescription processDescription);
+    protected abstract T createLaunch(GradleBuild gradleBuild, RunConfiguration runConfiguration, TransientRequestAttributes transientAttributes, ProcessDescription processDescription);
 
     /**
      * Execute the launcher created by {@code #createLaunch()}.

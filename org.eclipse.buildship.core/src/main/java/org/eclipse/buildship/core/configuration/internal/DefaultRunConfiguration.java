@@ -15,6 +15,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
@@ -111,6 +112,16 @@ public class DefaultRunConfiguration implements RunConfiguration {
                     && Objects.equal(this.properties, other.properties);
         }
         return false;
+    }
+
+    @Override
+    public FixedRequestAttributes toRequestAttributes() {
+        return new FixedRequestAttributes(this.buildConfiguration.getRootProjectDirectory(),
+                this.buildConfiguration.getWorkspaceConfiguration().getGradleUserHome(),
+                getGradleDistribution(),
+                getJavaHome(),
+                getJvmArguments(),
+                getArguments());
     }
 
     @Override

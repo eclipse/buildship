@@ -9,7 +9,9 @@
 package org.eclipse.buildship.core.configuration.internal;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import com.google.common.base.Objects;
 
@@ -74,7 +76,23 @@ class DefaultBuildConfiguration implements BuildConfiguration {
 
     @Override
     public FixedRequestAttributes toRequestAttributes() {
-        return new FixedRequestAttributes(getRootProjectDirectory(), this.workspaceConfiguration.getGradleUserHome(), getGradleDistribution(), null, Collections.<String>emptyList(), Collections.<String>emptyList());
+        return new FixedRequestAttributes(getRootProjectDirectory(), this.workspaceConfiguration.getGradleUserHome(), getGradleDistribution(), null, getJvmArguments(), getArguments());
+    }
+
+    private List<String> getJvmArguments() {
+        if (isBuildScansEnabled()) {
+            return Arrays.asList("-Dscan");
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    private List<String> getArguments() {
+        if (isOfflineMode()) {
+            return Arrays.asList("--offline");
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     @Override

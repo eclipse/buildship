@@ -40,6 +40,7 @@ import org.eclipse.ui.IWorkbench;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
@@ -281,7 +282,8 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
                         List<ProgressListener> progressListeners = this.listeners.isPresent() ? this.listeners.get() : ImmutableList.of(DelegatingProgressListener.withFullOutput(monitor));
                         GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.buildConfig);
                         TransientRequestAttributes transientAttributes = getTransientRequestAttributes(progressListeners, token, monitor);
-                        gradleBuild.newBuildLauncher(transientAttributes).forTasks(tasks.toArray(new String[tasks.size()])).run();
+                        RunConfiguration runConfiguration = CorePlugin.configurationManager().createDefaultRunConfiguration(this.buildConfig);
+                        gradleBuild.newBuildLauncher(runConfiguration, transientAttributes).forTasks(tasks.toArray(new String[tasks.size()])).run();
                     }
                 }
             } finally {
