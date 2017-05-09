@@ -45,10 +45,12 @@ public class DefaultGradleBuild implements GradleBuild {
     public void synchronize() {
         synchronize(NewProjectHandler.NO_OP);
     }
+
     @Override
     public void synchronize(NewProjectHandler newProjectHandler) {
         synchronize(newProjectHandler, AsyncHandler.NO_OP);
     }
+
     @Override
     public void synchronize(NewProjectHandler newProjectHandler, AsyncHandler initializer) {
         SynchronizeGradleBuildsJob.forSingleGradleBuild(this, newProjectHandler, initializer).schedule();
@@ -81,13 +83,13 @@ public class DefaultGradleBuild implements GradleBuild {
 
     @Override
     public BuildLauncher newBuildLauncher(RunConfiguration runConfiguration, TransientRequestAttributes transientAttributes) {
-        Preconditions.checkArgument(runConfiguration.getBuildConfiguration().equals(this.buildConfig), "Run configuration references unknown build configuration");
+        // TODO (donat) once GradleWorkspaceManager#getGradleBuild(FixedRequestAttributes) is removed then we should only allow run config that contain the same build config
         return ConnectionAwareLauncherProxy.newBuildLauncher(runConfiguration.toRequestAttributes(), transientAttributes);
     }
 
     @Override
     public TestLauncher newTestLauncher(RunConfiguration runConfiguration, TransientRequestAttributes transientAttributes) {
-        Preconditions.checkArgument(runConfiguration.getBuildConfiguration().equals(this.buildConfig), "Run configuration references unknown build configuration");
+        // TODO (donat) once GradleWorkspaceManager#getGradleBuild(FixedRequestAttributes) is removed then we should only allow run config that contain the same build config
         return ConnectionAwareLauncherProxy.newTestLauncher(runConfiguration.toRequestAttributes(), transientAttributes);
     }
 

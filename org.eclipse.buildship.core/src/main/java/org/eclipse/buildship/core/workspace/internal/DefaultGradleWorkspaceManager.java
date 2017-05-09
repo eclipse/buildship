@@ -18,6 +18,8 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.FluentIterable;
 
+import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+
 import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.CorePlugin;
@@ -40,6 +42,16 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
         public GradleBuild load(BuildConfiguration buildConfiguration) {
             return new DefaultGradleBuild(buildConfiguration);
         }});
+
+    @Override
+    public GradleBuild getGradleBuild(FixedRequestAttributes attributes) {
+        BuildConfiguration configuration = CorePlugin.configurationManager().createBuildConfiguration(attributes.getProjectDir(),
+                attributes.getGradleDistribution(),
+                false,
+                false,
+                false);
+        return getGradleBuild(configuration);
+    }
 
     @Override
     public GradleBuild getGradleBuild(BuildConfiguration buildConfig) {
