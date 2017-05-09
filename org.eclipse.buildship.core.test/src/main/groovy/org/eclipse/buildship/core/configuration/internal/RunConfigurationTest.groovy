@@ -26,6 +26,7 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         setup:
         List<String> tasks = ['compileGroovy', 'publish']
         File javaHome = dir('java-home')
+        GradleDistribution gradleDistribution = GradleDistribution.forVersion('3.2')
         List arguments = ['-q', '-Pkey=value']
         List jvmArguments = ['-ea', '-Dkey=value']
         boolean showConsoleView = false
@@ -41,6 +42,7 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         RunConfiguration runConfig = configurationManager.createRunConfiguration(buildConfig,
                 tasks,
                 javaHome,
+                gradleDistribution,
                 jvmArguments,
                 arguments,
                 showExecutionView,
@@ -52,6 +54,7 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         then:
         runConfig.tasks == tasks
         runConfig.javaHome == javaHome
+        runConfig.gradleDistribution == (runConfigOverride ? GradleDistribution.forVersion('3.2') : GradleDistribution.fromBuild())
         runConfig.arguments == arguments + (expectedRunConfigOfflineMode ? ['--offline']: [])
         runConfig.jvmArguments == jvmArguments + (expectedRunConfigBuildScansEnabled ? ['-Dscan']: [])
         runConfig.showConsoleView == showConsoleView
