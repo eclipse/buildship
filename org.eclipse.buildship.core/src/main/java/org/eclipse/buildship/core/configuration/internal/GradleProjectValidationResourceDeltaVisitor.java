@@ -125,7 +125,7 @@ final class GradleProjectValidationResourceDeltaVisitor implements IResourceDelt
             // validate the state of the .settings/gradle.prefs file
             else {
                 try {
-                    CorePlugin.projectConfigurationManager().readProjectConfiguration(this.project);
+                    CorePlugin.configurationManager().loadProjectConfiguration(this.project);
                 } catch (Exception e) {
                     String message = String.format("Invalid Gradle project configuration file: %s", this.preferencesFile.getProjectRelativePath());
                     GradleProjectMarker.INSTANCE.addMarkerToResource(this.preferencesFile, message);

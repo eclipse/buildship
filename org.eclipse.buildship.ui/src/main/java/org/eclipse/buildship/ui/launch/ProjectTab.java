@@ -46,7 +46,6 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.util.binding.Validators;
@@ -56,7 +55,6 @@ import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
-import org.eclipse.buildship.ui.util.selection.Enabler;
 
 /**
  * Specifies a root project and a list of tasks to execute via the run configurations.
@@ -69,9 +67,6 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
     private Text workingDirectoryText;
     private Button showExecutionViewCheckbox;
     private Button showConsoleViewCheckbox;
-    private Button overrideWorkspaceSettingsCheckbox;
-    private Button overriddenOfflineModeCheckbox;
-    private Button overriddenBuildScansEnabledCheckbox;
 
     public ProjectTab() {
         this.workingDirValidator = Validators.requiredDirectoryValidator(CoreMessages.RunConfiguration_Label_WorkingDirectory);
@@ -102,9 +97,6 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
 
         Group buildExecutionGroup = createGroup(parent, CoreMessages.RunConfiguration_Label_BuildExecution + ":"); //$NON-NLS-1$
         createBuildExecutionControl(buildExecutionGroup);
-
-        Group overridePreferencesGroup = createGroup(parent, CoreMessages.RunConfiguration_Label_OverrideWorkspaceSettings + ":"); //$NON-NLS-1$
-        createOverrideWorkspacePreferencesControl(overridePreferencesGroup);
     }
 
     private Group createGroup(Composite parent, String groupName) {
@@ -208,24 +200,6 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
         this.showConsoleViewCheckbox.addSelectionListener(new DialogUpdater());
     }
 
-    private void createOverrideWorkspacePreferencesControl(Composite container) {
-        GridLayout layout = new GridLayout(3, false);
-        container.setLayout(layout);
-
-        this.overrideWorkspaceSettingsCheckbox = new Button(container, SWT.CHECK);
-        this.overrideWorkspaceSettingsCheckbox.setText("Override workspace settings");
-        this.overriddenOfflineModeCheckbox = new Button(container, SWT.CHECK);
-        this.overriddenOfflineModeCheckbox.setText("Offline Mode");
-        this.overriddenBuildScansEnabledCheckbox = new Button(container, SWT.CHECK);
-        this.overriddenBuildScansEnabledCheckbox.setText("Build Scans");
-
-        this.overrideWorkspaceSettingsCheckbox.addSelectionListener(new DialogUpdater());
-        this.overriddenOfflineModeCheckbox.addSelectionListener(new DialogUpdater());
-        this.overriddenBuildScansEnabledCheckbox.addSelectionListener(new DialogUpdater());
-
-        new Enabler(this.overrideWorkspaceSettingsCheckbox).enables(this.overriddenOfflineModeCheckbox, this.overriddenBuildScansEnabledCheckbox);
-    }
-
     @Override
     public void initializeFrom(ILaunchConfiguration configuration) {
         GradleRunConfigurationAttributes configurationAttributes = GradleRunConfigurationAttributes.from(configuration);
@@ -233,20 +207,6 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
         this.workingDirectoryText.setText(Strings.nullToEmpty(configurationAttributes.getWorkingDirExpression()));
         this.showExecutionViewCheckbox.setSelection(configurationAttributes.isShowExecutionView());
         this.showConsoleViewCheckbox.setSelection(configurationAttributes.isShowConsoleView());
-
-        boolean overrideWorkspaceSettings = configurationAttributes.isOverrideWorkspaceSettings();
-
-        this.overrideWorkspaceSettingsCheckbox.setSelection(overrideWorkspaceSettings);
-        this.overriddenOfflineModeCheckbox.setEnabled(overrideWorkspaceSettings);
-        this.overriddenBuildScansEnabledCheckbox.setEnabled(overrideWorkspaceSettings);
-        if(overrideWorkspaceSettings) {
-            this.overriddenOfflineModeCheckbox.setSelection(configurationAttributes.isOffline());
-            this.overriddenBuildScansEnabledCheckbox.setSelection(configurationAttributes.isBuildScansEnabled());
-        } else {
-            WorkspaceConfiguration workspaceConfig = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
-            this.overriddenOfflineModeCheckbox.setSelection(workspaceConfig.isOffline());
-            this.overriddenBuildScansEnabledCheckbox.setSelection(workspaceConfig.isBuildScansEnabled());
-        }
     }
 
     @Override
@@ -255,10 +215,6 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
         GradleRunConfigurationAttributes.applyWorkingDirExpression(this.workingDirectoryText.getText(), configuration);
         GradleRunConfigurationAttributes.applyShowExecutionView(this.showExecutionViewCheckbox.getSelection(), configuration);
         GradleRunConfigurationAttributes.applyShowConsoleView(this.showConsoleViewCheckbox.getSelection(), configuration);
-        GradleRunConfigurationAttributes.applyWorkspaceOverride(this.overrideWorkspaceSettingsCheckbox.getSelection(),
-                                                                this.overriddenOfflineModeCheckbox.getSelection(),
-                                                                this.overriddenBuildScansEnabledCheckbox.getSelection(),
-                                                                configuration);
     }
 
     @SuppressWarnings("Contract")

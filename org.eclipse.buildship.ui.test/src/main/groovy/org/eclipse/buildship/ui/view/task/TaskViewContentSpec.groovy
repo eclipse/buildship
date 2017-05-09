@@ -17,18 +17,13 @@ package org.eclipse.buildship.ui.view.task
 
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Item
 import org.eclipse.swt.widgets.Widget;
-import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.ui.IWorkbenchPage
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.ui.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification;
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 
 class TaskViewContentSpec extends ProjectSynchronizationSpecification {
@@ -41,6 +36,7 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
             view = WorkbenchUtils.showView(TaskView.ID, null, IWorkbenchPage.VIEW_ACTIVATE)
             tree = view.treeViewer
         }
+        waitForTaskView()
     }
 
     def "Task are grouped by default"() {
@@ -152,8 +148,8 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
         waitForTaskView()
 
         then:
-        taskTree.a
-        !taskTree.b
+        taskTree.find { it == 'a' }
+        !taskTree.find { it == 'b' }
     }
 
     private def getTaskTree() {

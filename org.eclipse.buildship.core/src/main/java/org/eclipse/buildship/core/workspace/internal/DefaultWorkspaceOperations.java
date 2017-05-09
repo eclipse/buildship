@@ -43,7 +43,7 @@ import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 /**
  * Default implementation of the {@link WorkspaceOperations} interface.
  */
-public final class DefaultWorkspaceOperations implements WorkspaceOperations {
+public class DefaultWorkspaceOperations implements WorkspaceOperations {
 
     @Override
     public ImmutableList<IProject> getAllProjects() {

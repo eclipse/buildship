@@ -47,7 +47,7 @@ public final class ExecutionShowingLaunchRequestListener implements EventListene
                 ProcessDescription processDescription = event.getProcessDescription();
 
                 // activate the executions view
-                int mode = processDescription.getConfigurationAttributes().isShowExecutionView() ? IWorkbenchPage.VIEW_ACTIVATE : IWorkbenchPage.VIEW_CREATE;
+                int mode = processDescription.getRunConfig().isShowExecutionView() ? IWorkbenchPage.VIEW_ACTIVATE : IWorkbenchPage.VIEW_CREATE;
                 ExecutionsView view = WorkbenchUtils.showView(ExecutionsView.ID, null, mode);
 
                 // show the launched build in a new page of the Executions View

@@ -22,16 +22,19 @@ import org.eclipse.debug.core.ILaunchManager;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType;
+import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributesTest.Attributes
 import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager;
+
+import java.util.List
 
 import spock.lang.Specification;
 
 class GradleLaunchConfigurationManagerTest extends Specification {
-
-    def validAttribute = GradleRunConfigurationAttributes.with( ['clean'], "/home/user/workspace/project", GradleDistributionWrapper.from(DistributionType.VERSION, "2.3").toGradleDistribution(), "/.java", ["-ea"], ["-q"], true, true, true)
-    def manager = new DefaultGradleLaunchConfigurationManager()
+    GradleRunConfigurationAttributes validAttribute = attributes('/home/user/workspace/project', ['clean'], '2.3', '/.java', ['-q'], ['-ea'])
+    GradleLaunchConfigurationManager manager = new DefaultGradleLaunchConfigurationManager()
 
     def setup() {
         DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurations().each { it.delete() }
@@ -76,21 +79,6 @@ class GradleLaunchConfigurationManagerTest extends Specification {
         config1 == config2
     }
 
-    def "Run configurations are considered equal if working directory and tasks are equal"() {
-        setup:
-        // only difference: argument -i or -d
-        def atr =      GradleRunConfigurationAttributes.with( ['build'], "/home/user/workspace/project-p", GradleDistribution.forVersion('2.0'), null, [], [], false, false, true)
-        def atrPrime = GradleRunConfigurationAttributes.with( ['build'], "/home/user/workspace/project-p", GradleDistribution.forVersion('2.1'), null, [], [], false, false, true)
-
-        when:
-        ILaunchConfiguration config1 = manager.getOrCreateRunConfiguration(atr)
-        ILaunchConfiguration config2 = manager.getOrCreateRunConfiguration(atrPrime)
-
-        then:
-        DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurations().size() == 1
-        config1 == config2
-    }
-
     def "Can't save attribute if launch manager is not able to retrieve configurations"() {
         setup:
         ILaunchManager launchManager = Mock(ILaunchManager)
@@ -122,6 +110,21 @@ class GradleLaunchConfigurationManagerTest extends Specification {
 
         then:
         thrown(GradlePluginsRuntimeException)
+    }
+
+    private GradleRunConfigurationAttributes attributes(String projectDir, tasks = [], gradleVersion = '2.3', javaHome = null, arguments = [], jvmArguments = []) {
+        new GradleRunConfigurationAttributes(
+            tasks,
+            projectDir,
+            GradleDistributionSerializer.INSTANCE.serializeToString(GradleDistribution.forVersion(gradleVersion)),
+            javaHome,
+            jvmArguments,
+            arguments,
+            true,
+            true,
+            true,
+            true,
+            true)
     }
 
 }

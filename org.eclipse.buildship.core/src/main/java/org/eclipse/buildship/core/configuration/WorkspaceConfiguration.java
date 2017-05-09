@@ -11,6 +11,8 @@ import java.io.File;
 
 import org.gradle.api.Nullable;
 
+import com.google.common.base.Objects;
+
 /**
  * Encapsulates settings that are the same for all Gradle projects in the workspace.
  *
@@ -40,5 +42,21 @@ public final class WorkspaceConfiguration {
 
     public boolean isBuildScansEnabled() {
         return this.buildScansEnabled;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof WorkspaceConfiguration) {
+            WorkspaceConfiguration other = (WorkspaceConfiguration) obj;
+            return Objects.equal(this.gradleUserHome, other.gradleUserHome)
+                    && Objects.equal(this.gradleIsOffline, other.gradleIsOffline)
+                    && Objects.equal(this.buildScansEnabled, other.buildScansEnabled);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.gradleUserHome, this.gradleIsOffline, this.buildScansEnabled);
     }
 }

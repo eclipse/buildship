@@ -33,6 +33,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.ConfigurationManager;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.binding.Validators;
@@ -138,19 +139,21 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
     }
 
     private void initFields() {
-        WorkspaceConfiguration config = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
+        WorkspaceConfiguration config = CorePlugin.configurationManager().loadWorkspaceConfiguration();
         File gradleUserHome = config.getGradleUserHome();
         this.gradleUserHomeText.setText(gradleUserHome == null ? "" : gradleUserHome.getPath());
         this.offlineModeCheckbox.setSelection(config.isOffline());
+        this.buildScansCheckbox.setSelection(config.isBuildScansEnabled());
     }
 
     @Override
     public boolean performOk() {
         String gradleUserHome = this.gradleUserHomeText.getText();
-        WorkspaceConfiguration config = new WorkspaceConfiguration(gradleUserHome.isEmpty() ? null : new File(gradleUserHome),
-                                                                   this.offlineModeCheckbox.getSelection(),
-                                                                   this.buildScansCheckbox.getSelection());
-        CorePlugin.workspaceConfigurationManager().saveWorkspaceConfiguration(config);
+        ConfigurationManager manager = CorePlugin.configurationManager();
+        WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(gradleUserHome.isEmpty() ? null : new File(gradleUserHome),
+                                                                            this.offlineModeCheckbox.getSelection(),
+                                                                            this.buildScansCheckbox.getSelection());
+        manager.saveWorkspaceConfiguration(workspaceConfig);
         return super.performOk();
     }
 

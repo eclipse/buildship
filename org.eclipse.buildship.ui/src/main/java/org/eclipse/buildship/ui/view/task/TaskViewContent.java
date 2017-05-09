@@ -13,8 +13,6 @@ package org.eclipse.buildship.ui.view.task;
 
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
-
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 
 import org.eclipse.core.resources.IProject;
@@ -28,14 +26,13 @@ public final class TaskViewContent {
     private final List<IProject> faultyProjects;
 
     public TaskViewContent(List<OmniEclipseProject> projects, List<IProject> faultyProjects) {
-        this.projects = ImmutableList.copyOf(projects);
+        this.projects = projects;
         this.faultyProjects = faultyProjects;
     }
 
     public List<OmniEclipseProject> getProjects() {
         return this.projects;
     }
-
 
     public List<IProject> getFaultyProjects() {
         return this.faultyProjects;

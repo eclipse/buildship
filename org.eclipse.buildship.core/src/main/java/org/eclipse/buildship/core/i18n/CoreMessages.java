@@ -46,7 +46,7 @@ public final class CoreMessages extends NLS {
     public static String RunConfiguration_Label_Arguments;
     public static String RunConfiguration_Label_BuildExecution;
     public static String RunConfiguration_Label_Tests;
-    public static String RunConfiguration_Label_OverrideWorkspaceSettings;
+    public static String RunConfiguration_Label_OverrideProjectSettings;
 
     public static String RunConfiguration_Value_RunDefaultTasks;
 

@@ -1,5 +1,7 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import spock.lang.Ignore
+
 import org.eclipse.core.resources.IProject
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
@@ -9,6 +11,7 @@ import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 
 class SynchronizingExistingWorkspaceProject extends SingleProjectSynchronizationSpecification {
 
+    @Ignore('Now we update project settingsfor closed projects too')
     def "If the project is closed, then the project remains untouched"() {
         setup:
         IProject project = newClosedProject('sample-project')

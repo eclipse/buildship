@@ -21,7 +21,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.util.Pair;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -30,6 +29,7 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.ToolingApiWorkspaceJob;
 import org.eclipse.buildship.core.workspace.ModelProvider;
@@ -41,7 +41,7 @@ import org.eclipse.buildship.core.workspace.ModelProvider;
 //then we could make use of our new ModelProvider very easily
 public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
 
-    private final FixedRequestAttributes fixedAttributes;
+    private final BuildConfiguration buildConfig;
     private final AsyncHandler initializer;
 
     private Pair<OmniBuildEnvironment, OmniGradleBuild> result;
@@ -50,7 +50,7 @@ public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
                              final FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> resultHandler) {
         super("Loading Gradle project preview");
 
-        this.fixedAttributes = configuration.toFixedAttributes();
+        this.buildConfig = configuration.toBuildConfig();
         this.initializer = Preconditions.checkNotNull(initializer);
         this.result = null;
 
@@ -77,12 +77,12 @@ public final class ProjectPreviewJob extends ToolingApiWorkspaceJob {
     }
 
     private OmniBuildEnvironment fetchBuildEnvironment(IProgressMonitor monitor) {
-        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.fixedAttributes).getModelProvider();
+        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.buildConfig).getModelProvider();
         return modelProvider.fetchBuildEnvironment(FetchStrategy.FORCE_RELOAD, getToken(), monitor);
     }
 
     private OmniGradleBuild fetchGradleBuildStructure(IProgressMonitor monitor) {
-        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.fixedAttributes).getModelProvider();
+        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.buildConfig).getModelProvider();
         return modelProvider.fetchGradleBuild(FetchStrategy.FORCE_RELOAD, getToken(), monitor);
     }
 }

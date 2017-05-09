@@ -29,10 +29,8 @@ import com.gradleware.tooling.toolingmodel.repository.ModelRepositoryProviderFac
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 
-import org.eclipse.buildship.core.configuration.ProjectConfigurationManager;
-import org.eclipse.buildship.core.configuration.WorkspaceConfigurationManager;
-import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigurationManager;
-import org.eclipse.buildship.core.configuration.internal.DefaultWorkspaceConfigurationManager;
+import org.eclipse.buildship.core.configuration.ConfigurationManager;
+import org.eclipse.buildship.core.configuration.internal.DefaultConfigurationManager;
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.console.internal.StdProcessStreamsProvider;
 import org.eclipse.buildship.core.event.ListenerRegistry;
@@ -83,7 +81,6 @@ public final class CorePlugin extends Plugin {
     private ServiceRegistration modelRepositoryProviderService;
     private ServiceRegistration workspaceOperationsService;
     private ServiceRegistration gradleWorkspaceManagerService;
-    private ServiceRegistration projectConfigurationManagerService;
     private ServiceRegistration processStreamsProviderService;
     private ServiceRegistration gradleLaunchConfigurationService;
     private ServiceRegistration listenerRegistryService;
@@ -97,16 +94,15 @@ public final class CorePlugin extends Plugin {
     private ServiceTracker modelRepositoryProviderServiceTracker;
     private ServiceTracker workspaceOperationsServiceTracker;
     private ServiceTracker gradleWorkspaceManagerServiceTracker;
-    private ServiceTracker projectConfigurationManagerServiceTracker;
     private ServiceTracker processStreamsProviderServiceTracker;
     private ServiceTracker gradleLaunchConfigurationServiceTracker;
     private ServiceTracker listenerRegistryServiceTracker;
     private ServiceTracker userNotificationServiceTracker;
 
-    private WorkspaceConfigurationManager workspaceConfigurationManager;
     private DefaultModelPersistence modelPersistence;
     private ProjectChangeListener projectChangeListener;
     private InvocationCustomizer invocationCustomizer;
+    private ConfigurationManager configurationManager;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
@@ -142,7 +138,6 @@ public final class CorePlugin extends Plugin {
         this.modelRepositoryProviderServiceTracker = createServiceTracker(context, ModelRepositoryProvider.class);
         this.workspaceOperationsServiceTracker = createServiceTracker(context, WorkspaceOperations.class);
         this.gradleWorkspaceManagerServiceTracker = createServiceTracker(context, GradleWorkspaceManager.class);
-        this.projectConfigurationManagerServiceTracker = createServiceTracker(context, ProjectConfigurationManager.class);
         this.processStreamsProviderServiceTracker = createServiceTracker(context, ProcessStreamsProvider.class);
         this.gradleLaunchConfigurationServiceTracker = createServiceTracker(context, GradleLaunchConfigurationManager.class);
         this.listenerRegistryServiceTracker = createServiceTracker(context, ListenerRegistry.class);
@@ -155,16 +150,15 @@ public final class CorePlugin extends Plugin {
         this.modelRepositoryProviderService = registerService(context, ModelRepositoryProvider.class, createModelRepositoryProvider(), preferences);
         this.workspaceOperationsService = registerService(context, WorkspaceOperations.class, createWorkspaceOperations(), preferences);
         this.gradleWorkspaceManagerService = registerService(context, GradleWorkspaceManager.class, createGradleWorkspaceManager(), preferences);
-        this.projectConfigurationManagerService = registerService(context, ProjectConfigurationManager.class, createProjectConfigurationManager(), preferences);
         this.processStreamsProviderService = registerService(context, ProcessStreamsProvider.class, createProcessStreamsProvider(), preferences);
         this.gradleLaunchConfigurationService = registerService(context, GradleLaunchConfigurationManager.class, createGradleLaunchConfigurationManager(), preferences);
         this.listenerRegistryService = registerService(context, ListenerRegistry.class, createListenerRegistry(), preferences);
         this.userNotificationService = registerService(context, UserNotification.class, createUserNotification(), preferences);
 
-        this.workspaceConfigurationManager = new DefaultWorkspaceConfigurationManager();
         this.modelPersistence = DefaultModelPersistence.createAndRegister();
         this.projectChangeListener = ProjectChangeListener.createAndRegister();
         this.invocationCustomizer = new InvocationCustomizerCollector();
+        this.configurationManager = new DefaultConfigurationManager();
     }
 
     private ServiceTracker createServiceTracker(BundleContext context, Class<?> clazz) {
@@ -202,11 +196,6 @@ public final class CorePlugin extends Plugin {
         return new DefaultGradleWorkspaceManager();
     }
 
-    private ProjectConfigurationManager createProjectConfigurationManager() {
-        WorkspaceOperations workspaceOperations = (WorkspaceOperations) this.workspaceOperationsServiceTracker.getService();
-        return new DefaultProjectConfigurationManager(workspaceOperations);
-    }
-
     private ProcessStreamsProvider createProcessStreamsProvider() {
         return new StdProcessStreamsProvider();
     }
@@ -230,7 +219,6 @@ public final class CorePlugin extends Plugin {
         this.listenerRegistryService.unregister();
         this.gradleLaunchConfigurationService.unregister();
         this.processStreamsProviderService.unregister();
-        this.projectConfigurationManagerService.unregister();
         this.gradleWorkspaceManagerService.unregister();
         this.workspaceOperationsService.unregister();
         this.modelRepositoryProviderService.unregister();
@@ -242,7 +230,6 @@ public final class CorePlugin extends Plugin {
         this.listenerRegistryServiceTracker.close();
         this.gradleLaunchConfigurationServiceTracker.close();
         this.processStreamsProviderServiceTracker.close();
-        this.projectConfigurationManagerServiceTracker.close();
         this.gradleWorkspaceManagerServiceTracker.close();
         this.workspaceOperationsServiceTracker.close();
         this.modelRepositoryProviderServiceTracker.close();
@@ -279,10 +266,6 @@ public final class CorePlugin extends Plugin {
         return (GradleWorkspaceManager) getInstance().gradleWorkspaceManagerServiceTracker.getService();
     }
 
-    public static ProjectConfigurationManager projectConfigurationManager() {
-        return (ProjectConfigurationManager) getInstance().projectConfigurationManagerServiceTracker.getService();
-    }
-
     public static ProcessStreamsProvider processStreamsProvider() {
         return (ProcessStreamsProvider) getInstance().processStreamsProviderServiceTracker.getService();
     }
@@ -299,15 +282,15 @@ public final class CorePlugin extends Plugin {
         return (UserNotification) getInstance().userNotificationServiceTracker.getService();
     }
 
-    public static WorkspaceConfigurationManager workspaceConfigurationManager() {
-        return getInstance().workspaceConfigurationManager;
-    }
-
     public static ModelPersistence modelPersistence() {
         return getInstance().modelPersistence;
     }
 
     public static InvocationCustomizer invocationCustomizer() {
         return getInstance().invocationCustomizer;
+    }
+
+    public static ConfigurationManager configurationManager() {
+        return getInstance().configurationManager;
     }
 }
