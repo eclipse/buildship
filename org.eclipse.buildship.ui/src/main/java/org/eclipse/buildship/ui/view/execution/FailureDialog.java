@@ -197,7 +197,7 @@ public final class FailureDialog extends Dialog {
         Optional<FailureItem> failureItem = this.selectionIndex == -1 ? Optional.<FailureItem>absent() : Optional.of(this.failureItems.get(this.selectionIndex));
         Optional<Failure> failure = failureItem.isPresent() ? failureItem.get().failure : Optional.<Failure>absent();
 
-        this.operationNameText.setText(failureItem.isPresent() ? OperationDescriptorRenderer.renderVerbose(failureItem.get().event) : ""); //$NON-NLS-1$
+        this.operationNameText.setText(failureItem.isPresent() ? ExecutionPageNameLabelProvider.renderVerbose(failureItem.get().event) : ""); //$NON-NLS-1$
 
         this.messageText.setText(failure.isPresent() ? Strings.nullToEmpty(failure.get().getMessage()) : ""); //$NON-NLS-1$
         this.messageText.setEnabled(failureItem.isPresent());

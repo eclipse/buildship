@@ -8,9 +8,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Activator: org.eclipse.buildship.ui.UiPlugin
 Require-Bundle: org.eclipse.buildship.core,
  org.eclipse.core.runtime,
- org.eclipse.core.databinding,
- org.eclipse.core.databinding.beans,
- org.eclipse.core.databinding.property,
  org.eclipse.jdt.core,
  org.eclipse.help,
  org.eclipse.ui,

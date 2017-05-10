@@ -12,34 +12,24 @@
 package org.eclipse.buildship.ui.view.execution;
 
 import java.util.List;
-import java.util.Map;
 
 import org.gradle.tooling.LongRunningOperation;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.TreeTraverser;
 
-import org.eclipse.core.databinding.beans.BeanProperties;
-import org.eclipse.core.databinding.beans.IBeanValueProperty;
-import org.eclipse.core.databinding.observable.set.IObservableSet;
-import org.eclipse.core.databinding.property.list.IListProperty;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.databinding.viewers.ObservableListTreeContentProvider;
-import org.eclipse.jface.databinding.viewers.ObservableMapCellLabelProvider;
-import org.eclipse.jface.resource.ColorDescriptor;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
-import org.eclipse.jface.viewers.ViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -51,7 +41,6 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.ui.external.viewer.FilteredTree;
 import org.eclipse.buildship.ui.external.viewer.PatternFilter;
-import org.eclipse.buildship.ui.util.color.ColorUtils;
 import org.eclipse.buildship.ui.util.nodeselection.ActionShowingContextMenuListener;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelectionProvider;
@@ -61,7 +50,6 @@ import org.eclipse.buildship.ui.view.BasePage;
 import org.eclipse.buildship.ui.view.CollapseTreeNodesAction;
 import org.eclipse.buildship.ui.view.ExpandTreeNodesAction;
 import org.eclipse.buildship.ui.view.MultiPageView;
-import org.eclipse.buildship.ui.view.ObservableMapCellWithIconLabelProvider;
 import org.eclipse.buildship.ui.view.PageSite;
 import org.eclipse.buildship.ui.view.ShowFilterAction;
 
@@ -75,9 +63,11 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     private final LongRunningOperation operation;
     private final ExecutionViewState state;
 
+    private FilteredTree filteredTree;
     private SelectionHistoryManager selectionHistoryManager;
     private TreeViewerColumn nameColumn;
     private TreeViewerColumn durationColumn;
+    private ExecutionProgressListener progressListener;
 
     public ExecutionPage(ProcessDescription processDescription, LongRunningOperation operation, ExecutionViewState state) {
         this.processDescription = processDescription;
@@ -97,26 +87,20 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     @Override
     public FilteredTree createPageWithResult(Composite parent) {
         // configure tree
-        FilteredTree filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, new PatternFilter(true));
-        filteredTree.setShowFilterControls(false);
-        filteredTree.getViewer().getTree().setHeaderVisible(this.state.isShowTreeHeader());
+        this.filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, new PatternFilter(true));
+        this.filteredTree.setShowFilterControls(false);
+        this.filteredTree.getViewer().getTree().setHeaderVisible(this.state.isShowTreeHeader());
+        this.filteredTree.getViewer().setContentProvider(new ExecutionPageContentProvider());
 
-        this.nameColumn = new TreeViewerColumn(filteredTree.getViewer(), SWT.NONE);
+        this.nameColumn = new TreeViewerColumn(this.filteredTree.getViewer(), SWT.NONE);
         this.nameColumn.getColumn().setText(ExecutionViewMessages.Tree_Column_Operation_Name_Text);
         this.nameColumn.getColumn().setWidth(this.state.getHeaderNameColumnWidth());
+        this.nameColumn.setLabelProvider(new DelegatingStyledCellLabelProvider(new ExecutionPageNameLabelProvider()));
 
-        this.durationColumn = new TreeViewerColumn(filteredTree.getViewer(), SWT.RIGHT);
+        this.durationColumn = new TreeViewerColumn(this.filteredTree.getViewer(), SWT.RIGHT);
         this.durationColumn.getColumn().setText(ExecutionViewMessages.Tree_Column_Operation_Duration_Text);
         this.durationColumn.getColumn().setWidth(this.state.getHeaderDurationColumnWidth());
-
-        // configure data binding
-        IListProperty childrenProperty = new OperationItemChildrenListProperty();
-        ObservableListTreeContentProvider contentProvider = new ObservableListTreeContentProvider(childrenProperty.listFactory(), null);
-        filteredTree.getViewer().setContentProvider(contentProvider);
-
-        IObservableSet knownElements = contentProvider.getKnownElements();
-        attachLabelProvider(OperationItem.FIELD_NAME, OperationItem.FIELD_IMAGE, knownElements, this.nameColumn);
-        attachLabelProvider(OperationItem.FIELD_DURATION, null, knownElements, this.durationColumn);
+        this.durationColumn.setLabelProvider(new DelegatingStyledCellLabelProvider(new ExecutionPageDurationLabelProvider()));
 
         // keep header size synchronized between pages
         this.nameColumn.getColumn().addControlListener(new ControlAdapter() {
@@ -158,35 +142,17 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         });
 
         // manage the selection history
-        this.selectionHistoryManager = new SelectionHistoryManager(filteredTree.getViewer());
+        this.selectionHistoryManager = new SelectionHistoryManager(this.filteredTree.getViewer());
 
         // set tree root node
         OperationItem root = new OperationItem();
-        filteredTree.getViewer().setInput(root);
+        this.filteredTree.getViewer().setInput(root);
 
-        // listen to progress events
-        this.operation.addProgressListener(new ExecutionProgressListener(this, root));
+        this.progressListener = new ExecutionProgressListener(this.filteredTree.getViewer(), root, this.processDescription.getJob());
+        this.operation.addProgressListener(this.progressListener);
 
         // return the tree as the outermost page control
-        return filteredTree;
-    }
-
-    private void attachLabelProvider(String textProperty, String imageProperty, IObservableSet knownElements, ViewerColumn viewerColumn) {
-        IBeanValueProperty txtProperty = BeanProperties.value(textProperty);
-        if (imageProperty != null) {
-            IBeanValueProperty imgProperty = BeanProperties.value(imageProperty);
-            ObservableMapCellWithIconLabelProvider labelProvider = new ObservableMapCellWithIconLabelProvider(getCustomTextColoringMapping(),
-                    txtProperty.observeDetail(knownElements), imgProperty.observeDetail(knownElements));
-            viewerColumn.setLabelProvider(new DelegatingStyledCellLabelProvider(labelProvider));
-        } else {
-            ObservableMapCellLabelProvider labelProvider = new ObservableMapCellLabelProvider(txtProperty.observeDetail(knownElements));
-            viewerColumn.setLabelProvider(labelProvider);
-        }
-    }
-
-    private Map<String, ColorDescriptor> getCustomTextColoringMapping() {
-        ColorDescriptor decorationsColor = ColorUtils.getDecorationsColorDescriptorFromCurrentTheme();
-        return ImmutableMap.of("UP-TO-DATE", decorationsColor, "FROM-CACHE", decorationsColor);
+        return this.filteredTree;
     }
 
     @Override

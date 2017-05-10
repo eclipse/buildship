@@ -23,11 +23,10 @@ import org.gradle.tooling.events.test.JvmTestOperationDescriptor;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
-import org.eclipse.jface.viewers.AbstractTreeViewer;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.ui.PlatformUI;
-
-import org.eclipse.buildship.ui.view.Page;
 
 /**
  * Listens to {@link org.gradle.tooling.events.ProgressEvent} instances that are sent by the Tooling
@@ -36,18 +35,22 @@ import org.eclipse.buildship.ui.view.Page;
  */
 public final class ExecutionProgressListener implements org.gradle.tooling.events.ProgressListener {
 
-    private static final int UPDATE_DURATION_JOB_INTERVAL_IN_MS = 1000;
-
-    private final Page executionPage;
     private final Map<OperationDescriptor, OperationItem> executionItemMap;
-    private final OperationItemRenderer operationItemRenderer;
-    private UpdateDurationJob updateDurationJob;
+    private final TreeViewer treeViewer;
+    private UpdateExecutionPageJob updateExecutionPageJob;
 
-    public ExecutionProgressListener(Page executionPage, OperationItem root) {
-        this.executionPage = Preconditions.checkNotNull(executionPage);
+    public ExecutionProgressListener(TreeViewer treeViewer, OperationItem root, Job executionJob) {
         this.executionItemMap = Maps.newLinkedHashMap();
         this.executionItemMap.put(null, Preconditions.checkNotNull(root));
-        this.operationItemRenderer = new OperationItemRenderer();
+        this.treeViewer = treeViewer;
+        executionJob.addJobChangeListener(new JobChangeAdapter(){
+            @Override
+            public void done(IJobChangeEvent event) {
+                if (ExecutionProgressListener.this.updateExecutionPageJob != null) {
+                    ExecutionProgressListener.this.updateExecutionPageJob.stop();
+                }
+            }
+        });
     }
 
     @Override
@@ -59,19 +62,18 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
             return;
         }
 
-        // create the job to update the duration of running operations as late as possible
-        // to make sure it is only created if really needed
-        initDurationJobIfNeeded();
+        // create the job to periodically update this page
+        initUpdaterJob();
 
         // create a new operation item if the event is a start event, otherwise update the item
         OperationItem operationItem = this.executionItemMap.get(descriptor);
         if (null == operationItem) {
             operationItem = new OperationItem((StartEvent) progressEvent);
             this.executionItemMap.put(descriptor, operationItem);
-            this.updateDurationJob.addOperationItem(operationItem);
+            this.updateExecutionPageJob.addOperationItem(operationItem);
         } else {
             operationItem.setFinishEvent((FinishEvent) progressEvent);
-            this.updateDurationJob.removeOperationItem(operationItem);
+            this.updateExecutionPageJob.removeOperationItem(operationItem);
             if (isJvmTestSuite(descriptor) && operationItem.getChildren().isEmpty()) {
                 // do not display test suite nodes that have no children (unwanted artifacts from Gradle)
                 OperationItem parentOperationItem = this.executionItemMap.get(findFirstNonExcludedParent(descriptor));
@@ -80,23 +82,15 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
             }
         }
 
-        // configure the operation item based on the event details
-        this.operationItemRenderer.update(operationItem);
-
         // attach to (first non-excluded) parent, if this is a new operation (in case of StartEvent)
         OperationItem parentExecutionItem = this.executionItemMap.get(findFirstNonExcludedParent(descriptor));
         parentExecutionItem.addChild(operationItem);
-
-        // ensure that if it is a newly added node it is made visible (in case of StartEvent)
-        if (operationItem.getFinishEvent() == null) {
-            makeNodeVisible(operationItem);
-        }
     }
 
-    private void initDurationJobIfNeeded() {
-        if (this.updateDurationJob == null) {
-            this.updateDurationJob = new UpdateDurationJob(UPDATE_DURATION_JOB_INTERVAL_IN_MS, this.operationItemRenderer);
-            this.updateDurationJob.schedule(UPDATE_DURATION_JOB_INTERVAL_IN_MS);
+    private void initUpdaterJob() {
+        if (this.updateExecutionPageJob == null) {
+            this.updateExecutionPageJob = new UpdateExecutionPageJob(this.treeViewer);
+            this.updateExecutionPageJob.schedule();
         }
     }
 
@@ -127,17 +121,4 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
         }
         return false;
     }
-
-    private void makeNodeVisible(final OperationItem operationItem) {
-        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-
-            @Override
-            public void run() {
-                @SuppressWarnings({ "cast", "RedundantCast" })
-                TreeViewer treeViewer = (TreeViewer) ExecutionProgressListener.this.executionPage.getAdapter(TreeViewer.class);
-                treeViewer.expandToLevel(operationItem, AbstractTreeViewer.ALL_LEVELS);
-            }
-        });
-    }
-
 }

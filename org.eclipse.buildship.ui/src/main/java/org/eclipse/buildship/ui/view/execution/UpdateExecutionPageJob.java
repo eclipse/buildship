@@ -11,47 +11,58 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import java.util.List;
 import java.util.Map;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
+import org.gradle.tooling.events.OperationDescriptor;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.gradle.tooling.events.OperationDescriptor;
+import org.eclipse.jface.viewers.AbstractTreeViewer;
+import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * Updates the duration of the registered {@link OperationItem} instances in the {@link ExecutionsView} in regular intervals.
  */
-public final class UpdateDurationJob extends Job {
+public final class UpdateExecutionPageJob extends Job {
 
-    private final long repeatDelay;
-    private final OperationItemRenderer operationItemRenderer;
+    private static final int REPEAT_DELAY = 100;
+
     private final Map<OperationDescriptor, OperationItem> operationItems;
     private volatile boolean running;
+    private final TreeViewer treeViewer;
 
-    public UpdateDurationJob(long repeatDelay, OperationItemRenderer operationItemRenderer) {
+    public UpdateExecutionPageJob(TreeViewer treeViewer) {
         super("Updating duration of non-finished operations");
 
-        this.repeatDelay = repeatDelay;
-        this.operationItemRenderer = operationItemRenderer;
+        this.treeViewer = treeViewer;
         this.operationItems = Maps.newHashMap();
         this.running = true;
     }
 
     @Override
     protected IStatus run(IProgressMonitor monitor) {
-        // update all registered operation items
-        for (OperationItem operationItem : getOperationItems()) {
-            this.operationItemRenderer.updateDuration(operationItem);
-        }
+        Display display = PlatformUI.getWorkbench().getDisplay();
+        if (!display.isDisposed()) {
+            display.syncExec(new Runnable() {
 
+                @Override
+                public void run() {
+                    if (!UpdateExecutionPageJob.this.treeViewer.getControl().isDisposed()) {
+                        UpdateExecutionPageJob.this.treeViewer.refresh(true);
+                        UpdateExecutionPageJob.this.treeViewer.expandToLevel(AbstractTreeViewer.ALL_LEVELS);
+                    }
+                }
+            });
+        }
         // reschedule the job such that is runs again in repeatDelay ms
-        schedule(this.repeatDelay);
+        schedule(REPEAT_DELAY);
         return Status.OK_STATUS;
     }
 
@@ -72,12 +83,6 @@ public final class UpdateDurationJob extends Job {
         }
     }
 
-    private List<OperationItem> getOperationItems() {
-        synchronized (this.operationItems) {
-            return ImmutableList.copyOf(this.operationItems.values());
-        }
-    }
-
     @Override
     public boolean shouldSchedule() {
         return this.running;
@@ -86,5 +91,4 @@ public final class UpdateDurationJob extends Job {
     public void stop() {
         this.running = false;
     }
-
 }
