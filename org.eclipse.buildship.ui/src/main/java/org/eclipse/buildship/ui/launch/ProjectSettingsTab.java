@@ -137,7 +137,7 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
         setControl(page);
 
         this.overrideBuildSettingsCheckbox = new Button(page, SWT.CHECK);
-        this.overrideBuildSettingsCheckbox.setText("Override workspace settings");
+        this.overrideBuildSettingsCheckbox.setText(CoreMessages.RunConfiguration_Label_OverrideProjectSettings);
 
         Group overridePreferencesGroup = createGroup(page, CoreMessages.RunConfiguration_Label_BuildExecution + ":");
         createOverrideProjectPreferencesControl(overridePreferencesGroup);
