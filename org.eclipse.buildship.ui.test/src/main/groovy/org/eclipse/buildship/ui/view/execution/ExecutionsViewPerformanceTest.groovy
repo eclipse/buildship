@@ -1,4 +1,4 @@
-package org.eclipse.buildship.ui.view.task
+package org.eclipse.buildship.ui.view.execution
 
 import org.gradle.tooling.LongRunningOperation
 import org.gradle.tooling.events.OperationDescriptor
