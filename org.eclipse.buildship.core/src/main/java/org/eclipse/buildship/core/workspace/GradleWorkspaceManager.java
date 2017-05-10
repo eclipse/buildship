@@ -16,6 +16,8 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
 
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
+
 /**
  * Manages the Gradle builds that are contained in the current Eclipse workspace.
  *
@@ -28,8 +30,18 @@ public interface GradleWorkspaceManager {
      *
      * @param attributes the request attributes, must not be null
      * @return the Gradle build, never null
+     * @deprecated This method is scheduled for removal in Buildship 3.0. Use {@link #getGradleBuild(BuildConfiguration)} instead.
      */
+    @Deprecated
     public GradleBuild getGradleBuild(FixedRequestAttributes attributes);
+
+    /**
+     * Returns the {@link GradleBuild} represented by the given request attributes.
+     *
+     * @param buildConfiguration the configuration for the requested build
+     * @return the Gradle build, never null
+     */
+    public GradleBuild getGradleBuild(BuildConfiguration buildConfiguration);
 
     /**
      * Returns the {@link GradleBuild} that contains the given project.
@@ -62,8 +74,4 @@ public interface GradleWorkspaceManager {
      * @return the build aggregate, never null
      */
     public GradleBuilds getGradleBuilds(Set<IProject> projects);
-
-
-
-
 }

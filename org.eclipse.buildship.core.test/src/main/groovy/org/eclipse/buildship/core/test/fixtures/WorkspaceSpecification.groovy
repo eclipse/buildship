@@ -51,6 +51,7 @@ abstract class WorkspaceSpecification extends Specification {
         for (IProject project : CorePlugin.workspaceOperations().allProjects) {
             project.delete(includingContent, true, null);
         }
+        workspaceDir.listFiles().findAll { it.isDirectory() && it.name != '.metadata' }.each { File it -> it.deleteDir() }
     }
 
     protected <T> void registerService(Class<T> serviceType, T implementation) {

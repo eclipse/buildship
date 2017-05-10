@@ -19,7 +19,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingutils.binding.Property;
 import com.gradleware.tooling.toolingutils.binding.ValidationListener;
 import com.gradleware.tooling.toolingutils.binding.Validator;
@@ -33,6 +32,7 @@ import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
@@ -145,9 +145,9 @@ public class ProjectImportWizardController {
     }
 
     public boolean performImportProject(AsyncHandler initializer, NewProjectHandler newProjectHandler) {
-        FixedRequestAttributes rootRequestAttributes = this.configuration.toFixedAttributes();
+        BuildConfiguration buildConfig = this.configuration.toBuildConfig();
         ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler = new ImportWizardNewProjectHandler(newProjectHandler, this.configuration);
-        GradleBuild build = CorePlugin.gradleWorkspaceManager().getGradleBuild(rootRequestAttributes);
+        GradleBuild build = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);
         build.synchronize(workingSetsAddingNewProjectHandler, initializer);
         return true;
     }

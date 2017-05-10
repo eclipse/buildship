@@ -11,9 +11,10 @@ package org.eclipse.buildship.core.workspace;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.TestLauncher;
 
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.configuration.RunConfiguration;
 //TODO this should eventually also contain the methods to launch tasks etc.
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 
@@ -83,20 +84,14 @@ public interface GradleBuild {
     ModelProvider getModelProvider();
 
     /**
-     * Returns the request attributes for this build.
-     *
-     * @return the request attributes, never null
-     */
-    FixedRequestAttributes getRequestAttributes();
-
-    /**
      * Creates a new Gradle build launcher. The method automatically opens a new Tooling API
      * connection which is closed after the {@code run()} method is finished.
      *
+     * @param runConfiguration the run configuration to configure the connection with
      * @param transientAttributes the transient attributes for the launcher.
      * @return the build launcher
      */
-    BuildLauncher newBuildLauncher(TransientRequestAttributes transientAttributes);
+    BuildLauncher newBuildLauncher(RunConfiguration runConfiguration, TransientRequestAttributes transientAttributes);
 
     /**
      * Creates a new Gradle test launcher. The method automatically opens a new Tooling API
@@ -105,5 +100,12 @@ public interface GradleBuild {
      * @param transientAttributes the transient attributes for the launcher.
      * @return the test launcher
      */
-    TestLauncher newTestLauncher(TransientRequestAttributes transientAttributes);
+    TestLauncher newTestLauncher(RunConfiguration runConfiguration, TransientRequestAttributes transientAttributes);
+
+    /**
+     * Returns build config used for this build.
+     *
+     * @return the build config, never null
+     */
+    BuildConfiguration getBuildConfig();
 }

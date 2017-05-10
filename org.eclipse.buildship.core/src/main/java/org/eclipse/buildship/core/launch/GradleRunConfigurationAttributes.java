@@ -15,23 +15,19 @@ import java.io.File;
 import java.util.List;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
@@ -44,40 +40,30 @@ public final class GradleRunConfigurationAttributes {
     // keys used when setting/getting attributes from an ILaunchConfiguration instance
     private static final String TASKS = "tasks";
     private static final String WORKING_DIR = "working_dir";
-    private static final String USE_GRADLE_DISTRIBUTION_FROM_IMPORT = "use_gradle_distribution_from_import";
     private static final String GRADLE_DISTRIBUTION = "gradle_distribution";
     private static final String JAVA_HOME = "java_home";
     private static final String JVM_ARGUMENTS = "jvm_arguments";
     private static final String ARGUMENTS = "arguments";
     private static final String SHOW_EXECUTION_VIEW = "show_execution_view";
     private static final String SHOW_CONSOLE_VIEW = "show_console_view";
+    private static final String OVERRIDE_BUILD_SETTINGS = "override_workspace_settings";
+    private static final String OFFLINE_MODE = "offline_mode";
+    private static final String BUILD_SCANS_ENABLED = "build_scans_enabled";
 
     private final ImmutableList<String> tasks;
     private final String workingDirExpression;
-    private final boolean useGradleDistributionFromImport;
     private final String gradleDistribution;
     private final String javaHomeExpression;
     private final ImmutableList<String> jvmArgumentExpressions;
     private final ImmutableList<String> argumentExpressions;
     private final boolean showExecutionView;
     private final boolean showConsoleView;
+    private final boolean overrideBuildSettings;
+    private final boolean isOffline;
+    private final boolean isBuildScansEnabled;
 
-    /**
-     * Creates a new instance.
-     *
-     * @param tasks the Gradle tasks to launch
-     * @param workingDirExpression the expression resolving to the working directory from which to
-     *            launch the Gradle tasks, never null
-     * @param gradleDistribution the Gradle distribution to use
-     * @param javaHomeExpression the expression resolving to the Java home to use, can be null
-     * @param jvmArgumentExpressions the expressions resolving to the JVM arguments to apply
-     * @param argumentExpressions the expressions resolving to the arguments to apply
-     * @param showExecutionView flag to show the execution view
-     * @param showConsoleView flag to show the console view
-     * @param useGradleDistributionFromImport flag to show whether the Gradle distribution used upon import should be used in the run config too
-     */
-    private GradleRunConfigurationAttributes(List<String> tasks, String workingDirExpression, String gradleDistribution,
-            String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean showExecutionView, boolean showConsoleView, boolean useGradleDistributionFromImport) {
+    public GradleRunConfigurationAttributes(List<String> tasks, String workingDirExpression, String gradleDistribution,
+            String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean showExecutionView, boolean showConsoleView, boolean overrideWorkspaceSettings, boolean isOffline, boolean isBuildScansEnabled) {
         this.tasks = ImmutableList.copyOf(tasks);
         this.workingDirExpression = Preconditions.checkNotNull(workingDirExpression);
         this.gradleDistribution = gradleDistribution;
@@ -86,7 +72,9 @@ public final class GradleRunConfigurationAttributes {
         this.argumentExpressions = ImmutableList.copyOf(argumentExpressions);
         this.showExecutionView = showExecutionView;
         this.showConsoleView = showConsoleView;
-        this.useGradleDistributionFromImport = useGradleDistributionFromImport;
+        this.overrideBuildSettings = overrideWorkspaceSettings;
+        this.isOffline = isOffline;
+        this.isBuildScansEnabled = isBuildScansEnabled;
     }
 
     public ImmutableList<String> getTasks() {
@@ -106,26 +94,12 @@ public final class GradleRunConfigurationAttributes {
         }
     }
 
-    public boolean isUseGradleDistributionFromImport() {
-        return this.useGradleDistributionFromImport;
-    }
-
     public GradleDistribution getGradleDistribution() {
-        if (this.useGradleDistributionFromImport) {
-            Optional<IProject> project = CorePlugin.workspaceOperations().findProjectByLocation(getWorkingDir());
-            if (!project.isPresent()) {
-                return GradleDistribution.fromBuild();
-            } else {
-                ProjectConfiguration configuration = CorePlugin.projectConfigurationManager().readProjectConfiguration(project.get());
-                return configuration.getGradleDistribution();
-            }
-        } else {
-            return this.gradleDistribution != null ? GradleDistributionSerializer.INSTANCE.deserializeFromString(this.gradleDistribution) : GradleDistribution.fromBuild();
-        }
+        return this.gradleDistribution != null ? GradleDistributionSerializer.INSTANCE.deserializeFromString(this.gradleDistribution) : GradleDistribution.fromBuild();
     }
 
     public File getGradleUserHome() {
-        return CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration().getGradleUserHome();
+        return CorePlugin.configurationManager().loadWorkspaceConfiguration().getGradleUserHome();
     }
 
     public String getJavaHomeExpression() {
@@ -185,6 +159,18 @@ public final class GradleRunConfigurationAttributes {
         return this.showConsoleView;
     }
 
+    public boolean isOverrideBuildSettings() {
+        return this.overrideBuildSettings;
+    }
+
+    public boolean isOffline() {
+        return this.isOffline;
+    }
+
+    public boolean isBuildScansEnabled() {
+        return this.isBuildScansEnabled;
+    }
+
     public boolean hasSameUniqueAttributes(ILaunchConfiguration launchConfiguration) {
         // reuse an existing run configuration if the working directory and the tasks are the same,
         // regardless of the other settings of the launch configuration
@@ -196,26 +182,18 @@ public final class GradleRunConfigurationAttributes {
         }
     }
 
-    public FixedRequestAttributes toFixedRequestAttributes() {
-        return FixedRequestAttributesBuilder.fromWorkspaceSettings(getWorkingDir())
-            .gradleUserHome(getGradleUserHome())
-            .gradleDistribution(getGradleDistribution())
-            .javaHome(getJavaHome())
-            .jvmArguments(getJvmArguments())
-            .arguments(getArguments())
-            .build();
-    }
-
     public void apply(ILaunchConfigurationWorkingCopy launchConfiguration) {
         applyTasks(this.tasks, launchConfiguration);
         applyWorkingDirExpression(this.workingDirExpression, launchConfiguration);
-        applyUseGradleDistributionFromImport(this.useGradleDistributionFromImport, launchConfiguration);
         applyGradleDistribution(this.gradleDistribution, launchConfiguration);
         applyJavaHomeExpression(this.javaHomeExpression, launchConfiguration);
         applyJvmArgumentExpressions(this.jvmArgumentExpressions, launchConfiguration);
         applyArgumentExpressions(this.argumentExpressions, launchConfiguration);
         applyShowExecutionView(this.showExecutionView, launchConfiguration);
         applyShowConsoleView(this.showConsoleView, launchConfiguration);
+        applyOverrideBuildSettings(this.overrideBuildSettings, launchConfiguration);
+        applyOfflineMode(this.isOffline, launchConfiguration);
+        applyBuildScansEnabled(this.isBuildScansEnabled, launchConfiguration);
     }
 
     public static void applyTasks(List<String> tasks, ILaunchConfigurationWorkingCopy launchConfiguration) {
@@ -224,10 +202,6 @@ public final class GradleRunConfigurationAttributes {
 
     public static void applyWorkingDirExpression(String workingDirExpression, ILaunchConfigurationWorkingCopy launchConfiguration) {
         launchConfiguration.setAttribute(WORKING_DIR, Preconditions.checkNotNull(workingDirExpression));
-    }
-
-    public static void applyUseGradleDistributionFromImport(boolean useGradleDistributionFromImport, ILaunchConfigurationWorkingCopy launchConfiguration) {
-        launchConfiguration.setAttribute(USE_GRADLE_DISTRIBUTION_FROM_IMPORT, useGradleDistributionFromImport);
     }
 
     public static void applyGradleDistribution(String gradleDistribution, ILaunchConfigurationWorkingCopy launchConfiguration) {
@@ -258,88 +232,89 @@ public final class GradleRunConfigurationAttributes {
         launchConfiguration.setAttribute(SHOW_CONSOLE_VIEW, showConsoleView);
     }
 
-    public static GradleRunConfigurationAttributes with(List<String> tasks, String workingDirExpression, String serializedGradleDistribution,
-            String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean showExecutionView, boolean showConsoleView, boolean useGradleDistributionFromImport) {
-        return new GradleRunConfigurationAttributes(tasks, workingDirExpression, serializedGradleDistribution, javaHomeExpression, jvmArgumentExpressions,
-                argumentExpressions, showExecutionView, showConsoleView, useGradleDistributionFromImport);
+    public static void applyOverrideBuildSettings(boolean overrideWorkspaceSettings, ILaunchConfigurationWorkingCopy launchConfiguration) {
+        launchConfiguration.setAttribute(OVERRIDE_BUILD_SETTINGS, overrideWorkspaceSettings);
     }
 
-    public static GradleRunConfigurationAttributes with(List<String> tasks, String workingDirExpression, GradleDistribution gradleDistribution,
-            String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean showExecutionView, boolean showConsoleView, boolean useGradleDistributionFromImport) {
-        String serializedDistribution = GradleDistributionSerializer.INSTANCE.serializeToString(gradleDistribution);
-        return new GradleRunConfigurationAttributes(tasks, workingDirExpression, serializedDistribution, javaHomeExpression, jvmArgumentExpressions,
-                argumentExpressions, showExecutionView, showConsoleView, useGradleDistributionFromImport);
+    public static void applyOfflineMode(boolean offlineMode, ILaunchConfigurationWorkingCopy launchConfiguration) {
+        launchConfiguration.setAttribute(OFFLINE_MODE, offlineMode);
     }
 
-    @SuppressWarnings("unchecked")
+    public static void applyBuildScansEnabled(boolean buildScansEnabled, ILaunchConfigurationWorkingCopy launchConfiguration) {
+        launchConfiguration.setAttribute(BUILD_SCANS_ENABLED, buildScansEnabled);
+    }
+
     public static GradleRunConfigurationAttributes from(ILaunchConfiguration launchConfiguration) {
         Preconditions.checkNotNull(launchConfiguration);
+        List<String> tasks = getListAttribute(TASKS, launchConfiguration);
+        String workingDirExpression = getStringAttribute(WORKING_DIR, "", launchConfiguration);
+        String gradleDistribution = getStringAttribute(GRADLE_DISTRIBUTION, GradleDistributionSerializer.INSTANCE.serializeToString(GradleDistribution.fromBuild()), launchConfiguration);
+        String javaHomeExpression = getStringAttribute(JAVA_HOME, null, launchConfiguration);
+        List<String> jvmArgumentExpressions = getListAttribute(JVM_ARGUMENTS, launchConfiguration);
+        List<String> argumentExpressions = getListAttribute(ARGUMENTS, launchConfiguration);
+        boolean showExecutionView = getBooleanAttribute(SHOW_EXECUTION_VIEW, true, launchConfiguration);
+        boolean showConsoleView = getBooleanAttribute(SHOW_CONSOLE_VIEW, true, launchConfiguration);
+        boolean overrideWorkspaceSettings = getBooleanAttribute(OVERRIDE_BUILD_SETTINGS, false, launchConfiguration);
+        boolean isOffline = getBooleanAttribute(OFFLINE_MODE, false, launchConfiguration);
+        boolean isBuildScansEnabled = getBooleanAttribute(BUILD_SCANS_ENABLED, false, launchConfiguration);
+        return new GradleRunConfigurationAttributes(tasks, workingDirExpression, gradleDistribution, javaHomeExpression, jvmArgumentExpressions, argumentExpressions,
+                showExecutionView, showConsoleView, overrideWorkspaceSettings, isOffline, isBuildScansEnabled);
+    }
 
-        List<String> tasks;
+    private static List<String> getListAttribute(String name, ILaunchConfiguration configuration) {
         try {
-            tasks = launchConfiguration.getAttribute(TASKS, ImmutableList.<String>of());
+            return configuration.getAttribute(name, ImmutableList.<String>of());
         } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(String.format("Cannot read launch configuration attribute '%s'.", TASKS));
+            throw new GradlePluginsRuntimeException(String.format("Cannot read launch configuration attribute '%s'.", name));
         }
+    }
 
-        String workingDirExpression;
+    private static String getStringAttribute(String name, String defaultValue, ILaunchConfiguration configuration) {
         try {
-            workingDirExpression = launchConfiguration.getAttribute(WORKING_DIR, "");
+            return configuration.getAttribute(name, defaultValue);
         } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(String.format("Cannot read launch configuration attribute '%s'.", WORKING_DIR));
+            throw new GradlePluginsRuntimeException(String.format("Cannot read launch configuration attribute '%s'.", name));
         }
+    }
 
-        boolean useGradleDistributionFromImport;
+    private static boolean getBooleanAttribute(String name, boolean defaultValue, ILaunchConfiguration configuration) {
         try {
-            useGradleDistributionFromImport = launchConfiguration.getAttribute(USE_GRADLE_DISTRIBUTION_FROM_IMPORT, false);
+            return configuration.getAttribute(name, defaultValue);
         } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(String.format("Cannot read launch configuration attribute '%s'.", USE_GRADLE_DISTRIBUTION_FROM_IMPORT));
+            throw new GradlePluginsRuntimeException(String.format("Cannot read launch configuration attribute '%s'.", name));
         }
+    }
 
-        String gradleDistribution;
-        try {
-            gradleDistribution = launchConfiguration.getAttribute(GRADLE_DISTRIBUTION, GradleDistributionSerializer.INSTANCE.serializeToString(GradleDistribution.fromBuild()));
-        } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(String.format("Cannot read launch configuration attribute '%s'.", USE_GRADLE_DISTRIBUTION_FROM_IMPORT));
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof GradleRunConfigurationAttributes) {
+            GradleRunConfigurationAttributes other = (GradleRunConfigurationAttributes) obj;
+            return Objects.equal(this.workingDirExpression, other.workingDirExpression)
+                    && Objects.equal(this.gradleDistribution, other.gradleDistribution)
+                    && Objects.equal(this.javaHomeExpression, other.javaHomeExpression)
+                    && Objects.equal(this.jvmArgumentExpressions, other.jvmArgumentExpressions)
+                    && Objects.equal(this.argumentExpressions, other.argumentExpressions)
+                    && Objects.equal(this.showExecutionView, other.showExecutionView)
+                    && Objects.equal(this.showConsoleView, other.showConsoleView)
+                    && Objects.equal(this.overrideBuildSettings, other.overrideBuildSettings)
+                    && Objects.equal(this.isOffline, other.isOffline)
+                    && Objects.equal(this.isBuildScansEnabled, other.isBuildScansEnabled);
         }
+        return false;
+    }
 
-        String javaHomeExpression;
-        try {
-            javaHomeExpression = launchConfiguration.getAttribute(JAVA_HOME, (String) null);
-        } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(String.format("Cannot read launch configuration attribute '%s'.", JAVA_HOME));
-        }
-
-        List<String> jvmArgumentExpressions;
-        try {
-            jvmArgumentExpressions = launchConfiguration.getAttribute(JVM_ARGUMENTS, ImmutableList.<String>of());
-        } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(String.format("Cannot read launch configuration attribute '%s'.", JVM_ARGUMENTS));
-        }
-
-        List<String> argumentExpressions;
-        try {
-            argumentExpressions = launchConfiguration.getAttribute(ARGUMENTS, ImmutableList.<String>of());
-        } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(String.format("Cannot read launch configuration attribute '%s'.", ARGUMENTS));
-        }
-
-        boolean showExecutionView;
-        try {
-            showExecutionView = launchConfiguration.getAttribute(SHOW_EXECUTION_VIEW, true);
-        } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(String.format("Cannot read launch configuration attribute '%s'.", SHOW_EXECUTION_VIEW));
-        }
-
-        boolean showConsoleView;
-        try {
-            showConsoleView = launchConfiguration.getAttribute(SHOW_CONSOLE_VIEW, true);
-        } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException(String.format("Cannot read launch configuration attribute '%s'.", SHOW_CONSOLE_VIEW));
-        }
-
-        return with(tasks, workingDirExpression, gradleDistribution, javaHomeExpression, jvmArgumentExpressions, argumentExpressions,
-                showExecutionView, showConsoleView, useGradleDistributionFromImport);
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.workingDirExpression,
+                    this.gradleDistribution,
+                    this.javaHomeExpression,
+                    this.jvmArgumentExpressions,
+                    this.argumentExpressions,
+                    this.showExecutionView,
+                    this.showConsoleView,
+                    this.overrideBuildSettings,
+                    this.isOffline,
+                    this.isBuildScansEnabled);
     }
 
 }

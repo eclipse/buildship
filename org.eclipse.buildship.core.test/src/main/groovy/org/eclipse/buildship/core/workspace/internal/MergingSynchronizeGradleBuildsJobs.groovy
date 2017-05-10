@@ -1,7 +1,9 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import com.gradleware.tooling.toolingclient.GradleDistribution
+
+import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.util.configuration.FixedRequestAttributesBuilder
 import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.NewProjectHandler
 
@@ -12,8 +14,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         File projectLocation = dir("sample-project") {
             file 'settings.gradle'
         }
-        def requestAttributes = FixedRequestAttributesBuilder.fromEmptySettings(projectLocation).build()
-        def gradleBuild = new DefaultGradleBuild(requestAttributes)
+        def buildConfiguration = CorePlugin.configurationManager().createBuildConfiguration(projectLocation, GradleDistribution.fromBuild(), true, false, false)
+        def gradleBuild = new DefaultGradleBuild(buildConfiguration)
         def jobs = [
             SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP),
             SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP)
@@ -32,8 +34,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         File projectLocation = dir("sample-project") {
             file 'settings.gradle'
         }
-        def requestAttributes = FixedRequestAttributesBuilder.fromEmptySettings(projectLocation).build()
-        def gradleBuild = new DefaultGradleBuild(requestAttributes)
+        def buildConfiguration = CorePlugin.configurationManager().createBuildConfiguration(projectLocation, GradleDistribution.fromBuild(), true, false, false)
+        def gradleBuild = new DefaultGradleBuild(buildConfiguration)
         def jobs = [
             SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP),
             SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.NO_OP, AsyncHandler.NO_OP)
@@ -52,8 +54,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         File projectLocation = dir("sample-project") {
             file 'settings.gradle'
         }
-        def requestAttributes = FixedRequestAttributesBuilder.fromEmptySettings(projectLocation).build()
-        def gradleBuild = new DefaultGradleBuild(requestAttributes)
+        def buildConfiguration = CorePlugin.configurationManager().createBuildConfiguration(projectLocation, GradleDistribution.fromBuild(), true, false, false)
+        def gradleBuild = new DefaultGradleBuild(buildConfiguration)
         def jobs = [
             SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP),
             SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, Mock(NewProjectHandler), AsyncHandler.NO_OP)
@@ -72,8 +74,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         File projectLocation = dir("sample-project") {
             file 'settings.gradle'
         }
-        def requestAttributes = FixedRequestAttributesBuilder.fromEmptySettings(projectLocation).build()
-        def gradleBuild = new DefaultGradleBuild(requestAttributes)
+        def buildConfiguration = CorePlugin.configurationManager().createBuildConfiguration(projectLocation, GradleDistribution.fromBuild(), true, false, false)
+        def gradleBuild = new DefaultGradleBuild(buildConfiguration)
         def jobs = [
             SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, {monitor, token -> "Foo"}),
             SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP)
@@ -92,8 +94,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         File projectLocation = dir("sample-project") {
             file 'settings.gradle'
         }
-        def requestAttributes = FixedRequestAttributesBuilder.fromEmptySettings(projectLocation).build()
-        def gradleBuild = new DefaultGradleBuild(requestAttributes)
+        def buildConfiguration = CorePlugin.configurationManager().createBuildConfiguration(projectLocation, GradleDistribution.fromBuild(), true, false, false)
+        def gradleBuild = new DefaultGradleBuild(buildConfiguration)
         def jobs = [
             SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, {monitor, token -> "Foo"}),
             SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, {monitor, token -> "Bar"})
@@ -111,10 +113,10 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         setup:
         File project1 = dir("project1")
         File project2 = dir("project2")
-        def attributes1 = FixedRequestAttributesBuilder.fromEmptySettings(project1).build()
-        def gradleBuild1 = new DefaultGradleBuild(attributes1)
-        def attributes2 = FixedRequestAttributesBuilder.fromEmptySettings(project2).build()
-        def gradleBuild2 = new DefaultGradleBuild(attributes2)
+        def buildConfiguration1 = CorePlugin.configurationManager().createBuildConfiguration(project1, GradleDistribution.fromBuild(), true, false, false)
+        def gradleBuild1 = new DefaultGradleBuild(buildConfiguration1)
+        def buildConfiguration2 = CorePlugin.configurationManager().createBuildConfiguration(project2, GradleDistribution.fromBuild(), true, false, false)
+        def gradleBuild2 = new DefaultGradleBuild(buildConfiguration2)
         def jobs = [
             SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild1, NewProjectHandler.NO_OP, AsyncHandler.NO_OP),
             SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild2, NewProjectHandler.NO_OP, AsyncHandler.NO_OP)

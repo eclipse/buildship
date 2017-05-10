@@ -6,7 +6,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.configuration.internal.DefaultProjectConfigurationPersistence;
+import org.eclipse.buildship.core.configuration.internal.BuildConfigurationPersistence
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 
 class UncouplingProjectFromGradleBuild extends ProjectSynchronizationSpecification {
@@ -43,14 +43,14 @@ class UncouplingProjectFromGradleBuild extends ProjectSynchronizationSpecificati
         expect:
         IProject project = findProject('subproject-a')
         IEclipsePreferences node = new ProjectScope(project).getNode(CorePlugin.PLUGIN_ID)
-        node.get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null)
+        node.get(BuildConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null)
 
         when:
         file ('sample-project/settings.gradle').text = "include 'subproject-b'"
         synchronizeAndWait(projectDir)
 
         then:
-        !node.get(DefaultProjectConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null)
+        !node.get(BuildConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null)
     }
 
     def "Uncoupling a project removes persistent model"() {

@@ -11,19 +11,22 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
+import java.util.List;
+
+import org.gradle.tooling.events.test.TestOperationDescriptor;
+
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+
+import org.eclipse.jface.action.Action;
+
+import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.launch.RunGradleTestLaunchRequestJob;
 import org.eclipse.buildship.ui.util.gradle.GradleUtils;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
-import org.eclipse.jface.action.Action;
-import org.gradle.tooling.events.test.TestOperationDescriptor;
-
-import java.util.List;
 
 /**
  * Action to launch a new Gradle execution specified by {@link TestOperationDescriptor} instances.
@@ -43,8 +46,8 @@ public final class RunTestAction extends Action implements SelectionSpecificActi
     public void run() {
         List<TestOperationDescriptor> tests = collectSelectedTests(this.executionPage.getSelection());
         List<TestOperationDescriptor> filteredTests = GradleUtils.filterChildren(tests);
-        GradleRunConfigurationAttributes configurationAttributes = this.executionPage.getProcessDescription().getConfigurationAttributes();
-        RunGradleTestLaunchRequestJob runTestsJob = new RunGradleTestLaunchRequestJob(filteredTests, configurationAttributes);
+        RunConfiguration runConfig = this.executionPage.getProcessDescription().getRunConfig();
+        RunGradleTestLaunchRequestJob runTestsJob = new RunGradleTestLaunchRequestJob(filteredTests, runConfig);
         runTestsJob.schedule();
     }
 

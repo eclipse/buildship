@@ -33,7 +33,7 @@ public interface GradleLaunchConfigurationManager {
     /**
      * Returns either a new Gradle {@link ILaunchConfiguration} instance or an existing one,
      * depending on whether there is already a Gradle run configuration for the given set of
-     * attributes or not.
+     * attributes or not. The result is saved to the disk.
      *
      * @param configurationAttributes the run configuration attributes, must not be not null
      * @return the new or existing Gradle run configuration

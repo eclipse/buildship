@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2016 the original author or authors.
+ * Copyright (c) 2017 the original author or authors.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.eclipse.buildship.core.configuration.internal;
 
 import java.io.File;
@@ -19,27 +20,27 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
-import org.eclipse.buildship.core.configuration.WorkspaceConfigurationManager;
+
 
 /**
- * The default implementation of {@link WorkspaceConfigurationManager}.
+ * Provides capability to read and save workspace configuration.
  *
- * @author Stefan oehme
+ * @author Donat Csikos
  */
-public class DefaultWorkspaceConfigurationManager implements WorkspaceConfigurationManager {
+public final class WorkspaceConfigurationPersistence {
 
     private static final String GRADLE_USER_HOME = "gradle.user.home";
     private static final String GRADLE_OFFLINE_MODE = "gradle.offline.mode";
+    private static final String GRADLE_BUILD_SCANS = "gradle.build.scans";
 
-    @Override
-    public WorkspaceConfiguration loadWorkspaceConfiguration() {
+    public WorkspaceConfiguration readWorkspaceConfig() {
         IEclipsePreferences preferences = getPreferences();
         String userHome = preferences.get(GRADLE_USER_HOME, null);
         boolean offlineMode = preferences.getBoolean(GRADLE_OFFLINE_MODE, false);
-        return new WorkspaceConfiguration(userHome == null ? null : new File(userHome), offlineMode);
+        boolean buildScansEnabled = preferences.getBoolean(GRADLE_BUILD_SCANS, false);
+        return new WorkspaceConfiguration(userHome == null ? null : new File(userHome), offlineMode, buildScansEnabled);
     }
 
-    @Override
     public void saveWorkspaceConfiguration(WorkspaceConfiguration config) {
         Preconditions.checkNotNull(config);
         IEclipsePreferences preferences = getPreferences();
@@ -49,6 +50,7 @@ public class DefaultWorkspaceConfigurationManager implements WorkspaceConfigurat
             preferences.put(GRADLE_USER_HOME, config.getGradleUserHome().getPath());
         }
         preferences.putBoolean(GRADLE_OFFLINE_MODE, config.isOffline());
+        preferences.putBoolean(GRADLE_BUILD_SCANS, config.isBuildScansEnabled());
         try {
             preferences.flush();
         } catch (BackingStoreException e) {
@@ -59,5 +61,4 @@ public class DefaultWorkspaceConfigurationManager implements WorkspaceConfigurat
     private IEclipsePreferences getPreferences() {
         return InstanceScope.INSTANCE.getNode(CorePlugin.PLUGIN_ID);
     }
-
 }
