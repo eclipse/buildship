@@ -32,7 +32,7 @@ import org.eclipse.ui.PlatformUI;
  */
 public final class UpdateExecutionPageJob extends Job {
 
-    private static final int REPEAT_DELAY = 500;
+    private static final int REPEAT_DELAY = 100;
 
     private final Map<OperationDescriptor, OperationItem> operationItems;
     private volatile boolean running;
