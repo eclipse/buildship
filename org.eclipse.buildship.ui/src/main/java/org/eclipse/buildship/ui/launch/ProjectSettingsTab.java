@@ -62,7 +62,7 @@ import org.eclipse.buildship.ui.util.widget.UiBuilder;
 /**
  * Specifies the Gradle distribution to apply when executing tasks via the run configurations.
  */
-public final class GradleDistributionTab extends AbstractLaunchConfigurationTab {
+public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
 
     private final Font defaultFont;
     private final UiBuilder.UiBuilderFactory builderFactory;
@@ -73,12 +73,16 @@ public final class GradleDistributionTab extends AbstractLaunchConfigurationTab 
     private Text remoteDistributionUriText;
     private Combo gradleVersionCombo;
 
-    private Button useAutomaticOption;
     private Button useGradleWrapperOption;
     private Button useLocalInstallationDirOption;
+    private Button localInstallationDirBrowseButton;
     private Button useRemoteDistributionUriOption;
     private Button useGradleVersionOption;
     private List<Button> allRadioButtons;
+    private Button overrideBuildSettingsCheckbox;
+    private Button offlineModeCheckbox;
+    private Button buildScansEnabledCheckbox;
+    private Enabler overrideProjectSettingsEnabler;
 
     private final SelectionListener optionSelectionChangedListener;
     private final ModifyListener textChangedListener;
@@ -89,7 +93,7 @@ public final class GradleDistributionTab extends AbstractLaunchConfigurationTab 
     // initializeFrom() method is called
     private boolean disableUpdateDialog = false;
 
-    public GradleDistributionTab() {
+    public ProjectSettingsTab() {
         this.defaultFont = FontUtils.getDefaultDialogFont();
         this.builderFactory = new UiBuilder.UiBuilderFactory(this.defaultFont);
         this.gradleDistributionValidator = GradleDistributionValidator.gradleDistributionValidator();
@@ -99,7 +103,7 @@ public final class GradleDistributionTab extends AbstractLaunchConfigurationTab 
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if (!GradleDistributionTab.this.disableUpdateDialog) {
+                if (!ProjectSettingsTab.this.disableUpdateDialog) {
                     updateLaunchConfigurationDialog();
                 }
             }
@@ -108,7 +112,7 @@ public final class GradleDistributionTab extends AbstractLaunchConfigurationTab 
 
             @Override
             public void modifyText(ModifyEvent e) {
-                if (!GradleDistributionTab.this.disableUpdateDialog) {
+                if (!ProjectSettingsTab.this.disableUpdateDialog) {
                     updateLaunchConfigurationDialog();
                 }
             }
@@ -117,7 +121,7 @@ public final class GradleDistributionTab extends AbstractLaunchConfigurationTab 
 
     @Override
     public String getName() {
-        return LaunchMessages.Tab_Name_GradleDistribution;
+        return LaunchMessages.Tab_Name_ProjectSettings;
     }
 
     @Override
@@ -132,8 +136,26 @@ public final class GradleDistributionTab extends AbstractLaunchConfigurationTab 
         page.setLayout(layout);
         setControl(page);
 
+        this.overrideBuildSettingsCheckbox = new Button(page, SWT.CHECK);
+        this.overrideBuildSettingsCheckbox.setText(CoreMessages.RunConfiguration_Label_OverrideProjectSettings);
+
+        Group overridePreferencesGroup = createGroup(page, CoreMessages.RunConfiguration_Label_BuildExecution + ":");
+        createOverrideProjectPreferencesControl(overridePreferencesGroup);
+
         Group gradleDistributionGroup = createGroup(page, CoreMessages.RunConfiguration_Label_GradleDistribution + ":");
         createGradleDistributionSelectionControl(gradleDistributionGroup);
+
+        this.overrideProjectSettingsEnabler = new Enabler(this.overrideBuildSettingsCheckbox);
+        this.overrideProjectSettingsEnabler.enables(this.offlineModeCheckbox,
+                this.buildScansEnabledCheckbox,
+                this.useGradleWrapperOption,
+                this.useLocalInstallationDirOption,
+                this.localInstallationDirText,
+                this.localInstallationDirBrowseButton,
+                this.useRemoteDistributionUriOption,
+                this.remoteDistributionUriText,
+                this.useGradleVersionOption,
+                this.gradleVersionCombo);
     }
 
     private Group createGroup(Composite parent, String groupName) {
@@ -145,31 +167,24 @@ public final class GradleDistributionTab extends AbstractLaunchConfigurationTab 
     }
 
     private void createGradleDistributionSelectionControl(Group container) {
-        // first option: use the same distribution that was used for project import
-        this.useAutomaticOption = this.builderFactory.newRadio(container).alignLeft().text(CoreMessages.GradleDistribution_Label_FromImportSettings).control();
-        this.useAutomaticOption.setToolTipText(CoreMessages.GradleDistribution_Label_FromImportSettings_Tooltip);
-        this.useAutomaticOption.setSelection(true);
-        this.builderFactory.span(container);
-        this.builderFactory.span(container);
-
-        // second option: gradle wrapper
+        // gradle wrapper
         this.useGradleWrapperOption = this.builderFactory.newRadio(container).alignLeft().text(CoreMessages.GradleDistribution_Label_GradleWrapper).control();
         this.builderFactory.span(container);
         this.builderFactory.span(container);
 
-        // third option: local installation directory
+        // local installation directory
         this.useLocalInstallationDirOption = this.builderFactory.newRadio(container).alignLeft().text(CoreMessages.GradleDistribution_Label_LocalInstallationDirectory).control();
         this.localInstallationDirText = this.builderFactory.newText(container).alignFillHorizontal().disabled().control();
-        Button localInstallationDirBrowseButton = this.builderFactory.newButton(container).alignLeft().disabled().text(UiMessages.Button_Label_Browse).control();
-        localInstallationDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(container.getShell(), this.localInstallationDirText,
+        this.localInstallationDirBrowseButton = this.builderFactory.newButton(container).alignLeft().disabled().text(UiMessages.Button_Label_Browse).control();
+        this.localInstallationDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(container.getShell(), this.localInstallationDirText,
                 CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
 
-        // fourth option: remote distribution installation
+        // remote distribution installation
         this.useRemoteDistributionUriOption = this.builderFactory.newRadio(container).alignLeft().text(CoreMessages.GradleDistribution_Label_RemoteDistributionUri).control();
         this.remoteDistributionUriText = this.builderFactory.newText(container).alignFillHorizontal().disabled().control();
         this.builderFactory.span(container);
 
-        // fifth option: gradle version
+        // gradle version
         this.useGradleVersionOption = this.builderFactory.newRadio(container).alignLeft().text(CoreMessages.GradleDistribution_Label_SpecificGradleVersion).control();
         this.gradleVersionCombo = this.builderFactory.newCombo(container).alignLeft().disabled().control();
         this.gradleVersionCombo.setSize(150, this.gradleVersionCombo.getSize().y);
@@ -182,21 +197,33 @@ public final class GradleDistributionTab extends AbstractLaunchConfigurationTab 
         this.gradleVersionCombo.addModifyListener(this.textChangedListener);
 
         // update the enabled/disabled state when the currently selected radio is changing
-        this.useAutomaticOption.addSelectionListener(this.optionSelectionChangedListener);
         this.useGradleWrapperOption.addSelectionListener(this.optionSelectionChangedListener);
         this.useLocalInstallationDirOption.addSelectionListener(this.optionSelectionChangedListener);
         this.useRemoteDistributionUriOption.addSelectionListener(this.optionSelectionChangedListener);
         this.useGradleVersionOption.addSelectionListener(this.optionSelectionChangedListener);
 
         // update the enabled/disabled state when the currently selected radio is changing
-        new Enabler(this.useAutomaticOption).enables();
         new Enabler(this.useGradleWrapperOption).enables();
-        new Enabler(this.useLocalInstallationDirOption).enables(this.localInstallationDirText, localInstallationDirBrowseButton);
+        new Enabler(this.useLocalInstallationDirOption).enables(this.localInstallationDirText, this.localInstallationDirBrowseButton);
         new Enabler(this.useRemoteDistributionUriOption).enables(this.remoteDistributionUriText);
         new Enabler(this.useGradleVersionOption).enables(this.gradleVersionCombo);
 
         // save all created radio buttons in a list
-        this.allRadioButtons = ImmutableList.of(this.useAutomaticOption, this.useGradleWrapperOption, this.useLocalInstallationDirOption, this.useRemoteDistributionUriOption, this.useGradleVersionOption);
+        this.allRadioButtons = ImmutableList.of(this.useGradleWrapperOption, this.useLocalInstallationDirOption, this.useRemoteDistributionUriOption, this.useGradleVersionOption);
+    }
+
+    private void createOverrideProjectPreferencesControl(Composite container) {
+        GridLayout layout = new GridLayout(3, false);
+        container.setLayout(layout);
+
+        this.offlineModeCheckbox = new Button(container, SWT.CHECK);
+        this.offlineModeCheckbox.setText("Offline Mode");
+        this.buildScansEnabledCheckbox = new Button(container, SWT.CHECK);
+        this.buildScansEnabledCheckbox.setText("Build Scans");
+
+        this.overrideBuildSettingsCheckbox.addSelectionListener(new DialogUpdater());
+        this.offlineModeCheckbox.addSelectionListener(new DialogUpdater());
+        this.buildScansEnabledCheckbox.addSelectionListener(new DialogUpdater());
     }
 
     private String[] getGradleVersions() {
@@ -215,20 +242,16 @@ public final class GradleDistributionTab extends AbstractLaunchConfigurationTab 
         this.disableUpdateDialog = true;
         try {
             GradleRunConfigurationAttributes configurationAttributes = GradleRunConfigurationAttributes.from(configuration);
-            if (configurationAttributes.isUseGradleDistributionFromImport()) {
-                setSelectionToAutomatic();
-            } else {
-                setSelection(GradleDistributionWrapper.from(configurationAttributes.getGradleDistribution()));
-            }
+            setSelection(GradleDistributionWrapper.from(configurationAttributes.getGradleDistribution()));
 
+            this.overrideBuildSettingsCheckbox.setSelection(configurationAttributes.isOverrideBuildSettings());
+            this.offlineModeCheckbox.setSelection(configurationAttributes.isOffline());
+            this.buildScansEnabledCheckbox.setSelection(configurationAttributes.isBuildScansEnabled());
+
+            this.overrideProjectSettingsEnabler.updateEnablement();
         } finally {
             this.disableUpdateDialog = false;
         }
-    }
-
-    private void setSelectionToAutomatic() {
-        resetValues();
-        updateSelectedState(this.useAutomaticOption, this.allRadioButtons);
     }
 
     private void resetValues() {
@@ -294,24 +317,18 @@ public final class GradleDistributionTab extends AbstractLaunchConfigurationTab 
 
     @Override
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-        if (this.useAutomaticOption.getSelection()) {
-            GradleRunConfigurationAttributes.applyUseGradleDistributionFromImport(true, configuration);
-        } else {
-            GradleRunConfigurationAttributes.applyUseGradleDistributionFromImport(false, configuration);
-            GradleRunConfigurationAttributes.applyGradleDistribution(getSelection().toGradleDistribution(), configuration);
-        }
+        GradleRunConfigurationAttributes.applyGradleDistribution(getSelection().toGradleDistribution(), configuration);
+        GradleRunConfigurationAttributes.applyOverrideBuildSettings(this.overrideBuildSettingsCheckbox.getSelection(), configuration);
+        GradleRunConfigurationAttributes.applyOfflineMode(this.offlineModeCheckbox.getSelection(), configuration);
+        GradleRunConfigurationAttributes.applyBuildScansEnabled(this.buildScansEnabledCheckbox.getSelection(), configuration);
     }
 
     @Override
     public boolean isValid(ILaunchConfiguration launchConfig) {
-        if (!this.useAutomaticOption.getSelection()) {
-            GradleDistributionWrapper gradleDistribution = getSelection();
-            Optional<String> error = this.gradleDistributionValidator.validate(gradleDistribution);
-            setErrorMessage(error.orNull());
-            return !error.isPresent();
-        } else {
-            return true;
-        }
+        GradleDistributionWrapper gradleDistribution = getSelection();
+        Optional<String> error = this.gradleDistributionValidator.validate(gradleDistribution);
+        setErrorMessage(error.orNull());
+        return !error.isPresent();
     }
 
     private GradleDistributionWrapper getSelection() {
@@ -345,6 +362,21 @@ public final class GradleDistributionTab extends AbstractLaunchConfigurationTab 
     public void dispose() {
         this.defaultFont.dispose();
         super.dispose();
+    }
+
+    /**
+     * Listener implementation to update the dialog buttons and messages.
+     */
+    private class DialogUpdater extends SelectionAdapter implements ModifyListener {
+        @Override
+        public void widgetSelected(SelectionEvent e) {
+            updateLaunchConfigurationDialog();
+        }
+
+        @Override
+        public void modifyText(ModifyEvent e) {
+            updateLaunchConfigurationDialog();
+        }
     }
 
 }

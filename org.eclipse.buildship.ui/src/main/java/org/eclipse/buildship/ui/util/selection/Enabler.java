@@ -50,10 +50,10 @@ public final class Enabler {
      */
     public void enables(Control... controls) {
         this.controls.addAll(ImmutableList.copyOf(controls));
-        updateEnabledStateOfTargetControls();
+        updateEnablement();
     }
 
-    private void updateEnabledStateOfTargetControls() {
+    public void updateEnablement() {
         boolean enabled = this.button.getSelection();
         for (Control control : this.controls) {
             control.setEnabled(enabled);
@@ -75,12 +75,12 @@ public final class Enabler {
 
         @Override
         public void widgetSelected(SelectionEvent e) {
-            updateEnabledStateOfTargetControls();
+            updateEnablement();
         }
 
         @Override
         public void widgetDefaultSelected(SelectionEvent e) {
-            updateEnabledStateOfTargetControls();
+            updateEnablement();
         }
 
     }

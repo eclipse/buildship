@@ -112,25 +112,13 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
         GridData tasksTextLayoutData = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
         tasksTextLayoutData.heightHint = 50;
         this.tasksText.setLayoutData(tasksTextLayoutData);
-        this.tasksText.addModifyListener(new ModifyListener() {
-
-            @Override
-            public void modifyText(ModifyEvent e) {
-                updateLaunchConfigurationDialog();
-            }
-        });
+        this.tasksText.addModifyListener(new DialogUpdater());
     }
 
     private void createWorkingDirectorySelectionControl(Composite container) {
         this.workingDirectoryText = new Text(container, SWT.SINGLE | SWT.BORDER);
         this.workingDirectoryText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        this.workingDirectoryText.addModifyListener(new ModifyListener() {
-
-            @Override
-            public void modifyText(ModifyEvent event) {
-                updateLaunchConfigurationDialog();
-            }
-        });
+        this.workingDirectoryText.addModifyListener(new DialogUpdater());
 
         Composite buttonContainer = new Composite(container, SWT.NONE);
         GridLayout buttonContainerLayout = new GridLayout(3, false);
@@ -205,21 +193,11 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
     private void createBuildExecutionControl(Composite container) {
         this.showExecutionViewCheckbox = new Button(container, SWT.CHECK);
         this.showExecutionViewCheckbox.setText(CoreMessages.BuildExecution_Label_ShowExecutionView);
-        this.showExecutionViewCheckbox.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                updateLaunchConfigurationDialog();
-            }
-        });
+        this.showExecutionViewCheckbox.addSelectionListener( new DialogUpdater());
 
         this.showConsoleViewCheckbox = new Button(container, SWT.CHECK);
         this.showConsoleViewCheckbox.setText(CoreMessages.BuildExecution_Label_ShowConsoleView);
-        this.showConsoleViewCheckbox.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                updateLaunchConfigurationDialog();
-            }
-        });
+        this.showConsoleViewCheckbox.addSelectionListener(new DialogUpdater());
     }
 
     @Override
@@ -263,4 +241,18 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
         // leave the controls empty
     }
 
+    /**
+     * Listener implementation to update the dialog buttons and messages.
+     */
+    private class DialogUpdater extends SelectionAdapter implements ModifyListener {
+        @Override
+        public void widgetSelected(SelectionEvent e) {
+            updateLaunchConfigurationDialog();
+        }
+
+        @Override
+        public void modifyText(ModifyEvent e) {
+            updateLaunchConfigurationDialog();
+        }
+    }
 }

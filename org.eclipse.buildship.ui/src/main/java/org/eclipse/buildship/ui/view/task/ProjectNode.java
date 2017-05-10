@@ -78,8 +78,9 @@ public final class ProjectNode extends BaseProjectNode {
         }
 
         ProjectNode that = (ProjectNode) other;
-        return Objects.equal(getWorkspaceProject(), getWorkspaceProject()) && Objects.equal(this.parentProjectNode, that.parentProjectNode)
-                && Objects.equal(this.eclipseProject, that.eclipseProject) && Objects.equal(this.gradleProject, that.gradleProject)
+        return Objects.equal(this.parentProjectNode, that.parentProjectNode)
+                && Objects.equal(this.eclipseProject, that.eclipseProject)
+                && Objects.equal(this.gradleProject, that.gradleProject)
                 && Objects.equal(this.includedProject, that.includedProject);
     }
 
@@ -87,5 +88,4 @@ public final class ProjectNode extends BaseProjectNode {
     public int hashCode() {
         return Objects.hashCode(getWorkspaceProject(), this.parentProjectNode, this.eclipseProject, this.gradleProject, this.includedProject);
     }
-
 }

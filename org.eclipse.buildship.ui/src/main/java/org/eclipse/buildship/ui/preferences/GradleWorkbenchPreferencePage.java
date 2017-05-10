@@ -33,6 +33,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.ConfigurationManager;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.binding.Validators;
@@ -42,6 +43,7 @@ import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.buildship.ui.launch.LaunchMessages;
 import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.font.FontUtils;
+import org.eclipse.buildship.ui.util.widget.HoverText;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
 
 /**
@@ -56,6 +58,7 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
 
     private Text gradleUserHomeText;
     private Button offlineModeCheckbox;
+    private Button buildScansCheckbox;
 
     public GradleWorkbenchPreferencePage() {
         this.defaultFont = FontUtils.getDefaultDialogFont();
@@ -72,15 +75,22 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
         Group gradleUserHomeGroup = createGroup(page, CoreMessages.Preference_Label_GradleUserHome + ":");
         createGradleUserHomeSelectionControl(gradleUserHomeGroup);
         createOfflineModeCheckbox(page);
+        createBuildScansCheckbox(page);
 
         initFields();
 
         return page;
     }
 
-    private void createOfflineModeCheckbox(Composite page) {
-        this.offlineModeCheckbox = new Button(page, SWT.CHECK);
+    private void createOfflineModeCheckbox(Composite parent) {
+        this.offlineModeCheckbox = new Button(parent, SWT.CHECK);
         this.offlineModeCheckbox.setText(CoreMessages.Preference_Label_OfflineMode);
+    }
+
+    private void createBuildScansCheckbox(Composite parent) {
+        this.buildScansCheckbox = new Button(parent, SWT.CHECK);
+        this.buildScansCheckbox.setText(CoreMessages.Preference_Label_BuildScans);
+        HoverText.createAndAttach(this.buildScansCheckbox, CoreMessages.Preference_Label_BuildScansHover);
     }
 
     private Group createGroup(Composite parent, String groupName) {
@@ -129,17 +139,21 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
     }
 
     private void initFields() {
-        WorkspaceConfiguration config = CorePlugin.workspaceConfigurationManager().loadWorkspaceConfiguration();
+        WorkspaceConfiguration config = CorePlugin.configurationManager().loadWorkspaceConfiguration();
         File gradleUserHome = config.getGradleUserHome();
         this.gradleUserHomeText.setText(gradleUserHome == null ? "" : gradleUserHome.getPath());
         this.offlineModeCheckbox.setSelection(config.isOffline());
+        this.buildScansCheckbox.setSelection(config.isBuildScansEnabled());
     }
 
     @Override
     public boolean performOk() {
         String gradleUserHome = this.gradleUserHomeText.getText();
-        WorkspaceConfiguration config = new WorkspaceConfiguration(gradleUserHome.isEmpty() ? null : new File(gradleUserHome), this.offlineModeCheckbox.getSelection());
-        CorePlugin.workspaceConfigurationManager().saveWorkspaceConfiguration(config);
+        ConfigurationManager manager = CorePlugin.configurationManager();
+        WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(gradleUserHome.isEmpty() ? null : new File(gradleUserHome),
+                                                                            this.offlineModeCheckbox.getSelection(),
+                                                                            this.buildScansCheckbox.getSelection());
+        manager.saveWorkspaceConfiguration(workspaceConfig);
         return super.performOk();
     }
 

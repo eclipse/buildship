@@ -29,16 +29,14 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration.ConversionStrategy;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 
 /**
@@ -166,17 +164,15 @@ public final class GradleKotlinScriptTemplateProvider implements ScriptTemplateP
     @Override
     public Map<String, Object> getEnvironment(IFile file) {
         HashMap<String, Object> environment = new HashMap<String, Object>();
-        FixedRequestAttributes attributes = CorePlugin.projectConfigurationManager()
-                .readProjectConfiguration(file.getProject())
-                .toRequestAttributes(ConversionStrategy.MERGE_WORKSPACE_SETTINGS);
+        BuildConfiguration buildConfig = CorePlugin.configurationManager().loadProjectConfiguration(file.getProject()).getBuildConfiguration();
 
-        environment.put(GSK_PROJECT_ROOT, attributes.getProjectDir());
-        environment.put(GSK_GRADLE_USER_HOME, attributes.getGradleUserHome());
-        environment.put(GSK_JAVA_HOME, attributes.getJavaHome());
-        environment.put(GSK_OPTIONS, attributes.getArguments());
-        environment.put(GSK_JVM_OPTIONS, attributes.getJvmArguments());
+        environment.put(GSK_PROJECT_ROOT, buildConfig.getRootProjectDirectory());
+        environment.put(GSK_GRADLE_USER_HOME, buildConfig.getWorkspaceConfiguration().getGradleUserHome());
+        environment.put(GSK_JAVA_HOME, null);
+        environment.put(GSK_OPTIONS, Collections.<String>emptyList());
+        environment.put(GSK_JVM_OPTIONS, Collections.<String>emptyList());
 
-        GradleDistributionWrapper gradleDistribution = GradleDistributionWrapper.from(attributes.getGradleDistribution());
+        GradleDistributionWrapper gradleDistribution = GradleDistributionWrapper.from(buildConfig.getGradleDistribution());
         switch (gradleDistribution.getType()) {
         case LOCAL_INSTALLATION:
             environment.put(GSK_INSTALLATION_LOCAL, new File(gradleDistribution.getConfiguration()));

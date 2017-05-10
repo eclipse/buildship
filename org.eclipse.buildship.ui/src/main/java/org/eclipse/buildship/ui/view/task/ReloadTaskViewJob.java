@@ -68,7 +68,7 @@ final class ReloadTaskViewJob extends ToolingApiJob {
                  }
                  projects.addAll(eclipseProjects);
              } catch (RuntimeException e) {
-                 CorePlugin.logger().warn("Tasks can't be loaded for project located at " + gradleBuild.getRequestAttributes().getProjectDir().getAbsolutePath(), e);
+                 CorePlugin.logger().warn("Tasks can't be loaded for project located at " + gradleBuild.getBuildConfig().getRootProjectDirectory().getAbsolutePath(), e);
              }
          }
 

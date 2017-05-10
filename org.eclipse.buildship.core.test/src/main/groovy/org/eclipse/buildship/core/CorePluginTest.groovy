@@ -12,7 +12,7 @@ class CorePluginTest extends Specification {
         CorePlugin.toolingClient() != null
         CorePlugin.modelRepositoryProvider() != null
         CorePlugin.workspaceOperations() != null
-        CorePlugin.projectConfigurationManager() != null
+        CorePlugin.configurationManager() != null
         CorePlugin.processStreamsProvider() != null
         CorePlugin.gradleLaunchConfigurationManager() != null
         CorePlugin.userNotification() != null

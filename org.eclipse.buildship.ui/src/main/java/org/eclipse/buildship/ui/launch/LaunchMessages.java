@@ -21,7 +21,7 @@ public final class LaunchMessages extends NLS {
     private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.launch.LaunchMessages"; //$NON-NLS-1$
 
     public static String Tab_Name_GradleTasks;
-    public static String Tab_Name_GradleDistribution;
+    public static String Tab_Name_ProjectSettings;
     public static String Tab_Name_JavaHome;
     public static String Tab_Name_Arguments;
 

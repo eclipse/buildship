@@ -26,7 +26,7 @@ public final class GradleRunConfigurationTabGroup extends AbstractLaunchConfigur
         // @formatter:off
         ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
                 new ProjectTab(),
-                new GradleDistributionTab(),
+                new ProjectSettingsTab(),
                 new JavaHomeTab(),
                 new ArgumentsTab(),
                 new CommonTab()

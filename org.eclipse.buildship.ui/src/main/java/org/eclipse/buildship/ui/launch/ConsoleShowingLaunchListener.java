@@ -22,7 +22,8 @@ import org.eclipse.debug.core.ILaunchListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate;
 import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.UiPluginConstants;
@@ -30,7 +31,7 @@ import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 
 /**
  * {@link ILaunchListener} implementation showing/activating the Console View when a new Gradle build has launched and the {@link
- * GradleRunConfigurationAttributes#isShowConsoleView()} setting is enabled.
+ * RunConfiguration#isShowConsoleView()} setting is enabled.
  * <p/>
  * The listener implementation is necessary since opening a view is a UI-related task and the launching is performed in the core component.
  */
@@ -38,7 +39,7 @@ public final class ConsoleShowingLaunchListener implements ILaunchListener {
 
     @Override
     public void launchAdded(ILaunch launch) {
-        final Optional<GradleRunConfigurationAttributes> attributes = convertToGradleRunConfigurationAttributes(launch);
+        final Optional<RunConfiguration> attributes = convertToGradleRunConfigurationAttributes(launch);
         if (attributes.isPresent() && attributes.get().isShowConsoleView()) {
             PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
@@ -52,7 +53,7 @@ public final class ConsoleShowingLaunchListener implements ILaunchListener {
         }
     }
 
-    private Optional<GradleRunConfigurationAttributes> convertToGradleRunConfigurationAttributes(ILaunch launch) {
+    private Optional<RunConfiguration> convertToGradleRunConfigurationAttributes(ILaunch launch) {
         ILaunchConfiguration launchConfiguration = launch.getLaunchConfiguration();
         if (launchConfiguration == null) {
             return Optional.absent();
@@ -65,7 +66,7 @@ public final class ConsoleShowingLaunchListener implements ILaunchListener {
             return Optional.absent();
         }
         if (GradleRunConfigurationDelegate.ID.equals(type.getIdentifier())) {
-            return Optional.of(GradleRunConfigurationAttributes.from(launchConfiguration));
+            return Optional.of(CorePlugin.configurationManager().loadRunConfiguration(launchConfiguration));
         }
         return Optional.absent();
     }

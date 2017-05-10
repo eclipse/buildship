@@ -11,23 +11,30 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
+import java.util.List;
+
+import org.gradle.tooling.events.test.JvmTestKind;
+import org.gradle.tooling.events.test.JvmTestOperationDescriptor;
+import org.gradle.tooling.events.test.TestFailureResult;
+import org.gradle.tooling.events.test.TestFinishEvent;
+import org.gradle.tooling.events.test.TestOperationDescriptor;
+
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.jface.action.Action;
+
+import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.launch.RunGradleTestLaunchRequestJob;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.buildship.ui.util.gradle.GradleUtils;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.jface.action.Action;
-import org.gradle.tooling.events.test.*;
-
-import java.util.List;
 
 /**
  * Reruns the build represented by the target {@link org.eclipse.buildship.ui.view.execution.ExecutionPage}.
@@ -70,8 +77,8 @@ public final class RerunFailedTestsAction extends Action {
     public void run() {
         List<TestOperationDescriptor> failedTests = collectFailedTests();
         List<TestOperationDescriptor> filteredFailedTests = GradleUtils.filterChildren(failedTests);
-        GradleRunConfigurationAttributes configurationAttributes = this.page.getProcessDescription().getConfigurationAttributes();
-        RunGradleTestLaunchRequestJob job = new RunGradleTestLaunchRequestJob(filteredFailedTests, configurationAttributes);
+        RunConfiguration runConfig = this.page.getProcessDescription().getRunConfig();
+        RunGradleTestLaunchRequestJob job = new RunGradleTestLaunchRequestJob(filteredFailedTests, runConfig);
         job.schedule();
     }
 
