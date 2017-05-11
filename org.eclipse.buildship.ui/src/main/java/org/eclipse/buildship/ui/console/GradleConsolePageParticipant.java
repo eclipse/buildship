@@ -11,11 +11,16 @@
 
 package org.eclipse.buildship.ui.console;
 
+import com.google.common.base.Optional;
+
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsolePageParticipant;
 import org.eclipse.ui.part.IPageBookViewPage;
+
+import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.ui.view.execution.OpenBuildScanAction;
 
 /**
  * Contributes actions to {@link GradleConsole} instances at the time a new console is initialized.
@@ -27,6 +32,7 @@ public final class GradleConsolePageParticipant implements IConsolePageParticipa
     private RerunBuildExecutionAction rerunBuildExecutionAction;
     private RemoveTerminatedGradleConsoleAction removeConsoleAction;
     private RemoveAllTerminatedGradleConsolesAction removeAllConsolesAction;
+    private OpenBuildScanAction openBuildScanAction;
 
     /**
      * {@inheritDoc}
@@ -53,6 +59,11 @@ public final class GradleConsolePageParticipant implements IConsolePageParticipa
         toolBarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, this.rerunBuildExecutionAction);
         toolBarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, this.removeConsoleAction);
         toolBarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, this.removeAllConsolesAction);
+        Optional<ProcessDescription> description = gradleConsole.getProcessDescription();
+        if (description.isPresent()) {
+            this.openBuildScanAction = new OpenBuildScanAction(description.get());
+            toolBarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, this.openBuildScanAction);
+        }
     }
 
     @SuppressWarnings("rawtypes")
@@ -73,6 +84,10 @@ public final class GradleConsolePageParticipant implements IConsolePageParticipa
 
     @Override
     public void dispose() {
+        if (this.openBuildScanAction != null) {
+            this.openBuildScanAction.dispose();
+            this.openBuildScanAction = null;
+        }
         if (this.cancelBuildExecutionAction != null) {
             this.cancelBuildExecutionAction.dispose();
             this.cancelBuildExecutionAction = null;

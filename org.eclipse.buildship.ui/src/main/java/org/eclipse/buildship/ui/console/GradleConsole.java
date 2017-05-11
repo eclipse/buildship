@@ -67,6 +67,12 @@ public final class GradleConsole extends IOConsole implements ProcessStreams {
         this.errorStream = newOutputStream();
         this.inputStream = super.getInputStream();
 
+        // decorate console output such that URLs are presented as clickable links
+        addPatternMatchListener(new UrlPatternMatchListener());
+
+        // collect build scan URL
+        addPatternMatchListener(new BuildScanPatternMatchListener());
+
         // set proper colors on output/error streams (needs to happen in the UI thread)
         PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
@@ -93,8 +99,6 @@ public final class GradleConsole extends IOConsole implements ProcessStreams {
                 GradleConsole.this.configurationStream.setColor(configurationColor);
             }
         });
-
-        addPatternMatchListener(new UrlPatternMatchListener());
     }
 
     public Optional<ProcessDescription> getProcessDescription() {
