@@ -18,6 +18,9 @@ import org.eclipse.buildship.core.console.ProcessDescription;
  */
 public interface BuildScanRegistry {
 
+    /**
+     * Listener for build scan additions.
+     */
     public interface BuildScanRegistryListener {
 
         /**
@@ -38,7 +41,7 @@ public interface BuildScanRegistry {
     void add(String buildScanUrl, ProcessDescription process);
 
     /**
-     * Looks up a build scan
+     * Looks up a build scan.
      *
      * @param process the process the scan belongs to
      * @return the build can or {@link Optional#absent()} if none found

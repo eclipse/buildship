@@ -65,6 +65,9 @@ public final class UrlPatternMatchListener implements IPatternMatchListener {
         return null;
     }
 
+    /**
+     * Simple {@link IHyperlink} implementation opening the target URL in the external browser.
+     */
     static final class Hyperlink implements IHyperlink {
 
         private final String url;

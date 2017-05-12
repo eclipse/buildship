@@ -19,6 +19,11 @@ import com.google.common.base.Optional;
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.scan.BuildScanRegistry;
 
+/**
+ * Default implementation for {@link BuildScanRegistry}.
+ *
+ * @author Donat Csikos
+ */
 public final class DefaultBuildScanRegistry implements BuildScanRegistry {
 
     private final Map<ProcessDescription, String> buildScans = Collections.synchronizedMap(new HashMap<ProcessDescription, String>());
