@@ -18,6 +18,7 @@ import org.eclipse.ui.console.TextConsole;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.core.scan.BuildScanCreatedEvent;
 
 /**
  * Finds build scan URL console output.
@@ -47,7 +48,7 @@ public final class BuildScanPatternMatchListener implements IPatternMatchListene
             String buildScanUrl = buildScansInfo.substring(buildScansInfo.indexOf("http"));
             Optional<ProcessDescription> description = this.console.getProcessDescription();
             if (description.isPresent()) {
-                CorePlugin.buildScanRegistry().add(buildScanUrl, description.get());
+                CorePlugin.listenerRegistry().dispatch(new BuildScanCreatedEvent(buildScanUrl, description.get()));
             }
         } catch (BadLocationException e) {
         }

@@ -13,7 +13,6 @@ package org.eclipse.buildship.ui.view.execution;
 
 import java.net.URL;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 import org.eclipse.jface.action.Action;
@@ -21,12 +20,14 @@ import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.scan.BuildScanRegistry.BuildScanRegistryListener;
+import org.eclipse.buildship.core.event.Event;
+import org.eclipse.buildship.core.event.EventListener;
+import org.eclipse.buildship.core.scan.BuildScanCreatedEvent;
 
 /**
  * Opens build scans from the console output.
  */
-public final class OpenBuildScanAction extends Action implements BuildScanRegistryListener {
+public final class OpenBuildScanAction extends Action implements EventListener {
 
     private final ProcessDescription processDescription;
     private String buildScanUrl;
@@ -35,26 +36,19 @@ public final class OpenBuildScanAction extends Action implements BuildScanRegist
         this.processDescription = Preconditions.checkNotNull(processDescription);
         setText("Open Scan");
         // TODO (donat) set icon, disabled icon and tooltip
-
-        Optional<String> existingScan = CorePlugin.buildScanRegistry().get(processDescription);
-        if (existingScan.isPresent()) {
-            this.buildScanUrl = existingScan.get();
-        } else {
-            CorePlugin.buildScanRegistry().addListener(this);
-        }
-        update();
-    }
-
-    private void update() {
-        setEnabled(this.buildScanUrl != null);
+        setEnabled(false);
+        CorePlugin.listenerRegistry().addEventListener(this);
     }
 
     @Override
-    public void onBuildScanAdded(String buildScanUrl, ProcessDescription process) {
-        if (this.processDescription.equals(process)) {
-            this.buildScanUrl = buildScanUrl;
+    public void onEvent(Event event) {
+        if (event instanceof BuildScanCreatedEvent) {
+            BuildScanCreatedEvent buildScanEvent = (BuildScanCreatedEvent) event;
+            if (buildScanEvent.getProcessDescription().equals(this.processDescription)) {
+                this.buildScanUrl = buildScanEvent.getBuildScanUrl();
+                setEnabled(true);
+            }
         }
-        update();
     }
 
     @Override
@@ -67,6 +61,6 @@ public final class OpenBuildScanAction extends Action implements BuildScanRegist
     }
 
     public void dispose() {
-        CorePlugin.buildScanRegistry().removeListener(this);
+        CorePlugin.listenerRegistry().removeEventListener(this);
     }
 }

@@ -42,8 +42,6 @@ import org.eclipse.buildship.core.notification.UserNotification;
 import org.eclipse.buildship.core.notification.internal.ConsoleUserNotification;
 import org.eclipse.buildship.core.preferences.ModelPersistence;
 import org.eclipse.buildship.core.preferences.internal.DefaultModelPersistence;
-import org.eclipse.buildship.core.scan.BuildScanRegistry;
-import org.eclipse.buildship.core.scan.internal.DefaultBuildScanRegistry;
 import org.eclipse.buildship.core.util.extension.InvocationCustomizerCollector;
 import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.util.logging.EclipseLogger;
@@ -105,7 +103,6 @@ public final class CorePlugin extends Plugin {
     private ProjectChangeListener projectChangeListener;
     private InvocationCustomizer invocationCustomizer;
     private ConfigurationManager configurationManager;
-    private BuildScanRegistry buildScanRegistry;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
@@ -162,7 +159,6 @@ public final class CorePlugin extends Plugin {
         this.projectChangeListener = ProjectChangeListener.createAndRegister();
         this.invocationCustomizer = new InvocationCustomizerCollector();
         this.configurationManager = new DefaultConfigurationManager();
-        this.buildScanRegistry = new DefaultBuildScanRegistry();
     }
 
     private ServiceTracker createServiceTracker(BundleContext context, Class<?> clazz) {
@@ -296,9 +292,5 @@ public final class CorePlugin extends Plugin {
 
     public static ConfigurationManager configurationManager() {
         return getInstance().configurationManager;
-    }
-
-    public static BuildScanRegistry buildScanRegistry() {
-        return getInstance().buildScanRegistry;
     }
 }
