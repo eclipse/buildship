@@ -1,10 +1,8 @@
 apply plugin: eclipsebuild.BundlePlugin
 
-configurations { lib }
-
-dependencies { lib 'org.gradle:gradle-script-kotlin-tooling-models:+' }
+dependencies { compile 'org.gradle:gradle-script-kotlin-tooling-models:+' }
 
 task updateKotlinModelJar(type: Copy) {
     into '.'
-    from configurations.lib
+    from configurations.compile.filter { it.name.startsWith 'gradle-script-kotlin-tooling-models' }
 }
