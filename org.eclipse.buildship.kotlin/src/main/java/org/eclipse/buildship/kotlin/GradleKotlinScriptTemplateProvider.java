@@ -9,25 +9,19 @@
 package org.eclipse.buildship.kotlin;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.gradle.script.lang.kotlin.tooling.models.KotlinBuildScriptTemplateModel;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
-import org.gradle.tooling.model.build.BuildEnvironment;
-import org.gradle.tooling.model.build.GradleEnvironment;
 import org.jetbrains.kotlin.core.model.ScriptTemplateProviderEx;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
-import com.google.common.io.Files;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -65,30 +59,28 @@ public final class GradleKotlinScriptTemplateProvider implements ScriptTemplateP
 
     @Override
     public Iterable<String> getTemplateClasspath(Map<String, ? extends Object> environment, IProgressMonitor monitor) {
-        // TODO (donat) the Gradle home should be available in the BuildEnvirontment TAPI model
-        File distroRoot = (File) environment.get(GSK_INSTALLATION_LOCAL);
-        if (distroRoot == null) {
-            BuildEnvironment buildEnvironment = queryBuildEnvironment(environment);
-            GradleEnvironment gradleEnvironment = buildEnvironment.getGradle();
-            File gradleUserHome = gradleEnvironment.getGradleUserHome();
-            String gradleVersion = gradleEnvironment.getGradleVersion();
-            distroRoot = findDistributionRoot(gradleUserHome, gradleVersion);
-        }
-        if (distroRoot == null) {
+        KotlinBuildScriptTemplateModel model = queryModel(KotlinBuildScriptTemplateModel.class, environment);
+        if (model == null) {
             return Collections.emptyList();
+        } else {
+            List<File> classpathFiles = model.getClassPath();
+            List<String> classpath = Lists.newArrayListWithCapacity(classpathFiles.size());
+            for (File classpathFile : classpathFiles) {
+                classpath.add(classpathFile.getAbsolutePath());
+            }
+            return classpath;
         }
-        return jarPathsFromDistributionLibDirectory(distroRoot);
     }
 
     @SuppressWarnings("unchecked")
-    private static BuildEnvironment queryBuildEnvironment(Map<String, ? extends Object> environment) {
+    private static <T> T queryModel(Class<T> model, Map<String, ? extends Object> environment) {
         ProjectConnection connection = null;
         try {
             GradleConnector connector = GradleConnector.newConnector().forProjectDirectory((File) environment.get(GSK_PROJECT_ROOT));
             connector.useGradleUserHomeDir((File) environment.get(GSK_GRADLE_USER_HOME));
             applyGradleDistribution(environment, connector);
             connection = connector.connect();
-            return connection.model(BuildEnvironment.class)
+            return connection.model(model)
                     .setJvmArguments((List<String>) environment.get(GSK_JVM_OPTIONS))
                     .withArguments((List<String>) environment.get(GSK_OPTIONS))
                     .setJavaHome((File) environment.get(GSK_JAVA_HOME))
@@ -116,49 +108,6 @@ public final class GradleKotlinScriptTemplateProvider implements ScriptTemplateP
         } else {
             connector.useBuildDistribution();
         }
-    }
-
-    private static File findDistributionRoot(File gradleUserHome, final String version) {
-        File distsDir = new File(gradleUserHome, "wrapper/dists");
-        List<File> candidates = Arrays.asList(distsDir.listFiles(new FileFilter() {
-
-            @Override
-            public boolean accept(File path) {
-                String name = path.getName();
-                return name.contains("gradle") && name.contains(version);
-            }
-        }));
-
-        if (candidates.isEmpty()) {
-            return null;
-        } else {
-            return candidates.get(candidates.size() - 1);
-        }
-    }
-
-    private static List<String> jarPathsFromDistributionLibDirectory(File distroRoot) {
-        Optional<File> libFolder = findLibFolder(distroRoot);
-        List<String> result = Lists.newArrayList();
-
-        if (libFolder.isPresent()) {
-            for (File jar : libFolder.get().listFiles()) {
-                String name = jar.getName();
-                if (name.endsWith(".jar")) {
-                    result.add(jar.getAbsolutePath());
-                }
-            }
-        }
-        return result;
-    }
-
-    private static Optional<File> findLibFolder(File distroRoot) {
-        return Files.fileTreeTraverser().breadthFirstTraversal(distroRoot).firstMatch(new Predicate<File>() {
-
-            @Override
-            public boolean apply(File f1) {
-                return f1.isDirectory() && f1.getName().equals("lib");
-            }
-        });
     }
 
     @Override
