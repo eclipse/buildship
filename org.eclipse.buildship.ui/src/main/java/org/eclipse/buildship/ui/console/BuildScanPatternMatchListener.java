@@ -56,7 +56,7 @@ public final class BuildScanPatternMatchListener implements IPatternMatchListene
 
     @Override
     public String getPattern() {
-        return "Publishing build information...\\shttps?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+        return "Publishing build information...\\s+https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
     }
 
     @Override
