@@ -19,7 +19,6 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -28,6 +27,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.util.collections.AdapterFunction;
+import org.eclipse.buildship.core.workspace.GradleNatureAddedEvent;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
@@ -44,33 +44,44 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
         ISelection selection = HandlerUtil.getCurrentSelection(event);
         if (selection instanceof StructuredSelection) {
             List<?> elements = ((StructuredSelection) selection).toList();
-            Set<BuildConfiguration> buildConfigs = collectBuildConfigs(elements);
+            Set<IProject> projects = collectProjects(elements);
+            Set<BuildConfiguration> buildConfigs = createBuildConfigsFor(projects);
             synchronize(buildConfigs);
+            publishNatureAddedEvent(projects);
         }
         return null;
     }
 
-    private Set<BuildConfiguration> collectBuildConfigs(List<?> elements) {
-        Set<BuildConfiguration> buildConfigs = Sets.newLinkedHashSet();
+    private Set<IProject> collectProjects(List<?> elements) {
+        Set<IProject> projects = Sets.newLinkedHashSet();
         AdapterFunction<IProject> adapterFunction = AdapterFunction.forType(IProject.class);
         for (Object element : elements) {
             IProject project = adapterFunction.apply(element);
-            if (project != null && !GradleProjectNature.isPresentOn(project)) {
-                IPath location = project.getLocation();
-                if (location != null) {
-                    buildConfigs.add(CorePlugin.configurationManager().createBuildConfiguration(location.toFile(), GradleDistribution.fromBuild(), false, false, false));
-                }
+            if (project != null && !GradleProjectNature.isPresentOn(project) && project.getLocation() != null) {
+                projects.add(project);
             }
 
+        }
+        return projects;
+    }
+
+    private Set<BuildConfiguration> createBuildConfigsFor(Set<IProject> projects) {
+        Set<BuildConfiguration> buildConfigs = Sets.newLinkedHashSet();
+        for (IProject project : projects) {
+            buildConfigs.add(CorePlugin.configurationManager().createBuildConfiguration(project.getLocation().toFile(), GradleDistribution.fromBuild(), false, false, false));
         }
         return buildConfigs;
     }
 
     private void synchronize(Set<BuildConfiguration> buildConfigs) {
-        for (final BuildConfiguration buildConfig : buildConfigs) {
+        for (BuildConfiguration buildConfig : buildConfigs) {
             GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);
             gradleBuild.synchronize(NewProjectHandler.IMPORT_AND_MERGE);
         }
+    }
+
+    private void publishNatureAddedEvent(Set<IProject> projects) {
+        CorePlugin.listenerRegistry().dispatch(new GradleNatureAddedEvent(projects));
     }
 
 }

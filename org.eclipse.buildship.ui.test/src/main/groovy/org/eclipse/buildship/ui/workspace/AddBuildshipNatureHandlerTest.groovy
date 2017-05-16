@@ -18,6 +18,9 @@ import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration
+import org.eclipse.buildship.core.event.Event
+import org.eclipse.buildship.core.event.EventListener
+import org.eclipse.buildship.core.workspace.GradleNatureAddedEvent
 import org.eclipse.buildship.ui.test.fixtures.EclipseProjects
 import org.eclipse.buildship.ui.test.fixtures.WorkspaceSpecification
 
@@ -48,6 +51,28 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
         CorePlugin.configurationManager().saveWorkspaceConfiguration(originalWorkspaceConfig)
     }
 
+    def "Publishes 'nature added' event"() {
+        setup:
+        IProject project = EclipseProjects.newProject('test-nature-added-event')
+        waitForResourceChangeEvents()
+
+        TestEventListener eventListener = new TestEventListener()
+        CorePlugin.listenerRegistry().addEventListener(eventListener)
+
+        when:
+        AddBuildshipNatureHandler handler = new AddBuildshipNatureHandler()
+        handler.execute(projectSelectionEvent(project))
+        waitForGradleJobsToFinish()
+
+        then:
+        eventListener.events.size() == 1
+        eventListener.events[0] instanceof GradleNatureAddedEvent
+        eventListener.events[0].projects == [project] as Set
+
+        cleanup:
+        CorePlugin.listenerRegistry().removeEventListener(eventListener)
+    }
+
     private ExecutionEvent projectSelectionEvent(IProject selection) {
         IEvaluationContext context = Mock(IEvaluationContext)
         context.getVariable(_) >> new StructuredSelection(selection)
@@ -60,5 +85,16 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
         CancellationToken token = GradleConnector.newCancellationTokenSource().token()
         IProgressMonitor monitor = new NullProgressMonitor()
         return CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig).getModelProvider().fetchModels(EclipseProject.class, FetchStrategy.FROM_CACHE_ONLY, token, monitor) != null
+    }
+
+    private class TestEventListener implements EventListener {
+
+        List events = []
+
+        @Override
+        public void onEvent(Event event) {
+            events += event
+        }
+
     }
 }
