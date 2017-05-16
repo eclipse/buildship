@@ -70,6 +70,8 @@ class OpenBuildScanActionTest extends ProjectSynchronizationSpecification {
         launchTaskAndWait(projectDir, 'publishFakeBuildScan')
 
         then:
+        view.pages.size() == 1
+        view.pages[0].openBuildScanAction.enabled
         view.pages[0].openBuildScanAction.buildScanUrl == 'https://scans.gradle.com/s/example'
     }
 
@@ -96,11 +98,12 @@ class OpenBuildScanActionTest extends ProjectSynchronizationSpecification {
         synchronizeAndWait(projectDir)
         launchTaskAndWait(projectDir, 'publishFakeBuildScanA')
         launchTaskAndWait(projectDir, 'publishFakeBuildScanB')
-        waitFor { view.pages.size() == 2 && view.pages[0].openBuildScanAction.enabled && view.pages[1].openBuildScanAction.enabled }
 
         then:
         view.pages.size() == 2
+        view.pages[0].openBuildScanAction.enabled
         view.pages[0].openBuildScanAction.buildScanUrl == 'https://scans.gradle.com/s/A'
+        view.pages[1].openBuildScanAction.enabled
         view.pages[1].openBuildScanAction.buildScanUrl == 'https://scans.gradle.com/s/B'
     }
 
@@ -125,9 +128,10 @@ class OpenBuildScanActionTest extends ProjectSynchronizationSpecification {
         when:
         importAndWait(projectDir, GradleDistribution.forVersion(gradleVersion))
         launchTaskAndWait(projectDir, 'foo', arguments)
-        waitFor { view.pages.size() == 1 && view.pages[0].openBuildScanAction.enabled }
 
         then:
+        view.pages.size() == 1
+        view.pages[0].openBuildScanAction.enabled
         view.pages[0].openBuildScanAction.buildScanUrl.startsWith 'https://'
 
         where:
