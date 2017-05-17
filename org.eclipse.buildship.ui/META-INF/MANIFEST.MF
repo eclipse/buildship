@@ -21,8 +21,8 @@ Require-Bundle: org.eclipse.buildship.core,
  org.eclipse.jface.databinding,
  org.eclipse.jface.text,
  com.ibm.icu,
- com.gradleware.tooling.model;bundle-version="[0.19.0,0.20.0)",
- com.gradleware.tooling.client;bundle-version="[0.19.0,0.20.0)",
- com.gradleware.tooling.utils;bundle-version="[0.19.0,0.20.0)"
+ com.gradleware.tooling.model;bundle-version="[0.20.0,0.21.0)",
+ com.gradleware.tooling.client;bundle-version="[0.20.0,0.21.0)",
+ com.gradleware.tooling.utils;bundle-version="[0.20.0,0.21.0)"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .

@@ -7,11 +7,11 @@
 <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-neon/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.gradle.toolingapi" version="3.5.0.v20170412105839"/>
-<unit id="com.gradleware.tooling.utils" version="0.19.0.v20170412105839"/>
-<unit id="com.gradleware.tooling.client" version="0.19.0.v20170412105839"/>
-<unit id="com.gradleware.tooling.model" version="0.19.0.v20170412105839"/>
-<repository location="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.0/p2-repository-0.19.0.zip!/"/>
+<unit id="org.gradle.toolingapi" version="3.5.0.v20170516152344"/>
+<unit id="com.gradleware.tooling.utils" version="0.20.0.v20170516152344"/>
+<unit id="com.gradleware.tooling.client" version="0.20.0.v20170516152344"/>
+<unit id="com.gradleware.tooling.model" version="0.20.0.v20170516152344"/>
+<repository location="jar:https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/0.20.0-20170516152344/p2-repository-0.20.0-20170516152344.zip!/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.jetbrains.kotlin.feature.feature.group" version="0.8.2.v20170324-0008"/>
