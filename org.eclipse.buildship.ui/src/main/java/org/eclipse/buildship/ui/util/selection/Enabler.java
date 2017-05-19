@@ -47,10 +47,12 @@ public final class Enabler {
      * based on the current selection state of the button.
      *
      * @param controls the controls to enable
+     * @return
      */
-    public void enables(Control... controls) {
+    public Enabler enables(Control... controls) {
         this.controls.addAll(ImmutableList.copyOf(controls));
         updateEnablement();
+        return this;
     }
 
     public void updateEnablement() {
