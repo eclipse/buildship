@@ -41,7 +41,6 @@ import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.layout.LayoutUtils;
 import org.eclipse.buildship.ui.util.widget.UiBuilder.UiBuilderFactory;
-import org.eclipse.buildship.ui.wizard.project.ProjectWizardMessages;
 
 /**
  * Composite to select a Gradle distribution.
@@ -244,6 +243,7 @@ public final class GradleDistributionGroup extends Group {
         if (this.font != null && !this.font.isDisposed()) {
             this.font.dispose();
         }
+        super.dispose();
     }
 
     private final class NotifyingListener extends SelectionAdapter implements ModifyListener {
