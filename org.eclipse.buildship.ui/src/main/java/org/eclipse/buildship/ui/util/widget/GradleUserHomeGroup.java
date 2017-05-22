@@ -27,7 +27,7 @@ import org.eclipse.buildship.ui.util.font.FontUtils;
  *
  * @author Donat Csikos
  */
-public class GradleUserHomeComposite extends Group {
+public class GradleUserHomeGroup extends Group {
 
     private final Font defaultFont;
     private final UiBuilder.UiBuilderFactory builderFactory;
@@ -35,9 +35,10 @@ public class GradleUserHomeComposite extends Group {
     private Text gradleUserHomeText;
     private Button gradleUserHomeBrowseButton;
 
-    public GradleUserHomeComposite(Composite parent, int style) {
+    public GradleUserHomeGroup(Composite parent, int style) {
+        // TODO (donat) remove style parameter
         super(parent, style);
-        setText(CoreMessages.Preference_Label_GradleUserHome + ":");
+        setText(CoreMessages.Preference_Label_GradleUserHome);
 
         this.defaultFont = FontUtils.getDefaultDialogFont();
         this.builderFactory = new UiBuilder.UiBuilderFactory(this.defaultFont);

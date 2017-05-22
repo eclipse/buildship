@@ -18,12 +18,9 @@ import com.gradleware.tooling.toolingutils.binding.Validator;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
@@ -38,8 +35,7 @@ import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 import org.eclipse.buildship.ui.launch.LaunchMessages;
 import org.eclipse.buildship.ui.util.font.FontUtils;
-import org.eclipse.buildship.ui.util.widget.GradleUserHomeComposite;
-import org.eclipse.buildship.ui.util.widget.HoverText;
+import org.eclipse.buildship.ui.util.widget.GradleProjectSettingsComposite;
 
 /**
  * The main workspace preference page for Buildship. Currently only used to configure the Gradle
@@ -47,12 +43,12 @@ import org.eclipse.buildship.ui.util.widget.HoverText;
  */
 public class GradleWorkbenchPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
+    public static final String PAGE_ID = "org.eclipse.buildship.ui.preferences";
+
     private final Font defaultFont;
     private final Validator<File> gradleUserHomeValidator;
 
-    private GradleUserHomeComposite gradleUserHomeComposite;
-    private Button offlineModeCheckbox;
-    private Button buildScansCheckbox;
+    private GradleProjectSettingsComposite gradleProjectSettingsComposite;
 
     public GradleWorkbenchPreferencePage() {
         this.defaultFont = FontUtils.getDefaultDialogFont();
@@ -61,30 +57,12 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
 
     @Override
     protected Control createContents(Composite parent) {
-        Composite page = new Composite(parent, SWT.NONE);
-        GridLayout layout = new GridLayout(1, false);
-        page.setLayout(layout);
+        this.gradleProjectSettingsComposite = GradleProjectSettingsComposite.withoutOverrideCheckbox(parent);
 
-        this.gradleUserHomeComposite = new GradleUserHomeComposite(page, SWT.NONE);
-
-        createOfflineModeCheckbox(page);
-        createBuildScansCheckbox(page);
-
-        initFields();
+        initValues();
         addListeners();
 
-        return page;
-    }
-
-    private void createOfflineModeCheckbox(Composite parent) {
-        this.offlineModeCheckbox = new Button(parent, SWT.CHECK);
-        this.offlineModeCheckbox.setText(CoreMessages.Preference_Label_OfflineMode);
-    }
-
-    private void createBuildScansCheckbox(Composite parent) {
-        this.buildScansCheckbox = new Button(parent, SWT.CHECK);
-        this.buildScansCheckbox.setText(CoreMessages.Preference_Label_BuildScans);
-        HoverText.createAndAttach(this.buildScansCheckbox, CoreMessages.Preference_Label_BuildScansHover);
+        return this.gradleProjectSettingsComposite;
     }
 
     private void validate() {
@@ -96,7 +74,7 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
     }
 
     private String getResolvedGradleUserHome() {
-        String gradleUserHomeExpression = Strings.emptyToNull(this.gradleUserHomeComposite.getGradleUserHomeText().getText());
+        String gradleUserHomeExpression = Strings.emptyToNull(this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().getText());
 
         String gradleUserHomeResolved = null;
         try {
@@ -108,16 +86,16 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
         return gradleUserHomeResolved;
     }
 
-    private void initFields() {
+    private void initValues() {
         WorkspaceConfiguration config = CorePlugin.configurationManager().loadWorkspaceConfiguration();
         File gradleUserHome = config.getGradleUserHome();
-        this.gradleUserHomeComposite.getGradleUserHomeText().setText(gradleUserHome == null ? "" : gradleUserHome.getPath());
-        this.offlineModeCheckbox.setSelection(config.isOffline());
-        this.buildScansCheckbox.setSelection(config.isBuildScansEnabled());
+        this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().setText(gradleUserHome == null ? "" : gradleUserHome.getPath());
+        this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(config.isOffline());
+        this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(config.isBuildScansEnabled());
     }
 
     private void addListeners() {
-        this.gradleUserHomeComposite.getGradleUserHomeText().addModifyListener(new ModifyListener() {
+        this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().addModifyListener(new ModifyListener() {
 
             @Override
             public void modifyText(ModifyEvent event) {
@@ -128,17 +106,17 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
 
     @Override
     public boolean performOk() {
-        String gradleUserHome = this.gradleUserHomeComposite.getGradleUserHomeText().getText();
+        String gradleUserHome = this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().getText();
         ConfigurationManager manager = CorePlugin.configurationManager();
-        WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(gradleUserHome.isEmpty() ? null : new File(gradleUserHome), this.offlineModeCheckbox.getSelection(),
-                this.buildScansCheckbox.getSelection());
+        WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(gradleUserHome.isEmpty() ? null : new File(gradleUserHome), this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection(),
+                this.gradleProjectSettingsComposite.getBuildScansCheckbox().getSelection());
         manager.saveWorkspaceConfiguration(workspaceConfig);
         return super.performOk();
     }
 
     @Override
     protected void performDefaults() {
-        this.gradleUserHomeComposite.getGradleUserHomeText().setText("");
+        this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().setText("");
         super.performDefaults();
     }
 
