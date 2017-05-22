@@ -11,36 +11,37 @@
 
 package org.eclipse.buildship.ui.launch;
 
+import java.io.File;
+
 import com.google.common.base.Optional;
 
 import com.gradleware.tooling.toolingutils.binding.Validator;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
-import org.eclipse.swt.SWT;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
+import org.eclipse.ui.dialogs.PreferencesUtil;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
-import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.util.selection.Enabler;
-import org.eclipse.buildship.ui.util.widget.GradleDistributionGroup;
+import org.eclipse.buildship.ui.preferences.GradleProjectPreferencePage;
 import org.eclipse.buildship.ui.util.widget.GradleDistributionGroup.DistributionChangedListener;
+import org.eclipse.buildship.ui.util.widget.GradleProjectSettingsComposite;
 
 /**
  * Specifies the Gradle distribution to apply when executing tasks via the run configurations.
@@ -48,17 +49,12 @@ import org.eclipse.buildship.ui.util.widget.GradleDistributionGroup.Distribution
 public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
 
     private final Validator<GradleDistributionWrapper> gradleDistributionValidator;
-    private final PublishedGradleVersionsWrapper publishedGradleVersions;
 
-    private Button overrideBuildSettingsCheckbox;
-    private Button offlineModeCheckbox;
-    private Button buildScansEnabledCheckbox;
-    private GradleDistributionGroup gradleDistributionGroup;
-    private Enabler overrideProjectSettingsEnabler;
+    private GradleRunConfigurationAttributes attributes;
+    private GradleProjectSettingsComposite gradleProjectSettingsComposite;
 
     public ProjectSettingsTab() {
         this.gradleDistributionValidator = GradleDistributionValidator.gradleDistributionValidator();
-        this.publishedGradleVersions = CorePlugin.publishedGradleVersions();
     }
 
     @Override
@@ -73,62 +69,43 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
 
     @Override
     public void createControl(Composite parent) {
-        Composite page = new Composite(parent, SWT.NONE);
-        GridLayout layout = new GridLayout(1, false);
-        page.setLayout(layout);
-        setControl(page);
-
-        this.overrideBuildSettingsCheckbox = new Button(page, SWT.CHECK);
-        this.overrideBuildSettingsCheckbox.setText(CoreMessages.RunConfiguration_Label_OverrideProjectSettings);
-
-        Group buildExecutionGroup = new Group(page, SWT.NONE);
-        buildExecutionGroup.setText(CoreMessages.RunConfiguration_Label_BuildExecution + ":");
-        buildExecutionGroup.setLayout(new GridLayout(3, false));
-        buildExecutionGroup.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-        this.offlineModeCheckbox = new Button(buildExecutionGroup, SWT.CHECK);
-        this.offlineModeCheckbox.setText("Offline Mode");
-        this.buildScansEnabledCheckbox = new Button(buildExecutionGroup, SWT.CHECK);
-        this.buildScansEnabledCheckbox.setText("Build Scans");
-
-        this.gradleDistributionGroup = new GradleDistributionGroup(this.publishedGradleVersions, page);
-
-        setupEnablement();
+        this.gradleProjectSettingsComposite = GradleProjectSettingsComposite.withOverrideCheckbox(parent, CoreMessages.RunConfiguration_Label_OverrideProjectSettings, "Configure Project Settings");
+        GridLayoutFactory.swtDefaults().numColumns(2).applyTo(this.gradleProjectSettingsComposite);
+        setControl(this.gradleProjectSettingsComposite);
         addListeners();
-    }
-
-    private void setupEnablement() {
-        this.overrideProjectSettingsEnabler = new Enabler(this.overrideBuildSettingsCheckbox).enables(this.offlineModeCheckbox, this.buildScansEnabledCheckbox, this.gradleDistributionGroup);
     }
 
     private void addListeners() {
         DialogUpdater dialogUpdater = new DialogUpdater();
-        this.overrideBuildSettingsCheckbox.addSelectionListener(dialogUpdater);
-        this.offlineModeCheckbox.addSelectionListener(dialogUpdater);
-        this.buildScansEnabledCheckbox.addSelectionListener(dialogUpdater);
-        this.gradleDistributionGroup.addDistributionChangedListener(dialogUpdater);
+        this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().addSelectionListener(dialogUpdater);
+        this.gradleProjectSettingsComposite.getOfflineModeCheckbox().addSelectionListener(dialogUpdater);
+        this.gradleProjectSettingsComposite.getBuildScansCheckbox().addSelectionListener(dialogUpdater);
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().addDistributionChangedListener(dialogUpdater);
+
+        this.gradleProjectSettingsComposite.getParentPreferenceLink().addSelectionListener(new ProjecthPreferenceOpeningSelectionListener());
     }
 
     @Override
     public void initializeFrom(ILaunchConfiguration configuration) {
-        GradleRunConfigurationAttributes configurationAttributes = GradleRunConfigurationAttributes.from(configuration);
-        this.gradleDistributionGroup.setGradleDistribution(GradleDistributionWrapper.from(configurationAttributes.getGradleDistribution()));
-        this.overrideBuildSettingsCheckbox.setSelection(configurationAttributes.isOverrideBuildSettings());
-        this.offlineModeCheckbox.setSelection(configurationAttributes.isOffline());
-        this.buildScansEnabledCheckbox.setSelection(configurationAttributes.isBuildScansEnabled());
-        this.overrideProjectSettingsEnabler.updateEnablement();
+        this.attributes = GradleRunConfigurationAttributes.from(configuration);
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setGradleDistribution(GradleDistributionWrapper.from(this.attributes.getGradleDistribution()));
+        this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().setSelection(this.attributes.isOverrideBuildSettings());
+        this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(this.attributes.isOffline());
+        this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(this.attributes.isBuildScansEnabled());
+        this.gradleProjectSettingsComposite.updateEnablement();
     }
 
     @Override
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-        GradleRunConfigurationAttributes.applyGradleDistribution(this.gradleDistributionGroup.getGradleDistribution().toGradleDistribution(), configuration);
-        GradleRunConfigurationAttributes.applyOverrideBuildSettings(this.overrideBuildSettingsCheckbox.getSelection(), configuration);
-        GradleRunConfigurationAttributes.applyOfflineMode(this.offlineModeCheckbox.getSelection(), configuration);
-        GradleRunConfigurationAttributes.applyBuildScansEnabled(this.buildScansEnabledCheckbox.getSelection(), configuration);
+        GradleRunConfigurationAttributes.applyGradleDistribution(this.gradleProjectSettingsComposite.getGradleDistributionGroup().getGradleDistribution().toGradleDistribution(), configuration);
+        GradleRunConfigurationAttributes.applyOverrideBuildSettings(this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().getSelection(), configuration);
+        GradleRunConfigurationAttributes.applyOfflineMode(this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection(), configuration);
+        GradleRunConfigurationAttributes.applyBuildScansEnabled( this.gradleProjectSettingsComposite.getBuildScansCheckbox().getSelection(), configuration);
     }
 
     @Override
     public boolean isValid(ILaunchConfiguration launchConfig) {
-        GradleDistributionWrapper gradleDistribution = this.gradleDistributionGroup.getGradleDistribution();
+        GradleDistributionWrapper gradleDistribution = this.gradleProjectSettingsComposite.getGradleDistributionGroup().getGradleDistribution();
         Optional<String> error = this.gradleDistributionValidator.validate(gradleDistribution);
         setErrorMessage(error.orNull());
         return !error.isPresent();
@@ -157,6 +134,32 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
         @Override
         public void distributionUpdated(GradleDistributionWrapper distribution) {
             updateLaunchConfigurationDialog();
+        }
+    }
+
+    private class ProjecthPreferenceOpeningSelectionListener implements SelectionListener {
+
+
+        @Override
+        public void widgetSelected(SelectionEvent e) {
+            openWorkspacePreferences();
+        }
+
+        @Override
+        public void widgetDefaultSelected(SelectionEvent e) {
+            openWorkspacePreferences();
+        }
+
+        private void openWorkspacePreferences() {
+            try {
+                File workingDir = ProjectSettingsTab.this.attributes.getWorkingDir();
+                Optional<IProject> project = CorePlugin.workspaceOperations().findProjectByLocation(workingDir);
+                if (project.isPresent() && GradleProjectNature.isPresentOn(project.get())) {
+                    PreferencesUtil.createPropertyDialogOn(getShell(), project.get(), GradleProjectPreferencePage.PAGE_ID, null, null).open();
+                }
+            } catch (Exception e) {
+                CorePlugin.logger().debug("Cannot open project preferences", e);
+            }
         }
     }
 }
