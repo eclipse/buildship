@@ -24,14 +24,16 @@ final class BuildConfigurationProperties {
 
     private final File rootProjectDirectory;
     private final GradleDistribution gradleDistribution;
+    private final File gradleUserHome;
     private final boolean overrideWorkspaceSettings;
     private final boolean buildScansEnabled;
     private final boolean offlineMode;
 
-    public BuildConfigurationProperties(File rootProjectDirectory, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings, boolean buildScansEnabled,
+    public BuildConfigurationProperties(File rootProjectDirectory, GradleDistribution gradleDistribution, File gradleUserHome, boolean overrideWorkspaceSettings, boolean buildScansEnabled,
             boolean offlineMode) {
         this.rootProjectDirectory = canonicalize(rootProjectDirectory);
         this.gradleDistribution = gradleDistribution;
+        this.gradleUserHome = gradleUserHome;
         this.overrideWorkspaceSettings = overrideWorkspaceSettings;
         this.buildScansEnabled = buildScansEnabled;
         this.offlineMode = offlineMode;
@@ -53,6 +55,10 @@ final class BuildConfigurationProperties {
         return this.gradleDistribution;
     }
 
+    public File getGradleUserHome() {
+        return this.gradleUserHome;
+    }
+
     public boolean isOverrideWorkspaceSettings() {
         return this.overrideWorkspaceSettings;
     }
@@ -71,6 +77,7 @@ final class BuildConfigurationProperties {
             BuildConfigurationProperties other = (BuildConfigurationProperties) obj;
             return Objects.equal(this.rootProjectDirectory, other.rootProjectDirectory)
                     && Objects.equal(this.gradleDistribution, other.gradleDistribution)
+                    && Objects.equal(this.gradleUserHome, other.gradleUserHome)
                     && Objects.equal(this.overrideWorkspaceSettings, other.overrideWorkspaceSettings)
                     && Objects.equal(this.buildScansEnabled, other.buildScansEnabled)
                     && Objects.equal(this.offlineMode, other.offlineMode);
@@ -82,6 +89,7 @@ final class BuildConfigurationProperties {
     public int hashCode() {
         return Objects.hashCode(this.rootProjectDirectory,
                 this.gradleDistribution,
+                this.gradleUserHome,
                 this.overrideWorkspaceSettings,
                 this.buildScansEnabled,
                 this.offlineMode);

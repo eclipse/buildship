@@ -27,7 +27,8 @@ public interface ConfigurationManager {
 
     void saveWorkspaceConfiguration(WorkspaceConfiguration configuration);
 
-    BuildConfiguration createBuildConfiguration(File rootProjectDirectory, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings, boolean buildScansEnabled,
+    // TODO (donat) overwriteWorkspaceSettings should be the second argument
+    BuildConfiguration createBuildConfiguration(File rootProjectDirectory, GradleDistribution gradleDistribution, File gradleUserHome, boolean overrideWorkspaceSettings, boolean buildScansEnabled,
             boolean offlineMode);
 
     BuildConfiguration loadBuildConfiguration(File rootProject);

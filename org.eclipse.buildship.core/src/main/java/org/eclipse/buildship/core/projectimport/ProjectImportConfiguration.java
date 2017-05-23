@@ -29,17 +29,20 @@ public final class ProjectImportConfiguration {
 
     private final Property<File> projectDir;
     private final Property<GradleDistributionWrapper> gradleDistribution;
+    private final Property<File> gradleUserHome;
     private final Property<Boolean> applyWorkingSets;
     private final Property<List<String>> workingSets;
 
     public ProjectImportConfiguration() {
-        this(Validators.<File> noOp(), Validators.<GradleDistributionWrapper> noOp(), Validators.<Boolean> noOp(), Validators.<List<String>> noOp());
+        this(Validators.<File>noOp(), Validators.<GradleDistributionWrapper>noOp(), Validators.<File>noOp(), Validators.<Boolean>noOp(), Validators.<List<String>>noOp());
     }
 
     public ProjectImportConfiguration(Validator<File> projectDirValidator, Validator<GradleDistributionWrapper> gradleDistributionValidator,
+            Validator<File> gradleUserHomeValidator,
             Validator<Boolean> applyWorkingSetsValidator, Validator<List<String>> workingSetsValidators) {
         this.projectDir = Property.create(projectDirValidator);
         this.gradleDistribution = Property.create(gradleDistributionValidator);
+        this.gradleUserHome = Property.create(gradleUserHomeValidator);
         this.applyWorkingSets = Property.create(applyWorkingSetsValidator);
         this.workingSets = Property.create(workingSetsValidators);
     }
@@ -60,6 +63,14 @@ public final class ProjectImportConfiguration {
         this.gradleDistribution.setValue(gradleDistribution);
     }
 
+    public Property<File> getGradleUserHome() {
+        return this.gradleUserHome;
+    }
+
+    public void setGradleUserHome(File gradleUserHome) {
+        this.gradleUserHome.setValue(gradleUserHome);
+    }
+
     public Property<Boolean> getApplyWorkingSets() {
         return this.applyWorkingSets;
     }
@@ -77,6 +88,6 @@ public final class ProjectImportConfiguration {
     }
 
     public BuildConfiguration toBuildConfig() {
-        return CorePlugin.configurationManager().createBuildConfiguration(getProjectDir().getValue(), getGradleDistribution().getValue().toGradleDistribution(), false, false, false);
+        return CorePlugin.configurationManager().createBuildConfiguration(getProjectDir().getValue(), getGradleDistribution().getValue().toGradleDistribution(), null, false, false, false);
     }
 }

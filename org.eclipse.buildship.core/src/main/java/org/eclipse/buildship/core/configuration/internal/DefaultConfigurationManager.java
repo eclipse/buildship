@@ -51,10 +51,11 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     }
 
     @Override
-    public BuildConfiguration createBuildConfiguration(File rootProjectDirectory, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings,
+    public BuildConfiguration createBuildConfiguration(File rootProjectDirectory, GradleDistribution gradleDistribution, File gradleUserHome, boolean overrideWorkspaceSettings,
             boolean buildScansEnabled, boolean offlineMode) {
         BuildConfigurationProperties persistentBuildConfigProperties = new BuildConfigurationProperties(rootProjectDirectory,
                                                                                                         gradleDistribution,
+                                                                                                        gradleUserHome,
                                                                                                         overrideWorkspaceSettings,
                                                                                                         buildScansEnabled,
                                                                                                         offlineMode);
@@ -67,7 +68,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
         Preconditions.checkArgument(rootDir.exists());
         Optional<IProject> projectCandidate = CorePlugin.workspaceOperations().findProjectByLocation(rootDir);
         BuildConfigurationProperties buildConfigProperties;
-        if (projectCandidate.isPresent()) {
+        if (projectCandidate.isPresent() && projectCandidate.get().isAccessible()) {
             IProject project = projectCandidate.get();
             try {
                 buildConfigProperties = this.buildConfigurationPersistence.readBuildConfiguratonProperties(project);
@@ -153,6 +154,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
             CorePlugin.logger().debug("Can't load build config from " + attributes.getWorkingDir(), e);
             buildConfigProperties = new BuildConfigurationProperties(attributes.getWorkingDir(),
                     attributes.getGradleDistribution(),
+                    attributes.getGradleUserHome(),
                     attributes.isOverrideBuildSettings(),
                     attributes.isBuildScansEnabled(),
                     attributes.isOffline());

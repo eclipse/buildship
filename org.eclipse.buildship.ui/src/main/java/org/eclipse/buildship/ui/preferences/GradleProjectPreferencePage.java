@@ -20,6 +20,7 @@ import org.eclipse.ui.dialogs.PropertyPage;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.ConfigurationManager;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.ui.util.widget.GradleProjectSettingsComposite;
 
 /**
@@ -44,9 +45,12 @@ public final class GradleProjectPreferencePage extends PropertyPage {
     }
 
     private void initValues() {
+        // TODO (donat) (BUG) the fields here (and on the other pref dialogs) should be initialized from XxxConfigurationProperties
         IProject project = getTargetProject();
         BuildConfiguration buildConfig = CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
         boolean overrideWorkspaceSettings = buildConfig.isOverrideWorkspaceSettings();
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setGradleDistribution(GradleDistributionWrapper.from(buildConfig.getGradleDistribution()));
+        this.gradleProjectSettingsComposite.getGradleUserHomeGroup().setGradleUserHome(buildConfig.getGradleUserHome());
         this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().setSelection(overrideWorkspaceSettings);
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(buildConfig.isBuildScansEnabled());
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(buildConfig.isOfflineMode());
@@ -63,7 +67,8 @@ public final class GradleProjectPreferencePage extends PropertyPage {
        ConfigurationManager manager = CorePlugin.configurationManager();
        BuildConfiguration currentConfig = manager.loadProjectConfiguration(project).getBuildConfiguration();
        BuildConfiguration updatedConfig = manager.createBuildConfiguration(currentConfig.getRootProjectDirectory(),
-           currentConfig.getGradleDistribution(),
+           this.gradleProjectSettingsComposite.getGradleDistributionGroup().getGradleDistribution().toGradleDistribution(),
+           this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHome(),
            this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().getSelection(),
            this.gradleProjectSettingsComposite.getBuildScansCheckbox().getSelection(),
            this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection());

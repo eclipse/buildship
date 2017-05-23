@@ -8,6 +8,8 @@
 
 package org.eclipse.buildship.ui.util.widget;
 
+import java.io.File;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
@@ -75,6 +77,19 @@ public final class GradleUserHomeGroup extends Group {
         boolean groupEnabled = getEnabled();
         this.gradleUserHomeText.setEnabled(groupEnabled);
         this.gradleUserHomeBrowseButton.setEnabled(groupEnabled);
+    }
+
+    public File getGradleUserHome() {
+        String gradleUserHomeString = this.gradleUserHomeText.getText();
+        return gradleUserHomeString.isEmpty() ? null : new File(gradleUserHomeString);
+    }
+
+    public void setGradleUserHome(File gradleUserHome) {
+        if (gradleUserHome == null) {
+            this.gradleUserHomeText.setText("");
+        } else {
+            this.gradleUserHomeText.setText(gradleUserHome.getPath());
+        }
     }
 
     @Override

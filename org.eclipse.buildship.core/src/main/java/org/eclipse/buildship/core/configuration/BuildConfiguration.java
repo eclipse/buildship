@@ -20,9 +20,13 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
  */
 public interface BuildConfiguration {
 
+    // TODO (donat) order methods by category here and in the implementation
+
     WorkspaceConfiguration getWorkspaceConfiguration();
 
     File getRootProjectDirectory();
+
+    File getGradleUserHome();
 
     GradleDistribution getGradleDistribution();
 

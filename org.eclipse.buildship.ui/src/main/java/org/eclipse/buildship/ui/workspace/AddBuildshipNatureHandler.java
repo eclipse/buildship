@@ -58,7 +58,10 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
         for (Object element : elements) {
             IProject project = adapterFunction.apply(element);
             if (project != null && !GradleProjectNature.isPresentOn(project) && project.getLocation() != null) {
-                projects.add(project);
+                IPath location = project.getLocation();
+                if (location != null) {
+                    buildConfigs.add(CorePlugin.configurationManager().createBuildConfiguration(location.toFile(), GradleDistribution.fromBuild(), null, false, false, false));
+                }
             }
 
         }

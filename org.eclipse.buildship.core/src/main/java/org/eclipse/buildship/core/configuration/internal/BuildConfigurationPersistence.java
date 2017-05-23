@@ -32,6 +32,7 @@ final class BuildConfigurationPersistence {
     private static final String PREF_KEY_CONNECTION_PROJECT_DIR = "connection.project.dir";
     private static final String PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION = "connection.gradle.distribution";
     private static final String PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS = "override.workspace.settings";
+    private static final String PREF_KEY_GRADLE_USER_HOME = "gradle.user.home";
     private static final String PREF_KEY_BUILD_SCANS_ENABLED = "build.scans.enabled";
     private static final String PREF_KEY_OFFLINE_MODE = "offline.mode";
 
@@ -109,25 +110,42 @@ final class BuildConfigurationPersistence {
     }
 
     private static BuildConfigurationProperties readPreferences(PreferenceStore preferences, File rootDir) {
-        String distribution = preferences.readString(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, null);
-        if (distribution == null) {
+        boolean overrideWorkspaceSettings = preferences.readBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, false);
+
+        String distributionString = preferences.readString(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, null);
+        if (overrideWorkspaceSettings && distributionString == null) {
             throw new GradlePluginsRuntimeException("Invalid build configuration for project located at " + rootDir.getAbsolutePath());
         }
-        boolean overrideWorkspaceSettings = preferences.readBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, false);
+        GradleDistribution distribution = distributionString == null
+                ? GradleDistribution.fromBuild()
+                : GradleDistributionSerializer.INSTANCE.deserializeFromString(distributionString);
+
+        String gradleUserHomeString = preferences.readString(PREF_KEY_GRADLE_USER_HOME, null);
+        File gradleUserHome = gradleUserHomeString == null
+                ? null
+                : new File(gradleUserHomeString);
+
         boolean buildScansEnabled = preferences.readBoolean(PREF_KEY_BUILD_SCANS_ENABLED, false);
         boolean offlineMode = preferences.readBoolean(PREF_KEY_OFFLINE_MODE, false);
-        GradleDistribution gradleDistribution = GradleDistributionSerializer.INSTANCE.deserializeFromString(distribution);
-        return new BuildConfigurationProperties(rootDir, gradleDistribution, overrideWorkspaceSettings, buildScansEnabled, offlineMode);
+
+        return new BuildConfigurationProperties(rootDir, distribution, gradleUserHome, overrideWorkspaceSettings, buildScansEnabled, offlineMode);
     }
 
     private static void savePreferences(BuildConfigurationProperties properties, PreferenceStore preferences) {
-        String gradleDistribution = GradleDistributionSerializer.INSTANCE.serializeToString(properties.getGradleDistribution());
-        preferences.write(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, gradleDistribution);
         if (properties.isOverrideWorkspaceSettings()) {
+            String gradleDistribution = GradleDistributionSerializer.INSTANCE.serializeToString(properties.getGradleDistribution());
+            preferences.write(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, gradleDistribution);
+            if (properties.getGradleUserHome() == null) {
+                preferences.delete(PREF_KEY_GRADLE_USER_HOME);
+            } else {
+                preferences.write(PREF_KEY_GRADLE_USER_HOME, properties.getGradleUserHome().getPath());
+            }
             preferences.writeBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, properties.isOverrideWorkspaceSettings());
             preferences.writeBoolean(PREF_KEY_BUILD_SCANS_ENABLED, properties.isBuildScansEnabled());
             preferences.writeBoolean(PREF_KEY_OFFLINE_MODE, properties.isOfflineMode());
         } else {
+            preferences.delete(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
+            preferences.delete(PREF_KEY_GRADLE_USER_HOME);
             preferences.delete(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS);
             preferences.delete(PREF_KEY_BUILD_SCANS_ENABLED);
             preferences.delete(PREF_KEY_OFFLINE_MODE);

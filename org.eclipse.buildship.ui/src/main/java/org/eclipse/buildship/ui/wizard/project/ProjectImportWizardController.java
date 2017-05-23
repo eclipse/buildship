@@ -57,7 +57,7 @@ public class ProjectImportWizardController {
     // keys to load/store project properties in the dialog setting
     private static final String SETTINGS_KEY_PROJECT_DIR = "project_location"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_GRADLE_DISTRIBUTION_TYPE = "gradle_distribution_type"; //$NON-NLS-1$
-    private static final String SETTINGS_KEY_GRADLE_DISTRIBUTION_CONFIGURATION = "gradle_distribution_configuration"; //$NON-NLS-1$
+    private static final String SETTINGS_KEY_GRADLE_DISTRIBUTION_CONFIGURATION = "gradle_distribution_configuration"; //$NON-NLS-1
     private static final String SETTINGS_KEY_APPLY_WORKING_SETS = "apply_working_sets"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_WORKING_SETS = "working_sets"; //$NON-NLS-1$
 
@@ -69,8 +69,9 @@ public class ProjectImportWizardController {
         Validator<GradleDistributionWrapper> gradleDistributionValidator = GradleDistributionValidator.gradleDistributionValidator();
         Validator<Boolean> applyWorkingSetsValidator = Validators.nullValidator();
         Validator<List<String>> workingSetsValidator = Validators.nullValidator();
+        Validator<File> gradleUserHomeValidator = Validators.optionalDirectoryValidator("Gradle user home");
 
-        this.configuration = new ProjectImportConfiguration(projectDirValidator, gradleDistributionValidator, applyWorkingSetsValidator, workingSetsValidator);
+        this.configuration = new ProjectImportConfiguration(projectDirValidator, gradleDistributionValidator, gradleUserHomeValidator, applyWorkingSetsValidator, workingSetsValidator);
 
         // initialize values from the persisted dialog settings
         IDialogSettings dialogSettings = projectImportWizard.getDialogSettings();

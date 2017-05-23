@@ -47,6 +47,15 @@ class DefaultBuildConfiguration implements BuildConfiguration {
     }
 
     @Override
+    public File getGradleUserHome() {
+        if (this.properties.isOverrideWorkspaceSettings()) {
+            return this.properties.getGradleUserHome();
+        } else {
+            return this.workspaceConfiguration.getGradleUserHome();
+        }
+    }
+
+    @Override
     public GradleDistribution getGradleDistribution() {
         if (this.properties.isOverrideWorkspaceSettings()) {
             return this.properties.getGradleDistribution();
