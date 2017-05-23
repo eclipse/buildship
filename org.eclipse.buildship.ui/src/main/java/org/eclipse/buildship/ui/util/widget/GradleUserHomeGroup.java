@@ -27,7 +27,7 @@ import org.eclipse.buildship.ui.util.font.FontUtils;
  *
  * @author Donat Csikos
  */
-public class GradleUserHomeGroup extends Group {
+public final class GradleUserHomeGroup extends Group {
 
     private final Font defaultFont;
     private final UiBuilder.UiBuilderFactory builderFactory;
@@ -35,9 +35,8 @@ public class GradleUserHomeGroup extends Group {
     private Text gradleUserHomeText;
     private Button gradleUserHomeBrowseButton;
 
-    public GradleUserHomeGroup(Composite parent, int style) {
-        // TODO (donat) remove style parameter
-        super(parent, style);
+    public GradleUserHomeGroup(Composite parent) {
+        super(parent, SWT.NONE);
         setText(CoreMessages.Preference_Label_GradleUserHome);
 
         this.defaultFont = FontUtils.getDefaultDialogFont();
@@ -64,6 +63,18 @@ public class GradleUserHomeGroup extends Group {
     @Override
     protected void checkSubclass() {
         // Disable the check that prevents subclassing of SWT components
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        updateEnablement();
+    }
+
+    private void updateEnablement() {
+        boolean groupEnabled = getEnabled();
+        this.gradleUserHomeText.setEnabled(groupEnabled);
+        this.gradleUserHomeBrowseButton.setEnabled(groupEnabled);
     }
 
     @Override

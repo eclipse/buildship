@@ -78,40 +78,41 @@ public final class GradleDistributionGroup extends Group {
         this.listeners = new LinkedList<>();
         this.publishedGradleVersions = publishedGradleVersions;
 
-        createWidgets(this);
+        createWidgets();
         updateEnablement();
         addListeners();
     }
 
-    private void createWidgets(Composite root) {
+    private void createWidgets() {
         setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
         setLayout(LayoutUtils.newGridLayout(3));
 
         this.font = FontUtils.getDefaultDialogFont();
         UiBuilderFactory uiBuilder = new UiBuilder.UiBuilderFactory(this.font);
-        this.useGradleWrapperOption = uiBuilder.newRadio(root).alignLeft().text(CoreMessages.GradleDistribution_Label_GradleWrapper).control();
+        this.useGradleWrapperOption = uiBuilder.newRadio(this).alignLeft().text(CoreMessages.GradleDistribution_Label_GradleWrapper).control();
 
-        uiBuilder.span(root);
-        uiBuilder.span(root);
+        uiBuilder.span(this);
+        uiBuilder.span(this);
 
-        this.useLocalInstallationDirOption = uiBuilder.newRadio(root).alignLeft().text(CoreMessages.GradleDistribution_Label_LocalInstallationDirectory).control();
-        this.localInstallationDirText = uiBuilder.newText(root).alignFillHorizontal().disabled().control();
-        this.localInstallationDirBrowseButton = uiBuilder.newButton(root).alignLeft().disabled().text(UiMessages.Button_Label_Browse).control();
-        this.localInstallationDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(root.getShell(), this.localInstallationDirText, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
+        this.useLocalInstallationDirOption = uiBuilder.newRadio(this).alignLeft().text(CoreMessages.GradleDistribution_Label_LocalInstallationDirectory).control();
+        this.localInstallationDirText = uiBuilder.newText(this).alignFillHorizontal().disabled().control();
+        this.localInstallationDirBrowseButton = uiBuilder.newButton(this).alignLeft().disabled().text(UiMessages.Button_Label_Browse).control();
+        this.localInstallationDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(this.getShell(), this.localInstallationDirText, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
 
-        this.useRemoteDistributionUriOption = uiBuilder.newRadio(root).alignLeft().text(CoreMessages.GradleDistribution_Label_RemoteDistributionUri).control();
-        this.remoteDistributionUriText = uiBuilder.newText(root).alignFillHorizontal().disabled().control();
-        uiBuilder.span(root);
+        this.useRemoteDistributionUriOption = uiBuilder.newRadio(this).alignLeft().text(CoreMessages.GradleDistribution_Label_RemoteDistributionUri).control();
+        this.remoteDistributionUriText = uiBuilder.newText(this).alignFillHorizontal().disabled().control();
 
-        this.useGradleVersionOption = uiBuilder.newRadio(root).alignLeft().text(CoreMessages.GradleDistribution_Label_SpecificGradleVersion).control();
-        this.gradleVersionCombo = uiBuilder.newCombo(root).alignLeft().disabled().control();
+        uiBuilder.span(this);
+
+        this.useGradleVersionOption = uiBuilder.newRadio(this).alignLeft().text(CoreMessages.GradleDistribution_Label_SpecificGradleVersion).control();
+        this.gradleVersionCombo = uiBuilder.newCombo(this).alignLeft().disabled().control();
         this.gradleVersionCombo.setSize(150, this.gradleVersionCombo.getSize().y);
         this.gradleVersionCombo.setItems(getGradleVersions());
         if (this.gradleVersionCombo.getItemCount() > 0) {
             this.gradleVersionCombo.select(0);
         }
 
-        uiBuilder.span(root);
+        uiBuilder.span(this);
     }
 
     private void updateEnablement() {
@@ -246,6 +247,9 @@ public final class GradleDistributionGroup extends Group {
         super.dispose();
     }
 
+    /**
+     * Notifies listeners when the selected Gradle distribution changes.
+     */
     private final class NotifyingListener extends SelectionAdapter implements ModifyListener {
         @Override
         public void widgetSelected(SelectionEvent e) {

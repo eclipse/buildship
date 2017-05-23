@@ -137,8 +137,10 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
         }
     }
 
+    /**
+     * Opens the project preference dialog.
+     */
     private class ProjecthPreferenceOpeningSelectionListener implements SelectionListener {
-
 
         @Override
         public void widgetSelected(SelectionEvent e) {

@@ -20,7 +20,6 @@ import org.eclipse.ui.dialogs.PropertyPage;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.ConfigurationManager;
-import org.eclipse.buildship.ui.util.selection.Enabler;
 import org.eclipse.buildship.ui.util.widget.GradleProjectSettingsComposite;
 
 /**
@@ -49,13 +48,9 @@ public final class GradleProjectPreferencePage extends PropertyPage {
         BuildConfiguration buildConfig = CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
         boolean overrideWorkspaceSettings = buildConfig.isOverrideWorkspaceSettings();
         this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().setSelection(overrideWorkspaceSettings);
-        this.gradleProjectSettingsComposite.getBuildScansCheckbox().setEnabled(overrideWorkspaceSettings);
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(buildConfig.isBuildScansEnabled());
-        this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setEnabled(overrideWorkspaceSettings);
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(buildConfig.isOfflineMode());
-
-        new Enabler(this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox()).enables(this.gradleProjectSettingsComposite.getOfflineModeCheckbox(),
-                this.gradleProjectSettingsComposite.getBuildScansCheckbox());
+        this.gradleProjectSettingsComposite.updateEnablement();
     }
 
     private void addListeners() {
@@ -81,6 +76,9 @@ public final class GradleProjectPreferencePage extends PropertyPage {
         return (IProject) Platform.getAdapterManager().getAdapter(getElement(), IProject.class);
     }
 
+    /**
+     * Opens the workspace preferences dialog.
+     */
     private class WorkbenchPreferenceOpeningSelectionListener implements SelectionListener {
 
         @Override
