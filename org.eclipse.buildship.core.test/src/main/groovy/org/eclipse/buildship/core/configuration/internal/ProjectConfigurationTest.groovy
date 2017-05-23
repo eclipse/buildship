@@ -166,7 +166,7 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 
         when:
         configurationManager.saveProjectConfiguration(projectConfig)
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(null, offlineMode, buildScansEnabled))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(GradleDistribution.fromBuild(), null, offlineMode, buildScansEnabled))
         projectConfig = configurationManager.loadProjectConfiguration(project)
 
         then:
@@ -193,7 +193,7 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 
         when:
         configurationManager.saveProjectConfiguration(projectConfig)
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(null, !buildScansEnabled, !offlineMode))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(GradleDistribution.fromBuild(), null, !buildScansEnabled, !offlineMode))
         projectConfig = configurationManager.loadProjectConfiguration(project)
 
         then:

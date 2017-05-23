@@ -26,6 +26,8 @@ import org.eclipse.buildship.ui.test.fixtures.WorkspaceSpecification
 
 class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
 
+    // TODO (donat) verify all workspace configuration options are picked up for project conversion
+
     def "Uses custom Gradle user home"() {
         setup:
         WorkspaceConfiguration originalWorkspaceConfig = CorePlugin.configurationManager().loadWorkspaceConfiguration()
@@ -33,7 +35,7 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
         // if not the default location is specified then the Gradle
         // distribution is downloaded every time the test is executed
         File  gradleUserHome = new File(System.getProperty('user.home'), '.gradle')
-        WorkspaceConfiguration config = new WorkspaceConfiguration(gradleUserHome, false, false)
+        WorkspaceConfiguration config = new WorkspaceConfiguration(GradleDistribution.fromBuild(), gradleUserHome, false, false)
         CorePlugin.configurationManager().saveWorkspaceConfiguration(config)
 
         IProject project = EclipseProjects.newProject('add-buildship-nature')

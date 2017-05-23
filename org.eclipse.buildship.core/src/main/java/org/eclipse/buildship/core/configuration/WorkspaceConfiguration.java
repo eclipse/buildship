@@ -13,6 +13,8 @@ import org.gradle.api.Nullable;
 
 import com.google.common.base.Objects;
 
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+
 /**
  * Encapsulates settings that are the same for all Gradle projects in the workspace.
  *
@@ -21,14 +23,20 @@ import com.google.common.base.Objects;
  */
 public final class WorkspaceConfiguration {
 
+    private final GradleDistribution gradleDisribution;
     private final File gradleUserHome;
     private final boolean gradleIsOffline;
     private final boolean buildScansEnabled;
 
-    public WorkspaceConfiguration(File gradleUserHome, boolean gradleIsOffline, boolean buildScansEnabled) {
+    public WorkspaceConfiguration(GradleDistribution gradleDistribution, File gradleUserHome, boolean gradleIsOffline, boolean buildScansEnabled) {
+        this.gradleDisribution = gradleDistribution;
         this.gradleUserHome = gradleUserHome;
         this.gradleIsOffline = gradleIsOffline;
         this.buildScansEnabled = buildScansEnabled;
+    }
+
+    public GradleDistribution getGradleDisribution() {
+        return this.gradleDisribution;
     }
 
     @Nullable
@@ -48,7 +56,8 @@ public final class WorkspaceConfiguration {
     public boolean equals(Object obj) {
         if (obj instanceof WorkspaceConfiguration) {
             WorkspaceConfiguration other = (WorkspaceConfiguration) obj;
-            return Objects.equal(this.gradleUserHome, other.gradleUserHome)
+            return Objects.equal(this.gradleDisribution, other.gradleDisribution)
+                    && Objects.equal(this.gradleUserHome, other.gradleUserHome)
                     && Objects.equal(this.gradleIsOffline, other.gradleIsOffline)
                     && Objects.equal(this.buildScansEnabled, other.buildScansEnabled);
         }
@@ -57,6 +66,6 @@ public final class WorkspaceConfiguration {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.gradleUserHome, this.gradleIsOffline, this.buildScansEnabled);
+        return Objects.hashCode(this.gradleDisribution, this.gradleUserHome, this.gradleIsOffline, this.buildScansEnabled);
     }
 }

@@ -14,12 +14,15 @@ import org.osgi.service.prefs.BackingStoreException;
 
 import com.google.common.base.Preconditions;
 
+import com.gradleware.tooling.toolingclient.GradleDistribution;
+
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 
 
 /**
@@ -29,21 +32,31 @@ import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
  */
 public final class WorkspaceConfigurationPersistence {
 
+    private static final String GRADLE_DISTRIBUTION = "gradle.distribution";
     private static final String GRADLE_USER_HOME = "gradle.user.home";
     private static final String GRADLE_OFFLINE_MODE = "gradle.offline.mode";
     private static final String GRADLE_BUILD_SCANS = "gradle.build.scans";
 
     public WorkspaceConfiguration readWorkspaceConfig() {
         IEclipsePreferences preferences = getPreferences();
-        String userHome = preferences.get(GRADLE_USER_HOME, null);
+        String distributionString = preferences.get(GRADLE_DISTRIBUTION, null);
+        GradleDistribution distribution = distributionString == null
+                ? GradleDistribution.fromBuild()
+                : GradleDistributionSerializer.INSTANCE.deserializeFromString(distributionString);
+        String gradleUserHomeString = preferences.get(GRADLE_USER_HOME, null);
+        File gradleUserHome = gradleUserHomeString == null
+                ? null
+                : new File(gradleUserHomeString);
         boolean offlineMode = preferences.getBoolean(GRADLE_OFFLINE_MODE, false);
         boolean buildScansEnabled = preferences.getBoolean(GRADLE_BUILD_SCANS, false);
-        return new WorkspaceConfiguration(userHome == null ? null : new File(userHome), offlineMode, buildScansEnabled);
+
+        return new WorkspaceConfiguration(distribution, gradleUserHome, offlineMode, buildScansEnabled);
     }
 
     public void saveWorkspaceConfiguration(WorkspaceConfiguration config) {
         Preconditions.checkNotNull(config);
         IEclipsePreferences preferences = getPreferences();
+        preferences.put(GRADLE_DISTRIBUTION, GradleDistributionSerializer.INSTANCE.serializeToString(config.getGradleDisribution()));
         if (config.getGradleUserHome() == null) {
             preferences.remove(GRADLE_USER_HOME);
         } else {

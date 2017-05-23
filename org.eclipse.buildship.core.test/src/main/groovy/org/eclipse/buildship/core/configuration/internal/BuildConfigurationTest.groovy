@@ -54,7 +54,7 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
         WorkspaceConfiguration orignalConfiguration = configurationManager.loadWorkspaceConfiguration()
 
         when:
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(dir('gradle-user-home'), offlineMode, buildScansEnabled))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(GradleDistribution.fromBuild(), dir('gradle-user-home'), offlineMode, buildScansEnabled))
         BuildConfiguration configuration = configurationManager.createBuildConfiguration(projectDir, GradleDistribution.fromBuild(), false, false, false)
 
         then:
@@ -159,7 +159,7 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
 
         when:
         configurationManager.saveBuildConfiguration(buildConfig)
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(null, offlineMode, buildScansEnabled))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(GradleDistribution.fromBuild(), null, offlineMode, buildScansEnabled))
         buildConfig = configurationManager.loadBuildConfiguration(projectDir)
 
         then:
@@ -186,7 +186,7 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
 
         when:
         configurationManager.saveBuildConfiguration(buildConfig)
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(null, !buildScansEnabled, !offlineMode))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(GradleDistribution.fromBuild(), null, !buildScansEnabled, !offlineMode))
         buildConfig = configurationManager.loadBuildConfiguration(projectDir)
 
         then:
