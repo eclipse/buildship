@@ -38,26 +38,27 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
     def "can create new build configuration"() {
         setup:
         File projectDir = dir('project-dir').canonicalFile
-        BuildConfiguration configuration = configurationManager.createBuildConfiguration(dir('project-dir'), GradleDistribution.forVersion('2.0'), false, false, false)
+        BuildConfiguration configuration = configurationManager.createBuildConfiguration(dir('project-dir'), GradleDistribution.forVersion('2.0'), true, false, false)
 
         expect:
         configuration.rootProjectDirectory == projectDir
         configuration.gradleDistribution == GradleDistribution.forVersion('2.0')
-        configuration.overrideWorkspaceSettings == false
+        configuration.overrideWorkspaceSettings == true
         configuration.buildScansEnabled == false
         configuration.offlineMode == false
     }
 
-    def "new build configuration can inherit workspace settings"(boolean buildScansEnabled, boolean offlineMode) {
+    def "new build configuration can inherit workspace settings"(GradleDistribution distribution, boolean buildScansEnabled, boolean offlineMode) {
         setup:
         File projectDir = dir('project-dir')
         WorkspaceConfiguration orignalConfiguration = configurationManager.loadWorkspaceConfiguration()
 
         when:
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(GradleDistribution.fromBuild(), dir('gradle-user-home'), offlineMode, buildScansEnabled))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, dir('gradle-user-home'), offlineMode, buildScansEnabled))
         BuildConfiguration configuration = configurationManager.createBuildConfiguration(projectDir, GradleDistribution.fromBuild(), false, false, false)
 
         then:
+        configuration.gradleDistribution == distribution
         configuration.overrideWorkspaceSettings == false
         configuration.buildScansEnabled == buildScansEnabled
         configuration.offlineMode == offlineMode
@@ -66,31 +67,32 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
         configurationManager.saveWorkspaceConfiguration(orignalConfiguration)
 
         where:
-        buildScansEnabled | offlineMode
-        false             | false
-        false             | true
-        true              | true
-        true              | false
+        distribution                                                                 | offlineMode  | buildScansEnabled
+        GradleDistribution.fromBuild()                                               | false        | false
+        GradleDistribution.forVersion("3.2.1")                                       | false        | true
+        GradleDistribution.forLocalInstallation(new File('/').canonicalFile)         | true         | true
+        GradleDistribution.forRemoteDistribution(new URI('http://example.com/gd'))   | true         | false
     }
 
-    def "new build configuration can override workspace settings"(boolean buildScansEnabled, boolean offlineMode) {
+    def "new build configuration can override workspace settings"(GradleDistribution distribution, boolean buildScansEnabled, boolean offlineMode) {
         setup:
         File projectDir = dir('project-dir')
 
         when:
-        BuildConfiguration configuration = configurationManager.createBuildConfiguration(projectDir, GradleDistribution.fromBuild(), true, buildScansEnabled, offlineMode)
+        BuildConfiguration configuration = configurationManager.createBuildConfiguration(projectDir, distribution, true, buildScansEnabled, offlineMode)
 
         then:
+        configuration.gradleDistribution == distribution
         configuration.overrideWorkspaceSettings == true
         configuration.buildScansEnabled == buildScansEnabled
         configuration.offlineMode == offlineMode
 
         where:
-        buildScansEnabled | offlineMode
-        false             | false
-        false             | true
-        true              | true
-        true              | false
+        distribution                                                                 | offlineMode  | buildScansEnabled
+        GradleDistribution.fromBuild()                                               | false        | false
+        GradleDistribution.forVersion("3.2.1")                                       | false        | true
+        GradleDistribution.forLocalInstallation(new File('/').canonicalFile)         | true         | true
+        GradleDistribution.forRemoteDistribution(new URI('http://example.com/gd'))   | true         | false
     }
 
     def "can't load invalid build configuration"() {
@@ -118,7 +120,7 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
     def "can save and load build configuration"() {
         setup:
         File projectDir = dir('project-dir').canonicalFile
-        BuildConfiguration configuration = configurationManager.createBuildConfiguration(projectDir, GradleDistribution.forVersion('2.0'), false, false, false)
+        BuildConfiguration configuration = configurationManager.createBuildConfiguration(projectDir, GradleDistribution.forVersion('2.0'), true, false, false)
 
         when:
         configurationManager.saveBuildConfiguration(configuration)
@@ -127,7 +129,7 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
         then:
         configuration.rootProjectDirectory == projectDir
         configuration.gradleDistribution == GradleDistribution.forVersion('2.0')
-        configuration.overrideWorkspaceSettings == false
+        configuration.overrideWorkspaceSettings == true
         configuration.buildScansEnabled == false
         configuration.offlineMode == false
     }
@@ -136,7 +138,7 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
         setup:
         IProject project = newProject('project')
         File projectDir = project.location.toFile()
-        BuildConfiguration configuration = configurationManager.createBuildConfiguration(projectDir, GradleDistribution.forVersion('2.0'), false, false, false)
+        BuildConfiguration configuration = configurationManager.createBuildConfiguration(projectDir, GradleDistribution.forVersion('2.0'), true, false, false)
 
         when:
         project.close(new NullProgressMonitor())
@@ -146,7 +148,7 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
         then:
         configuration.rootProjectDirectory == projectDir
         configuration.gradleDistribution == GradleDistribution.forVersion('2.0')
-        configuration.overrideWorkspaceSettings == false
+        configuration.overrideWorkspaceSettings == true
         configuration.buildScansEnabled == false
         configuration.offlineMode == false
     }

@@ -48,7 +48,11 @@ class DefaultBuildConfiguration implements BuildConfiguration {
 
     @Override
     public GradleDistribution getGradleDistribution() {
-        return this.properties.getGradleDistribution();
+        if (this.properties.isOverrideWorkspaceSettings()) {
+            return this.properties.getGradleDistribution();
+        } else {
+            return this.workspaceConfiguration.getGradleDisribution();
+        }
     }
 
     @Override
