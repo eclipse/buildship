@@ -12,6 +12,8 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -21,7 +23,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 
 /**
- * Widget containing the following Gradle configuration elements:
+ * Widget containing the following Gradle configuration elements.
  * <ul>
  * <li>Gradle distribution</li>
  * <li>Gradle user home</li>
@@ -29,26 +31,25 @@ import org.eclipse.buildship.core.i18n.CoreMessages;
  * <li>Offline mode enablement</li>
  * </ul>
  *
- * @author donat
- *
+ * @author Donat Csikos
  */
-public class GradleProjectSettingsComposite extends Composite {
+public final class GradleProjectSettingsComposite extends Composite {
 
-    private final String overrideLabel;
-    private final String preferencesLabel;
+    private final String overrideCheckboxLabel;
+    private final String configureParentPrefsLinkLabel;
 
-    private Button overrideBuildSettingsCheckbox;
+    private Button overrideSettingsCheckbox;
     private Link parentPreferenceLink;
     private GradleDistributionGroup gradleDistributionGroup;
     private GradleUserHomeGroup gradleUserHomeGroup;
     private Button offlineModeCheckbox;
     private Button buildScansCheckbox;
 
-    private GradleProjectSettingsComposite(Composite parent, boolean hasOverrideCheckbox, String overrideLabel, String preferencesLabel) {
+    private GradleProjectSettingsComposite(Composite parent, boolean hasOverrideCheckbox, String overrideCheckboxLabel, String configureParentPrefsLinkLabel) {
         super(parent, SWT.NONE);
 
-        this.overrideLabel = overrideLabel;
-        this.preferencesLabel = preferencesLabel;
+        this.overrideCheckboxLabel = overrideCheckboxLabel;
+        this.configureParentPrefsLinkLabel = configureParentPrefsLinkLabel;
 
         GridLayoutFactory.swtDefaults().numColumns(2).margins(0, 0).applyTo(this);
 
@@ -60,21 +61,23 @@ public class GradleProjectSettingsComposite extends Composite {
         createGradleDistributionGroup(this);
         createGradleUserHomeGroup(this);
         createOfflineModeCheckbox(this);
-        createBuildScansEnabledCheckbox(this);
+        createBuildScansCheckbox(this);
+
+        addListeners();
 
         Dialog.applyDialogFont(this);
     }
 
     private void createOverrideWorkspaceCheckbox(Composite parent) {
-        this.overrideBuildSettingsCheckbox = new Button(parent, SWT.CHECK);
-        this.overrideBuildSettingsCheckbox.setText(this.overrideLabel);
+        this.overrideSettingsCheckbox = new Button(parent, SWT.CHECK);
+        this.overrideSettingsCheckbox.setText(this.overrideCheckboxLabel);
         GridDataFactory.swtDefaults().applyTo(parent);
     }
 
     private void configureParentPreferenceLink(Composite parent) {
         this.parentPreferenceLink = new Link(parent, SWT.NONE);
         this.parentPreferenceLink.setFont(parent.getFont());
-        this.parentPreferenceLink.setText("<A>" + this.preferencesLabel + "...</A>");
+        this.parentPreferenceLink.setText("<A>" + this.configureParentPrefsLinkLabel + "...</A>");
         GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER).grab(false, false).applyTo(this.parentPreferenceLink);
     }
 
@@ -89,7 +92,7 @@ public class GradleProjectSettingsComposite extends Composite {
     }
 
     private void createGradleUserHomeGroup(Composite parent) {
-        this.gradleUserHomeGroup = new GradleUserHomeGroup(parent, SWT.NONE);
+        this.gradleUserHomeGroup = new GradleUserHomeGroup(parent);
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(2, 1).applyTo(this.gradleUserHomeGroup);
     }
 
@@ -99,21 +102,38 @@ public class GradleProjectSettingsComposite extends Composite {
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(2, 1).applyTo(this.offlineModeCheckbox);
     }
 
-    private void createBuildScansEnabledCheckbox(Composite parent) {
+    private void createBuildScansCheckbox(Composite parent) {
         this.buildScansCheckbox = new Button(parent, SWT.CHECK);
         this.buildScansCheckbox.setText("Build Scans");
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(2, 1).applyTo(this.buildScansCheckbox);
         HoverText.createAndAttach(this.buildScansCheckbox, CoreMessages.Preference_Label_BuildScansHover);
     }
 
+    private void addListeners() {
+        if (this.overrideSettingsCheckbox != null) {
+            this.overrideSettingsCheckbox.addSelectionListener(new SelectionListener() {
 
-    private void setupEnablement() {
-        // TODO (donat) implement
-        // this.overrideProjectSettingsEnabler = new Enabler(this.overrideBuildSettingsCheckbox).enables(this.offlineModeCheckbox, this.buildScansEnabledCheckbox, this.gradleDistributionGroup);
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    updateEnablement();
+                }
+
+                @Override
+                public void widgetDefaultSelected(SelectionEvent e) {
+                    updateEnablement();
+                }
+            });
+        }
     }
 
     public void updateEnablement() {
-        // TODO (donat) implement
+        if (this.overrideSettingsCheckbox != null) {
+            boolean enabled = this.overrideSettingsCheckbox.getSelection();
+            this.gradleDistributionGroup.setEnabled(enabled);
+            this.gradleUserHomeGroup.setEnabled(enabled);
+            this.offlineModeCheckbox.setEnabled(enabled);
+            this.buildScansCheckbox.setEnabled(enabled);
+        }
     }
 
     @Override
@@ -122,7 +142,7 @@ public class GradleProjectSettingsComposite extends Composite {
     }
 
     public Button getOverrideBuildSettingsCheckbox() {
-        return this.overrideBuildSettingsCheckbox;
+        return this.overrideSettingsCheckbox;
     }
 
     public Link getParentPreferenceLink() {
@@ -145,8 +165,8 @@ public class GradleProjectSettingsComposite extends Composite {
         return this.buildScansCheckbox;
     }
 
-    public static GradleProjectSettingsComposite withOverrideCheckbox(Composite parent, String overrideLabel, String preferencesLabel) {
-        return new GradleProjectSettingsComposite(parent, true, overrideLabel, preferencesLabel);
+    public static GradleProjectSettingsComposite withOverrideCheckbox(Composite parent, String overrideCheckboxLabel, String configureParentPrefsLinkLabel) {
+        return new GradleProjectSettingsComposite(parent, true, overrideCheckboxLabel, configureParentPrefsLinkLabel);
     }
 
     public static GradleProjectSettingsComposite withoutOverrideCheckbox(Composite parent) {

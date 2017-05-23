@@ -41,7 +41,7 @@ import org.eclipse.buildship.ui.util.widget.GradleProjectSettingsComposite;
  * The main workspace preference page for Buildship. Currently only used to configure the Gradle
  * User Home.
  */
-public class GradleWorkbenchPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
+public final class GradleWorkbenchPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
     public static final String PAGE_ID = "org.eclipse.buildship.ui.preferences";
 
@@ -63,14 +63,6 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
         addListeners();
 
         return this.gradleProjectSettingsComposite;
-    }
-
-    private void validate() {
-        String resolvedGradleUserHome = getResolvedGradleUserHome();
-        File gradleUserHome = FileUtils.getAbsoluteFile(resolvedGradleUserHome).orNull();
-        Optional<String> error = this.gradleUserHomeValidator.validate(gradleUserHome);
-        setValid(!error.isPresent());
-        setErrorMessage(error.orNull());
     }
 
     private String getResolvedGradleUserHome() {
@@ -95,13 +87,7 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
     }
 
     private void addListeners() {
-        this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().addModifyListener(new ModifyListener() {
-
-            @Override
-            public void modifyText(ModifyEvent event) {
-                validate();
-            }
-        });
+        this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().addModifyListener(new GradleUserHomeValidatingListener());
     }
 
     @Override
@@ -128,6 +114,21 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
 
     @Override
     public void init(IWorkbench workbench) {
+    }
+
+    /**
+     * Validates the Gradle user home value.
+     */
+    private class GradleUserHomeValidatingListener implements ModifyListener {
+
+        @Override
+        public void modifyText(ModifyEvent e) {
+            String resolvedGradleUserHome = getResolvedGradleUserHome();
+            File gradleUserHome = FileUtils.getAbsoluteFile(resolvedGradleUserHome).orNull();
+            Optional<String> error = GradleWorkbenchPreferencePage.this.gradleUserHomeValidator.validate(gradleUserHome);
+            setValid(!error.isPresent());
+            setErrorMessage(error.orNull());
+        }
     }
 
 }

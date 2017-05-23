@@ -24,7 +24,6 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
 
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
-import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.ui.preferences.GradleWorkbenchPreferencePage;
 import org.eclipse.buildship.ui.util.widget.GradleDistributionGroup.DistributionChangedListener;
 import org.eclipse.buildship.ui.util.widget.GradleProjectSettingsComposite;
@@ -38,13 +37,12 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
 
     private GradleProjectSettingsComposite gradleProjectSettingsComposite;
 
-    // TODO (donat) get rid of the published gradle versions argument
-    public GradleOptionsWizardPage(ProjectImportConfiguration configuration, PublishedGradleVersionsWrapper publishedGradleVersions) {
-        this(configuration, publishedGradleVersions, ProjectWizardMessages.Title_GradleOptionsWizardPage, ProjectWizardMessages.InfoMessage_GradleOptionsWizardPageDefault,
+    public GradleOptionsWizardPage(ProjectImportConfiguration configuration) {
+        this(configuration, ProjectWizardMessages.Title_GradleOptionsWizardPage, ProjectWizardMessages.InfoMessage_GradleOptionsWizardPageDefault,
                 ProjectWizardMessages.InfoMessage_GradleOptionsWizardPageContext);
     }
 
-    public GradleOptionsWizardPage(ProjectImportConfiguration configuration, PublishedGradleVersionsWrapper publishedGradleVersions, String title, String defaultMessage, String pageContextInformation) {
+    public GradleOptionsWizardPage(ProjectImportConfiguration configuration, String title, String defaultMessage, String pageContextInformation) {
         super("GradleOptions", title, defaultMessage, configuration, ImmutableList.<Property<?>>of(configuration.getGradleDistribution()));
         this.pageContextInformation = pageContextInformation;
     }
@@ -62,6 +60,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
 
     private void initValues() {
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().setGradleDistribution(getConfiguration().getGradleDistribution().getValue());
+        this.gradleProjectSettingsComposite.updateEnablement();
     }
 
     private void addListeners() {
@@ -79,6 +78,9 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
         return this.pageContextInformation;
     }
 
+    /**
+     * Opens the workspace preferences dialog.
+     */
     private class WorkbenchPreferenceOpeningSelectionListener implements SelectionListener {
 
         @Override
