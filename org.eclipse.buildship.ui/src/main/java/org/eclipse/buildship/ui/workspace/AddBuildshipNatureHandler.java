@@ -81,6 +81,7 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
     }
 
     private void publishNatureAddedEvent(Set<IProject> projects) {
+        // TODO this could be solved in a more general way by publishing nature added and removed events during project synchronization
         CorePlugin.listenerRegistry().dispatch(new GradleNatureAddedEvent(projects));
     }
 
