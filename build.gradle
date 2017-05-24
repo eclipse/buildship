@@ -25,7 +25,6 @@ def eclipseVersionAgnosticDependencies = [
     'org.slf4j.simple'                  : '1.7.2',
     'com.google.guava'                  : '15.0.0',
     'com.google.gson'                   : '2.2.4',
-    'org.junit'                         : '4.11.0',
     'org.apache.log4j'                  : '1.2.15',
     'org.eclipse.swtbot.eclipse.finder' : '2.2.1',
     'org.eclipse.swtbot.junit4_x'       : '2.2.1',
@@ -67,6 +66,7 @@ eclipseBuild {
             'com.ibm.icu'                           : '4.4.2',
             'org.eclipse.jface.databinding'         : '1.6.0',
             'org.eclipse.jface.text'                : '3.8.2',
+            'org.junit'                             : '4.11.0',
             "$swtPluginId"                          : '3.100.1'
         ] + eclipseVersionAgnosticDependencies
     }
@@ -99,6 +99,7 @@ eclipseBuild {
             'com.ibm.icu'                           : '50.1.1',
             'org.eclipse.jface.databinding'         : '1.6.200',
             'org.eclipse.jface.text'                : '3.8.101',
+            'org.junit'                             : '4.11.0',
             "$swtPluginId"                          : '3.102.1'
         ] + eclipseVersionAgnosticDependencies
     }
@@ -131,6 +132,7 @@ eclipseBuild {
             'com.ibm.icu'                           : '52.1.1',
             'org.eclipse.jface.databinding'         : '1.6.200',
             'org.eclipse.jface.text'                : '3.9.2',
+            'org.junit'                             : '4.11.0',
             "$swtPluginId"                          : '3.103.2'
         ] + eclipseVersionAgnosticDependencies
     }
@@ -163,6 +165,7 @@ eclipseBuild {
             'org.eclipse.jface.databinding'         : '1.7.0',
             'org.eclipse.jface.text'                : '3.10.0',
             'com.ibm.icu'                           : '54.1.1',
+            'org.junit'                             : '4.11.0',
             "$swtPluginId"                          : "3.104.0"
         ] + eclipseVersionAgnosticDependencies
     }
@@ -170,6 +173,13 @@ eclipseBuild {
     targetPlatform {
         eclipseVersion = '46'
         targetDefinition = file('tooling-e46.target')
+        // TODO define version mapping similarly as above; it makes dependency resolution faster
+        versionMapping = eclipseVersionAgnosticDependencies
+    }
+
+    targetPlatform {
+        eclipseVersion = '47'
+        targetDefinition = file('tooling-e47.target')
         // TODO define version mapping similarly as above; it makes dependency resolution faster
         versionMapping = eclipseVersionAgnosticDependencies
     }
