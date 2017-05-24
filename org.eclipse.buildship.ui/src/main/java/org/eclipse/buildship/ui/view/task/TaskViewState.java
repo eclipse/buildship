@@ -55,7 +55,7 @@ public final class TaskViewState implements TreeViewerState {
         this.sortByType = prefs.getBoolean(PREF_SORT_BY_TYPE, true);
         this.sortByVisibility = prefs.getBoolean(PREF_SORT_BY_VISIBILITY, true);
         this.linkToSelection = prefs.getBoolean(PREF_LINK_TO_SELECTION, false);
-        this.showTreeHeader = prefs.getBoolean(PREF_SHOW_TREE_HEADER, false);
+        this.showTreeHeader = prefs.getBoolean(PREF_SHOW_TREE_HEADER, true);
         this.headerNameColumnWidth = prefs.getInt(PREF_HEADER_NAME_COLUMN_WIDTH, 200);
         this.headerDescriptionColumnWidth = prefs.getInt(PREF_HEADER_DESCRIPTION_COLUMN_WIDTH, 400);
         this.groupTasks = prefs.getBoolean(PREF_GROUP_TASKS, true);
