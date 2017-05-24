@@ -63,7 +63,8 @@ public enum PluginImages implements PluginImage {
     OPERATION_FAILURE(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_failure.png")),
     PROJECT(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/project.png")),
     JAVA_PROJECT(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/java_project.png")),
-    FAULTY_PROJECT(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/faulty_project.png"));
+    FAULTY_PROJECT(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/faulty_project.png")),
+    BUILD_SCAN(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/build_scan.png", ImageState.DISABLED, "icons/full/obj16/build_scan_disabled.png"));
     // @formatter:on
 
     private final ImmutableMap<ImageState, String> images;

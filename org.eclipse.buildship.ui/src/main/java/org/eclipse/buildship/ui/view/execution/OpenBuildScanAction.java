@@ -23,6 +23,8 @@ import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.event.EventListener;
 import org.eclipse.buildship.core.scan.BuildScanCreatedEvent;
+import org.eclipse.buildship.ui.PluginImage.ImageState;
+import org.eclipse.buildship.ui.PluginImages;
 
 /**
  * Opens build scans from the console output.
@@ -34,8 +36,9 @@ public final class OpenBuildScanAction extends Action implements EventListener {
 
     public OpenBuildScanAction(ProcessDescription processDescription) {
         this.processDescription = Preconditions.checkNotNull(processDescription);
-        setText("Open Scan");
-        // TODO (donat) set icon, disabled icon and tooltip
+        setToolTipText("Open Build Scan");
+        setImageDescriptor(PluginImages.BUILD_SCAN.withState(ImageState.ENABLED).getImageDescriptor());
+        setDisabledImageDescriptor(PluginImages.BUILD_SCAN.withState(ImageState.DISABLED).getImageDescriptor());
         setEnabled(false);
         CorePlugin.listenerRegistry().addEventListener(this);
     }
