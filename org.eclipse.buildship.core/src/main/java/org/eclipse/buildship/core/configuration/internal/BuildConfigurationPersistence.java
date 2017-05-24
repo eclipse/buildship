@@ -120,8 +120,8 @@ final class BuildConfigurationPersistence {
                 ? GradleDistribution.fromBuild()
                 : GradleDistributionSerializer.INSTANCE.deserializeFromString(distributionString);
 
-        String gradleUserHomeString = preferences.readString(PREF_KEY_GRADLE_USER_HOME, null);
-        File gradleUserHome = gradleUserHomeString == null
+        String gradleUserHomeString = preferences.readString(PREF_KEY_GRADLE_USER_HOME, "");
+        File gradleUserHome = gradleUserHomeString.isEmpty()
                 ? null
                 : new File(gradleUserHomeString);
 
@@ -135,11 +135,7 @@ final class BuildConfigurationPersistence {
         if (properties.isOverrideWorkspaceSettings()) {
             String gradleDistribution = GradleDistributionSerializer.INSTANCE.serializeToString(properties.getGradleDistribution());
             preferences.write(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, gradleDistribution);
-            if (properties.getGradleUserHome() == null) {
-                preferences.delete(PREF_KEY_GRADLE_USER_HOME);
-            } else {
-                preferences.write(PREF_KEY_GRADLE_USER_HOME, properties.getGradleUserHome().getPath());
-            }
+            preferences.write(PREF_KEY_GRADLE_USER_HOME, properties.getGradleUserHome() == null ? "" : properties.getGradleUserHome().getPath());
             preferences.writeBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, properties.isOverrideWorkspaceSettings());
             preferences.writeBoolean(PREF_KEY_BUILD_SCANS_ENABLED, properties.isBuildScansEnabled());
             preferences.writeBoolean(PREF_KEY_OFFLINE_MODE, properties.isOfflineMode());

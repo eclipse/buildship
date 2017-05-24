@@ -17,6 +17,8 @@ import com.gradleware.tooling.toolingutils.binding.Property;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
@@ -43,7 +45,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
     }
 
     public GradleOptionsWizardPage(ProjectImportConfiguration configuration, String title, String defaultMessage, String pageContextInformation) {
-        super("GradleOptions", title, defaultMessage, configuration, ImmutableList.<Property<?>>of(configuration.getGradleDistribution()));
+        super("GradleOptions", title, defaultMessage, configuration, ImmutableList.<Property<?>>of(configuration.getGradleDistribution(), configuration.getGradleUserHome()));
         this.pageContextInformation = pageContextInformation;
     }
 
@@ -59,11 +61,29 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
     }
 
     private void initValues() {
+        this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().setSelection(getConfiguration().getOverwriteWorkspaceSettings().getValue());
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().setGradleDistribution(getConfiguration().getGradleDistribution().getValue());
+        this.gradleProjectSettingsComposite.getGradleUserHomeGroup().setGradleUserHome(getConfiguration().getGradleUserHome().getValue());
+        this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(getConfiguration().getBuildScansEnabled().getValue());
+        this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(getConfiguration().getOfflineMode().getValue());
         this.gradleProjectSettingsComposite.updateEnablement();
     }
 
     private void addListeners() {
+        this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().addSelectionListener(new SelectionListener() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                getConfiguration().getOverwriteWorkspaceSettings().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().getSelection());
+
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+                getConfiguration().getOverwriteWorkspaceSettings().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().getSelection());
+            }
+        });
+
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().addDistributionChangedListener(new DistributionChangedListener() {
 
             @Override
@@ -71,6 +91,42 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
                 getConfiguration().setGradleDistribution(distribution);
             }
         });
+
+        this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().addModifyListener(new ModifyListener() {
+
+            @Override
+            public void modifyText(ModifyEvent e) {
+                getConfiguration().setGradleUserHome(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHome());
+            }
+        });
+        this.gradleProjectSettingsComposite.getBuildScansCheckbox().addSelectionListener(new SelectionListener() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                getConfiguration().getBuildScansEnabled().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getBuildScansCheckbox().getSelection());
+
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+                getConfiguration().getBuildScansEnabled().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getBuildScansCheckbox().getSelection());
+            }
+        });
+
+        this.gradleProjectSettingsComposite.getOfflineModeCheckbox().addSelectionListener(new SelectionListener() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                getConfiguration().getOfflineMode().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection());
+
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+                getConfiguration().getOfflineMode().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection());
+            }
+        });
+
     }
 
     @Override
