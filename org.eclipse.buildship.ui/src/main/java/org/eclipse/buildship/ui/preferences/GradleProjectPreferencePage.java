@@ -8,6 +8,10 @@
 
 package org.eclipse.buildship.ui.preferences;
 
+import java.io.File;
+
+import com.gradleware.tooling.toolingutils.binding.Validator;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.events.SelectionEvent;
@@ -20,6 +24,9 @@ import org.eclipse.ui.dialogs.PropertyPage;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.ConfigurationManager;
+import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.util.binding.Validators;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.ui.util.widget.GradleProjectSettingsComposite;
 
@@ -33,6 +40,14 @@ public final class GradleProjectPreferencePage extends PropertyPage {
     public static final String PAGE_ID = "org.eclipse.buildship.ui.projectproperties";
 
     private GradleProjectSettingsComposite gradleProjectSettingsComposite;
+
+    private final Validator<GradleDistributionWrapper> gradleDistributionValidator;
+    private final Validator<File> gradleUserHomeValidator;
+
+    public GradleProjectPreferencePage() {
+        this.gradleUserHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_GradleUserHome);
+        this.gradleDistributionValidator = GradleDistributionValidator.gradleDistributionValidator();
+    }
 
     @Override
     protected Control createContents(Composite parent) {
@@ -59,6 +74,8 @@ public final class GradleProjectPreferencePage extends PropertyPage {
 
     private void addListeners() {
         this.gradleProjectSettingsComposite.getParentPreferenceLink().addSelectionListener(new WorkbenchPreferenceOpeningSelectionListener());
+        this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().addModifyListener(new GradleUserHomeValidatingListener(this, this.gradleUserHomeValidator));
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().addDistributionChangedListener(new GradleDistributionValidatingListener(this, this.gradleDistributionValidator));
     }
 
     @Override
