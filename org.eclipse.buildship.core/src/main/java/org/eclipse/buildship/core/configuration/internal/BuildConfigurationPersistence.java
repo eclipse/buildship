@@ -15,6 +15,7 @@ import com.google.common.base.Preconditions;
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.Path;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
@@ -135,7 +136,7 @@ final class BuildConfigurationPersistence {
         if (properties.isOverrideWorkspaceSettings()) {
             String gradleDistribution = GradleDistributionSerializer.INSTANCE.serializeToString(properties.getGradleDistribution());
             preferences.write(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, gradleDistribution);
-            preferences.write(PREF_KEY_GRADLE_USER_HOME, properties.getGradleUserHome() == null ? "" : properties.getGradleUserHome().getPath());
+            preferences.write(PREF_KEY_GRADLE_USER_HOME, toPortableString(properties.getGradleUserHome()));
             preferences.writeBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, properties.isOverrideWorkspaceSettings());
             preferences.writeBoolean(PREF_KEY_BUILD_SCANS_ENABLED, properties.isBuildScansEnabled());
             preferences.writeBoolean(PREF_KEY_OFFLINE_MODE, properties.isOfflineMode());
@@ -147,6 +148,10 @@ final class BuildConfigurationPersistence {
             preferences.delete(PREF_KEY_OFFLINE_MODE);
         }
         preferences.flush();
+    }
+
+    private static String toPortableString(File file) {
+        return file == null ? "" : new Path(file.getPath()).toPortableString();
     }
 
     private static File getProjectPrefsFile(File projectDir, String node) {
