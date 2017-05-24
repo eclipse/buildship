@@ -17,6 +17,7 @@ import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
 import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.event.EventListener;
+import org.eclipse.buildship.core.workspace.GradleNatureAddedEvent;
 import org.eclipse.buildship.core.workspace.ProjectCreatedEvent;
 import org.eclipse.buildship.core.workspace.ProjectDeletedEvent;
 
@@ -37,7 +38,7 @@ public final class WorkspaceProjectsChangeListener implements EventListener {
 
     @Override
     public void onEvent(Event event) {
-        if (event instanceof ProjectCreatedEvent || event instanceof ProjectDeletedEvent) {
+        if (event instanceof ProjectCreatedEvent || event instanceof ProjectDeletedEvent || event instanceof GradleNatureAddedEvent) {
             this.taskView.reload(FetchStrategy.LOAD_IF_NOT_CACHED);
         }
     }
