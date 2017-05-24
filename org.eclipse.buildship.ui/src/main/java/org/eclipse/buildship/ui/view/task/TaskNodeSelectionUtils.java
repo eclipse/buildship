@@ -90,6 +90,7 @@ public final class TaskNodeSelectionUtils {
         return new GradleRunConfigurationAttributes(tasks,
                                                     projectDirectoryExpression(projectNode.getEclipseProject().getProjectDirectory()),
                                                     GradleDistributionSerializer.INSTANCE.serializeToString(buildConfig.getGradleDistribution()),
+                                                    gradleUserHomeExpression(buildConfig.getGradleUserHome()),
                                                     null,
                                                     Collections.<String>emptyList(),
                                                     Collections.<String>emptyList(),
@@ -109,6 +110,10 @@ public final class TaskNodeSelectionUtils {
         } else {
             return rootProjectDir.getAbsolutePath();
         }
+    }
+
+    private static String gradleUserHomeExpression(File gradleUserHome) {
+        return gradleUserHome == null ? "" : gradleUserHome.getAbsolutePath();
     }
 
     private static ImmutableList<String> getTaskPathStrings(NodeSelection selection) {

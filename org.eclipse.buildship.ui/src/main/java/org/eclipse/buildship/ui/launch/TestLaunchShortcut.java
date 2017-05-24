@@ -79,6 +79,7 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
                                                                         Collections.<String>emptyList(),
                                                                         null,
                                                                         GradleDistribution.fromBuild(),
+                                                                        null,
                                                                         Collections.<String>emptyList(),
                                                                         Collections.<String>emptyList(),
                                                                         true,

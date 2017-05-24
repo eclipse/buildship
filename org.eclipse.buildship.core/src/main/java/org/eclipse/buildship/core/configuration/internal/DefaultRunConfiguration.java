@@ -55,6 +55,15 @@ public class DefaultRunConfiguration implements RunConfiguration {
     }
 
     @Override
+    public File getGradleUserHome() {
+        if (this.properties.isOverrideBuildSettings()) {
+            return this.properties.getGradleUserHome();
+        } else {
+            return this.buildConfiguration.getGradleUserHome();
+        }
+    }
+
+    @Override
     public File getJavaHome() {
         return this.properties.getJavaHome();
     }

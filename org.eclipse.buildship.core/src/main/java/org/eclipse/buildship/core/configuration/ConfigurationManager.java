@@ -27,7 +27,7 @@ public interface ConfigurationManager {
 
     void saveWorkspaceConfiguration(WorkspaceConfiguration configuration);
 
-    // TODO (donat) overwriteWorkspaceSettings should be the second argument
+    // TODO (donat) the arguments should be ordered as follows: unique parameters - overrideBuildSettings - overriding parameters
     BuildConfiguration createBuildConfiguration(File rootProjectDirectory, GradleDistribution gradleDistribution, File gradleUserHome, boolean overrideWorkspaceSettings, boolean buildScansEnabled,
             boolean offlineMode);
 
@@ -47,6 +47,7 @@ public interface ConfigurationManager {
 
     RunConfiguration createDefaultRunConfiguration(BuildConfiguration configuration);
 
-    RunConfiguration createRunConfiguration(BuildConfiguration configuration, List<String> tasks, File javaHome, GradleDistribution gradleDistribution, List<String> jvmArguments,
+    // TODO (donat) the arguments should be ordered as follows: unique parameters - overrideBuildSettings - overriding parameters
+    RunConfiguration createRunConfiguration(BuildConfiguration configuration, List<String> tasks, File javaHome, GradleDistribution gradleDistribution, File gradleUserHome, List<String> jvmArguments,
             List<String> arguments, boolean showExecutionsView, boolean showConsoleView, boolean overrideBuildSettings, boolean buildScansEnabled, boolean offlineMode);
 }
