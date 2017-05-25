@@ -211,7 +211,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         gradleConfig.apply(eclipseConfig)
 
         then:
-        eclipseConfig.getAttributes().size() == validAttributes.size()
+        eclipseConfig.getAttributes().size() == validAttributes.size() + 1 // TODO (donat) add gradle user home
     }
 
     def "All valid configuration settings can be stored and retrieved"(Attributes attributes) {
@@ -272,7 +272,8 @@ class GradleRunConfigurationAttributesTest extends Specification {
         def buildScansEnabled
 
         def GradleRunConfigurationAttributes toConfiguration() {
-            new GradleRunConfigurationAttributes(tasks, workingDir, gradleDistr, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView, overrideBuildSettings, isOffline, buildScansEnabled)
+            // TODO (donat) add gradle user home parameter
+            new GradleRunConfigurationAttributes(tasks, workingDir, gradleDistr, "", javaHome, jvmArguments, arguments, showExecutionView, showConsoleView, overrideBuildSettings, isOffline, buildScansEnabled)
         }
 
         def Attributes copy(@DelegatesTo(value = Attributes, strategy=Closure.DELEGATE_FIRST) Closure closure) {

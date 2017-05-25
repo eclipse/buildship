@@ -88,7 +88,7 @@ public class ProjectImportWizardController {
         boolean offlineMode = dialogSettings.getBoolean(SETTINGS_KEY_OFFLINE_MODE);
 
         this.configuration.setProjectDir(projectDir.orNull());
-        this.configuration.setOverwirteWorkspaceSettingS(false);
+        this.configuration.setOverwriteWorkspaceSettings(false);
         this.configuration.setGradleDistribution(createGradleDistribution(gradleDistributionType, gradleDistributionConfiguration));
         this.configuration.setGradleUserHome(gradleUserHome.orNull());
         this.configuration.setApplyWorkingSets(applyWorkingSets);

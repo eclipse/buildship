@@ -117,6 +117,7 @@ class GradleLaunchConfigurationManagerTest extends Specification {
             tasks,
             projectDir,
             GradleDistributionSerializer.INSTANCE.serializeToString(GradleDistribution.forVersion(gradleVersion)),
+            null, // TODO (donat) add parameter
             javaHome,
             jvmArguments,
             arguments,

@@ -65,7 +65,7 @@ public final class ProjectImportConfiguration {
         return this.overwriteWorkspaceSettings;
     }
 
-    public void setOverwirteWorkspaceSettingS(boolean overwriteWorkspaceSettings) {
+    public void setOverwriteWorkspaceSettings(boolean overwriteWorkspaceSettings) {
         this.overwriteWorkspaceSettings.setValue(Boolean.valueOf(overwriteWorkspaceSettings));
     }
 
