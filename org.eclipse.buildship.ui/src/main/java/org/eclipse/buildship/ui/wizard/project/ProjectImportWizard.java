@@ -27,10 +27,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IImportWizard;
 import org.eclipse.ui.IWorkbench;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
-import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 import org.eclipse.buildship.ui.HelpContext;
@@ -65,23 +63,19 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
     private final ProjectImportWizardController controller;
 
     /**
-     * Creates a new instance and uses the {@link org.eclipse.jface.dialogs.DialogSettings} from {@link org.eclipse.buildship.ui.UiPlugin} and the
-     * {@link com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions} from the {@link CorePlugin}.
+     * Creates a new instance and uses the {@link org.eclipse.jface.dialogs.DialogSettings}.
      */
     @SuppressWarnings("UnusedDeclaration")
     public ProjectImportWizard() {
-        this(getOrCreateDialogSection(UiPlugin.getInstance().getDialogSettings()),
-                CorePlugin.publishedGradleVersions());
+        this(getOrCreateDialogSection(UiPlugin.getInstance().getDialogSettings()));
     }
 
     /**
-     * Creates a new instance and uses the given {@link org.eclipse.jface.dialogs.DialogSettings} and
-     * {@link com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions}.
+     * Creates a new instance and uses the given {@link org.eclipse.jface.dialogs.DialogSettings}.
      *
      * @param dialogSettings the dialog settings to store/retrieve dialog preferences
-     * @param publishedGradleVersions the published Gradle versions
      */
-    public ProjectImportWizard(IDialogSettings dialogSettings, PublishedGradleVersionsWrapper publishedGradleVersions) {
+    public ProjectImportWizard(IDialogSettings dialogSettings) {
         super(PREF_SHOW_WELCOME_PAGE);
 
         // store the dialog settings on the wizard and use them to retrieve / persist the most
@@ -96,7 +90,7 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
         WelcomePageContent welcomePageContent = WelcomePageContentFactory.createImportWizardWelcomePageContent();
         this.welcomeWizardPage = new GradleWelcomeWizardPage(configuration, welcomePageContent);
         this.gradleProjectPage = new GradleProjectWizardPage(configuration);
-        this.gradleOptionsPage = new GradleOptionsWizardPage(configuration, publishedGradleVersions);
+        this.gradleOptionsPage = new GradleOptionsWizardPage(configuration);
         this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller.getConfiguration(),
                 new ProjectPreviewWizardPage.ProjectPreviewLoader() {
                     @Override

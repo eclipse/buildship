@@ -45,7 +45,6 @@ import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
 import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.core.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.workspace.GradleBuild;
@@ -90,23 +89,19 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
     private final IPageChangedListener pageChangeListener;
 
     /**
-     * Creates a new instance and uses the {@link org.eclipse.jface.dialogs.DialogSettings} from {@link org.eclipse.buildship.ui.UiPlugin} and the
-     * {@link com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions} from the {@link CorePlugin}.
+     * Creates a new instance and uses the {@link org.eclipse.jface.dialogs.DialogSettings} from {@link org.eclipse.buildship.ui.UiPlugin}..
      */
     @SuppressWarnings("UnusedDeclaration")
     public ProjectCreationWizard() {
-        this(getOrCreateDialogSection(UiPlugin.getInstance().getDialogSettings()),
-                CorePlugin.publishedGradleVersions());
+        this(getOrCreateDialogSection(UiPlugin.getInstance().getDialogSettings()));
     }
 
     /**
-     * Creates a new instance and uses the given {@link org.eclipse.jface.dialogs.DialogSettings} and
-     * {@link com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions}.
+     * Creates a new instance and uses the given {@link org.eclipse.jface.dialogs.DialogSettings}.
      *
      * @param dialogSettings          the dialog settings to store/retrieve dialog preferences
-     * @param publishedGradleVersions the published Gradle versions
      */
-    public ProjectCreationWizard(IDialogSettings dialogSettings, PublishedGradleVersionsWrapper publishedGradleVersions) {
+    public ProjectCreationWizard(IDialogSettings dialogSettings) {
         super(PREF_SHOW_WELCOME_PAGE);
 
         // store the dialog settings on the wizard and use them to retrieve / persist the most
@@ -125,8 +120,10 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
         WelcomePageContent welcomePageContent = WelcomePageContentFactory.createCreationWizardWelcomePageContent();
         this.welcomeWizardPage = new GradleWelcomeWizardPage(importConfiguration, welcomePageContent);
         this.newGradleProjectPage = new NewGradleProjectWizardPage(importConfiguration, creationConfiguration);
-        this.gradleOptionsPage = new GradleOptionsWizardPage(importConfiguration, publishedGradleVersions,
-                ProjectWizardMessages.Title_NewGradleProjectOptionsWizardPage, ProjectWizardMessages.InfoMessage_NewGradleProjectOptionsWizardPageDefault, ProjectWizardMessages.InfoMessage_NewGradleProjectOptionsWizardPageContext);
+        this.gradleOptionsPage = new GradleOptionsWizardPage(importConfiguration,
+                ProjectWizardMessages.Title_NewGradleProjectOptionsWizardPage,
+                ProjectWizardMessages.InfoMessage_NewGradleProjectOptionsWizardPageDefault,
+                ProjectWizardMessages.InfoMessage_NewGradleProjectOptionsWizardPageContext);
         this.projectPreviewPage = new ProjectPreviewWizardPage(importConfiguration, new ProjectPreviewWizardPage.ProjectPreviewLoader() {
             @Override
             public Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> resultHandler, List<ProgressListener> listeners) {
