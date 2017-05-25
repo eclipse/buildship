@@ -42,6 +42,7 @@ class GradleLaunchConfigurationTest extends ProjectSynchronizationSpecification 
         new GradleRunConfigurationAttributes([],
             projectLoc,
             GradleDistributionSerializer.INSTANCE.serializeToString(GradleDistribution.fromBuild()),
+            "",
             null,
             [],
             [],
