@@ -88,6 +88,21 @@ public final class Validators {
         };
     }
 
+    public static Validator<File> nonWorkspaceFolderValidator(final String prefix) {
+        final File workspaceDir = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile();
+        return new Validator<File>() {
+
+            @Override
+            public Optional<String> validate(File file) {
+                if (workspaceDir.equals(file)) {
+                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_WorkspaceDirectory, prefix));
+                } else {
+                    return Optional.absent();
+                }
+            }
+        };
+    }
+
     public static Validator<String> uniqueWorkspaceProjectNameValidator(final String prefix) {
         return new Validator<String>() {
 
@@ -120,6 +135,16 @@ public final class Validators {
             @Override
             public Optional<String> validate(T value) {
                 return Boolean.FALSE.equals(condition.getValue()) ? validator.validate(value) : Optional.<String>absent();
+            }
+        };
+    }
+
+    public static <T> Validator<T> and(final Validator<T> a, final Validator<T> b) {
+        return new Validator<T>() {
+            @Override
+            public Optional<String> validate(T value) {
+                Optional<String> result = a.validate(value);
+                return result.isPresent() ? result : b.validate(value);
             }
         };
     }
