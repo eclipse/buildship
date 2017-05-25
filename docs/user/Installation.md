@@ -18,7 +18,7 @@ For manual installation use one of the update sites below.
 
 Eclipse Version | Type      | Update Site
 --------------- | ----------| ------------
-Neon (4.7)      | snapshot  | `http://download.eclipse.org/buildship/updates/e47/snapshots/2.x`
+Oxygen (4.7)    | snapshot  | `http://download.eclipse.org/buildship/updates/e47/snapshots/2.x`
 Neon (4.6)      | release   | `http://download.eclipse.org/buildship/updates/e46/releases/2.x`
                 | milestone | `http://download.eclipse.org/buildship/updates/e46/milestones/2.x`
                 | snapshot  | `http://download.eclipse.org/buildship/updates/e46/snapshots/2.x`
