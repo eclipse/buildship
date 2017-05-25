@@ -43,6 +43,8 @@ import org.eclipse.buildship.core.util.file.RelativePathUtils;
  */
 final class GradleFolderUpdater {
 
+    private static final String DEFAULT_BUILD_DIR_NAME = "build";
+
     private final IProject workspaceProject;
     private final OmniEclipseProject modelProject;
 
@@ -73,7 +75,7 @@ final class GradleFolderUpdater {
     private GradleFolderInfo collectFolderInfo(IProgressMonitor monitor) {
         IPath currentProjectPath = this.workspaceProject.getLocation();
 
-        IPath currentProjectBuildDirPath = null;
+        IPath currentProjectBuildDirPath = new Path(DEFAULT_BUILD_DIR_NAME);
         List<IPath> nestedProjectPaths = Lists.newArrayList();
         List<IPath> nestedBuildDirPaths = Lists.newArrayList();
 
@@ -134,7 +136,7 @@ final class GradleFolderUpdater {
         if (buildDirectory.isPresent() && buildDirectory.get() != null) {
             buildDirPath = normalizeBuildDirectoryPath(new Path(buildDirectory.get().getPath()));
         }
-        return buildDirPath != null ? buildDirPath : prefix.append("build");
+        return buildDirPath != null ? buildDirPath : prefix.append(DEFAULT_BUILD_DIR_NAME);
     }
 
     private IPath normalizeBuildDirectoryPath(IPath buildDirLocation) {
