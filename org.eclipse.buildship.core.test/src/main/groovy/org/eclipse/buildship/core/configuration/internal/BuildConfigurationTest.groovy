@@ -29,16 +29,14 @@ import org.eclipse.buildship.core.workspace.WorkspaceOperations
 class BuildConfigurationTest extends ProjectSynchronizationSpecification {
 
     @Shared
-    ConfigurationManager configurationManager = CorePlugin.configurationManager()
-
-    @Shared
     WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations()
 
     def "can create new build configuration"() {
         setup:
         File projectDir = dir('project-dir').canonicalFile
         File gradleUserHome = dir('gradle-user-home').canonicalFile
-        BuildConfiguration configuration = configurationManager.createBuildConfiguration(dir('project-dir'), GradleDistribution.forVersion('2.0'), gradleUserHome, true, false, false)
+
+        BuildConfiguration configuration = createOverridingBuildConfiguration(dir('project-dir'), GradleDistribution.forVersion('2.0'), false, false, gradleUserHome)
 
         expect:
         configuration.rootProjectDirectory == projectDir
@@ -49,7 +47,7 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
         configuration.offlineMode == false
     }
 
-    def "new build configuration can inherit workspace settings"(GradleDistribution distribution, String gradleUserHome, boolean buildScansEnabled, boolean offlineMode) {
+    def "new build configuration can inherit workspace settings"(GradleDistribution distribution, boolean buildScansEnabled, boolean offlineMode) {
         setup:
         File projectDir = dir('project-dir')
         File workspaceGradleUserHome = dir('workspace-gradle-user-home').canonicalFile
@@ -57,7 +55,7 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
 
         when:
         configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, workspaceGradleUserHome, offlineMode, buildScansEnabled))
-        BuildConfiguration configuration = configurationManager.createBuildConfiguration(projectDir, GradleDistribution.fromBuild(), new File(gradleUserHome), false, false, false)
+        BuildConfiguration configuration = createInheritingBuildConfiguration(projectDir)
 
         then:
         configuration.gradleDistribution == distribution
@@ -70,11 +68,11 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
         configurationManager.saveWorkspaceConfiguration(orignalConfiguration)
 
         where:
-        distribution                                                                 | gradleUserHome    | offlineMode  | buildScansEnabled
-        GradleDistribution.fromBuild()                                               | 'gradleuserhome1' | false        | false
-        GradleDistribution.forVersion("3.2.1")                                       | 'gradleuserhome2' | false        | true
-        GradleDistribution.forLocalInstallation(new File('/').canonicalFile)         | 'gradleuserhome3' | true         | true
-        GradleDistribution.forRemoteDistribution(new URI('http://example.com/gd'))   | 'gradleuserhome4' | true         | false
+        distribution                                                                | offlineMode  | buildScansEnabled
+        GradleDistribution.fromBuild()                                              | false        | false
+        GradleDistribution.forVersion("3.2.1")                                      | false        | true
+        GradleDistribution.forLocalInstallation(new File('/').canonicalFile)        | true         | true
+        GradleDistribution.forRemoteDistribution(new URI('http://example.com/gd'))  | true         | false
     }
 
     def "new build configuration can override workspace settings"(GradleDistribution distribution, String gradleUserHome, boolean buildScansEnabled, boolean offlineMode) {
@@ -83,7 +81,7 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
         File projectGradleUserHome = dir(gradleUserHome).canonicalFile
 
         when:
-        BuildConfiguration configuration = configurationManager.createBuildConfiguration(projectDir, distribution, projectGradleUserHome, true, buildScansEnabled, offlineMode)
+        BuildConfiguration configuration = createOverridingBuildConfiguration(projectDir, distribution, buildScansEnabled, offlineMode, projectGradleUserHome)
 
         then:
         configuration.gradleDistribution == distribution
@@ -123,7 +121,7 @@ connection.gradle.distribution=INVALID_GRADLE_DISTRO"""
     def "can save and load build configuration"() {
         setup:
         File projectDir = dir('project-dir').canonicalFile
-        BuildConfiguration configuration = configurationManager.createBuildConfiguration(projectDir, GradleDistribution.forVersion('2.0'), null, true, false, false)
+        BuildConfiguration configuration = createOverridingBuildConfiguration(projectDir, GradleDistribution.forVersion('2.0'))
 
         when:
         configurationManager.saveBuildConfiguration(configuration)
@@ -142,7 +140,7 @@ connection.gradle.distribution=INVALID_GRADLE_DISTRO"""
         setup:
         IProject project = newProject('project')
         File projectDir = project.location.toFile()
-        BuildConfiguration configuration = configurationManager.createBuildConfiguration(projectDir, GradleDistribution.forVersion('2.0'), null, true, false, false)
+        BuildConfiguration configuration = createOverridingBuildConfiguration(projectDir, GradleDistribution.forVersion('2.0'))
 
         when:
         project.close(new NullProgressMonitor())
@@ -162,7 +160,7 @@ connection.gradle.distribution=INVALID_GRADLE_DISTRO"""
         setup:
         File projectDir = dir('project-dir')
         WorkspaceConfiguration originalWsConfig = configurationManager.loadWorkspaceConfiguration()
-        BuildConfiguration buildConfig = configurationManager.createBuildConfiguration(projectDir, GradleDistribution.fromBuild(), null, false, false, false)
+        BuildConfiguration buildConfig = createInheritingBuildConfiguration(projectDir)
         File workspaceGradleUserHome = dir(gradleUserHome).canonicalFile
 
         when:
@@ -193,7 +191,7 @@ connection.gradle.distribution=INVALID_GRADLE_DISTRO"""
         File projectDir = dir('project-dir')
         WorkspaceConfiguration originalWsConfig = configurationManager.loadWorkspaceConfiguration()
         File projectGradleUserHome = dir(gradleUserHome).canonicalFile
-        BuildConfiguration buildConfig = configurationManager.createBuildConfiguration(projectDir, distribution, projectGradleUserHome, true, buildScansEnabled, offlineMode)
+        BuildConfiguration buildConfig = createOverridingBuildConfiguration(projectDir, distribution, buildScansEnabled, offlineMode, projectGradleUserHome)
 
         when:
         configurationManager.saveBuildConfiguration(buildConfig)

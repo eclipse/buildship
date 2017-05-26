@@ -14,7 +14,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         File projectLocation = dir("sample-project") {
             file 'settings.gradle'
         }
-        def buildConfiguration = CorePlugin.configurationManager().createBuildConfiguration(projectLocation, GradleDistribution.fromBuild(), null, true, false, false)
+
+        def buildConfiguration = createOverridingBuildConfiguration(projectLocation)
         def gradleBuild = new DefaultGradleBuild(buildConfiguration)
         def jobs = [
             SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP),
@@ -34,7 +35,7 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         File projectLocation = dir("sample-project") {
             file 'settings.gradle'
         }
-        def buildConfiguration = CorePlugin.configurationManager().createBuildConfiguration(projectLocation, GradleDistribution.fromBuild(), null, true, false, false)
+        def buildConfiguration = createOverridingBuildConfiguration(projectLocation)
         def gradleBuild = new DefaultGradleBuild(buildConfiguration)
         def jobs = [
             SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP),
@@ -54,7 +55,7 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         File projectLocation = dir("sample-project") {
             file 'settings.gradle'
         }
-        def buildConfiguration = CorePlugin.configurationManager().createBuildConfiguration(projectLocation, GradleDistribution.fromBuild(), null, true, false, false)
+        def buildConfiguration = createOverridingBuildConfiguration(projectLocation)
         def gradleBuild = new DefaultGradleBuild(buildConfiguration)
         def jobs = [
             SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP),
@@ -74,7 +75,7 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         File projectLocation = dir("sample-project") {
             file 'settings.gradle'
         }
-        def buildConfiguration = CorePlugin.configurationManager().createBuildConfiguration(projectLocation, GradleDistribution.fromBuild(), null, true, false, false)
+        def buildConfiguration = createOverridingBuildConfiguration(projectLocation)
         def gradleBuild = new DefaultGradleBuild(buildConfiguration)
         def jobs = [
             SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, {monitor, token -> "Foo"}),
@@ -94,7 +95,7 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         File projectLocation = dir("sample-project") {
             file 'settings.gradle'
         }
-        def buildConfiguration = CorePlugin.configurationManager().createBuildConfiguration(projectLocation, GradleDistribution.fromBuild(), null, true, false, false)
+        def buildConfiguration = createOverridingBuildConfiguration(projectLocation)
         def gradleBuild = new DefaultGradleBuild(buildConfiguration)
         def jobs = [
             SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, {monitor, token -> "Foo"}),
@@ -113,9 +114,9 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         setup:
         File project1 = dir("project1")
         File project2 = dir("project2")
-        def buildConfiguration1 = CorePlugin.configurationManager().createBuildConfiguration(project1, GradleDistribution.fromBuild(), null, true, false, false)
+        def buildConfiguration1 = createOverridingBuildConfiguration(project1)
         def gradleBuild1 = new DefaultGradleBuild(buildConfiguration1)
-        def buildConfiguration2 = CorePlugin.configurationManager().createBuildConfiguration(project2, GradleDistribution.fromBuild(), null, true, false, false)
+        def buildConfiguration2 = createOverridingBuildConfiguration(project2)
         def gradleBuild2 = new DefaultGradleBuild(buildConfiguration2)
         def jobs = [
             SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild1, NewProjectHandler.NO_OP, AsyncHandler.NO_OP),

@@ -19,9 +19,6 @@ import org.eclipse.buildship.core.workspace.WorkspaceOperations
 class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 
     @Shared
-    ConfigurationManager configurationManager = CorePlugin.configurationManager()
-
-    @Shared
     WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations()
 
     File projectDir
@@ -46,7 +43,7 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 
     def "can save and load project configuration"() {
         given:
-        BuildConfiguration buildConfig = configurationManager.createBuildConfiguration(rootProjectDir, GradleDistribution.forVersion('2.0'), null, true, false, false)
+        BuildConfiguration buildConfig = createOverridingBuildConfiguration(rootProjectDir, GradleDistribution.forVersion('2.0'))
         ProjectConfiguration projectConfig = configurationManager.createProjectConfiguration(buildConfig, projectDir);
 
         when:
@@ -60,7 +57,7 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 
     def "can save and load project configuration if projects are closed"() {
         given:
-        BuildConfiguration buildConfig = configurationManager.createBuildConfiguration(rootProjectDir, GradleDistribution.fromBuild(), null, false, false, false)
+        BuildConfiguration buildConfig = createInheritingBuildConfiguration(rootProjectDir)
         ProjectConfiguration projectConfig = configurationManager.createProjectConfiguration(buildConfig, projectDir);
         project.close(new NullProgressMonitor())
         rootProject.close(new NullProgressMonitor())
@@ -75,7 +72,7 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 
     def "can save and load project configuration if root project is not in the workspace"() {
         given:
-        BuildConfiguration buildConfig = configurationManager.createBuildConfiguration(rootProjectDir, GradleDistribution.fromBuild(), null, false, false, false)
+        BuildConfiguration buildConfig = createInheritingBuildConfiguration(rootProjectDir)
         ProjectConfiguration projectConfig = configurationManager.createProjectConfiguration(buildConfig, projectDir);
         rootProject.delete(false, false, new NullProgressMonitor())
 
@@ -89,7 +86,7 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 
     def "project configuration can be read if project is not yet refreshed"() {
         given:
-        BuildConfiguration buildConfig = configurationManager.createBuildConfiguration(rootProjectDir, GradleDistribution.fromBuild(), null, false, false, false)
+        BuildConfiguration buildConfig = createInheritingBuildConfiguration(rootProjectDir)
         ProjectConfiguration projectConfig = configurationManager.createProjectConfiguration(buildConfig, projectDir);
         configurationManager.saveProjectConfiguration(projectConfig)
 
@@ -107,7 +104,7 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 
     def "project configuration can be read if the project is closed"() {
         given:
-        BuildConfiguration buildConfig = configurationManager.createBuildConfiguration(rootProjectDir, GradleDistribution.fromBuild(), null, false, false, false)
+        BuildConfiguration buildConfig = createInheritingBuildConfiguration(rootProjectDir)
         ProjectConfiguration projectConfig = configurationManager.createProjectConfiguration(buildConfig, projectDir);
         configurationManager.saveProjectConfiguration(projectConfig)
 
@@ -122,7 +119,7 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 
     def "project configuration can be read if the root project is closed"() {
         given:
-        BuildConfiguration buildConfig = configurationManager.createBuildConfiguration(rootProjectDir, GradleDistribution.fromBuild(), null, false, false, false)
+        BuildConfiguration buildConfig = createInheritingBuildConfiguration(rootProjectDir)
         ProjectConfiguration projectConfig = configurationManager.createProjectConfiguration(buildConfig, projectDir);
         configurationManager.saveProjectConfiguration(projectConfig)
 
@@ -143,7 +140,7 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
          thrown RuntimeException
 
          when:
-         BuildConfiguration buildConfig = configurationManager.createBuildConfiguration(rootProjectDir, GradleDistribution.fromBuild(), null, false, false, false)
+         BuildConfiguration buildConfig = createInheritingBuildConfiguration(rootProjectDir)
          ProjectConfiguration projectConfig = configurationManager.createProjectConfiguration(buildConfig, projectDir);
          configurationManager.saveProjectConfiguration(projectConfig)
 
@@ -161,7 +158,7 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
     def "load build configuration respecting workspaces settings"(boolean buildScansEnabled, boolean offlineMode) {
         setup:
         WorkspaceConfiguration originalWsConfig = configurationManager.loadWorkspaceConfiguration()
-        BuildConfiguration buildConfig = configurationManager.createBuildConfiguration(rootProjectDir, GradleDistribution.fromBuild(), null, false, false, false)
+        BuildConfiguration buildConfig =  createInheritingBuildConfiguration(rootProjectDir)
         ProjectConfiguration projectConfig = configurationManager.createProjectConfiguration(buildConfig, projectDir);
 
         when:
@@ -188,7 +185,7 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
     def "load project configuration overriding workspace settings"(boolean buildScansEnabled, boolean offlineMode) {
         setup:
         WorkspaceConfiguration originalWsConfig = configurationManager.loadWorkspaceConfiguration()
-        BuildConfiguration buildConfig = configurationManager.createBuildConfiguration(rootProjectDir, GradleDistribution.fromBuild(), null, true, buildScansEnabled, offlineMode)
+        BuildConfiguration buildConfig = createOverridingBuildConfiguration(rootProjectDir, GradleDistribution.fromBuild(), buildScansEnabled, offlineMode)
         ProjectConfiguration projectConfig = configurationManager.createProjectConfiguration(buildConfig, projectDir);
 
         when:
@@ -214,7 +211,7 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 
     def "can delete project configuration"() {
         setup:
-        BuildConfiguration buildConfig = configurationManager.createBuildConfiguration(rootProjectDir, GradleDistribution.forVersion('2.0'), null, false, false, false)
+        BuildConfiguration buildConfig = createInheritingBuildConfiguration(rootProjectDir)
         ProjectConfiguration projectConfig = configurationManager.createProjectConfiguration(buildConfig, projectDir);
         configurationManager.saveProjectConfiguration(projectConfig)
         configurationManager.deleteProjectConfiguration(project)
@@ -228,7 +225,7 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 
     def "can delete project configuration on closed projects"() {
         setup:
-        BuildConfiguration buildConfig = configurationManager.createBuildConfiguration(rootProjectDir, GradleDistribution.forVersion('2.0'), null, false, false, false)
+        BuildConfiguration buildConfig = createInheritingBuildConfiguration(rootProjectDir)
         ProjectConfiguration projectConfig = configurationManager.createProjectConfiguration(buildConfig, projectDir);
         configurationManager.saveProjectConfiguration(projectConfig)
         project.close(new NullProgressMonitor())

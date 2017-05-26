@@ -38,7 +38,7 @@ abstract class ViewSpecification extends WorkspaceSpecification {
 
   private OmniEclipseProject newEclipseProject(ProjectNode parentNode, String path) {
     File projectDir = dir(path)
-    BuildConfiguration buildConfiguration = CorePlugin.configurationManager().createBuildConfiguration(projectDir, GradleDistribution.fromBuild(), null, false, false, false)
+    BuildConfiguration buildConfiguration = createInheritingBuildConfiguration(projectDir)
     CorePlugin.configurationManager().saveBuildConfiguration(buildConfiguration)
     OmniEclipseProject eclipseProject = Stub(OmniEclipseProject) {
         getProjectDirectory() >> projectDir

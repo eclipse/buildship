@@ -19,9 +19,6 @@ import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecificat
 
 class RunConfigurationTest extends ProjectSynchronizationSpecification {
 
-    @Shared
-    ConfigurationManager configurationManager = CorePlugin.configurationManager()
-
     def "create run configuration"(buildBuildScansEnabled, buildOfflineMode, runConfigOverride, runConfigBuildScansEnabled, runConfigOfflineMode, expectedRunConfigBuildScansEnabled, expectedRunConfigOfflineMode) {
         setup:
         List<String> tasks = ['compileGroovy', 'publish']
@@ -36,12 +33,11 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         File runGradleUserHome = dir('run-gradle-user-home').canonicalFile
 
         when:
-        BuildConfiguration buildConfig = configurationManager.createBuildConfiguration(rootDir,
-                GradleDistribution.fromBuild(),
-                buildGradleUserHome,
-                true,
-                buildBuildScansEnabled,
-                buildOfflineMode)
+        BuildConfiguration buildConfig = createOverridingBuildConfiguration(rootDir,
+            GradleDistribution.fromBuild(),
+            buildBuildScansEnabled,
+            buildOfflineMode,
+            buildGradleUserHome)
         RunConfiguration runConfig = configurationManager.createRunConfiguration(buildConfig,
                 tasks,
                 javaHome,
