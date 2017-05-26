@@ -26,7 +26,7 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
     IProject project
     IProject rootProject
 
-    void setup() {
+    def setup() {
         projectDir = dir('project-dir').canonicalFile
         rootProjectDir = dir('root-project-dir').canonicalFile
         project = workspaceOperations.createProject("sample-project", projectDir, [], new NullProgressMonitor())
