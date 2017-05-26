@@ -47,6 +47,11 @@ class DefaultBuildConfiguration implements BuildConfiguration {
     }
 
     @Override
+    public boolean isOverrideWorkspaceSettings() {
+        return this.properties.isOverrideWorkspaceSettings();
+    }
+
+    @Override
     public File getGradleUserHome() {
         if (this.properties.isOverrideWorkspaceSettings()) {
             return this.properties.getGradleUserHome();
@@ -62,11 +67,6 @@ class DefaultBuildConfiguration implements BuildConfiguration {
         } else {
             return this.workspaceConfiguration.getGradleDisribution();
         }
-    }
-
-    @Override
-    public boolean isOverrideWorkspaceSettings() {
-        return this.properties.isOverrideWorkspaceSettings();
     }
 
     @Override

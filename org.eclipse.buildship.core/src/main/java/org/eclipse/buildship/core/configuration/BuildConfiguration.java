@@ -20,17 +20,15 @@ import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
  */
 public interface BuildConfiguration {
 
-    // TODO (donat) order methods by category here and in the implementation
-
     WorkspaceConfiguration getWorkspaceConfiguration();
 
     File getRootProjectDirectory();
 
+    boolean isOverrideWorkspaceSettings();
+
     File getGradleUserHome();
 
     GradleDistribution getGradleDistribution();
-
-    boolean isOverrideWorkspaceSettings();
 
     boolean isBuildScansEnabled();
 
