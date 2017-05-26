@@ -51,7 +51,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     }
 
     @Override
-    public BuildConfiguration createBuildConfiguration(File rootProjectDirectory, GradleDistribution gradleDistribution, File gradleUserHome, boolean overrideWorkspaceSettings,
+    public BuildConfiguration createBuildConfiguration(File rootProjectDirectory, boolean overrideWorkspaceSettings, GradleDistribution gradleDistribution, File gradleUserHome,
             boolean buildScansEnabled, boolean offlineMode) {
         BuildConfigurationProperties persistentBuildConfigProperties = new BuildConfigurationProperties(rootProjectDirectory,
                                                                                                         gradleDistribution,

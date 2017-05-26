@@ -46,9 +46,9 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
     @Override
     public GradleBuild getGradleBuild(FixedRequestAttributes attributes) {
         BuildConfiguration configuration = CorePlugin.configurationManager().createBuildConfiguration(attributes.getProjectDir(),
+                false,
                 attributes.getGradleDistribution(),
                 attributes.getGradleUserHome(),
-                false,
                 false,
                 false);
         return getGradleBuild(configuration);

@@ -84,9 +84,9 @@ public final class GradleProjectPreferencePage extends PropertyPage {
        ConfigurationManager manager = CorePlugin.configurationManager();
        BuildConfiguration currentConfig = manager.loadProjectConfiguration(project).getBuildConfiguration();
        BuildConfiguration updatedConfig = manager.createBuildConfiguration(currentConfig.getRootProjectDirectory(),
+           this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().getSelection(),
            this.gradleProjectSettingsComposite.getGradleDistributionGroup().getGradleDistribution().toGradleDistribution(),
            this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHome(),
-           this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().getSelection(),
            this.gradleProjectSettingsComposite.getBuildScansCheckbox().getSelection(),
            this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection());
        manager.saveBuildConfiguration(updatedConfig);

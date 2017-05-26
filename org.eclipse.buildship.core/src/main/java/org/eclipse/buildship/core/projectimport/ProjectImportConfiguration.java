@@ -119,9 +119,9 @@ public final class ProjectImportConfiguration {
 
     public BuildConfiguration toBuildConfig() {
         return CorePlugin.configurationManager().createBuildConfiguration(getProjectDir().getValue(),
+                getOverwriteWorkspaceSettings().getValue(),
                 getGradleDistribution().getValue().toGradleDistribution(),
                 getGradleUserHome().getValue(),
-                getOverwriteWorkspaceSettings().getValue(),
                 getBuildScansEnabled().getValue(),
                 getOfflineMode().getValue());
     }
