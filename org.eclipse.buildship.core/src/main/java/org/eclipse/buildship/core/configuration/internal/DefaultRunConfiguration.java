@@ -30,7 +30,7 @@ public class DefaultRunConfiguration implements RunConfiguration {
     private final BuildConfiguration buildConfiguration;
     private final RunConfigurationProperties properties;
 
-    public DefaultRunConfiguration(WorkspaceConfiguration workspaceConfiguration, BuildConfigurationProperties buildProperties, RunConfigurationProperties properties) {
+    public DefaultRunConfiguration(WorkspaceConfiguration workspaceConfiguration, DefaultBuildConfigurationProperties buildProperties, RunConfigurationProperties properties) {
         this.buildConfiguration = new DefaultBuildConfiguration(buildProperties, workspaceConfiguration);
         this.properties = properties;
     }

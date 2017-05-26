@@ -37,26 +37,26 @@ final class BuildConfigurationPersistence {
     private static final String PREF_KEY_BUILD_SCANS_ENABLED = "build.scans.enabled";
     private static final String PREF_KEY_OFFLINE_MODE = "offline.mode";
 
-    public BuildConfigurationProperties readBuildConfiguratonProperties(IProject project) {
+    public DefaultBuildConfigurationProperties readBuildConfiguratonProperties(IProject project) {
         Preconditions.checkNotNull(project);
         PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
         return readPreferences(preferences, project.getLocation().toFile());
     }
 
-    public BuildConfigurationProperties readBuildConfiguratonProperties(File projectDir) {
+    public DefaultBuildConfigurationProperties readBuildConfiguratonProperties(File projectDir) {
         Preconditions.checkNotNull(projectDir);
         PreferenceStore preferences = PreferenceStore.forPreferenceFile(getProjectPrefsFile(projectDir, PREF_NODE));
         return readPreferences(preferences, projectDir);
     }
 
-    public void saveBuildConfiguration(IProject project, BuildConfigurationProperties properties) {
+    public void saveBuildConfiguration(IProject project, DefaultBuildConfigurationProperties properties) {
         Preconditions.checkNotNull(project);
         Preconditions.checkNotNull(properties);
         PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
         savePreferences(properties, preferences);
     }
 
-    public void saveBuildConfiguration(File projectDir, BuildConfigurationProperties properties) {
+    public void saveBuildConfiguration(File projectDir, DefaultBuildConfigurationProperties properties) {
         Preconditions.checkNotNull(projectDir);
         Preconditions.checkNotNull(properties);
         PreferenceStore preferences = PreferenceStore.forPreferenceFile(getProjectPrefsFile(projectDir, PREF_NODE));
@@ -110,7 +110,7 @@ final class BuildConfigurationPersistence {
         deleteRootDirPreference(preferences);
     }
 
-    private static BuildConfigurationProperties readPreferences(PreferenceStore preferences, File rootDir) {
+    private static DefaultBuildConfigurationProperties readPreferences(PreferenceStore preferences, File rootDir) {
         boolean overrideWorkspaceSettings = preferences.readBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, false);
 
         String distributionString = preferences.readString(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, null);
@@ -129,10 +129,10 @@ final class BuildConfigurationPersistence {
         boolean buildScansEnabled = preferences.readBoolean(PREF_KEY_BUILD_SCANS_ENABLED, false);
         boolean offlineMode = preferences.readBoolean(PREF_KEY_OFFLINE_MODE, false);
 
-        return new BuildConfigurationProperties(rootDir, distribution, gradleUserHome, overrideWorkspaceSettings, buildScansEnabled, offlineMode);
+        return new DefaultBuildConfigurationProperties(rootDir, distribution, gradleUserHome, overrideWorkspaceSettings, buildScansEnabled, offlineMode);
     }
 
-    private static void savePreferences(BuildConfigurationProperties properties, PreferenceStore preferences) {
+    private static void savePreferences(DefaultBuildConfigurationProperties properties, PreferenceStore preferences) {
         if (properties.isOverrideWorkspaceSettings()) {
             String gradleDistribution = GradleDistributionSerializer.INSTANCE.serializeToString(properties.getGradleDistribution());
             preferences.write(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, gradleDistribution);

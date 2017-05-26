@@ -28,10 +28,10 @@ import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
  */
 class DefaultBuildConfiguration implements BuildConfiguration {
 
-    private final BuildConfigurationProperties properties;
+    private final DefaultBuildConfigurationProperties properties;
     private final WorkspaceConfiguration workspaceConfiguration;
 
-    public DefaultBuildConfiguration(BuildConfigurationProperties persistentProperties, WorkspaceConfiguration workspaceConfiguration) {
+    public DefaultBuildConfiguration(DefaultBuildConfigurationProperties persistentProperties, WorkspaceConfiguration workspaceConfiguration) {
         this.properties = persistentProperties;
         this.workspaceConfiguration = workspaceConfiguration;
     }
@@ -124,7 +124,7 @@ class DefaultBuildConfiguration implements BuildConfiguration {
                 this.workspaceConfiguration);
     }
 
-    public BuildConfigurationProperties getProperties() {
+    public DefaultBuildConfigurationProperties getProperties() {
         return this.properties;
     }
 }

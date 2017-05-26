@@ -20,7 +20,7 @@ import com.gradleware.tooling.toolingclient.GradleDistribution;
  *
  * @author Donat Csikos
  */
-final class BuildConfigurationProperties {
+final class DefaultBuildConfigurationProperties {
 
     private final File rootProjectDirectory;
     private final GradleDistribution gradleDistribution;
@@ -29,7 +29,7 @@ final class BuildConfigurationProperties {
     private final boolean buildScansEnabled;
     private final boolean offlineMode;
 
-    public BuildConfigurationProperties(File rootProjectDirectory, GradleDistribution gradleDistribution, File gradleUserHome, boolean overrideWorkspaceSettings, boolean buildScansEnabled,
+    public DefaultBuildConfigurationProperties(File rootProjectDirectory, GradleDistribution gradleDistribution, File gradleUserHome, boolean overrideWorkspaceSettings, boolean buildScansEnabled,
             boolean offlineMode) {
         this.rootProjectDirectory = canonicalize(rootProjectDirectory);
         this.gradleDistribution = gradleDistribution;
@@ -73,8 +73,8 @@ final class BuildConfigurationProperties {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BuildConfigurationProperties) {
-            BuildConfigurationProperties other = (BuildConfigurationProperties) obj;
+        if (obj instanceof DefaultBuildConfigurationProperties) {
+            DefaultBuildConfigurationProperties other = (DefaultBuildConfigurationProperties) obj;
             return Objects.equal(this.rootProjectDirectory, other.rootProjectDirectory)
                     && Objects.equal(this.gradleDistribution, other.gradleDistribution)
                     && Objects.equal(this.gradleUserHome, other.gradleUserHome)
