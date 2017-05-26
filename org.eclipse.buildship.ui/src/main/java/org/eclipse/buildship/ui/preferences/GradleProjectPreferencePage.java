@@ -60,7 +60,6 @@ public final class GradleProjectPreferencePage extends PropertyPage {
     }
 
     private void initValues() {
-        // TODO (donat) (BUG) the fields here (and on the other pref dialogs) should be initialized from XxxConfigurationProperties
         IProject project = getTargetProject();
         BuildConfiguration buildConfig = CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
         boolean overrideWorkspaceSettings = buildConfig.isOverrideWorkspaceSettings();
