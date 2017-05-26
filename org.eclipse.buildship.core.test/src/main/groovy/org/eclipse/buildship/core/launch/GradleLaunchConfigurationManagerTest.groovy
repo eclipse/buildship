@@ -33,7 +33,7 @@ import java.util.List
 import spock.lang.Specification;
 
 class GradleLaunchConfigurationManagerTest extends Specification {
-    GradleRunConfigurationAttributes validAttribute = attributes('/home/user/workspace/project', ['clean'], '2.3', '/.java', ['-q'], ['-ea'])
+    GradleRunConfigurationAttributes validAttribute = createValidAttributes()
     GradleLaunchConfigurationManager manager = new DefaultGradleLaunchConfigurationManager()
 
     def setup() {
@@ -112,20 +112,18 @@ class GradleLaunchConfigurationManagerTest extends Specification {
         thrown(GradlePluginsRuntimeException)
     }
 
-    private GradleRunConfigurationAttributes attributes(String projectDir, tasks = [], gradleVersion = '2.3', javaHome = null, arguments = [], jvmArguments = []) {
-        new GradleRunConfigurationAttributes(
-            tasks,
-            projectDir,
-            GradleDistributionSerializer.INSTANCE.serializeToString(GradleDistribution.forVersion(gradleVersion)),
-            null, // TODO (donat) add parameter
-            javaHome,
-            jvmArguments,
-            arguments,
+    private GradleRunConfigurationAttributes createValidAttributes() {
+        new GradleRunConfigurationAttributes(['clean'],
+            '/home/user/workspace/project',
+            GradleDistributionSerializer.INSTANCE.serializeToString(GradleDistribution.forVersion('2.3')),
+            null,
+            '/.java',
+            ['-ea'],
+            ['-q'],
             true,
             true,
             true,
             true,
             true)
     }
-
 }

@@ -26,17 +26,11 @@ import org.eclipse.buildship.ui.test.fixtures.WorkspaceSpecification
 
 class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
 
-    // TODO (donat) verify all workspace configuration options are picked up for project conversion
-
-    def "Uses custom Gradle user home"() {
+    def "Uses configuration from workspace settings"() {
         setup:
-        WorkspaceConfiguration originalWorkspaceConfig = CorePlugin.configurationManager().loadWorkspaceConfiguration()
-
-        // if not the default location is specified then the Gradle
-        // distribution is downloaded every time the test is executed
-        File  gradleUserHome = new File(System.getProperty('user.home'), '.gradle')
-        WorkspaceConfiguration config = new WorkspaceConfiguration(GradleDistribution.fromBuild(), gradleUserHome, false, false)
-        CorePlugin.configurationManager().saveWorkspaceConfiguration(config)
+        WorkspaceConfiguration originalWorkspaceConfig = configurationManager.loadWorkspaceConfiguration()
+        WorkspaceConfiguration config = new WorkspaceConfiguration(GradleDistribution.forVersion("3.5"), new File(System.getProperty('user.home'), '.gradle'), false, false)
+        configurationManager.saveWorkspaceConfiguration(config)
 
         IProject project = EclipseProjects.newProject('add-buildship-nature')
         waitForResourceChangeEvents()
@@ -47,10 +41,10 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
         waitForGradleJobsToFinish()
 
         then:
-        eclipseModelLoadedWithGradleUserHome(project.location.toFile(), gradleUserHome)
+        eclipseModelLoadedWithWorkspacePreferences(project.location.toFile())
 
         cleanup:
-        CorePlugin.configurationManager().saveWorkspaceConfiguration(originalWorkspaceConfig)
+        configurationManager.saveWorkspaceConfiguration(originalWorkspaceConfig)
     }
 
     def "Publishes 'nature added' event"() {
@@ -82,7 +76,7 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
         event
     }
 
-    private boolean eclipseModelLoadedWithGradleUserHome(File projectLocation, File gradleUserHome) {
+    private boolean eclipseModelLoadedWithWorkspacePreferences(File projectLocation) {
         BuildConfiguration buildConfig = createInheritingBuildConfiguration(projectLocation)
         CancellationToken token = GradleConnector.newCancellationTokenSource().token()
         IProgressMonitor monitor = new NullProgressMonitor()

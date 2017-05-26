@@ -1,6 +1,5 @@
 package org.eclipse.buildship.core.configuration.internal
 
-import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Subject
 
@@ -21,7 +20,7 @@ class BuildConfigurationPersistenceTest extends WorkspaceSpecification {
     IProject project
     File projectDir
 
-    void setup() {
+    def setup() {
         project = newProject("sample-project")
         projectDir = dir("external")
     }
@@ -84,19 +83,28 @@ class BuildConfigurationPersistenceTest extends WorkspaceSpecification {
         thrown NullPointerException
     }
 
-    @Ignore // TODO (donat) an empty build configuration is valid now?
-    def "Reading nonexisting build configuration results in runtime exception"() {
+    def "Reading nonexisting build configuration returns default"() {
         when:
-        persistence.readBuildConfiguratonProperties(project)
+        BuildConfigurationProperties properties = persistence.readBuildConfiguratonProperties(project)
 
         then:
-        thrown RuntimeException
+        properties.rootProjectDirectory == project.location.toFile()
+        properties.overrideWorkspaceSettings == false
+        properties.gradleDistribution == GradleDistribution.fromBuild()
+        properties.gradleUserHome == null
+        properties.buildScansEnabled == false
+        properties.offlineMode == false
 
         when:
-        persistence.readBuildConfiguratonProperties(projectDir)
+        properties = persistence.readBuildConfiguratonProperties(projectDir)
 
         then:
-        thrown RuntimeException
+        properties.rootProjectDirectory == projectDir
+        properties.overrideWorkspaceSettings == false
+        properties.gradleDistribution == GradleDistribution.fromBuild()
+        properties.gradleUserHome == null
+        properties.buildScansEnabled == false
+        properties.offlineMode == false
     }
 
     def "Reading broken build configuration results in runtime exception"() {
