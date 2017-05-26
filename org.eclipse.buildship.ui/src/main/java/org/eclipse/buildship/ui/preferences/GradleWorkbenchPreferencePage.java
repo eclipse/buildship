@@ -28,6 +28,7 @@ import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.widget.GradleProjectSettingsComposite;
+import org.eclipse.buildship.ui.util.widget.GradleUserHomeGroup;
 
 /**
  * The main workspace preference page for Buildship. Currently only used to configure the Gradle
@@ -72,7 +73,8 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
     }
 
     private void addListeners() {
-        this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().addModifyListener(new GradleUserHomeValidatingListener(this, this.gradleUserHomeValidator));
+        GradleUserHomeGroup gradleUserHomeGroup = this.gradleProjectSettingsComposite.getGradleUserHomeGroup();
+        gradleUserHomeGroup.getGradleUserHomeText().addModifyListener(new GradleUserHomeValidatingListener(this, gradleUserHomeGroup, this.gradleUserHomeValidator));
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().addDistributionChangedListener(new GradleDistributionValidatingListener(this, this.gradleDistributionValidator));
     }
 

@@ -26,6 +26,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 import org.eclipse.buildship.ui.launch.LaunchMessages;
+import org.eclipse.buildship.ui.util.widget.GradleUserHomeGroup;
 
 /**
  * Updates Gradle user home validation messages on the preference pages.
@@ -35,33 +36,20 @@ import org.eclipse.buildship.ui.launch.LaunchMessages;
 final class GradleUserHomeValidatingListener implements ModifyListener {
 
     private final PreferencePage preferencePage;
+    private GradleUserHomeGroup gradleUserHomeGroup;
     private final Validator<File> gradleUserHomeValidator;
 
-    public GradleUserHomeValidatingListener(PreferencePage preferencePage, Validator<File> gradleUserHomeValidator) {
+    public GradleUserHomeValidatingListener(PreferencePage preferencePage, GradleUserHomeGroup gradleUserHomeGroup, Validator<File> gradleUserHomeValidator) {
         this.preferencePage = preferencePage;
+        this.gradleUserHomeGroup = gradleUserHomeGroup;
         this.gradleUserHomeValidator = gradleUserHomeValidator;
     }
 
     @Override
     public void modifyText(ModifyEvent e) {
-        String resolvedGradleUserHome = getResolvedGradleUserHome(((Text)e.widget).getText());
-        File gradleUserHome = FileUtils.getAbsoluteFile(resolvedGradleUserHome).orNull();
+        File gradleUserHome = this.gradleUserHomeGroup.getGradleUserHome();
         Optional<String> error = this.gradleUserHomeValidator.validate(gradleUserHome);
         this.preferencePage.setValid(!error.isPresent());
         this.preferencePage.setErrorMessage(error.orNull());
-    }
-
-    private String getResolvedGradleUserHome(String gradleUserHomeExpression) {
-        // TODO (donat) (BUG) I don't think we decode expressions in the workspace / project preferences
-        gradleUserHomeExpression = Strings.emptyToNull(gradleUserHomeExpression);
-
-        String gradleUserHomeResolved = null;
-        try {
-            gradleUserHomeResolved = ExpressionUtils.decode(gradleUserHomeExpression);
-        } catch (CoreException e) {
-            this.preferencePage.setErrorMessage(NLS.bind(LaunchMessages.ErrorMessage_CannotResolveExpression_0, gradleUserHomeExpression));
-            this.preferencePage.setValid(false);
-        }
-        return gradleUserHomeResolved;
     }
 }
