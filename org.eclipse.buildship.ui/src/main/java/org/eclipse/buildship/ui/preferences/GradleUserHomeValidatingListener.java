@@ -12,20 +12,13 @@ package org.eclipse.buildship.ui.preferences;
 import java.io.File;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Strings;
 
 import com.gradleware.tooling.toolingutils.binding.Validator;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.preference.PreferencePage;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.widgets.Text;
 
-import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.core.util.variable.ExpressionUtils;
-import org.eclipse.buildship.ui.launch.LaunchMessages;
 import org.eclipse.buildship.ui.util.widget.GradleUserHomeGroup;
 
 /**

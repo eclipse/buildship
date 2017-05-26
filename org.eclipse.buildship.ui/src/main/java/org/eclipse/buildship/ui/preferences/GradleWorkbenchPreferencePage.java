@@ -62,7 +62,7 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
 
     private void initValues() {
         WorkspaceConfiguration config = CorePlugin.configurationManager().loadWorkspaceConfiguration();
-        GradleDistributionWrapper distributionWrapper = GradleDistributionWrapper.from(config.getGradleDisribution());
+        GradleDistributionWrapper distributionWrapper = GradleDistributionWrapper.from(config.getGradleDistribution());
         File gradleUserHome = config.getGradleUserHome();
         String gradleUserHomePath = gradleUserHome == null ? "" : gradleUserHome.getPath();
 

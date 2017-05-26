@@ -114,9 +114,6 @@ final class BuildConfigurationPersistence {
         boolean overrideWorkspaceSettings = preferences.readBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, false);
 
         String distributionString = preferences.readString(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, null);
-        if (overrideWorkspaceSettings && distributionString == null) {
-            throw new GradlePluginsRuntimeException("Invalid build configuration for project located at " + rootDir.getAbsolutePath());
-        }
         GradleDistribution distribution = distributionString == null
                 ? GradleDistribution.fromBuild()
                 : GradleDistributionSerializer.INSTANCE.deserializeFromString(distributionString);

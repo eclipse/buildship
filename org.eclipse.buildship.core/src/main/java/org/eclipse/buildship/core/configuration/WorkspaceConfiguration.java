@@ -23,20 +23,20 @@ import com.gradleware.tooling.toolingclient.GradleDistribution;
  */
 public final class WorkspaceConfiguration {
 
-    private final GradleDistribution gradleDisribution;
+    private final GradleDistribution gradleDistribution;
     private final File gradleUserHome;
     private final boolean gradleIsOffline;
     private final boolean buildScansEnabled;
 
     public WorkspaceConfiguration(GradleDistribution gradleDistribution, File gradleUserHome, boolean gradleIsOffline, boolean buildScansEnabled) {
-        this.gradleDisribution = gradleDistribution;
+        this.gradleDistribution = gradleDistribution;
         this.gradleUserHome = gradleUserHome;
         this.gradleIsOffline = gradleIsOffline;
         this.buildScansEnabled = buildScansEnabled;
     }
 
-    public GradleDistribution getGradleDisribution() {
-        return this.gradleDisribution;
+    public GradleDistribution getGradleDistribution() {
+        return this.gradleDistribution;
     }
 
     @Nullable
@@ -56,7 +56,7 @@ public final class WorkspaceConfiguration {
     public boolean equals(Object obj) {
         if (obj instanceof WorkspaceConfiguration) {
             WorkspaceConfiguration other = (WorkspaceConfiguration) obj;
-            return Objects.equal(this.gradleDisribution, other.gradleDisribution)
+            return Objects.equal(this.gradleDistribution, other.gradleDistribution)
                     && Objects.equal(this.gradleUserHome, other.gradleUserHome)
                     && Objects.equal(this.gradleIsOffline, other.gradleIsOffline)
                     && Objects.equal(this.buildScansEnabled, other.buildScansEnabled);
@@ -66,6 +66,6 @@ public final class WorkspaceConfiguration {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.gradleDisribution, this.gradleUserHome, this.gradleIsOffline, this.buildScansEnabled);
+        return Objects.hashCode(this.gradleDistribution, this.gradleUserHome, this.gradleIsOffline, this.buildScansEnabled);
     }
 }

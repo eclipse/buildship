@@ -16,6 +16,7 @@ import java.io.File
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.AutoCleanup
+import spock.lang.Shared
 import spock.lang.Specification
 
 import com.google.common.io.Files
@@ -30,6 +31,7 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.configuration.ConfigurationManager
+import org.eclipse.buildship.core.workspace.WorkspaceOperations
 
 /**
  * Base Spock test specification to verify Buildship functionality against the current state of the
@@ -156,6 +158,10 @@ abstract class WorkspaceSpecification extends Specification {
     protected IJavaProject findJavaProject(String name) {
         IProject project = findProject(name)
         return project == null ? null : JavaCore.create(project)
+    }
+
+    protected WorkspaceOperations getWorkspaceOperations() {
+        CorePlugin.workspaceOperations()
     }
 
     protected ConfigurationManager getConfigurationManager() {

@@ -65,7 +65,7 @@ class DefaultBuildConfiguration implements BuildConfiguration {
         if (this.properties.isOverrideWorkspaceSettings()) {
             return this.properties.getGradleDistribution();
         } else {
-            return this.workspaceConfiguration.getGradleDisribution();
+            return this.workspaceConfiguration.getGradleDistribution();
         }
     }
 

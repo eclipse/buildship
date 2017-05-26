@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.configuration.ConfigurationManager
+import org.eclipse.buildship.core.workspace.WorkspaceOperations
 
 /**
  * Base Spock test specification to verify Buildship functionality against the current state of the
@@ -165,6 +166,10 @@ abstract class WorkspaceSpecification extends Specification {
 
     protected IProject findProject(String name) {
         CorePlugin.workspaceOperations().findProjectByName(name).orNull()
+    }
+
+    protected WorkspaceOperations getWorkspaceOperations() {
+        CorePlugin.workspaceOperations()
     }
 
     protected ConfigurationManager getConfigurationManager() {

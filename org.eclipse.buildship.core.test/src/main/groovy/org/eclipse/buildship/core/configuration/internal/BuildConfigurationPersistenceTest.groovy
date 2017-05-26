@@ -128,52 +128,60 @@ connection.gradle.distribution=INVALID_GRADLE_DISTRO"""
         thrown RuntimeException
     }
 
-    def "If workspace override is not set then overridden configuration properties are ignored"(boolean buildScansEnabled, boolean offlineMode) {
+    def "If workspace override is not set then overridden configuration properties are ignored"() {
         setup:
-        DefaultBuildConfigurationProperties properties = new DefaultBuildConfigurationProperties(projectDir, GradleDistribution.fromBuild(), null, false, buildScansEnabled, offlineMode)
+        DefaultBuildConfigurationProperties properties = new DefaultBuildConfigurationProperties(projectDir, GradleDistribution.forVersion('2.0'), dir('gradle-user-home'), false, true, true)
         persistence.saveBuildConfiguration(project, properties)
         persistence.saveBuildConfiguration(projectDir, properties)
 
         when:
-        DefaultBuildConfigurationProperties workspaceConfig = persistence.readBuildConfiguratonProperties(project)
-        DefaultBuildConfigurationProperties externalConfig = persistence.readBuildConfiguratonProperties(projectDir)
+        DefaultBuildConfigurationProperties importedProjectProperties = persistence.readBuildConfiguratonProperties(project)
+        DefaultBuildConfigurationProperties externalProjectProperties = persistence.readBuildConfiguratonProperties(projectDir)
 
         then:
-        workspaceConfig.buildScansEnabled == false
-        workspaceConfig.offlineMode == false
-        externalConfig.buildScansEnabled == false
-        externalConfig.offlineMode == false
+        importedProjectProperties.overrideWorkspaceSettings == false
+        importedProjectProperties.gradleDistribution == GradleDistribution.fromBuild()
+        importedProjectProperties.gradleUserHome == null
+        importedProjectProperties.buildScansEnabled == false
+        importedProjectProperties.offlineMode == false
 
-        where:
-        buildScansEnabled | offlineMode
-        false             | false
-        false             | true
-        true              | false
-        true              | true
+        externalProjectProperties.overrideWorkspaceSettings == false
+        externalProjectProperties.gradleDistribution == GradleDistribution.fromBuild()
+        externalProjectProperties.gradleUserHome == null
+        externalProjectProperties.buildScansEnabled == false
+        externalProjectProperties.offlineMode == false
     }
 
-    def "If workspace override is set then overridden configuration properties are persisted"(boolean buildScansEnabled, boolean offlineMode) {
+    def "If workspace override is set then overridden configuration properties are persisted"(GradleDistribution distribution, boolean buildScansEnabled, boolean offlineMode) {
         setup:
-        DefaultBuildConfigurationProperties properties = new DefaultBuildConfigurationProperties(projectDir, GradleDistribution.fromBuild(), null, true, buildScansEnabled, offlineMode)
+        File gradleUserHome = dir('gradle-user-home').canonicalFile
+        DefaultBuildConfigurationProperties properties = new DefaultBuildConfigurationProperties(projectDir, distribution, gradleUserHome, true, buildScansEnabled, offlineMode)
         persistence.saveBuildConfiguration(project, properties)
         persistence.saveBuildConfiguration(projectDir, properties)
 
         when:
-        DefaultBuildConfigurationProperties workspaceConfig = persistence.readBuildConfiguratonProperties(project)
-        DefaultBuildConfigurationProperties externalConfig = persistence.readBuildConfiguratonProperties(projectDir)
+        DefaultBuildConfigurationProperties importedProjectProperties = persistence.readBuildConfiguratonProperties(project)
+        DefaultBuildConfigurationProperties externalProjectProperties = persistence.readBuildConfiguratonProperties(projectDir)
 
         then:
-        workspaceConfig.buildScansEnabled == buildScansEnabled
-        workspaceConfig.offlineMode == offlineMode
-        externalConfig.buildScansEnabled == buildScansEnabled
-        externalConfig.offlineMode == offlineMode
+        importedProjectProperties.overrideWorkspaceSettings == true
+        importedProjectProperties.gradleDistribution == distribution
+        importedProjectProperties.gradleUserHome == gradleUserHome
+        importedProjectProperties.buildScansEnabled == buildScansEnabled
+        importedProjectProperties.offlineMode == offlineMode
+
+        externalProjectProperties.overrideWorkspaceSettings == true
+        externalProjectProperties.gradleDistribution == distribution
+        externalProjectProperties.gradleUserHome == gradleUserHome
+        externalProjectProperties.buildScansEnabled == buildScansEnabled
+        externalProjectProperties.offlineMode == offlineMode
 
         where:
-        buildScansEnabled | offlineMode
-        false             | false
-        false             | true
-        true              | false
-        true              | true
+        distribution                         | buildScansEnabled | offlineMode
+        GradleDistribution.forVersion('3.5') | false             | false
+        GradleDistribution.forVersion('3.4') | false             | true
+        GradleDistribution.forVersion('3.3') | true              | false
+        GradleDistribution.forVersion('3.2') | true              | true
     }
 
     def "pathToRoot methods validate input"() {
