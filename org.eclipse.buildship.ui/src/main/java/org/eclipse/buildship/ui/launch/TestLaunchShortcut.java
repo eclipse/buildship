@@ -78,13 +78,13 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
         return CorePlugin.configurationManager().createRunConfiguration(buildConfig,
                                                                         Collections.<String>emptyList(),
                                                                         null,
-                                                                        GradleDistribution.fromBuild(),
-                                                                        null,
                                                                         Collections.<String>emptyList(),
                                                                         Collections.<String>emptyList(),
                                                                         true,
                                                                         true,
                                                                         false,
+                                                                        GradleDistribution.fromBuild(),
+                                                                        null,
                                                                         false,
                                                                         false);
     }

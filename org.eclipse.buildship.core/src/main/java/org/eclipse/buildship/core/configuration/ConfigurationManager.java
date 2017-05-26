@@ -47,7 +47,10 @@ public interface ConfigurationManager {
 
     RunConfiguration createDefaultRunConfiguration(BuildConfiguration configuration);
 
-    // TODO (donat) the arguments should be ordered as follows: unique parameters - overrideBuildSettings - overriding parameters
-    RunConfiguration createRunConfiguration(BuildConfiguration configuration, List<String> tasks, File javaHome, GradleDistribution gradleDistribution, File gradleUserHome, List<String> jvmArguments,
-            List<String> arguments, boolean showExecutionsView, boolean showConsoleView, boolean overrideBuildSettings, boolean buildScansEnabled, boolean offlineMode);
+    RunConfiguration createRunConfiguration(BuildConfiguration configuration, List<String> tasks,
+                                            File javaHome, List<String> jvmArguments,
+                                            List<String> arguments, boolean showConsoleView,
+                                            boolean showExecutionsView, boolean overrideBuildSettings,
+                                            GradleDistribution gradleDistribution, File gradleUserHome,
+                                            boolean buildScansEnabled, boolean offlineMode);
 }

@@ -1,5 +1,8 @@
 package org.eclipse.buildship.core.configuration.internal
 
+import java.io.File
+import java.util.List
+
 import spock.lang.Shared
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
@@ -41,13 +44,13 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         RunConfiguration runConfig = configurationManager.createRunConfiguration(buildConfig,
                 tasks,
                 javaHome,
-                gradleDistribution,
-                runGradleUserHome,
                 jvmArguments,
                 arguments,
-                showExecutionView,
                 showConsoleView,
+                showExecutionView,
                 runConfigOverride,
+                gradleDistribution,
+                runGradleUserHome,
                 runConfigBuildScansEnabled,
                 runConfigOfflineMode)
 
