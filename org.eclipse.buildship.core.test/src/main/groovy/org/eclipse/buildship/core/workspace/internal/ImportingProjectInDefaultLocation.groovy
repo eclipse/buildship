@@ -57,4 +57,37 @@ class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecificat
         1 * notification.errorOccurred(*_)
     }
 
+    def "Disallow importing the workspace root"() {
+        setup:
+        Logger logger = Mock(Logger)
+        UserNotification notification = Mock(UserNotification)
+        environment.registerService(Logger, logger)
+        environment.registerService(UserNotification, notification)
+
+        when:
+        synchronizeAndWait(workspaceDir)
+
+        then:
+        1 * logger.warn(*_)
+        1 * notification.errorOccurred(*_)
+    }
+
+    def "Disallow importing any modules located at the workspace root"() {
+        setup:
+        Logger logger = Mock(Logger)
+        UserNotification notification = Mock(UserNotification)
+        environment.registerService(Logger, logger)
+        environment.registerService(UserNotification, notification)
+        File rootProject = workspaceDir('sample2') {
+            file 'settings.gradle', "include '..'"
+        }
+
+        when:
+        synchronizeAndWait(workspaceDir)
+
+        then:
+        1 * logger.warn(*_)
+        1 * notification.errorOccurred(*_)
+    }
+
 }

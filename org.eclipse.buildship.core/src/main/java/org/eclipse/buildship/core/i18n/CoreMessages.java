@@ -59,6 +59,7 @@ public final class CoreMessages extends NLS {
     public static String ErrorMessage_0_MustBeSpecified;
     public static String ErrorMessage_0_MustBeDirectory;
     public static String ErrorMessage_0_AlreadyExists;
+    public static String ErrorMessage_0_WorkspaceDirectory;
 
     public static String Preference_Label_GradleUserHome;
     public static String Preference_Label_OfflineMode;

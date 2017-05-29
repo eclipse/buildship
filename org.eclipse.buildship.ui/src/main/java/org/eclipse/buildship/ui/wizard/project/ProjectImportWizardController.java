@@ -65,7 +65,9 @@ public class ProjectImportWizardController {
 
     public ProjectImportWizardController(IWizard projectImportWizard) {
         // assemble configuration object that serves as the data model of the wizard
-        Validator<File> projectDirValidator = Validators.requiredDirectoryValidator(ProjectWizardMessages.Label_ProjectRootDirectory);
+        Validator<File> projectDirValidator = Validators.and(
+                Validators.requiredDirectoryValidator(ProjectWizardMessages.Label_ProjectRootDirectory),
+                Validators.nonWorkspaceFolderValidator(ProjectWizardMessages.Label_ProjectRootDirectory));
         Validator<GradleDistributionWrapper> gradleDistributionValidator = GradleDistributionValidator.gradleDistributionValidator();
         Validator<Boolean> applyWorkingSetsValidator = Validators.nullValidator();
         Validator<List<String>> workingSetsValidator = Validators.nullValidator();
