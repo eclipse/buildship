@@ -99,7 +99,7 @@ class BuildConfigurationPersistenceTest extends WorkspaceSpecification {
         properties = persistence.readBuildConfiguratonProperties(projectDir)
 
         then:
-        properties.rootProjectDirectory == projectDir
+        properties.rootProjectDirectory == projectDir.canonicalFile
         properties.overrideWorkspaceSettings == false
         properties.gradleDistribution == GradleDistribution.fromBuild()
         properties.gradleUserHome == null
