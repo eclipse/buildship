@@ -1,7 +1,5 @@
 package org.eclipse.buildship.ui.view.execution
 
-import spock.lang.Ignore
-
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
 import org.eclipse.debug.core.DebugPlugin
@@ -107,10 +105,9 @@ class OpenBuildScanActionTest extends ProjectSynchronizationSpecification {
         view.pages[1].openBuildScanAction.buildScanUrl == 'https://scans.gradle.com/s/B'
     }
 
-    @Ignore
-    def "Build scan publishes real build scan"(String gradleVersion, String buildScanVersion, List<String> arguments) {
+    def "Build publishes real build scan"(String gradleVersion, String buildScanVersion, List<String> arguments) {
         setup:
-        File projectDir = dir('project-with-build-scan') {
+        File projectDir = dir('buildship-test-project-with-build-scan') {
             file 'build.gradle', """
                 buildscript {
                     repositories { maven { url 'https://plugins.gradle.org/m2/' } }
@@ -118,16 +115,17 @@ class OpenBuildScanActionTest extends ProjectSynchronizationSpecification {
                 }
                 apply plugin: 'com.gradle.build-scan'
                 buildScan {
+                    server = "https://e.grdev.net"
                     licenseAgreementUrl = 'https://gradle.com/terms-of-service'
                     licenseAgree = 'yes'
                 }
-                task foo { doLast { println 'bar' } }
+                task somethingFunky { doLast { println 'somethingFunky' } }
             """
         }
 
         when:
         importAndWait(projectDir, GradleDistribution.forVersion(gradleVersion))
-        launchTaskAndWait(projectDir, 'foo', arguments)
+        launchTaskAndWait(projectDir, 'somethingFunky', arguments)
 
         then:
         view.pages.size() == 1
