@@ -17,7 +17,10 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.ui.i18n.UiMessages;
@@ -36,6 +39,7 @@ public final class GradleUserHomeGroup extends Group {
 
     private Text gradleUserHomeText;
     private Button gradleUserHomeBrowseButton;
+    private Label warningLabel;
 
     public GradleUserHomeGroup(Composite parent) {
         super(parent, SWT.NONE);
@@ -45,10 +49,14 @@ public final class GradleUserHomeGroup extends Group {
         this.builderFactory = new UiBuilder.UiBuilderFactory(this.defaultFont);
 
         setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-        setLayout(new GridLayout(2, false));
+        setLayout(new GridLayout(3, false));
 
         this.gradleUserHomeText = this.builderFactory.newText(this).alignFillHorizontal().control();
         this.gradleUserHomeBrowseButton = this.builderFactory.newButton(this).alignLeft().text(UiMessages.Button_Label_Browse).control();
+
+        this.warningLabel = this.builderFactory.newLabel(this).alignLeft().control();
+        this.warningLabel.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK));
+        HoverText.createAndAttach(this.warningLabel, "Setting a non-empty Gradle user home will make your settings non-portable");
 
         addListeners();
     }

@@ -29,7 +29,10 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.i18n.CoreMessages;
@@ -63,6 +66,7 @@ public final class GradleDistributionGroup extends Group {
 
     private Text localInstallationDirText;
     private Button localInstallationDirBrowseButton;
+    private Label localInstallationWarningLabel;
     private Text remoteDistributionUriText;
     private Combo gradleVersionCombo;
     private Button useGradleWrapperOption;
@@ -89,30 +93,29 @@ public final class GradleDistributionGroup extends Group {
 
         this.font = FontUtils.getDefaultDialogFont();
         UiBuilderFactory uiBuilder = new UiBuilder.UiBuilderFactory(this.font);
-        this.useGradleWrapperOption = uiBuilder.newRadio(this).alignLeft().text(CoreMessages.GradleDistribution_Label_GradleWrapper).control();
-
-        uiBuilder.span(this);
-        uiBuilder.span(this);
+        this.useGradleWrapperOption = uiBuilder.newRadio(this).alignLeft(4).text(CoreMessages.GradleDistribution_Label_GradleWrapper).control();
 
         this.useLocalInstallationDirOption = uiBuilder.newRadio(this).alignLeft().text(CoreMessages.GradleDistribution_Label_LocalInstallationDirectory).control();
         this.localInstallationDirText = uiBuilder.newText(this).alignFillHorizontal().disabled().control();
         this.localInstallationDirBrowseButton = uiBuilder.newButton(this).alignLeft().disabled().text(UiMessages.Button_Label_Browse).control();
         this.localInstallationDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(this.getShell(), this.localInstallationDirText, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
+        this.localInstallationWarningLabel = uiBuilder.newLabel(this).alignRight().control();
+        this.localInstallationWarningLabel.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK));
+        HoverText.createAndAttach(this.localInstallationWarningLabel, "Using a local distribution will make your settings non-portable");
 
         this.useRemoteDistributionUriOption = uiBuilder.newRadio(this).alignLeft().text(CoreMessages.GradleDistribution_Label_RemoteDistributionUri).control();
         this.remoteDistributionUriText = uiBuilder.newText(this).alignFillHorizontal().disabled().control();
 
         uiBuilder.span(this);
+        uiBuilder.span(this);
 
         this.useGradleVersionOption = uiBuilder.newRadio(this).alignLeft().text(CoreMessages.GradleDistribution_Label_SpecificGradleVersion).control();
-        this.gradleVersionCombo = uiBuilder.newCombo(this).alignLeft().disabled().control();
+        this.gradleVersionCombo = uiBuilder.newCombo(this).alignLeft(2).disabled().control();
         this.gradleVersionCombo.setSize(150, this.gradleVersionCombo.getSize().y);
         this.gradleVersionCombo.setItems(getGradleVersions());
         if (this.gradleVersionCombo.getItemCount() > 0) {
             this.gradleVersionCombo.select(0);
         }
-
-        uiBuilder.span(this);
     }
 
     private void updateEnablement() {
