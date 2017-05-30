@@ -17,6 +17,7 @@ import org.eclipse.ui.console.PatternMatchEvent;
 import org.eclipse.ui.console.TextConsole;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.util.string.PatternUtils;
 
 /**
  * Transforms all URLs to clickable links in the target console.
@@ -52,7 +53,7 @@ public final class UrlPatternMatchListener implements IPatternMatchListener {
 
     @Override
     public String getPattern() {
-        return "https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+        return PatternUtils.WEB_URL_PATTERN;
     }
 
     @Override

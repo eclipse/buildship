@@ -19,6 +19,7 @@ import org.eclipse.ui.console.TextConsole;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.scan.BuildScanCreatedEvent;
+import org.eclipse.buildship.core.util.string.PatternUtils;
 
 /**
  * Finds build scan URL console output.
@@ -56,7 +57,7 @@ public final class BuildScanPatternMatchListener implements IPatternMatchListene
 
     @Override
     public String getPattern() {
-        return "Publishing build information...\\s+https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+        return "Publishing build information...\\s+" + PatternUtils.WEB_URL_PATTERN;
     }
 
     @Override
