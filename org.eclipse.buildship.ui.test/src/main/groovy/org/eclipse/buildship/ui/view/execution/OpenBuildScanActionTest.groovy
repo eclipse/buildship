@@ -141,11 +141,11 @@ class OpenBuildScanActionTest extends ProjectSynchronizationSpecification {
     private void launchTaskAndWait(File projectDir, String task, List<String> arguments = []) {
         new RunGradleBuildLaunchRequestJob(createLaunch(task, projectDir, arguments)).schedule()
         waitForGradleJobsToFinish()
-        waitForBuildFinishedMessage()
+        waitForPendingConsoleOutput()
     }
 
-    private void waitForBuildFinishedMessage() {
-        waitFor { consoleListener.activeConsole.document.get().contains('BUILD SUCCESSFUL') }
+    private void waitForPendingConsoleOutput() {
+        waitFor { consoleListener.activeConsole.partitioner.pendingPartitions.empty }
     }
 
     private void waitFor(int timeout = 5000, Closure condition) {
