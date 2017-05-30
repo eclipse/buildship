@@ -17,13 +17,12 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
 import org.eclipse.buildship.core.util.preference.EclipsePreferencesUtils;
 import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.view.TreeViewerState;
 
 /**
  * Represents the (persistable) configuration state of the {@link TaskView}. Backed by the Eclipse
  * Preferences API.
  */
-public final class TaskViewState implements TreeViewerState {
+public final class TaskViewState {
 
     private static final String PREF_PROJECT_TASKS_VISIBLE = "tasksView.projectTasksVisible";
     private static final String PREF_TASK_SELECTORS_VISIBLE = "tasksView.taskSelectorsVisible";
@@ -31,7 +30,6 @@ public final class TaskViewState implements TreeViewerState {
     private static final String PREF_SORT_BY_TYPE = "tasksView.sortByType";
     private static final String PREF_SORT_BY_VISIBILITY = "tasksView.sortByVisibility";
     private static final String PREF_LINK_TO_SELECTION = "tasksView.linkToSelection";
-    private static final String PREF_SHOW_TREE_HEADER = "tasksView.showTreeHeader";
     private static final String PREF_HEADER_NAME_COLUMN_WIDTH = "tasksView.headerNameColumnWidth";
     private static final String PREF_HEADER_DESCRIPTION_COLUMN_WIDTH = "tasksView.headerDescriptionColumnWidth";
     private static final String PREF_GROUP_TASKS = "tasksView.groupTasks";
@@ -42,7 +40,6 @@ public final class TaskViewState implements TreeViewerState {
     private boolean sortByType;
     private boolean sortByVisibility;
     private boolean linkToSelection;
-    private boolean showTreeHeader;
     private int headerNameColumnWidth;
     private int headerDescriptionColumnWidth;
     private boolean groupTasks;
@@ -55,7 +52,6 @@ public final class TaskViewState implements TreeViewerState {
         this.sortByType = prefs.getBoolean(PREF_SORT_BY_TYPE, true);
         this.sortByVisibility = prefs.getBoolean(PREF_SORT_BY_VISIBILITY, true);
         this.linkToSelection = prefs.getBoolean(PREF_LINK_TO_SELECTION, false);
-        this.showTreeHeader = prefs.getBoolean(PREF_SHOW_TREE_HEADER, true);
         this.headerNameColumnWidth = prefs.getInt(PREF_HEADER_NAME_COLUMN_WIDTH, 200);
         this.headerDescriptionColumnWidth = prefs.getInt(PREF_HEADER_DESCRIPTION_COLUMN_WIDTH, 400);
         this.groupTasks = prefs.getBoolean(PREF_GROUP_TASKS, true);
@@ -69,7 +65,6 @@ public final class TaskViewState implements TreeViewerState {
         prefs.putBoolean(PREF_SORT_BY_TYPE, this.sortByType);
         prefs.putBoolean(PREF_SORT_BY_VISIBILITY, this.sortByVisibility);
         prefs.putBoolean(PREF_LINK_TO_SELECTION, this.linkToSelection);
-        prefs.putBoolean(PREF_SHOW_TREE_HEADER, this.showTreeHeader);
         prefs.putInt(PREF_HEADER_NAME_COLUMN_WIDTH, this.headerNameColumnWidth);
         prefs.putInt(PREF_HEADER_DESCRIPTION_COLUMN_WIDTH, this.headerDescriptionColumnWidth);
         prefs.putBoolean(PREF_GROUP_TASKS, this.groupTasks);
@@ -127,16 +122,6 @@ public final class TaskViewState implements TreeViewerState {
 
     public void setLinkToSelection(boolean linkToSelection) {
         this.linkToSelection = linkToSelection;
-    }
-
-    @Override
-    public boolean isShowTreeHeader() {
-        return this.showTreeHeader;
-    }
-
-    @Override
-    public void setShowTreeHeader(boolean showTreeHeader) {
-        this.showTreeHeader = showTreeHeader;
     }
 
     public int getHeaderNameColumnWidth() {

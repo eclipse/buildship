@@ -18,32 +18,27 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
 import org.eclipse.buildship.core.util.preference.EclipsePreferencesUtils;
 import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.view.TreeViewerState;
 
 /**
  * Represents the (persistable) configuration state of the {@link ExecutionsView}. Backed by the
  * Eclipse Preferences API.
  */
-public final class ExecutionViewState implements TreeViewerState {
+public final class ExecutionViewState {
 
-    private static final String PREF_SHOW_TREE_HEADER = "executionsView.showTreeHeader"; //$NON-NLS-1$
     private static final String PREF_HEADER_NAME_COLUMN_WIDTH = "executionsView.headerNameColumnWidth"; //$NON-NLS-1$
     private static final String PREF_HEADER_DURATION_COLUMN_WIDTH = "executionsView.headerDurationColumnWidth"; //$NON-NLS-1$
 
-    private boolean showTreeHeader;
     private int headerNameColumnWidth;
     private int headerDurationColumnWidth;
 
     public void load() {
         IEclipsePreferences prefs = EclipsePreferencesUtils.getInstanceScope().getNode(UiPlugin.PLUGIN_ID);
-        this.showTreeHeader = prefs.getBoolean(PREF_SHOW_TREE_HEADER, true);
         this.headerNameColumnWidth = prefs.getInt(PREF_HEADER_NAME_COLUMN_WIDTH, 600);
         this.headerDurationColumnWidth = prefs.getInt(PREF_HEADER_DURATION_COLUMN_WIDTH, 100);
     }
 
     public void save() {
         IEclipsePreferences prefs = EclipsePreferencesUtils.getInstanceScope().getNode(UiPlugin.PLUGIN_ID);
-        prefs.putBoolean(PREF_SHOW_TREE_HEADER, this.showTreeHeader);
         prefs.putInt(PREF_HEADER_NAME_COLUMN_WIDTH, this.headerNameColumnWidth);
         prefs.putInt(PREF_HEADER_DURATION_COLUMN_WIDTH, this.headerDurationColumnWidth);
 
@@ -52,16 +47,6 @@ public final class ExecutionViewState implements TreeViewerState {
         } catch (BackingStoreException e) {
             UiPlugin.logger().error("Unable to store execution view preferences.", e); //$NON-NLS-1$
         }
-    }
-
-    @Override
-    public boolean isShowTreeHeader() {
-        return this.showTreeHeader;
-    }
-
-    @Override
-    public void setShowTreeHeader(boolean showTreeHeader) {
-        this.showTreeHeader = showTreeHeader;
     }
 
     public int getHeaderNameColumnWidth() {
