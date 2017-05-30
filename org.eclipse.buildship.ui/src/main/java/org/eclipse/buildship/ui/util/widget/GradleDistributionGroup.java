@@ -18,6 +18,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -89,7 +90,7 @@ public final class GradleDistributionGroup extends Group {
 
     private void createWidgets() {
         setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-        setLayout(LayoutUtils.newGridLayout(3));
+        setLayout(LayoutUtils.newGridLayout(4));
 
         this.font = FontUtils.getDefaultDialogFont();
         UiBuilderFactory uiBuilder = new UiBuilder.UiBuilderFactory(this.font);
@@ -101,7 +102,7 @@ public final class GradleDistributionGroup extends Group {
         this.localInstallationDirBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(this.getShell(), this.localInstallationDirText, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
         this.localInstallationWarningLabel = uiBuilder.newLabel(this).alignRight().control();
         this.localInstallationWarningLabel.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK));
-        HoverText.createAndAttach(this.localInstallationWarningLabel, "Using a local distribution will make your settings non-portable");
+        HoverText.createAndAttach(this.localInstallationWarningLabel, NLS.bind(CoreMessages.WarningMessage_Using_0_NonPortable, "local Gradle distribution"));
 
         this.useRemoteDistributionUriOption = uiBuilder.newRadio(this).alignLeft().text(CoreMessages.GradleDistribution_Label_RemoteDistributionUri).control();
         this.remoteDistributionUriText = uiBuilder.newText(this).alignFillHorizontal().disabled().control();

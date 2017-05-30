@@ -10,6 +10,7 @@ package org.eclipse.buildship.ui.util.widget;
 
 import java.io.File;
 
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
@@ -56,7 +57,7 @@ public final class GradleUserHomeGroup extends Group {
 
         this.warningLabel = this.builderFactory.newLabel(this).alignLeft().control();
         this.warningLabel.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK));
-        HoverText.createAndAttach(this.warningLabel, "Setting a non-empty Gradle user home will make your settings non-portable");
+        HoverText.createAndAttach(this.warningLabel, NLS.bind(CoreMessages.WarningMessage_Using_0_NonPortable, "Gradle user home"));
 
         addListeners();
     }
