@@ -20,10 +20,14 @@ import com.google.common.io.Files
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IWorkspace
+import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.preferences.PersistentModel
+import org.eclipse.buildship.core.preferences.internal.DefaultPersistentModel
+import org.eclipse.buildship.core.workspace.internal.PersistentModelBuilder
 
 /**
  * Base Spock test specification to verify Buildship functionality against the current state of the
@@ -150,5 +154,18 @@ abstract class WorkspaceSpecification extends Specification {
     protected IJavaProject findJavaProject(String name) {
         IProject project = findProject(name)
         return project == null ? null : JavaCore.create(project)
+    }
+
+
+    protected PersistentModelBuilder persistentModelBuilder(PersistentModel model) {
+        new PersistentModelBuilder(model)
+    }
+
+    protected PersistentModelBuilder persistentModelBuilder(IProject project) {
+        new PersistentModelBuilder(emptyPersistentModel(project))
+    }
+
+    protected PersistentModel emptyPersistentModel(IProject project) {
+        new DefaultPersistentModel(project, new Path("build"), [], [], [], [], [], [])
     }
 }

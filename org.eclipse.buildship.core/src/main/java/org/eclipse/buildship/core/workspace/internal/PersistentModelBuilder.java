@@ -13,6 +13,7 @@ import java.util.List;
 
 import com.google.common.base.Preconditions;
 
+import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 
@@ -33,6 +34,8 @@ public final class PersistentModelBuilder {
     private List<IClasspathEntry> classpath;
     private Collection<IPath> derivedResources;
     private Collection<IPath> linkedResources;
+    private Collection<String> managedNatures;
+    private Collection<ICommand> managedBuilders;
 
     public PersistentModelBuilder(PersistentModel previous) {
         this.previous = Preconditions.checkNotNull(previous);
@@ -42,6 +45,8 @@ public final class PersistentModelBuilder {
             this.classpath = previous.getClasspath();
             this.derivedResources = previous.getDerivedResources();
             this.linkedResources = previous.getLinkedResources();
+            this.managedNatures = previous.getManagedNatures();
+            this.managedBuilders = previous.getManagedBuilders();
         }
     }
 
@@ -70,11 +75,21 @@ public final class PersistentModelBuilder {
         return this;
     }
 
+    public PersistentModelBuilder managedNatures(Collection<String> managedNatures) {
+        this.managedNatures = managedNatures;
+        return this;
+    }
+
+    public PersistentModelBuilder managedBuilders(Collection<ICommand> managedBuilders) {
+        this.managedBuilders = managedBuilders;
+        return this;
+    }
+
     public PersistentModel getPrevious() {
         return this.previous;
     }
 
     public PersistentModel build() {
-        return new DefaultPersistentModel(this.previous.getProject(), this.buildDir, this.subprojectPaths, this.classpath, this.derivedResources, this.linkedResources);
+        return new DefaultPersistentModel(this.previous.getProject(), this.buildDir, this.subprojectPaths, this.classpath, this.derivedResources, this.linkedResources, this.managedNatures, this.managedBuilders);
     }
 }

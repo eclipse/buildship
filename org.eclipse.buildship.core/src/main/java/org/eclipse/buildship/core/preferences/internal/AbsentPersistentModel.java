@@ -13,6 +13,7 @@ import java.util.List;
 
 import com.google.common.base.Preconditions;
 
+import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -64,6 +65,16 @@ public final class AbsentPersistentModel implements PersistentModel {
 
     @Override
     public Collection<IPath> getLinkedResources() {
+        throw new IllegalStateException("Absent persistent model");
+    }
+
+    @Override
+    public List<String> getManagedNatures() {
+        throw new IllegalStateException("Absent persistent model");
+    }
+
+    @Override
+    public List<ICommand> getManagedBuilders() {
         throw new IllegalStateException("Absent persistent model");
     }
 }

@@ -15,6 +15,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
+import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -34,15 +35,21 @@ public final class DefaultPersistentModel implements PersistentModel {
     private final List<IClasspathEntry> classpath;
     private final Collection<IPath> derivedResources;
     private final Collection<IPath> linkedResources;
+    private final List<String> managedNatures;
+    private final List<ICommand> managedBuilders;
 
-    public DefaultPersistentModel(IProject project, IPath buildDir, Collection<IPath> subprojectPaths, List<IClasspathEntry> classpath, Collection<IPath> derivedResources,
-            Collection<IPath> linkedResources) {
+    public DefaultPersistentModel(IProject project, IPath buildDir,
+                                  Collection<IPath> subprojectPaths, List<IClasspathEntry> classpath,
+                                  Collection<IPath> derivedResources, Collection<IPath> linkedResources,
+                                  Collection<String> managedNatures, Collection<ICommand> managedBuilders) {
         this.project = Preconditions.checkNotNull(project);
         this.buildDir = Preconditions.checkNotNull(buildDir);
         this.subprojectPaths = ImmutableList.copyOf(subprojectPaths);
         this.classpath = ImmutableList.copyOf(classpath);
         this.derivedResources = ImmutableList.copyOf(derivedResources);
         this.linkedResources = ImmutableList.copyOf(linkedResources);
+        this.managedNatures = ImmutableList.copyOf(managedNatures);
+        this.managedBuilders = ImmutableList.copyOf(managedBuilders);
     }
 
     @Override
@@ -81,6 +88,16 @@ public final class DefaultPersistentModel implements PersistentModel {
     }
 
     @Override
+    public List<String> getManagedNatures() {
+        return this.managedNatures;
+    }
+
+    @Override
+    public List<ICommand> getManagedBuilders() {
+        return this.managedBuilders;
+    }
+
+    @Override
     public boolean equals(final Object obj) {
         if (!(obj instanceof DefaultPersistentModel)) {
             return false;
@@ -91,12 +108,14 @@ public final class DefaultPersistentModel implements PersistentModel {
                 && Objects.equal(this.subprojectPaths, that.subprojectPaths)
                 && Objects.equal(this.classpath, that.classpath)
                 && Objects.equal(this.derivedResources, that.derivedResources)
-                && Objects.equal(this.linkedResources, that.linkedResources);
+                && Objects.equal(this.linkedResources, that.linkedResources)
+                && Objects.equal(this.managedNatures, that.managedNatures)
+                && Objects.equal(this.managedBuilders, that.managedBuilders);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.project, this.buildDir, this.subprojectPaths, this.classpath, this.derivedResources, this.linkedResources);
+        return Objects.hashCode(this.project, this.buildDir, this.subprojectPaths, this.classpath, this.derivedResources, this.linkedResources, this.managedNatures, this.managedBuilders);
     }
 
 }
