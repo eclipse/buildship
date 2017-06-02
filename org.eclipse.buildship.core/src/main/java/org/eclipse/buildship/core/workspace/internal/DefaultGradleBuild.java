@@ -10,6 +10,7 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.TestLauncher;
+import org.gradle.tooling.model.build.BuildEnvironment;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -34,11 +35,11 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
 public class DefaultGradleBuild implements GradleBuild {
 
     private final BuildConfiguration buildConfig;
-    private final ModelProvider modelProvider;
+    private final DefaultModelProvider modelProvider;
 
     public DefaultGradleBuild(BuildConfiguration buildConfig) {
         this.buildConfig = Preconditions.checkNotNull(buildConfig);
-        this.modelProvider = new DefaultModelProvider(this.buildConfig.toRequestAttributes());
+        this.modelProvider = new DefaultModelProvider(this.buildConfig);
     }
 
     @Override
@@ -84,13 +85,15 @@ public class DefaultGradleBuild implements GradleBuild {
     @Override
     public BuildLauncher newBuildLauncher(RunConfiguration runConfiguration, TransientRequestAttributes transientAttributes) {
         // TODO (donat) once GradleWorkspaceManager#getGradleBuild(FixedRequestAttributes) is removed then we should only allow run config that contain the same build config
-        return ConnectionAwareLauncherProxy.newBuildLauncher(runConfiguration.toRequestAttributes(), transientAttributes);
+        BuildEnvironment buildEnvironment = this.modelProvider.reloadBuildEnvironment(transientAttributes);
+        return ConnectionAwareLauncherProxy.newBuildLauncher(runConfiguration, buildEnvironment, transientAttributes);
     }
 
     @Override
     public TestLauncher newTestLauncher(RunConfiguration runConfiguration, TransientRequestAttributes transientAttributes) {
         // TODO (donat) once GradleWorkspaceManager#getGradleBuild(FixedRequestAttributes) is removed then we should only allow run config that contain the same build config
-        return ConnectionAwareLauncherProxy.newTestLauncher(runConfiguration.toRequestAttributes(), transientAttributes);
+        BuildEnvironment buildEnvironment = this.modelProvider.reloadBuildEnvironment(transientAttributes);
+        return ConnectionAwareLauncherProxy.newTestLauncher(runConfiguration, buildEnvironment, transientAttributes);
     }
 
     @Override

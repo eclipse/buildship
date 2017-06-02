@@ -77,7 +77,8 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
         TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, processStreams.getOutput(), processStreams.getError(), processStreams.getInput(),
                 listeners, Collections.<org.gradle.tooling.events.ProgressListener>emptyList(), getToken());
 
-        GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(runConfig.getBuildConfiguration());
+        BuildConfiguration buildConfig = buildConfigurationFor(runConfig);
+        GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);
 
         // apply FixedRequestAttributes on build launcher
         T launcher = createLaunch(gradleBuild, runConfig, transientAttributes, processDescription);
@@ -88,14 +89,13 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
 
         // print the applied run configuration settings at the beginning of the console output
         OutputStreamWriter writer = new OutputStreamWriter(processStreams.getConfiguration());
-        writeConfig(runConfig, writer, monitor);
+        writeConfig(runConfig, buildConfig, writer, monitor);
 
         // execute the build
         executeLaunch(launcher);
     }
 
-    private void writeConfig(RunConfiguration runConfig, OutputStreamWriter writer, IProgressMonitor monitor) {
-        BuildConfiguration buildConfig = runConfig.getBuildConfiguration();
+    private void writeConfig(RunConfiguration runConfig, BuildConfiguration buildConfig, OutputStreamWriter writer, IProgressMonitor monitor) {
         WorkspaceConfiguration workspaceConfig = buildConfig.getWorkspaceConfiguration();
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(buildConfig, monitor);
         // should the user not specify values for the gradleUserHome and javaHome, their default
@@ -119,6 +119,8 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JavaHome, toNonEmpty(javaHome, CoreMessages.Value_UseGradleDefault)));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JvmArguments, toNonEmpty(runConfig.getJvmArguments(), CoreMessages.Value_None)));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Arguments, toNonEmpty(runConfig.getArguments(), CoreMessages.Value_None)));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_BuildScansEnabled, runConfig.isBuildScansEnabled()));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_OfflineModeEnabled, runConfig.isOfflineMode()));
             writeExtraConfigInfo(writer);
             writer.write('\n');
             writer.flush();
@@ -135,6 +137,16 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
     private String toNonEmpty(List<String> stringValues, String defaultMessage) {
         String string = Strings.emptyToNull(CollectionsUtils.joinWithSpace(stringValues));
         return string != null ? string : defaultMessage;
+    }
+
+    private BuildConfiguration buildConfigurationFor(RunConfiguration runConfig) {
+        // create build configuration with the same Gradle distribution that is used for the build execution
+        return CorePlugin.configurationManager().createBuildConfiguration(runConfig.getBuildConfiguration().getRootProjectDirectory(),
+            true,
+            runConfig.getGradleDistribution(),
+            runConfig.getGradleUserHome(),
+            runConfig.isBuildScansEnabled(),
+            runConfig.isOfflineMode());
     }
 
     private OmniBuildEnvironment fetchBuildEnvironment(BuildConfiguration buildConfig, IProgressMonitor monitor) {

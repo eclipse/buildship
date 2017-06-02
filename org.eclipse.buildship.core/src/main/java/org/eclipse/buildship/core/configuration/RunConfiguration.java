@@ -11,8 +11,11 @@ package org.eclipse.buildship.core.configuration;
 import java.io.File;
 import java.util.List;
 
+import org.gradle.tooling.GradleConnector;
+import org.gradle.tooling.LongRunningOperation;
+import org.gradle.tooling.model.build.BuildEnvironment;
+
 import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 /**
  * Configuration to launch tasks and tests.
@@ -39,5 +42,11 @@ public interface RunConfiguration {
 
     boolean isShowConsoleView();
 
-    FixedRequestAttributes toRequestAttributes();
+    void applyTo(GradleConnector gradleConnector);
+
+    void applyTo(LongRunningOperation operation, BuildEnvironment environment);
+
+    boolean isBuildScansEnabled();
+
+    boolean isOfflineMode();
 }

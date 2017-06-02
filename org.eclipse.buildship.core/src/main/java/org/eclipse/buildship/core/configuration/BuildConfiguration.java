@@ -10,8 +10,11 @@ package org.eclipse.buildship.core.configuration;
 
 import java.io.File;
 
+import org.gradle.tooling.GradleConnector;
+import org.gradle.tooling.LongRunningOperation;
+import org.gradle.tooling.model.build.BuildEnvironment;
+
 import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 /**
  * Configuration for for a Gradle project in the workspace.
@@ -34,5 +37,7 @@ public interface BuildConfiguration {
 
     boolean isOfflineMode();
 
-    FixedRequestAttributes toRequestAttributes();
+    void applyTo(GradleConnector gradleConnector);
+
+    void applyTo(LongRunningOperation launcher, BuildEnvironment environment);
 }

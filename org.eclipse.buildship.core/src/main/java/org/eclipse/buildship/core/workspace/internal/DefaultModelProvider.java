@@ -34,7 +34,6 @@ import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 import com.gradleware.tooling.toolingmodel.repository.internal.DefaultOmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.repository.internal.DefaultOmniEclipseProject;
@@ -44,6 +43,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.workspace.ModelProvider;
@@ -55,29 +55,36 @@ import org.eclipse.buildship.core.workspace.ModelProvider;
  */
 final class DefaultModelProvider implements ModelProvider {
 
-    private final FixedRequestAttributes fixedAttributes;
+    private final BuildConfiguration buildConfiguration;
     private final Cache<Object, Object> cache = CacheBuilder.newBuilder().build();
 
-    public DefaultModelProvider(FixedRequestAttributes fixedAttributes) {
-        this.fixedAttributes = fixedAttributes;
+    public DefaultModelProvider(BuildConfiguration buildConfiguration) {
+        this.buildConfiguration = buildConfiguration;
     }
 
     @Override
     public <T> T fetchModel(Class<T> model, FetchStrategy strategy, CancellationToken token, IProgressMonitor monitor) {
         TransientRequestAttributes transientAttributes = getTransientRequestAttributes(token, monitor);
-        ModelBuilder<T> builder = ConnectionAwareLauncherProxy.newModelBuilder(model, DefaultModelProvider.this.fixedAttributes, transientAttributes);
+        BuildEnvironment buildEnvironment = reloadBuildEnvironment(transientAttributes);
+        ModelBuilder<T> builder = ConnectionAwareLauncherProxy.newModelBuilder(model, this.buildConfiguration, buildEnvironment, transientAttributes);
         return executeModelBuilder(builder, strategy, model);
+    }
+
+    BuildEnvironment reloadBuildEnvironment(TransientRequestAttributes transientAttributes) {
+        ModelBuilder<BuildEnvironment> builder = ConnectionAwareLauncherProxy.newModelBuilder(BuildEnvironment.class, this.buildConfiguration, transientAttributes);
+        return executeModelBuilder(builder, FetchStrategy.FORCE_RELOAD, BuildEnvironment.class);
     }
 
     @Override
     public <T> Collection<T> fetchModels(Class<T> model, FetchStrategy strategy, CancellationToken token, IProgressMonitor monitor) {
         TransientRequestAttributes transientAttributes = getTransientRequestAttributes(token, monitor);
+        BuildEnvironment buildEnvironment = reloadBuildEnvironment(transientAttributes);
         if (supportsCompositeBuilds(token, monitor)) {
             final BuildActionExecuter<Collection<T>> executer = ConnectionAwareLauncherProxy
-                    .newCompositeModelQueryExecuter(model, DefaultModelProvider.this.fixedAttributes, transientAttributes);
+                    .newCompositeModelQueryExecuter(model, DefaultModelProvider.this.buildConfiguration, buildEnvironment, transientAttributes);
             return executeBuildActionExecuter(executer, strategy, model);
         } else {
-            ModelBuilder<T> builder = ConnectionAwareLauncherProxy.newModelBuilder(model, DefaultModelProvider.this.fixedAttributes, transientAttributes);
+            ModelBuilder<T> builder = ConnectionAwareLauncherProxy.newModelBuilder(model, this.buildConfiguration, buildEnvironment, transientAttributes);
             return ImmutableList.of(executeModelBuilder(builder, strategy, model));
         }
     }
