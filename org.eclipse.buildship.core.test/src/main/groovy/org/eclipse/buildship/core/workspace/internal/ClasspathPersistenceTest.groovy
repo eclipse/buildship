@@ -3,13 +3,10 @@ package org.eclipse.buildship.core.workspace.internal
 import com.google.common.base.Optional
 
 import org.eclipse.core.resources.IProject
-import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.preferences.PersistentModel
-import org.eclipse.buildship.core.preferences.internal.DefaultPersistentModel
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.workspace.GradleBuild
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager
@@ -120,12 +117,8 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         def classpath = model.present ? model.classpath : []
         project.delete(false, true, null)
         project.create(descriptor, null)
-        CorePlugin.modelPersistence().saveModel(persistentModel(project, classpath))
+        CorePlugin.modelPersistence().saveModel(persistentModelBuilder(project).classpath(classpath).build())
         project.open(null)
         waitForGradleJobsToFinish()
-    }
-
-    private PersistentModel persistentModel(project, classpath) {
-        return new DefaultPersistentModel(project, new Path("build"), [], classpath, [], [])
     }
 }

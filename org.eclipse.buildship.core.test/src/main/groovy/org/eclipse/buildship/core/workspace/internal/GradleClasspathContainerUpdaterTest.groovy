@@ -39,7 +39,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         def gradleProject = gradleProjectWithClasspath(
             externalDependency(file)
         )
-        PersistentModelBuilder persistentModel = builder(project.project)
+        PersistentModelBuilder persistentModel = persistentModelBuilder(project.project)
 
         when:
         GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), persistentModel, null)
@@ -54,7 +54,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         def gradleProject = gradleProjectWithClasspath(
             externalDependency(dir("foo"))
         )
-        PersistentModelBuilder persistentModel = builder(project.project)
+        PersistentModelBuilder persistentModel = persistentModelBuilder(project.project)
 
         when:
         GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), persistentModel, null)
@@ -69,7 +69,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         def gradleProject = gradleProjectWithClasspath(
             externalDependency(new File(path))
         )
-        PersistentModelBuilder persistentModel = builder(project.project)
+        PersistentModelBuilder persistentModel = persistentModelBuilder(project.project)
 
         when:
         GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), persistentModel, null)
@@ -87,7 +87,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         def gradleProject = gradleProjectWithClasspath(
             externalDependency(new File(path))
         )
-        PersistentModelBuilder persistentModel = builder(project.project)
+        PersistentModelBuilder persistentModel = persistentModelBuilder(project.project)
 
         when:
         GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), persistentModel, null)
@@ -106,7 +106,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
                 externalDependency(dir("foo")),
                 externalDependency(dir("bar"))
                 )
-        PersistentModelBuilder persistentModel = builder(project.project)
+        PersistentModelBuilder persistentModel = persistentModelBuilder(project.project)
 
         expect:
         def initialContainer = gradleClasspathContainer
@@ -120,7 +120,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         !modifiedContainer.is(initialContainer)
 
         when:
-        persistentModel = builder(persistentModel.build())
+        persistentModel = persistentModelBuilder(persistentModel.build())
         GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, gradleProject.all.toSet(), persistentModel, null)
 
         then:
@@ -149,18 +149,6 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
     IClasspathEntry[] getResolvedClasspath() {
         project.getResolvedClasspath(false)
-    }
-
-    private PersistentModelBuilder builder(IProject project) {
-        new PersistentModelBuilder(emptyModel(project))
-    }
-
-    private PersistentModelBuilder builder(PersistentModel model) {
-        new PersistentModelBuilder(model)
-    }
-
-    private PersistentModel emptyModel(IProject project) {
-        new DefaultPersistentModel(project, new Path("build"), [], [], [], [])
     }
 
     GradleClasspathContainer getGradleClasspathContainer() {

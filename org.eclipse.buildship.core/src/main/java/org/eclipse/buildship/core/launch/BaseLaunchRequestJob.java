@@ -20,6 +20,7 @@ import java.util.List;
 import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProgressListener;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -212,6 +213,22 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
         @Override
         public RunConfiguration getRunConfig() {
             return this.runConfig;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof BaseProcessDescription) {
+                BaseProcessDescription that = (BaseProcessDescription) obj;
+                return Objects.equal(this.name, that.name)
+                    && Objects.equal(this.job, that.job)
+                    && Objects.equal(this.runConfig, that.runConfig);
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.name, this.job, this.runConfig);
         }
 
     }

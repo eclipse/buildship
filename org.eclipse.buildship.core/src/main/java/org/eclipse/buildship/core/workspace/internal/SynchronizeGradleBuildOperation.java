@@ -204,8 +204,8 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
 
         LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), persistentModel, progress.newChild(1));
         GradleFolderUpdater.update(workspaceProject, project, persistentModel, progress.newChild(1));
-        ProjectNatureUpdater.update(workspaceProject, project.getProjectNatures(), progress.newChild(1));
-        BuildCommandUpdater.update(workspaceProject, project.getBuildCommands(), progress.newChild(1));
+        ProjectNatureUpdater.update(workspaceProject, project.getProjectNatures(), persistentModel, progress.newChild(1));
+        BuildCommandUpdater.update(workspaceProject, project.getBuildCommands(), persistentModel, progress.newChild(1));
 
         if (isJavaProject(project)) {
             synchronizeJavaProject(project, workspaceProject, persistentModel, progress);

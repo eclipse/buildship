@@ -35,8 +35,6 @@ public final class UiMessages extends NLS {
     public static String Action_RerunBuild_Tooltip;
     public static String Action_RerunFailedTests_Tooltip;
 
-    public static String Action_ShowTreeHeader_Text;
-
     public static String Button_CopyFailuresToClipboard_Tooltip;
 
     public static String Dialog_Title_Multiple_Errors;

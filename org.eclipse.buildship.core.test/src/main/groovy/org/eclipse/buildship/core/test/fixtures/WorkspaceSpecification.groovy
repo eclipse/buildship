@@ -11,12 +11,9 @@
 
 package org.eclipse.buildship.core.test.fixtures
 
-import java.io.File
-
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.AutoCleanup
-import spock.lang.Shared
 import spock.lang.Specification
 
 import com.google.common.io.Files
@@ -25,13 +22,17 @@ import com.gradleware.tooling.toolingclient.GradleDistribution
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IWorkspace
+import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.configuration.ConfigurationManager
+import org.eclipse.buildship.core.preferences.PersistentModel
+import org.eclipse.buildship.core.preferences.internal.DefaultPersistentModel
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
+import org.eclipse.buildship.core.workspace.internal.PersistentModelBuilder
 
 /**
  * Base Spock test specification to verify Buildship functionality against the current state of the
@@ -175,5 +176,17 @@ abstract class WorkspaceSpecification extends Specification {
     protected BuildConfiguration createOverridingBuildConfiguration(File projectDir, GradleDistribution distribution = GradleDistribution.fromBuild(),
                                                                   boolean buildScansEnabled = false, boolean offlineMode = false, File gradleUserHome = null) {
         configurationManager.createBuildConfiguration(projectDir, true, distribution, gradleUserHome, buildScansEnabled, offlineMode)
+    }
+
+    protected PersistentModelBuilder persistentModelBuilder(PersistentModel model) {
+        new PersistentModelBuilder(model)
+    }
+
+    protected PersistentModelBuilder persistentModelBuilder(IProject project) {
+        new PersistentModelBuilder(emptyPersistentModel(project))
+    }
+
+    protected PersistentModel emptyPersistentModel(IProject project) {
+        new DefaultPersistentModel(project, new Path("build"), [], [], [], [], [], [])
     }
 }

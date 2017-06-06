@@ -15,7 +15,6 @@ import org.gradle.tooling.LongRunningOperation;
 
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IContributionItem;
-import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
@@ -52,10 +51,6 @@ public final class ExecutionsView extends MultiPageView {
         // add actions to the global toolbar of the executions view
         IToolBarManager toolBarManager = site.getActionBars().getToolBarManager();
         toolBarManager.appendToGroup(PART_GROUP, this.switchPagesAction);
-
-        // add actions to the global menu of the executions view
-        IMenuManager menuManager = site.getActionBars().getMenuManager();
-        menuManager.add(new ToggleShowTreeHeaderAction(this, this.state));
     }
 
     @Override
