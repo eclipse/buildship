@@ -91,7 +91,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         // configure tree
         this.filteredTree = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, new PatternFilter(true));
         this.filteredTree.setShowFilterControls(false);
-        this.filteredTree.getViewer().getTree().setHeaderVisible(this.state.isShowTreeHeader());
+        this.filteredTree.getViewer().getTree().setHeaderVisible(true);
         this.filteredTree.getViewer().setContentProvider(new ExecutionPageContentProvider());
 
         this.nameColumn = new TreeViewerColumn(this.filteredTree.getViewer(), SWT.NONE);

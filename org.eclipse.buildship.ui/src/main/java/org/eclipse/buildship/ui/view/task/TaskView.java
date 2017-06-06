@@ -103,6 +103,7 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
         this.filteredTree = new FilteredTree(this.nonEmptyInputPage, SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI, new PatternFilter(true));
         this.filteredTree.setShowFilterControls(false);
         this.treeViewer = this.filteredTree.getViewer();
+        this.treeViewer.getTree().setHeaderVisible(true);
         this.treeViewer.getControl().setLayoutData(new GridData(GridData.FILL_BOTH));
 
         // set filter, comparator, and content provider
