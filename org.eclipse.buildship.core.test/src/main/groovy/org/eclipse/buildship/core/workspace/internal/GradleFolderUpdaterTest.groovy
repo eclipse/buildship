@@ -30,7 +30,7 @@ class GradleFolderUpdaterTest extends WorkspaceSpecification {
 
     def "Derived resources can be marked on a project"() {
         given:
-        PersistentModelBuilder persistentModel = builder(project)
+        PersistentModelBuilder persistentModel = persistentModelBuilder(project)
 
         when:
         GradleFolderUpdater.update(project, model(), persistentModel, null)
@@ -42,10 +42,10 @@ class GradleFolderUpdaterTest extends WorkspaceSpecification {
 
     def "Derived resource markers are removed if they no longer exist in the Gradle model"() {
         setup:
-        PersistentModelBuilder persistentModel = builder(project)
+        PersistentModelBuilder persistentModel = persistentModelBuilder(project)
         GradleFolderUpdater.update(project, model('build'), persistentModel, null)
 
-        persistentModel =  builder(persistentModel.build())
+        persistentModel =  persistentModelBuilder(persistentModel.build())
 
         when:
         GradleFolderUpdater.update(project, model('build'), persistentModel, null)
@@ -61,7 +61,7 @@ class GradleFolderUpdaterTest extends WorkspaceSpecification {
         def manual = project.getFolder('manual')
         manual.create(true, true, null)
         manual.setDerived(true, null)
-        PersistentModelBuilder persistentModel = builder(project)
+        PersistentModelBuilder persistentModel = persistentModelBuilder(project)
 
         when:
         GradleFolderUpdater.update(project, model(), persistentModel, null)
@@ -73,10 +73,10 @@ class GradleFolderUpdaterTest extends WorkspaceSpecification {
     def "Derived resource markers that were defined manually are transformed to model elements"() {
         setup:
         buildFolder.setDerived(true, null)
-        PersistentModelBuilder persistentModel = builder(project)
+        PersistentModelBuilder persistentModel = persistentModelBuilder(project)
         GradleFolderUpdater.update(project, model('build'), persistentModel, null)
 
-        persistentModel = builder(persistentModel.build())
+        persistentModel = persistentModelBuilder(persistentModel.build())
 
         when:
         GradleFolderUpdater.update(project, model('target'), persistentModel, null)
@@ -93,17 +93,5 @@ class GradleFolderUpdaterTest extends WorkspaceSpecification {
         eclipseProject.projectDirectory >> project.location.toFile()
         eclipseProject.all >> [eclipseProject]
         eclipseProject
-    }
-
-    private PersistentModelBuilder builder(PersistentModel model) {
-        new PersistentModelBuilder(model)
-    }
-
-    private PersistentModelBuilder builder(IProject project) {
-        new PersistentModelBuilder(emptyModel(project))
-    }
-
-    private PersistentModel emptyModel(IProject project) {
-        new DefaultPersistentModel(project, new Path("build"), [], [], [], [])
     }
 }

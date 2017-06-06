@@ -22,8 +22,12 @@ class PersistentModelBuilderTest extends WorkspaceSpecification {
         def classpath = [JavaCore.newProjectEntry(new Path('/project-path'))]
         def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
+        def managedNatures = ['org.eclipse.pde.UpdateSiteNature']
+        def command = project.description.newCommand()
+        command.setBuilderName('custom-command')
+        def managedBuilders = [command]
 
-        def previous = new DefaultPersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
+        def previous = new DefaultPersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders)
         def model = new PersistentModelBuilder(previous).build()
 
         expect:
@@ -34,6 +38,8 @@ class PersistentModelBuilderTest extends WorkspaceSpecification {
         model.classpath == classpath
         model.derivedResources == derivedResources
         model.linkedResources == linkedResources
+        model.managedNatures == managedNatures
+        model.managedBuilders == managedBuilders
     }
 
 
@@ -44,8 +50,12 @@ class PersistentModelBuilderTest extends WorkspaceSpecification {
         def classpath = [JavaCore.newProjectEntry(new Path('/project-path'))]
         def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
+        def managedNatures = ['org.eclipse.pde.UpdateSiteNature']
+        def command = project.description.newCommand()
+        command.setBuilderName('custom-command')
+        def managedBuilders = [command]
 
-        def previous = new DefaultPersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
+        def previous = new DefaultPersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders)
         def builder = new PersistentModelBuilder(previous)
         builder."${method}"(null)
 
@@ -56,6 +66,6 @@ class PersistentModelBuilderTest extends WorkspaceSpecification {
         thrown NullPointerException
 
         where:
-        method << [ 'buildDir', 'subprojectPaths', 'classpath', 'derivedResources', 'linkedResources' ]
+        method << [ 'buildDir', 'subprojectPaths', 'classpath', 'derivedResources', 'linkedResources', 'managedNatures', 'managedBuilders' ]
     }
 }

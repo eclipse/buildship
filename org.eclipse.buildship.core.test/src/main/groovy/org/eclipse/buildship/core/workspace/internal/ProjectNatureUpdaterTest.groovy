@@ -1,100 +1,145 @@
 package org.eclipse.buildship.core.workspace.internal
 
 import com.google.common.base.Optional
-import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature
-import org.eclipse.core.resources.IProject
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.test.fixtures.EclipseProjects
-import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification;
 
+import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature
+
+import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IProjectDescription
 import org.eclipse.core.runtime.NullProgressMonitor
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import spock.lang.Specification
+
+import org.eclipse.buildship.core.configuration.GradleProjectNature
+import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification;
 
 class ProjectNatureUpdaterTest extends WorkspaceSpecification {
 
     def "Project nature can be set on a project"() {
         given:
-        def project = newProject('sample-project')
+        IProject project = newProject('sample-project')
 
         when:
-        ProjectNatureUpdater.update(project, natures('org.eclipse.pde.UpdateSiteNature'), new NullProgressMonitor())
+        executeProjectNatureUpdater(project, persistentModelBuilder(project), 'org.eclipse.pde.UpdateSiteNature')
 
         then:
-        project.description.natureIds.find{ it == 'org.eclipse.pde.UpdateSiteNature' }
+        hasNature(project, 'org.eclipse.pde.UpdateSiteNature')
     }
 
     def "Gradle Nature is added when nature information is present"() {
         given:
-        def project = newProject('sample-project')
+        IProject project = newProject('sample-project')
 
         when:
-        ProjectNatureUpdater.update(project, natures(), new NullProgressMonitor())
+        executeProjectNatureUpdater(project, persistentModelBuilder(project))
 
         then:
-        project.description.natureIds.find{ it == GradleProjectNature.ID }
+        hasNature(project, GradleProjectNature.ID)
     }
 
     def "Gradle Nature is added when nature information is absent"() {
         given:
-        def project = newProject('sample-project')
+        IProject project = newProject('sample-project')
 
         when:
-        ProjectNatureUpdater.update(project, Optional.absent(), new NullProgressMonitor())
+        executeProjectNatureUpdaterWithAbsentModel(project)
 
         then:
-        project.description.natureIds.find{ it == GradleProjectNature.ID }
+        hasNature(project, GradleProjectNature.ID)
     }
 
-    def "Project natures are removed if they no longer exist in the Gradle model"() {
+    def "Project natures are removed if they were added by Gradle and no longer exist in the model"() {
         given:
-        def project = newProject('sample-project')
+        IProject project = newProject('sample-project')
+        PersistentModelBuilder persistentModel = persistentModelBuilder(project)
 
         when:
-        ProjectNatureUpdater.update(project, natures('org.eclipse.pde.UpdateSiteNature'), new NullProgressMonitor())
-        ProjectNatureUpdater.update(project, natures('org.eclipse.jdt.core.javanature'), new NullProgressMonitor())
+        executeProjectNatureUpdater(project, persistentModel, 'org.eclipse.pde.UpdateSiteNature')
 
         then:
-        !project.description.natureIds.find{ it == 'org.eclipse.pde.UpdateSiteNature' }
-        project.description.natureIds.find{ it == 'org.eclipse.jdt.core.javanature' }
+        hasNature(project, 'org.eclipse.pde.UpdateSiteNature')
+
+        when:
+        executeProjectNatureUpdater(project, persistentModelBuilder(persistentModel.build()), 'org.eclipse.jdt.core.javanature')
+
+        then:
+        !hasNature(project, 'org.eclipse.pde.UpdateSiteNature')
+        hasNature(project, 'org.eclipse.jdt.core.javanature')
     }
 
     def "Manually added natures are preserved if Gradle model has no nature information"() {
         given:
-        def project = newProject('sample-project')
-        def description = project.description
-        def manualNatures = ['org.eclipse.pde.UpdateSiteNature', 'org.eclipse.jdt.core.javanature']
+        IProject project = newProject('sample-project')
+        IProjectDescription description = project.description
+        List userNatures = ['org.eclipse.pde.UpdateSiteNature', 'org.eclipse.jdt.core.javanature']
+        description.setNatureIds(userNatures as String[])
+        project.setDescription(description, new NullProgressMonitor())
+
+        when:
+        executeProjectNatureUpdaterWithAbsentModel(project)
+
+        then:
+        naturesOf(project) == [GradleProjectNature.ID] + userNatures
+    }
+
+    def "Manually added natures are preserved if they were added manually"() {
+        given:
+        IProject project = newProject('sample-project')
+        IProjectDescription description = project.description
+        List manualNatures = ['org.eclipse.pde.UpdateSiteNature']
         description.setNatureIds(manualNatures as String[])
         project.setDescription(description, new NullProgressMonitor())
+        PersistentModelBuilder persistentModel = persistentModelBuilder(project)
 
         when:
-        ProjectNatureUpdater.update(project, Optional.absent(), new NullProgressMonitor())
+        executeProjectNatureUpdater(project, persistentModel)
 
         then:
-        project.description.natureIds as List == manualNatures + [GradleProjectNature.ID]
-    }
-
-    def "Manually added natures are removed if Gradle model has nature information"() {
-        given:
-        def project = newProject('sample-project')
-        def description = project.description
-        description.setNatureIds(['org.eclipse.pde.UpdateSiteNature'] as String[])
-        project.setDescription(description, new NullProgressMonitor())
+        hasNature(project, 'org.eclipse.pde.UpdateSiteNature')
 
         when:
-        ProjectNatureUpdater.update(project, natures(), new NullProgressMonitor())
+        persistentModel = persistentModelBuilder(persistentModel.build())
+        executeProjectNatureUpdater(project, persistentModel, 'org.eclipse.pde.UpdateSiteNature')
 
         then:
-        !project.description.natureIds.find{ it == 'org.eclipse.pde.UpdateSiteNature' }
+        hasNature(project, 'org.eclipse.pde.UpdateSiteNature')
+
+        when:
+        persistentModel = persistentModelBuilder(persistentModel.build())
+        executeProjectNatureUpdater(project, persistentModel)
+
+        then:
+        hasNature(project, 'org.eclipse.pde.UpdateSiteNature')
     }
 
-    private def natures(String... natureIds) {
-        Optional.of(natureIds.collect{
-            def natureMock = Mock(OmniEclipseProjectNature)
-            natureMock.id >> it
-            natureMock
+    private void executeProjectNatureUpdaterWithAbsentModel(IProject project) {
+        ProjectNatureUpdater.update(project, Optional.absent(), persistentModelBuilder(project), new NullProgressMonitor())
+    }
+
+    private void executeProjectNatureUpdater(IProject project, PersistentModelBuilder persistentModel, String... natures) {
+        List<OmniEclipseProjectNature> modelNatures = natures.collect { String natureId ->
+            OmniEclipseProjectNature nature = Mock(OmniEclipseProjectNature)
+            nature.id >> natureId
+            nature
+        }
+        ProjectNatureUpdater.update(project, Optional.of(modelNatures), persistentModel, new NullProgressMonitor())
+    }
+
+    private List<String> naturesOf(IProject project) {
+        project.description.natureIds as List
+    }
+
+    private boolean hasNature(IProject project, String natureId) {
+        project.description.natureIds.find { it == natureId }
+    }
+
+    private Optional<OmniEclipseProjectNature> absentModelNatures() {
+        Optional.absent()
+    }
+
+    private Optional<OmniEclipseProjectNature> modelNatures(String... natureIds) {
+        Optional.of(natureIds.collect { String natureId ->
+            OmniEclipseProjectNature nature = Mock(OmniEclipseProjectNature)
+            nature.id >> natureId
+            nature
         })
     }
 

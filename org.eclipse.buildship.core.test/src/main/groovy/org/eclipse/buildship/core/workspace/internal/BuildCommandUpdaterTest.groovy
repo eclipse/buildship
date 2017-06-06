@@ -18,7 +18,7 @@ class BuildCommandUpdaterTest extends WorkspaceSpecification {
         def project = newProject('sample-project')
 
         when:
-        BuildCommandUpdater.update(project, oneBuildCommand('customBuildCommand', ['key' : 'value']), new NullProgressMonitor())
+        BuildCommandUpdater.update(project, oneBuildCommand('customBuildCommand', ['key' : 'value']), persistentModelBuilder(project), new NullProgressMonitor())
 
         then:
         hasBuildCommand(project, 'customBuildCommand', ['key' : 'value'])
@@ -29,7 +29,7 @@ class BuildCommandUpdaterTest extends WorkspaceSpecification {
         def project = newProject('sample-project')
 
         when:
-        BuildCommandUpdater.update(project, unsupportedBuildCommands(), new NullProgressMonitor())
+        BuildCommandUpdater.update(project, unsupportedBuildCommands(), persistentModelBuilder(project), new NullProgressMonitor())
 
         then:
         hasBuildCommand(project, GradleProjectBuilder.ID)
@@ -40,7 +40,7 @@ class BuildCommandUpdaterTest extends WorkspaceSpecification {
         def project = newProject('sample-project')
 
         when:
-        BuildCommandUpdater.update(project, zeroBuildCommands(), new NullProgressMonitor())
+        BuildCommandUpdater.update(project, zeroBuildCommands(), persistentModelBuilder(project), new NullProgressMonitor())
 
         then:
         hasBuildCommand(project, GradleProjectBuilder.ID)
@@ -51,7 +51,7 @@ class BuildCommandUpdaterTest extends WorkspaceSpecification {
         def project = newProject('sample-project')
 
         when:
-        BuildCommandUpdater.update(project, oneBuildCommand(GradleProjectBuilder.ID), new NullProgressMonitor())
+        BuildCommandUpdater.update(project, oneBuildCommand(GradleProjectBuilder.ID), persistentModelBuilder(project), new NullProgressMonitor())
 
         then:
         project.description.buildSpec.length == 1
@@ -64,26 +64,32 @@ class BuildCommandUpdaterTest extends WorkspaceSpecification {
 
         when:
         def buildCommands = twoBuildCommands('customBuildCommand', ['key' : 'value'], 'customBuildCommand', ['key' : 'otherValue'])
-        BuildCommandUpdater.update(project, buildCommands, new NullProgressMonitor())
+        BuildCommandUpdater.update(project, buildCommands, persistentModelBuilder(project), new NullProgressMonitor())
 
         then:
         hasBuildCommand(project, 'customBuildCommand', ['key' : 'value'])
         hasBuildCommand(project, 'customBuildCommand', ['key' : 'otherValue'])
     }
 
-    def "Build commands are removed if they no longer exist in the Gradle model"() {
+    def "Build commands are removed if they were added by Gradle and no longer exist in the model"() {
         given:
         def project = newProject('sample-project')
+        PersistentModelBuilder persistentModel = persistentModelBuilder(project)
 
         when:
-        BuildCommandUpdater.update(project, oneBuildCommand('customBuildCommand', ['key' : 'value']), new NullProgressMonitor())
-        BuildCommandUpdater.update(project, zeroBuildCommands(), new NullProgressMonitor())
+        BuildCommandUpdater.update(project, oneBuildCommand('customBuildCommand', ['key' : 'value']), persistentModel, new NullProgressMonitor())
 
         then:
-        !hasBuildCommand(project,, 'customBuildCommand', ['key' : 'value'])
+        hasBuildCommand(project, 'customBuildCommand', ['key' : 'value'])
+
+        when:
+        BuildCommandUpdater.update(project, zeroBuildCommands(), persistentModelBuilder(persistentModel.build()), new NullProgressMonitor())
+
+        then:
+        !hasBuildCommand(project, 'customBuildCommand', ['key' : 'value'])
     }
 
-    def "Manually added build commands are preserved if Gradle model does not provide them"() {
+    def "Manually added build commands are preserved when Gradle model does not provide them"() {
         given:
         def project = newProject('sample-project')
         def description = project.description
@@ -95,13 +101,13 @@ class BuildCommandUpdaterTest extends WorkspaceSpecification {
         project.setDescription(description, new NullProgressMonitor())
 
         when:
-        BuildCommandUpdater.update(project, unsupportedBuildCommands(), new NullProgressMonitor())
+        BuildCommandUpdater.update(project, unsupportedBuildCommands(), persistentModelBuilder(project), new NullProgressMonitor())
 
         then:
         hasBuildCommand(project, 'manuallyCreatedBuildCommand')
     }
 
-    def "Manually added build commands are removed if Gradle model provides them"() {
+    def "Manually added natures are preserved if they were added manually"() {
         given:
         def project = newProject('sample-project')
         def description = project.description
@@ -111,12 +117,27 @@ class BuildCommandUpdaterTest extends WorkspaceSpecification {
         def commands = description.buildSpec + command
         description.setBuildSpec(commands as ICommand[])
         project.setDescription(description, new NullProgressMonitor())
+        PersistentModelBuilder persistentModel = persistentModelBuilder(project)
 
         when:
-        BuildCommandUpdater.update(project, zeroBuildCommands(), new NullProgressMonitor())
+        BuildCommandUpdater.update(project, zeroBuildCommands(), persistentModel, new NullProgressMonitor())
 
         then:
-        !hasBuildCommand(project, 'manuallyCreatedBuildCommand')
+        hasBuildCommand(project, 'manuallyCreatedBuildCommand')
+
+        when:
+        persistentModel = persistentModelBuilder(persistentModel.build())
+        BuildCommandUpdater.update(project, oneBuildCommand('manuallyCreatedBuildCommand'), persistentModel, new NullProgressMonitor())
+
+        then:
+        hasBuildCommand(project, 'manuallyCreatedBuildCommand')
+
+        when:
+        persistentModel = persistentModelBuilder(persistentModel.build())
+        BuildCommandUpdater.update(project, zeroBuildCommands(), persistentModel, new NullProgressMonitor())
+
+        then:
+        hasBuildCommand(project, 'manuallyCreatedBuildCommand')
     }
 
     private Optional unsupportedBuildCommands() {

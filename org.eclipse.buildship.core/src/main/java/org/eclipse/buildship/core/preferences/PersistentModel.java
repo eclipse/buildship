@@ -11,6 +11,7 @@ package org.eclipse.buildship.core.preferences;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -34,4 +35,8 @@ public interface PersistentModel {
     Collection<IPath> getDerivedResources();
 
     Collection<IPath> getLinkedResources();
+
+    List<String> getManagedNatures();
+
+    List<ICommand> getManagedBuilders();
 }

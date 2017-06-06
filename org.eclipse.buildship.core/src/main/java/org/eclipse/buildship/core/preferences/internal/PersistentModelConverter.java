@@ -14,12 +14,14 @@ import java.util.List;
 import java.util.Properties;
 
 import com.google.common.base.Function;
+import com.google.common.base.Functions;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicates;
 import com.google.common.base.Splitter;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
+import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -39,6 +41,8 @@ final class PersistentModelConverter {
     private static final String PROPERTY_CLASSPATH = "classpath";
     private static final String PROPERTY_DERIVED_RESOURCES = "derivedResources";
     private static final String PROPERTY_LINKED_RESOURCES = "linkedResources";
+    private static final String PROPERTY_MANAGED_NATURES = "managedNatures";
+    private static final String PROPERTY_MANAGED_BUILDERS = "managedBuilders";
 
     public static Properties toProperties(final PersistentModel model) {
         Properties properties = new Properties();
@@ -78,6 +82,16 @@ final class PersistentModelConverter {
             @Override
             public String apply(IPath linkedResource) {
                 return linkedResource.toPortableString();
+            }
+        });
+
+        storeList(properties, PROPERTY_MANAGED_NATURES, model.getManagedNatures(), Functions.<String>identity());
+
+        storeValue(properties, PROPERTY_MANAGED_BUILDERS, model.getManagedBuilders(), new Function<List<ICommand>, String>(){
+
+            @Override
+            public String apply(List<ICommand> commands) {
+                return BuildCommandConverter.toXml(model.getProject(), commands);
             }
         });
 
@@ -122,7 +136,16 @@ final class PersistentModelConverter {
             }
         });
 
-        return new DefaultPersistentModel(project, buildDir, subprojects, classpath, derivedResources, linkedResources);
+        Collection<String> managedNatures = loadList(properties, PROPERTY_MANAGED_NATURES, Functions.<String>identity());
+
+        Collection<ICommand> managedBuilders = loadValue(properties, PROPERTY_MANAGED_BUILDERS, ImmutableList.<ICommand>of(), new Function<String, List<ICommand>>() {
+
+            @Override
+            public List<ICommand> apply(String commands) {
+                return BuildCommandConverter.toEntries(project, commands);
+            }
+        });
+        return new DefaultPersistentModel(project, buildDir, subprojects, classpath, derivedResources, linkedResources, managedNatures, managedBuilders);
     }
 
     private static <T> T loadValue(Properties properties, String key, T defaultValue, Function<String, T> conversion) {

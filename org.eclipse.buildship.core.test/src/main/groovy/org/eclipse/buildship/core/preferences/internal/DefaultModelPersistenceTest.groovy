@@ -48,8 +48,12 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         def classpath = [JavaCore.newProjectEntry(new Path('/project-path'))]
         def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
+        def managedNatures = ['org.eclipse.pde.UpdateSiteNature']
+        def command = project.description.newCommand()
+        command.setBuilderName('custom-command')
+        def managedBuilders = [command]
 
-        PersistentModel model = new DefaultPersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
+        PersistentModel model = new DefaultPersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders)
 
         when:
         CorePlugin.modelPersistence().saveModel(model)
@@ -72,8 +76,12 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         def classpath = [JavaCore.newProjectEntry(new Path('/project-path'))]
         def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
+        def managedNatures = ['org.eclipse.pde.UpdateSiteNature']
+        def command = project.description.newCommand()
+        command.setBuilderName('custom-command')
+        def managedBuilders = [command]
 
-        PersistentModel model = new DefaultPersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
+        PersistentModel model = new DefaultPersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders)
         CorePlugin.modelPersistence().saveModel(model)
 
         when:
@@ -91,8 +99,12 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         def classpath = [JavaCore.newProjectEntry(new Path('/project-path'))]
         def derivedResources = [new Path('derived')]
         def linkedResources = [project.getFolder('linked')]
+        def managedNatures = ['org.eclipse.pde.UpdateSiteNature']
+        def command = project.description.newCommand()
+        command.setBuilderName('custom-command')
+        def managedBuilders = [command]
 
-        PersistentModel model = new DefaultPersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources)
+        PersistentModel model = new DefaultPersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders)
         CorePlugin.modelPersistence().saveModel(model)
 
         when:
