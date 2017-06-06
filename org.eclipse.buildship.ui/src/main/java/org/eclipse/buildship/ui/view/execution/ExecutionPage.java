@@ -69,6 +69,8 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     private TreeViewerColumn durationColumn;
     private ExecutionProgressListener progressListener;
 
+    private OpenBuildScanAction openBuildScanAction;
+
     public ExecutionPage(ProcessDescription processDescription, LongRunningOperation operation, ExecutionViewState state) {
         this.processDescription = processDescription;
         this.operation = operation;
@@ -174,6 +176,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new SwitchToConsoleViewAction(this));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new Separator());
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RerunFailedTestsAction(this));
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, this.openBuildScanAction = new OpenBuildScanAction(this.getProcessDescription()));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new Separator());
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new CancelBuildExecutionAction(this));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new RerunBuildExecutionAction(this));
@@ -256,6 +259,9 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
 
     @Override
     public void dispose() {
+        if (this.openBuildScanAction != null) {
+            this.openBuildScanAction.dispose();
+        }
         if (this.selectionHistoryManager != null) {
             this.selectionHistoryManager.dispose();
         }
