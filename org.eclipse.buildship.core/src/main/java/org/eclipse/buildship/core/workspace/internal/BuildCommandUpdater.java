@@ -11,13 +11,13 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseBuildCommand;
@@ -40,7 +40,7 @@ final class BuildCommandUpdater {
     public static void update(IProject project, Optional<List<OmniEclipseBuildCommand>> buildCommands, PersistentModelBuilder persistentModel, IProgressMonitor monitor) throws CoreException {
         IProjectDescription description = project.getDescription();
 
-        Set<ICommand> current = Sets.newLinkedHashSet(Arrays.asList(description.getBuildSpec()));
+        Set<ICommand> current = ImmutableSet.copyOf(description.getBuildSpec());
         Set<ICommand> model = toCommands(buildCommands, description);
         PersistentModel previousModel = persistentModel.getPrevious();
         Set<ICommand> managed = previousModel.isPresent() ? Sets.newLinkedHashSet(previousModel.getManagedBuilders()) : Sets.<ICommand>newLinkedHashSet();
