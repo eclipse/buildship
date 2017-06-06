@@ -28,7 +28,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.preferences.PersistentModel;
-import org.eclipse.buildship.core.workspace.internal.GradleBuilderAndNatureMergingStrategy.Result;
+import org.eclipse.buildship.core.workspace.internal.ManagedModelMergingStrategy.Result;
 
 /**
  * Updates the natures on the target project.
@@ -46,7 +46,7 @@ final class ProjectNatureUpdater {
         IProjectDescription description = project.getDescription();
         Set<String> existingNatures = Sets.newLinkedHashSet(Arrays.asList(description.getNatureIds()));
 
-        Result<String> result = GradleBuilderAndNatureMergingStrategy.calculate(existingNatures, modelNatures, managedNatures);
+        Result<String> result = ManagedModelMergingStrategy.calculate(existingNatures, modelNatures, managedNatures);
 
         description.setNatureIds(result.getNextElements().toArray(new String[0]));
         project.setDescription(description, monitor);

@@ -21,7 +21,7 @@ import com.google.common.collect.Sets;
  *
  * @author Donat Csikos
  */
-final class GradleBuilderAndNatureMergingStrategy {
+final class ManagedModelMergingStrategy {
 
     /**
      * Calculates the updated state.

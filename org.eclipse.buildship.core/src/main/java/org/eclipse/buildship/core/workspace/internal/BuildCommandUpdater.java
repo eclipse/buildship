@@ -30,7 +30,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.configuration.GradleProjectBuilder;
 import org.eclipse.buildship.core.preferences.PersistentModel;
-import org.eclipse.buildship.core.workspace.internal.GradleBuilderAndNatureMergingStrategy.Result;
+import org.eclipse.buildship.core.workspace.internal.ManagedModelMergingStrategy.Result;
 
 /**
  * Updates the build commands on the target project.
@@ -45,7 +45,7 @@ final class BuildCommandUpdater {
         PersistentModel previousModel = persistentModel.getPrevious();
         Set<ICommand> managed = previousModel.isPresent() ? Sets.newLinkedHashSet(previousModel.getManagedBuilders()) : Sets.<ICommand>newLinkedHashSet();
 
-        Result<ICommand> result = GradleBuilderAndNatureMergingStrategy.calculate(current, model, managed);
+        Result<ICommand> result = ManagedModelMergingStrategy.calculate(current, model, managed);
         description.setBuildSpec(result.getNextElements().toArray(new ICommand[0]));
         project.setDescription(description, monitor);
         persistentModel.managedBuilders(result.getNextManaged());
