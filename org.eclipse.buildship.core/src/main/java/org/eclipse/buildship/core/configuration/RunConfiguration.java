@@ -27,6 +27,8 @@ public interface RunConfiguration {
 
     GradleDistribution getGradleDistribution();
 
+    File getGradleUserHome();
+
     File getJavaHome();
 
     List<String> getArguments();

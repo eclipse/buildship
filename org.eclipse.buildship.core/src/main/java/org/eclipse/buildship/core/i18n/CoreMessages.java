@@ -22,6 +22,7 @@ public final class CoreMessages extends NLS {
 
     public static String ClasspathContainer_Label;
 
+    public static String GradleDistribution_Label_Group;
     public static String GradleDistribution_Label_FromImportSettings;
     public static String GradleDistribution_Label_FromImportSettings_Tooltip;
     public static String GradleDistribution_Label_GradleWrapper;
@@ -53,6 +54,8 @@ public final class CoreMessages extends NLS {
     public static String Value_None;
     public static String Value_Unknown;
     public static String Value_UseGradleDefault;
+
+    public static String WarningMessage_Using_0_NonPortable;
 
     public static String ErrorMessage_0_DoesNotExist;
     public static String ErrorMessage_0_IsNotValid;

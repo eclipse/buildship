@@ -27,8 +27,9 @@ public interface ConfigurationManager {
 
     void saveWorkspaceConfiguration(WorkspaceConfiguration configuration);
 
-    BuildConfiguration createBuildConfiguration(File rootProjectDirectory, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings, boolean buildScansEnabled,
-            boolean offlineMode);
+    BuildConfiguration createBuildConfiguration(File rootProjectDirectory, boolean overrideWorkspaceSettings,
+                                                GradleDistribution gradleDistribution, File gradleUserHome,
+                                                boolean buildScansEnabled, boolean offlineMode);
 
     BuildConfiguration loadBuildConfiguration(File rootProject);
 
@@ -46,6 +47,10 @@ public interface ConfigurationManager {
 
     RunConfiguration createDefaultRunConfiguration(BuildConfiguration configuration);
 
-    RunConfiguration createRunConfiguration(BuildConfiguration configuration, List<String> tasks, File javaHome, GradleDistribution gradleDistribution, List<String> jvmArguments,
-            List<String> arguments, boolean showExecutionsView, boolean showConsoleView, boolean overrideBuildSettings, boolean buildScansEnabled, boolean offlineMode);
+    RunConfiguration createRunConfiguration(BuildConfiguration configuration, List<String> tasks,
+                                            File javaHome, List<String> jvmArguments,
+                                            List<String> arguments, boolean showConsoleView,
+                                            boolean showExecutionsView, boolean overrideBuildSettings,
+                                            GradleDistribution gradleDistribution, File gradleUserHome,
+                                            boolean buildScansEnabled, boolean offlineMode);
 }

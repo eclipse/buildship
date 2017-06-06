@@ -26,7 +26,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
@@ -41,6 +40,7 @@ public final class GradleRunConfigurationAttributes {
     private static final String TASKS = "tasks";
     private static final String WORKING_DIR = "working_dir";
     private static final String GRADLE_DISTRIBUTION = "gradle_distribution";
+    private static final String GRADLE_USER_HOME = "gradle_user_home";
     private static final String JAVA_HOME = "java_home";
     private static final String JVM_ARGUMENTS = "jvm_arguments";
     private static final String ARGUMENTS = "arguments";
@@ -53,6 +53,7 @@ public final class GradleRunConfigurationAttributes {
     private final ImmutableList<String> tasks;
     private final String workingDirExpression;
     private final String gradleDistribution;
+    private final String gradleUserHomeExpression;
     private final String javaHomeExpression;
     private final ImmutableList<String> jvmArgumentExpressions;
     private final ImmutableList<String> argumentExpressions;
@@ -62,11 +63,12 @@ public final class GradleRunConfigurationAttributes {
     private final boolean isOffline;
     private final boolean isBuildScansEnabled;
 
-    public GradleRunConfigurationAttributes(List<String> tasks, String workingDirExpression, String gradleDistribution,
+    public GradleRunConfigurationAttributes(List<String> tasks, String workingDirExpression, String gradleDistribution, String gradleUserHomeExpression,
             String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean showExecutionView, boolean showConsoleView, boolean overrideWorkspaceSettings, boolean isOffline, boolean isBuildScansEnabled) {
         this.tasks = ImmutableList.copyOf(tasks);
         this.workingDirExpression = Preconditions.checkNotNull(workingDirExpression);
         this.gradleDistribution = gradleDistribution;
+        this.gradleUserHomeExpression = gradleUserHomeExpression;
         this.javaHomeExpression = javaHomeExpression;
         this.jvmArgumentExpressions = ImmutableList.copyOf(jvmArgumentExpressions);
         this.argumentExpressions = ImmutableList.copyOf(argumentExpressions);
@@ -98,8 +100,17 @@ public final class GradleRunConfigurationAttributes {
         return this.gradleDistribution != null ? GradleDistributionSerializer.INSTANCE.deserializeFromString(this.gradleDistribution) : GradleDistribution.fromBuild();
     }
 
+    public String getGradleUserHomeHomeExpression() {
+        return this.gradleUserHomeExpression;
+    }
+
     public File getGradleUserHome() {
-        return CorePlugin.configurationManager().loadWorkspaceConfiguration().getGradleUserHome();
+        try {
+            String location = ExpressionUtils.decode(this.gradleUserHomeExpression);
+            return FileUtils.getAbsoluteFile(location).orNull();
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(String.format("Cannot resolve Gradle user home directory expression %s.", this.javaHomeExpression));
+        }
     }
 
     public String getJavaHomeExpression() {
@@ -186,6 +197,7 @@ public final class GradleRunConfigurationAttributes {
         applyTasks(this.tasks, launchConfiguration);
         applyWorkingDirExpression(this.workingDirExpression, launchConfiguration);
         applyGradleDistribution(this.gradleDistribution, launchConfiguration);
+        applyGradleUserHomeExpression(this.gradleUserHomeExpression, launchConfiguration);
         applyJavaHomeExpression(this.javaHomeExpression, launchConfiguration);
         applyJvmArgumentExpressions(this.jvmArgumentExpressions, launchConfiguration);
         applyArgumentExpressions(this.argumentExpressions, launchConfiguration);
@@ -210,6 +222,10 @@ public final class GradleRunConfigurationAttributes {
 
     public static void applyGradleDistribution(GradleDistribution gradleDistribution, ILaunchConfigurationWorkingCopy launchConfiguration) {
         launchConfiguration.setAttribute(GRADLE_DISTRIBUTION, Preconditions.checkNotNull(GradleDistributionSerializer.INSTANCE.serializeToString(gradleDistribution)));
+    }
+
+    public static void applyGradleUserHomeExpression(String gradleUserHomeExpression, ILaunchConfigurationWorkingCopy launchConfiguration) {
+        launchConfiguration.setAttribute(GRADLE_USER_HOME, gradleUserHomeExpression);
     }
 
     public static void applyJavaHomeExpression(String javaHomeExpression, ILaunchConfigurationWorkingCopy launchConfiguration) {
@@ -249,6 +265,7 @@ public final class GradleRunConfigurationAttributes {
         List<String> tasks = getListAttribute(TASKS, launchConfiguration);
         String workingDirExpression = getStringAttribute(WORKING_DIR, "", launchConfiguration);
         String gradleDistribution = getStringAttribute(GRADLE_DISTRIBUTION, GradleDistributionSerializer.INSTANCE.serializeToString(GradleDistribution.fromBuild()), launchConfiguration);
+        String gradleUserHomeExpression = getStringAttribute(GRADLE_USER_HOME, null, launchConfiguration);
         String javaHomeExpression = getStringAttribute(JAVA_HOME, null, launchConfiguration);
         List<String> jvmArgumentExpressions = getListAttribute(JVM_ARGUMENTS, launchConfiguration);
         List<String> argumentExpressions = getListAttribute(ARGUMENTS, launchConfiguration);
@@ -257,7 +274,7 @@ public final class GradleRunConfigurationAttributes {
         boolean overrideWorkspaceSettings = getBooleanAttribute(OVERRIDE_BUILD_SETTINGS, false, launchConfiguration);
         boolean isOffline = getBooleanAttribute(OFFLINE_MODE, false, launchConfiguration);
         boolean isBuildScansEnabled = getBooleanAttribute(BUILD_SCANS_ENABLED, false, launchConfiguration);
-        return new GradleRunConfigurationAttributes(tasks, workingDirExpression, gradleDistribution, javaHomeExpression, jvmArgumentExpressions, argumentExpressions,
+        return new GradleRunConfigurationAttributes(tasks, workingDirExpression, gradleDistribution, gradleUserHomeExpression, javaHomeExpression, jvmArgumentExpressions, argumentExpressions,
                 showExecutionView, showConsoleView, overrideWorkspaceSettings, isOffline, isBuildScansEnabled);
     }
 
@@ -291,6 +308,7 @@ public final class GradleRunConfigurationAttributes {
             GradleRunConfigurationAttributes other = (GradleRunConfigurationAttributes) obj;
             return Objects.equal(this.workingDirExpression, other.workingDirExpression)
                     && Objects.equal(this.gradleDistribution, other.gradleDistribution)
+                    && Objects.equal(this.gradleUserHomeExpression, other.gradleUserHomeExpression)
                     && Objects.equal(this.javaHomeExpression, other.javaHomeExpression)
                     && Objects.equal(this.jvmArgumentExpressions, other.jvmArgumentExpressions)
                     && Objects.equal(this.argumentExpressions, other.argumentExpressions)
@@ -307,6 +325,7 @@ public final class GradleRunConfigurationAttributes {
     public int hashCode() {
         return Objects.hashCode(this.workingDirExpression,
                     this.gradleDistribution,
+                    this.gradleUserHomeExpression,
                     this.javaHomeExpression,
                     this.jvmArgumentExpressions,
                     this.argumentExpressions,

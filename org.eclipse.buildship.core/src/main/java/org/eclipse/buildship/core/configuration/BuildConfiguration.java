@@ -24,9 +24,11 @@ public interface BuildConfiguration {
 
     File getRootProjectDirectory();
 
-    GradleDistribution getGradleDistribution();
-
     boolean isOverrideWorkspaceSettings();
+
+    File getGradleUserHome();
+
+    GradleDistribution getGradleDistribution();
 
     boolean isBuildScansEnabled();
 

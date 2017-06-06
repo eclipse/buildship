@@ -51,10 +51,11 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     }
 
     @Override
-    public BuildConfiguration createBuildConfiguration(File rootProjectDirectory, GradleDistribution gradleDistribution, boolean overrideWorkspaceSettings,
+    public BuildConfiguration createBuildConfiguration(File rootProjectDirectory, boolean overrideWorkspaceSettings, GradleDistribution gradleDistribution, File gradleUserHome,
             boolean buildScansEnabled, boolean offlineMode) {
-        BuildConfigurationProperties persistentBuildConfigProperties = new BuildConfigurationProperties(rootProjectDirectory,
+        DefaultBuildConfigurationProperties persistentBuildConfigProperties = new DefaultBuildConfigurationProperties(rootProjectDirectory,
                                                                                                         gradleDistribution,
+                                                                                                        gradleUserHome,
                                                                                                         overrideWorkspaceSettings,
                                                                                                         buildScansEnabled,
                                                                                                         offlineMode);
@@ -66,8 +67,8 @@ public class DefaultConfigurationManager implements ConfigurationManager {
         Preconditions.checkNotNull(rootDir);
         Preconditions.checkArgument(rootDir.exists());
         Optional<IProject> projectCandidate = CorePlugin.workspaceOperations().findProjectByLocation(rootDir);
-        BuildConfigurationProperties buildConfigProperties;
-        if (projectCandidate.isPresent()) {
+        DefaultBuildConfigurationProperties buildConfigProperties;
+        if (projectCandidate.isPresent() && projectCandidate.get().isAccessible()) {
             IProject project = projectCandidate.get();
             try {
                 buildConfigProperties = this.buildConfigurationPersistence.readBuildConfiguratonProperties(project);
@@ -87,7 +88,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     @Override
     public void saveBuildConfiguration(BuildConfiguration configuration) {
         Preconditions.checkArgument(configuration instanceof DefaultBuildConfiguration, "Unknow configuration type: ", configuration.getClass());
-        BuildConfigurationProperties properties = ((DefaultBuildConfiguration)configuration).getProperties();
+        DefaultBuildConfigurationProperties properties = ((DefaultBuildConfiguration)configuration).getProperties();
         File rootDir = configuration.getRootProjectDirectory();
         Optional<IProject> rootProject = CorePlugin.workspaceOperations().findProjectByLocation(rootDir);
         if (rootProject.isPresent() && rootProject.get().isAccessible()) {
@@ -145,20 +146,22 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     @Override
     public RunConfiguration loadRunConfiguration(ILaunchConfiguration launchConfiguration) {
         GradleRunConfigurationAttributes attributes = GradleRunConfigurationAttributes.from(launchConfiguration);
-        BuildConfigurationProperties buildConfigProperties;
+        DefaultBuildConfigurationProperties buildConfigProperties;
         try {
             BuildConfiguration buildConfig = loadProjectConfiguration(attributes.getWorkingDir()).getBuildConfiguration();
             buildConfigProperties = ((DefaultBuildConfiguration)buildConfig).getProperties();
         } catch (Exception e) {
             CorePlugin.logger().debug("Can't load build config from " + attributes.getWorkingDir(), e);
-            buildConfigProperties = new BuildConfigurationProperties(attributes.getWorkingDir(),
+            buildConfigProperties = new DefaultBuildConfigurationProperties(attributes.getWorkingDir(),
                     attributes.getGradleDistribution(),
+                    attributes.getGradleUserHome(),
                     attributes.isOverrideBuildSettings(),
                     attributes.isBuildScansEnabled(),
                     attributes.isOffline());
         }
         RunConfigurationProperties runConfigProperties = new RunConfigurationProperties(attributes.getTasks(),
                   attributes.getGradleDistribution(),
+                  attributes.getGradleUserHome(),
                   attributes.getJavaHome(),
                   attributes.getJvmArguments(),
                   attributes.getArgumentExpressions(),
@@ -175,23 +178,25 @@ public class DefaultConfigurationManager implements ConfigurationManager {
         return createRunConfiguration(configuration,
                 Collections.<String>emptyList(),
                 null,
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList(),
+                false,
+                false,
+                false,
                 GradleDistribution.fromBuild(),
-                Collections.<String>emptyList(),
-                Collections.<String>emptyList(),
-                false,
-                false,
-                false,
+                null,
                 false,
                 false);
     }
 
     @Override
-    public RunConfiguration createRunConfiguration(BuildConfiguration configuration, List<String> tasks, File javaHome, GradleDistribution gradleDistribution, List<String> jvmArguments,
-            List<String> arguments, boolean showExecutionsView, boolean showConsoleView, boolean overrideBuildSettings, boolean buildScansEnabled, boolean offlineMode) {
+    public RunConfiguration createRunConfiguration(BuildConfiguration configuration, List<String> tasks, File javaHome, List<String> jvmArguments, List<String> arguments, boolean showConsoleView,
+            boolean showExecutionsView, boolean overrideBuildSettings, GradleDistribution gradleDistribution, File gradleUserHome, boolean buildScansEnabled, boolean offlineMode) {
         Preconditions.checkArgument(configuration instanceof DefaultBuildConfiguration, "Unknow configuration type: ", configuration.getClass());
         DefaultBuildConfiguration buildConfiguration = (DefaultBuildConfiguration) configuration;
         RunConfigurationProperties runConfig = new RunConfigurationProperties(tasks,
                 gradleDistribution,
+                gradleUserHome,
                 javaHome,
                 jvmArguments,
                 arguments,

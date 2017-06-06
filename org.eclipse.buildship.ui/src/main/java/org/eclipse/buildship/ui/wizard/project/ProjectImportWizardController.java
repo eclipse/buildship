@@ -57,9 +57,12 @@ public class ProjectImportWizardController {
     // keys to load/store project properties in the dialog setting
     private static final String SETTINGS_KEY_PROJECT_DIR = "project_location"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_GRADLE_DISTRIBUTION_TYPE = "gradle_distribution_type"; //$NON-NLS-1$
-    private static final String SETTINGS_KEY_GRADLE_DISTRIBUTION_CONFIGURATION = "gradle_distribution_configuration"; //$NON-NLS-1$
+    private static final String SETTINGS_KEY_GRADLE_DISTRIBUTION_CONFIGURATION = "gradle_distribution_configuration"; //$NON-NLS-1
     private static final String SETTINGS_KEY_APPLY_WORKING_SETS = "apply_working_sets"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_WORKING_SETS = "working_sets"; //$NON-NLS-1$
+    private static final String SETTINGS_KEY_GRADLE_USER_HOME = "gradle_user_home"; //$NON-NLS-1$
+    private static final String SETTINGS_KEY_BUILD_SCANS = "build_scans"; //$NON-NLS-1$
+    private static final String SETTINGS_KEY_OFFLINE_MODE = "offline_mode"; //$NON-NLS-1$
 
     private final ProjectImportConfiguration configuration;
 
@@ -71,27 +74,38 @@ public class ProjectImportWizardController {
         Validator<GradleDistributionWrapper> gradleDistributionValidator = GradleDistributionValidator.gradleDistributionValidator();
         Validator<Boolean> applyWorkingSetsValidator = Validators.nullValidator();
         Validator<List<String>> workingSetsValidator = Validators.nullValidator();
+        Validator<File> gradleUserHomeValidator = Validators.optionalDirectoryValidator("Gradle user home");
 
-        this.configuration = new ProjectImportConfiguration(projectDirValidator, gradleDistributionValidator, applyWorkingSetsValidator, workingSetsValidator);
+        this.configuration = new ProjectImportConfiguration(projectDirValidator, gradleDistributionValidator, gradleUserHomeValidator, applyWorkingSetsValidator, workingSetsValidator);
 
         // initialize values from the persisted dialog settings
         IDialogSettings dialogSettings = projectImportWizard.getDialogSettings();
         Optional<File> projectDir = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_PROJECT_DIR));
         Optional<String> gradleDistributionType = Optional.fromNullable(Strings.emptyToNull(dialogSettings.get(SETTINGS_KEY_GRADLE_DISTRIBUTION_TYPE)));
         Optional<String> gradleDistributionConfiguration = Optional.fromNullable(Strings.emptyToNull(dialogSettings.get(SETTINGS_KEY_GRADLE_DISTRIBUTION_CONFIGURATION)));
+        Optional<File> gradleUserHome = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_GRADLE_USER_HOME));
         boolean applyWorkingSets = dialogSettings.get(SETTINGS_KEY_APPLY_WORKING_SETS) != null && dialogSettings.getBoolean(SETTINGS_KEY_APPLY_WORKING_SETS);
         List<String> workingSets = ImmutableList.copyOf(CollectionsUtils.nullToEmpty(dialogSettings.getArray(SETTINGS_KEY_WORKING_SETS)));
+        boolean buildScansEnabled = dialogSettings.getBoolean(SETTINGS_KEY_BUILD_SCANS);
+        boolean offlineMode = dialogSettings.getBoolean(SETTINGS_KEY_OFFLINE_MODE);
 
         this.configuration.setProjectDir(projectDir.orNull());
+        this.configuration.setOverwriteWorkspaceSettings(false);
         this.configuration.setGradleDistribution(createGradleDistribution(gradleDistributionType, gradleDistributionConfiguration));
+        this.configuration.setGradleUserHome(gradleUserHome.orNull());
         this.configuration.setApplyWorkingSets(applyWorkingSets);
         this.configuration.setWorkingSets(workingSets);
+        this.configuration.setBuildScansEnabled(buildScansEnabled);
+        this.configuration.setOfflineMode(offlineMode);
 
         // store the values every time they change
         saveFilePropertyWhenChanged(dialogSettings, SETTINGS_KEY_PROJECT_DIR, this.configuration.getProjectDir());
         saveGradleWrapperPropertyWhenChanged(dialogSettings, this.configuration.getGradleDistribution());
+        saveFilePropertyWhenChanged(dialogSettings, SETTINGS_KEY_GRADLE_USER_HOME, this.configuration.getGradleUserHome());
         saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_APPLY_WORKING_SETS, this.configuration.getApplyWorkingSets());
         saveStringArrayPropertyWhenChanged(dialogSettings, SETTINGS_KEY_WORKING_SETS, this.configuration.getWorkingSets());
+        saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_BUILD_SCANS, this.configuration.getBuildScansEnabled());
+        saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_OFFLINE_MODE, this.configuration.getOfflineMode());
     }
 
     private GradleDistributionWrapper createGradleDistribution(Optional<String> gradleDistributionType, Optional<String> gradleDistributionConfiguration) {

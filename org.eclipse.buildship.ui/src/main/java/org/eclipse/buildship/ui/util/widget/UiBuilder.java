@@ -57,6 +57,27 @@ public final class UiBuilder<T extends Control> {
     }
 
     /**
+     * Aligns the created widget to the left.
+     *
+     * @param horizontalSpan horizontal span
+     * @return the builder
+     */
+    public UiBuilder<T> alignLeft(int horizontalSpan) {
+        this.control.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, horizontalSpan, 1));
+        return this;
+    }
+
+    /**
+     * Aligns the created widget to the left.
+     *
+     * @return the builder
+     */
+    public UiBuilder<T> alignRight() {
+        this.control.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+        return this;
+    }
+
+    /**
      * Aligns the created widget to fill the cell horizontally.
      *
      * @return the builder

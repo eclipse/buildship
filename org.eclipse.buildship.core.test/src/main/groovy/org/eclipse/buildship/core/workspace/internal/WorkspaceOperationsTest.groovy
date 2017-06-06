@@ -11,8 +11,6 @@
 
 package org.eclipse.buildship.core.workspace.internal
 
-import spock.lang.Shared
-
 import com.google.common.collect.ImmutableList
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject
@@ -29,12 +27,8 @@ import org.eclipse.buildship.core.UnsupportedConfigurationException
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.workspace.WorkspaceOperations
 
 class WorkspaceOperationsTest extends WorkspaceSpecification {
-
-    @Shared
-    WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations()
 
     def "can create a new project"() {
         setup:

@@ -60,7 +60,6 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
             if (project != null && !GradleProjectNature.isPresentOn(project) && project.getLocation() != null) {
                 projects.add(project);
             }
-
         }
         return projects;
     }
@@ -68,7 +67,7 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
     private Set<BuildConfiguration> createBuildConfigsFor(Set<IProject> projects) {
         Set<BuildConfiguration> buildConfigs = Sets.newLinkedHashSet();
         for (IProject project : projects) {
-            buildConfigs.add(CorePlugin.configurationManager().createBuildConfiguration(project.getLocation().toFile(), GradleDistribution.fromBuild(), false, false, false));
+            buildConfigs.add(CorePlugin.configurationManager().createBuildConfiguration(project.getLocation().toFile(), false, GradleDistribution.fromBuild(), null, false, false));
         }
         return buildConfigs;
     }

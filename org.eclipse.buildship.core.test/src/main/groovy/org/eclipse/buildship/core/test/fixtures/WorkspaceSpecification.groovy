@@ -18,6 +18,8 @@ import spock.lang.Specification
 
 import com.google.common.io.Files
 
+import com.gradleware.tooling.toolingclient.GradleDistribution
+
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IWorkspace
 import org.eclipse.core.runtime.Path
@@ -25,8 +27,11 @@ import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.configuration.BuildConfiguration
+import org.eclipse.buildship.core.configuration.ConfigurationManager
 import org.eclipse.buildship.core.preferences.PersistentModel
 import org.eclipse.buildship.core.preferences.internal.DefaultPersistentModel
+import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import org.eclipse.buildship.core.workspace.internal.PersistentModelBuilder
 
 /**
@@ -43,11 +48,11 @@ abstract class WorkspaceSpecification extends Specification {
 
     private File externalTestDir
 
-    void setup() {
+    def setup() {
         externalTestDir = tempFolderProvider.newFolder('external')
     }
 
-    void cleanup() {
+    def cleanup() {
         deleteAllProjects(true)
     }
 
@@ -156,6 +161,22 @@ abstract class WorkspaceSpecification extends Specification {
         return project == null ? null : JavaCore.create(project)
     }
 
+    protected WorkspaceOperations getWorkspaceOperations() {
+        CorePlugin.workspaceOperations()
+    }
+
+    protected ConfigurationManager getConfigurationManager() {
+        CorePlugin.configurationManager()
+    }
+
+    protected BuildConfiguration createInheritingBuildConfiguration(File projectDir) {
+        configurationManager.createBuildConfiguration(projectDir, false, GradleDistribution.fromBuild(), null, false, false)
+    }
+
+    protected BuildConfiguration createOverridingBuildConfiguration(File projectDir, GradleDistribution distribution = GradleDistribution.fromBuild(),
+                                                                  boolean buildScansEnabled = false, boolean offlineMode = false, File gradleUserHome = null) {
+        configurationManager.createBuildConfiguration(projectDir, true, distribution, gradleUserHome, buildScansEnabled, offlineMode)
+    }
 
     protected PersistentModelBuilder persistentModelBuilder(PersistentModel model) {
         new PersistentModelBuilder(model)

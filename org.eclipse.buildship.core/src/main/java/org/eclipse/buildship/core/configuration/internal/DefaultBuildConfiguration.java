@@ -28,10 +28,10 @@ import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
  */
 class DefaultBuildConfiguration implements BuildConfiguration {
 
-    private final BuildConfigurationProperties properties;
+    private final DefaultBuildConfigurationProperties properties;
     private final WorkspaceConfiguration workspaceConfiguration;
 
-    public DefaultBuildConfiguration(BuildConfigurationProperties persistentProperties, WorkspaceConfiguration workspaceConfiguration) {
+    public DefaultBuildConfiguration(DefaultBuildConfigurationProperties persistentProperties, WorkspaceConfiguration workspaceConfiguration) {
         this.properties = persistentProperties;
         this.workspaceConfiguration = workspaceConfiguration;
     }
@@ -47,13 +47,26 @@ class DefaultBuildConfiguration implements BuildConfiguration {
     }
 
     @Override
-    public GradleDistribution getGradleDistribution() {
-        return this.properties.getGradleDistribution();
+    public boolean isOverrideWorkspaceSettings() {
+        return this.properties.isOverrideWorkspaceSettings();
     }
 
     @Override
-    public boolean isOverrideWorkspaceSettings() {
-        return this.properties.isOverrideWorkspaceSettings();
+    public File getGradleUserHome() {
+        if (this.properties.isOverrideWorkspaceSettings()) {
+            return this.properties.getGradleUserHome();
+        } else {
+            return this.workspaceConfiguration.getGradleUserHome();
+        }
+    }
+
+    @Override
+    public GradleDistribution getGradleDistribution() {
+        if (this.properties.isOverrideWorkspaceSettings()) {
+            return this.properties.getGradleDistribution();
+        } else {
+            return this.workspaceConfiguration.getGradleDistribution();
+        }
     }
 
     @Override
@@ -111,7 +124,7 @@ class DefaultBuildConfiguration implements BuildConfiguration {
                 this.workspaceConfiguration);
     }
 
-    public BuildConfigurationProperties getProperties() {
+    public DefaultBuildConfigurationProperties getProperties() {
         return this.properties;
     }
 }

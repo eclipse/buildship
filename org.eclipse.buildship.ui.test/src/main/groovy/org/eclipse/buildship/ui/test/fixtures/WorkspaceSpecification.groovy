@@ -21,6 +21,8 @@ import spock.lang.Specification
 
 import com.google.common.io.Files
 
+import com.gradleware.tooling.toolingclient.GradleDistribution
+
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace
@@ -29,6 +31,9 @@ import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.jdt.core.IJavaProject;
 
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.configuration.BuildConfiguration
+import org.eclipse.buildship.core.configuration.ConfigurationManager
+import org.eclipse.buildship.core.workspace.WorkspaceOperations
 
 /**
  * Base Spock test specification to verify Buildship functionality against the current state of the
@@ -44,11 +49,11 @@ abstract class WorkspaceSpecification extends Specification {
 
     private File externalTestDir
 
-    void setup() {
+    def setup() {
         externalTestDir = tempFolderProvider.newFolder('external')
     }
 
-    void cleanup() {
+    def cleanup() {
         deleteAllProjects(true)
         waitForResourceChangeEvents()
         waitForGradleJobsToFinish()
@@ -161,5 +166,22 @@ abstract class WorkspaceSpecification extends Specification {
 
     protected IProject findProject(String name) {
         CorePlugin.workspaceOperations().findProjectByName(name).orNull()
+    }
+
+    protected WorkspaceOperations getWorkspaceOperations() {
+        CorePlugin.workspaceOperations()
+    }
+
+    protected ConfigurationManager getConfigurationManager() {
+        CorePlugin.configurationManager()
+    }
+
+    protected BuildConfiguration createInheritingBuildConfiguration(File projectDir) {
+        configurationManager.createBuildConfiguration(projectDir, false, GradleDistribution.fromBuild(), null, false, false)
+    }
+
+    protected BuildConfiguration createOverridingBuildConfiguration(File projectDir, GradleDistribution distribution = GradleDistribution.fromBuild(),
+                                                                  boolean buildScansEnabled = false, boolean offlineMode = false, File gradleUserHome = null) {
+        configurationManager.createBuildConfiguration(projectDir, true, distribution, gradleUserHome, buildScansEnabled, offlineMode)
     }
 }

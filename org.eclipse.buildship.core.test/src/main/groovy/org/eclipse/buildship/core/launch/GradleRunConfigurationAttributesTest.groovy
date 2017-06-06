@@ -38,6 +38,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         tasks : ['clean'],
         workingDir : "/home/user/workspace",
         gradleDistr : GradleDistributionSerializer.INSTANCE.serializeToString(GradleDistribution.fromBuild()),
+        gradleUserHome: '/.gradlehome',
         javaHome : "/.java",
         arguments : ["-q"],
         jvmArguments : ["-ea"],
@@ -61,6 +62,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         attributes.tasks == []
         attributes.workingDir.absolutePath == new File('').absolutePath
         attributes.gradleDistribution == GradleDistribution.fromBuild()
+        attributes.gradleUserHome == null
         attributes.javaHome == null
         attributes.arguments == []
         attributes.jvmArguments == []
@@ -95,6 +97,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         configuration.getWorkingDir().getAbsolutePath() == new File(validAttributes.workingDir).getAbsolutePath()
         configuration.getJavaHome().getAbsolutePath() == new File(validAttributes.javaHome).getAbsolutePath()
         configuration.getGradleDistribution() == GradleDistributionSerializer.INSTANCE.deserializeFromString(validAttributes.gradleDistr)
+        configuration.getGradleUserHome().getAbsolutePath() == new File(validAttributes.gradleUserHome).getAbsolutePath()
     }
 
     def "Can create a new valid instance with valid null arguments"(Attributes attributes) {
@@ -229,6 +232,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         gradleConfig1.getTasks() == gradleConfig2.getTasks()
         gradleConfig1.getWorkingDirExpression() == gradleConfig2.getWorkingDirExpression()
         gradleConfig1.getGradleDistribution() == gradleConfig2.getGradleDistribution()
+        gradleConfig1.getGradleUserHome() == gradleConfig2.getGradleUserHome()
         gradleConfig1.getJavaHomeExpression() == gradleConfig2.getJavaHomeExpression()
         gradleConfig1.getJvmArguments() == gradleConfig2.getJvmArguments()
         gradleConfig1.getArguments() == gradleConfig2.getArguments()
@@ -262,6 +266,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         def tasks
         def workingDir
         def gradleDistr
+        def gradleUserHome
         def javaHome
         def arguments
         def jvmArguments
@@ -272,7 +277,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
         def buildScansEnabled
 
         def GradleRunConfigurationAttributes toConfiguration() {
-            new GradleRunConfigurationAttributes(tasks, workingDir, gradleDistr, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView, overrideBuildSettings, isOffline, buildScansEnabled)
+            new GradleRunConfigurationAttributes(tasks, workingDir, gradleDistr, gradleUserHome, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView, overrideBuildSettings, isOffline, buildScansEnabled)
         }
 
         def Attributes copy(@DelegatesTo(value = Attributes, strategy=Closure.DELEGATE_FIRST) Closure closure) {

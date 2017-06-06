@@ -28,20 +28,28 @@ import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 public final class ProjectImportConfiguration {
 
     private final Property<File> projectDir;
+    private final Property<Boolean> overwriteWorkspaceSettings;
     private final Property<GradleDistributionWrapper> gradleDistribution;
+    private final Property<File> gradleUserHome;
     private final Property<Boolean> applyWorkingSets;
     private final Property<List<String>> workingSets;
+    private final Property<Boolean> buildScansEnabled;
+    private final Property<Boolean> offlineMode;
 
     public ProjectImportConfiguration() {
-        this(Validators.<File> noOp(), Validators.<GradleDistributionWrapper> noOp(), Validators.<Boolean> noOp(), Validators.<List<String>> noOp());
+        this(Validators.<File>noOp(), Validators.<GradleDistributionWrapper>noOp(), Validators.<File>noOp(), Validators.<Boolean>noOp(), Validators.<List<String>>noOp());
     }
 
     public ProjectImportConfiguration(Validator<File> projectDirValidator, Validator<GradleDistributionWrapper> gradleDistributionValidator,
-            Validator<Boolean> applyWorkingSetsValidator, Validator<List<String>> workingSetsValidators) {
+            Validator<File> gradleUserHomeValidator, Validator<Boolean> applyWorkingSetsValidator, Validator<List<String>> workingSetsValidators) {
         this.projectDir = Property.create(projectDirValidator);
+        this.overwriteWorkspaceSettings = Property.<Boolean>create(Validators.<Boolean>noOp());
         this.gradleDistribution = Property.create(gradleDistributionValidator);
+        this.gradleUserHome = Property.create(gradleUserHomeValidator);
         this.applyWorkingSets = Property.create(applyWorkingSetsValidator);
         this.workingSets = Property.create(workingSetsValidators);
+        this.buildScansEnabled = Property.<Boolean>create(Validators.<Boolean>noOp());
+        this.offlineMode = Property.<Boolean>create(Validators.<Boolean>noOp());
     }
 
     public Property<File> getProjectDir() {
@@ -52,12 +60,29 @@ public final class ProjectImportConfiguration {
         this.projectDir.setValue(projectDir);
     }
 
+
+    public Property<Boolean> getOverwriteWorkspaceSettings() {
+        return this.overwriteWorkspaceSettings;
+    }
+
+    public void setOverwriteWorkspaceSettings(boolean overwriteWorkspaceSettings) {
+        this.overwriteWorkspaceSettings.setValue(Boolean.valueOf(overwriteWorkspaceSettings));
+    }
+
     public Property<GradleDistributionWrapper> getGradleDistribution() {
         return this.gradleDistribution;
     }
 
     public void setGradleDistribution(GradleDistributionWrapper gradleDistribution) {
         this.gradleDistribution.setValue(gradleDistribution);
+    }
+
+    public Property<File> getGradleUserHome() {
+        return this.gradleUserHome;
+    }
+
+    public void setGradleUserHome(File gradleUserHome) {
+        this.gradleUserHome.setValue(gradleUserHome);
     }
 
     public Property<Boolean> getApplyWorkingSets() {
@@ -76,7 +101,28 @@ public final class ProjectImportConfiguration {
         this.workingSets.setValue(workingSets);
     }
 
+    public Property<Boolean> getBuildScansEnabled() {
+        return this.buildScansEnabled;
+    }
+
+    public void setBuildScansEnabled(boolean buildScansEnabled) {
+        this.buildScansEnabled.setValue(Boolean.valueOf(buildScansEnabled));
+    }
+
+    public Property<Boolean> getOfflineMode() {
+        return this.offlineMode;
+    }
+
+    public void setOfflineMode(boolean offlineMode) {
+        this.offlineMode.setValue(Boolean.valueOf(offlineMode));
+    }
+
     public BuildConfiguration toBuildConfig() {
-        return CorePlugin.configurationManager().createBuildConfiguration(getProjectDir().getValue(), getGradleDistribution().getValue().toGradleDistribution(), false, false, false);
+        return CorePlugin.configurationManager().createBuildConfiguration(getProjectDir().getValue(),
+                getOverwriteWorkspaceSettings().getValue(),
+                getGradleDistribution().getValue().toGradleDistribution(),
+                getGradleUserHome().getValue(),
+                getBuildScansEnabled().getValue(),
+                getOfflineMode().getValue());
     }
 }

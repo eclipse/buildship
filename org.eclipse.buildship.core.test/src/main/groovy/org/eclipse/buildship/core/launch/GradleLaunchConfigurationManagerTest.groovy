@@ -11,29 +11,25 @@
 
 package org.eclipse.buildship.core.launch
 
+import spock.lang.Specification
+
 import com.gradleware.tooling.toolingclient.GradleDistribution
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchConfigurationType;
-import org.eclipse.debug.core.ILaunchManager;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.core.runtime.CoreException
+import org.eclipse.core.runtime.IStatus
+import org.eclipse.core.runtime.Status
+import org.eclipse.debug.core.DebugPlugin
+import org.eclipse.debug.core.ILaunchConfiguration
+import org.eclipse.debug.core.ILaunchConfigurationType
+import org.eclipse.debug.core.ILaunchManager
+
+import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.GradlePluginsRuntimeException
+import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType;
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributesTest.Attributes
-import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager;
-
-import java.util.List
-
-import spock.lang.Specification;
 
 class GradleLaunchConfigurationManagerTest extends Specification {
-    GradleRunConfigurationAttributes validAttribute = attributes('/home/user/workspace/project', ['clean'], '2.3', '/.java', ['-q'], ['-ea'])
+    GradleRunConfigurationAttributes validAttribute = createValidAttributes()
     GradleLaunchConfigurationManager manager = new DefaultGradleLaunchConfigurationManager()
 
     def setup() {
@@ -112,19 +108,18 @@ class GradleLaunchConfigurationManagerTest extends Specification {
         thrown(GradlePluginsRuntimeException)
     }
 
-    private GradleRunConfigurationAttributes attributes(String projectDir, tasks = [], gradleVersion = '2.3', javaHome = null, arguments = [], jvmArguments = []) {
-        new GradleRunConfigurationAttributes(
-            tasks,
-            projectDir,
-            GradleDistributionSerializer.INSTANCE.serializeToString(GradleDistribution.forVersion(gradleVersion)),
-            javaHome,
-            jvmArguments,
-            arguments,
+    private GradleRunConfigurationAttributes createValidAttributes() {
+        new GradleRunConfigurationAttributes(['clean'],
+            '/home/user/workspace/project',
+            GradleDistributionSerializer.INSTANCE.serializeToString(GradleDistribution.forVersion('2.3')),
+            null,
+            '/.java',
+            ['-ea'],
+            ['-q'],
             true,
             true,
             true,
             true,
             true)
     }
-
 }

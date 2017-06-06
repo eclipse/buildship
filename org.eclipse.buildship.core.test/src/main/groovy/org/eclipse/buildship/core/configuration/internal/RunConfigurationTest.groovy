@@ -1,5 +1,8 @@
 package org.eclipse.buildship.core.configuration.internal
 
+import java.io.File
+import java.util.List
+
 import spock.lang.Shared
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
@@ -19,9 +22,6 @@ import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecificat
 
 class RunConfigurationTest extends ProjectSynchronizationSpecification {
 
-    @Shared
-    ConfigurationManager configurationManager = CorePlugin.configurationManager()
-
     def "create run configuration"(buildBuildScansEnabled, buildOfflineMode, runConfigOverride, runConfigBuildScansEnabled, runConfigOfflineMode, expectedRunConfigBuildScansEnabled, expectedRunConfigOfflineMode) {
         setup:
         List<String> tasks = ['compileGroovy', 'publish']
@@ -32,22 +32,25 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         boolean showConsoleView = false
         boolean showExecutionView = false
         File rootDir = dir('projectDir').canonicalFile
+        File buildGradleUserHome = dir('build-gradle-user-home').canonicalFile
+        File runGradleUserHome = dir('run-gradle-user-home').canonicalFile
 
         when:
-        BuildConfiguration buildConfig = configurationManager.createBuildConfiguration(rootDir,
-                GradleDistribution.fromBuild(),
-                true,
-                buildBuildScansEnabled,
-                buildOfflineMode)
+        BuildConfiguration buildConfig = createOverridingBuildConfiguration(rootDir,
+            GradleDistribution.fromBuild(),
+            buildBuildScansEnabled,
+            buildOfflineMode,
+            buildGradleUserHome)
         RunConfiguration runConfig = configurationManager.createRunConfiguration(buildConfig,
                 tasks,
                 javaHome,
-                gradleDistribution,
                 jvmArguments,
                 arguments,
-                showExecutionView,
                 showConsoleView,
+                showExecutionView,
                 runConfigOverride,
+                gradleDistribution,
+                runGradleUserHome,
                 runConfigBuildScansEnabled,
                 runConfigOfflineMode)
 
@@ -55,6 +58,7 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         runConfig.tasks == tasks
         runConfig.javaHome == javaHome
         runConfig.gradleDistribution == (runConfigOverride ? GradleDistribution.forVersion('3.2') : GradleDistribution.fromBuild())
+        runConfig.gradleUserHome == (runConfigOverride ? runGradleUserHome : buildGradleUserHome)
         runConfig.arguments == arguments + (expectedRunConfigOfflineMode ? ['--offline']: [])
         runConfig.jvmArguments == jvmArguments + (expectedRunConfigBuildScansEnabled ? ['-Dscan']: [])
         runConfig.showConsoleView == showConsoleView
@@ -63,6 +67,7 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         runConfig.offlineMode == expectedRunConfigOfflineMode
         runConfig.buildConfiguration.rootProjectDirectory == rootDir
         runConfig.buildConfiguration.gradleDistribution == GradleDistribution.fromBuild()
+        runConfig.buildConfiguration.gradleUserHome == buildGradleUserHome
         runConfig.buildConfiguration.overrideWorkspaceSettings == true
         runConfig.buildConfiguration.buildScansEnabled == buildBuildScansEnabled
         runConfig.buildConfiguration.offlineMode == buildOfflineMode

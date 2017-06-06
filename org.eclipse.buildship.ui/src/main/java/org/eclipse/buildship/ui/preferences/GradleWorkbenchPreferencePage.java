@@ -10,156 +10,90 @@ package org.eclipse.buildship.ui.preferences;
 
 import java.io.File;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
-
+import com.gradleware.tooling.toolingclient.GradleDistribution;
 import com.gradleware.tooling.toolingutils.binding.Validator;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.preference.PreferencePage;
-import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.ConfigurationManager;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.binding.Validators;
-import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.core.util.variable.ExpressionUtils;
-import org.eclipse.buildship.ui.i18n.UiMessages;
-import org.eclipse.buildship.ui.launch.LaunchMessages;
-import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.ui.util.font.FontUtils;
-import org.eclipse.buildship.ui.util.widget.HoverText;
-import org.eclipse.buildship.ui.util.widget.UiBuilder;
+import org.eclipse.buildship.ui.util.widget.GradleProjectSettingsComposite;
+import org.eclipse.buildship.ui.util.widget.GradleUserHomeGroup;
 
 /**
  * The main workspace preference page for Buildship. Currently only used to configure the Gradle
  * User Home.
  */
-public class GradleWorkbenchPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
+public final class GradleWorkbenchPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
+
+    public static final String PAGE_ID = "org.eclipse.buildship.ui.preferences";
 
     private final Font defaultFont;
-    private final UiBuilder.UiBuilderFactory builderFactory;
     private final Validator<File> gradleUserHomeValidator;
+    private final Validator<GradleDistributionWrapper> gradleDistributionValidator;
 
-    private Text gradleUserHomeText;
-    private Button offlineModeCheckbox;
-    private Button buildScansCheckbox;
+    private GradleProjectSettingsComposite gradleProjectSettingsComposite;
 
     public GradleWorkbenchPreferencePage() {
         this.defaultFont = FontUtils.getDefaultDialogFont();
-        this.builderFactory = new UiBuilder.UiBuilderFactory(this.defaultFont);
         this.gradleUserHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_GradleUserHome);
+        this.gradleDistributionValidator = GradleDistributionValidator.gradleDistributionValidator();
     }
 
     @Override
     protected Control createContents(Composite parent) {
-        Composite page = new Composite(parent, SWT.NONE);
-        GridLayout layout = new GridLayout(1, false);
-        page.setLayout(layout);
+        this.gradleProjectSettingsComposite = GradleProjectSettingsComposite.withoutOverrideCheckbox(parent);
 
-        Group gradleUserHomeGroup = createGroup(page, CoreMessages.Preference_Label_GradleUserHome + ":");
-        createGradleUserHomeSelectionControl(gradleUserHomeGroup);
-        createOfflineModeCheckbox(page);
-        createBuildScansCheckbox(page);
+        initValues();
+        addListeners();
 
-        initFields();
-
-        return page;
+        return this.gradleProjectSettingsComposite;
     }
 
-    private void createOfflineModeCheckbox(Composite parent) {
-        this.offlineModeCheckbox = new Button(parent, SWT.CHECK);
-        this.offlineModeCheckbox.setText(CoreMessages.Preference_Label_OfflineMode);
-    }
-
-    private void createBuildScansCheckbox(Composite parent) {
-        this.buildScansCheckbox = new Button(parent, SWT.CHECK);
-        this.buildScansCheckbox.setText(CoreMessages.Preference_Label_BuildScans);
-        HoverText.createAndAttach(this.buildScansCheckbox, CoreMessages.Preference_Label_BuildScansHover);
-    }
-
-    private Group createGroup(Composite parent, String groupName) {
-        Group group = new Group(parent, SWT.NONE);
-        group.setText(groupName);
-        group.setLayout(new GridLayout(2, false));
-        group.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-        return group;
-    }
-
-    private void createGradleUserHomeSelectionControl(Composite root) {
-        this.gradleUserHomeText = this.builderFactory.newText(root).alignFillHorizontal().control();
-        this.gradleUserHomeText.addModifyListener(new ModifyListener() {
-
-            @Override
-            public void modifyText(ModifyEvent event) {
-                validate();
-            }
-        });
-
-        Button gradleUserHomeBrowseButton = this.builderFactory.newButton(root).alignLeft().text(UiMessages.Button_Label_Browse).control();
-        DirectoryDialogSelectionListener directoryDialogListener = new DirectoryDialogSelectionListener(root.getShell(), this.gradleUserHomeText,
-                CoreMessages.Preference_Label_GradleUserHome);
-        gradleUserHomeBrowseButton.addSelectionListener(directoryDialogListener);
-    }
-
-    private void validate() {
-        String resolvedGradleUserHome = getResolvedGradleUserHome();
-        File gradleUserHome = FileUtils.getAbsoluteFile(resolvedGradleUserHome).orNull();
-        Optional<String> error = this.gradleUserHomeValidator.validate(gradleUserHome);
-        setValid(!error.isPresent());
-        setErrorMessage(error.orNull());
-    }
-
-    private String getResolvedGradleUserHome() {
-        String gradleUserHomeExpression = Strings.emptyToNull(this.gradleUserHomeText.getText());
-
-        String gradleUserHomeResolved = null;
-        try {
-            gradleUserHomeResolved = ExpressionUtils.decode(gradleUserHomeExpression);
-        } catch (CoreException e) {
-            setErrorMessage(NLS.bind(LaunchMessages.ErrorMessage_CannotResolveExpression_0, gradleUserHomeExpression));
-            setValid(false);
-        }
-        return gradleUserHomeResolved;
-    }
-
-    private void initFields() {
+    private void initValues() {
         WorkspaceConfiguration config = CorePlugin.configurationManager().loadWorkspaceConfiguration();
+        GradleDistributionWrapper distributionWrapper = GradleDistributionWrapper.from(config.getGradleDistribution());
         File gradleUserHome = config.getGradleUserHome();
-        this.gradleUserHomeText.setText(gradleUserHome == null ? "" : gradleUserHome.getPath());
-        this.offlineModeCheckbox.setSelection(config.isOffline());
-        this.buildScansCheckbox.setSelection(config.isBuildScansEnabled());
+        String gradleUserHomePath = gradleUserHome == null ? "" : gradleUserHome.getPath();
+
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setGradleDistribution(distributionWrapper);
+        this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().setText(gradleUserHomePath);
+        this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(config.isOffline());
+        this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(config.isBuildScansEnabled());
+    }
+
+    private void addListeners() {
+        GradleUserHomeGroup gradleUserHomeGroup = this.gradleProjectSettingsComposite.getGradleUserHomeGroup();
+        gradleUserHomeGroup.getGradleUserHomeText().addModifyListener(new GradleUserHomeValidatingListener(this, gradleUserHomeGroup, this.gradleUserHomeValidator));
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().addDistributionChangedListener(new GradleDistributionValidatingListener(this, this.gradleDistributionValidator));
     }
 
     @Override
     public boolean performOk() {
-        String gradleUserHome = this.gradleUserHomeText.getText();
-        ConfigurationManager manager = CorePlugin.configurationManager();
-        WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(gradleUserHome.isEmpty() ? null : new File(gradleUserHome),
-                                                                            this.offlineModeCheckbox.getSelection(),
-                                                                            this.buildScansCheckbox.getSelection());
-        manager.saveWorkspaceConfiguration(workspaceConfig);
+        GradleDistribution distribution = this.gradleProjectSettingsComposite.getGradleDistributionGroup().getGradleDistribution().toGradleDistribution();
+        String gradleUserHomeString = this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().getText();
+        File gradleUserHome = gradleUserHomeString.isEmpty() ? null : new File(gradleUserHomeString);
+        boolean offlineMode = this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection();
+        boolean buildScansEnabled = this.gradleProjectSettingsComposite.getBuildScansCheckbox().getSelection();
+        WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(distribution, gradleUserHome, offlineMode, buildScansEnabled);
+        CorePlugin.configurationManager().saveWorkspaceConfiguration(workspaceConfig);
         return super.performOk();
     }
 
     @Override
     protected void performDefaults() {
-        this.gradleUserHomeText.setText("");
+        this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().setText("");
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setGradleDistribution(GradleDistributionWrapper.from(GradleDistribution.fromBuild()));
         super.performDefaults();
     }
 
@@ -172,5 +106,4 @@ public class GradleWorkbenchPreferencePage extends PreferencePage implements IWo
     @Override
     public void init(IWorkbench workbench) {
     }
-
 }
