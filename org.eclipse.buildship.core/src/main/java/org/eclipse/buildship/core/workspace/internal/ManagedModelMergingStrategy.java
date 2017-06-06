@@ -32,27 +32,14 @@ final class ManagedModelMergingStrategy {
      * @return the description of the updated state
      */
     public static <T> Result<T> calculate(Set<T> current, Set<T> model, Set<T> managed) {
-        Set<T> missing = Sets.newLinkedHashSet(current);
-        missing.removeAll(model);
+        Set<T> missing = Sets.difference(current, model);
+        Set<T> removed = Sets.intersection(missing, managed);
+        Set<T> notRemoved = Sets.difference(missing, removed);
+        Set<T> added = Sets.difference(model, current);
+        Set<T> nextElements = Sets.union(model, notRemoved);
+        Set<T> nextManaged = Sets.difference(Sets.union(managed, added), removed);
 
-        Set<T> removed = Sets.newLinkedHashSet(missing);
-        removed.retainAll(managed);
-
-        Set<T> notRemoved = Sets.newHashSet(missing);
-        notRemoved.removeAll(removed);
-
-        Set<T> added = Sets.newLinkedHashSet(model);
-        added.removeAll(current);
-
-        Set<T> nextElements = Sets.newLinkedHashSet(model);
-        nextElements.addAll(notRemoved);
-
-        Set<T> nextManaged = Sets.newLinkedHashSet(managed);
-        nextManaged.addAll(added);
-        nextManaged.removeAll(removed);
-
-        Result<T> result = new Result<T>(nextElements, nextManaged);
-        return result;
+        return new Result<T>(nextElements, nextManaged);
     }
 
     /**
