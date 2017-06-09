@@ -10,6 +10,7 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URL;
@@ -154,6 +155,12 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
     private Object invokeRun(Method m) throws Throwable {
         try {
             return m.invoke(this.launcher);
+        } catch (InvocationTargetException e) {
+            if (e.getCause() != null) {
+                throw e.getCause();
+            } else {
+                throw e;
+            }
         } finally {
             closeConnection();
         }
