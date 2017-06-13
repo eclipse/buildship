@@ -42,7 +42,7 @@ class InvocationCustomizerTest extends ProjectSynchronizationSpecification {
         new InvocationCustomizerCollector().extraArguments == EXTRA_ARGUMENTS
     }
 
-    def "Build configuration use extar arguments"() {
+    def "Build configuration use extra arguments"() {
         setup:
         File projectDir = dir('sample-project') {
             file 'settings.gradle'
