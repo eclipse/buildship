@@ -53,7 +53,7 @@ class InvocationCustomizerTest extends ProjectSynchronizationSpecification {
 
         when:
         BuildConfiguration buildConfiguration = createInheritingBuildConfiguration(projectDir)
-        buildConfiguration.applyTo(operation, buildEnvironment)
+        buildConfiguration.toGradleArguments().applyTo(operation, buildEnvironment)
 
         then:
         1 * operation.withArguments(EXTRA_ARGUMENTS)
@@ -70,7 +70,7 @@ class InvocationCustomizerTest extends ProjectSynchronizationSpecification {
         BuildEnvironment buildEnvironment = defaultBuildEnvironment()
 
         when:
-        CorePlugin.configurationManager().loadRunConfiguration(emptyLaunchConfiguration()).applyTo(operation, buildEnvironment)
+        CorePlugin.configurationManager().loadRunConfiguration(emptyLaunchConfiguration()).toGradleArguments().applyTo(operation, buildEnvironment)
 
         then:
         1 * operation.withArguments(EXTRA_ARGUMENTS)

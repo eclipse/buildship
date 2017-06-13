@@ -10,7 +10,6 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.TestLauncher;
-import org.gradle.tooling.model.build.BuildEnvironment;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -85,15 +84,13 @@ public class DefaultGradleBuild implements GradleBuild {
     @Override
     public BuildLauncher newBuildLauncher(RunConfiguration runConfiguration, TransientRequestAttributes transientAttributes) {
         // TODO (donat) once GradleWorkspaceManager#getGradleBuild(FixedRequestAttributes) is removed then we should only allow run config that contain the same build config
-        BuildEnvironment buildEnvironment = this.modelProvider.reloadBuildEnvironment(transientAttributes);
-        return ConnectionAwareLauncherProxy.newBuildLauncher(runConfiguration, buildEnvironment, transientAttributes);
+        return ConnectionAwareLauncherProxy.newBuildLauncher(runConfiguration.toGradleArguments(), transientAttributes);
     }
 
     @Override
     public TestLauncher newTestLauncher(RunConfiguration runConfiguration, TransientRequestAttributes transientAttributes) {
         // TODO (donat) once GradleWorkspaceManager#getGradleBuild(FixedRequestAttributes) is removed then we should only allow run config that contain the same build config
-        BuildEnvironment buildEnvironment = this.modelProvider.reloadBuildEnvironment(transientAttributes);
-        return ConnectionAwareLauncherProxy.newTestLauncher(runConfiguration, buildEnvironment, transientAttributes);
+        return ConnectionAwareLauncherProxy.newTestLauncher(runConfiguration.toGradleArguments(), transientAttributes);
     }
 
     @Override

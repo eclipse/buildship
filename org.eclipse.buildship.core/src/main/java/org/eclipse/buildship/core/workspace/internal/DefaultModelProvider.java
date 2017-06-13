@@ -65,26 +65,19 @@ final class DefaultModelProvider implements ModelProvider {
     @Override
     public <T> T fetchModel(Class<T> model, FetchStrategy strategy, CancellationToken token, IProgressMonitor monitor) {
         TransientRequestAttributes transientAttributes = getTransientRequestAttributes(token, monitor);
-        BuildEnvironment buildEnvironment = reloadBuildEnvironment(transientAttributes);
-        ModelBuilder<T> builder = ConnectionAwareLauncherProxy.newModelBuilder(model, this.buildConfiguration, buildEnvironment, transientAttributes);
+        ModelBuilder<T> builder = ConnectionAwareLauncherProxy.newModelBuilder(model, this.buildConfiguration.toGradleArguments(), transientAttributes);
         return executeModelBuilder(builder, strategy, model);
-    }
-
-    BuildEnvironment reloadBuildEnvironment(TransientRequestAttributes transientAttributes) {
-        ModelBuilder<BuildEnvironment> builder = ConnectionAwareLauncherProxy.newModelBuilder(BuildEnvironment.class, this.buildConfiguration, transientAttributes);
-        return executeModelBuilder(builder, FetchStrategy.FORCE_RELOAD, BuildEnvironment.class);
     }
 
     @Override
     public <T> Collection<T> fetchModels(Class<T> model, FetchStrategy strategy, CancellationToken token, IProgressMonitor monitor) {
         TransientRequestAttributes transientAttributes = getTransientRequestAttributes(token, monitor);
-        BuildEnvironment buildEnvironment = reloadBuildEnvironment(transientAttributes);
         if (supportsCompositeBuilds(token, monitor)) {
             final BuildActionExecuter<Collection<T>> executer = ConnectionAwareLauncherProxy
-                    .newCompositeModelQueryExecuter(model, DefaultModelProvider.this.buildConfiguration, buildEnvironment, transientAttributes);
+                    .newCompositeModelQueryExecuter(model, DefaultModelProvider.this.buildConfiguration.toGradleArguments(), transientAttributes);
             return executeBuildActionExecuter(executer, strategy, model);
         } else {
-            ModelBuilder<T> builder = ConnectionAwareLauncherProxy.newModelBuilder(model, this.buildConfiguration, buildEnvironment, transientAttributes);
+            ModelBuilder<T> builder = ConnectionAwareLauncherProxy.newModelBuilder(model, this.buildConfiguration.toGradleArguments(), transientAttributes);
             return ImmutableList.of(executeModelBuilder(builder, strategy, model));
         }
     }

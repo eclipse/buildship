@@ -36,9 +36,7 @@ import org.eclipse.core.runtime.Platform;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.GradleArguments;
-import org.eclipse.buildship.core.configuration.RunConfiguration;
 
 /**
  * Provides long-running TAPI operation instances that close their project connection after the execution is
@@ -58,40 +56,33 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
         this.launcher = target;
     }
 
-    static <T> ModelBuilder<T> newModelBuilder(Class<T> model, BuildConfiguration buildConfiguration, TransientRequestAttributes transientAttributes) {
-        ProjectConnection connection = openConnection(buildConfiguration.toGradleArguments());
-        ModelBuilder<T> builder = connection.model(model);
-        applyTransientAttributes(builder, transientAttributes);
-        return (ModelBuilder<T>) newProxyInstance(connection, builder);
-    }
-
-    static <T> ModelBuilder<T> newModelBuilder(Class<T> model, BuildConfiguration buildConfiguration, BuildEnvironment buildEnvironment, TransientRequestAttributes transientAttributes) {
-        GradleArguments gradleArguments = buildConfiguration.toGradleArguments();
+    static <T> ModelBuilder<T> newModelBuilder(Class<T> model, GradleArguments gradleArguments, TransientRequestAttributes transientAttributes) {
         ProjectConnection connection = openConnection(gradleArguments);
         ModelBuilder<T> builder = connection.model(model);
+        BuildEnvironment buildEnvironment = connection.getModel(BuildEnvironment.class);
         applyConfiguration(builder, gradleArguments, buildEnvironment, transientAttributes);
         return (ModelBuilder<T>) newProxyInstance(connection, builder);
     }
 
-    static <T> BuildActionExecuter<Collection<T>> newCompositeModelQueryExecuter(Class<T> model, BuildConfiguration buildConfiguration, BuildEnvironment buildEnvironment, TransientRequestAttributes transientAttributes) {
-        GradleArguments gradleArguments = buildConfiguration.toGradleArguments();
+    static <T> BuildActionExecuter<Collection<T>> newCompositeModelQueryExecuter(Class<T> model, GradleArguments gradleArguments, TransientRequestAttributes transientAttributes) {
         ProjectConnection connection = openConnection(gradleArguments);
+        BuildEnvironment buildEnvironment = connection.getModel(BuildEnvironment.class);
         BuildActionExecuter<Collection<T>> executer = connection.action(compositeModelQuery(model));
         applyConfiguration(executer, gradleArguments, buildEnvironment, transientAttributes);
         return (BuildActionExecuter<Collection<T>>) newProxyInstance(connection, executer);
     }
 
-    static BuildLauncher newBuildLauncher(RunConfiguration runConfiguration, BuildEnvironment buildEnvironment, TransientRequestAttributes transientAttributes) {
-        GradleArguments gradleArguments = runConfiguration.toGradleArguments();
+    static BuildLauncher newBuildLauncher(GradleArguments gradleArguments, TransientRequestAttributes transientAttributes) {
         ProjectConnection connection = openConnection(gradleArguments);
+        BuildEnvironment buildEnvironment = connection.getModel(BuildEnvironment.class);
         BuildLauncher launcher = connection.newBuild();
         applyConfiguration(launcher, gradleArguments, buildEnvironment, transientAttributes);
         return (BuildLauncher) newProxyInstance(connection, launcher);
     }
 
-    static TestLauncher newTestLauncher(RunConfiguration runConfiguration, BuildEnvironment buildEnvironment, TransientRequestAttributes transientAttributes) {
-        GradleArguments gradleArguments = runConfiguration.toGradleArguments();
+    static TestLauncher newTestLauncher(GradleArguments gradleArguments, TransientRequestAttributes transientAttributes) {
         ProjectConnection connection = openConnection(gradleArguments);
+        BuildEnvironment buildEnvironment = connection.getModel(BuildEnvironment.class);
         TestLauncher launcher = connection.newTestLauncher();
         applyConfiguration(launcher, gradleArguments, buildEnvironment, transientAttributes);
         return (TestLauncher) newProxyInstance(connection, launcher);
