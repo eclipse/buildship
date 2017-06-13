@@ -11,15 +11,12 @@ package org.eclipse.buildship.core.configuration.internal;
 import java.io.File;
 import java.util.Collections;
 
-import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.LongRunningOperation;
-import org.gradle.tooling.model.build.BuildEnvironment;
-
 import com.google.common.base.Objects;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.configuration.GradleArguments;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 
 /**
@@ -109,13 +106,14 @@ class DefaultBuildConfiguration implements BuildConfiguration {
     }
 
     @Override
-    public void applyTo(GradleConnector gradleConnector) {
-       gradleConnector.forProjectDirectory(getRootProjectDirectory()).useGradleUserHomeDir(getGradleUserHome());
-       getGradleDistribution().apply(gradleConnector);
-    }
-
-    @Override
-    public void applyTo(LongRunningOperation launcher, BuildEnvironment environment) {
-        launcher.withArguments(ArgumentsCollector.collectArguments(Collections.<String>emptyList(), isBuildScansEnabled(), isOfflineMode(), environment));
+    public GradleArguments toGradleArguments() {
+        return GradleArguments.from(getRootProjectDirectory(),
+            getGradleDistribution(),
+            getGradleUserHome(),
+            null, // Java home
+            isBuildScansEnabled(),
+            isOfflineMode(),
+            Collections.<String>emptyList(), // arguments
+            Collections.<String>emptyList()); // JVM arguments
     }
 }

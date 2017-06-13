@@ -10,10 +10,6 @@ package org.eclipse.buildship.core.configuration;
 
 import java.io.File;
 
-import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.LongRunningOperation;
-import org.gradle.tooling.model.build.BuildEnvironment;
-
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 
 /**
@@ -37,7 +33,5 @@ public interface BuildConfiguration {
 
     boolean isOfflineMode();
 
-    void applyTo(GradleConnector gradleConnector);
-
-    void applyTo(LongRunningOperation launcher, BuildEnvironment environment);
+    GradleArguments toGradleArguments();
 }

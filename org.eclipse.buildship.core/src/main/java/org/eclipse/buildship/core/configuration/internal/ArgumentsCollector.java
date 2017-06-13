@@ -22,7 +22,7 @@ import org.eclipse.buildship.core.CorePlugin;
  *
  * @author Donat Csikos
  */
-final class ArgumentsCollector {
+public final class ArgumentsCollector {
 
     private ArgumentsCollector() {
     }

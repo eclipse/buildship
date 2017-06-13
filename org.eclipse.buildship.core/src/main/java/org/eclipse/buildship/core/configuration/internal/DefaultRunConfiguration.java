@@ -11,15 +11,12 @@ package org.eclipse.buildship.core.configuration.internal;
 import java.io.File;
 import java.util.List;
 
-import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.LongRunningOperation;
-import org.gradle.tooling.model.build.BuildEnvironment;
-
 import com.google.common.base.Objects;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.configuration.GradleArguments;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 
@@ -123,16 +120,14 @@ public class DefaultRunConfiguration implements RunConfiguration {
     }
 
     @Override
-    public void applyTo(GradleConnector gradleConnector) {
-        gradleConnector.forProjectDirectory(getBuildConfiguration().getRootProjectDirectory()).useGradleUserHomeDir(getGradleUserHome());
-        getGradleDistribution().apply(gradleConnector);
-    }
-
-    @Override
-    public void applyTo(LongRunningOperation launcher, BuildEnvironment environment) {
-        launcher.setJavaHome(getJavaHome());
-        launcher.setJvmArguments(getJvmArguments());
-        launcher.withArguments(ArgumentsCollector.collectArguments(getArguments(), isBuildScansEnabled(), isOfflineMode(), environment));
-
+    public GradleArguments toGradleArguments() {
+        return GradleArguments.from(getBuildConfiguration().getRootProjectDirectory(),
+            getGradleDistribution(),
+            getGradleUserHome(),
+            getJavaHome(),
+            isBuildScansEnabled(),
+            isOfflineMode(),
+            getArguments(),
+            getJvmArguments());
     }
 }
