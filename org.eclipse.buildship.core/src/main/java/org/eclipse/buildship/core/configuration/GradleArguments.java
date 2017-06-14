@@ -9,6 +9,8 @@
 package org.eclipse.buildship.core.configuration;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 
 import org.gradle.tooling.GradleConnector;
@@ -16,11 +18,17 @@ import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.model.build.BuildEnvironment;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.internal.ArgumentsCollector;
+import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.util.collections.CollectionsUtils;
+import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
 
 /**
  * Holds configuration values to apply on Tooling API objects.
@@ -47,6 +55,32 @@ public final class GradleArguments {
         this.offlineMode = offlineMode;
         this.arguments = ImmutableList.copyOf(arguments);
         this.jvmArguments = ImmutableList.copyOf(jvmArguments);
+    }
+
+    public void describe(Writer writer, BuildEnvironment buildEnvironment) {
+        try {
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_WorkingDirectory, this.rootDir));
+            writer.write(String.format("%s: %s%n", CoreMessages.Preference_Label_GradleUserHome, toNonEmpty(this.gradleUserHome, CoreMessages.Value_UseGradleDefault)));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleDistribution, GradleDistributionFormatter.toString(this.gradleDistribution)));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleVersion, buildEnvironment.getGradle().getGradleVersion()));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JavaHome, toNonEmpty(this.javaHome, CoreMessages.Value_UseGradleDefault)));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JvmArguments, toNonEmpty(this.jvmArguments, CoreMessages.Value_None)));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Arguments, toNonEmpty(this.arguments, CoreMessages.Value_None)));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_BuildScansEnabled, this.buildScansEnabled));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_OfflineModeEnabled, this.offlineMode));
+        } catch (IOException e) {
+            CorePlugin.logger().warn("Cannot write Gradle arguments", e);
+        }
+    }
+
+    private String toNonEmpty(File fileValue, String defaultMessage) {
+        String string = FileUtils.getAbsolutePath(fileValue).orNull();
+        return string != null ? string : defaultMessage;
+    }
+
+    private String toNonEmpty(List<String> stringValues, String defaultMessage) {
+        String string = Strings.emptyToNull(CollectionsUtils.joinWithSpace(stringValues));
+        return string != null ? string : defaultMessage;
     }
 
     public void applyTo(GradleConnector connector) {

@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.google.common.io.CharStreams;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature;
@@ -110,7 +111,8 @@ public class RunOnImportTasksOperation {
 
     private void runTasks(final List<String> tasksToRun, IProgressMonitor monitor, CancellationToken token) {
         RunConfiguration runConfiguration = CorePlugin.configurationManager().createDefaultRunConfiguration(this.buildConfig);
-        BuildLauncher launcher = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.buildConfig).newBuildLauncher(runConfiguration, getTransientRequestAttributes(token, monitor));
+
+        BuildLauncher launcher = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.buildConfig).newBuildLauncher(runConfiguration.toGradleArguments(), CharStreams.nullWriter(), getTransientRequestAttributes(token, monitor));
         launcher.forTasks(tasksToRun.toArray(new String[tasksToRun.size()])).run();
     }
 

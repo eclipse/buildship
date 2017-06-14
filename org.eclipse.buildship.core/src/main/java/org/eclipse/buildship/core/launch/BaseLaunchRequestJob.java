@@ -11,9 +11,9 @@
 
 package org.eclipse.buildship.core.launch;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,34 +22,23 @@ import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
-import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.event.Event;
-import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.internal.BuildExecutionParticipants;
 import org.eclipse.buildship.core.launch.internal.DefaultExecuteLaunchRequestEvent;
-import org.eclipse.buildship.core.util.collections.CollectionsUtils;
-import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.workspace.GradleBuild;
-import org.eclipse.buildship.core.workspace.ModelProvider;
 
 /**
  * Base class to execute Gradle builds in a job.
@@ -77,81 +66,18 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
         TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, processStreams.getOutput(), processStreams.getError(), processStreams.getInput(),
                 listeners, Collections.<org.gradle.tooling.events.ProgressListener>emptyList(), getToken());
 
-        BuildConfiguration buildConfig = buildConfigurationFor(runConfig);
-        GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);
+        OutputStreamWriter configWriter = new OutputStreamWriter(processStreams.getConfiguration());
 
-        // apply FixedRequestAttributes on build launcher
-        T launcher = createLaunch(gradleBuild, runConfig, transientAttributes, processDescription);
+        GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(runConfig.getBuildConfiguration());
+        T launcher = createLaunch(gradleBuild, runConfig, transientAttributes, configWriter, processDescription);
 
-        // let participants add listeners to the build
+        writeExtraConfigInfo(configWriter);
+        configWriter.flush();
+
         Event event = new DefaultExecuteLaunchRequestEvent(processDescription, launcher);
         CorePlugin.listenerRegistry().dispatch(event);
 
-        // print the applied run configuration settings at the beginning of the console output
-        OutputStreamWriter writer = new OutputStreamWriter(processStreams.getConfiguration());
-        writeConfig(runConfig, buildConfig, writer, monitor);
-
-        // execute the build
         executeLaunch(launcher);
-    }
-
-    private void writeConfig(RunConfiguration runConfig, BuildConfiguration buildConfig, OutputStreamWriter writer, IProgressMonitor monitor) {
-        WorkspaceConfiguration workspaceConfig = buildConfig.getWorkspaceConfiguration();
-        OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(buildConfig, monitor);
-        // should the user not specify values for the gradleUserHome and javaHome, their default
-        // values will not be specified in the launch configurations
-        // as such, these attributes are retrieved separately from the build environment
-        File gradleUserHome = workspaceConfig.getGradleUserHome();
-        if (gradleUserHome == null) {
-            gradleUserHome = buildEnvironment.getGradle().getGradleUserHome().or(null);
-        }
-        File javaHome = runConfig.getJavaHome();
-        if (javaHome == null) {
-            javaHome = buildEnvironment.getJava().getJavaHome();
-        }
-        String gradleVersion = buildEnvironment.getGradle().getGradleVersion();
-
-        try {
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_WorkingDirectory, buildConfig.getRootProjectDirectory().getAbsolutePath()));
-            writer.write(String.format("%s: %s%n", CoreMessages.Preference_Label_GradleUserHome, toNonEmpty(gradleUserHome, CoreMessages.Value_UseGradleDefault)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleDistribution, GradleDistributionFormatter.toString(runConfig.getGradleDistribution())));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleVersion, gradleVersion));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JavaHome, toNonEmpty(javaHome, CoreMessages.Value_UseGradleDefault)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JvmArguments, toNonEmpty(runConfig.getJvmArguments(), CoreMessages.Value_None)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Arguments, toNonEmpty(runConfig.getArguments(), CoreMessages.Value_None)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_BuildScansEnabled, runConfig.isBuildScansEnabled()));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_OfflineModeEnabled, runConfig.isOfflineMode()));
-            writeExtraConfigInfo(writer);
-            writer.write('\n');
-            writer.flush();
-        } catch (IOException e) {
-            throw new GradlePluginsRuntimeException("Cannot write run configuration description to Gradle console.", e);
-        }
-    }
-
-    private String toNonEmpty(File fileValue, String defaultMessage) {
-        String string = FileUtils.getAbsolutePath(fileValue).orNull();
-        return string != null ? string : defaultMessage;
-    }
-
-    private String toNonEmpty(List<String> stringValues, String defaultMessage) {
-        String string = Strings.emptyToNull(CollectionsUtils.joinWithSpace(stringValues));
-        return string != null ? string : defaultMessage;
-    }
-
-    private BuildConfiguration buildConfigurationFor(RunConfiguration runConfig) {
-        // create build configuration with the same Gradle distribution that is used for the build execution
-        return CorePlugin.configurationManager().createBuildConfiguration(runConfig.getBuildConfiguration().getRootProjectDirectory(),
-            true,
-            runConfig.getGradleDistribution(),
-            runConfig.getGradleUserHome(),
-            runConfig.isBuildScansEnabled(),
-            runConfig.isOfflineMode());
-    }
-
-    private OmniBuildEnvironment fetchBuildEnvironment(BuildConfiguration buildConfig, IProgressMonitor monitor) {
-        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig).getModelProvider();
-        return modelProvider.fetchBuildEnvironment(FetchStrategy.FORCE_RELOAD, getToken(), monitor);
     }
 
     /**
@@ -177,10 +103,11 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
 
     /**
      * Creates a new launcher object to execute in the job.
+     * @param configWriter the writer where the connection should print it's properties
      *
      * @return the new launcher
      */
-    protected abstract T createLaunch(GradleBuild gradleBuild, RunConfiguration runConfiguration, TransientRequestAttributes transientAttributes, ProcessDescription processDescription);
+    protected abstract T createLaunch(GradleBuild gradleBuild, RunConfiguration runConfiguration, TransientRequestAttributes transientAttributes, Writer configWriter, ProcessDescription processDescription);
 
     /**
      * Execute the launcher created by {@code #createLaunch()}.

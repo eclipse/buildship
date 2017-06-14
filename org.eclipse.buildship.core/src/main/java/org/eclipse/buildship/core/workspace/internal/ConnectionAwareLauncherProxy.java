@@ -9,6 +9,7 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -72,19 +73,19 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
         return (BuildActionExecuter<Collection<T>>) newProxyInstance(connection, executer);
     }
 
-    static BuildLauncher newBuildLauncher(GradleArguments gradleArguments, TransientRequestAttributes transientAttributes) {
+    static BuildLauncher newBuildLauncher(GradleArguments gradleArguments, Writer configWriter, TransientRequestAttributes transientAttributes) {
         ProjectConnection connection = openConnection(gradleArguments);
         BuildEnvironment buildEnvironment = connection.getModel(BuildEnvironment.class);
         BuildLauncher launcher = connection.newBuild();
-        applyConfiguration(launcher, gradleArguments, buildEnvironment, transientAttributes);
+        applyConfiguration(launcher, gradleArguments, buildEnvironment, configWriter, transientAttributes);
         return (BuildLauncher) newProxyInstance(connection, launcher);
     }
 
-    static TestLauncher newTestLauncher(GradleArguments gradleArguments, TransientRequestAttributes transientAttributes) {
+    static TestLauncher newTestLauncher(GradleArguments gradleArguments, Writer configWriter, TransientRequestAttributes transientAttributes) {
         ProjectConnection connection = openConnection(gradleArguments);
         BuildEnvironment buildEnvironment = connection.getModel(BuildEnvironment.class);
         TestLauncher launcher = connection.newTestLauncher();
-        applyConfiguration(launcher, gradleArguments, buildEnvironment, transientAttributes);
+        applyConfiguration(launcher, gradleArguments, buildEnvironment, configWriter, transientAttributes);
         return (TestLauncher) newProxyInstance(connection, launcher);
     }
 
@@ -97,6 +98,13 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
     private static void applyConfiguration(LongRunningOperation operation, GradleArguments gradleArguments, BuildEnvironment buildEnvironment,
             TransientRequestAttributes transientAttributes) {
         gradleArguments.applyTo(operation, buildEnvironment);
+        applyTransientAttributes(operation, transientAttributes);
+    }
+
+    private static void applyConfiguration(LongRunningOperation operation, GradleArguments gradleArguments, BuildEnvironment buildEnvironment,
+            Writer configWriter, TransientRequestAttributes transientAttributes) {
+        gradleArguments.applyTo(operation, buildEnvironment);
+        gradleArguments.describe(configWriter, buildEnvironment);
         applyTransientAttributes(operation, transientAttributes);
     }
 
