@@ -1,22 +1,30 @@
 package org.eclipse.buildship.core.configuration.internal
 
-import java.util.List
-
+import org.gradle.tooling.LongRunningOperation
 import org.gradle.tooling.model.build.BuildEnvironment
 import org.gradle.tooling.model.build.GradleEnvironment
 import spock.lang.Specification
 
-class ArgumentsCollectorTest extends Specification {
+import com.gradleware.tooling.toolingclient.GradleDistribution
 
-    def "Collects proper arguments"(baseArgs, buildScans, offlineMode, gradleVersion, List expected) {
+import org.eclipse.buildship.core.configuration.GradleArguments
+
+class GradleArgumentsTest extends Specification {
+
+    def "Assigns proper arguments to target operation"(baseArgs, buildScans, offlineMode, gradleVersion, List expected) {
         setup:
+        GradleArguments gradleArguments = GradleArguments.from(new File('.'), GradleDistribution.fromBuild(), null, null, buildScans, offlineMode, baseArgs, [])
+        LongRunningOperation operation = Mock(LongRunningOperation)
         GradleEnvironment gradleEnvironment = Mock(GradleEnvironment)
         gradleEnvironment.gradleVersion >> gradleVersion
         BuildEnvironment buildEnvironment = Mock(BuildEnvironment)
         buildEnvironment.gradle >> gradleEnvironment
 
-        expect:
-        ArgumentsCollector.collectArguments(baseArgs, buildScans, offlineMode, buildEnvironment) == expected
+        when:
+        gradleArguments.applyTo(operation, buildEnvironment)
+
+        then:
+        1 * operation.withArguments(expected)
 
         where:
         baseArgs           | buildScans | offlineMode | gradleVersion | expected

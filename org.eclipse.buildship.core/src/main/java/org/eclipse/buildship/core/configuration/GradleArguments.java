@@ -16,15 +16,16 @@ import java.util.List;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.model.build.BuildEnvironment;
+import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.internal.ArgumentsCollector;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
@@ -90,7 +91,7 @@ public final class GradleArguments {
     }
 
     public void applyTo(LongRunningOperation operation, BuildEnvironment environment) {
-        operation.withArguments(ArgumentsCollector.collectArguments(this.arguments,
+        operation.withArguments(collectArguments(this.arguments,
                  this.buildScansEnabled, this.offlineMode, environment));
         operation.setJavaHome(this.javaHome);
         operation.setJvmArguments(this.jvmArguments);
@@ -102,6 +103,33 @@ public final class GradleArguments {
                                        boolean offlineMode, List<String> arguments,
                                        List<String> jvmArguments) {
         return new GradleArguments(rootDir, gradleDistribution, gradleUserHome, javaHome, buildScansEnabled, offlineMode, arguments, jvmArguments);
+    }
+
+
+    private static List<String> collectArguments(List<String> baseArgs, boolean buildScansEnabled, boolean offlineMode, BuildEnvironment buildEnvironment) {
+        List<String> arguments = Lists.newArrayList(baseArgs);
+        if (buildScansEnabled) {
+            String buildScanArgument = buildScanArgumentFor(buildEnvironment);
+            if (!arguments.contains(buildScanArgument)) {
+                arguments.add(buildScanArgument);
+            }
+        }
+        if (offlineMode && !arguments.contains("--offline")) {
+            arguments.add("--offline");
+        }
+        arguments.addAll(CorePlugin.invocationCustomizer().getExtraArguments());
+        return arguments;
+    }
+
+    private static String buildScanArgumentFor(BuildEnvironment environment) {
+        GradleVersion currentVersion = GradleVersion.version(environment.getGradle().getGradleVersion());
+        GradleVersion supportsDashDashScanVersion = GradleVersion.version("3.5");
+
+        if (supportsDashDashScanVersion.compareTo(currentVersion) <= 0) {
+            return "--scan";
+        } else {
+            return "-Dscan";
+        }
     }
 
 }
