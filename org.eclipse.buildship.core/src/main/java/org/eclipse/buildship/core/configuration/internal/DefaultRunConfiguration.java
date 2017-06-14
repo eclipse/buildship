@@ -76,8 +76,7 @@ public class DefaultRunConfiguration implements RunConfiguration {
         return this.properties.getArguments();
     }
 
-    @Override
-    public boolean isBuildScansEnabled() {
+    private boolean isBuildScansEnabled() {
         if (this.properties.isOverrideBuildSettings()) {
             return this.properties.isBuildScansEnabled();
         } else {
@@ -85,8 +84,7 @@ public class DefaultRunConfiguration implements RunConfiguration {
         }
     }
 
-    @Override
-    public boolean isOfflineMode() {
+    private boolean isOfflineMode() {
         if (this.properties.isOverrideBuildSettings()) {
             return this.properties.isOfflineMode();
         } else {

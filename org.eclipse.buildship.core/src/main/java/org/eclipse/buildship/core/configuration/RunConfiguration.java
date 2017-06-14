@@ -38,9 +38,5 @@ public interface RunConfiguration {
 
     boolean isShowConsoleView();
 
-    boolean isBuildScansEnabled();
-
-    boolean isOfflineMode();
-
     GradleArguments toGradleArguments();
 }

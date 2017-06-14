@@ -281,7 +281,7 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
                         GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.buildConfig);
                         TransientRequestAttributes transientAttributes = getTransientRequestAttributes(progressListeners, token, monitor);
                         RunConfiguration runConfiguration = CorePlugin.configurationManager().createDefaultRunConfiguration(this.buildConfig);
-                        gradleBuild.newBuildLauncher(runConfiguration.toGradleArguments(), CharStreams.nullWriter(), transientAttributes).forTasks(tasks.toArray(new String[tasks.size()])).run();
+                        gradleBuild.newBuildLauncher(runConfiguration, CharStreams.nullWriter(), transientAttributes).forTasks(tasks.toArray(new String[tasks.size()])).run();
                     }
                 }
             } finally {

@@ -16,6 +16,8 @@ import java.util.List;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.model.build.BuildEnvironment;
+import org.gradle.tooling.model.build.GradleEnvironment;
+import org.gradle.tooling.model.build.JavaEnvironment;
 import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Preconditions;
@@ -60,11 +62,14 @@ public final class GradleArguments {
 
     public void describe(Writer writer, BuildEnvironment buildEnvironment) {
         try {
+            GradleEnvironment gradleEnv = buildEnvironment.getGradle();
+            JavaEnvironment javaEnv = buildEnvironment.getJava();
+
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_WorkingDirectory, this.rootDir));
-            writer.write(String.format("%s: %s%n", CoreMessages.Preference_Label_GradleUserHome, toNonEmpty(this.gradleUserHome, CoreMessages.Value_UseGradleDefault)));
+            writer.write(String.format("%s: %s%n", CoreMessages.Preference_Label_GradleUserHome, toNonEmpty(this.gradleUserHome != null ? this.gradleUserHome : gradleEnv.getGradleUserHome(), CoreMessages.Value_UseGradleDefault)));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleDistribution, GradleDistributionFormatter.toString(this.gradleDistribution)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleVersion, buildEnvironment.getGradle().getGradleVersion()));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JavaHome, toNonEmpty(this.javaHome, CoreMessages.Value_UseGradleDefault)));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleVersion, gradleEnv.getGradleVersion()));
+            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JavaHome, toNonEmpty(this.javaHome != null ? this.javaHome :  javaEnv.getJavaHome(), CoreMessages.Value_UseGradleDefault)));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JvmArguments, toNonEmpty(this.jvmArguments, CoreMessages.Value_None)));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Arguments, toNonEmpty(this.arguments, CoreMessages.Value_None)));
             writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_BuildScansEnabled, this.buildScansEnabled));

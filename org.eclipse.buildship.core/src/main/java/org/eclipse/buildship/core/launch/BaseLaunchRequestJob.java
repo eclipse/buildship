@@ -72,6 +72,7 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
         T launcher = createLaunch(gradleBuild, runConfig, transientAttributes, configWriter, processDescription);
 
         writeExtraConfigInfo(configWriter);
+        configWriter.write('\n');
         configWriter.flush();
 
         Event event = new DefaultExecuteLaunchRequestEvent(processDescription, launcher);
@@ -103,7 +104,6 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
 
     /**
      * Creates a new launcher object to execute in the job.
-     * @param configWriter the writer where the connection should print it's properties
      *
      * @return the new launcher
      */

@@ -22,7 +22,7 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.configuration.GradleArguments;
+import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.ModelProvider;
@@ -84,15 +84,15 @@ public class DefaultGradleBuild implements GradleBuild {
     }
 
     @Override
-    public BuildLauncher newBuildLauncher(GradleArguments gradleArguments, Writer configWriter, TransientRequestAttributes transientAttributes) {
+    public BuildLauncher newBuildLauncher(RunConfiguration runConfiguration, Writer configWriter, TransientRequestAttributes transientAttributes) {
         // TODO (donat) once GradleWorkspaceManager#getGradleBuild(FixedRequestAttributes) is removed then we should only allow run config that contain the same build config
-        return ConnectionAwareLauncherProxy.newBuildLauncher(gradleArguments, configWriter, transientAttributes);
+        return ConnectionAwareLauncherProxy.newBuildLauncher(runConfiguration.toGradleArguments(), configWriter, transientAttributes);
     }
 
     @Override
-    public TestLauncher newTestLauncher(GradleArguments gradleArguments, Writer configWriter, TransientRequestAttributes transientAttributes) {
+    public TestLauncher newTestLauncher(RunConfiguration runConfiguration, Writer configWriter, TransientRequestAttributes transientAttributes) {
         // TODO (donat) once GradleWorkspaceManager#getGradleBuild(FixedRequestAttributes) is removed then we should only allow run config that contain the same build config
-        return ConnectionAwareLauncherProxy.newTestLauncher(gradleArguments, configWriter, transientAttributes);
+        return ConnectionAwareLauncherProxy.newTestLauncher(runConfiguration.toGradleArguments(), configWriter, transientAttributes);
     }
 
     @Override

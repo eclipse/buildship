@@ -16,7 +16,7 @@ import org.gradle.tooling.TestLauncher;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.configuration.GradleArguments;
+import org.eclipse.buildship.core.configuration.RunConfiguration;
 //TODO this should eventually also contain the methods to launch tasks etc.
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 
@@ -89,22 +89,23 @@ public interface GradleBuild {
      * Creates a new Gradle build launcher. The method automatically opens a new Tooling API
      * connection which is closed after the {@code run()} method is finished.
      *
-     * @param configWriter the writer to which the build launcher should print its configuration
      * @param runConfiguration the run configuration to configure the connection with
+     * @param configWriter the writer to which the build launcher configuration should be printed
      * @param transientAttributes the transient attributes for the launcher.
      * @return the build launcher
      */
-    BuildLauncher newBuildLauncher(GradleArguments gradleArguments, Writer configWriter, TransientRequestAttributes transientAttributes);
+    BuildLauncher newBuildLauncher(RunConfiguration runConfiguration, Writer configWriter, TransientRequestAttributes transientAttributes);
 
     /**
      * Creates a new Gradle test launcher. The method automatically opens a new Tooling API
      * connection which is closed after the {@code run()} method is finished.
      *
-     * @param configWriter the writer to which the build launcher should print its configuration
+     * @param runConfiguration the run configuration to configure the connection with
+     * @param configWriter the writer to which the build launcher configuration should be printed
      * @param transientAttributes the transient attributes for the launcher.
      * @return the test launcher
      */
-    TestLauncher newTestLauncher(GradleArguments gradleArguments, Writer configWriter, TransientRequestAttributes transientAttributes);
+    TestLauncher newTestLauncher(RunConfiguration runConfiguration, Writer configWriter, TransientRequestAttributes transientAttributes);
 
     /**
      * Returns build config used for this build.

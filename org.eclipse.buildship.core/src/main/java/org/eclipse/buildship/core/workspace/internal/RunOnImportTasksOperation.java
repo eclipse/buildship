@@ -112,7 +112,7 @@ public class RunOnImportTasksOperation {
     private void runTasks(final List<String> tasksToRun, IProgressMonitor monitor, CancellationToken token) {
         RunConfiguration runConfiguration = CorePlugin.configurationManager().createDefaultRunConfiguration(this.buildConfig);
 
-        BuildLauncher launcher = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.buildConfig).newBuildLauncher(runConfiguration.toGradleArguments(), CharStreams.nullWriter(), getTransientRequestAttributes(token, monitor));
+        BuildLauncher launcher = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.buildConfig).newBuildLauncher(runConfiguration, CharStreams.nullWriter(), getTransientRequestAttributes(token, monitor));
         launcher.forTasks(tasksToRun.toArray(new String[tasksToRun.size()])).run();
     }
 
