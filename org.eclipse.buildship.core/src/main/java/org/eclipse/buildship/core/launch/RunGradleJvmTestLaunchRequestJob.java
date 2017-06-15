@@ -14,6 +14,7 @@ package org.eclipse.buildship.core.launch;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.text.DateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -71,8 +72,8 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
     }
 
     @Override
-    protected TestLauncher createLaunch(GradleBuild gradleBuild, RunConfiguration runConfiguration, TransientRequestAttributes transientAttributes, final ProcessDescription processDescription) {
-        TestLauncher launcher = gradleBuild.newTestLauncher(runConfiguration, transientAttributes);
+    protected TestLauncher createLaunch(GradleBuild gradleBuild, RunConfiguration runConfiguration, TransientRequestAttributes transientAttributes, Writer configWriter, ProcessDescription processDescription) {
+        TestLauncher launcher = gradleBuild.newTestLauncher(runConfiguration, configWriter, transientAttributes);
         for (TestTarget testTarget : RunGradleJvmTestLaunchRequestJob.this.testTargets) {
             testTarget.apply(launcher);
         }
@@ -110,7 +111,6 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
                     RunGradleJvmTestLaunchRequestJob.this.runConfig);
             job.schedule();
         }
-
     }
 
     private static Collection<String> collectQualifiedNames(ImmutableList<TestTarget> testTargets) {

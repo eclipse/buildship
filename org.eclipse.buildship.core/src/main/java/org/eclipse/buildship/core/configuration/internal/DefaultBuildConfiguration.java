@@ -9,16 +9,14 @@
 package org.eclipse.buildship.core.configuration.internal;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import com.google.common.base.Objects;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.configuration.GradleArguments;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 
 /**
@@ -88,27 +86,6 @@ class DefaultBuildConfiguration implements BuildConfiguration {
     }
 
     @Override
-    public FixedRequestAttributes toRequestAttributes() {
-        return new FixedRequestAttributes(getRootProjectDirectory(), this.workspaceConfiguration.getGradleUserHome(), getGradleDistribution(), null, getJvmArguments(), getArguments());
-    }
-
-    private List<String> getJvmArguments() {
-        if (isBuildScansEnabled()) {
-            return Arrays.asList("-Dscan");
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    private List<String> getArguments() {
-        if (isOfflineMode()) {
-            return Arrays.asList("--offline");
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    @Override
     public boolean equals(Object obj) {
         if (obj instanceof DefaultBuildConfiguration) {
             DefaultBuildConfiguration other = (DefaultBuildConfiguration) obj;
@@ -126,5 +103,17 @@ class DefaultBuildConfiguration implements BuildConfiguration {
 
     public DefaultBuildConfigurationProperties getProperties() {
         return this.properties;
+    }
+
+    @Override
+    public GradleArguments toGradleArguments() {
+        return GradleArguments.from(getRootProjectDirectory(),
+            getGradleDistribution(),
+            getGradleUserHome(),
+            null, // Java home
+            isBuildScansEnabled(),
+            isOfflineMode(),
+            Collections.<String>emptyList(), // arguments
+            Collections.<String>emptyList()); // JVM arguments
     }
 }

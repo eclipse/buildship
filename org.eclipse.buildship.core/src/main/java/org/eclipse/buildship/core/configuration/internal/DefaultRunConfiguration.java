@@ -12,13 +12,11 @@ import java.io.File;
 import java.util.List;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.configuration.GradleArguments;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 
@@ -70,11 +68,12 @@ public class DefaultRunConfiguration implements RunConfiguration {
 
     @Override
     public List<String> getJvmArguments() {
-        List<String> result = Lists.newArrayList(this.properties.getJvmArguments());
-        if (isBuildScansEnabled()) {
-            result.add("-Dscan");
-        }
-        return result;
+        return this.properties.getJvmArguments();
+    }
+
+    @Override
+    public List<String> getArguments() {
+        return this.properties.getArguments();
     }
 
     private boolean isBuildScansEnabled() {
@@ -83,16 +82,6 @@ public class DefaultRunConfiguration implements RunConfiguration {
         } else {
             return this.buildConfiguration.isBuildScansEnabled();
         }
-    }
-
-    @Override
-    public List<String> getArguments() {
-        List<String> result = Lists.newArrayList(this.properties.getArguments());
-        if (isOfflineMode()) {
-            result.add("--offline");
-        }
-        result.addAll(CorePlugin.invocationCustomizer().getExtraArguments());
-        return result;
     }
 
     private boolean isOfflineMode() {
@@ -124,17 +113,19 @@ public class DefaultRunConfiguration implements RunConfiguration {
     }
 
     @Override
-    public FixedRequestAttributes toRequestAttributes() {
-        return new FixedRequestAttributes(this.buildConfiguration.getRootProjectDirectory(),
-                this.buildConfiguration.getWorkspaceConfiguration().getGradleUserHome(),
-                getGradleDistribution(),
-                getJavaHome(),
-                getJvmArguments(),
-                getArguments());
+    public int hashCode() {
+        return Objects.hashCode(this.buildConfiguration, this.properties);
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hashCode(this.buildConfiguration, this.properties);
+    public GradleArguments toGradleArguments() {
+        return GradleArguments.from(getBuildConfiguration().getRootProjectDirectory(),
+            getGradleDistribution(),
+            getGradleUserHome(),
+            getJavaHome(),
+            isBuildScansEnabled(),
+            isOfflineMode(),
+            getArguments(),
+            getJvmArguments());
     }
 }

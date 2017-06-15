@@ -14,6 +14,7 @@ package org.eclipse.buildship.core.launch;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
@@ -74,8 +75,8 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob<B
     }
 
     @Override
-    protected BuildLauncher createLaunch(GradleBuild gradleBuild, RunConfiguration runConfiguration, TransientRequestAttributes transientAttributes, final ProcessDescription processDescription) {
-        BuildLauncher launcher = gradleBuild.newBuildLauncher(runConfiguration, transientAttributes);
+    protected BuildLauncher createLaunch(GradleBuild gradleBuild, RunConfiguration runConfiguration, TransientRequestAttributes transientAttributes, Writer configWriter, ProcessDescription processDescription) {
+        BuildLauncher launcher = gradleBuild.newBuildLauncher(runConfiguration, configWriter, transientAttributes);
         launcher.forTasks(RunGradleBuildLaunchRequestJob.this.runConfig.getTasks().toArray(new String[0]));
         return launcher;
     }

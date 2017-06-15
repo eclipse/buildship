@@ -1,5 +1,9 @@
 package org.eclipse.buildship.core.invocation
 
+import org.gradle.tooling.LongRunningOperation
+import org.gradle.tooling.model.build.BuildEnvironment
+import org.gradle.tooling.model.build.GradleEnvironment
+
 import org.eclipse.core.resources.IProject
 import org.eclipse.debug.core.DebugPlugin
 import org.eclipse.debug.core.ILaunchConfiguration
@@ -7,6 +11,7 @@ import org.eclipse.debug.core.ILaunchConfigurationType
 import org.eclipse.debug.core.ILaunchManager
 
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.util.extension.InvocationCustomizerCollector
@@ -24,11 +29,11 @@ class InvocationCustomizerTest extends ProjectSynchronizationSpecification {
         }
     }
 
-    void setup() {
+    def setup() {
         SampleInvocationCustomizer.arguments = EXTRA_ARGUMENTS
     }
 
-    void cleanup() {
+    def cleanup() {
         SampleInvocationCustomizer.arguments = []
     }
 
@@ -37,21 +42,51 @@ class InvocationCustomizerTest extends ProjectSynchronizationSpecification {
         new InvocationCustomizerCollector().extraArguments == EXTRA_ARGUMENTS
     }
 
-    def "Run configuration contains extra arguments"() {
+    def "Build configuration use extra arguments"() {
+        setup:
+        File projectDir = dir('sample-project') {
+            file 'settings.gradle'
+        }
+        synchronizeAndWait(projectDir)
+        LongRunningOperation operation = Mock(LongRunningOperation)
+        BuildEnvironment buildEnvironment = defaultBuildEnvironment()
+
+        when:
+        BuildConfiguration buildConfiguration = createInheritingBuildConfiguration(projectDir)
+        buildConfiguration.toGradleArguments().applyTo(operation, buildEnvironment)
+
+        then:
+        1 * operation.withArguments(EXTRA_ARGUMENTS)
+    }
+
+    def "Run configuration use extra arguments"() {
         setup:
         File projectDir = dir('sample-project') {
             file 'settings.gradle'
         }
         synchronizeAndWait(projectDir)
         IProject project = findProject('sample-project')
+        LongRunningOperation operation = Mock(LongRunningOperation)
+        BuildEnvironment buildEnvironment = defaultBuildEnvironment()
 
-        expect:
-        CorePlugin.configurationManager().loadRunConfiguration(emptyLaunchConfiguration()).arguments == EXTRA_ARGUMENTS
+        when:
+        CorePlugin.configurationManager().loadRunConfiguration(emptyLaunchConfiguration()).toGradleArguments().applyTo(operation, buildEnvironment)
+
+        then:
+        1 * operation.withArguments(EXTRA_ARGUMENTS)
     }
 
     private ILaunchConfiguration emptyLaunchConfiguration() {
         ILaunchManager launchManager = DebugPlugin.default.launchManager
         ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(GradleRunConfigurationDelegate.ID)
         type.newInstance(null, "launch-config-name")
+    }
+
+    private BuildEnvironment defaultBuildEnvironment() {
+        GradleEnvironment gradleEnvironment = Mock(GradleEnvironment)
+        gradleEnvironment.gradleVersion >> '3.5'
+        BuildEnvironment buildEnvironment = Mock(BuildEnvironment)
+        buildEnvironment.gradle >> gradleEnvironment
+        buildEnvironment
     }
 }

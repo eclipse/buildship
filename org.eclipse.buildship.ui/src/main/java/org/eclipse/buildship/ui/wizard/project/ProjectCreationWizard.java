@@ -19,6 +19,7 @@ import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.common.io.CharStreams;
 import com.google.common.util.concurrent.FutureCallback;
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
@@ -280,7 +281,7 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
                         GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.buildConfig);
                         TransientRequestAttributes transientAttributes = getTransientRequestAttributes(progressListeners, token, monitor);
                         RunConfiguration runConfiguration = CorePlugin.configurationManager().createDefaultRunConfiguration(this.buildConfig);
-                        gradleBuild.newBuildLauncher(runConfiguration, transientAttributes).forTasks(tasks.toArray(new String[tasks.size()])).run();
+                        gradleBuild.newBuildLauncher(runConfiguration, CharStreams.nullWriter(), transientAttributes).forTasks(tasks.toArray(new String[tasks.size()])).run();
                     }
                 }
             } finally {

@@ -11,7 +11,6 @@ package org.eclipse.buildship.core.configuration;
 import java.io.File;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
 
 /**
  * Configuration for for a Gradle project in the workspace.
@@ -34,5 +33,5 @@ public interface BuildConfiguration {
 
     boolean isOfflineMode();
 
-    FixedRequestAttributes toRequestAttributes();
+    GradleArguments toGradleArguments();
 }
