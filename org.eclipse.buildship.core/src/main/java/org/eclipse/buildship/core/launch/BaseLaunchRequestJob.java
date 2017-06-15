@@ -66,6 +66,7 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
         TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, processStreams.getOutput(), processStreams.getError(), processStreams.getInput(),
                 listeners, Collections.<org.gradle.tooling.events.ProgressListener>emptyList(), getToken());
 
+        // TODO (donat) configWriter and TransientRequestAttributes should be merged into a new type
         OutputStreamWriter configWriter = new OutputStreamWriter(processStreams.getConfiguration());
 
         GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(runConfig.getBuildConfiguration());
