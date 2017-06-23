@@ -11,9 +11,6 @@
 
 package eclipsebuild.testing;
 
-import org.gradle.api.internal.file.FileResolver;
-
-import javax.inject.Inject;
 import java.io.File;
 
 public class EclipseTestExtension {
@@ -34,11 +31,6 @@ public class EclipseTestExtension {
     private long testTimeoutSeconds = 60 * 60L;
 
     private String testEclipseJavaHome = System.getProperty("java.home");
-
-    @Inject
-    public FileResolver getFileResolver() {
-        throw new UnsupportedOperationException();
-    }
 
     public String getApplicationName() {
         return this.applicationName;

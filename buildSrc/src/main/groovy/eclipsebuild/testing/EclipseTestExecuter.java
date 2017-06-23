@@ -11,15 +11,27 @@
 
 package eclipsebuild.testing;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
 import eclipsebuild.Constants;
 import eclipsebuild.TestBundlePlugin;
-import org.eclipse.jdt.internal.junit.model.ITestRunListener2;
-import org.eclipse.jdt.internal.junit.model.RemoteTestRunnerClient;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.internal.file.FileResolver;
-import org.gradle.api.internal.tasks.testing.*;
+import org.gradle.api.internal.tasks.testing.TestClassProcessor;
+import org.gradle.api.internal.tasks.testing.TestClassRunInfo;
+import org.gradle.api.internal.tasks.testing.TestCompleteEvent;
+import org.gradle.api.internal.tasks.testing.TestDescriptorInternal;
+import org.gradle.api.internal.tasks.testing.TestResultProcessor;
+import org.gradle.api.internal.tasks.testing.TestStartEvent;
 import org.gradle.api.internal.tasks.testing.detection.TestExecuter;
 import org.gradle.api.internal.tasks.testing.detection.TestFrameworkDetector;
 import org.gradle.api.internal.tasks.testing.processors.TestMainAction;
@@ -27,25 +39,25 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.api.tasks.testing.TestOutputEvent;
-import org.gradle.internal.TrueTimeProvider;
-import org.gradle.internal.progress.OperationIdGenerator;
+import org.gradle.internal.operations.BuildOperationExecutor;
+import org.gradle.internal.time.TrueTimeProvider;
 import org.gradle.process.ExecResult;
 import org.gradle.process.internal.DefaultJavaExecAction;
 import org.gradle.process.internal.JavaExecAction;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.*;
+import org.eclipse.jdt.internal.junit.model.ITestRunListener2;
+import org.eclipse.jdt.internal.junit.model.RemoteTestRunnerClient;
 
 public final class EclipseTestExecuter implements TestExecuter {
 
     private static final Logger LOGGER = Logging.getLogger(EclipseTestExecuter.class);
 
     private final Project project;
+    private final BuildOperationExecutor executor;
 
-    public EclipseTestExecuter(Project project) {
+    public EclipseTestExecuter(Project project, BuildOperationExecutor executor) {
         this.project = project;
+        this.executor = executor;
     }
 
     @Override
@@ -67,6 +79,9 @@ public final class EclipseTestExecuter implements TestExecuter {
 
     private void runPDETestsInEclipse(final Test testTask, final TestResultProcessor testResultProcessor,
             final int pdeTestPort) {
+        final Object testTaskOperationId = this.executor.getCurrentOperation().getParentId();
+        final Object rootTestSuiteId = testTask.getPath();
+
         ExecutorService threadPool = Executors.newFixedThreadPool(2);
         File runDir = new File(testTask.getProject().getBuildDir(), testTask.getName());
 
@@ -119,7 +134,7 @@ public final class EclipseTestExecuter implements TestExecuter {
         programArgs.add("-loaderpluginname");
         programArgs.add("org.eclipse.jdt.junit4.runtime");
         programArgs.add("-classNames");
-        for (String clzName : collectTestNames(testTask)) {
+        for (String clzName : collectTestNames(testTask, testTaskOperationId, rootTestSuiteId)) {
             programArgs.add(clzName);
         }
         programArgs.add("-application");
@@ -180,7 +195,7 @@ public final class EclipseTestExecuter implements TestExecuter {
         Future<?> testCollectorJob = threadPool.submit(new Runnable() {
             @Override
             public void run() {
-                EclipseTestListener pdeTestListener = new EclipseTestListener(testResultProcessor, testTask, suiteName, this);
+                EclipseTestListener pdeTestListener = new EclipseTestListener(testResultProcessor, suiteName, this, testTaskOperationId, rootTestSuiteId);
                 new RemoteTestRunnerClient().startListening(new ITestRunListener2[] { pdeTestListener }, pdeTestPort);
                 LOGGER.info("Listening on port " + pdeTestPort + " for test suite " + suiteName + " results ...");
                 synchronized (this) {
@@ -219,21 +234,20 @@ public final class EclipseTestExecuter implements TestExecuter {
         return testTask.getProject().getPlugins().findPlugin(TestBundlePlugin.class).fileResolver;
     }
 
-    private List<String> collectTestNames(Test testTask) {
+    private List<String> collectTestNames(Test testTask, Object testTaskOperationId, Object rootTestSuiteId) {
         ClassNameCollectingProcessor processor = new ClassNameCollectingProcessor();
         Runnable detector;
         final FileTree testClassFiles = testTask.getCandidateClassFiles();
         if (testTask.isScanForTestClasses()) {
             TestFrameworkDetector testFrameworkDetector = testTask.getTestFramework().getDetector();
-            testFrameworkDetector.setTestClassesDirectory(testTask.getTestClassesDir());
-            testFrameworkDetector.setTestClasspath(testTask.getClasspath());
+            testFrameworkDetector.setTestClasses(testTask.getTestClassesDirs().getFiles());
+            testFrameworkDetector.setTestClasspath(testTask.getClasspath().getFiles());
             detector = new EclipsePluginTestClassScanner(testClassFiles, processor);
         } else {
             detector = new EclipsePluginTestClassScanner(testClassFiles, processor);
         }
 
-        final Object testTaskOperationId = OperationIdGenerator.generateId(testTask);
-        new TestMainAction(detector, processor, new NoOpTestResultProcessor(), new TrueTimeProvider(), testTaskOperationId, testTask.getPath(), String.format("Gradle Eclipse Test Run %s", testTask.getPath())).run();
+        new TestMainAction(detector, processor, new NoOpTestResultProcessor(), new TrueTimeProvider(), testTaskOperationId, rootTestSuiteId, String.format("Gradle Eclipse Test Run %s", testTask.getIdentityPath())).run();
         LOGGER.info("collected test class names: {}", processor.classNames);
         return processor.classNames;
     }
