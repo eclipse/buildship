@@ -135,13 +135,11 @@ final class DefaultModelProvider implements ModelProvider {
             this.cache.invalidate(cacheKey);
         }
 
-        final AtomicBoolean modelLoaded = new AtomicBoolean(false);
         T value = getFromCache(cacheKey, new Callable<T>() {
 
             @Override
             public T call() {
                 T model = operation.get();
-                modelLoaded.set(true);
                 return model;
             }
         });
