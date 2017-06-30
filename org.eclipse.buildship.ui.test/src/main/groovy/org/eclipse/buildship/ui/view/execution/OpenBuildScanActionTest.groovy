@@ -135,6 +135,7 @@ class OpenBuildScanActionTest extends ProjectSynchronizationSpecification {
         where:
         gradleVersion | buildScanVersion | arguments
         '3.5'         | '1.7.1'          | ['--scan']
+        '3.4.1'       | '1.8'            | ['-Dscan']
         '3.3'         | '1.6'            | ['-Dscan']
     }
 
