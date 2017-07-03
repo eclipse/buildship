@@ -13,6 +13,10 @@ package org.eclipse.buildship.ui.view.execution;
 
 import java.util.Set;
 
+import org.gradle.tooling.events.FailureResult;
+import org.gradle.tooling.events.FinishEvent;
+import org.gradle.tooling.events.task.TaskOperationDescriptor;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -21,7 +25,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
@@ -57,8 +60,9 @@ public final class UpdateExecutionPageJob extends Job {
                 @Override
                 public void run() {
                     if (!UpdateExecutionPageJob.this.treeViewer.getControl().isDisposed()) {
+                        ImmutableSet<OperationItem> running = ImmutableSet.copyOf(UpdateExecutionPageJob.this.operationItems);
                         ImmutableSet<OperationItem> removed = ImmutableSet.copyOf(UpdateExecutionPageJob.this.removeableItems);
-                        for (OperationItem operationItem : UpdateExecutionPageJob.this.operationItems) {
+                        for (OperationItem operationItem : running) {
                             UpdateExecutionPageJob.this.treeViewer.update(operationItem, null);
                         }
 
@@ -66,8 +70,38 @@ public final class UpdateExecutionPageJob extends Job {
                         UpdateExecutionPageJob.this.removeableItems.removeAll(removed);
 
                         UpdateExecutionPageJob.this.treeViewer.refresh(false);
-                        UpdateExecutionPageJob.this.treeViewer.expandToLevel(AbstractTreeViewer.ALL_LEVELS);
+                        for (OperationItem operationItem : running) {
+                            if (shouldBeVisible(operationItem)) {
+                                UpdateExecutionPageJob.this.treeViewer.expandToLevel(operationItem, 0);
+                            }
+                        }
                     }
+                }
+
+                private boolean shouldBeVisible(OperationItem operationItem) {
+                    return isOnMax2ndLevel(operationItem) || isTaskOperation(operationItem) || isFailedOperation(operationItem);
+                }
+
+                private boolean isOnMax2ndLevel(OperationItem operationItem) {
+                    int level = 2;
+                    while(level >= 0) {
+                        if (operationItem.getParent() == null) {
+                            return true;
+                        } else {
+                            level--;
+                            operationItem = operationItem.getParent();
+                        }
+                    }
+                    return false;
+                }
+
+                private boolean isTaskOperation(OperationItem operationItem) {
+                    return operationItem.getStartEvent().getDescriptor() instanceof TaskOperationDescriptor;
+                }
+
+                private boolean isFailedOperation(OperationItem operationItem) {
+                    FinishEvent finishEvent = operationItem.getFinishEvent();
+                    return finishEvent != null ? finishEvent.getResult() instanceof FailureResult : false;
                 }
             });
         }
@@ -75,6 +109,8 @@ public final class UpdateExecutionPageJob extends Job {
         schedule(REPEAT_DELAY);
         return Status.OK_STATUS;
     }
+
+
 
     public void addOperationItem(OperationItem operationItem) {
         Preconditions.checkNotNull(operationItem.getStartEvent());
