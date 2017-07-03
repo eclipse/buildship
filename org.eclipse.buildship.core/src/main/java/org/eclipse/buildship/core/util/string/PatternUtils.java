@@ -94,7 +94,7 @@ public class PatternUtils {
 
     public static final String WEB_URL_PATTERN = "("
             + "("
-            + "(?:" + PROTOCOL + "(?:" + USER_INFO + ")?" + ")?"
+            + "(?:" + PROTOCOL + "(?:" + USER_INFO + ")?" + ")"
             + "(?:" + DOMAIN_NAME_STR + ")"
             + "(?:" + PORT_NUMBER + ")?"
             + ")"

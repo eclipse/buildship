@@ -49,4 +49,17 @@ class PatternUtilsTest extends Specification {
         'http://a.b-c.de' | _
         'http://223.255.255.254' | _
     }
+
+    def "Doesn't match on strings without protocol"(String string) {
+        Pattern pattern = Pattern.compile(PatternUtils.WEB_URL_PATTERN)
+        Matcher matcher = pattern.matcher(string)
+
+        expect:
+        !matcher.matches()
+
+        where:
+        string | _
+        '65.jdk/Contents/Home' | _
+        'org.eclipse.buildship.core' | _
+    }
 }
