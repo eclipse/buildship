@@ -5,13 +5,12 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:git="http://www.eclipse.org/oomph/setup/git/1.0"
     xmlns:jdt="http://www.eclipse.org/oomph/setup/jdt/1.0"
-    xmlns:mylyn="http://www.eclipse.org/oomph/setup/mylyn/1.0"
     xmlns:predicates="http://www.eclipse.org/oomph/predicates/1.0"
     xmlns:projects="http://www.eclipse.org/oomph/setup/projects/1.0"
     xmlns:setup="http://www.eclipse.org/oomph/setup/1.0"
     xmlns:setup.p2="http://www.eclipse.org/oomph/setup/p2/1.0"
     xmlns:setup.targlets="http://www.eclipse.org/oomph/setup/targlets/1.0"
-    xsi:schemaLocation="http://www.eclipse.org/oomph/setup/git/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Git.ecore http://www.eclipse.org/oomph/setup/jdt/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/JDT.ecore http://www.eclipse.org/oomph/setup/mylyn/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Mylyn.ecore http://www.eclipse.org/oomph/predicates/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Predicates.ecore http://www.eclipse.org/oomph/setup/projects/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Projects.ecore http://www.eclipse.org/oomph/setup/targlets/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/SetupTarglets.ecore"
+    xsi:schemaLocation="http://www.eclipse.org/oomph/setup/git/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Git.ecore http://www.eclipse.org/oomph/setup/jdt/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/JDT.ecore http://www.eclipse.org/oomph/predicates/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Predicates.ecore http://www.eclipse.org/oomph/setup/projects/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Projects.ecore http://www.eclipse.org/oomph/setup/targlets/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/SetupTarglets.ecore"
     name="buildship"
     label="Buildship">
   <setupTask
@@ -28,9 +27,9 @@
         name="org.jetbrains.kotlin.feature.feature.group"
         versionRange="0.8.0"/>
     <repository
-        url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.6"/>
+        url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.7"/>
     <repository
-        url="http://download.eclipse.org/buildship/updates/e46/snapshots/2.x"/>
+        url="http://download.eclipse.org/buildship/updates/e47/snapshots/2.x"/>
     <repository
         url="https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_EclipsePlugin/scripts.tcbuildtag"/>
     <description>Installs the required plugins to the IDE.</description>
@@ -202,8 +201,11 @@
         xsi:type="setup:VariableTask"
         id="buildship.variables.buildshiptargetplatform"
         name="buildship.target.platform"
-        defaultValue="Neon"
+        defaultValue="Oxygen"
         label="Buildship Target Platform">
+      <choice
+          value="Oxygen"
+          label="Eclipse Oxygen - 4.7"/>
       <choice
           value="Neon"
           label="Eclipse Neon - 4.6"/>
@@ -274,6 +276,12 @@
         <operand
             xsi:type="predicates:NamePredicate"
             pattern="org\.eclipse\.buildship\.stsmigration\.test"/>
+        <operand
+            xsi:type="predicates:NamePredicate"
+            pattern="org\.eclipse\.buildship\.kotlin"/>
+        <operand
+            xsi:type="predicates:NamePredicate"
+            pattern="org\.eclipse\.buildship\.kotlin\.feature"/>
       </predicate>
     </sourceLocator>
   </setupTask>
@@ -303,6 +311,17 @@
       <requirement
           name="org.jetbrains.kotlin.feature.feature.group"
           versionRange="0.8.0"/>
+      <repositoryList
+          name="Oxygen">
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-oxygen"/>
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
+        <repository
+            url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.1/p2-repository-0.19.1.zip!/"/>
+      </repositoryList>
       <repositoryList
           name="Neon">
         <repository
@@ -369,6 +388,13 @@
           name="org.eclipse.swtbot.eclipse.feature.group"
           versionRange="2.2.1"/>
       <repositoryList
+          name="Oxygen">
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
+      </repositoryList>
+      <repositoryList
           name="Neon">
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
@@ -406,16 +432,6 @@
     </targlet>
     <targlet
         name="Eclipse Platform"/>
-  </setupTask>
-  <setupTask
-      xsi:type="mylyn:MylynQueriesTask"
-      id="buildship.mylyn"
-      repositoryURL="https://bugs.eclipse.org/bugs"
-      userID="${bugzilla.id}"
-      password="${eclipse.user.password}">
-    <query summary="All Buildship Bugs"
-        url="https://bugs.eclipse.org/bugs/buglist.cgi?bug_status=UNCONFIRMED&amp;bug_status=NEW&amp;bug_status=ASSIGNED&amp;bug_status=REOPENED&amp;bug_status=RESOLVED&amp;bug_status=VERIFIED&amp;bug_status=CLOSED&amp;list_id=11735764&amp;product=Buildship&amp;query_format=advanced&amp;resolution=---&amp;resolution=FIXED&amp;resolution=INVALID&amp;resolution=WONTFIX&amp;resolution=DUPLICATE&amp;resolution=WORKSFORME&amp;resolution=MOVED&amp;resolution=NOT_ECLIPSE"/>
-    <description>Add Buildship bugzilla tickets to the IDE</description>
   </setupTask>
   <stream name="master"
       label="master">
