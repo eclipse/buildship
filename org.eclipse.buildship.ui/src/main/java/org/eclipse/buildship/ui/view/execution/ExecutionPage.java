@@ -93,6 +93,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         this.filteredTree.setShowFilterControls(false);
         this.filteredTree.getViewer().getTree().setHeaderVisible(true);
         this.filteredTree.getViewer().setContentProvider(new ExecutionPageContentProvider());
+        this.filteredTree.getViewer().setUseHashlookup(true);
 
         this.nameColumn = new TreeViewerColumn(this.filteredTree.getViewer(), SWT.NONE);
         this.nameColumn.getColumn().setText(ExecutionViewMessages.Tree_Column_Operation_Name_Text);

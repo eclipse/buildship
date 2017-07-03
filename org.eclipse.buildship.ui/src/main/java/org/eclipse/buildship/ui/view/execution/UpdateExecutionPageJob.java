@@ -11,12 +11,11 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import java.util.Map;
-
-import org.gradle.tooling.events.OperationDescriptor;
+import java.util.Set;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -34,7 +33,9 @@ public final class UpdateExecutionPageJob extends Job {
 
     private static final int REPEAT_DELAY = 100;
 
-    private final Map<OperationDescriptor, OperationItem> operationItems;
+    private final Set<OperationItem> operationItems;
+    private final Set<OperationItem> removeableItems;
+
     private volatile boolean running;
     private final TreeViewer treeViewer;
 
@@ -42,7 +43,8 @@ public final class UpdateExecutionPageJob extends Job {
         super("Updating duration of non-finished operations");
 
         this.treeViewer = treeViewer;
-        this.operationItems = Maps.newHashMap();
+        this.operationItems = Sets.newConcurrentHashSet();
+        this.removeableItems = Sets.newConcurrentHashSet();
         this.running = true;
     }
 
@@ -55,7 +57,15 @@ public final class UpdateExecutionPageJob extends Job {
                 @Override
                 public void run() {
                     if (!UpdateExecutionPageJob.this.treeViewer.getControl().isDisposed()) {
-                        UpdateExecutionPageJob.this.treeViewer.refresh(true);
+                        ImmutableSet<OperationItem> removed = ImmutableSet.copyOf(UpdateExecutionPageJob.this.removeableItems);
+                        for (OperationItem operationItem : UpdateExecutionPageJob.this.operationItems) {
+                            UpdateExecutionPageJob.this.treeViewer.update(operationItem, null);
+                        }
+
+                        UpdateExecutionPageJob.this.operationItems.removeAll(removed);
+                        UpdateExecutionPageJob.this.removeableItems.removeAll(removed);
+
+                        UpdateExecutionPageJob.this.treeViewer.refresh(false);
                         UpdateExecutionPageJob.this.treeViewer.expandToLevel(AbstractTreeViewer.ALL_LEVELS);
                     }
                 }
@@ -68,19 +78,12 @@ public final class UpdateExecutionPageJob extends Job {
 
     public void addOperationItem(OperationItem operationItem) {
         Preconditions.checkNotNull(operationItem.getStartEvent());
-        synchronized (this.operationItems) {
-            this.operationItems.put(operationItem.getStartEvent().getDescriptor(), operationItem);
-        }
+        this.operationItems.add(operationItem);
     }
 
     public void removeOperationItem(OperationItem operationItem) {
         Preconditions.checkNotNull(operationItem.getStartEvent());
-        synchronized (this.operationItems) {
-            this.operationItems.remove(operationItem.getStartEvent().getDescriptor());
-            if (this.operationItems.isEmpty()) {
-                stop();
-            }
-        }
+        this.removeableItems.add(operationItem);
     }
 
     @Override
