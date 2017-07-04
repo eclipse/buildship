@@ -154,7 +154,6 @@ final class DefaultModelProvider implements ModelProvider {
             return result;
         } catch (Exception e) {
             if (e instanceof UncheckedExecutionException && e.getCause() instanceof RuntimeException) {
-                // don't expose the cache in the stacktrace when the model loading fails (e.g. upon cancellation)
                 throw (RuntimeException)e.getCause();
             } else {
                 throw new GradlePluginsRuntimeException(e);
