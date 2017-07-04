@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.gradle.tooling.BuildActionExecuter;
 import org.gradle.tooling.CancellationToken;
@@ -29,6 +28,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
@@ -135,13 +135,11 @@ final class DefaultModelProvider implements ModelProvider {
             this.cache.invalidate(cacheKey);
         }
 
-        final AtomicBoolean modelLoaded = new AtomicBoolean(false);
         T value = getFromCache(cacheKey, new Callable<T>() {
 
             @Override
             public T call() {
                 T model = operation.get();
-                modelLoaded.set(true);
                 return model;
             }
         });
@@ -155,7 +153,11 @@ final class DefaultModelProvider implements ModelProvider {
             U result = (U) this.cache.get(cacheKey, cacheValueLoader);
             return result;
         } catch (Exception e) {
-            throw new GradlePluginsRuntimeException(e);
+            if (e instanceof UncheckedExecutionException && e.getCause() instanceof RuntimeException) {
+                throw (RuntimeException)e.getCause();
+            } else {
+                throw new GradlePluginsRuntimeException(e);
+            }
         }
     }
 
