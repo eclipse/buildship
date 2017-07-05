@@ -11,15 +11,17 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
 import org.gradle.tooling.events.FailureResult;
 import org.gradle.tooling.events.FinishEvent;
 import org.gradle.tooling.events.task.TaskOperationDescriptor;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.MapMaker;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -30,96 +32,56 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
 /**
- * Updates the duration of the registered {@link OperationItem} instances in the {@link ExecutionsView} in regular intervals.
+ * Updates the duration of the registered {@link OperationItem} instances in the
+ * {@link ExecutionsView} in regular intervals.
  */
 public final class UpdateExecutionPageJob extends Job {
 
     private static final int REPEAT_DELAY = 100;
 
-    private final Set<OperationItem> operationItems;
-    private final Set<OperationItem> removeableItems;
-
-    private volatile boolean running;
     private final TreeViewer treeViewer;
+    // if the value is true then the operation can be removed
+    private final ConcurrentMap<OperationItem, Boolean> activeItems;
+    private volatile boolean running;
 
     public UpdateExecutionPageJob(TreeViewer treeViewer) {
         super("Updating duration of non-finished operations");
-
         this.treeViewer = treeViewer;
-        this.operationItems = Sets.newConcurrentHashSet();
-        this.removeableItems = Sets.newConcurrentHashSet();
+        this.activeItems = new MapMaker().concurrencyLevel(2).makeMap();
         this.running = true;
     }
 
     @Override
     protected IStatus run(IProgressMonitor monitor) {
+        // use a copy of to ignore concurrent changes
+        Map<OperationItem, Boolean> activeItemsCopy = ImmutableMap.copyOf(this.activeItems);
+
+        // update operations in the view
         Display display = PlatformUI.getWorkbench().getDisplay();
         if (!display.isDisposed()) {
-            display.syncExec(new Runnable() {
-
-                @Override
-                public void run() {
-                    if (!UpdateExecutionPageJob.this.treeViewer.getControl().isDisposed()) {
-                        ImmutableSet<OperationItem> running = ImmutableSet.copyOf(UpdateExecutionPageJob.this.operationItems);
-                        ImmutableSet<OperationItem> removed = ImmutableSet.copyOf(UpdateExecutionPageJob.this.removeableItems);
-                        for (OperationItem operationItem : running) {
-                            UpdateExecutionPageJob.this.treeViewer.update(operationItem, null);
-                        }
-
-                        UpdateExecutionPageJob.this.operationItems.removeAll(removed);
-                        UpdateExecutionPageJob.this.removeableItems.removeAll(removed);
-
-                        UpdateExecutionPageJob.this.treeViewer.refresh(false);
-                        for (OperationItem operationItem : running) {
-                            if (shouldBeVisible(operationItem)) {
-                                UpdateExecutionPageJob.this.treeViewer.expandToLevel(operationItem, 0);
-                            }
-                        }
-                    }
-                }
-
-                private boolean shouldBeVisible(OperationItem operationItem) {
-                    return isOnMax2ndLevel(operationItem) || isTaskOperation(operationItem) || isFailedOperation(operationItem);
-                }
-
-                private boolean isOnMax2ndLevel(OperationItem operationItem) {
-                    int level = 2;
-                    while(level >= 0) {
-                        if (operationItem.getParent() == null) {
-                            return true;
-                        } else {
-                            level--;
-                            operationItem = operationItem.getParent();
-                        }
-                    }
-                    return false;
-                }
-
-                private boolean isTaskOperation(OperationItem operationItem) {
-                    return operationItem.getStartEvent().getDescriptor() instanceof TaskOperationDescriptor;
-                }
-
-                private boolean isFailedOperation(OperationItem operationItem) {
-                    FinishEvent finishEvent = operationItem.getFinishEvent();
-                    return finishEvent != null ? finishEvent.getResult() instanceof FailureResult : false;
-                }
-            });
+            display.syncExec(new UpdateExecutionPageContent(this.treeViewer, activeItemsCopy.keySet()));
         }
+
+        // delete updated build operations that were marked removable
+        for (OperationItem item : activeItemsCopy.keySet()) {
+            if (activeItemsCopy.get(item)) {
+                this.activeItems.remove(item);
+            }
+        }
+
         // reschedule the job such that is runs again in repeatDelay ms
         schedule(REPEAT_DELAY);
         return Status.OK_STATUS;
     }
 
-
-
-    public void addOperationItem(OperationItem operationItem) {
-        Preconditions.checkNotNull(operationItem.getStartEvent());
-        this.operationItems.add(operationItem);
+    public void startOperationItem(OperationItem item) {
+        Preconditions.checkNotNull(item.getStartEvent());
+        this.activeItems.put(item, Boolean.FALSE);
     }
 
-    public void removeOperationItem(OperationItem operationItem) {
-        Preconditions.checkNotNull(operationItem.getStartEvent());
-        this.removeableItems.add(operationItem);
+    public void stopOperationItem(OperationItem item) {
+        Preconditions.checkNotNull(item.getStartEvent());
+        this.activeItems.replace(item, Boolean.TRUE);
     }
 
     @Override
@@ -129,5 +91,62 @@ public final class UpdateExecutionPageJob extends Job {
 
     public void stop() {
         this.running = false;
+    }
+
+    /**
+     * UI job to refresh active items in the viewer.
+     */
+    private static class UpdateExecutionPageContent implements Runnable {
+
+        private final Set<OperationItem> activeItems;
+        private final TreeViewer treeViewer;
+
+        public UpdateExecutionPageContent(TreeViewer treeViewer, Set<OperationItem> activeItems) {
+            this.treeViewer = treeViewer;
+            this.activeItems = activeItems;
+        }
+
+        @Override
+        public void run() {
+            if (!this.treeViewer.getControl().isDisposed()) {
+                for (OperationItem item : this.activeItems) {
+                    this.treeViewer.update(item, null);
+                }
+
+                this.treeViewer.refresh(false);
+
+                for (OperationItem item : this.activeItems) {
+                    if (shouldBeVisible(item)) {
+                        this.treeViewer.expandToLevel(item, 0);
+                    }
+                }
+            }
+        }
+
+        private boolean shouldBeVisible(OperationItem item) {
+            return isOnMax2ndLevel(item) || isTaskOperation(item) || isFailedOperation(item);
+        }
+
+        private boolean isOnMax2ndLevel(OperationItem item) {
+            int level = 2;
+            while (level >= 0) {
+                if (item.getParent() == null) {
+                    return true;
+                } else {
+                    level--;
+                    item = item.getParent();
+                }
+            }
+            return false;
+        }
+
+        private boolean isTaskOperation(OperationItem item) {
+            return item.getStartEvent().getDescriptor() instanceof TaskOperationDescriptor;
+        }
+
+        private boolean isFailedOperation(OperationItem item) {
+                FinishEvent finishEvent = item.getFinishEvent();
+                return finishEvent != null ? finishEvent.getResult() instanceof FailureResult : false;
+        }
     }
 }

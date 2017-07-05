@@ -70,10 +70,10 @@ public final class ExecutionProgressListener implements org.gradle.tooling.event
         if (null == operationItem) {
             operationItem = new OperationItem((StartEvent) progressEvent);
             this.executionItemMap.put(descriptor, operationItem);
-            this.updateExecutionPageJob.addOperationItem(operationItem);
+            this.updateExecutionPageJob.startOperationItem(operationItem);
         } else {
             operationItem.setFinishEvent((FinishEvent) progressEvent);
-            this.updateExecutionPageJob.removeOperationItem(operationItem);
+            this.updateExecutionPageJob.stopOperationItem(operationItem);
             if (isJvmTestSuite(descriptor) && operationItem.getChildren().isEmpty()) {
                 // do not display test suite nodes that have no children (unwanted artifacts from Gradle)
                 OperationItem parentOperationItem = this.executionItemMap.get(findFirstNonExcludedParent(descriptor));
