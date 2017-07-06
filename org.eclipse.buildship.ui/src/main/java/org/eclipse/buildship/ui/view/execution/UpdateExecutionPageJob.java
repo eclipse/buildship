@@ -18,6 +18,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.gradle.tooling.events.ProgressEvent;
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.RateLimiter;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -32,7 +33,7 @@ import org.eclipse.ui.PlatformUI;
  */
 public final class UpdateExecutionPageJob extends Job {
 
-    private static final int REPEAT_DELAY = 100;
+    private static final double MAX_UPDATES_PER_SECOND = 10.0;
 
     private final ExecutionPage page;
     private final BlockingQueue<ProgressEvent> queue = new LinkedBlockingQueue<>();
@@ -51,9 +52,9 @@ public final class UpdateExecutionPageJob extends Job {
 
     @Override
     protected IStatus run(IProgressMonitor monitor) {
-        long lastIterationFinishTime = 0;
+        RateLimiter rateLimiter = RateLimiter.create(MAX_UPDATES_PER_SECOND);
         while(this.running) {
-            balanceIterationTiming(lastIterationFinishTime);
+            rateLimiter.acquire();
 
             List<ProgressEvent> events = Lists.newArrayList();
             this.queue.drainTo(events);
@@ -62,22 +63,9 @@ public final class UpdateExecutionPageJob extends Job {
             if (!display.isDisposed()) {
                 display.syncExec(new UpdateExecutionPageContent(this.page, events));
             }
-
-            lastIterationFinishTime = System.currentTimeMillis();
         }
 
         return Status.OK_STATUS;
-    }
-
-    private void balanceIterationTiming(long lastIterationFinishTime) {
-        // if the previous iteration finished faster than 100 ms then sleep the thread for the remaining time
-        long elapsed = System.currentTimeMillis() - lastIterationFinishTime;
-        if (elapsed < REPEAT_DELAY) {
-            try {
-                Thread.sleep(REPEAT_DELAY - elapsed);
-            } catch (InterruptedException e) {
-            }
-        }
     }
 
     public void stop() {
