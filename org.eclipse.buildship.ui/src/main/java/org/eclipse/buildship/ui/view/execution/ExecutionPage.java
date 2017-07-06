@@ -11,9 +11,9 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.events.FailureResult;
@@ -29,6 +29,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 import com.google.common.collect.TreeTraverser;
 
 import org.eclipse.core.runtime.Platform;
@@ -74,7 +76,8 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     private final LongRunningOperation operation;
     private final ExecutionViewState state;
     private final Map<OperationDescriptor, OperationItem> allItems;
-    private final Map<OperationItem, Boolean> activeItems;
+    private final Set<OperationItem> activeItems;
+    private final Set<OperationItem> removedItems;
 
     private FilteredTree filteredTree;
     private SelectionHistoryManager selectionHistoryManager;
@@ -89,8 +92,8 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         this.operation = operation;
         this.state = state;
         this.allItems = Maps.newHashMap();
-        // if the value is true then the item should be removed from the active items set after the next refresh
-        this.activeItems = Maps.newHashMap();
+        this.activeItems = Sets.newHashSet();
+        this.removedItems = Sets.newHashSet();
     }
 
     public ProcessDescription getProcessDescription() {
@@ -184,10 +187,10 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         if (null == operationItem) {
             operationItem = new OperationItem((StartEvent) progressEvent);
             this.allItems.put(descriptor, operationItem);
-            this.activeItems.put(operationItem, Boolean.FALSE);
+            this.activeItems.add(operationItem);
         } else {
             operationItem.setFinishEvent((FinishEvent) progressEvent);
-            this.activeItems.put(operationItem, Boolean.TRUE);
+            this.removedItems.add(operationItem);
             if (isJvmTestSuite(descriptor) && operationItem.getChildren().isEmpty()) {
                 // do not display test suite nodes that have no children (unwanted artifacts from Gradle)
                 OperationItem parentOperationItem = this.allItems.get(findFirstNonExcludedParent(descriptor));
@@ -221,7 +224,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
 
     public void refreshChangedItems() {
         TreeViewer viewer = this.filteredTree.getViewer();
-        for (OperationItem item : this.activeItems.keySet()) {
+        for (OperationItem item : Sets.union(this.activeItems, this.removedItems)) {
             viewer.update(item, null);
             if (shouldBeVisible(item)) {
                 viewer.expandToLevel(item, 0);
@@ -229,13 +232,8 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         }
         viewer.refresh(false);
 
-        Iterator<OperationItem> items = this.activeItems.keySet().iterator();
-        while (items.hasNext()) {
-            OperationItem item = items.next();
-            if (this.activeItems.get(item)) {
-                items.remove();
-            }
-        }
+        this.activeItems.removeAll(this.removedItems);
+        this.removedItems.clear();
     }
 
     private boolean shouldBeVisible(OperationItem item) {
@@ -260,13 +258,14 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     }
 
     private boolean isFailedOperation(OperationItem item) {
-            FinishEvent finishEvent = item.getFinishEvent();
-            return finishEvent != null ? finishEvent.getResult() instanceof FailureResult : false;
+        FinishEvent finishEvent = item.getFinishEvent();
+        return finishEvent != null ? finishEvent.getResult() instanceof FailureResult : false;
     }
+
     private boolean isJvmTestSuite(OperationDescriptor descriptor) {
         if (descriptor instanceof JvmTestOperationDescriptor) {
             JvmTestOperationDescriptor testOperationDescriptor = (JvmTestOperationDescriptor) descriptor;
-            if (testOperationDescriptor.getJvmTestKind() == JvmTestKind.SUITE ) {
+            if (testOperationDescriptor.getJvmTestKind() == JvmTestKind.SUITE) {
                 return true;
             }
         }
