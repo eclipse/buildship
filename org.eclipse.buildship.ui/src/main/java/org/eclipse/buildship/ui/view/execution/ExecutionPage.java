@@ -30,7 +30,6 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.common.collect.Sets.SetView;
 import com.google.common.collect.TreeTraverser;
 
 import org.eclipse.core.runtime.Platform;
