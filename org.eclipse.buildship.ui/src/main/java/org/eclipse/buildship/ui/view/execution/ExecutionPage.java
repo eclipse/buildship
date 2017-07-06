@@ -11,9 +11,9 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.events.FailureResult;
@@ -29,7 +29,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.common.collect.TreeTraverser;
 
 import org.eclipse.core.runtime.Platform;
@@ -74,6 +73,8 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     private final ProcessDescription processDescription;
     private final LongRunningOperation operation;
     private final ExecutionViewState state;
+    private final Map<OperationDescriptor, OperationItem> allItems;
+    private final Map<OperationItem, Boolean> activeItems;
 
     private FilteredTree filteredTree;
     private SelectionHistoryManager selectionHistoryManager;
@@ -83,13 +84,13 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
 
     private OpenBuildScanAction openBuildScanAction;
 
-    private final Map<OperationDescriptor, OperationItem> allItems = Maps.newHashMap();
-    private final Set<OperationItem> activeItems = Sets.newHashSet();
-
     public ExecutionPage(ProcessDescription processDescription, LongRunningOperation operation, ExecutionViewState state) {
         this.processDescription = processDescription;
         this.operation = operation;
         this.state = state;
+        this.allItems = Maps.newHashMap();
+        // if the value is true then the item should be removed from the active items set after the next refresh
+        this.activeItems = Maps.newHashMap();
     }
 
     public ProcessDescription getProcessDescription() {
@@ -183,10 +184,10 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         if (null == operationItem) {
             operationItem = new OperationItem((StartEvent) progressEvent);
             this.allItems.put(descriptor, operationItem);
-            this.activeItems.add(operationItem);
+            this.activeItems.put(operationItem, Boolean.FALSE);
         } else {
             operationItem.setFinishEvent((FinishEvent) progressEvent);
-            this.activeItems.remove(operationItem);
+            this.activeItems.put(operationItem, Boolean.TRUE);
             if (isJvmTestSuite(descriptor) && operationItem.getChildren().isEmpty()) {
                 // do not display test suite nodes that have no children (unwanted artifacts from Gradle)
                 OperationItem parentOperationItem = this.allItems.get(findFirstNonExcludedParent(descriptor));
@@ -220,14 +221,21 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
 
     public void refreshChangedItems() {
         TreeViewer viewer = this.filteredTree.getViewer();
-        for(OperationItem item: this.activeItems) {
+        for (OperationItem item : this.activeItems.keySet()) {
             viewer.update(item, null);
             if (shouldBeVisible(item)) {
                 viewer.expandToLevel(item, 0);
             }
         }
-
         viewer.refresh(false);
+
+        Iterator<OperationItem> items = this.activeItems.keySet().iterator();
+        while (items.hasNext()) {
+            OperationItem item = items.next();
+            if (this.activeItems.get(item)) {
+                items.remove();
+            }
+        }
     }
 
     private boolean shouldBeVisible(OperationItem item) {
