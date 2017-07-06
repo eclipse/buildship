@@ -42,6 +42,7 @@ public final class UpdateExecutionPageJob extends Job {
         super("Updating duration of non-finished operations");
         this.page = page;
         this.running = true;
+        setSystem(true);
     }
 
     public void addEvent(ProgressEvent event) {
