@@ -12,12 +12,25 @@
 package org.eclipse.buildship.ui.view.execution;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.gradle.tooling.LongRunningOperation;
+import org.gradle.tooling.events.FailureResult;
+import org.gradle.tooling.events.FinishEvent;
+import org.gradle.tooling.events.OperationDescriptor;
+import org.gradle.tooling.events.ProgressEvent;
+import org.gradle.tooling.events.StartEvent;
+import org.gradle.tooling.events.task.TaskOperationDescriptor;
+import org.gradle.tooling.events.test.JvmTestKind;
+import org.gradle.tooling.events.test.JvmTestOperationDescriptor;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 import com.google.common.collect.TreeTraverser;
 
 import org.eclipse.core.runtime.Platform;
@@ -62,6 +75,9 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     private final ProcessDescription processDescription;
     private final LongRunningOperation operation;
     private final ExecutionViewState state;
+    private final Map<OperationDescriptor, OperationItem> allItems;
+    private final Set<OperationItem> activeItems;
+    private final Set<OperationItem> removedItems;
 
     private FilteredTree filteredTree;
     private SelectionHistoryManager selectionHistoryManager;
@@ -75,6 +91,9 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         this.processDescription = processDescription;
         this.operation = operation;
         this.state = state;
+        this.allItems = Maps.newHashMap();
+        this.activeItems = Sets.newHashSet();
+        this.removedItems = Sets.newHashSet();
     }
 
     public ProcessDescription getProcessDescription() {
@@ -150,12 +169,107 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         // set tree root node
         OperationItem root = new OperationItem();
         this.filteredTree.getViewer().setInput(root);
+        this.allItems.put(null, root);
 
-        this.progressListener = new ExecutionProgressListener(this.filteredTree.getViewer(), root, this.processDescription.getJob());
+        this.progressListener = new ExecutionProgressListener(this, this.processDescription.getJob());
         this.operation.addProgressListener(this.progressListener);
 
         // return the tree as the outermost page control
         return this.filteredTree;
+    }
+
+    public void onProgress(ProgressEvent progressEvent) {
+        OperationDescriptor descriptor = progressEvent.getDescriptor();
+        if (isExcluded(descriptor)) {
+            return;
+        }
+        OperationItem operationItem = this.allItems.get(descriptor);
+        if (null == operationItem) {
+            operationItem = new OperationItem((StartEvent) progressEvent);
+            this.allItems.put(descriptor, operationItem);
+            this.activeItems.add(operationItem);
+        } else {
+            operationItem.setFinishEvent((FinishEvent) progressEvent);
+            this.removedItems.add(operationItem);
+            if (isJvmTestSuite(descriptor) && operationItem.getChildren().isEmpty()) {
+                // do not display test suite nodes that have no children (unwanted artifacts from Gradle)
+                OperationItem parentOperationItem = this.allItems.get(findFirstNonExcludedParent(descriptor));
+                parentOperationItem.removeChild(operationItem);
+                return;
+            }
+        }
+
+        // attach to (first non-excluded) parent, if this is a new operation (in case of StartEvent)
+        OperationItem parentExecutionItem = this.allItems.get(findFirstNonExcludedParent(descriptor));
+        parentExecutionItem.addChild(operationItem);
+    }
+
+    private boolean isExcluded(OperationDescriptor descriptor) {
+        // ignore the 'artificial' events issued for the root test event and for each forked test
+        // process event
+        if (descriptor instanceof JvmTestOperationDescriptor) {
+            JvmTestOperationDescriptor jvmTestOperationDescriptor = (JvmTestOperationDescriptor) descriptor;
+            return jvmTestOperationDescriptor.getSuiteName() != null && jvmTestOperationDescriptor.getClassName() == null;
+        } else {
+            return false;
+        }
+    }
+
+    private OperationDescriptor findFirstNonExcludedParent(OperationDescriptor descriptor) {
+        while (isExcluded(descriptor.getParent())) {
+            descriptor = descriptor.getParent();
+        }
+        return descriptor.getParent();
+    }
+
+    public void refreshChangedItems() {
+        TreeViewer viewer = this.filteredTree.getViewer();
+        for (OperationItem item : Sets.union(this.activeItems, this.removedItems)) {
+            viewer.update(item, null);
+            if (shouldBeVisible(item)) {
+                viewer.expandToLevel(item, 0);
+            }
+        }
+        viewer.refresh(false);
+
+        this.activeItems.removeAll(this.removedItems);
+        this.removedItems.clear();
+    }
+
+    private boolean shouldBeVisible(OperationItem item) {
+        return isOnMax2ndLevel(item) || isTaskOperation(item) || isFailedOperation(item);
+    }
+
+    private boolean isOnMax2ndLevel(OperationItem item) {
+        int level = 2;
+        while (level >= 0) {
+            if (item.getParent() == null) {
+                return true;
+            } else {
+                level--;
+                item = item.getParent();
+            }
+        }
+        return false;
+    }
+
+    private boolean isTaskOperation(OperationItem item) {
+        return item.getStartEvent().getDescriptor() instanceof TaskOperationDescriptor;
+    }
+
+    private boolean isFailedOperation(OperationItem item) {
+        FinishEvent finishEvent = item.getFinishEvent();
+        return finishEvent != null ? finishEvent.getResult() instanceof FailureResult : false;
+    }
+
+    private boolean isJvmTestSuite(OperationDescriptor descriptor) {
+        if (descriptor instanceof JvmTestOperationDescriptor) {
+            JvmTestOperationDescriptor testOperationDescriptor = (JvmTestOperationDescriptor) descriptor;
+            if (testOperationDescriptor.getJvmTestKind() == JvmTestKind.SUITE) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
