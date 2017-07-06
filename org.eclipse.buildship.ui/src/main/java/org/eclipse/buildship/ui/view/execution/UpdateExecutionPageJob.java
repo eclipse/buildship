@@ -50,21 +50,33 @@ public final class UpdateExecutionPageJob extends Job {
 
     @Override
     protected IStatus run(IProgressMonitor monitor) {
-        List<ProgressEvent> events = Lists.newArrayList();
-        this.queue.drainTo(events);
+        long lastIterationFinishTime = 0;
+        while(this.running) {
+            balanceIterationTiming(lastIterationFinishTime);
 
-        Display display = PlatformUI.getWorkbench().getDisplay();
-        if (!display.isDisposed()) {
-            display.syncExec(new UpdateExecutionPageContent(this.page, events));
+            List<ProgressEvent> events = Lists.newArrayList();
+            this.queue.drainTo(events);
+
+            Display display = PlatformUI.getWorkbench().getDisplay();
+            if (!display.isDisposed()) {
+                display.syncExec(new UpdateExecutionPageContent(this.page, events));
+            }
+
+            lastIterationFinishTime = System.currentTimeMillis();
         }
 
-        schedule(REPEAT_DELAY);
         return Status.OK_STATUS;
     }
 
-    @Override
-    public boolean shouldSchedule() {
-        return this.running;
+    private void balanceIterationTiming(long lastIterationFinishTime) {
+        // if the previous iteration finished faster than 100 ms then sleep the thread for the remaining time
+        long elapsed = System.currentTimeMillis() - lastIterationFinishTime;
+        if (elapsed < REPEAT_DELAY) {
+            try {
+                Thread.sleep(REPEAT_DELAY - elapsed);
+            } catch (InterruptedException e) {
+            }
+        }
     }
 
     public void stop() {
