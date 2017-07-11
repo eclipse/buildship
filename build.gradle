@@ -277,16 +277,19 @@ subprojects {
         }
     }
 
-    // fix Guava dependency version range for for each target platforms
-    // we don't add the version range to the source files since it would make it harder to change target platform in the IDE
+    // use different Guava versions for the newer target platforms
+    // we don't hardcode it in the manifest as it would make harder to switch between target platforms in the IDE 
+    // TODO (donat) this should be part of the `BundlPlugin` configuration
     plugins.withType(BundlePlugin) {
         jar {
             manifest {
                 from('META-INF/MANIFEST.MF') {
-                    String guavaVersionRange = eclipsebuild.Config.on(project).targetPlatform.eclipseVersion >= '47' ? '"[21.0.0,22.0.0)"' : '"[15.0.0,22.0.0)"'
+                    String guavaVersionRange = eclipsebuild.Config.on(project).targetPlatform.eclipseVersion >= '47' ? '"[21.0.0,22.0.0)"' : '"[15.0.0,16.0.0)"'
                     eachEntry { details ->
                         if (details.key == 'Require-Bundle') {
                             details.value = details.value.replace('com.google.guava,', "com.google.guava;bundle-version=$guavaVersionRange,")
+                        } else if (details.key == 'Bundle-Version') {
+                            details.value = project.version
                         }
                     }
                 }
