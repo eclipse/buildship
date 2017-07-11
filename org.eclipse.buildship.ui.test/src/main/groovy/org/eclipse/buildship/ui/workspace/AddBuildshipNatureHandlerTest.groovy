@@ -33,6 +33,7 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
         configurationManager.saveWorkspaceConfiguration(config)
 
         IProject project = EclipseProjects.newProject('add-buildship-nature')
+        project.getFile("settings.gradle").create(new ByteArrayInputStream("".bytes), true, new NullProgressMonitor())
         waitForResourceChangeEvents()
 
         when:

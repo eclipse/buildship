@@ -23,10 +23,8 @@ import org.gradle.api.internal.tasks.testing.TestDescriptorInternal;
 import org.gradle.api.internal.tasks.testing.TestResultProcessor;
 import org.gradle.api.internal.tasks.testing.TestStartEvent;
 import org.gradle.api.internal.tasks.testing.results.AttachParentTestResultProcessor;
-import org.gradle.api.tasks.testing.Test;
 import org.gradle.api.tasks.testing.TestOutputEvent;
 import org.gradle.api.tasks.testing.TestResult.ResultType;
-import org.gradle.internal.progress.OperationIdGenerator;
 
 import org.eclipse.jdt.internal.junit.model.ITestRunListener2;
 
@@ -35,25 +33,26 @@ public final class EclipseTestListener implements ITestRunListener2 {
     private static final Pattern ECLIPSE_TEST_NAME = Pattern.compile("(.*)\\((.*)\\)");
 
     private final TestResultProcessor resultProcessor;
-    private final Test testTask;
     private final String suiteName;
     private final Object waitMonitor;
+    private final Object testTaskOperationId;
+    private final Object rootTestSuiteId;
 
     private TestDescriptorInternal currentTestSuite;
     private TestDescriptorInternal currentTestClass;
     private TestDescriptorInternal currentTestMethod;
 
-
-    public EclipseTestListener(TestResultProcessor testResultProcessor, Test testTask, String suite, Object waitMonitor) {
+    public EclipseTestListener(TestResultProcessor testResultProcessor, String suite, Object waitMonitor, Object testTaskOperationId, Object rootTestSuiteId) {
         this.resultProcessor = new AttachParentTestResultProcessor(testResultProcessor);
-        this.testTask = testTask;
         this.waitMonitor = waitMonitor;
         this.suiteName = suite;
+        this.testTaskOperationId = testTaskOperationId;
+        this.rootTestSuiteId = rootTestSuiteId;
     }
 
     @Override
     public synchronized void testRunStarted(int testCount) {
-        this.currentTestSuite = testSuite(this.suiteName, this.testTask);
+        this.currentTestSuite = testSuite(this.rootTestSuiteId, this.suiteName, this.testTaskOperationId);
         this.resultProcessor.started(this.currentTestSuite, startEvent());
     }
 
@@ -133,13 +132,13 @@ public final class EclipseTestListener implements ITestRunListener2 {
     public synchronized void testTreeEntry(String description) {
     }
 
-    private static DefaultTestSuiteDescriptor testSuite(String suiteName, final Test testTask) {
-        return new DefaultTestSuiteDescriptor("root", suiteName) {
+    private DefaultTestSuiteDescriptor testSuite(Object id, String displayName, final Object testTaskOperationid) {
+        return new DefaultTestSuiteDescriptor(id, displayName) {
             private static final long serialVersionUID = 1L;
 
             @Override
             public Object getOwnerBuildOperationId() {
-                return OperationIdGenerator.generateId(testTask);
+                return testTaskOperationid;
             }
         };
     }
