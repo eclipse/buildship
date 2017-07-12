@@ -99,6 +99,28 @@ task uploadUpdateSite(dependsOn : createP2Repository) {
     }
 }
 
+// Quick fix for https://github.com/eclipse/buildship/issues/519
+//
+// This is a quick-and-dirty solution to rewrite the the tooling-commons manifest to have the same version range for Guava
+// as it is defined in the Buildship plugins. The solution doesn't match for the whole depenency String as the OSGi
+// descriptors are word-wrapped, meaning that every dependency declarations can have newlines after each character.
+// Besides, this workaround needs to be validated every time the tooling-commons descriptors change (which we expect
+// that won't happen).
+tasks.copyBundles.doLast {
+    String newVersionRange = eclipsebuild.Config.on(project).targetPlatform.eclipseVersion >= '47' ? '[21.0.0,22.0.0)' : '[15.0.0,16.0.0)'
+    new File(project.buildDir, "${eclipsebuild.UpdateSitePlugin.PRE_NORMALIZED_BUNDLES_DIR_NAME}/plugins").listFiles().each { jar ->
+        if (jar.name.contains("com.gradleware.tooling")) {
+            replaceGuavaDependencyRangeInManifest(jar, newVersionRange)
+        }
+    }
+}
+
+private void replaceGuavaDependencyRangeInManifest(File jar, String newVersionRange) {
+    File manifest = project.zipTree(jar).files.find { it.name == 'MANIFEST.MF'}
+    manifest.text = manifest.text.replace('[15.0.0,22.0.0)', newVersionRange)
+    project.ant.zip(update: true, filesonly: true, destfile: jar) { fileset(dir: manifest.parentFile.parentFile) }
+}
+
 // utility methods
 def releaseTypeFolder(Project project) {
     def config = eclipsebuild.BuildshipConfig.on(project)
