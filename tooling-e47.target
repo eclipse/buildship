@@ -2,7 +2,7 @@
 <?pde version="3.8"?><target name="Buildship Eclipse Neon Target Platform" sequenceNumber="1">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.sdk.ide" version="4.7.0.I20170518-1030"/>
+<unit id="org.eclipse.sdk.ide" version="4.7.0.I20170612-0950"/>
 <unit id="org.eclipse.m2e.feature.feature.group" version="1.8.0.20160921-2002"/>
 <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-oxygen/"/>
 </location>
