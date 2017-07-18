@@ -23,6 +23,7 @@ def eclipseVersionAgnosticDependencies = [
     'org.gradle.toolingapi'             : toolingApiBundleVersion,
     'org.slf4j.api'                     : '1.7.2',
     'org.slf4j.simple'                  : '1.7.2',
+    'com.google.guava'                  : '15.0.0',
     'com.google.gson'                   : '2.2.4',
     'org.apache.log4j'                  : '1.2.15',
     'org.eclipse.swtbot.eclipse.finder' : '2.2.1',
@@ -66,8 +67,7 @@ eclipseBuild {
             'org.eclipse.jface.databinding'         : '1.6.0',
             'org.eclipse.jface.text'                : '3.8.2',
             'org.junit'                             : '4.11.0',
-            "$swtPluginId"                          : '3.100.1',
-            'com.google.guava'                      : '15.0.0'
+            "$swtPluginId"                          : '3.100.1'
         ] + eclipseVersionAgnosticDependencies
     }
 
@@ -100,8 +100,7 @@ eclipseBuild {
             'org.eclipse.jface.databinding'         : '1.6.200',
             'org.eclipse.jface.text'                : '3.8.101',
             'org.junit'                             : '4.11.0',
-            "$swtPluginId"                          : '3.102.1',
-            'com.google.guava'                      : '15.0.0'
+            "$swtPluginId"                          : '3.102.1'
         ] + eclipseVersionAgnosticDependencies
     }
 
@@ -134,8 +133,7 @@ eclipseBuild {
             'org.eclipse.jface.databinding'         : '1.6.200',
             'org.eclipse.jface.text'                : '3.9.2',
             'org.junit'                             : '4.11.0',
-            "$swtPluginId"                          : '3.103.2',
-            'com.google.guava'                      : '15.0.0'
+            "$swtPluginId"                          : '3.103.2'
         ] + eclipseVersionAgnosticDependencies
     }
 
@@ -168,8 +166,7 @@ eclipseBuild {
             'org.eclipse.jface.text'                : '3.10.0',
             'com.ibm.icu'                           : '54.1.1',
             'org.junit'                             : '4.11.0',
-            "$swtPluginId"                          : "3.104.0",
-            'com.google.guava'                      : '15.0.0'
+            "$swtPluginId"                          : "3.104.0"
         ] + eclipseVersionAgnosticDependencies
     }
 
@@ -177,18 +174,14 @@ eclipseBuild {
         eclipseVersion = '46'
         targetDefinition = file('tooling-e46.target')
         // TODO define version mapping similarly as above; it makes dependency resolution faster
-        versionMapping = [
-            'com.google.guava'                      : '15.0.0'
-        ] + eclipseVersionAgnosticDependencies
+        versionMapping = eclipseVersionAgnosticDependencies
     }
 
     targetPlatform {
         eclipseVersion = '47'
         targetDefinition = file('tooling-e47.target')
         // TODO define version mapping similarly as above; it makes dependency resolution faster
-        versionMapping = [
-            'com.google.guava'                      : '21.0.0'
-        ] + eclipseVersionAgnosticDependencies
+        versionMapping = eclipseVersionAgnosticDependencies
     }
 }
 
@@ -249,12 +242,11 @@ subprojects {
     // for later versions the minimum execution environment is Java 8
     // try to compile with the minimum required JDK if the location is specified by the caller or if it can be derived
     plugins.withType(JavaPlugin) {
+        sourceCompatibility = 1.7
         String targetPlatformVersion = Config.on(project).targetPlatform.eclipseVersion
         if (targetPlatformVersion < '46') {
-            sourceCompatibility = 1.7
             targetCompatibility = 1.7
         } else {
-            sourceCompatibility = 1.8 // Guava 21.0 uses the `default` language feature from java 8
             targetCompatibility = 1.8
         }
 
@@ -273,26 +265,6 @@ subprojects {
             } else if (project.hasProperty('compiler.location')) {
                 // quotes required on TeamCity to pass property with spaces, e.g. a Windows file path
                 options.forkOptions.executable = project.property('compiler.location').replace('\"', '').replace('\'', '')
-            }
-        }
-    }
-
-    // use different Guava versions for the newer target platforms
-    // we don't hardcode it in the manifest as it would make harder to switch between target platforms in the IDE 
-    // TODO (donat) this should be part of the `BundlPlugin` configuration
-    plugins.withType(BundlePlugin) {
-        jar {
-            manifest {
-                from('META-INF/MANIFEST.MF') {
-                    String guavaVersionRange = eclipsebuild.Config.on(project).targetPlatform.eclipseVersion >= '47' ? '"[21.0.0,22.0.0)"' : '"[15.0.0,16.0.0)"'
-                    eachEntry { details ->
-                        if (details.key == 'Require-Bundle') {
-                            details.value = details.value.replace('com.google.guava,', "com.google.guava;bundle-version=$guavaVersionRange,")
-                        } else if (details.key == 'Bundle-Version') {
-                            details.value = project.version
-                        }
-                    }
-                }
             }
         }
     }
