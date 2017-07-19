@@ -15,27 +15,26 @@ import com.google.common.base.Objects;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 
-import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.GradleArguments;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
-import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 
 /**
  * Default implementation for {@link RunConfiguration}.
  */
 public class DefaultRunConfiguration implements RunConfiguration {
 
-    private final BuildConfiguration buildConfiguration;
+    private final ProjectConfiguration projectConfiguration;
     private final RunConfigurationProperties properties;
 
-    public DefaultRunConfiguration(WorkspaceConfiguration workspaceConfiguration, DefaultBuildConfigurationProperties buildProperties, RunConfigurationProperties properties) {
-        this.buildConfiguration = new DefaultBuildConfiguration(buildProperties, workspaceConfiguration);
+    public DefaultRunConfiguration(ProjectConfiguration projectConfiguration, RunConfigurationProperties properties) {
+        this.projectConfiguration = projectConfiguration;
         this.properties = properties;
     }
 
     @Override
-    public BuildConfiguration getBuildConfiguration() {
-        return this.buildConfiguration;
+    public ProjectConfiguration getProjectConfiguration() {
+        return this.projectConfiguration;
     }
 
     @Override
@@ -48,7 +47,7 @@ public class DefaultRunConfiguration implements RunConfiguration {
         if (this.properties.isOverrideBuildSettings()) {
             return this.properties.getGradleDistribution();
         } else {
-            return this.buildConfiguration.getGradleDistribution();
+            return this.projectConfiguration.getBuildConfiguration().getGradleDistribution();
         }
     }
 
@@ -57,7 +56,7 @@ public class DefaultRunConfiguration implements RunConfiguration {
         if (this.properties.isOverrideBuildSettings()) {
             return this.properties.getGradleUserHome();
         } else {
-            return this.buildConfiguration.getGradleUserHome();
+            return this.projectConfiguration.getBuildConfiguration().getGradleUserHome();
         }
     }
 
@@ -80,7 +79,7 @@ public class DefaultRunConfiguration implements RunConfiguration {
         if (this.properties.isOverrideBuildSettings()) {
             return this.properties.isBuildScansEnabled();
         } else {
-            return this.buildConfiguration.isBuildScansEnabled();
+            return this.projectConfiguration.getBuildConfiguration().isBuildScansEnabled();
         }
     }
 
@@ -88,7 +87,7 @@ public class DefaultRunConfiguration implements RunConfiguration {
         if (this.properties.isOverrideBuildSettings()) {
             return this.properties.isOfflineMode();
         } else {
-            return this.buildConfiguration.isOfflineMode();
+            return this.projectConfiguration.getBuildConfiguration().isOfflineMode();
         }
     }
 
@@ -106,7 +105,7 @@ public class DefaultRunConfiguration implements RunConfiguration {
     public boolean equals(Object obj) {
         if (obj instanceof DefaultRunConfiguration) {
             DefaultRunConfiguration other = (DefaultRunConfiguration) obj;
-            return Objects.equal(this.buildConfiguration, other.buildConfiguration)
+            return Objects.equal(this.projectConfiguration, other.projectConfiguration)
                     && Objects.equal(this.properties, other.properties);
         }
         return false;
@@ -114,12 +113,12 @@ public class DefaultRunConfiguration implements RunConfiguration {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.buildConfiguration, this.properties);
+        return Objects.hashCode(this.projectConfiguration, this.properties);
     }
 
     @Override
     public GradleArguments toGradleArguments() {
-        return GradleArguments.from(getBuildConfiguration().getRootProjectDirectory(),
+        return GradleArguments.from(getProjectConfiguration().getProjectDir(),
             getGradleDistribution(),
             getGradleUserHome(),
             getJavaHome(),

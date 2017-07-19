@@ -69,7 +69,7 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
         // TODO (donat) configWriter and TransientRequestAttributes should be merged into a new type
         OutputStreamWriter configWriter = new OutputStreamWriter(processStreams.getConfiguration());
 
-        GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(runConfig.getBuildConfiguration());
+        GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(runConfig.getProjectConfiguration().getBuildConfiguration());
         T launcher = createLaunch(gradleBuild, runConfig, transientAttributes, configWriter, processDescription);
 
         writeExtraConfigInfo(configWriter);
