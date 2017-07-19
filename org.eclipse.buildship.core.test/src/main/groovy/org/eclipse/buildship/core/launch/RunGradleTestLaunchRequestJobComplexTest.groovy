@@ -103,17 +103,17 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
     private def executeCleanTestAndWait(RunConfiguration runConfig) {
         GradleRunConfigurationAttributes attributes = new GradleRunConfigurationAttributes(
             runConfig.tasks,
-            runConfig.buildConfiguration.rootProjectDirectory.absolutePath,
-            GradleDistributionSerializer.INSTANCE.serializeToString(runConfig.buildConfiguration.gradleDistribution),
+            runConfig.projectConfiguration.buildConfiguration.rootProjectDirectory.absolutePath,
+            GradleDistributionSerializer.INSTANCE.serializeToString(runConfig.projectConfiguration.buildConfiguration.gradleDistribution),
             runConfig.gradleUserHome,
             runConfig.javaHome,
             runConfig.jvmArguments,
             runConfig.arguments,
             runConfig.showExecutionView,
             runConfig.showConsoleView,
-            runConfig.buildConfiguration.overrideWorkspaceSettings,
-            runConfig.buildConfiguration.offlineMode,
-            runConfig.buildConfiguration.buildScansEnabled)
+            runConfig.projectConfiguration.buildConfiguration.overrideWorkspaceSettings,
+            runConfig.projectConfiguration.buildConfiguration.offlineMode,
+            runConfig.projectConfiguration.buildConfiguration.buildScansEnabled)
         ILaunch launch = Mock()
         launch.getLaunchConfiguration() >> CorePlugin.gradleLaunchConfigurationManager().getOrCreateRunConfiguration(attributes)
         RunGradleBuildLaunchRequestJob job = new RunGradleBuildLaunchRequestJob(launch)

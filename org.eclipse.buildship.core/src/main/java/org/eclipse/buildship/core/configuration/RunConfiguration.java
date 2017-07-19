@@ -20,7 +20,7 @@ import com.gradleware.tooling.toolingclient.GradleDistribution;
  */
 public interface RunConfiguration {
 
-    BuildConfiguration getBuildConfiguration();
+    ProjectConfiguration getProjectConfiguration();
 
     List<String> getTasks();
 

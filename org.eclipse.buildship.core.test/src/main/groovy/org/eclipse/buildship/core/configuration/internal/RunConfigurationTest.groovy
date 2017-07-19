@@ -1,10 +1,5 @@
 package org.eclipse.buildship.core.configuration.internal
 
-import java.io.File
-import java.util.List
-
-import spock.lang.Shared
-
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
 import org.eclipse.debug.core.DebugPlugin
@@ -12,9 +7,7 @@ import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.debug.core.ILaunchConfigurationType
 import org.eclipse.debug.core.ILaunchManager
 
-import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.BuildConfiguration
-import org.eclipse.buildship.core.configuration.ConfigurationManager
 import org.eclipse.buildship.core.configuration.RunConfiguration
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes
 import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate
@@ -65,15 +58,16 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         runConfig.showExecutionView == showExecutionView
         runConfig.buildScansEnabled == expectedRunConfigBuildScansEnabled
         runConfig.offlineMode == expectedRunConfigOfflineMode
-        runConfig.buildConfiguration.rootProjectDirectory == rootDir
-        runConfig.buildConfiguration.gradleDistribution == GradleDistribution.fromBuild()
-        runConfig.buildConfiguration.gradleUserHome == buildGradleUserHome
-        runConfig.buildConfiguration.overrideWorkspaceSettings == true
-        runConfig.buildConfiguration.buildScansEnabled == buildBuildScansEnabled
-        runConfig.buildConfiguration.offlineMode == buildOfflineMode
-        runConfig.buildConfiguration.workspaceConfiguration.gradleUserHome == null
-        runConfig.buildConfiguration.workspaceConfiguration.gradleIsOffline == false
-        runConfig.buildConfiguration.workspaceConfiguration.buildScansEnabled == false
+        runConfig.projectConfiguration.projectDir == rootDir
+        runConfig.projectConfiguration.buildConfiguration.rootProjectDirectory == rootDir
+        runConfig.projectConfiguration.buildConfiguration.gradleDistribution == GradleDistribution.fromBuild()
+        runConfig.projectConfiguration.buildConfiguration.gradleUserHome == buildGradleUserHome
+        runConfig.projectConfiguration.buildConfiguration.overrideWorkspaceSettings == true
+        runConfig.projectConfiguration.buildConfiguration.buildScansEnabled == buildBuildScansEnabled
+        runConfig.projectConfiguration.buildConfiguration.offlineMode == buildOfflineMode
+        runConfig.projectConfiguration.buildConfiguration.workspaceConfiguration.gradleUserHome == null
+        runConfig.projectConfiguration.buildConfiguration.workspaceConfiguration.gradleIsOffline == false
+        runConfig.projectConfiguration.buildConfiguration.workspaceConfiguration.buildScansEnabled == false
 
         where:
         buildBuildScansEnabled | buildOfflineMode | runConfigOverride | runConfigBuildScansEnabled | runConfigOfflineMode | expectedRunConfigBuildScansEnabled | expectedRunConfigOfflineMode
@@ -95,14 +89,15 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         runConfig.jvmArguments == []
         runConfig.showExecutionView == true
         runConfig.showConsoleView == true
-        runConfig.buildConfiguration.rootProjectDirectory.path == new File('').canonicalPath
-        runConfig.buildConfiguration.gradleDistribution == GradleDistribution.fromBuild()
-        runConfig.buildConfiguration.overrideWorkspaceSettings == false
-        runConfig.buildConfiguration.buildScansEnabled == false
-        runConfig.buildConfiguration.offlineMode == false
-        runConfig.buildConfiguration.workspaceConfiguration.gradleUserHome == null
-        runConfig.buildConfiguration.workspaceConfiguration.gradleIsOffline == false
-        runConfig.buildConfiguration.workspaceConfiguration.buildScansEnabled == false
+        runConfig.projectConfiguration.projectDir.path == new File('').canonicalPath
+        runConfig.projectConfiguration.buildConfiguration.rootProjectDirectory.path == new File('').canonicalPath
+        runConfig.projectConfiguration.buildConfiguration.gradleDistribution == GradleDistribution.fromBuild()
+        runConfig.projectConfiguration.buildConfiguration.overrideWorkspaceSettings == false
+        runConfig.projectConfiguration.buildConfiguration.buildScansEnabled == false
+        runConfig.projectConfiguration.buildConfiguration.offlineMode == false
+        runConfig.projectConfiguration.buildConfiguration.workspaceConfiguration.gradleUserHome == null
+        runConfig.projectConfiguration.buildConfiguration.workspaceConfiguration.gradleIsOffline == false
+        runConfig.projectConfiguration.buildConfiguration.workspaceConfiguration.buildScansEnabled == false
     }
 
     def "load custom settings"() {
@@ -142,14 +137,15 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         runConfig.jvmArguments == jvmArguments
         runConfig.showConsoleView == showConsoleView
         runConfig.showExecutionView == showExecutionView
-        runConfig.buildConfiguration.rootProjectDirectory == rootDir
-        runConfig.buildConfiguration.gradleDistribution == distribution
-        runConfig.buildConfiguration.overrideWorkspaceSettings == overrideBuildSettings
-        runConfig.buildConfiguration.buildScansEnabled == buildScansEnabled
-        runConfig.buildConfiguration.offlineMode == offlineMode
-        runConfig.buildConfiguration.workspaceConfiguration.gradleUserHome == null
-        runConfig.buildConfiguration.workspaceConfiguration.gradleIsOffline == false
-        runConfig.buildConfiguration.workspaceConfiguration.buildScansEnabled == false
+        runConfig.projectConfiguration.projectDir == rootDir
+        runConfig.projectConfiguration.buildConfiguration.rootProjectDirectory == rootDir
+        runConfig.projectConfiguration.buildConfiguration.gradleDistribution == distribution
+        runConfig.projectConfiguration.buildConfiguration.overrideWorkspaceSettings == overrideBuildSettings
+        runConfig.projectConfiguration.buildConfiguration.buildScansEnabled == buildScansEnabled
+        runConfig.projectConfiguration.buildConfiguration.offlineMode == offlineMode
+        runConfig.projectConfiguration.buildConfiguration.workspaceConfiguration.gradleUserHome == null
+        runConfig.projectConfiguration.buildConfiguration.workspaceConfiguration.gradleIsOffline == false
+        runConfig.projectConfiguration.buildConfiguration.workspaceConfiguration.buildScansEnabled == false
     }
 
     private ILaunchConfiguration emptyLaunchConfig() {
