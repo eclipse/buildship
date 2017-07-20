@@ -211,7 +211,8 @@ public class DefaultConfigurationManager implements ConfigurationManager {
 
     private static File relativePathToProjectRoot(IPath projectPath, String path) {
         IPath pathToRoot = new Path(path);
-        return canonicalize(RelativePathUtils.getAbsolutePath(projectPath, pathToRoot).toFile());
+        IPath absolutePathToRoot = pathToRoot.isAbsolute() ? pathToRoot : RelativePathUtils.getAbsolutePath(projectPath, pathToRoot);
+        return canonicalize(absolutePathToRoot.toFile());
     }
 
     private static File canonicalize(File file) {
