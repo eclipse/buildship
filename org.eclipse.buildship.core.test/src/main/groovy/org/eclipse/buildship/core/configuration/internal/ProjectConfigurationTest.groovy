@@ -1,5 +1,7 @@
 package org.eclipse.buildship.core.configuration.internal
 
+import spock.lang.Issue
+
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
 import org.eclipse.core.resources.IProject
@@ -235,6 +237,43 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 
         then:
         thrown RuntimeException
+    }
+
+    @Issue('https://github.com/eclipse/buildship/issues/528')
+    def "can save and load project configuration if settings file contains absolute path"() {
+        setup:
+        configurationManager.buildConfigurationPersistence.savePathToRoot(project, rootProjectDir.absolutePath)
+
+        when:
+        ProjectConfiguration projectConfig = configurationManager.loadProjectConfiguration(project)
+
+        then:
+        projectConfig.buildConfiguration.rootProjectDirectory == rootProjectDir
+
+        when:
+        configurationManager.saveProjectConfiguration(projectConfig)
+
+        then:
+        configurationManager.buildConfigurationPersistence.readPathToRoot(project) == "../$rootProjectDir.name"
+    }
+
+    @Issue('https://github.com/eclipse/buildship/issues/528')
+    def "can save and load project configuration if project is closed and settings file contains absolute path"() {
+        setup:
+        project.close(new NullProgressMonitor())
+        configurationManager.buildConfigurationPersistence.savePathToRoot(projectDir, rootProjectDir.absolutePath)
+
+        when:
+        ProjectConfiguration projectConfig = configurationManager.loadProjectConfiguration(projectDir)
+
+        then:
+        projectConfig.buildConfiguration.rootProjectDirectory == rootProjectDir
+
+        when:
+        configurationManager.saveProjectConfiguration(projectConfig)
+
+        then:
+        configurationManager.buildConfigurationPersistence.readPathToRoot(projectDir) == "../$rootProjectDir.name"
     }
 
     private void setInvalidPreferenceOn(IProject project) {
