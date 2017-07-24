@@ -258,7 +258,7 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
     }
 
     @Issue('https://github.com/eclipse/buildship/issues/528')
-    def "can save and load project configuration if project is clased and settings file contains absolute path"() {
+    def "can save and load project configuration if project is closed and settings file contains absolute path"() {
         setup:
         project.close(new NullProgressMonitor())
         configurationManager.buildConfigurationPersistence.savePathToRoot(projectDir, rootProjectDir.absolutePath)
