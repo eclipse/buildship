@@ -11,9 +11,6 @@
 
 package org.eclipse.buildship.ui.test.fixtures
 
-import java.io.File;
-
-import groovy.lang.Closure;
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.AutoCleanup;
@@ -29,11 +26,14 @@ import org.eclipse.core.resources.IWorkspace
 import org.eclipse.core.resources.IWorkspaceRunnable
 import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.ui.IWorkbenchWindow
+import org.eclipse.ui.PlatformUI
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.configuration.ConfigurationManager
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
+import org.eclipse.buildship.ui.view.execution.ExecutionsView
 
 /**
  * Base Spock test specification to verify Buildship functionality against the current state of the
@@ -57,6 +57,7 @@ abstract class WorkspaceSpecification extends Specification {
         deleteAllProjects(true)
         waitForResourceChangeEvents()
         waitForGradleJobsToFinish()
+        removeExecutionsViewPages()
     }
 
     protected void deleteAllProjects(boolean includingContent) {
@@ -183,5 +184,28 @@ abstract class WorkspaceSpecification extends Specification {
     protected BuildConfiguration createOverridingBuildConfiguration(File projectDir, GradleDistribution distribution = GradleDistribution.fromBuild(),
                                                                   boolean buildScansEnabled = false, boolean offlineMode = false, File gradleUserHome = null) {
         configurationManager.createBuildConfiguration(projectDir, true, distribution, gradleUserHome, buildScansEnabled, offlineMode)
+    }
+
+    protected void waitFor(int timeout = 5000, Closure condition) {
+        long start = System.currentTimeMillis()
+        while (!condition.call()) {
+            long elapsed = System.currentTimeMillis() - start
+            if (elapsed > timeout) {
+                throw new RuntimeException('timeout')
+            }
+            Thread.sleep(100)
+        }
+    }
+
+    protected void runOnUiThread(Closure closure) {
+        PlatformUI.workbench.display.syncExec closure as Runnable
+    }
+
+    private removeExecutionsViewPages() {
+        runOnUiThread {
+            IWorkbenchWindow window = PlatformUI.workbench.activeWorkbenchWindow
+            ExecutionsView view = window.activePage.findView(ExecutionsView.ID)
+            view?.removeAllPages()
+        }
     }
 }

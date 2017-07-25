@@ -8,7 +8,6 @@ import org.eclipse.debug.core.ILaunchConfigurationType
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy
 import org.eclipse.debug.core.ILaunchManager
 import org.eclipse.ui.IWorkbenchPage
-import org.eclipse.ui.PlatformUI
 import org.eclipse.ui.console.ConsolePlugin
 import org.eclipse.ui.console.IConsole
 import org.eclipse.ui.console.IConsoleListener
@@ -31,7 +30,6 @@ class OpenBuildScanActionTest extends ProjectSynchronizationSpecification {
     }
 
     void cleanup() {
-        runOnUiThread { view.removeAllPages() }
         ConsolePlugin.default.consoleManager.removeConsoleListener(consoleListener)
     }
 
@@ -147,21 +145,6 @@ class OpenBuildScanActionTest extends ProjectSynchronizationSpecification {
 
     private void waitForPendingConsoleOutput() {
         waitFor { consoleListener.activeConsole.partitioner.pendingPartitions.empty }
-    }
-
-    private void waitFor(int timeout = 5000, Closure condition) {
-        long start = System.currentTimeMillis()
-        while (!condition.call()) {
-            long elapsed = System.currentTimeMillis() - start
-            if (elapsed > timeout) {
-                throw new RuntimeException('timeout')
-            }
-            Thread.sleep(100)
-        }
-    }
-
-    private void runOnUiThread(Closure closure) {
-        PlatformUI.workbench.display.syncExec closure as Runnable
     }
 
     private ILaunch createLaunch(String task, File rootDir, List<String> arguments) {
