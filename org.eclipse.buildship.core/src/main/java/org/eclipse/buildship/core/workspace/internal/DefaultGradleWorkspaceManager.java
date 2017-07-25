@@ -84,7 +84,12 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
 
             @Override
             public BuildConfiguration apply(IProject project) {
-                return CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
+                try {
+                    return CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
+                } catch(RuntimeException e) {
+                    CorePlugin.logger().debug("Cannot load configuration for project " + project.getName());
+                    return null;
+                }
             }
         }).filter(Predicates.notNull()).toSet();
     }

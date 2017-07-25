@@ -17,14 +17,18 @@ package org.eclipse.buildship.ui.view.task
 
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 
-import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.core.resources.IResource
+import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.jface.viewers.TreeViewer
 import org.eclipse.swt.widgets.Item
-import org.eclipse.swt.widgets.Widget;
+import org.eclipse.swt.widgets.Widget
 import org.eclipse.ui.IWorkbenchPage
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.PlatformUI
 
+import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.notification.UserNotification
 import org.eclipse.buildship.ui.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
+import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils
 
 class TaskViewContentSpec extends ProjectSynchronizationSpecification {
 
@@ -119,8 +123,11 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
         taskTree == ['a', 'b']
     }
 
-    def "If one project has errors, tasks from other projects are still visible"() {
+    def "If one project has invalid build script then tasks from other projects are still visible"() {
         given:
+        UserNotification notification = Mock(UserNotification)
+        registerService(UserNotification, notification)
+
         def first = dir("a") { file 'build.gradle' }
         def second = dir("b") { file 'build.gradle' }
         importAndWait(first)
@@ -133,6 +140,35 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
         then:
         !taskTree.a
         taskTree.b
+        0 * notification.errorOccurred(*_)
+    }
+
+    def "If one project has invalid configuration then tasks from other projects are still visible"(String config) {
+        given:
+        UserNotification notification = Mock(UserNotification)
+        registerService(UserNotification, notification)
+
+        def first = dir("a") { file 'build.gradle' }
+        def second = dir("b") { file 'build.gradle' }
+        importAndWait(first)
+        importAndWait(second)
+        fileTree(first) {
+            dir('.settings') {
+                file("${CorePlugin.PLUGIN_ID}.prefs").text = config
+            }
+        }
+        findProject('a').refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor())
+
+        when:
+        reloadTaskView()
+
+        then:
+        !taskTree.a
+        taskTree.b
+        0 * notification.errorOccurred(*_)
+
+        where:
+        config << ['', 'connection.project.dir=invalid']
     }
 
     def "The task view is refreshed when projects are added/deleted"() {
