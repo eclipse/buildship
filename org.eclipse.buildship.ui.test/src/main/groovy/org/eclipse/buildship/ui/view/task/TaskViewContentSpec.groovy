@@ -32,7 +32,7 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
     TreeViewer tree
 
     void setup() {
-        PlatformUI.workbench.display.syncExec {
+        runOnUiThread {
             view = WorkbenchUtils.showView(TaskView.ID, null, IWorkbenchPage.VIEW_ACTIVATE)
             tree = view.treeViewer
         }
@@ -154,7 +154,7 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
 
     private def getTaskTree() {
         def taskTree
-        PlatformUI.workbench.display.syncExec {
+        runOnUiThread {
             tree.expandAll()
             def root = tree.tree
             taskTree = getChildren(root)
