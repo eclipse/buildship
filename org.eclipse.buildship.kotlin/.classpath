@@ -4,6 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="con" path="org.jetbrains.kotlin.core.KOTLIN_CONTAINER"/>
-	<classpathentry kind="lib" path="gradle-script-kotlin-tooling-models-0.9.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="gradle-kotlin-dsl-tooling-models-0.11.0-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
