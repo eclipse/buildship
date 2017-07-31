@@ -67,10 +67,6 @@ class ExecutionsViewPerformanceTest extends ProjectSynchronizationSpecification 
         type.newInstance(null, "launch-config-name")
     }
 
-    private void runOnUiThread(Closure closure) {
-        PlatformUI.workbench.display.syncExec closure as Runnable
-    }
-
     private ProgressEvent progressEvent() {
         ProgressEvent event = Mock(StartEvent)
         event.displayName >> 'progress event display name'
