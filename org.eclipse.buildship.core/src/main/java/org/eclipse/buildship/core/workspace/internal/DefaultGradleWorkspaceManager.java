@@ -25,6 +25,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.GradleBuilds;
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
@@ -61,12 +62,18 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
 
     @Override
     public Optional<GradleBuild> getGradleBuild(IProject project) {
-        if (GradleProjectNature.isPresentOn(project)) {
-            BuildConfiguration buildConfig = CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
-            return Optional.<GradleBuild>of(new DefaultGradleBuild(buildConfig));
-        } else {
-            return Optional.absent();
-        }
+            try {
+                if (GradleProjectNature.isPresentOn(project)) {
+                    ProjectConfiguration projectConfiguration = CorePlugin.configurationManager().loadProjectConfiguration(project);
+                    BuildConfiguration buildConfig = projectConfiguration.getBuildConfiguration();
+                    return Optional.<GradleBuild>of(new DefaultGradleBuild(buildConfig));
+                } else {
+                    return Optional.absent();
+                }
+            } catch (RuntimeException e) {
+                CorePlugin.logger().debug("Cannot load configuration for project " + project.getName());
+                return Optional.absent();
+            }
     }
 
     @Override
