@@ -62,18 +62,16 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
 
     @Override
     public Optional<GradleBuild> getGradleBuild(IProject project) {
-            try {
-                if (GradleProjectNature.isPresentOn(project)) {
-                    ProjectConfiguration projectConfiguration = CorePlugin.configurationManager().loadProjectConfiguration(project);
-                    BuildConfiguration buildConfig = projectConfiguration.getBuildConfiguration();
-                    return Optional.<GradleBuild>of(new DefaultGradleBuild(buildConfig));
-                } else {
-                    return Optional.absent();
-                }
-            } catch (RuntimeException e) {
-                CorePlugin.logger().debug("Cannot load configuration for project " + project.getName());
+        if (GradleProjectNature.isPresentOn(project)) {
+            ProjectConfiguration projectConfiguration = CorePlugin.configurationManager().tryLoadProjectConfiguration(project);
+            if (projectConfiguration != null) {
+                return Optional.<GradleBuild>of(new DefaultGradleBuild(projectConfiguration.getBuildConfiguration()));
+            } else {
                 return Optional.absent();
             }
+        } else {
+            return  Optional.absent();
+        }
     }
 
     @Override
@@ -91,12 +89,8 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
 
             @Override
             public BuildConfiguration apply(IProject project) {
-                try {
-                    return CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
-                } catch(RuntimeException e) {
-                    CorePlugin.logger().debug("Cannot load configuration for project " + project.getName());
-                    return null;
-                }
+                ProjectConfiguration projectConfiguration = CorePlugin.configurationManager().tryLoadProjectConfiguration(project);
+                return projectConfiguration != null ? projectConfiguration.getBuildConfiguration() : null;
             }
         }).filter(Predicates.notNull()).toSet();
     }

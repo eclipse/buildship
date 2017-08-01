@@ -2,6 +2,8 @@ package org.eclipse.buildship.core.configuration.internal
 
 import spock.lang.Issue
 
+import com.google.common.base.Optional
+
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
 import org.eclipse.core.resources.IProject
@@ -148,6 +150,29 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 
          then:
          thrown RuntimeException
+    }
+
+    def "can read project configuration safely with tryLoadProjectConfiguration method"() {
+        when:
+        ProjectConfiguration projectConfiguration = configurationManager.tryLoadProjectConfiguration(project)
+
+        then:
+        projectConfiguration == null
+
+        when:
+        BuildConfiguration buildConfig = createInheritingBuildConfiguration(rootProjectDir)
+        ProjectConfiguration projectConfig = configurationManager.createProjectConfiguration(buildConfig, projectDir);
+        configurationManager.saveProjectConfiguration(projectConfig)
+
+        then:
+        configurationManager.loadProjectConfiguration(project) == configurationManager.tryLoadProjectConfiguration(project)
+
+        when:
+        setInvalidPreferenceOn(project)
+        projectConfiguration = configurationManager.tryLoadProjectConfiguration(project)
+
+        then:
+        projectConfiguration == null
     }
 
     def "load build configuration respecting workspaces settings"(GradleDistribution distribution, boolean buildScansEnabled, boolean offlineMode) {
