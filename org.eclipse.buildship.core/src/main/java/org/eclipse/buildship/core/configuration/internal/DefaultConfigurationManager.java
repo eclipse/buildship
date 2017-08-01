@@ -111,6 +111,16 @@ public class DefaultConfigurationManager implements ConfigurationManager {
         return new DefaultProjectConfiguration(project.getLocation().toFile(), buildConfig);
     }
 
+    @Override
+    public ProjectConfiguration tryLoadProjectConfiguration(IProject project) {
+        try {
+            return loadProjectConfiguration(project);
+        } catch(RuntimeException e) {
+            CorePlugin.logger().debug("Cannot load configuration for project " + project.getName(), e);
+            return null;
+        }
+    }
+
     private ProjectConfiguration loadProjectConfiguration(File projectDir) {
         String pathToRoot = this.buildConfigurationPersistence.readPathToRoot(projectDir);
         File rootDir = relativePathToProjectRoot(new Path(projectDir.getAbsolutePath()), pathToRoot);

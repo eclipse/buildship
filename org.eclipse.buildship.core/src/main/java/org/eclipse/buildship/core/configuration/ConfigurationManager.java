@@ -37,6 +37,8 @@ public interface ConfigurationManager {
 
     ProjectConfiguration createProjectConfiguration(BuildConfiguration configuration, File projectDir);
 
+    ProjectConfiguration tryLoadProjectConfiguration(IProject project);
+
     ProjectConfiguration loadProjectConfiguration(IProject project);
 
     void saveProjectConfiguration(ProjectConfiguration configuration);
