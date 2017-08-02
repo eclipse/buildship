@@ -177,6 +177,10 @@ public final class NodeSelection implements IStructuredSelection {
         return EMPTY;
     }
 
+    public static NodeSelection single(Object object) {
+        return new NodeSelection(ImmutableList.of(object));
+    }
+
     /**
      * Creates a new instance reflecting the given {@link IStructuredSelection} instance.
      *

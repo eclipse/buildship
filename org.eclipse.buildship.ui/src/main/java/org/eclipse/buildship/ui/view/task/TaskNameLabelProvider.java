@@ -26,6 +26,7 @@ import org.eclipse.ui.ide.IDE.SharedImages;
 import org.eclipse.buildship.ui.PluginImage;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 
 /**
  * Styled label provider for the task name column in the TaskView.
@@ -138,6 +139,6 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
     }
 
     private ImageState getImageState(TaskNode taskNode) {
-        return taskNode.getParentProjectNode().isIncludedProject() ? ImageState.DISABLED : ImageState.ENABLED;
+        return TaskViewActionStateRules.taskScopedTaskExecutionActionsEnablement(NodeSelection.single(taskNode)).asBoolean() ? ImageState.ENABLED: ImageState.DISABLED;
     }
 }
