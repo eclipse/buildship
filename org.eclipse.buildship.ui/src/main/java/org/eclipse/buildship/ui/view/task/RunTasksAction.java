@@ -16,6 +16,7 @@ import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
 import org.eclipse.buildship.ui.view.CommandBackedAction;
+import org.eclipse.buildship.ui.view.task.TaskViewActionStateRules.TaskScopedActionEnablement;
 
 /**
  * Runs the selected Gradle tasks.
@@ -38,20 +39,30 @@ public final class RunTasksAction extends CommandBackedAction implements Selecti
 
     @Override
     public boolean isEnabledFor(NodeSelection selection) {
-        return TaskViewActionStateRules.taskScopedTaskExecutionActionsEnabledFor(selection);
+        return TaskViewActionStateRules.taskScopedTaskExecutionActionsEnablement(selection).asBoolean();
     }
 
     @Override
     public void setEnabledFor(NodeSelection selection) {
-        boolean isEnabled = isEnabledFor(selection);
+        TaskScopedActionEnablement enablement = TaskViewActionStateRules.taskScopedTaskExecutionActionsEnablement(selection);
+
+        boolean isEnabled = enablement.asBoolean();
         setEnabled(isEnabled);
-        if (isEnabled) {
-            setText(TaskViewMessages.Action_RunTasks_Text);
-            setImageDescriptor(PluginImages.RUN_TASKS.withState(PluginImage.ImageState.ENABLED).getImageDescriptor());
-        } else {
-            setText(TaskViewMessages.Action_RunTasks_Text_Disabled);
-            setImageDescriptor(PluginImages.RUN_TASKS.withState(PluginImage.ImageState.DISABLED).getImageDescriptor());
+        setImageDescriptor(PluginImages.RUN_TASKS.withState(isEnabled ? PluginImages.ImageState.ENABLED : PluginImage.ImageState.DISABLED).getImageDescriptor());
+
+        switch (enablement) {
+            case ENABLED:
+                setText(TaskViewMessages.Action_RunTasks_Text);
+                break;
+            case DISABLED_INCLUDED_BUILD:
+                setText(TaskViewMessages.Action_RunTasks_Text_Disabled_Included);
+                break;
+            case DISABLED_NO_ROOT_PROJECT:
+                setText(TaskViewMessages.Action_RunTasks_Text_Disabled_NonStandard_layout);
+                break;
+            default:
+                setText(TaskViewMessages.Action_RunTasks_Text_Disabled_Other);
+                break;
         }
     }
-
 }

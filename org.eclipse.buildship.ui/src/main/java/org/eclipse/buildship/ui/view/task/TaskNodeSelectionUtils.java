@@ -73,10 +73,12 @@ public final class TaskNodeSelectionUtils {
         Preconditions.checkNotNull(selection);
         List<String> tasks = getTaskPathStrings(selection);
 
-        if (TaskViewActionStateRules.taskScopedTaskExecutionActionsEnabledFor(selection)) {
-            return runConfigAttributesForTask(selection, tasks);
+        if (TaskViewActionStateRules.taskScopedTaskExecutionActionsEnablement(selection).asBoolean()) {
+            TaskNode taskNode = selection.getFirstElement(TaskNode.class);
+            return getRunConfigurationAttributes(taskNode.getParentProjectNode(), tasks);
         } else if (TaskViewActionStateRules.projectScopedTaskExecutionActionsEnabledFor(selection)) {
-            return runConfigAttributesForProject(selection, tasks);
+            ProjectNode projectNode = selection.getFirstElement(ProjectNode.class);
+            return getRunConfigurationAttributes(projectNode, tasks);
         } else {
             throw new IllegalStateException("Unsupported selection: " + selection);
         }
