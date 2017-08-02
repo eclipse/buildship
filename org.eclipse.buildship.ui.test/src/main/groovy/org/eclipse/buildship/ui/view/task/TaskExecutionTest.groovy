@@ -15,6 +15,9 @@ import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils
 
 class TaskExecutionTest extends SwtBotSpecification {
 
+    static String FILE_SEP = File.separator
+    static String LINE_SEP = System.getProperty('line.separator')
+
     ConsoleListener consoleListener
 
     TaskView view
@@ -49,7 +52,7 @@ class TaskExecutionTest extends SwtBotSpecification {
 
     def "Project task executes task on target project only"() {
         setup:
-        def project = sampleProject()
+        def project = sampleHierarchicalProject()
         importAndWait(project)
 
         when:
@@ -68,7 +71,7 @@ class TaskExecutionTest extends SwtBotSpecification {
         String consoleOutput = consoleListener.activeConsole.document.get()
 
         then:
-        consoleOutput.contains("Working Directory: ${project.canonicalPath}${File.separator}sub")
+        consoleOutput.contains("Working Directory: ${project.canonicalPath}${LINE_SEP}")
         !consoleOutput.contains("Running task on project root")
         consoleOutput.contains("Running task on project sub")
         !consoleOutput.contains("Running task on project ss1")
@@ -77,7 +80,7 @@ class TaskExecutionTest extends SwtBotSpecification {
 
     def "Task selector executes task on target project and on all subprojects"() {
         setup:
-        def project = sampleProject()
+        def project = sampleHierarchicalProject()
         importAndWait(project)
 
         when:
@@ -96,36 +99,83 @@ class TaskExecutionTest extends SwtBotSpecification {
         String consoleOutput = consoleListener.activeConsole.document.get()
 
         then:
-        consoleOutput.contains("Working Directory: ${project.canonicalPath}${File.separator}sub")
+        consoleOutput.contains("Working Directory: ${project.canonicalPath}${FILE_SEP}sub${LINE_SEP}")
         !consoleOutput.contains("Running task on project root")
         consoleOutput.contains("Running task on project sub")
         consoleOutput.contains("Running task on project ss1")
         consoleOutput.contains("Running task on project ss2")
     }
 
-    private File sampleProject() {
+    def "Only project tasks are enabled for flat projects"() {
+        setup:
+        def project = sampleFlatProject()
+        importAndWait(project)
+
+        when:
+        bot.viewByTitle('Gradle Tasks').show()
+        tree.setFocus()
+        SWTBotTreeItem groupNode = tree.expandNode('ss1', 'custom')
+
+        then:
+        groupNode.items.size() == 2
+
+        when:
+        groupNode.items[1].select()
+
+        then:
+        !groupNode.items[1].contextMenu(TaskViewMessages.Action_RunTasks_Text_Disabled).enabled
+
+        when:
+        groupNode.items[0].select()
+        groupNode.items[0].doubleClick()
+        waitForConsoleOutput()
+        String consoleOutput = consoleListener.activeConsole.document.get()
+
+        then:
+        consoleOutput.contains("Working Directory: ${project.canonicalPath}${LINE_SEP}")
+        !consoleOutput.contains("Running task on project root")
+        consoleOutput.contains("Running task on project ss1")
+        !consoleOutput.contains("Running task on project ss2")
+    }
+
+    private File sampleHierarchicalProject() {
         dir("root") {
             file 'settings.gradle', """
                 include 'sub', 'sub:ss1', 'sub:ss2'
             """
 
-            file 'build.gradle', """
-                allprojects {
-                    task foo() {
-                        group = 'custom'
-
-                        doLast {
-                            println "Running task on project \$project.name"
-                        }
-                    }
-                }
-            """
+            file 'build.gradle', sampleTaskScript()
 
             dir ('sub') {
                 dir('ss1')
                 dir('ss2')
             }
         }
+    }
+
+    private File sampleFlatProject() {
+        dir('ss1')
+        dir('ss2')
+        dir('root') {
+            file 'build.gradle', sampleTaskScript()
+            file 'settings.gradle', """
+                    includeFlat 'ss1'
+                    includeFlat 'ss2'
+                """
+        }
+    }
+
+    private String sampleTaskScript() {
+        return """
+            allprojects {
+                task foo() {
+                    group = 'custom'
+                     doLast {
+                        println "Running task on project \$project.name"
+                     }
+                 }
+             }
+             """
     }
 
     /*
