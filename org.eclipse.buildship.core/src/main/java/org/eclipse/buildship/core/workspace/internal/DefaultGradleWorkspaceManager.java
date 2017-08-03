@@ -25,6 +25,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.GradleBuilds;
 import org.eclipse.buildship.core.workspace.GradleWorkspaceManager;
@@ -62,10 +63,14 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
     @Override
     public Optional<GradleBuild> getGradleBuild(IProject project) {
         if (GradleProjectNature.isPresentOn(project)) {
-            BuildConfiguration buildConfig = CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
-            return Optional.<GradleBuild>of(new DefaultGradleBuild(buildConfig));
+            ProjectConfiguration projectConfiguration = CorePlugin.configurationManager().tryLoadProjectConfiguration(project);
+            if (projectConfiguration != null) {
+                return Optional.<GradleBuild>of(new DefaultGradleBuild(projectConfiguration.getBuildConfiguration()));
+            } else {
+                return Optional.absent();
+            }
         } else {
-            return Optional.absent();
+            return  Optional.absent();
         }
     }
 
@@ -84,12 +89,8 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
 
             @Override
             public BuildConfiguration apply(IProject project) {
-                try {
-                    return CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
-                } catch(RuntimeException e) {
-                    CorePlugin.logger().debug("Cannot load configuration for project " + project.getName());
-                    return null;
-                }
+                ProjectConfiguration projectConfiguration = CorePlugin.configurationManager().tryLoadProjectConfiguration(project);
+                return projectConfiguration != null ? projectConfiguration.getBuildConfiguration() : null;
             }
         }).filter(Predicates.notNull()).toSet();
     }

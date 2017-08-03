@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
@@ -73,22 +74,41 @@ public final class TaskNodeSelectionUtils {
         List<String> tasks = getTaskPathStrings(selection);
 
         if (TaskViewActionStateRules.taskScopedTaskExecutionActionsEnablement(selection).asBoolean()) {
-            TaskNode taskNode = selection.getFirstElement(TaskNode.class);
-            return getRunConfigurationAttributes(taskNode.getParentProjectNode(), tasks);
+            return runConfigAttributesForTask(selection, tasks);
         } else if (TaskViewActionStateRules.projectScopedTaskExecutionActionsEnabledFor(selection)) {
-            ProjectNode projectNode = selection.getFirstElement(ProjectNode.class);
-            return getRunConfigurationAttributes(projectNode, tasks);
+            return runConfigAttributesForProject(selection, tasks);
         } else {
             throw new IllegalStateException("Unsupported selection: " + selection);
         }
     }
 
+    private static GradleRunConfigurationAttributes runConfigAttributesForTask(NodeSelection selection, List<String> tasks) {
+        TaskNode taskNode = selection.getFirstElement(TaskNode.class);
+        File rootDir = taskNode.getParentProjectNode().getEclipseProject().getRoot().getProjectDirectory();
+        File workingDir = workingDirForTask(taskNode, rootDir);
+        return createARunConfigAttributes(rootDir, workingDir, tasks);
+    }
 
-    private static GradleRunConfigurationAttributes getRunConfigurationAttributes(ProjectNode projectNode, List<String> tasks) {
+    private static File workingDirForTask(TaskNode taskNode, File rootDir) {
+        if (taskNode instanceof ProjectTaskNode) {
+            return rootDir;
+        } else if (taskNode instanceof TaskSelectorNode) {
+            return taskNode.getParentProjectNode().getEclipseProject().getProjectDirectory();
+        } else {
+            throw new GradlePluginsRuntimeException("Unrecognized task type " + taskNode.getClass().getName());
+        }
+    }
+
+    private static GradleRunConfigurationAttributes runConfigAttributesForProject(NodeSelection selection, List<String> tasks) {
+        ProjectNode projectNode = selection.getFirstElement(ProjectNode.class);
         File rootDir = projectNode.getEclipseProject().getRoot().getProjectDirectory();
+        return createARunConfigAttributes(rootDir, rootDir, tasks);
+    }
+
+    private static GradleRunConfigurationAttributes createARunConfigAttributes(File rootDir, File workingDir, List<String> tasks) {
         BuildConfiguration buildConfig = CorePlugin.configurationManager().loadBuildConfiguration(rootDir);
         return new GradleRunConfigurationAttributes(tasks,
-                                                    projectDirectoryExpression(projectNode.getEclipseProject().getProjectDirectory()),
+                                                    projectDirectoryExpression(workingDir),
                                                     GradleDistributionSerializer.INSTANCE.serializeToString(buildConfig.getGradleDistribution()),
                                                     gradleUserHomeExpression(buildConfig.getGradleUserHome()),
                                                     null,
