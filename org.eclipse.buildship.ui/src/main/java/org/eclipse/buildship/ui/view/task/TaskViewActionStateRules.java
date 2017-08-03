@@ -55,35 +55,40 @@ public final class TaskViewActionStateRules {
      * Determines whether the actions related to task execution should be enabled or disabled.
      *
      * @param nodeSelection the node selection based on which to make the decision
-     * @return {@code true} if actions related to task execution should be enabled
+     * @return a classification whether and why the action should be disabled or enabled
      */
-    public static boolean taskScopedTaskExecutionActionsEnabledFor(NodeSelection nodeSelection) {
+    public static TaskScopedActionEnablement taskScopedTaskExecutionActionsEnablement(NodeSelection nodeSelection) {
         // short-circuit in case the selection is empty
         if (nodeSelection.isEmpty()) {
-            return false;
+            return TaskScopedActionEnablement.DISABLED_DEFAULT;
         }
 
         // execution is enabled only if no tasks from included builds are selected and each task is from the same project
         List<?> elements = nodeSelection.toList();
         List<TaskNode> taskNodes = FluentIterable.from(elements).filter(TaskNode.class).toList();
-        if (elements.size() != taskNodes.size() || hasMultipleOrIncludedParentProject(taskNodes)) {
-            return false;
+        if (elements.size() != taskNodes.size()) {
+            return TaskScopedActionEnablement.DISABLED_DEFAULT;
+        }
+
+        if (hasMultipleOrIncludedParentProject(taskNodes)) {
+            return TaskScopedActionEnablement.DISABLED_INCLUDED_BUILD;
         }
 
         // if project tasks are selected only then the execution should be permitted
         List<ProjectTaskNode> projectNodes = FluentIterable.from(elements).filter(ProjectTaskNode.class).toList();
         if (projectNodes.size() == taskNodes.size()) {
-            return true;
+            return TaskScopedActionEnablement.ENABLED;
         }
 
         // if task selectors are selected only then the execution should be permitted if the root project can be found
         List<TaskSelectorNode> taskSelectorNodes = FluentIterable.from(elements).filter(TaskSelectorNode.class).toList();
         if (taskSelectorNodes.size() == taskNodes.size()) {
-            return canFindRootProjects(taskSelectorNodes);
+            boolean hasRootProjects = canFindRootProjects(taskSelectorNodes);
+            return hasRootProjects ? TaskScopedActionEnablement.ENABLED : TaskScopedActionEnablement.DISABLED_NO_ROOT_PROJECT;
         }
 
         // as a default disable the execution
-        return  false;
+        return  TaskScopedActionEnablement.DISABLED_DEFAULT;
     }
 
     private static boolean hasMultipleOrIncludedParentProject(List<TaskNode> nodes) {
@@ -148,4 +153,14 @@ public final class TaskViewActionStateRules {
         return nodeSelection.hasAllNodesOfType(ProjectNode.class) && nodeSelection.isSingleSelection() && !nodeSelection.getFirstElement(ProjectNode.class).isIncludedProject();
     }
 
+    /**
+     * Possible statuses that {@link #taskScopedTaskExecutionActionsEnablement(NodeSelection)} can return.
+     */
+    public enum TaskScopedActionEnablement {
+        ENABLED, DISABLED_DEFAULT, DISABLED_INCLUDED_BUILD, DISABLED_NO_ROOT_PROJECT;
+
+        public boolean asBoolean() {
+            return this == ENABLED;
+        }
+    }
 }

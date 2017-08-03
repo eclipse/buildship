@@ -123,7 +123,7 @@ class TaskExecutionTest extends SwtBotSpecification {
         groupNode.items[1].select()
 
         then:
-        !groupNode.items[1].contextMenu(TaskViewMessages.Action_RunTasks_Text_Disabled).enabled
+        !groupNode.items[1].contextMenu(TaskViewMessages.Action_RunTasks_Text_Disabled_NonStandard_layout).enabled
 
         when:
         groupNode.items[0].select()

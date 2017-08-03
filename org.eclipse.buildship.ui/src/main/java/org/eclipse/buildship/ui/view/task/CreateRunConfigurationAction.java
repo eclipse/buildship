@@ -40,7 +40,7 @@ public final class CreateRunConfigurationAction extends CommandBackedAction impl
 
     @Override
     public boolean isEnabledFor(NodeSelection selection) {
-        return (TaskViewActionStateRules.taskScopedTaskExecutionActionsEnabledFor(selection) ||
+        return (TaskViewActionStateRules.taskScopedTaskExecutionActionsEnablement(selection).asBoolean() ||
                 TaskViewActionStateRules.projectScopedTaskExecutionActionsEnabledFor(selection)) && isValidSelection(selection);
     }
 

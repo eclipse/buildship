@@ -44,7 +44,7 @@ public final class TaskNodeSelectionUtils {
      * @return {@code true} if the the selection can be mapped to a run configuration
      */
     public static boolean isValidRunConfiguration(NodeSelection selection) {
-        return TaskViewActionStateRules.taskScopedTaskExecutionActionsEnabledFor(selection) ||
+        return TaskViewActionStateRules.taskScopedTaskExecutionActionsEnablement(selection).asBoolean() ||
                 TaskViewActionStateRules.projectScopedTaskExecutionActionsEnabledFor(selection);
     }
 
@@ -73,7 +73,7 @@ public final class TaskNodeSelectionUtils {
         Preconditions.checkNotNull(selection);
         List<String> tasks = getTaskPathStrings(selection);
 
-        if (TaskViewActionStateRules.taskScopedTaskExecutionActionsEnabledFor(selection)) {
+        if (TaskViewActionStateRules.taskScopedTaskExecutionActionsEnablement(selection).asBoolean()) {
             return runConfigAttributesForTask(selection, tasks);
         } else if (TaskViewActionStateRules.projectScopedTaskExecutionActionsEnabledFor(selection)) {
             return runConfigAttributesForProject(selection, tasks);
@@ -137,7 +137,7 @@ public final class TaskNodeSelectionUtils {
     }
 
     private static ImmutableList<String> getTaskPathStrings(NodeSelection selection) {
-        if (TaskViewActionStateRules.taskScopedTaskExecutionActionsEnabledFor(selection)) {
+        if (TaskViewActionStateRules.taskScopedTaskExecutionActionsEnablement(selection).asBoolean()) {
             // running the set of project tasks and task selectors
             ImmutableList.Builder<String> taskStrings = ImmutableList.builder();
             for (TaskNode node : selection.toList(TaskNode.class)) {
