@@ -13,8 +13,11 @@ package org.eclipse.buildship.ui.view.task;
 
 import com.google.common.base.Preconditions;
 
+import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.IHandlerService;
@@ -39,14 +42,24 @@ public final class TreeViewerDoubleClickListener implements IDoubleClickListener
 
     @Override
     public void doubleClick(DoubleClickEvent event) {
-        NodeSelection selection = NodeSelection.from(this.treeViewer.getSelection());
-        if (isEnabledFor(selection)) {
+        NodeSelection nodeSelection = NodeSelection.from(this.treeViewer.getSelection());
+        if (isEnabledFor(nodeSelection)) {
             run();
+        } else if (nodeSelection.isSingleSelection()) {
+            Object selected = nodeSelection.toList().get(0);
+            IContentProvider provider = this.treeViewer.getContentProvider();
+            if (provider instanceof ITreeContentProvider && ((ITreeContentProvider) provider).hasChildren(selected)) {
+                if (this.treeViewer.getExpandedState(selected)) {
+                    this.treeViewer.collapseToLevel(selected, AbstractTreeViewer.ALL_LEVELS);
+                } else {
+                    this.treeViewer.expandToLevel(selected, 1);
+                }
+            }
         }
     }
 
     private boolean isEnabledFor(NodeSelection node) {
-        return TaskNodeSelectionUtils.isValidRunConfiguration(node);
+        return TaskViewActionStateRules.taskScopedTaskExecutionActionsEnablement(node).asBoolean();
     }
 
     private void run() {

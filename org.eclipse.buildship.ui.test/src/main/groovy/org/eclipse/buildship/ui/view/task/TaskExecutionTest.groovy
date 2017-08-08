@@ -50,6 +50,63 @@ class TaskExecutionTest extends SwtBotSpecification {
         removeCloseableGradleConsoles()
     }
 
+    def "Double click on node can expand or collapse or execute"() {
+        setup:
+        def project = sampleHierarchicalProject()
+        importAndWait(project)
+
+        when:
+        bot.viewByTitle('Gradle Tasks').show()
+        tree.setFocus()
+        SWTBotTreeItem rootItem = tree.getTreeItem("root")
+
+        then:
+        rootItem.isExpanded() == false
+
+        when:
+        rootItem.doubleClick();
+
+        then:
+        rootItem.isExpanded() == true
+
+        when:
+        SWTBotTreeItem customNode = rootItem.getNode("custom");
+
+        then:
+        customNode.isExpanded() == false
+
+        when:
+        customNode.doubleClick()
+
+        then:
+        customNode.isExpanded() == true
+
+        when:
+        customNode.items[0].doubleClick()
+
+        waitForConsoleOutput()
+        String consoleOutput = consoleListener.activeConsole.document.get()
+
+        then:
+        consoleOutput.contains(":foo")
+        consoleOutput.contains("Running task on project root")
+        !consoleOutput.contains("Running task on project sub")
+        !consoleOutput.contains("Running task on project ss1")
+        !consoleOutput.contains("Running task on project ss2")
+
+        when:
+        customNode.doubleClick()
+
+        then:
+        customNode.isExpanded() == false
+
+        when:
+        rootItem.doubleClick()
+
+        then:
+        rootItem.isExpanded() == false
+    }
+
     def "Project task executes task on target project only"() {
         setup:
         def project = sampleHierarchicalProject()
