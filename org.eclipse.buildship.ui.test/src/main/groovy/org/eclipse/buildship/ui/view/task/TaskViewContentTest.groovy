@@ -19,29 +19,12 @@ import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
-import org.eclipse.jface.viewers.TreeViewer
-import org.eclipse.swt.widgets.Item
-import org.eclipse.swt.widgets.Widget
-import org.eclipse.ui.IWorkbenchPage
-import org.eclipse.ui.PlatformUI
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.notification.UserNotification
-import org.eclipse.buildship.ui.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils
 
-class TaskViewContentSpec extends ProjectSynchronizationSpecification {
-
-    TaskView view
-    TreeViewer tree
-
-    void setup() {
-        runOnUiThread {
-            view = WorkbenchUtils.showView(TaskView.ID, null, IWorkbenchPage.VIEW_ACTIVATE)
-            tree = view.treeViewer
-        }
-        waitForTaskView()
-    }
+class TaskViewContentTest extends BaseTaskViewTest {
 
     def "Task are grouped by default"() {
         when:
@@ -189,22 +172,16 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
     }
 
     private def getTaskTree() {
-        def taskTree
-        runOnUiThread {
-            tree.expandAll()
-            def root = tree.tree
-            taskTree = getChildren(root)
-        }
-        return taskTree
+        getChildren(tree.allItems as List)
     }
 
-    private def getChildren(Widget item) {
-        Item[] children = tree.getChildren(item)
-        if (children.every { tree.getChildren(it).length == 0 }) {
-            return children.collect { it.text }
+    private def getChildren(List<SWTBotTreeItem> nodes) {
+        nodes.each { it.expand() }
+        if (nodes.every { it.items.size() == 0 }) {
+            return nodes.collect { it.text }
         } else {
-            return children.collectEntries {
-                [(it.text) : getChildren(it) ]
+            return nodes.collectEntries {
+                [(it.text) : getChildren(it.items as List) ]
             }
         }
     }
@@ -212,16 +189,5 @@ class TaskViewContentSpec extends ProjectSynchronizationSpecification {
     private def reloadTaskView() {
         view.reload(FetchStrategy.FORCE_RELOAD)
         waitForTaskView()
-    }
-
-    /*
-     * The task view is refreshed whenever a project is added/removed.
-     * So first we need to wait for this addition/removal event.
-     * The task view starts a synchronization job to get the latest model and that job then synchronously updates the view.
-     * We need to wait for that job to finish before the task view is guaranteed to be up-to-date.
-     */
-    private waitForTaskView() {
-        waitForResourceChangeEvents()
-        waitForGradleJobsToFinish()
     }
 }
