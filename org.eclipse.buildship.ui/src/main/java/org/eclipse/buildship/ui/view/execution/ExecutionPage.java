@@ -37,9 +37,12 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.swt.SWT;
@@ -313,24 +316,38 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         RunTestAction runTestAction = new RunTestAction(this);
         ShowFailureAction showFailureAction = new ShowFailureAction(this);
         OpenTestSourceFileAction openTestSourceFileAction = new OpenTestSourceFileAction(this);
-        ExpandTreeNodesAction expandNodesAction = new ExpandTreeNodesAction(treeViewer);
-        CollapseTreeNodesAction collapseNodesAction = new CollapseTreeNodesAction(treeViewer);
 
-        List<SelectionSpecificAction> contextMenuActions = ImmutableList.<SelectionSpecificAction>of(runTestAction, showFailureAction, openTestSourceFileAction, expandNodesAction, collapseNodesAction);
-        List<SelectionSpecificAction> contextMenuActionsPrecededBySeparator = ImmutableList.<SelectionSpecificAction>of(openTestSourceFileAction, expandNodesAction);
+        List<SelectionSpecificAction> contextMenuActions = ImmutableList.<SelectionSpecificAction>of(runTestAction, showFailureAction, openTestSourceFileAction);
+
+        List<SelectionSpecificAction> contextMenuActionsPrecededBySeparator = ImmutableList.<SelectionSpecificAction>of(openTestSourceFileAction);
         ImmutableList<SelectionSpecificAction> contextMenuActionsSucceededBySeparator = ImmutableList.of();
 
         return new ActionShowingContextMenuListener(this, contextMenuActions, contextMenuActionsPrecededBySeparator, contextMenuActionsSucceededBySeparator);
     }
 
     private void registerListeners() {
-        // navigate to source file on double click or when pressing enter
+        // navigate to source file or expand or collapse group node on double click or when pressing enter
         getPageControl().getViewer().addDoubleClickListener(new IDoubleClickListener() {
 
             @Override
             public void doubleClick(DoubleClickEvent event) {
+                NodeSelection nodeSelection = NodeSelection.from(event.getSelection());
                 OpenTestSourceFileAction openTestSourceFileAction = new OpenTestSourceFileAction(ExecutionPage.this);
-                openTestSourceFileAction.run();
+
+                if (openTestSourceFileAction.isVisibleFor(nodeSelection) && openTestSourceFileAction.isEnabledFor(nodeSelection)) {
+                    openTestSourceFileAction.run();
+                } else if (nodeSelection.isSingleSelection()) {
+                    Object selected = nodeSelection.toList().get(0);
+                    TreeViewer viewer = getPageControl().getViewer();
+                    IContentProvider provider = viewer.getContentProvider();
+                    if (provider instanceof ITreeContentProvider && ((ITreeContentProvider) provider).hasChildren(selected)) {
+                        if (viewer.getExpandedState(selected)) {
+                            viewer.collapseToLevel(selected, AbstractTreeViewer.ALL_LEVELS);
+                        } else {
+                            viewer.expandToLevel(selected, 1);
+                        }
+                    }
+                }
             }
         });
     }

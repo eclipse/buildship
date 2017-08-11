@@ -13,11 +13,14 @@ package org.eclipse.buildship.ui.util.nodeselection;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+
+import java.util.List;
+
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
 
-import java.util.List;
+import org.eclipse.buildship.ui.view.NoActionsAvailableAction;
 
 /**
  * Adds {@link SelectionSpecificAction} instances as menu items to the context menu of the provided
@@ -47,8 +50,10 @@ public final class ActionShowingContextMenuListener implements IMenuListener {
     }
 
     private void handleSelection(IMenuManager manager, NodeSelection selection) {
+        boolean isEmpty = true;
         for (SelectionSpecificAction action : this.actions) {
             if (action.isVisibleFor(selection)) {
+                isEmpty = false;
                 // add preceding separator if requested
                 if (this.actionsPrecededBySeparator.contains(action)) {
                     manager.add(new Separator());
@@ -63,6 +68,10 @@ public final class ActionShowingContextMenuListener implements IMenuListener {
                     manager.add(new Separator());
                 }
             }
+        }
+
+        if (isEmpty) {
+            manager.add(new NoActionsAvailableAction());
         }
     }
 
