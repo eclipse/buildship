@@ -66,7 +66,7 @@
             point="org.eclipse.ui.editors">
       <editor
             id="org.eclipse.buildship.ui.gradlebuildscripteditor"
-            class="org.eclipse.ui.editors.text.TextEditor"
+            class=" org.eclipse.buildship.ui.editor.GradleEditor"
             icon="icons/full/obj16/gradle_file.png"
             name="Gradle Build Script Editor"
             default="false"
@@ -534,6 +534,12 @@
              id="org.eclipse.buildship.ui.preferences"
              name="Gradle">
        </page>
+       <page
+             category="org.eclipse.buildship.ui.preferences"
+             class="org.eclipse.buildship.ui.preferences.GradleEditorPreferencePage"
+             id="org.eclipse.buildship.ui.preferences.GradleEditorPreferencePage"
+             name="Editor">
+       </page>
     </extension>
 
     <!-- Add the "Gradle" menu to the project preferences -->
@@ -549,5 +555,11 @@
            </adapt>
          </enabledWhen>
        </page>
+    </extension>
+    <extension
+          point="org.eclipse.core.runtime.preferences">
+       <initializer
+             class="org.eclipse.buildship.ui.preferences.GradleEditorPreferenceInitializer">
+       </initializer>
     </extension>
 </plugin>
