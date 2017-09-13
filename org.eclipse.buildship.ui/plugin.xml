@@ -567,7 +567,7 @@
           point="org.eclipse.ui.genericeditor.presentationReconcilers">
        <presentationReconciler
              class="org.eclipse.buildship.ui.editor.GradlePresentationReconciler"
-             contentType="org.eclipse.jdt.groovy.core.gradleScript">
+             contentType="org.eclipse.buildship.core.gradleScript">
        </presentationReconciler>
     </extension>
 </plugin>

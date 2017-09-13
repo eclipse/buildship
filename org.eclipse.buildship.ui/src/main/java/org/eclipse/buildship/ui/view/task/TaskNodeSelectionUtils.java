@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     Etienne Studer & Don√°t Csik√≥s (Gradle Inc.) - initial API and implementation and initial documentation
+ *     Etienne Studer & Don·t CsikÛs (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
 package org.eclipse.buildship.ui.view.task;
@@ -44,7 +44,7 @@ public final class TaskNodeSelectionUtils {
      * @return {@code true} if the the selection can be mapped to a run configuration
      */
     public static boolean isValidRunConfiguration(NodeSelection selection) {
-        return TaskViewActionStateRules.taskScopedTaskExecutionActionsEnabledFor(selection) ||
+        return TaskViewActionStateRules.taskScopedTaskExecutionActionsEnablement(selection).asBoolean() ||
                 TaskViewActionStateRules.projectScopedTaskExecutionActionsEnabledFor(selection);
     }
 
@@ -74,11 +74,9 @@ public final class TaskNodeSelectionUtils {
         List<String> tasks = getTaskPathStrings(selection);
 
         if (TaskViewActionStateRules.taskScopedTaskExecutionActionsEnablement(selection).asBoolean()) {
-            TaskNode taskNode = selection.getFirstElement(TaskNode.class);
-            return getRunConfigurationAttributes(taskNode.getParentProjectNode(), tasks);
+            return runConfigAttributesForTask(selection, tasks);
         } else if (TaskViewActionStateRules.projectScopedTaskExecutionActionsEnabledFor(selection)) {
-            ProjectNode projectNode = selection.getFirstElement(ProjectNode.class);
-            return getRunConfigurationAttributes(projectNode, tasks);
+            return runConfigAttributesForProject(selection, tasks);
         } else {
             throw new IllegalStateException("Unsupported selection: " + selection);
         }
@@ -139,7 +137,7 @@ public final class TaskNodeSelectionUtils {
     }
 
     private static ImmutableList<String> getTaskPathStrings(NodeSelection selection) {
-        if (TaskViewActionStateRules.taskScopedTaskExecutionActionsEnabledFor(selection)) {
+        if (TaskViewActionStateRules.taskScopedTaskExecutionActionsEnablement(selection).asBoolean()) {
             // running the set of project tasks and task selectors
             ImmutableList.Builder<String> taskStrings = ImmutableList.builder();
             for (TaskNode node : selection.toList(TaskNode.class)) {
