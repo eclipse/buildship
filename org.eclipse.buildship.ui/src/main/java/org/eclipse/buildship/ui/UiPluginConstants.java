@@ -72,6 +72,8 @@ public final class UiPluginConstants {
 
     public static final String IMPORT_WIZARD_ID = "org.eclipse.buildship.ui.wizards.project.import";
 
+    public static final String REFRESHPROJECT_COMMAND_ID = "org.eclipse.buildship.ui.commands.refreshproject";
+
     private UiPluginConstants() {
     }
 
