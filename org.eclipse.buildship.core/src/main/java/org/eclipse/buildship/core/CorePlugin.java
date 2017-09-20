@@ -36,8 +36,11 @@ import org.eclipse.buildship.core.console.internal.StdProcessStreamsProvider;
 import org.eclipse.buildship.core.event.ListenerRegistry;
 import org.eclipse.buildship.core.event.internal.DefaultListenerRegistry;
 import org.eclipse.buildship.core.invocation.InvocationCustomizer;
+import org.eclipse.buildship.core.launch.ExternalLaunchConfigurationManager;
 import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
+import org.eclipse.buildship.core.launch.internal.DefaultExternalLaunchConfigurationManager;
 import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager;
+import org.eclipse.buildship.core.launch.internal.LaunchConfigurationListener;
 import org.eclipse.buildship.core.notification.UserNotification;
 import org.eclipse.buildship.core.notification.internal.ConsoleUserNotification;
 import org.eclipse.buildship.core.preferences.ModelPersistence;
@@ -103,6 +106,8 @@ public final class CorePlugin extends Plugin {
     private ProjectChangeListener projectChangeListener;
     private InvocationCustomizer invocationCustomizer;
     private ConfigurationManager configurationManager;
+    private LaunchConfigurationListener launchConfigListener;
+    private DefaultExternalLaunchConfigurationManager externalLaunchConfiguratioManager;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
@@ -159,6 +164,8 @@ public final class CorePlugin extends Plugin {
         this.projectChangeListener = ProjectChangeListener.createAndRegister();
         this.invocationCustomizer = new InvocationCustomizerCollector();
         this.configurationManager = new DefaultConfigurationManager();
+        this.launchConfigListener = LaunchConfigurationListener.createAndRegister();
+        this.externalLaunchConfiguratioManager = new DefaultExternalLaunchConfigurationManager();
     }
 
     private ServiceTracker createServiceTracker(BundleContext context, Class<?> clazz) {
@@ -213,6 +220,7 @@ public final class CorePlugin extends Plugin {
     }
 
     private void unregisterServices() {
+        this.launchConfigListener.unregister();
         this.projectChangeListener.close();
         this.modelPersistence.close();
         this.userNotificationService.unregister();
@@ -292,5 +300,9 @@ public final class CorePlugin extends Plugin {
 
     public static ConfigurationManager configurationManager() {
         return getInstance().configurationManager;
+    }
+
+    public static ExternalLaunchConfigurationManager externalLaunchConfigurationManager() {
+        return getInstance().externalLaunchConfiguratioManager;
     }
 }

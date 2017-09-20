@@ -14,6 +14,7 @@ package org.eclipse.buildship.core.configuration.internal;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectBuilder;
 
 /**
@@ -40,11 +41,13 @@ public final class DefaultGradleProjectNature implements IProjectNature {
     @Override
     public void configure() {
         GradleProjectBuilder.configureOnProject(this.project);
+        CorePlugin.externalLaunchConfigurationManager().updateClasspathProviders(this.project);
     }
 
     @Override
     public void deconfigure() {
         GradleProjectBuilder.deconfigureOnProject(this.project);
+        CorePlugin.externalLaunchConfigurationManager().updateClasspathProviders(this.project);
     }
 
 }
