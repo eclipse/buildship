@@ -118,9 +118,7 @@ public final class GradleClasspathProvider extends StandardClasspathProvider imp
      * From JavaRuntime.resolveRuntimeClasspathEntry()
      */
     private static boolean isOptional(IClasspathEntry entry) {
-        IClasspathAttribute[] extraAttributes = entry.getExtraAttributes();
-        for (int i = 0, length = extraAttributes.length; i < length; i++) {
-            IClasspathAttribute attribute = extraAttributes[i];
+        for (IClasspathAttribute attribute : entry.getExtraAttributes()) {
             if (IClasspathAttribute.OPTIONAL.equals(attribute.getName()) && Boolean.parseBoolean(attribute.getValue())) {
                 return true;
             }
@@ -135,16 +133,22 @@ public final class GradleClasspathProvider extends StandardClasspathProvider imp
     private static IRuntimeClasspathEntry[] resolveOutputLocations(IJavaProject project, ILaunchConfiguration configuration, Set<String> mainClassSourceSets, int classpathProperty)
             throws CoreException {
         List<IPath> nonDefault = new ArrayList<>();
+
+        boolean hasSourceFolderWithoutCustomOutput = false;
+
         if (project.exists() && project.getProject().isOpen()) {
             IClasspathEntry entries[] = project.getRawClasspath();
-            for (int i = 0; i < entries.length; i++) {
-                IClasspathEntry classpathEntry = entries[i];
+            for (IClasspathEntry classpathEntry : entries) {
                 if (classpathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
 
+                    // only add the output location if it's in the same source set
                     if (SourceSetCollector.isEntryInSourceSets(classpathEntry, mainClassSourceSets)) {
                         IPath path = classpathEntry.getOutputLocation();
                         if (path != null) {
                             nonDefault.add(path);
+                        } else {
+                            // only use the default output if there's at least one source folder that doesn't have a custom output location
+                            hasSourceFolderWithoutCustomOutput = true;
                         }
                     }
                 }
@@ -155,7 +159,7 @@ public final class GradleClasspathProvider extends StandardClasspathProvider imp
         }
 
         IPath def = project.getOutputLocation();
-        if (!nonDefault.contains(def)) {
+        if (!nonDefault.contains(def) && hasSourceFolderWithoutCustomOutput) {
             nonDefault.add(def);
         }
         IRuntimeClasspathEntry[] locations = new IRuntimeClasspathEntry[nonDefault.size()];
