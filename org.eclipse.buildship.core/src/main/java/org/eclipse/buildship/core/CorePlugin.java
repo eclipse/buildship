@@ -179,7 +179,7 @@ public final class CorePlugin extends Plugin {
     }
 
     private EclipseLogger createLogger() {
-        return new EclipseLogger(getLog(), PLUGIN_ID, isDebugging());
+        return new EclipseLogger(getLog(), PLUGIN_ID);
     }
 
     private PublishedGradleVersionsWrapper createPublishedGradleVersions() {

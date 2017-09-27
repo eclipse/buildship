@@ -99,7 +99,7 @@ public final class UiPlugin extends AbstractUIPlugin {
     }
 
     private EclipseLogger createLogger() {
-        return new EclipseLogger(getLog(), PLUGIN_ID, isDebugging());
+        return new EclipseLogger(getLog(), PLUGIN_ID);
     }
 
     private ProcessStreamsProvider createConsoleProcessStreamsProvider() {

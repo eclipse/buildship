@@ -11,10 +11,16 @@
 
 package org.eclipse.buildship.core.util.logging;
 
-import org.eclipse.buildship.core.Logger;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+
+import org.eclipse.buildship.core.Logger;
 
 /**
  * Logs to the Eclipse logging infrastructure. Only logs debug information if tracing is enabled.
@@ -25,24 +31,36 @@ public final class EclipseLogger implements Logger {
 
     private final ILog log;
     private final String pluginId;
-    private final boolean isDebugging;
+    private final DebugOptionsManager debugOptionsManager;
 
-    public EclipseLogger(ILog log, String pluginId, boolean isDebugging) {
+    public EclipseLogger(ILog log, String pluginId) {
         this.log = log;
         this.pluginId = pluginId;
-        this.isDebugging = isDebugging;
+        this.debugOptionsManager = new DebugOptionsManager(pluginId);
+    }
+
+    @Override
+    public boolean isTraceCategoryEnabled(String category) {
+        return this.debugOptionsManager.isDebugOptionEnabled(category);
+    }
+
+    @Override
+    public void trace(String category, String message) {
+        if (isTraceCategoryEnabled(category)) {
+            this.log.log(new Status(IStatus.INFO, this.pluginId, message));
+        }
     }
 
     @Override
     public void debug(String message) {
-        if (this.isDebugging) {
+        if (this.debugOptionsManager.isDebugging()) {
             this.log.log(new Status(IStatus.INFO, this.pluginId, message));
         }
     }
 
     @Override
     public void debug(String message, Throwable t) {
-        if (this.isDebugging) {
+        if (this.debugOptionsManager.isDebugging()) {
             this.log.log(new Status(IStatus.INFO, this.pluginId, message, t));
         }
     }
@@ -77,4 +95,26 @@ public final class EclipseLogger implements Logger {
         this.log.log(new Status(IStatus.ERROR, this.pluginId, message, t));
     }
 
+
+    private static class DebugOptionsManager {
+        private final LoadingCache<String, Boolean> debugOptions;
+
+        public DebugOptionsManager(final String pluginId) {
+            this.debugOptions = CacheBuilder.newBuilder().build(new CacheLoader<String, Boolean>() {
+
+                @Override
+                public Boolean load(String key) throws Exception {
+                    return "true".equals(Platform.getDebugOption(pluginId + "/" + key));
+                }
+            });
+        }
+
+        public boolean isDebugging() {
+            return this.debugOptions.getUnchecked("debug");
+        }
+
+        public boolean isDebugOptionEnabled(String option) {
+            return this.debugOptions.getUnchecked("debug/" + option);
+        }
+    }
 }

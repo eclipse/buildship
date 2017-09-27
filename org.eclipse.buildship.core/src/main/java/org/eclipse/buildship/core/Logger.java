@@ -38,12 +38,28 @@ package org.eclipse.buildship.core;
 public interface Logger {
 
     /**
+     * Returns {@code true} if platform tracing is enabled for the given category.
+     *
+     * @param category the target category
+     * @return if tracing is enabled
+     */
+    boolean isTraceCategoryEnabled(String category);
+
+    /**
+     * Logs an entry with {@link org.eclipse.core.runtime.IStatus#INFO} severity in Eclipse's log if
+     * tracing is enabled for the given category.
+     *
+     * @param category the given debug option need to be enabled to log the message
+     * @param message the information to log
+     */
+    void trace(String category, String message);
+
+    /**
      * Logs an entry with {@link org.eclipse.core.runtime.IStatus#INFO} severity in Eclipse's log if tracing is enabled.
      *
      * @param message the information to log
      */
     void debug(String message);
-
 
     /**
      * Logs an entry with {@link org.eclipse.core.runtime.IStatus#INFO} severity in Eclipse's log if tracing is enabled.
