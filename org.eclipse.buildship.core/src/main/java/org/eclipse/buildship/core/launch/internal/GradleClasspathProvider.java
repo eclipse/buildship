@@ -14,10 +14,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.collect.Lists;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -31,6 +35,9 @@ import org.eclipse.jdt.launching.IRuntimeClasspathProvider;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.StandardClasspathProvider;
 
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.Logger;
+
 /**
  * Classpath provider for Gradle projects which filters the project output folders based on the
  * Gradle source set information.
@@ -41,6 +48,9 @@ import org.eclipse.jdt.launching.StandardClasspathProvider;
 public final class GradleClasspathProvider extends StandardClasspathProvider implements IRuntimeClasspathProvider {
 
     public static final String ID = "org.eclipse.buildship.core.classpathprovider";
+
+    private static final String TRACE_CATEGORY = "gradleClasspathProvider";
+    private static final IRuntimeClasspathEntry[] EMPTY_RESULT = new IRuntimeClasspathEntry[0];
 
     public GradleClasspathProvider() {
         super();
@@ -54,8 +64,7 @@ public final class GradleClasspathProvider extends StandardClasspathProvider imp
     @Override
     public IRuntimeClasspathEntry[] resolveClasspath(IRuntimeClasspathEntry[] entries, ILaunchConfiguration configuration) throws CoreException {
         Set<IRuntimeClasspathEntry> result = new LinkedHashSet<>(entries.length);
-        for (int i = 0; i < entries.length; i++) {
-            IRuntimeClasspathEntry entry = entries[i];
+        for (IRuntimeClasspathEntry entry : entries) {
             switch (entry.getType()) {
                 case IRuntimeClasspathEntry.OTHER:
                     Collections.addAll(result, resolveOther(entry, configuration));
@@ -69,7 +78,15 @@ public final class GradleClasspathProvider extends StandardClasspathProvider imp
             }
         }
 
+        traceResult(configuration, result);
         return result.toArray(new IRuntimeClasspathEntry[result.size()]);
+    }
+
+    private void traceResult(ILaunchConfiguration configuration, Set<IRuntimeClasspathEntry> result) {
+        Logger logger = CorePlugin.logger();
+        if (logger.isTraceCategoryEnabled(TRACE_CATEGORY)) {
+            logger.trace(TRACE_CATEGORY, String.format("Classpath for %s: %s", configuration.getName(), result));
+        }
     }
 
     private IRuntimeClasspathEntry[] resolveOther(IRuntimeClasspathEntry entry, ILaunchConfiguration configuration) throws CoreException {
@@ -79,7 +96,7 @@ public final class GradleClasspathProvider extends StandardClasspathProvider imp
         // replaced with a resolveClasspath() call. This way we can intercept the project entry
         // resolution and replace it with the resolveProject() method.
         if (entry instanceof DefaultProjectClasspathEntry) {
-            List<IRuntimeClasspathEntry> result = new ArrayList<>();
+            List<IRuntimeClasspathEntry> result = new ArrayList<IRuntimeClasspathEntry>();
             for (IRuntimeClasspathEntry e : ((IRuntimeClasspathEntry2) entry).getRuntimeClasspathEntries(configuration)) {
                 Collections.addAll(result, resolveClasspath(new IRuntimeClasspathEntry[] { e }, configuration));
             }
@@ -89,34 +106,38 @@ public final class GradleClasspathProvider extends StandardClasspathProvider imp
         }
     }
 
-    /*
-     * From JavaRuntime.resolveRuntimeClasspathEntry()
-     */
     private IRuntimeClasspathEntry[] resolveProject(IRuntimeClasspathEntry entry, ILaunchConfiguration configuration) throws CoreException {
-        Set<String> mainClassSourceSets = SourceSetCollector.mainClassSourceSets(configuration);
-
         IResource resource = entry.getResource();
         if (resource instanceof IProject) {
-            IProject p = (IProject) resource;
-            IJavaProject project = JavaCore.create(p);
-            if (project == null || !p.isOpen() || !project.exists()) {
-                return new IRuntimeClasspathEntry[0];
-            }
-            IRuntimeClasspathEntry[] entries = resolveOutputLocations(project, configuration, mainClassSourceSets, entry.getClasspathProperty());
-            if (entries != null) {
-                return entries;
-            }
+            return resolveProject(entry, (IProject) resource, configuration);
         } else {
-            if (isOptional(entry.getClasspathEntry())) {
-                return new IRuntimeClasspathEntry[] {};
-            }
+            return resolveOptional(entry);
         }
-        return new IRuntimeClasspathEntry[] { entry };
     }
 
-    /*
-     * From JavaRuntime.resolveRuntimeClasspathEntry()
-     */
+    private IRuntimeClasspathEntry[] resolveProject(IRuntimeClasspathEntry projectEntry, IProject project, ILaunchConfiguration configuration) throws CoreException {
+        if (!project.isOpen()) {
+            return EMPTY_RESULT;
+        }
+
+        IJavaProject javaProject = JavaCore.create(project);
+        if (javaProject == null || !javaProject.exists()) {
+            return EMPTY_RESULT;
+        }
+
+        Set<String> mainClassSourceSets = SourceSetCollector.mainClassSourceSets(configuration);
+        return resolveOutputLocations(projectEntry, javaProject, mainClassSourceSets);
+    }
+
+    private IRuntimeClasspathEntry[] resolveOptional(IRuntimeClasspathEntry entry) throws CoreException {
+        if (isOptional(entry.getClasspathEntry())) {
+            return EMPTY_RESULT;
+        } else {
+            throw new CoreException(new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID,
+                    String.format("The project: %s which is referenced by the classpath, does not \n" + " exist", entry.getPath().lastSegment())));
+        }
+    }
+
     private static boolean isOptional(IClasspathEntry entry) {
         for (IClasspathAttribute attribute : entry.getExtraAttributes()) {
             if (IClasspathAttribute.OPTIONAL.equals(attribute.getName()) && Boolean.parseBoolean(attribute.getValue())) {
@@ -126,48 +147,44 @@ public final class GradleClasspathProvider extends StandardClasspathProvider imp
         return false;
     }
 
-    /*
-     * From JavaRuntime.resolveRuntimeClasspathEntry(). The output directory is only added to the
-     * classpath if the main class and the source folder are in the same source set.
-     */
-    private static IRuntimeClasspathEntry[] resolveOutputLocations(IJavaProject project, ILaunchConfiguration configuration, Set<String> mainClassSourceSets, int classpathProperty)
+    private static IRuntimeClasspathEntry[] resolveOutputLocations(IRuntimeClasspathEntry projectEntry, IJavaProject project, Set<String> mainClassSourceSets)
             throws CoreException {
-        List<IPath> nonDefault = new ArrayList<>();
-
+        List<IPath> outputLocations = Lists.newArrayList();
         boolean hasSourceFolderWithoutCustomOutput = false;
 
         if (project.exists() && project.getProject().isOpen()) {
-            IClasspathEntry entries[] = project.getRawClasspath();
-            for (IClasspathEntry classpathEntry : entries) {
-                if (classpathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+            for (IClasspathEntry entry : project.getRawClasspath()) {
+                if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
 
                     // only add the output location if it's in the same source set
-                    if (SourceSetCollector.isEntryInSourceSets(classpathEntry, mainClassSourceSets)) {
-                        IPath path = classpathEntry.getOutputLocation();
+                    if (SourceSetCollector.isEntryInSourceSets(entry, mainClassSourceSets)) {
+                        IPath path = entry.getOutputLocation();
                         if (path != null) {
-                            nonDefault.add(path);
+                            outputLocations.add(path);
                         } else {
-                            // only use the default output if there's at least one source folder that doesn't have a custom output location
+                            // only use the default output if there's at least one source folder
+                            // that doesn't have a custom output location
                             hasSourceFolderWithoutCustomOutput = true;
                         }
                     }
                 }
             }
         }
-        if (nonDefault.isEmpty()) {
-            return null;
+
+        if (outputLocations.isEmpty()) {
+            return new IRuntimeClasspathEntry[] { projectEntry };
         }
 
-        IPath def = project.getOutputLocation();
-        if (!nonDefault.contains(def) && hasSourceFolderWithoutCustomOutput) {
-            nonDefault.add(def);
+        IPath defaultOutputLocation = project.getOutputLocation();
+        if (!outputLocations.contains(defaultOutputLocation) && hasSourceFolderWithoutCustomOutput) {
+            outputLocations.add(defaultOutputLocation);
         }
-        IRuntimeClasspathEntry[] locations = new IRuntimeClasspathEntry[nonDefault.size()];
-        for (int i = 0; i < locations.length; i++) {
-            IClasspathEntry newEntry = JavaCore.newLibraryEntry(nonDefault.get(i), null, null);
-            locations[i] = new RuntimeClasspathEntry(newEntry);
-            locations[i].setClasspathProperty(classpathProperty);
+
+        IRuntimeClasspathEntry[] result = new IRuntimeClasspathEntry[outputLocations.size()];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = new RuntimeClasspathEntry(JavaCore.newLibraryEntry(outputLocations.get(i), null, null));
+            result[i].setClasspathProperty(projectEntry.getClasspathProperty());
         }
-        return locations;
+        return result;
     }
 }
