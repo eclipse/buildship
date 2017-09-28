@@ -65,7 +65,7 @@
     <extension
             point="org.eclipse.ui.editors">
       <editor
-            class="org.eclipse.ui.internal.genericeditor.ExtensionBasedTextEditor"
+            class="org.eclipse.buildship.ui.editor.GradleEditor"
             contributorClass="org.eclipse.buildship.ui.editor.GradleEditorContributor"
             default="false"
             extensions="gradle"
@@ -535,12 +535,6 @@
              id="org.eclipse.buildship.ui.preferences"
              name="Gradle">
        </page>
-       <page
-             category="org.eclipse.buildship.ui.preferences"
-             class="org.eclipse.buildship.ui.preferences.GradleEditorPreferencePage"
-             id="org.eclipse.buildship.ui.preferences.GradleEditorPreferencePage"
-             name="Editor">
-       </page>
     </extension>
 
     <!-- Add the "Gradle" menu to the project preferences -->
@@ -558,16 +552,17 @@
        </page>
     </extension>
     <extension
-          point="org.eclipse.core.runtime.preferences">
-       <initializer
-             class="org.eclipse.buildship.ui.preferences.GradleEditorPreferenceInitializer">
-       </initializer>
-    </extension>
-    <extension
           point="org.eclipse.ui.genericeditor.presentationReconcilers">
        <presentationReconciler
              class="org.eclipse.buildship.ui.editor.GradlePresentationReconciler"
              contentType="org.eclipse.buildship.core.files.gradlebuildscript">
        </presentationReconciler>
+    </extension>
+    <extension
+          point="org.eclipse.core.filebuffers.documentSetup">
+       <participant
+             class="org.eclipse.buildship.ui.editor.GradleDocumentSetupParticipant"
+             contentTypeId="org.eclipse.buildship.core.files.gradlebuildscript">
+       </participant>
     </extension>
 </plugin>
