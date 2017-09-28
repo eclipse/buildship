@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.gradle.script.lang.kotlin.tooling.models.KotlinBuildScriptTemplateModel;
+import org.gradle.kotlin.dsl.tooling.models.KotlinBuildScriptTemplateModel;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
 import org.jetbrains.kotlin.core.model.ScriptTemplateProviderEx;
@@ -112,7 +112,7 @@ public final class GradleKotlinScriptTemplateProvider implements ScriptTemplateP
 
     @Override
     public Map<String, Object> getEnvironment(IFile file) {
-        HashMap<String, Object> environment = new HashMap<String, Object>();
+        HashMap<String, Object> environment = new HashMap<>();
         BuildConfiguration buildConfig = CorePlugin.configurationManager().loadProjectConfiguration(file.getProject()).getBuildConfiguration();
 
         environment.put(GSK_PROJECT_ROOT, buildConfig.getRootProjectDirectory());
@@ -141,7 +141,7 @@ public final class GradleKotlinScriptTemplateProvider implements ScriptTemplateP
 
     @Override
     public String getTemplateClassName() {
-        return "org.gradle.script.lang.kotlin.KotlinBuildScript";
+        return "org.gradle.kotlin.dsl.KotlinBuildScript";
     }
 
     private URI createURI(String uri) {

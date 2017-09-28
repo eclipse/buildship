@@ -81,8 +81,8 @@
     <extension point="org.eclipse.core.contenttype.contentTypes">
       <content-type
            file-extensions="gradle"
-           id="org.eclipse.buildship.core.gradleScript"
-           name="Gradle Build File"
+           id="org.eclipse.buildship.core.files.gradlebuildscript"
+           name="Gradle Build Script"
            priority="low"
       />
    </extension>
