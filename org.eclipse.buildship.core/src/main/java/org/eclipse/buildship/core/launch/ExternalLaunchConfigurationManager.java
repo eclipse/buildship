@@ -23,6 +23,8 @@ import org.eclipse.debug.core.ILaunchConfiguration;
  */
 public interface ExternalLaunchConfigurationManager {
 
+    // TODO (donat) There's probably no need to have the interface-implementation separation. Just paste the impl here.
+
     /**
      * Iterates through the existing run configurations and calls
      * {@link #updateClasspathProvider(ILaunchConfiguration)} on the ones that refer to the target
