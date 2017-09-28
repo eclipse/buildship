@@ -65,12 +65,13 @@
     <extension
             point="org.eclipse.ui.editors">
       <editor
-            id="org.eclipse.buildship.ui.gradlebuildscripteditor"
-            class="org.eclipse.ui.editors.text.TextEditor"
-            icon="icons/full/obj16/gradle_file.png"
-            name="Gradle Build Script Editor"
+            class="org.eclipse.buildship.ui.editor.GradleEditor"
+            contributorClass="org.eclipse.buildship.ui.editor.GradleEditorContributor"
             default="false"
-            extensions="gradle">
+            extensions="gradle"
+            icon="icons/full/obj16/gradle_file.png"
+            id="org.eclipse.buildship.ui.gradlebuildscripteditor"
+            name="Gradle Build Script Editor">
       </editor>
     </extension>
 
@@ -549,5 +550,19 @@
            </adapt>
          </enabledWhen>
        </page>
+    </extension>
+    <extension
+          point="org.eclipse.ui.genericeditor.presentationReconcilers">
+       <presentationReconciler
+             class="org.eclipse.buildship.ui.editor.GradlePresentationReconciler"
+             contentType="org.eclipse.buildship.core.files.gradlebuildscript">
+       </presentationReconciler>
+    </extension>
+    <extension
+          point="org.eclipse.core.filebuffers.documentSetup">
+       <participant
+             class="org.eclipse.buildship.ui.editor.GradleDocumentSetupParticipant"
+             contentTypeId="org.eclipse.buildship.core.files.gradlebuildscript">
+       </participant>
     </extension>
 </plugin>

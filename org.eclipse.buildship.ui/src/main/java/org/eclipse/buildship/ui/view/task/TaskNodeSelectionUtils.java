@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     Etienne Studer & Don√°t Csik√≥s (Gradle Inc.) - initial API and implementation and initial documentation
+ *     Etienne Studer & Don·t CsikÛs (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
 package org.eclipse.buildship.ui.view.task;

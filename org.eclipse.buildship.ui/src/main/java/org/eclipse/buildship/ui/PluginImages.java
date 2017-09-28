@@ -14,16 +14,15 @@ package org.eclipse.buildship.ui;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-
+import org.eclipse.buildship.ui.util.image.ImageUtils;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
 
-import org.eclipse.buildship.ui.util.image.ImageUtils;
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Enumerates all the images used in this plugin. Uses the {@link ImageRegistry} provided by the
@@ -64,7 +63,8 @@ public enum PluginImages implements PluginImage {
     PROJECT(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/project.png")),
     JAVA_PROJECT(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/java_project.png")),
     FAULTY_PROJECT(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/faulty_project.png")),
-    BUILD_SCAN(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/build_scan.png", ImageState.DISABLED, "icons/full/obj16/build_scan_disabled.png"));
+    BUILD_SCAN(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/build_scan.png", ImageState.DISABLED, "icons/full/obj16/build_scan_disabled.png")),
+	GRADLE_FILE(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/gradle_file.png"));
     // @formatter:on
 
     private final ImmutableMap<ImageState, String> images;
