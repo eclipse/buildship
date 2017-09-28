@@ -2,18 +2,14 @@ package org.eclipse.buildship.ui.view.execution
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
-import org.eclipse.debug.core.DebugPlugin
 import org.eclipse.debug.core.ILaunch
-import org.eclipse.debug.core.ILaunchConfigurationType
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy
-import org.eclipse.debug.core.ILaunchManager
 import org.eclipse.ui.IWorkbenchPage
 import org.eclipse.ui.console.ConsolePlugin
 import org.eclipse.ui.console.IConsole
 import org.eclipse.ui.console.IConsoleListener
 
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes
-import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate
 import org.eclipse.buildship.core.launch.RunGradleBuildLaunchRequestJob
 import org.eclipse.buildship.ui.console.GradleConsole
 import org.eclipse.buildship.ui.test.fixtures.ProjectSynchronizationSpecification

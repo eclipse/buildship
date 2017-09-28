@@ -28,7 +28,6 @@ class ExternalLaunchConfigurationManagerTest extends WorkspaceSpecification {
     }
 
     def cleanup() {
-        DebugPlugin.default.launchManager.launchConfigurations.each { it.delete() }
         CorePlugin.instance.launchConfigListener = CorePlugin.instance.launchConfigListener.createAndRegister()
     }
 
@@ -112,12 +111,9 @@ class ExternalLaunchConfigurationManagerTest extends WorkspaceSpecification {
         !hasGradleClasspathProvider(configurationB)
     }
 
-    // TODO transform launch config creation defined in test classes into test fixture in WorkspaceSpecification
     private ILaunchConfiguration createJdtLaunchConfigFor(IJavaProject javaProject, Map<String, String> attributes = [:]) {
         IProject project = javaProject.project
-        ILaunchManager launchManager = DebugPlugin.default.launchManager
-        ILaunchConfigurationType launchConfigType = launchManager.getLaunchConfigurationType(DefaultExternalLaunchConfigurationManager.LAUNCH_COFIG_TYPE_JAVA_LAUNCH)
-        ILaunchConfigurationWorkingCopy launchConfig = launchConfigType.newInstance(null, launchManager.generateLaunchConfigurationName('ext-launch-config-manager-test'))
+        ILaunchConfigurationWorkingCopy launchConfig = createLaunchConfig(DefaultExternalLaunchConfigurationManager.LAUNCH_CONFIG_TYPE_JAVA_LAUNCH)
         launchConfig.setAttribute(ATTR_PROJECT_NAME, project.name)
         attributes.forEach { k, v -> launchConfig.setAttribute(k, v) }
         launchConfig.doSave()

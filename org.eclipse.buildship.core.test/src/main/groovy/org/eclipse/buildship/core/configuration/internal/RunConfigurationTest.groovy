@@ -85,7 +85,7 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
 
     def "load default settings"() {
         given:
-        ILaunchConfiguration launchConfig = emptyLaunchConfig()
+        ILaunchConfiguration launchConfig = createGradleLaunchConfig()
         RunConfiguration runConfig = configurationManager.loadRunConfiguration(launchConfig)
 
         expect:
@@ -120,7 +120,7 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         boolean buildScansEnabled = true
         boolean offlineMode = true
 
-        ILaunchConfiguration launchConfig = emptyLaunchConfig()
+        ILaunchConfiguration launchConfig = createGradleLaunchConfig()
         GradleRunConfigurationAttributes.applyTasks(tasks, launchConfig)
         GradleRunConfigurationAttributes.applyJavaHomeExpression(javaHome.absolutePath, launchConfig)
         GradleRunConfigurationAttributes.applyArgumentExpressions(arguments, launchConfig)

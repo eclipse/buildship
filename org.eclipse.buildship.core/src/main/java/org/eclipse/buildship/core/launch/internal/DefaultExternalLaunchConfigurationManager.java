@@ -39,10 +39,8 @@ public final class DefaultExternalLaunchConfigurationManager implements External
 
     // TODO (donat) add junit and testng support : org.eclipse.jdt.junit.launchconfig org.eclipse.jdt.launching.localJavaApplication
 
-    // TODO (donat) TYPO
-    private static final String LAUNCH_COFIG_TYPE_JAVA_LAUNCH = "org.eclipse.jdt.launching.localJavaApplication";
-
-    private static final Set<String> SUPPORTED_LAUNCH_CONFIG_TYPES = Sets.newHashSet(LAUNCH_COFIG_TYPE_JAVA_LAUNCH);
+    private static final String LAUNCH_CONFIG_TYPE_JAVA_LAUNCH = "org.eclipse.jdt.launching.localJavaApplication";
+    private static final Set<String> SUPPORTED_LAUNCH_CONFIG_TYPES = Sets.newHashSet(LAUNCH_CONFIG_TYPE_JAVA_LAUNCH);
     private static final String ORIGINAL_CLASSPATH_PROVIDER_ATTRIBUTE = CorePlugin.PLUGIN_ID + ".originalclasspathprovider";
 
     @Override
