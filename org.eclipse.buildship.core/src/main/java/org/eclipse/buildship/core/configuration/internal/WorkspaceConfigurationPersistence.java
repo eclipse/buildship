@@ -36,6 +36,7 @@ public final class WorkspaceConfigurationPersistence {
     private static final String GRADLE_USER_HOME = "gradle.user.home";
     private static final String GRADLE_OFFLINE_MODE = "gradle.offline.mode";
     private static final String GRADLE_BUILD_SCANS = "gradle.build.scans";
+    private static final String GRADLE_AUTO_SYNC = "gradle.autosync";
 
     public WorkspaceConfiguration readWorkspaceConfig() {
         IEclipsePreferences preferences = getPreferences();
@@ -49,8 +50,9 @@ public final class WorkspaceConfigurationPersistence {
                 : new File(gradleUserHomeString);
         boolean offlineMode = preferences.getBoolean(GRADLE_OFFLINE_MODE, false);
         boolean buildScansEnabled = preferences.getBoolean(GRADLE_BUILD_SCANS, false);
+        boolean autoSyncEnabled = preferences.getBoolean(GRADLE_AUTO_SYNC, false);
 
-        return new WorkspaceConfiguration(distribution, gradleUserHome, offlineMode, buildScansEnabled);
+        return new WorkspaceConfiguration(distribution, gradleUserHome, offlineMode, buildScansEnabled, autoSyncEnabled);
     }
 
     public void saveWorkspaceConfiguration(WorkspaceConfiguration config) {
@@ -64,6 +66,7 @@ public final class WorkspaceConfigurationPersistence {
         }
         preferences.putBoolean(GRADLE_OFFLINE_MODE, config.isOffline());
         preferences.putBoolean(GRADLE_BUILD_SCANS, config.isBuildScansEnabled());
+        preferences.putBoolean(GRADLE_AUTO_SYNC, config.isAutoSyncEnabled());
         try {
             preferences.flush();
         } catch (BackingStoreException e) {

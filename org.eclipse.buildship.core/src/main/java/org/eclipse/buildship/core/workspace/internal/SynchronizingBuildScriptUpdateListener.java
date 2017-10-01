@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.Status;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 
 /**
  * Executes project synchronization if the corresponding preference is enabled and the user changes
@@ -42,7 +43,10 @@ public final class SynchronizingBuildScriptUpdateListener implements IResourceCh
 
     @Override
     public void resourceChanged(IResourceChangeEvent event) {
-        // TODO (donat) add workspace and project preference for it and use it here
+        if (!isEnabledInPreferences()) {
+            return;
+        }
+
         IResourceDelta delta = event.getDelta();
         if (delta != null) {
             try {
@@ -51,6 +55,12 @@ public final class SynchronizingBuildScriptUpdateListener implements IResourceCh
                 CorePlugin.logger().warn("Failed to detect project changes", e);
             }
         }
+    }
+
+    private boolean isEnabledInPreferences() {
+        // TODO (donat) use project configuration
+        WorkspaceConfiguration configuration = CorePlugin.configurationManager().loadWorkspaceConfiguration();
+        return configuration.isAutoSyncEnabled();
     }
 
     private void visitDelta(IResourceDelta delta) throws CoreException {

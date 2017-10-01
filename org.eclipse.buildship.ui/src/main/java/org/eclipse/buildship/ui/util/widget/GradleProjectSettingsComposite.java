@@ -44,6 +44,7 @@ public final class GradleProjectSettingsComposite extends Composite {
     private GradleUserHomeGroup gradleUserHomeGroup;
     private Button offlineModeCheckbox;
     private Button buildScansCheckbox;
+    private Button autoBuildCheckbox;
 
     private GradleProjectSettingsComposite(Composite parent, boolean hasOverrideCheckbox, String overrideCheckboxLabel, String configureParentPrefsLinkLabel) {
         super(parent, SWT.NONE);
@@ -62,6 +63,7 @@ public final class GradleProjectSettingsComposite extends Composite {
         createGradleUserHomeGroup(this);
         createOfflineModeCheckbox(this);
         createBuildScansCheckbox(this);
+        createAutoBuildCheckbox(this);
 
         addListeners();
 
@@ -109,6 +111,12 @@ public final class GradleProjectSettingsComposite extends Composite {
         HoverText.createAndAttach(this.buildScansCheckbox, CoreMessages.Preference_Label_BuildScansHover);
     }
 
+    private void createAutoBuildCheckbox(Composite parent) {
+        this.autoBuildCheckbox = new Button(parent, SWT.CHECK);
+        this.autoBuildCheckbox.setText("Automatically synchronize project when build script changes");
+        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(2, 1).applyTo(this.autoBuildCheckbox);
+    }
+
     private void addListeners() {
         if (this.overrideSettingsCheckbox != null) {
             this.overrideSettingsCheckbox.addSelectionListener(new SelectionListener() {
@@ -133,6 +141,7 @@ public final class GradleProjectSettingsComposite extends Composite {
             this.gradleUserHomeGroup.setEnabled(enabled);
             this.offlineModeCheckbox.setEnabled(enabled);
             this.buildScansCheckbox.setEnabled(enabled);
+            this.autoBuildCheckbox.setEnabled(enabled);
         }
     }
 
@@ -163,6 +172,11 @@ public final class GradleProjectSettingsComposite extends Composite {
 
     public Button getBuildScansCheckbox() {
         return this.buildScansCheckbox;
+    }
+
+    // TODO (donat) refactor factories and class hierarchy such that the autobuild checkbox is not available for the run configurations
+    public Button getAutoBuildCheckbox() {
+        return this.autoBuildCheckbox;
     }
 
     public static GradleProjectSettingsComposite withOverrideCheckbox(Composite parent, String overrideCheckboxLabel, String configureParentPrefsLinkLabel) {
