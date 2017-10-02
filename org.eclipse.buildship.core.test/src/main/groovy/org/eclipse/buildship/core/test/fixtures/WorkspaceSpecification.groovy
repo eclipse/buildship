@@ -187,6 +187,6 @@ abstract class WorkspaceSpecification extends Specification {
     }
 
     protected PersistentModel emptyPersistentModel(IProject project) {
-        new DefaultPersistentModel(project, new Path("build"), [], [], [], [], [], [])
+        new DefaultPersistentModel(project, new Path("build"), new Path("build.gradle"), [], [], [], [], [], [])
     }
 }
