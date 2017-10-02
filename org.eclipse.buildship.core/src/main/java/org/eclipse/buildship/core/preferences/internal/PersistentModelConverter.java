@@ -37,6 +37,7 @@ import org.eclipse.buildship.core.preferences.PersistentModel;
 final class PersistentModelConverter {
 
     private static final String PROPERTY_BUILD_DIR = "buildDir";
+    private static final String PROPERTY_BUILD_SCRIPT_PATH = "buildScriptPath";
     private static final String PROPERTY_SUBPROJECTS = "subprojectPaths";
     private static final String PROPERTY_CLASSPATH = "classpath";
     private static final String PROPERTY_DERIVED_RESOURCES = "derivedResources";
@@ -48,6 +49,13 @@ final class PersistentModelConverter {
         Properties properties = new Properties();
 
         storeValue(properties, PROPERTY_BUILD_DIR, model.getBuildDir(), new Function<IPath, String>() {
+
+            @Override
+            public String apply(IPath path) {
+                return path.toPortableString();
+            }
+        });
+        storeValue(properties, PROPERTY_BUILD_SCRIPT_PATH, model.getbuildScriptPath(), new Function<IPath, String>() {
 
             @Override
             public String apply(IPath path) {
@@ -106,6 +114,13 @@ final class PersistentModelConverter {
                 return new Path(path);
             }
         });
+        IPath buildScriptPath = loadValue(properties, PROPERTY_BUILD_SCRIPT_PATH, new Path("build.gradle"), new Function<String, IPath>() {
+
+            @Override
+            public IPath apply(String path) {
+                return new Path(path);
+            }
+        });
         Collection<IPath> subprojects = loadList(properties, PROPERTY_SUBPROJECTS, new Function<String, IPath>() {
 
             @Override
@@ -145,7 +160,7 @@ final class PersistentModelConverter {
                 return BuildCommandConverter.toEntries(project, commands);
             }
         });
-        return new DefaultPersistentModel(project, buildDir, subprojects, classpath, derivedResources, linkedResources, managedNatures, managedBuilders);
+        return new DefaultPersistentModel(project, buildDir, buildScriptPath, subprojects, classpath, derivedResources, linkedResources, managedNatures, managedBuilders);
     }
 
     private static <T> T loadValue(Properties properties, String key, T defaultValue, Function<String, T> conversion) {

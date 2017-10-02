@@ -49,6 +49,11 @@ public final class AbsentPersistentModel implements PersistentModel {
     }
 
     @Override
+    public IPath getbuildScriptPath() {
+        throw new IllegalStateException("Absent persistent model");
+    }
+
+    @Override
     public Collection<IPath> getSubprojectPaths() {
         throw new IllegalStateException("Absent persistent model");
     }

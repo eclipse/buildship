@@ -23,7 +23,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 
 import org.eclipse.buildship.core.CorePlugin;
@@ -91,14 +90,13 @@ public final class SynchronizingBuildScriptUpdateListener implements IResourceCh
     }
 
     private void executeSyncIfBuildScriptChanged(IProject project, IResourceDelta delta) {
-        if (hasBuildScriptFileChanged(delta.getAffectedChildren())) {
+        if (hasBuildScriptFileChanged(project, delta.getAffectedChildren())) {
             CorePlugin.gradleWorkspaceManager().getGradleBuild(project).get().synchronize();
         }
     }
 
-    private boolean hasBuildScriptFileChanged(IResourceDelta[] deltas) {
-        // TODO (donat) add build script path to persistent properties and use it here
-        IPath buildScriptPath = new Path("build.gradle");
+    private boolean hasBuildScriptFileChanged(IProject project, IResourceDelta[] deltas) {
+        IPath buildScriptPath = CorePlugin.modelPersistence().loadModel(project).getbuildScriptPath();
         Set<IPath> affectedResourcePaths  = collectAffectedResourcePaths(deltas);
         return affectedResourcePaths.contains(buildScriptPath);
     }
