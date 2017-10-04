@@ -37,9 +37,12 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.swt.SWT;
@@ -59,8 +62,8 @@ import org.eclipse.buildship.ui.util.nodeselection.NodeSelectionProvider;
 import org.eclipse.buildship.ui.util.nodeselection.SelectionHistoryManager;
 import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
 import org.eclipse.buildship.ui.view.BasePage;
-import org.eclipse.buildship.ui.view.CollapseTreeNodesAction;
-import org.eclipse.buildship.ui.view.ExpandTreeNodesAction;
+import org.eclipse.buildship.ui.view.CollapseAllTreeNodesAction;
+import org.eclipse.buildship.ui.view.ExpandAllTreeNodesAction;
 import org.eclipse.buildship.ui.view.MultiPageView;
 import org.eclipse.buildship.ui.view.PageSite;
 import org.eclipse.buildship.ui.view.ShowFilterAction;
@@ -283,8 +286,8 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     private void populateToolBar() {
         IActionBars actionBars = getSite().getActionBars();
         IToolBarManager toolbarManager = actionBars.getToolBarManager();
-        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new ExpandTreeNodesAction(getPageControl().getViewer()));
-        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new CollapseTreeNodesAction(getPageControl().getViewer()));
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new ExpandAllTreeNodesAction(getPageControl().getViewer()));
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new CollapseAllTreeNodesAction(getPageControl().getViewer()));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new ShowFilterAction(getPageControl()));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new Separator());
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new SwitchToConsoleViewAction(this));
@@ -313,24 +316,38 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         RunTestAction runTestAction = new RunTestAction(this);
         ShowFailureAction showFailureAction = new ShowFailureAction(this);
         OpenTestSourceFileAction openTestSourceFileAction = new OpenTestSourceFileAction(this);
-        ExpandTreeNodesAction expandNodesAction = new ExpandTreeNodesAction(treeViewer);
-        CollapseTreeNodesAction collapseNodesAction = new CollapseTreeNodesAction(treeViewer);
 
-        List<SelectionSpecificAction> contextMenuActions = ImmutableList.<SelectionSpecificAction>of(runTestAction, showFailureAction, openTestSourceFileAction, expandNodesAction, collapseNodesAction);
-        List<SelectionSpecificAction> contextMenuActionsPrecededBySeparator = ImmutableList.<SelectionSpecificAction>of(openTestSourceFileAction, expandNodesAction);
+        List<SelectionSpecificAction> contextMenuActions = ImmutableList.<SelectionSpecificAction>of(runTestAction, showFailureAction, openTestSourceFileAction);
+
+        List<SelectionSpecificAction> contextMenuActionsPrecededBySeparator = ImmutableList.<SelectionSpecificAction>of(openTestSourceFileAction);
         ImmutableList<SelectionSpecificAction> contextMenuActionsSucceededBySeparator = ImmutableList.of();
 
         return new ActionShowingContextMenuListener(this, contextMenuActions, contextMenuActionsPrecededBySeparator, contextMenuActionsSucceededBySeparator);
     }
 
     private void registerListeners() {
-        // navigate to source file on double click or when pressing enter
+        // navigate to source file or expand or collapse group node on double click or when pressing enter
         getPageControl().getViewer().addDoubleClickListener(new IDoubleClickListener() {
 
             @Override
             public void doubleClick(DoubleClickEvent event) {
+                NodeSelection nodeSelection = NodeSelection.from(event.getSelection());
                 OpenTestSourceFileAction openTestSourceFileAction = new OpenTestSourceFileAction(ExecutionPage.this);
-                openTestSourceFileAction.run();
+
+                if (openTestSourceFileAction.isVisibleFor(nodeSelection) && openTestSourceFileAction.isEnabledFor(nodeSelection)) {
+                    openTestSourceFileAction.run();
+                } else if (nodeSelection.isSingleSelection()) {
+                    Object selected = nodeSelection.toList().get(0);
+                    TreeViewer viewer = getPageControl().getViewer();
+                    IContentProvider provider = viewer.getContentProvider();
+                    if (provider instanceof ITreeContentProvider && ((ITreeContentProvider) provider).hasChildren(selected)) {
+                        if (viewer.getExpandedState(selected)) {
+                            viewer.collapseToLevel(selected, AbstractTreeViewer.ALL_LEVELS);
+                        } else {
+                            viewer.expandToLevel(selected, 1);
+                        }
+                    }
+                }
             }
         });
     }

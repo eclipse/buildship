@@ -19,19 +19,7 @@ import org.eclipse.buildship.ui.console.GradleConsole
 import org.eclipse.buildship.ui.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils
 
-class OpenBuildScanActionTest extends ProjectSynchronizationSpecification {
-
-    ConsoleListener consoleListener
-    ExecutionsView view
-
-    void setup() {
-        runOnUiThread { view = WorkbenchUtils.showView(ExecutionsView.ID, null, IWorkbenchPage.VIEW_ACTIVATE) }
-        ConsolePlugin.default.consoleManager.addConsoleListener(consoleListener = new ConsoleListener())
-    }
-
-    void cleanup() {
-        ConsolePlugin.default.consoleManager.removeConsoleListener(consoleListener)
-    }
+class OpenBuildScanActionTest extends BaseExecutionViewTest {
 
     def "Build doesn't publish build scans"() {
         setup:
@@ -161,18 +149,5 @@ class OpenBuildScanActionTest extends ProjectSynchronizationSpecification {
         ILaunchManager launchManager = DebugPlugin.default.launchManager
         ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(GradleRunConfigurationDelegate.ID)
         type.newInstance(null, "launch-config-name")
-    }
-
-    class ConsoleListener implements IConsoleListener {
-        GradleConsole activeConsole
-
-        @Override
-        public void consolesAdded(IConsole[] consoles) {
-            activeConsole = consoles[0]
-        }
-
-        @Override
-        public void consolesRemoved(IConsole[] consoles) {
-        }
     }
 }

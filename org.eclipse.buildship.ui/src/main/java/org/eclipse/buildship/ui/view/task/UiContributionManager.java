@@ -28,8 +28,8 @@ import org.eclipse.buildship.ui.util.nodeselection.ActionEnablingSelectionChange
 import org.eclipse.buildship.ui.util.nodeselection.ActionShowingContextMenuListener;
 import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
 import org.eclipse.buildship.ui.util.selection.ContextActivatingViewPartListener;
-import org.eclipse.buildship.ui.view.CollapseTreeNodesAction;
-import org.eclipse.buildship.ui.view.ExpandTreeNodesAction;
+import org.eclipse.buildship.ui.view.CollapseAllTreeNodesAction;
+import org.eclipse.buildship.ui.view.ExpandAllTreeNodesAction;
 import org.eclipse.buildship.ui.view.ShowFilterAction;
 
 /**
@@ -64,17 +64,14 @@ public final class UiContributionManager {
         CreateRunConfigurationAction createRunConfigurationAction = new CreateRunConfigurationAction(UiPluginConstants.OPEN_RUN_CONFIGURATION_COMMAND_ID);
         OpenRunConfigurationAction openRunConfigurationAction = new OpenRunConfigurationAction(UiPluginConstants.OPEN_RUN_CONFIGURATION_COMMAND_ID);
         OpenBuildScriptAction openBuildScriptAction = new OpenBuildScriptAction(UiPluginConstants.OPEN_BUILD_SCRIPT_COMMAND_ID);
-        ExpandTreeNodesAction expandNodesAction = new ExpandTreeNodesAction(this.taskView.getTreeViewer());
-        CollapseTreeNodesAction collapseNodesAction = new CollapseTreeNodesAction(this.taskView.getTreeViewer());
 
         // add selection-sensitive tool bar actions
         this.toolBarActions = ImmutableList.of();
 
         // add selection-sensitive context menu actions
         this.contextMenuActions = ImmutableList.<SelectionSpecificAction>of(runTasksAction, runDefaultTasksAction,
-                createRunConfigurationAction, openRunConfigurationAction,
-                openBuildScriptAction, expandNodesAction, collapseNodesAction);
-        this.contextMenuActionsPrecededBySeparator = ImmutableList.<SelectionSpecificAction>of(openBuildScriptAction, expandNodesAction);
+                createRunConfigurationAction, openRunConfigurationAction, openBuildScriptAction);
+        this.contextMenuActionsPrecededBySeparator = ImmutableList.<SelectionSpecificAction>of(openBuildScriptAction);
         this.contextMenuActionsSucceededBySeparator = ImmutableList.of();
 
         // create listeners
@@ -99,8 +96,8 @@ public final class UiContributionManager {
     private void populateToolBar() {
         IToolBarManager manager = this.taskView.getViewSite().getActionBars().getToolBarManager();
         manager.add(new GroupMarker(TOOLBAR_TREE_GROUP));
-        manager.appendToGroup(TOOLBAR_TREE_GROUP, new ExpandTreeNodesAction(this.taskView.getTreeViewer()));
-        manager.appendToGroup(TOOLBAR_TREE_GROUP, new CollapseTreeNodesAction(this.taskView.getTreeViewer()));
+        manager.appendToGroup(TOOLBAR_TREE_GROUP, new ExpandAllTreeNodesAction(this.taskView.getTreeViewer()));
+        manager.appendToGroup(TOOLBAR_TREE_GROUP, new CollapseAllTreeNodesAction(this.taskView.getTreeViewer()));
         manager.appendToGroup(TOOLBAR_TREE_GROUP, new ShowFilterAction(this.taskView.getFilteredTree()));
         manager.appendToGroup(TOOLBAR_TREE_GROUP, new Separator());
         manager.add(new GroupMarker(TOOLBAR_MISC_GROUP));
