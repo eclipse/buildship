@@ -62,8 +62,8 @@ import org.eclipse.buildship.ui.util.nodeselection.NodeSelectionProvider;
 import org.eclipse.buildship.ui.util.nodeselection.SelectionHistoryManager;
 import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
 import org.eclipse.buildship.ui.view.BasePage;
-import org.eclipse.buildship.ui.view.CollapseTreeNodesAction;
-import org.eclipse.buildship.ui.view.ExpandTreeNodesAction;
+import org.eclipse.buildship.ui.view.CollapseAllTreeNodesAction;
+import org.eclipse.buildship.ui.view.ExpandAllTreeNodesAction;
 import org.eclipse.buildship.ui.view.MultiPageView;
 import org.eclipse.buildship.ui.view.PageSite;
 import org.eclipse.buildship.ui.view.ShowFilterAction;
@@ -286,8 +286,8 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     private void populateToolBar() {
         IActionBars actionBars = getSite().getActionBars();
         IToolBarManager toolbarManager = actionBars.getToolBarManager();
-        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new ExpandTreeNodesAction(getPageControl().getViewer()));
-        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new CollapseTreeNodesAction(getPageControl().getViewer()));
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new ExpandAllTreeNodesAction(getPageControl().getViewer()));
+        toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new CollapseAllTreeNodesAction(getPageControl().getViewer()));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new ShowFilterAction(getPageControl()));
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new Separator());
         toolbarManager.appendToGroup(MultiPageView.PAGE_GROUP, new SwitchToConsoleViewAction(this));

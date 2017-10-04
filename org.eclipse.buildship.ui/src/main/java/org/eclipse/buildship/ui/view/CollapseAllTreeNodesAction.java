@@ -25,11 +25,11 @@ import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
 /**
  * Collapses all the nodes under the selected node or the entire tree if no node is selected.
  */
-public final class CollapseTreeNodesAction extends Action implements SelectionSpecificAction {
+public final class CollapseAllTreeNodesAction extends Action implements SelectionSpecificAction {
 
     private final AbstractTreeViewer treeViewer;
 
-    public CollapseTreeNodesAction(AbstractTreeViewer treeViewer) {
+    public CollapseAllTreeNodesAction(AbstractTreeViewer treeViewer) {
         this.treeViewer = Preconditions.checkNotNull(treeViewer);
 
         setToolTipText(UiMessages.Action_CollapseNodes_Tooltip);

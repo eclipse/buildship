@@ -22,7 +22,7 @@ import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
 public final class NoActionsAvailableAction extends Action implements SelectionSpecificAction {
 
     public NoActionsAvailableAction() {
-        setText(UiMessages.Action_NoActionsAvailable_Text);
+        setText(UiMessages.Action_NoActionsAvailable_Label);
         setEnabled(false);
     }
 

@@ -11,10 +11,10 @@
 
 package org.eclipse.buildship.ui.util.nodeselection;
 
+import java.util.List;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-
-import java.util.List;
 
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -50,10 +50,10 @@ public final class ActionShowingContextMenuListener implements IMenuListener {
     }
 
     private void handleSelection(IMenuManager manager, NodeSelection selection) {
-        boolean isEmpty = true;
+        boolean isContextMenuEmpty = true;
         for (SelectionSpecificAction action : this.actions) {
             if (action.isVisibleFor(selection)) {
-                isEmpty = false;
+                isContextMenuEmpty = false;
                 // add preceding separator if requested
                 if (this.actionsPrecededBySeparator.contains(action)) {
                     manager.add(new Separator());
@@ -70,7 +70,7 @@ public final class ActionShowingContextMenuListener implements IMenuListener {
             }
         }
 
-        if (isEmpty) {
+        if (isContextMenuEmpty) {
             manager.add(new NoActionsAvailableAction());
         }
     }

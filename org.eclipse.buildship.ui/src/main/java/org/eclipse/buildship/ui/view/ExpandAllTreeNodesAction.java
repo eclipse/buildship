@@ -25,11 +25,11 @@ import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
 /**
  * Expands all the nodes under the selected node or the entire tree if no node is selected.
  */
-public final class ExpandTreeNodesAction extends Action implements SelectionSpecificAction {
+public final class ExpandAllTreeNodesAction extends Action implements SelectionSpecificAction {
 
     private final AbstractTreeViewer treeViewer;
 
-    public ExpandTreeNodesAction(AbstractTreeViewer treeViewer) {
+    public ExpandAllTreeNodesAction(AbstractTreeViewer treeViewer) {
         this.treeViewer = Preconditions.checkNotNull(treeViewer);
 
         setToolTipText(UiMessages.Action_ExpandNodes_Tooltip);

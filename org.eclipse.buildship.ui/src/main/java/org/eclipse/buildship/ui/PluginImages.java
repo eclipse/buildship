@@ -47,7 +47,7 @@ public enum PluginImages implements PluginImage {
     CANCEL_BUILD_EXECUTION(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/cancel_build_execution.png", ImageState.DISABLED, "icons/full/dlcl16/cancel_build_execution.png")),
     RERUN_BUILD(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/rerun.png", ImageState.DISABLED, "icons/full/dlcl16/rerun.png")),
     RERUN_FAILED_TESTS(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/rerun_failed_tests.png", ImageState.DISABLED, "icons/full/dlcl16/rerun_failed_tests.png")),
-    EXPAND_ALL(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/expand_all.png")),
+    EXPAND_ALL(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/expand_all.png")), // unlike collapse_all, this image is not available in the shared platform images
     RUN_CONFIG_TASKS(ImmutableMap.of(ImageState.ENABLED, "icons/full/eview16/run_config_tasks.png")),
     RUN_CONFIG_GRADLE_DISTRIBUTION(ImmutableMap.of(ImageState.ENABLED, "icons/full/eview16/run_config_gradle_distribution.png")),
     RUN_CONFIG_ARGUMENTS(ImmutableMap.of(ImageState.ENABLED, "icons/full/eview16/run_config_arguments.png")),

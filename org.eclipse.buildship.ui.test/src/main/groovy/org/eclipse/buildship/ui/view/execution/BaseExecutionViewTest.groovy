@@ -10,7 +10,6 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree
 import org.eclipse.ui.IWorkbenchPage
 import org.eclipse.ui.console.ConsolePlugin
 import org.eclipse.ui.console.IConsole
-import org.eclipse.ui.console.IConsoleConstants
 import org.eclipse.ui.console.IConsoleListener
 import org.eclipse.ui.console.IConsoleManager
 
@@ -31,8 +30,6 @@ abstract class BaseExecutionViewTest extends SwtBotSpecification {
     def setup() {
         runOnUiThread {
             view = WorkbenchUtils.showView(ExecutionsView.ID, null, IWorkbenchPage.VIEW_ACTIVATE)
-
-            WorkbenchUtils.showView(IConsoleConstants.ID_CONSOLE_VIEW, null, IWorkbenchPage.VIEW_ACTIVATE)
             ConsolePlugin.default.consoleManager.addConsoleListener(consoleListener = new ConsoleListener())
         }
     }

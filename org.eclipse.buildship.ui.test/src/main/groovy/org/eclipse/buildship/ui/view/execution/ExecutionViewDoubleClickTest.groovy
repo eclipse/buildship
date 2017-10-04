@@ -1,6 +1,5 @@
 package org.eclipse.buildship.ui.view.execution
 
-import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem
 
 class ExecutionViewDoubleClickTest extends BaseExecutionViewTest {
@@ -32,7 +31,7 @@ class ExecutionViewDoubleClickTest extends BaseExecutionViewTest {
         root.expanded
 
         when:
-        SWTBotTreeItem runNode =  root.getNode('Run tasks')
+        SWTBotTreeItem runNode = root.getNode('Run tasks')
 
         then:
         !runNode.expanded
@@ -91,33 +90,27 @@ class ExecutionViewDoubleClickTest extends BaseExecutionViewTest {
 
     File sampleTestProject() {
        dir('sampleTest') {
-           dir('src') {
-               dir('main') {
-                   dir('java') {
-                       file 'Library.java', """
-                           public class Library {
-                            public boolean someLibraryMethod() {
-                                return true;
-                                }
-                            }
-                       """
-                   }
-               }
-               dir('test') {
-                   dir('java') {
-                      file 'LibraryTest.java', """
-                      import org.junit.Test;
-                      import static org.junit.Assert.*;
+           dir('src/main/java') {
+               file 'Library.java', """
+                    public class Library {
+                    public boolean someLibraryMethod() {
+                        return true;
+                        }
+                    }
+               """
+           }
+           dir('src/test/java') {
+               file 'LibraryTest.java', """
+                  import org.junit.Test;
+                  import static org.junit.Assert.*;
 
-                      public class LibraryTest {
-                          @Test public void testSomeLibraryMethod() {
-                              Library classUnderTest = new Library();
-                              assertTrue("someLibraryMethod should return 'true'", classUnderTest.someLibraryMethod());
-                          }
+                  public class LibraryTest {
+                      @Test public void testSomeLibraryMethod() {
+                          Library classUnderTest = new Library();
+                          assertTrue("someLibraryMethod should return 'true'", classUnderTest.someLibraryMethod());
                       }
-                      """
-                   }
-                }
+                  }
+                  """
             }
 
             file 'build.gradle', """
