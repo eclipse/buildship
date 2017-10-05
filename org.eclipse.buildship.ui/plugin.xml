@@ -61,7 +61,7 @@
        </keyword>
     </extension>
 
-    <!-- integration of Gradle icons into explorer -->
+    <!-- editor support for Gradle build scripts -->
     <extension
             point="org.eclipse.ui.editors">
       <editor
@@ -73,6 +73,13 @@
             id="org.eclipse.buildship.ui.gradlebuildscripteditor"
             name="Gradle Build Script Editor">
       </editor>
+    </extension>
+    <extension
+          point="org.eclipse.core.filebuffers.documentSetup">
+       <participant
+             class="org.eclipse.buildship.ui.editor.GradleDocumentSetupParticipant"
+             contentTypeId="org.eclipse.buildship.core.files.gradlebuildscript">
+       </participant>
     </extension>
 
     <!-- integration of Gradle views -->
@@ -550,12 +557,5 @@
            </adapt>
          </enabledWhen>
        </page>
-    </extension>
-    <extension
-          point="org.eclipse.core.filebuffers.documentSetup">
-       <participant
-             class="org.eclipse.buildship.ui.editor.GradleDocumentSetupParticipant"
-             contentTypeId="org.eclipse.buildship.core.files.gradlebuildscript">
-       </participant>
     </extension>
 </plugin>

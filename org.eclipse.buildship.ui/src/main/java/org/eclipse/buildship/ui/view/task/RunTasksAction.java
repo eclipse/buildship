@@ -13,9 +13,9 @@ package org.eclipse.buildship.ui.view.task;
 
 import org.eclipse.buildship.ui.PluginImage;
 import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.buildship.ui.util.action.CommandBackedAction;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
-import org.eclipse.buildship.ui.view.CommandBackedAction;
 import org.eclipse.buildship.ui.view.task.TaskViewActionStateRules.TaskScopedActionEnablement;
 
 /**

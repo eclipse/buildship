@@ -12,9 +12,10 @@
 package org.eclipse.buildship.ui.view.task;
 
 import com.google.common.base.Optional;
+
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
-import org.eclipse.buildship.ui.view.CommandBackedAction;
+import org.eclipse.buildship.ui.util.action.CommandBackedAction;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
 

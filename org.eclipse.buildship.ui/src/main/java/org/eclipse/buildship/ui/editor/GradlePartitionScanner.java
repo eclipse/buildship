@@ -5,6 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.eclipse.buildship.ui.editor;
 
 import org.eclipse.jface.text.rules.EndOfLineRule;
@@ -18,12 +19,30 @@ import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WordRule;
 
-
 /**
- * @author Christophe Moine
+ * Defines rules for {@link GradleEditor}.
  *
+ * @author Christophe Moine
  */
-public class GradlePartitionScanner extends RuleBasedPartitionScanner {
+public final class GradlePartitionScanner extends RuleBasedPartitionScanner {
+
+    public GradlePartitionScanner() {
+        IToken javadocCommentToken = new Token(GradleEditorConstants.TOKEN_TYPE_JAVADOC);
+        IToken multiLineCommentToken = new Token(GradleEditorConstants.TOKEN_TYPE_MULTILINE_COMMENT);
+
+        setPredicateRules(new IPredicateRule[] {
+            new EndOfLineRule("//", Token.UNDEFINED),
+            new SingleLineRule("\"", "\"", Token.UNDEFINED, '\\'),
+            new SingleLineRule("'", "'", Token.UNDEFINED, '\\'),
+            new EmptyCommentPredicateRule(multiLineCommentToken),
+            new MultiLineRule("/**", "*/", javadocCommentToken, (char) 0, true),
+            new MultiLineRule("/*", "*/", multiLineCommentToken, (char) 0, true)
+        });
+    }
+
+    /**
+     * Detector for empty comments.
+     */
     private static class EmptyCommentDetector implements IWordDetector {
 
         @Override
@@ -37,13 +56,17 @@ public class GradlePartitionScanner extends RuleBasedPartitionScanner {
         }
     }
 
+    /**
+     * Rule for empty comments.
+     */
     private static class EmptyCommentPredicateRule extends WordRule implements IPredicateRule {
+
         private final IToken successToken;
 
         public EmptyCommentPredicateRule(IToken successToken) {
             super(new EmptyCommentDetector());
             this.successToken = successToken;
-            addWord("/**/", successToken); //$NON-NLS-1$
+            addWord("/**/", successToken);
         }
 
         @Override
@@ -55,17 +78,5 @@ public class GradlePartitionScanner extends RuleBasedPartitionScanner {
         public IToken getSuccessToken() {
             return this.successToken;
         }
-    }
-
-    public GradlePartitionScanner() {
-        IToken jsDocToken = new Token(IGradlePartitions.GRADLEDOC);
-        IToken multilineCommentToken = new Token(IGradlePartitions.MULTILINE_COMMENT);
-
-        setPredicateRules(new IPredicateRule[] { new EndOfLineRule("//", Token.UNDEFINED), //$NON-NLS-1$
-                new SingleLineRule("\"", "\"", Token.UNDEFINED, '\\'), //$NON-NLS-2$ //$NON-NLS-1$
-                new SingleLineRule("'", "'", Token.UNDEFINED, '\\'), //$NON-NLS-2$ //$NON-NLS-1$
-                new EmptyCommentPredicateRule(multilineCommentToken), new MultiLineRule("/**", "*/", jsDocToken, (char) 0, true), //$NON-NLS-1$ //$NON-NLS-2$
-                new MultiLineRule("/*", "*/", multilineCommentToken, (char) 0, true) //$NON-NLS-1$ //$NON-NLS-2$
-        });
     }
 }

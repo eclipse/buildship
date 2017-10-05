@@ -12,21 +12,17 @@ import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 
 /**
- * Gradle Editor entry point
+ * Editor definition for Gradle build scripts.
  *
  * @author Christophe Moine
  */
-public class GradleEditor extends TextEditor {
+public final class GradleEditor extends TextEditor {
     @Override
     protected void initializeEditor() {
-        setSourceViewerConfiguration(new GradleTextViewerConfiguration());
         super.initializeEditor();
+        setSourceViewerConfiguration(new GradleTextViewerConfiguration());
     }
 
-    /*
-     * @see org.eclipse.ui.texteditor.AbstractDecoratedTextEditor#isTabsToSpacesConversionEnabled()
-     * @since 3.7
-     */
     @Override
     protected boolean isTabsToSpacesConversionEnabled() {
         // Can't use our own preference store because JDT disables this functionality in its preferences.

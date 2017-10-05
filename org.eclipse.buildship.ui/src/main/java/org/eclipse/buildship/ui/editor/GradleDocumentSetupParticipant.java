@@ -14,34 +14,25 @@ import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.rules.FastPartitioner;
 
 /**
- * The document setup participant for a properties file document.
+ * The document setup participant for a Gradle build script document.
  *
  * @author Christophe Moine
  */
-public class GradleDocumentSetupParticipant  implements IDocumentSetupParticipant {
+public final class GradleDocumentSetupParticipant implements IDocumentSetupParticipant {
 
-    /*
-     * @see org.eclipse.core.filebuffers.IDocumentSetupParticipant#setup(org.eclipse.jface.text.IDocument)
-     */
     @Override
     public void setup(IDocument document) {
-        IDocumentPartitioner partitioner= createDocumentPartitioner();
+        IDocumentPartitioner partitioner = createDocumentPartitioner();
         if (document instanceof IDocumentExtension3) {
-            IDocumentExtension3 extension3= (IDocumentExtension3) document;
-            extension3.setDocumentPartitioner(IGradlePartitions.PARTITIONING, partitioner);
+            IDocumentExtension3 extension3 = (IDocumentExtension3) document;
+            extension3.setDocumentPartitioner(GradleEditorConstants.PARTITIONING, partitioner);
         } else {
             document.setDocumentPartitioner(partitioner);
         }
         partitioner.connect(document);
     }
 
-    /**
-     * Factory method for creating a properties file document specific document
-     * partitioner.
-     *
-     * @return a newly created properties file document partitioner
-     */
     private static IDocumentPartitioner createDocumentPartitioner() {
-        return new FastPartitioner(new GradlePartitionScanner(), IGradlePartitions.PARTITIONS);
+        return new FastPartitioner(new GradlePartitionScanner(), GradleEditorConstants.PARTITIONS);
     }
 }

@@ -7,14 +7,13 @@
  */
 package org.eclipse.buildship.ui.editor;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.collect.Lists;
 
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jdt.ui.JavaUI;
@@ -39,54 +38,39 @@ import org.eclipse.jface.text.rules.WordRule;
 import org.eclipse.buildship.core.util.preference.EclipsePreferencesUtils;
 
 /**
- * Presentation Reconcilier for the Gradle Editor
+ * Presentation reconciler for the Gradle Editor.
  *
  * @author Christophe Moine
  */
-public class GradlePresentationReconciler extends PresentationReconciler {
-    private static final List<String> KEYWORDS = Arrays.asList("assert", "if", "else", "void", "null", "new", "return", "try", "catch", "def", "allprojects", //
-            "artifacts", "buildscript", "configurations", "dependencies", "repositories", "sourceSets", "subprojects", "publishing", "task", "apply", "sourceCompatibility", //
-            "targetCompatibility", "test", "project", "ext", "plugins", "jar", "shadowJar", "for", "while");
+public final class GradlePresentationReconciler extends PresentationReconciler {
 
-    private final Map<String, Token> idToTokens=ImmutableMap.<String, Token>builder()
-            .put(IJavaColorConstants.JAVA_KEYWORD, new Token(null)) //
-            .put(IJavaColorConstants.JAVA_SINGLE_LINE_COMMENT, new Token(null)) //
-            .put(IJavaColorConstants.JAVA_MULTI_LINE_COMMENT, new Token(null)) //
-            .put(IJavaColorConstants.JAVA_STRING, new Token(null)) //
-            .put(IJavaColorConstants.JAVA_DEFAULT, new Token(null)) //
-            .build();
-
-    private IEclipsePreferences preferencesNode = EclipsePreferencesUtils.getInstanceScope().getNode(JavaUI.ID_PLUGIN);
+    private TokenUpdatingPreferenceChangeListener listener;
 
     @Override
     public void install(final ITextViewer viewer) {
-        this.preferencesNode.addPreferenceChangeListener(new IPreferenceChangeListener() {
-            @Override
-            public void preferenceChange(PreferenceChangeEvent event) {
-                if(updateToken(event.getKey())) {
-                    viewer.invalidateTextPresentation();
-                }
-            }
-        });
-        for(Entry<String, Token> entry: this.idToTokens.entrySet()) {
-            updateToken(entry.getKey());
-        }
-
-        BufferedRuleBasedScanner scanner = new BufferedRuleBasedScanner() {};
-        scanner.setRules(new IRule[] { new EndOfLineRule("//", this.idToTokens.get(IJavaColorConstants.JAVA_SINGLE_LINE_COMMENT)), // $NON-NLS-2$
-                new MultiLineRule("/*", "*/", this.idToTokens.get(IJavaColorConstants.JAVA_MULTI_LINE_COMMENT), (char) 0, true), //$NON-NLS-2$
-                new SingleLineRule("\"", "\"", this.idToTokens.get(IJavaColorConstants.JAVA_STRING)), //
-                new SingleLineRule("'", "'", this.idToTokens.get(IJavaColorConstants.JAVA_STRING)), //
-                new KeywordRule(this.idToTokens.get(IJavaColorConstants.JAVA_KEYWORD)), //
-                new WordRule(new WordDetector(), this.idToTokens.get(IJavaColorConstants.JAVA_DEFAULT)),
-                new NumberRule(this.idToTokens.get(IJavaColorConstants.JAVA_DEFAULT)),
-        });
-        setDamagerRepairer(scanner, IDocument.DEFAULT_CONTENT_TYPE);
-        MultilineCommentScanner multilineCommentScanner=new MultilineCommentScanner(this.idToTokens.get(IJavaColorConstants.JAVA_MULTI_LINE_COMMENT));
-        setDamagerRepairer(multilineCommentScanner, IGradlePartitions.MULTILINE_COMMENT);
-        setDamagerRepairer(multilineCommentScanner, IGradlePartitions.GRADLEDOC);
-
         super.install(viewer);
+
+        BuildScriptTokens tokens = new BuildScriptTokens();
+        tokens.update();
+
+        this.listener = new TokenUpdatingPreferenceChangeListener(viewer, tokens);
+        EclipsePreferencesUtils.getInstanceScope().getNode(JavaUI.ID_PLUGIN).addPreferenceChangeListener(this.listener);
+
+        SimpleScanner scanner = new SimpleScanner();
+        scanner.setRules(tokens.toRules());
+        setDamagerRepairer(scanner, IDocument.DEFAULT_CONTENT_TYPE);
+
+        MultilineCommentScanner multilineCommentScanner = new MultilineCommentScanner(tokens.getToken(BuildScriptTokenType.MULTI_LINE_COMMENT));
+        setDamagerRepairer(multilineCommentScanner, GradleEditorConstants.TOKEN_TYPE_MULTILINE_COMMENT);
+        setDamagerRepairer(multilineCommentScanner, GradleEditorConstants.TOKEN_TYPE_JAVADOC);
+    }
+
+    @Override
+    public void uninstall() {
+        if (this.listener != null) {
+            EclipsePreferencesUtils.getInstanceScope().getNode(JavaUI.ID_PLUGIN).removePreferenceChangeListener(this.listener);
+        }
+        super.uninstall();
     }
 
     private void setDamagerRepairer(ITokenScanner scanner, String tokenType) {
@@ -95,17 +79,81 @@ public class GradlePresentationReconciler extends PresentationReconciler {
         setRepairer(damagerRepairer, tokenType);
     }
 
-    private boolean updateToken(String key) {
-        Token token = this.idToTokens.get(key);
-        if(token!=null) {
-            token.setData(new TextAttribute(JavaUI.getColorManager().getColor(key)));
+    /**
+     * Tokens types available in the Gradle editor.
+     */
+    private enum BuildScriptTokenType {
+        KEYWORD(IJavaColorConstants.JAVA_KEYWORD),
+        SINGLE_LINE_COMMENT(IJavaColorConstants.JAVA_SINGLE_LINE_COMMENT),
+        MULTI_LINE_COMMENT(IJavaColorConstants.JAVA_MULTI_LINE_COMMENT),
+        STRING(IJavaColorConstants.JAVA_STRING),
+        DEFAULT(IJavaColorConstants.JAVA_DEFAULT);
+
+        private final String colorKey;
+
+        BuildScriptTokenType(String colorKey) {
+            this.colorKey = colorKey;
         }
-        return token!=null;
+
+        public String getColorKey() {
+            return this.colorKey;
+        }
+
+        private static List<String> getAllColorKeys() {
+            List<String> result = Lists.newArrayListWithCapacity(BuildScriptTokenType.values().length);
+            for (BuildScriptTokenType tokenType : BuildScriptTokenType.values()) {
+                result.add(tokenType.getColorKey());
+            }
+            return result;
+        }
     }
 
+    /**
+     * Tokens for the current editor.
+     */
+    private static class BuildScriptTokens {
 
+        private final ImmutableMap<BuildScriptTokenType, Token> tokens;
 
+        public BuildScriptTokens() {
+            Builder<BuildScriptTokenType, Token> result = ImmutableMap.<BuildScriptTokenType,Token>builder();
+            for (BuildScriptTokenType tokenType : BuildScriptTokenType.values()) {
+                result.put(tokenType, new Token(null));
+            }
+            this.tokens = result.build();
+        }
+
+        public Token getToken(BuildScriptTokenType tokenType) {
+            return this.tokens.get(tokenType);
+        }
+
+        public void update() {
+            for (BuildScriptTokenType tokenType : BuildScriptTokenType.values()) {
+                this.tokens.get(tokenType).setData(new TextAttribute(JavaUI.getColorManager().getColor(tokenType.getColorKey())));
+            }
+        }
+
+        public IRule[] toRules() {
+            return new IRule[] { new EndOfLineRule("//", this.tokens.get(BuildScriptTokenType.SINGLE_LINE_COMMENT)),
+                new MultiLineRule("/*", "*/", this.tokens.get(BuildScriptTokenType.MULTI_LINE_COMMENT), (char) 0, true),
+                new SingleLineRule("\"", "\"", this.tokens.get(BuildScriptTokenType.STRING)), new SingleLineRule("'", "'", this.tokens.get(BuildScriptTokenType.STRING)),
+                new KeywordRule(this.tokens.get(BuildScriptTokenType.KEYWORD)), //
+                new WordRule(new WordDetector(), this.tokens.get(BuildScriptTokenType.DEFAULT)), new NumberRule(this.tokens.get(BuildScriptTokenType.DEFAULT)) };
+        }
+    }
+
+    /**
+     * Rule for keywords.
+     */
     private static class KeywordRule extends WordRule {
+
+        private static final List<String> KEYWORDS = ImmutableList.of(
+            "assert", "if", "else", "void", "null", "new", "return", "try", "catch", "def", "allprojects", "artifacts",
+            "buildscript", "configurations", "dependencies", "repositories", "sourceSets", "subprojects", "publishing",
+            "task", "apply", "sourceCompatibility", "targetCompatibility", "test", "project", "ext", "plugins", "jar",
+            "shadowJar", "for", "while"
+        );
+
         public KeywordRule(IToken token) {
             super(new WordDetector());
             for (String word : KEYWORDS) {
@@ -114,6 +162,9 @@ public class GradlePresentationReconciler extends PresentationReconciler {
         }
     }
 
+    /**
+     * Word detector.
+     */
     private static class WordDetector implements IWordDetector {
 
         @Override
@@ -125,6 +176,44 @@ public class GradlePresentationReconciler extends PresentationReconciler {
         public boolean isWordStart(char c) {
             return Character.isJavaIdentifierStart(c);
         }
+    }
 
+    /**
+     * Same as BufferedRuleBasedScanner but with public constructor.
+     */
+    private static class SimpleScanner extends BufferedRuleBasedScanner {
+        //
+    }
+
+    /**
+     * Scanner for multi-line comments.
+     */
+    private static class MultilineCommentScanner extends BufferedRuleBasedScanner {
+
+        public MultilineCommentScanner(Token token) {
+            setDefaultReturnToken(token);
+        }
+    }
+
+    /**
+     * Updates the editor colors when the color preference changes.
+     */
+    private static class TokenUpdatingPreferenceChangeListener implements IPreferenceChangeListener {
+
+        private final ITextViewer viewer;
+        private final BuildScriptTokens tokens;
+
+        public TokenUpdatingPreferenceChangeListener(ITextViewer viewer, BuildScriptTokens tokens) {
+            this.viewer = viewer;
+            this.tokens = tokens;
+        }
+
+        @Override
+        public void preferenceChange(PreferenceChangeEvent event) {
+            if (BuildScriptTokenType.getAllColorKeys().contains(event.getKey())) {
+                this.viewer.invalidateTextPresentation();
+                this.tokens.update();
+            }
+        }
     }
 }

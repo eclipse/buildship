@@ -41,11 +41,11 @@ public class GradleTextViewerConfiguration extends TextSourceViewerConfiguration
 
     @Override
     public String[] getConfiguredContentTypes(ISourceViewer sourceViewer) {
-        return IGradlePartitions.PARTITIONS;
+        return GradleEditorConstants.PARTITIONS;
     }
 
     @Override
     public String getConfiguredDocumentPartitioning(ISourceViewer sourceViewer) {
-        return IGradlePartitions.PARTITIONING;
+        return GradleEditorConstants.PARTITIONING;
     }
 }
