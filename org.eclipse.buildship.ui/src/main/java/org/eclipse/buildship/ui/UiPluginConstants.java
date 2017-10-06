@@ -61,6 +61,11 @@ public final class UiPluginConstants {
     public static final String OPEN_BUILD_SCRIPT_COMMAND_ID = "org.eclipse.buildship.ui.commands.openbuildscript";
 
     /**
+     * The id of the command to execute a project refresh for the selected project.
+     */
+    public static final String REFRESH_PROJECT_COMMAND_ID = "org.eclipse.buildship.ui.commands.refreshproject";
+
+    /**
      * The id of the 'Resource' working set page.
      */
     public static final String RESOURCE = "org.eclipse.ui.resourceWorkingSetPage"; //$NON-NLS-1$
