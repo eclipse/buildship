@@ -1,12 +1,18 @@
 package org.eclipse.buildship.core.configuration.internal
 
+import spock.lang.Issue
+
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
+import org.eclipse.core.variables.IStringVariableManager
+import org.eclipse.core.variables.IValueVariable
+import org.eclipse.core.variables.VariablesPlugin
 import org.eclipse.debug.core.DebugPlugin
 import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.debug.core.ILaunchConfigurationType
 import org.eclipse.debug.core.ILaunchManager
 
+import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.configuration.RunConfiguration
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes
@@ -148,9 +154,99 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         runConfig.projectConfiguration.buildConfiguration.workspaceConfiguration.buildScansEnabled == false
     }
 
+    @Issue('https://github.com/eclipse/buildship/issues/572')
+    def "load attributes from valid expressions"() {
+        setup:
+        IStringVariableManager variableManager = VariablesPlugin.default.stringVariableManager
+        IValueVariable[] variables = [
+            variableManager.newValueVariable('buildship_test_var1', 'Variable to test run config substitution', true, 'test_value1'),
+            variableManager.newValueVariable('buildship_test_var2', 'Variable to test run config substitution', true, 'test_value2'),
+            variableManager.newValueVariable('buildship_test_var3', 'Variable to test run config substitution', true, 'test_value3'),
+            variableManager.newValueVariable('buildship_test_var4', 'Variable to test run config substitution', true, 'test_value4')
+        ]
+        variableManager.addVariables(variables)
+
+        File projectDir = dir('sample-project').canonicalFile
+        importAndWait(projectDir)
+
+        ILaunchConfiguration launchConfig = emptyLaunchConfig()
+        GradleRunConfigurationAttributes.applyOverrideBuildSettings(true, launchConfig)
+        GradleRunConfigurationAttributes.applyWorkingDirExpression('${workspace_loc:/sample-project}', launchConfig)
+        GradleRunConfigurationAttributes.applyGradleUserHomeExpression('/gradleUserHome/${buildship_test_var1}', launchConfig)
+        GradleRunConfigurationAttributes.applyJavaHomeExpression('/javaHome/${buildship_test_var2}', launchConfig)
+        GradleRunConfigurationAttributes.applyArgumentExpressions(['-PsampleProjectProperty=${buildship_test_var3}'], launchConfig)
+        GradleRunConfigurationAttributes.applyJvmArgumentExpressions(['-DsampleJvmProperty=${buildship_test_var4}'], launchConfig)
+
+        when:
+        RunConfiguration runConfig = configurationManager.loadRunConfiguration(launchConfig)
+
+        then:
+        runConfig.projectConfiguration.projectDir == projectDir
+        runConfig.gradleUserHome.path.contains 'test_value1'
+        runConfig.javaHome.path.contains 'test_value2'
+        runConfig.arguments == ['-PsampleProjectProperty=test_value3']
+        runConfig.jvmArguments == ['-DsampleJvmProperty=test_value4']
+
+        cleanup:
+        variableManager.removeVariables(variables)
+    }
+
+    @Issue('https://github.com/eclipse/buildship/issues/572')
+    def "load attributes from invaild expressions"() {
+        setup:
+        File projectDir = dir('sample-project').canonicalFile
+        importAndWait(projectDir)
+
+        ILaunchConfiguration launchConfig = emptyLaunchConfig()
+        GradleRunConfigurationAttributes.applyOverrideBuildSettings(true, launchConfig)
+        GradleRunConfigurationAttributes.applyWorkingDirExpression('${nonexisting}', launchConfig)
+
+        when:
+        configurationManager.loadRunConfiguration(launchConfig)
+
+        then:
+        thrown GradlePluginsRuntimeException
+
+        when:
+        launchConfig = emptyLaunchConfig()
+        GradleRunConfigurationAttributes.applyWorkingDirExpression('${workspace_loc:/sample-project}', launchConfig)
+        GradleRunConfigurationAttributes.applyGradleUserHomeExpression('${nonexisting}', launchConfig)
+        configurationManager.loadRunConfiguration(launchConfig)
+
+        then:
+        thrown GradlePluginsRuntimeException
+
+        when:
+        launchConfig = emptyLaunchConfig()
+        GradleRunConfigurationAttributes.applyWorkingDirExpression('${workspace_loc:/sample-project}', launchConfig)
+        GradleRunConfigurationAttributes.applyJavaHomeExpression('${nonexisting}', launchConfig)
+        configurationManager.loadRunConfiguration(launchConfig)
+
+        then:
+        thrown GradlePluginsRuntimeException
+
+        when:
+        launchConfig = emptyLaunchConfig()
+        GradleRunConfigurationAttributes.applyWorkingDirExpression('${workspace_loc:/sample-project}', launchConfig)
+        GradleRunConfigurationAttributes.applyArgumentExpressions(['${nonexisting}'], launchConfig)
+        configurationManager.loadRunConfiguration(launchConfig)
+
+        then:
+        thrown GradlePluginsRuntimeException
+
+        when:
+        launchConfig = emptyLaunchConfig()
+        GradleRunConfigurationAttributes.applyWorkingDirExpression('${workspace_loc:/sample-project}', launchConfig)
+        GradleRunConfigurationAttributes.applyJvmArgumentExpressions(['${nonexisting}'], launchConfig)
+        configurationManager.loadRunConfiguration(launchConfig)
+
+        then:
+        thrown GradlePluginsRuntimeException
+    }
+
     private ILaunchConfiguration emptyLaunchConfig() {
         ILaunchManager launchManager = DebugPlugin.default.launchManager
         ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(GradleRunConfigurationDelegate.ID)
-        type.newInstance(null, "launch-config-name")
+        type.newInstance(null, launchManager.generateLaunchConfigurationName('launch-config-name'))
     }
 }
