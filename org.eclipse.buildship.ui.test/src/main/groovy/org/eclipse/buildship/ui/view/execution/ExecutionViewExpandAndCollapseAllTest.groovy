@@ -1,15 +1,16 @@
 package org.eclipse.buildship.ui.view.execution
 
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree
+
 class ExecutionViewExpandAndCollapseAllTest extends BaseExecutionViewTest {
 
     def "Expand and collapse all"() {
         setup:
-        def project = sampleProject()
-        importAndWait(project)
-        launchTask(project.absolutePath, 'foo')
-        waitForConsoleOutput()
+        File projectDir = sampleProject()
+        importAndWait(projectDir)
+        launchTaskAndWait(projectDir, 'foo')
 
-        tree = getCurrentTree()
+        SWTBotTree tree = getCurrentTree()
 
         expect:
         tree.getTreeItem('Run build').expanded
@@ -33,11 +34,6 @@ class ExecutionViewExpandAndCollapseAllTest extends BaseExecutionViewTest {
             file 'build.gradle', """
                 task foo() {
                     group = 'custom'
-                    // we need to declare a longer-running task until the following bug in the executions view is resolved:
-                    // https://github.com/eclipse/buildship/issues/586
-                    doLast {
-                        Thread.sleep(100)
-                    }
                 }
             """
         }

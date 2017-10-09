@@ -53,7 +53,7 @@ public final class UpdateExecutionPageJob extends Job {
     @Override
     protected IStatus run(IProgressMonitor monitor) {
         RateLimiter rateLimiter = RateLimiter.create(MAX_UPDATES_PER_SECOND);
-        while(this.running) {
+        while(this.running || !this.queue.isEmpty()) {
             rateLimiter.acquire();
 
             List<ProgressEvent> events = Lists.newArrayList();

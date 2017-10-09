@@ -1,18 +1,17 @@
 package org.eclipse.buildship.ui.view.execution
 
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem
 
 class ExecutionViewDoubleClickTest extends BaseExecutionViewTest {
 
     def "Double-clicking group nodes expand and collapse children"() {
         setup:
-        def project = sampleTestProject()
-        importAndWait(project)
-        launchTask(project.absolutePath, 'build')
-        waitForConsoleOutput()
+        File projectDir = sampleTestProject()
+        importAndWait(projectDir)
+        launchTaskAndWait(projectDir, 'build')
 
-        tree = getCurrentTree()
-
+        SWTBotTree tree = getCurrentTree()
         SWTBotTreeItem root = tree.getTreeItem('Run build')
 
         expect:
@@ -45,15 +44,15 @@ class ExecutionViewDoubleClickTest extends BaseExecutionViewTest {
 
     def "Double-clicking test class and method open editor"() {
         setup:
-        def project = sampleTestProject()
-        importAndWait(project)
-        launchTask(project.absolutePath, 'build')
-        waitForConsoleOutput()
+        File projectDir = sampleTestProject()
+        importAndWait(projectDir)
+        launchTaskAndWait(projectDir, 'build')
+        waitForGradleJobsToFinish()
 
-        tree = getCurrentTree()
+        SWTBotTree tree = getCurrentTree()
+        SWTBotTreeItem root = tree.getTreeItem('Run build')
 
         when:
-        SWTBotTreeItem root = tree.getTreeItem('Run build')
         root.expand()
         SWTBotTreeItem runNode = root.getNode('Run tasks')
         runNode.expand()

@@ -30,6 +30,7 @@ class OpenBuildScanActionTest extends BaseExecutionViewTest {
         when:
         synchronizeAndWait(projectDir)
         launchTaskAndWait(projectDir, 'foo')
+        waitForConsoleOutput()
 
         then:
         view.pages.size() == 1
@@ -52,6 +53,7 @@ class OpenBuildScanActionTest extends BaseExecutionViewTest {
         when:
         synchronizeAndWait(projectDir)
         launchTaskAndWait(projectDir, 'publishFakeBuildScan')
+        waitForConsoleOutput()
 
         then:
         view.pages.size() == 1
@@ -81,7 +83,9 @@ class OpenBuildScanActionTest extends BaseExecutionViewTest {
         when:
         synchronizeAndWait(projectDir)
         launchTaskAndWait(projectDir, 'publishFakeBuildScanA')
+        waitForConsoleOutput()
         launchTaskAndWait(projectDir, 'publishFakeBuildScanB')
+        waitForConsoleOutput()
 
         then:
         view.pages.size() == 2
@@ -112,10 +116,11 @@ class OpenBuildScanActionTest extends BaseExecutionViewTest {
         when:
         importAndWait(projectDir, GradleDistribution.forVersion(gradleVersion))
         launchTaskAndWait(projectDir, 'somethingFunky', arguments)
+        waitForConsoleOutput()
 
         then:
         view.pages.size() == 1
-        view.pages[0].openBuildScanAction.enabled
+        waitFor(1000) { view.pages[0].openBuildScanAction.enabled }
         view.pages[0].openBuildScanAction.buildScanUrl.startsWith 'https://'
 
         where:
@@ -123,31 +128,5 @@ class OpenBuildScanActionTest extends BaseExecutionViewTest {
         '3.5'         | '1.7.1'          | ['--scan']
         '3.4.1'       | '1.8'            | ['-Dscan']
         '3.3'         | '1.6'            | ['-Dscan']
-    }
-
-    private void launchTaskAndWait(File projectDir, String task, List<String> arguments = []) {
-        new RunGradleBuildLaunchRequestJob(createLaunch(task, projectDir, arguments)).schedule()
-        waitForGradleJobsToFinish()
-        waitForPendingConsoleOutput()
-    }
-
-    private void waitForPendingConsoleOutput() {
-        waitFor { consoleListener.activeConsole.partitioner.pendingPartitions.empty }
-    }
-
-    private ILaunch createLaunch(String task, File rootDir, List<String> arguments) {
-        ILaunchConfigurationWorkingCopy launchConfig = emptyLaunchConfig()
-        GradleRunConfigurationAttributes.applyWorkingDirExpression(rootDir.absolutePath, launchConfig)
-        GradleRunConfigurationAttributes.applyTasks([task], launchConfig)
-        GradleRunConfigurationAttributes.applyArgumentExpressions(arguments, launchConfig)
-        ILaunch launch = Mock(ILaunch)
-        launch.launchConfiguration >> launchConfig
-        launch
-    }
-
-    private ILaunchConfigurationWorkingCopy emptyLaunchConfig() {
-        ILaunchManager launchManager = DebugPlugin.default.launchManager
-        ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(GradleRunConfigurationDelegate.ID)
-        type.newInstance(null, "launch-config-name")
     }
 }
