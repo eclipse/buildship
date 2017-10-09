@@ -175,7 +175,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
                   attributes.getGradleUserHome(),
                   attributes.getJavaHome(),
                   attributes.getJvmArguments(),
-                  attributes.getArgumentExpressions(),
+                  attributes.getArguments(),
                   attributes.isShowConsoleView(),
                   attributes.isShowExecutionView(),
                   attributes.isOverrideBuildSettings(),
