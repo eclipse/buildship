@@ -17,6 +17,8 @@ import org.eclipse.buildship.core.configuration.GradleProjectNatureConfiguredEve
 import org.eclipse.buildship.core.configuration.GradleProjectNatureDeconfiguredEvent;
 import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.event.EventListener;
+import org.eclipse.buildship.core.workspace.ProjectCreatedEvent;
+import org.eclipse.buildship.core.workspace.ProjectDeletedEvent;
 
 /**
  * Launch listener updating the classpath provider attribute.
@@ -45,6 +47,10 @@ public final class LaunchConfigurationListener implements ILaunchConfigurationLi
             CorePlugin.externalLaunchConfigurationManager().updateClasspathProviders(((GradleProjectNatureConfiguredEvent)event).getProject());
         } else if (event instanceof GradleProjectNatureDeconfiguredEvent) {
             CorePlugin.externalLaunchConfigurationManager().updateClasspathProviders(((GradleProjectNatureDeconfiguredEvent)event).getProject());
+        } else if (event instanceof ProjectCreatedEvent) {
+            CorePlugin.externalLaunchConfigurationManager().updateClasspathProviders(((ProjectCreatedEvent)event).getProject());
+        } else if (event instanceof ProjectDeletedEvent) {
+            CorePlugin.externalLaunchConfigurationManager().removeClasspathProviders(((ProjectDeletedEvent)event).getProject());
         }
     }
 

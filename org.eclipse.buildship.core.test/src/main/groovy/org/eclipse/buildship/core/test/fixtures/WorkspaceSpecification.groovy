@@ -198,7 +198,7 @@ abstract class WorkspaceSpecification extends Specification {
 
     protected ILaunchConfigurationWorkingCopy createLaunchConfig(String id, String name = 'launch-config') {
         ILaunchManager launchManager = DebugPlugin.default.launchManager
-        ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(GradleRunConfigurationDelegate.ID)
+        ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(id)
         type.newInstance(null, launchManager.generateLaunchConfigurationName(name))
     }
 

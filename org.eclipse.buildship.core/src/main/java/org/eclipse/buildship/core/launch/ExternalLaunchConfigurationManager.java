@@ -46,4 +46,6 @@ public interface ExternalLaunchConfigurationManager {
      * @param configuration the target configuration
      */
     void updateClasspathProvider(ILaunchConfiguration configuration);
+
+    void removeClasspathProviders(IProject project);
 }

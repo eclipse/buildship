@@ -44,14 +44,31 @@ public final class DefaultExternalLaunchConfigurationManager implements External
     private static final String ORIGINAL_CLASSPATH_PROVIDER_ATTRIBUTE = CorePlugin.PLUGIN_ID + ".originalclasspathprovider";
 
     @Override
+    public void removeClasspathProviders(IProject project) {
+        try {
+            ILaunchManager configManager = DebugPlugin.getDefault().getLaunchManager();
+            for (String typeId : SUPPORTED_LAUNCH_CONFIG_TYPES) {
+                ILaunchConfigurationType type = configManager.getLaunchConfigurationType(typeId);
+                for(ILaunchConfiguration config : configManager.getLaunchConfigurations(type)) {
+                    if (hasProject(config, project)) {
+                        removeGradleClasspathProvider(config);
+                    }
+                }
+
+            }
+        } catch (CoreException e) {
+            CorePlugin.logger().warn("Cannot update classpath provider", e);
+        }
+    }
+
+    @Override
     public void updateClasspathProviders(IProject project) {
         try {
             ILaunchManager configManager = DebugPlugin.getDefault().getLaunchManager();
             for (String typeId : SUPPORTED_LAUNCH_CONFIG_TYPES) {
                 ILaunchConfigurationType type = configManager.getLaunchConfigurationType(typeId);
                 for(ILaunchConfiguration config : configManager.getLaunchConfigurations(type)) {
-                    IJavaProject javaProject = getJavaProject(config);
-                    if (javaProject != null && javaProject.getProject() != null && javaProject.getProject().equals(project)) {
+                    if (hasProject(config, project)) {
                         updateClasspathProvider(config);
                     }
                 }
@@ -60,6 +77,11 @@ public final class DefaultExternalLaunchConfigurationManager implements External
         } catch (CoreException e) {
             CorePlugin.logger().warn("Cannot update classpath provider", e);
         }
+    }
+
+    private static boolean hasProject(ILaunchConfiguration configuration, IProject project) throws CoreException {
+        String projectName = configuration.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, (String)null);
+        return project.getName().equals(projectName);
     }
 
     @Override
