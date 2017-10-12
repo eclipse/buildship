@@ -44,13 +44,9 @@ import org.eclipse.buildship.core.workspace.ProjectDeletedEvent;
  */
 public final class DefaultExternalLaunchConfigurationManager implements ExternalLaunchConfigurationManager {
 
-    private final LaunchConfigurationListener launchConfigurationListener = new LaunchConfigurationListener();
-
-    // TODO (donat) this should be an enum and the source set collector should use it / retrieve enum instance based on ILaunchConfiguration
-    public static final String LAUNCH_CONFIG_TYPE_JUNIT_LAUNCH = "org.eclipse.jdt.junit.launchconfig";
-    public static final String LAUNCH_CONFIG_TYPE_JAVA_LAUNCH = "org.eclipse.jdt.launching.localJavaApplication";
-    private static final Set<String> SUPPORTED_LAUNCH_CONFIG_TYPES = Sets.newHashSet(LAUNCH_CONFIG_TYPE_JAVA_LAUNCH);
     private static final String ORIGINAL_CLASSPATH_PROVIDER_ATTRIBUTE = CorePlugin.PLUGIN_ID + ".originalclasspathprovider";
+
+    private final LaunchConfigurationListener launchConfigurationListener = new LaunchConfigurationListener();
 
     private DefaultExternalLaunchConfigurationManager() {
     }
@@ -71,9 +67,9 @@ public final class DefaultExternalLaunchConfigurationManager implements External
     public void updateClasspathProviders(IProject project) {
         try {
             ILaunchManager configManager = DebugPlugin.getDefault().getLaunchManager();
-            for (String typeId : SUPPORTED_LAUNCH_CONFIG_TYPES) {
-                ILaunchConfigurationType type = configManager.getLaunchConfigurationType(typeId);
-                for(ILaunchConfiguration config : configManager.getLaunchConfigurations(type)) {
+            for (SupportedLaunchConfigType supportedType : SupportedLaunchConfigType.values()) {
+                ILaunchConfigurationType type = configManager.getLaunchConfigurationType(supportedType.getId());
+                for (ILaunchConfiguration config : configManager.getLaunchConfigurations(type)) {
                     if (hasProject(config, project)) {
                         updateClasspathProvider(config);
                     }
@@ -93,7 +89,7 @@ public final class DefaultExternalLaunchConfigurationManager implements External
     @Override
     public void updateClasspathProvider(ILaunchConfiguration configuration) {
         try {
-            if (!isSupportedType(configuration)) {
+            if (!SupportedLaunchConfigType.isSupported(configuration)) {
                 return;
             }
 
@@ -108,10 +104,6 @@ public final class DefaultExternalLaunchConfigurationManager implements External
         } catch (CoreException e) {
             CorePlugin.logger().warn("Cannot update classpath provider", e);
         }
-    }
-
-    private boolean isSupportedType(ILaunchConfiguration configuration) throws CoreException {
-        return SUPPORTED_LAUNCH_CONFIG_TYPES.contains(configuration.getType().getIdentifier());
     }
 
     private boolean isGradleProject(ILaunchConfiguration configuration) {

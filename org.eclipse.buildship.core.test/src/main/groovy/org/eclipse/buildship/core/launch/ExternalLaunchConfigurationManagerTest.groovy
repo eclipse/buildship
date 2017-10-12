@@ -5,17 +5,15 @@ import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.*
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IProjectDescription
 import org.eclipse.core.runtime.NullProgressMonitor
-import org.eclipse.debug.core.DebugPlugin
 import org.eclipse.debug.core.ILaunchConfiguration
-import org.eclipse.debug.core.ILaunchConfigurationType
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy
-import org.eclipse.debug.core.ILaunchManager
 import org.eclipse.jdt.core.IJavaProject
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.launch.internal.DefaultExternalLaunchConfigurationManager
 import org.eclipse.buildship.core.launch.internal.GradleClasspathProvider
+import org.eclipse.buildship.core.launch.internal.SupportedLaunchConfigType
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
 class ExternalLaunchConfigurationManagerTest extends WorkspaceSpecification {
@@ -113,7 +111,7 @@ class ExternalLaunchConfigurationManagerTest extends WorkspaceSpecification {
 
     private ILaunchConfiguration createJdtLaunchConfigFor(IJavaProject javaProject, Map<String, String> attributes = [:]) {
         IProject project = javaProject.project
-        ILaunchConfigurationWorkingCopy launchConfig = createLaunchConfig(DefaultExternalLaunchConfigurationManager.LAUNCH_CONFIG_TYPE_JAVA_LAUNCH)
+        ILaunchConfigurationWorkingCopy launchConfig = createLaunchConfig(SupportedLaunchConfigType.JDT_JAVA_APPLICATION.id)
         launchConfig.setAttribute(ATTR_PROJECT_NAME, project.name)
         attributes.forEach { k, v -> launchConfig.setAttribute(k, v) }
         launchConfig.doSave()

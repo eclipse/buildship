@@ -16,7 +16,7 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
 
     def setup() {
         ILaunchConfigurationWorkingCopy launchConfigWorkingCopy = createLaunchConfig(
-            DefaultExternalLaunchConfigurationManager.LAUNCH_CONFIG_TYPE_JAVA_LAUNCH,
+            SupportedLaunchConfigType.JDT_JAVA_APPLICATION.id,
             'launch config for' + GradleClasspathProviderUpdateTest.class.simpleName)
         launchConfigWorkingCopy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, 'project-name')
         launchConfiguration = launchConfigWorkingCopy.doSave();
