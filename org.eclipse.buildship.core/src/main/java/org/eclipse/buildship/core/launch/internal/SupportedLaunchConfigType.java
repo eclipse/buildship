@@ -34,7 +34,7 @@ public enum SupportedLaunchConfigType {
     JDT_JAVA_APPLICATION("org.eclipse.jdt.launching.localJavaApplication") {
 
         @Override
-        protected Set<IPackageFragmentRoot> relatedSourceFolders(ILaunchConfiguration configuration) throws CoreException {
+        protected Set<IPackageFragmentRoot> getSourceFolders(ILaunchConfiguration configuration) throws CoreException {
             JavaLaunchDelegate launchDelegate = new JavaLaunchDelegate();
             IJavaProject javaProject = launchDelegate.getJavaProject(configuration);
             if (javaProject == null) {
@@ -64,7 +64,7 @@ public enum SupportedLaunchConfigType {
     JUNIT_JUNIT("org.eclipse.jdt.junit.launchconfig") {
 
         @Override
-        protected Set<IPackageFragmentRoot> relatedSourceFolders(ILaunchConfiguration configuration) throws CoreException {
+        protected Set<IPackageFragmentRoot> getSourceFolders(ILaunchConfiguration configuration) throws CoreException {
             RelaxedJUnitLaunchConfigurationDelegate launchDelegate = new RelaxedJUnitLaunchConfigurationDelegate();
             IMember[] members = launchDelegate.evaluateTests(configuration);
 
@@ -101,12 +101,12 @@ public enum SupportedLaunchConfigType {
         return this.id;
     }
 
-    public static Set<IPackageFragmentRoot> collectRelatedSourceFolders(ILaunchConfiguration configuration) throws CoreException {
+    public static Set<IPackageFragmentRoot> collectSourceFolders(ILaunchConfiguration configuration) throws CoreException {
         SupportedLaunchConfigType type = launchConfigTypeFor(configuration.getType().getIdentifier());
         if (type == null) {
             return ImmutableSet.of();
         }
-        return type.relatedSourceFolders(configuration);
+        return type.getSourceFolders(configuration);
     }
 
     public static boolean isSupported(ILaunchConfiguration configuration) {
@@ -126,7 +126,7 @@ public enum SupportedLaunchConfigType {
         return null;
     }
 
-    protected abstract Set<IPackageFragmentRoot> relatedSourceFolders(ILaunchConfiguration configuration) throws CoreException;
+    protected abstract Set<IPackageFragmentRoot> getSourceFolders(ILaunchConfiguration configuration) throws CoreException;
 
     /**
      * Helper class to access the members referenced by a JUnit launch configuration as the

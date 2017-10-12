@@ -24,32 +24,28 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.buildship.core.CorePlugin;
 
 /**
- * Contains utility methods to collect Gradle source set information.
+ * Contains utility methods to collect Gradle scopes.
  *
  * @author Donat Csikos
  */
-public final class SourceSetCollector {
+public final class GradleScopeUtils {
 
-    private SourceSetCollector() {
+    private GradleScopeUtils() {
     }
 
     /**
-     * TODO (donat) adjust method name and phrasing so that it also applies to junit executions
-     *
-     * Finds the main class referenced by the target launch configuration and collects the Gradle
-     * source sets that contains the class.
+     * Collects the scopes used by the target launch configuration.
      * <p/>
-     * If the main class cannot be obtained (e.g. the target configuration is not a JDT launch) or
-     * if source folder of the class doesn't define any information about the Gradle source sets
-     * then the method returns and empty set. Upon exception the message is logged and an empty set
-     * is returned.
+     * If the scopes cannot be obtained (e.g. the target configuration is not supported) or if the
+     * current Gradle version doesn't provide scope information then the method returns and empty
+     * set. Upon exception the message is logged and an empty set is returned.
      *
      * @param configuration the target launch configuration
      * @return the source set names
      */
-    public static Set<String> mainClassSourceSets(ILaunchConfiguration configuration) {
+    public static Set<String> collectScopes(ILaunchConfiguration configuration) {
         try {
-            Set<IPackageFragmentRoot> soureFolders = SupportedLaunchConfigType.collectRelatedSourceFolders(configuration);
+            Set<IPackageFragmentRoot> soureFolders = SupportedLaunchConfigType.collectSourceFolders(configuration);
             Builder<String> result = ImmutableSet.builder();
             for (IPackageFragmentRoot sourceFolder : soureFolders) {
                 result.addAll(usedByScopesFor(sourceFolder.getRawClasspathEntry()));
@@ -61,26 +57,26 @@ public final class SourceSetCollector {
     }
 
     /**
-     * Determines whether any of the specified source sets contain the target classpath entry.
+     * Returns {@code true} if the target classpath entry is part of the target scopes.
      * <p/>
-     * If the entry doesn't define source set information or the source set names are empty then
-     * this method returns {@code true}.
+     * If the entry doesn't define scope information or the set of scopes isempty then this method
+     * returns {@code true}.
      *
      * @param entry the target classpath entry
-     * @param sourceSetNames the name of the source sets to look for
+     * @param scopes the name of the scopes to look for
      * @return
      */
-    public static boolean isEntryInSourceSets(IClasspathEntry entry, Set<String> sourceSetNames) {
-        if (sourceSetNames.isEmpty()) {
+    public static boolean isEntryInScope(IClasspathEntry entry, Set<String> scopes) {
+        if (scopes.isEmpty()) {
             return true;
         }
 
-        Set<String> librarySourceSets = scopesFor(entry);
-        if (librarySourceSets.isEmpty()) {
+        Set<String> libraryScopes = scopesFor(entry);
+        if (libraryScopes.isEmpty()) {
             return true;
         }
 
-        return !Sets.intersection(sourceSetNames, librarySourceSets).isEmpty();
+        return !Sets.intersection(scopes, libraryScopes).isEmpty();
     }
 
     private static Set<String> scopesFor(IClasspathEntry entry) {
