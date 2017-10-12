@@ -19,7 +19,7 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
     File location
     File buildFile
 
-    void setup() {
+    def setup() {
         location = dir('sample-project') {
             file('settings.gradle') << "include 'a', 'b', 'c'"
             dir('a/src/main/java').mkdirs()

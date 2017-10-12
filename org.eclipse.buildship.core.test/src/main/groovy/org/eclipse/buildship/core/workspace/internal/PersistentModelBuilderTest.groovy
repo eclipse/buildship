@@ -11,7 +11,7 @@ class PersistentModelBuilderTest extends WorkspaceSpecification {
 
     IProject project
 
-    void setup() {
+    def setup() {
         project = newProject('sample-project')
     }
 

@@ -22,7 +22,7 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
 
     IJavaProject javaProject
 
-    void setup() {
+    def setup() {
         javaProject = newJavaProject("project-name")
         javaProject.setRawClasspath([] as IClasspathEntry[], new NullProgressMonitor())
     }

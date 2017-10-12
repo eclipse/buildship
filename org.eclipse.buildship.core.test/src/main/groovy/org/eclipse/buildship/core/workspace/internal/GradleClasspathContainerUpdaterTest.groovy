@@ -23,7 +23,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
     IJavaProject project
 
-    void setup() {
+    def setup() {
         File folder = dir('another')
         File file = file('another/file')
         project = newJavaProject("sample")

@@ -27,7 +27,7 @@ class ExecutionsViewPerformanceTest extends ProjectSynchronizationSpecification 
 
     ExecutionsView view
 
-    void setup() {
+    def setup() {
         runOnUiThread {
             view = WorkbenchUtils.showView(ExecutionsView.ID, null, IWorkbenchPage.VIEW_ACTIVATE)
         }

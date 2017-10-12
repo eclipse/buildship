@@ -18,7 +18,7 @@ class GradleFolderUpdaterTest extends WorkspaceSpecification {
     IFolder newBuildFolder
     IFolder dotGradleFolder
 
-    void setup() {
+    def setup() {
         project = newProject('sample')
         buildFolder = project.getFolder('build')
         buildFolder.create(true, true, null)

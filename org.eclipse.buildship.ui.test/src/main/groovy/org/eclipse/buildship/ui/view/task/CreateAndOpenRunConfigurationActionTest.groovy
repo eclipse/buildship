@@ -17,7 +17,7 @@ class CreateAndOpenRunConfigurationActionTest extends ViewSpecification {
     CreateRunConfigurationAction createAction
     OpenRunConfigurationAction openAction
 
-    void setup() {
+    def setup() {
         createAction = new CreateRunConfigurationAction(UiPluginConstants.OPEN_RUN_CONFIGURATION_COMMAND_ID)
         openAction = new OpenRunConfigurationAction(UiPluginConstants.OPEN_RUN_CONFIGURATION_COMMAND_ID)
     }

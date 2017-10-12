@@ -10,7 +10,7 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
     File projectDir
 
-    void setup() {
+    def setup() {
         projectDir = dir('java-launch-config') {
             file 'build.gradle', """
                 apply plugin: 'java'

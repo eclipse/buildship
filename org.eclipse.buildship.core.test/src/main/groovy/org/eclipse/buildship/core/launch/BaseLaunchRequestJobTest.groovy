@@ -12,7 +12,7 @@ class BaseLaunchRequestJobTest extends WorkspaceSpecification {
     private ByteArrayOutputStream buildOutputStream
     private ByteArrayOutputStream buildConfigurationStream
 
-    void setup() {
+    def setup() {
         ProcessStreams processStreams = Mock(ProcessStreams)
         buildOutputStream = new ByteArrayOutputStream()
         buildConfigurationStream = new ByteArrayOutputStream()

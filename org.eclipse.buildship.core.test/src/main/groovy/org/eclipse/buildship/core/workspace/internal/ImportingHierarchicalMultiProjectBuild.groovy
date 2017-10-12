@@ -13,7 +13,7 @@ class ImportingHierarchicalMultiProjectBuild extends ProjectSynchronizationSpeci
     File rootDir
     File moduleADir
 
-    void setup() {
+    def setup() {
         importAndWait(createSampleProject())
     }
 

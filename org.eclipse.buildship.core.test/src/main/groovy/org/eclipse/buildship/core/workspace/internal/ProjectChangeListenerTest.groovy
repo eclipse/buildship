@@ -14,13 +14,13 @@ class ProjectChangeListenerTest extends WorkspaceSpecification {
 
     EventListener listener
 
-    void setup() {
+    def setup() {
         newProject('existing-project')
         listener = Mock(EventListener)
         CorePlugin.listenerRegistry().addEventListener(listener)
     }
 
-    void cleanup() {
+    def cleanup() {
         CorePlugin.listenerRegistry().removeEventListener(listener)
     }
 

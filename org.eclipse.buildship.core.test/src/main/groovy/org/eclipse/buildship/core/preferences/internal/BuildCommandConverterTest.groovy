@@ -9,7 +9,7 @@ class BuildCommandConverterTest extends WorkspaceSpecification {
 
     private IProject project
 
-    void setup() {
+    def setup() {
         project = newProject('sample-project')
     }
 

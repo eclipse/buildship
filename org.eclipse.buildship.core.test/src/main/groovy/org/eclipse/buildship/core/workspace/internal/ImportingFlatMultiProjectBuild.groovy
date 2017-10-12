@@ -18,7 +18,7 @@ class ImportingFlatMultiProjectBuild extends ProjectSynchronizationSpecification
     File moduleADir
     File moduleBDir
 
-    void setup() {
+    def setup() {
         createSampleProject()
         importAndWait(sampleDir)
     }
