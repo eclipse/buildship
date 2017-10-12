@@ -310,7 +310,7 @@
           versionRange="0.19.3"/>
       <requirement
           name="org.jetbrains.kotlin.feature.feature.group"
-          versionRange="0.8.0"/>
+          versionRange="0.8.2"/>
       <repositoryList
           name="Oxygen">
         <repository
