@@ -22,11 +22,24 @@ class ExternalLaunchConfigurationManagerTest extends WorkspaceSpecification {
 
     def setup() {
         manager = new DefaultExternalLaunchConfigurationManager()
-        CorePlugin.instance.launchConfigListener.unregister()
+        CorePlugin.instance.externalLaunchConfigurationManager.unregister()
     }
 
     def cleanup() {
-        CorePlugin.instance.launchConfigListener = CorePlugin.instance.launchConfigListener.createAndRegister()
+        CorePlugin.instance.externalLaunchConfigurationManager = CorePlugin.instance.externalLaunchConfigurationManager.createAndRegister()
+    }
+
+    def "Launch configurations with unsupported types remain unchanged"() {
+        setup:
+        IJavaProject project = newJavaProject('ext-run-config-manager-test')
+        ILaunchConfiguration configuration = createUnsupported(project)
+        addGradleNature(project)
+
+        when:
+        manager.updateClasspathProvider(configuration)
+
+        then:
+        !hasGradleClasspathProvider(configuration)
     }
 
     def "Gradle classpath provider is updated for Gradle projects"() {
@@ -112,6 +125,14 @@ class ExternalLaunchConfigurationManagerTest extends WorkspaceSpecification {
     private ILaunchConfiguration createJdtLaunchConfigFor(IJavaProject javaProject, Map<String, String> attributes = [:]) {
         IProject project = javaProject.project
         ILaunchConfigurationWorkingCopy launchConfig = createLaunchConfig(SupportedLaunchConfigType.JDT_JAVA_APPLICATION.id)
+        launchConfig.setAttribute(ATTR_PROJECT_NAME, project.name)
+        attributes.forEach { k, v -> launchConfig.setAttribute(k, v) }
+        launchConfig.doSave()
+    }
+
+    private ILaunchConfiguration createUnsupported(IJavaProject javaProject, Map<String, String> attributes = [:]) {
+        IProject project = javaProject.project
+        ILaunchConfigurationWorkingCopy launchConfig = createLaunchConfig('org.eclipse.jdt.launching.javaApplet')
         launchConfig.setAttribute(ATTR_PROJECT_NAME, project.name)
         attributes.forEach { k, v -> launchConfig.setAttribute(k, v) }
         launchConfig.doSave()

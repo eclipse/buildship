@@ -105,7 +105,7 @@ public final class CorePlugin extends Plugin {
     private ProjectChangeListener projectChangeListener;
     private InvocationCustomizer invocationCustomizer;
     private ConfigurationManager configurationManager;
-    private DefaultExternalLaunchConfigurationManager externalLaunchConfiguratioManager;
+    private DefaultExternalLaunchConfigurationManager externalLaunchConfigurationManager;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
@@ -162,7 +162,7 @@ public final class CorePlugin extends Plugin {
         this.projectChangeListener = ProjectChangeListener.createAndRegister();
         this.invocationCustomizer = new InvocationCustomizerCollector();
         this.configurationManager = new DefaultConfigurationManager();
-        this.externalLaunchConfiguratioManager = DefaultExternalLaunchConfigurationManager.createAndRegister();
+        this.externalLaunchConfigurationManager = DefaultExternalLaunchConfigurationManager.createAndRegister();
     }
 
     private ServiceTracker createServiceTracker(BundleContext context, Class<?> clazz) {
@@ -217,7 +217,7 @@ public final class CorePlugin extends Plugin {
     }
 
     private void unregisterServices() {
-        this.externalLaunchConfiguratioManager.unregister();
+        this.externalLaunchConfigurationManager.unregister();
         this.projectChangeListener.close();
         this.modelPersistence.close();
         this.userNotificationService.unregister();
@@ -300,6 +300,6 @@ public final class CorePlugin extends Plugin {
     }
 
     public static ExternalLaunchConfigurationManager externalLaunchConfigurationManager() {
-        return getInstance().externalLaunchConfiguratioManager;
+        return getInstance().externalLaunchConfigurationManager;
     }
 }
