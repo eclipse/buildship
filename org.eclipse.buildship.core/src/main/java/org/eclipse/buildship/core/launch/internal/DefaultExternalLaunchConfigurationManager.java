@@ -39,27 +39,12 @@ public final class DefaultExternalLaunchConfigurationManager implements External
 
     // TODO (donat) add junit and testng support : org.eclipse.jdt.junit.launchconfig org.eclipse.jdt.launching.localJavaApplication
 
-    private static final String LAUNCH_CONFIG_TYPE_JAVA_LAUNCH = "org.eclipse.jdt.launching.localJavaApplication";
+
+    // TODO (donat) this should be an enum and the source set collector should use it / retrieve enum instance based on ILaunchConfiguration
+    public static final String LAUNCH_CONFIG_TYPE_JUNIT_LAUNCH = "org.eclipse.jdt.junit.launchconfig";
+    public static final String LAUNCH_CONFIG_TYPE_JAVA_LAUNCH = "org.eclipse.jdt.launching.localJavaApplication";
     private static final Set<String> SUPPORTED_LAUNCH_CONFIG_TYPES = Sets.newHashSet(LAUNCH_CONFIG_TYPE_JAVA_LAUNCH);
     private static final String ORIGINAL_CLASSPATH_PROVIDER_ATTRIBUTE = CorePlugin.PLUGIN_ID + ".originalclasspathprovider";
-
-    @Override
-    public void removeClasspathProviders(IProject project) {
-        try {
-            ILaunchManager configManager = DebugPlugin.getDefault().getLaunchManager();
-            for (String typeId : SUPPORTED_LAUNCH_CONFIG_TYPES) {
-                ILaunchConfigurationType type = configManager.getLaunchConfigurationType(typeId);
-                for(ILaunchConfiguration config : configManager.getLaunchConfigurations(type)) {
-                    if (hasProject(config, project)) {
-                        removeGradleClasspathProvider(config);
-                    }
-                }
-
-            }
-        } catch (CoreException e) {
-            CorePlugin.logger().warn("Cannot update classpath provider", e);
-        }
-    }
 
     @Override
     public void updateClasspathProviders(IProject project) {

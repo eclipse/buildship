@@ -27,6 +27,8 @@ import org.eclipse.buildship.core.workspace.ProjectDeletedEvent;
  */
 public final class LaunchConfigurationListener implements ILaunchConfigurationListener, EventListener {
 
+    // TODO (donat) should we do an update upon startup?
+
     @Override
     public void launchConfigurationAdded(ILaunchConfiguration configuration) {
         CorePlugin.externalLaunchConfigurationManager().updateClasspathProvider(configuration);
@@ -50,7 +52,7 @@ public final class LaunchConfigurationListener implements ILaunchConfigurationLi
         } else if (event instanceof ProjectCreatedEvent) {
             CorePlugin.externalLaunchConfigurationManager().updateClasspathProviders(((ProjectCreatedEvent)event).getProject());
         } else if (event instanceof ProjectDeletedEvent) {
-            CorePlugin.externalLaunchConfigurationManager().removeClasspathProviders(((ProjectDeletedEvent)event).getProject());
+            CorePlugin.externalLaunchConfigurationManager().updateClasspathProviders(((ProjectDeletedEvent)event).getProject());
         }
     }
 

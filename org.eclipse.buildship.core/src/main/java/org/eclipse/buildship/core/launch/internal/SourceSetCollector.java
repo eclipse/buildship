@@ -14,13 +14,16 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.junit.launcher.JUnitLaunchConfigurationDelegate;
 import org.eclipse.jdt.launching.JavaLaunchDelegate;
 
 import org.eclipse.buildship.core.CorePlugin;
@@ -31,6 +34,8 @@ import org.eclipse.buildship.core.CorePlugin;
  * @author Donat Csikos
  */
 public final class SourceSetCollector {
+
+    // TODO (donat) clean up
 
     private SourceSetCollector() {
     }
@@ -49,31 +54,62 @@ public final class SourceSetCollector {
      */
     public static Set<String> mainClassSourceSets(ILaunchConfiguration configuration) {
         try {
-            JavaLaunchDelegate launchDelegate = new JavaLaunchDelegate();
-            IJavaProject javaProject = launchDelegate.getJavaProject(configuration);
-            if (javaProject == null) {
-                return Collections.emptySet();
-            }
+            System.err.println(configuration.getType().getIdentifier());
+            if (DefaultExternalLaunchConfigurationManager.LAUNCH_CONFIG_TYPE_JUNIT_LAUNCH.equals(configuration.getType().getIdentifier())) {
+                RelaxedJUnitLaunchConfigurationDelegate launchDelegate = new RelaxedJUnitLaunchConfigurationDelegate();
+                IMember[] members = launchDelegate.evaluateTests(configuration);
 
-            String mainTypeName = launchDelegate.getMainTypeName(configuration);
-            if (mainTypeName == null) {
-                return Collections.emptySet();
-            }
+                Set<String> gradleSourceSets = Sets.newHashSet();
+                for (IMember member : members) {
+                    IType type = member.getDeclaringType();
+                    if (type == null) {
+                        if (member instanceof IType) {
+                            type = (IType) member;
+                        } else {
+                            continue;
+                        }
+                    }
 
-            IType mainType = javaProject.findType(mainTypeName);
-            if (mainType == null) {
-                return Collections.emptySet();
-            }
-
-            IJavaElement pkg = mainType.getPackageFragment().getParent();
-            if (!(pkg instanceof IPackageFragmentRoot)) {
-                return Collections.emptySet();
-            }
-
-            for (IClasspathAttribute attribute : ((IPackageFragmentRoot) pkg).getRawClasspathEntry().getExtraAttributes()) {
-                if (attribute.getName().equals("gradle_source_sets")) {
-                    return Sets.newHashSet(attribute.getValue().split(","));
+                    if (type != null) {
+                        IJavaElement pkg = type.getPackageFragment().getParent();
+                        if (!(pkg instanceof IPackageFragmentRoot)) {
+                            continue;
+                        }
+                        gradleSourceSets.addAll(usedByScopesFor(((IPackageFragmentRoot) pkg).getRawClasspathEntry()));
+                    }
                 }
+
+                System.err.println("source sets for junit execution =" + gradleSourceSets);
+                return gradleSourceSets;
+            }
+
+            if (DefaultExternalLaunchConfigurationManager.LAUNCH_CONFIG_TYPE_JAVA_LAUNCH.equals(configuration.getType().getIdentifier())) {
+                JavaLaunchDelegate launchDelegate = new JavaLaunchDelegate();
+                IJavaProject javaProject = launchDelegate.getJavaProject(configuration);
+                if (javaProject == null) {
+                    return Collections.emptySet();
+                }
+
+                String mainTypeName = launchDelegate.getMainTypeName(configuration);
+                if (mainTypeName == null) {
+                    return Collections.emptySet();
+                }
+
+                IType mainType = javaProject.findType(mainTypeName);
+                if (mainType == null) {
+                    return Collections.emptySet();
+                }
+
+                IJavaElement pkg = mainType.getPackageFragment().getParent();
+                if (!(pkg instanceof IPackageFragmentRoot)) {
+                    return Collections.emptySet();
+                }
+
+                return usedByScopesFor(((IPackageFragmentRoot) pkg).getRawClasspathEntry());
+            }
+
+            else {
+                return Collections.emptySet();
             }
         } catch (CoreException e) {
             CorePlugin.logger().warn("Cannot collect source set information for dependencies", e);
@@ -96,7 +132,7 @@ public final class SourceSetCollector {
             return true;
         }
 
-        Set<String> librarySourceSets = sourceSetsFor(entry);
+        Set<String> librarySourceSets = scopesFor(entry);
         if (librarySourceSets.isEmpty()) {
             return true;
         }
@@ -104,12 +140,32 @@ public final class SourceSetCollector {
         return !Sets.intersection(sourceSetNames, librarySourceSets).isEmpty();
     }
 
-    private static Set<String> sourceSetsFor(IClasspathEntry entry) {
+    private static Set<String> scopesFor(IClasspathEntry entry) {
         for (IClasspathAttribute attribute : entry.getExtraAttributes()) {
-            if (attribute.getName().equals("gradle_source_sets")) {
+            if (attribute.getName().equals("gradle_scope")) {
                 return Sets.newHashSet(attribute.getValue().split(","));
             }
         }
         return Collections.emptySet();
+    }
+
+    private static Set<String> usedByScopesFor(IClasspathEntry entry) {
+        for (IClasspathAttribute attribute : entry.getExtraAttributes()) {
+            if (attribute.getName().equals("gradle_used_by_scope")) {
+                return Sets.newHashSet(attribute.getValue().split(","));
+            }
+        }
+        return Collections.emptySet();
+    }
+
+    /**
+     * Helper class to access the members referenced by a JUnit launch configuration as the
+     * corresponding {@code evaluateTests()} method is protected by default.
+     */
+    private static class RelaxedJUnitLaunchConfigurationDelegate extends JUnitLaunchConfigurationDelegate {
+
+        public IMember[] evaluateTests(ILaunchConfiguration configuration) throws CoreException {
+            return evaluateTests(configuration, new NullProgressMonitor());
+        }
     }
 }
