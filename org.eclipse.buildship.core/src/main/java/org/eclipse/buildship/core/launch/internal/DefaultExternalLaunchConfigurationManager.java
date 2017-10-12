@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationListener;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
@@ -28,7 +29,13 @@ import org.eclipse.jdt.launching.JavaRuntime;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.configuration.GradleProjectNatureConfiguredEvent;
+import org.eclipse.buildship.core.configuration.GradleProjectNatureDeconfiguredEvent;
+import org.eclipse.buildship.core.event.Event;
+import org.eclipse.buildship.core.event.EventListener;
 import org.eclipse.buildship.core.launch.ExternalLaunchConfigurationManager;
+import org.eclipse.buildship.core.workspace.ProjectCreatedEvent;
+import org.eclipse.buildship.core.workspace.ProjectDeletedEvent;
 
 /**
  * Default implementation for {@link ExternalLaunchConfigurationManager}.
@@ -37,14 +44,28 @@ import org.eclipse.buildship.core.launch.ExternalLaunchConfigurationManager;
  */
 public final class DefaultExternalLaunchConfigurationManager implements ExternalLaunchConfigurationManager {
 
-    // TODO (donat) add junit and testng support : org.eclipse.jdt.junit.launchconfig org.eclipse.jdt.launching.localJavaApplication
-
+    private final LaunchConfigurationListener launchConfigurationListener = new LaunchConfigurationListener();
 
     // TODO (donat) this should be an enum and the source set collector should use it / retrieve enum instance based on ILaunchConfiguration
     public static final String LAUNCH_CONFIG_TYPE_JUNIT_LAUNCH = "org.eclipse.jdt.junit.launchconfig";
     public static final String LAUNCH_CONFIG_TYPE_JAVA_LAUNCH = "org.eclipse.jdt.launching.localJavaApplication";
     private static final Set<String> SUPPORTED_LAUNCH_CONFIG_TYPES = Sets.newHashSet(LAUNCH_CONFIG_TYPE_JAVA_LAUNCH);
     private static final String ORIGINAL_CLASSPATH_PROVIDER_ATTRIBUTE = CorePlugin.PLUGIN_ID + ".originalclasspathprovider";
+
+    private DefaultExternalLaunchConfigurationManager() {
+    }
+
+    public static DefaultExternalLaunchConfigurationManager createAndRegister() {
+        DefaultExternalLaunchConfigurationManager manager = new DefaultExternalLaunchConfigurationManager();
+        DebugPlugin.getDefault().getLaunchManager().addLaunchConfigurationListener(manager.launchConfigurationListener);
+        CorePlugin.listenerRegistry().addEventListener(manager.launchConfigurationListener);
+        return manager;
+    }
+
+    public void unregister() {
+        CorePlugin.listenerRegistry().removeEventListener(this.launchConfigurationListener);
+        DebugPlugin.getDefault().getLaunchManager().removeLaunchConfigurationListener(this.launchConfigurationListener);
+    }
 
     @Override
     public void updateClasspathProviders(IProject project) {
@@ -151,4 +172,38 @@ public final class DefaultExternalLaunchConfigurationManager implements External
             configuration.removeAttribute(key);
         }
     }
+
+    /**
+     * Launch listener executing classpath provider updates.
+     */
+    private class LaunchConfigurationListener implements ILaunchConfigurationListener, EventListener {
+
+        @Override
+        public void launchConfigurationAdded(ILaunchConfiguration configuration) {
+            updateClasspathProvider(configuration);
+        }
+
+        @Override
+        public void launchConfigurationChanged(ILaunchConfiguration configuration) {
+            updateClasspathProvider(configuration);
+        }
+
+        @Override
+        public void launchConfigurationRemoved(ILaunchConfiguration configuration) {
+        }
+
+        @Override
+        public void onEvent(Event event) {
+            if (event instanceof GradleProjectNatureConfiguredEvent) {
+                updateClasspathProviders(((GradleProjectNatureConfiguredEvent)event).getProject());
+            } else if (event instanceof GradleProjectNatureDeconfiguredEvent) {
+                updateClasspathProviders(((GradleProjectNatureDeconfiguredEvent)event).getProject());
+            } else if (event instanceof ProjectCreatedEvent) {
+                updateClasspathProviders(((ProjectCreatedEvent)event).getProject());
+            } else if (event instanceof ProjectDeletedEvent) {
+                updateClasspathProviders(((ProjectDeletedEvent)event).getProject());
+            }
+        }
+    }
+
 }

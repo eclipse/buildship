@@ -1,7 +1,5 @@
 package org.eclipse.buildship.core.launch.internal
 
-import spock.lang.Shared
-
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy
@@ -12,15 +10,14 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 
-// TODO (donat) rename the test class to better reflects the validated functionality
-class LaunchConfigurationListenerTest extends ProjectSynchronizationSpecification {
+class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecification {
 
     ILaunchConfiguration launchConfiguration
 
     def setup() {
         ILaunchConfigurationWorkingCopy launchConfigWorkingCopy = createLaunchConfig(
             DefaultExternalLaunchConfigurationManager.LAUNCH_CONFIG_TYPE_JAVA_LAUNCH,
-            'launch config for' + LaunchConfigurationListenerTest.class.simpleName)
+            'launch config for' + GradleClasspathProviderUpdateTest.class.simpleName)
         launchConfigWorkingCopy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, 'project-name')
         launchConfiguration = launchConfigWorkingCopy.doSave();
     }
