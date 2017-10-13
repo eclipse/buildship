@@ -60,11 +60,10 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
         AddBuildshipNatureHandler handler = new AddBuildshipNatureHandler()
         handler.execute(projectSelectionEvent(project))
         waitForGradleJobsToFinish()
+        GradleNatureAddedEvent event = eventListener.events.find { it instanceof GradleNatureAddedEvent }
 
         then:
-        eventListener.events.size() == 1
-        eventListener.events[0] instanceof GradleNatureAddedEvent
-        eventListener.events[0].projects == [project] as Set
+        event.projects == [project] as Set
 
         cleanup:
         CorePlugin.listenerRegistry().removeEventListener(eventListener)
