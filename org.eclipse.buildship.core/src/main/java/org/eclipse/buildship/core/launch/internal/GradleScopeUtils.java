@@ -34,7 +34,7 @@ public final class GradleScopeUtils {
     }
 
     /**
-     * Collects the scopes used by the target launch configuration.
+     * Collects the required dependency scopes for target launch configuration.
      * <p/>
      * If the scopes cannot be obtained (e.g. the target configuration is not supported) or if the
      * current Gradle version doesn't provide scope information then the method returns and empty
@@ -43,43 +43,92 @@ public final class GradleScopeUtils {
      * @param configuration the target launch configuration
      * @return the source set names
      */
-    public static Set<String> collectScopes(ILaunchConfiguration configuration) {
+    public static Set<String> collectRequiredDependencyScopes(ILaunchConfiguration configuration) {
+        Builder<String> result = ImmutableSet.builder();
         try {
             Set<IPackageFragmentRoot> soureFolders = SupportedLaunchConfigType.collectSourceFolders(configuration);
-            Builder<String> result = ImmutableSet.builder();
             for (IPackageFragmentRoot sourceFolder : soureFolders) {
-                result.addAll(usedByScopesFor(sourceFolder.getRawClasspathEntry()));
+                result.addAll(requireDependencyScopesFor(sourceFolder.getRawClasspathEntry()));
             }
         } catch (CoreException e) {
-            CorePlugin.logger().warn("Cannot collect source set information for launch configuration " + configuration.getName(), e);
+            CorePlugin.logger().warn("Cannot collect dependency scope information for launch configuration " + configuration.getName(), e);
         }
-        return Collections.emptySet();
+        return result.build();
     }
 
     /**
-     * Returns {@code true} if the target classpath entry is part of the target scopes.
+     * Collects the required dependency scopes for target launch configuration.
      * <p/>
-     * If the entry doesn't define scope information or the set of scopes isempty then this method
+     * If the scopes cannot be obtained (e.g. the target configuration is not supported) or if the
+     * current Gradle version doesn't provide scope information then the method returns and empty
+     * set. Upon exception the message is logged and an empty set is returned.
+     *
+     * @param configuration the target launch configuration
+     * @return the source set names
+     */
+    public static Set<String> collectDependencyScopes(ILaunchConfiguration configuration) {
+        Builder<String> result = ImmutableSet.builder();
+        try {
+            Set<IPackageFragmentRoot> soureFolders = SupportedLaunchConfigType.collectSourceFolders(configuration);
+            for (IPackageFragmentRoot sourceFolder : soureFolders) {
+                result.addAll(dependencyScopesFor(sourceFolder.getRawClasspathEntry()));
+            }
+        } catch (CoreException e) {
+            CorePlugin.logger().warn("Cannot collect dependency scope information for launch configuration " + configuration.getName(), e);
+        }
+        return result.build();
+    }
+
+    /**
+     * Returns {@code true} if dependency scope of the entry is part of the supplied set of scopes.
+     * <p/>
+     * If the entry doesn't define scope information or the set of scopes is empty then this method
      * returns {@code true}.
      *
-     * @param entry the target classpath entry
      * @param scopes the name of the scopes to look for
-     * @return
+     * @param entry the target classpath entry
+     *
+     * @return whether the scopes contain the the entry's dependency scope
      */
-    public static boolean isEntryInScope(IClasspathEntry entry, Set<String> scopes) {
+    public static boolean isScopesContainEntryDependencyScope(Set<String> scopes, IClasspathEntry entry) {
         if (scopes.isEmpty()) {
             return true;
         }
 
-        Set<String> libraryScopes = scopesFor(entry);
-        if (libraryScopes.isEmpty()) {
+        Set<String> entryDependencyScopes = dependencyScopesFor(entry);
+        if (entryDependencyScopes.isEmpty()) {
             return true;
         }
 
-        return !Sets.intersection(scopes, libraryScopes).isEmpty();
+        return !Sets.intersection(scopes, entryDependencyScopes).isEmpty();
     }
 
-    private static Set<String> scopesFor(IClasspathEntry entry) {
+    /**
+     * Returns {@code true} if required dependency scopes of the entry has common elements with the
+     * supplied set of scopes.
+     * <p/>
+     * If the entry doesn't define scope information or the set of scopes is empty then this method
+     * returns {@code true}.
+     *S
+     * @param scopes the name of the scopes to look for
+     * @param entry the target classpath entry
+     *
+     * @return if there's common scope
+     */
+    public static boolean isScopesContainEntryRequiredDependencyScope(Set<String> scopes, IClasspathEntry entry) {
+        if (scopes.isEmpty()) {
+            return true;
+        }
+
+        Set<String> entryRequiredDependencyScopes = requireDependencyScopesFor(entry);
+        if (entryRequiredDependencyScopes.isEmpty()) {
+            return true;
+        }
+
+        return !Sets.intersection(scopes, entryRequiredDependencyScopes).isEmpty();
+    }
+
+    private static Set<String> dependencyScopesFor(IClasspathEntry entry) {
         for (IClasspathAttribute attribute : entry.getExtraAttributes()) {
             if (attribute.getName().equals("gradle_scope")) {
                 return Sets.newHashSet(attribute.getValue().split(","));
@@ -88,7 +137,7 @@ public final class GradleScopeUtils {
         return Collections.emptySet();
     }
 
-    private static Set<String> usedByScopesFor(IClasspathEntry entry) {
+    private static Set<String> requireDependencyScopesFor(IClasspathEntry entry) {
         for (IClasspathAttribute attribute : entry.getExtraAttributes()) {
             if (attribute.getName().equals("gradle_used_by_scope")) {
                 return Sets.newHashSet(attribute.getValue().split(","));

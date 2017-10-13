@@ -96,6 +96,9 @@ public final class EclipseLogger implements Logger {
     }
 
 
+    /**
+     * Provide convenience access to platform debug preferences.
+     */
     private static class DebugOptionsManager {
         private final LoadingCache<String, Boolean> debugOptions;
 

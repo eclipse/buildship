@@ -44,8 +44,8 @@ public class GradleClasspathContainerRuntimeClasspathEntryResolver implements IR
         if (entry == null || entry.getJavaProject() == null) {
             return new IRuntimeClasspathEntry[0];
         }
-        Set<String> launchConfigScopes = GradleScopeUtils.collectScopes(configuration);
-        return resolveRuntimeClasspathEntry(entry, entry.getJavaProject(), launchConfigScopes);
+        Set<String> dependencyScopes = GradleScopeUtils.collectDependencyScopes(configuration);
+        return resolveRuntimeClasspathEntry(entry, entry.getJavaProject(), dependencyScopes);
     }
 
     @Override
@@ -53,32 +53,32 @@ public class GradleClasspathContainerRuntimeClasspathEntryResolver implements IR
         return resolveRuntimeClasspathEntry(entry, project, Collections.<String> emptySet());
     }
 
-    private IRuntimeClasspathEntry[] resolveRuntimeClasspathEntry(IRuntimeClasspathEntry entry, IJavaProject project, Set<String> launchConfigScopes) throws CoreException {
+    private IRuntimeClasspathEntry[] resolveRuntimeClasspathEntry(IRuntimeClasspathEntry entry, IJavaProject project, Set<String> dependencyScopes) throws CoreException {
         if (entry.getType() != IRuntimeClasspathEntry.CONTAINER || !entry.getPath().equals(GradleClasspathContainer.CONTAINER_PATH)) {
             return new IRuntimeClasspathEntry[0];
         }
-        return collectContainerRuntimeClasspathIfPresent(project, launchConfigScopes);
+        return collectContainerRuntimeClasspathIfPresent(project, dependencyScopes);
     }
 
-    private IRuntimeClasspathEntry[] collectContainerRuntimeClasspathIfPresent(IJavaProject project, Set<String> launchConfigScopes) throws CoreException {
+    private IRuntimeClasspathEntry[] collectContainerRuntimeClasspathIfPresent(IJavaProject project, Set<String> dependencyScopes) throws CoreException {
         List<IRuntimeClasspathEntry> result = Lists.newArrayList();
-        collectContainerRuntimeClasspathIfPresent(project, result, false, launchConfigScopes);
+        collectContainerRuntimeClasspathIfPresent(project, result, false, dependencyScopes);
         return result.toArray(new IRuntimeClasspathEntry[result.size()]);
     }
 
     private void collectContainerRuntimeClasspathIfPresent(IJavaProject project, List<IRuntimeClasspathEntry> result, boolean includeExportedEntriesOnly,
-            Set<String> launchConfigScopes) throws CoreException {
+            Set<String> dependencyScopes) throws CoreException {
         IClasspathContainer container = JavaCore.getClasspathContainer(GradleClasspathContainer.CONTAINER_PATH, project);
         if (container != null) {
-            collectContainerRuntimeClasspath(container, result, includeExportedEntriesOnly, launchConfigScopes);
+            collectContainerRuntimeClasspath(container, result, includeExportedEntriesOnly, dependencyScopes);
         }
     }
 
     private void collectContainerRuntimeClasspath(IClasspathContainer container, List<IRuntimeClasspathEntry> result, boolean includeExportedEntriesOnly,
-            Set<String> launchConfigScopes) throws CoreException {
+            Set<String> dependencyScopes) throws CoreException {
         for (final IClasspathEntry cpe : container.getClasspathEntries()) {
             if (!includeExportedEntriesOnly || cpe.isExported()) {
-                if (cpe.getEntryKind() == IClasspathEntry.CPE_LIBRARY && GradleScopeUtils.isEntryInScope(cpe, launchConfigScopes)) {
+                if (cpe.getEntryKind() == IClasspathEntry.CPE_LIBRARY && GradleScopeUtils.isScopesContainEntryRequiredDependencyScope(dependencyScopes, cpe)) {
                     result.add(JavaRuntime.newArchiveRuntimeClasspathEntry(cpe.getPath()));
                 } else if (cpe.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
                     Optional<IProject> candidate = findAccessibleJavaProject(cpe.getPath().segment(0));
@@ -86,7 +86,7 @@ public class GradleClasspathContainerRuntimeClasspathEntryResolver implements IR
                         IJavaProject dependencyProject = JavaCore.create(candidate.get());
                         IRuntimeClasspathEntry projectRuntimeEntry = JavaRuntime.newProjectRuntimeClasspathEntry(dependencyProject);
                         Collections.addAll(result, JavaRuntime.resolveRuntimeClasspathEntry(projectRuntimeEntry, dependencyProject));
-                        collectContainerRuntimeClasspathIfPresent(dependencyProject, result, true, launchConfigScopes);
+                        collectContainerRuntimeClasspathIfPresent(dependencyProject, result, true, dependencyScopes);
                     }
                 }
             }
