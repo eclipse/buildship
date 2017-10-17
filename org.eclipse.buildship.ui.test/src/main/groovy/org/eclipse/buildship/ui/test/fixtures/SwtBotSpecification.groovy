@@ -12,25 +12,32 @@
 
 package org.eclipse.buildship.ui.test.fixtures
 
-import spock.lang.Specification
+import org.junit.Rule
+import org.junit.rules.ExternalResource
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.jobs.Job
-import org.eclipse.swt.widgets.Display
+import org.eclipse.core.resources.IProject
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException
 import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable
-import org.eclipse.swtbot.swt.finder.results.VoidResult
 import org.eclipse.swtbot.swt.finder.results.BoolResult
+import org.eclipse.swtbot.swt.finder.results.VoidResult
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
-import org.eclipse.swtbot.swt.finder.widgets.TimeoutException;
+import org.eclipse.swtbot.swt.finder.widgets.TimeoutException
 import org.eclipse.ui.PlatformUI
+import org.eclipse.ui.console.ConsolePlugin
+import org.eclipse.ui.console.IConsole
+import org.eclipse.ui.console.IConsoleListener
+import org.eclipse.ui.console.IConsoleManager
 
-import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.ui.UiPlugin
+import org.eclipse.buildship.ui.console.GradleConsole
 
 abstract class SwtBotSpecification extends ProjectSynchronizationSpecification {
+
+    @Rule
+    TestConsoleHandler consoles = new TestConsoleHandler()
 
     protected static SWTWorkbenchBot bot = new SWTWorkbenchBot()
 
@@ -44,7 +51,7 @@ abstract class SwtBotSpecification extends ProjectSynchronizationSpecification {
 
     protected void deleteAllProjects(boolean includingContent) {
         for (IProject project : CorePlugin.workspaceOperations().allProjects) {
-            project.delete(includingContent, true, null);
+            project.delete(includingContent, true, null)
         }
     }
 
@@ -88,6 +95,49 @@ abstract class SwtBotSpecification extends ProjectSynchronizationSpecification {
                 PlatformUI.workbench.activeWorkbenchWindow.shell.equals(swtBotShell.widget)
             }
         })
+    }
+
+    class TestConsoleHandler extends ExternalResource implements IConsoleListener {
+        IConsole activeConsole
+
+        @Override
+        public void consolesAdded(IConsole[] consoles) {
+            activeConsole = consoles[0]
+        }
+
+        @Override
+        public void consolesRemoved(IConsole[] consoles) {
+        }
+
+        @Override
+        protected void before() throws Throwable {
+            ConsolePlugin.default.consoleManager.addConsoleListener(this)
+        }
+
+        @Override
+        protected void after() {
+            ConsolePlugin.default.consoleManager.removeConsoleListener(this)
+            removeConsoles()
+        }
+
+        public String getActiveConsoleContent() {
+            waitForConsoleOutput()
+            activeConsole.document.get().trim()
+        }
+
+        public void waitForConsoleOutput() {
+            SwtBotSpecification.this.waitFor {
+                activeConsole != null && 
+                (!(activeConsole instanceof GradleConsole) || activeConsole.closeable)  &&
+                activeConsole.partitioner.pendingPartitions.empty
+            }
+        }
+
+        protected void removeConsoles() {
+            IConsoleManager consoleManager = ConsolePlugin.default.consoleManager
+            List<IConsole> consoles = consoleManager.consoles.findAll { console -> !(console instanceof GradleConsole) || console.isCloseable()}
+            consoleManager.removeConsoles(consoles as IConsole[])
+        }
     }
 
 }

@@ -53,33 +53,39 @@ class TaskViewDoubleClickTest extends BaseTaskViewTest {
         !node.expanded
     }
 
-    def "Double-clicking task nodes start Gradle build"() {
+    def "Double-clicking project task nodes start Gradle build"() {
         setup:
         SWTBotTreeItem rootNode = tree.getTreeItem('root')
         rootNode.expand()
         SWTBotTreeItem groupNode = rootNode.getNode('custom')
         groupNode.expand()
         SWTBotTreeItem projectTaskNode = groupNode.items[0]
-        SWTBotTreeItem taskSelectorNode = groupNode.items[1]
 
         expect:
         groupNode.items.size() == 2
 
         when:
         projectTaskNode.doubleClick()
-        waitForConsoleOutput()
 
         then:
-        activeConsole.document.get().contains("Running task on root project")
+        consoles.activeConsoleContent.contains("Running task on root project")
+    }
+
+    def "Double-clicking task selector nodes start Gradle build"() {
+        setup:
+        SWTBotTreeItem rootNode = tree.getTreeItem('root')
+        rootNode.expand()
+        SWTBotTreeItem groupNode = rootNode.getNode('custom')
+        groupNode.expand()
+        SWTBotTreeItem taskSelectorNode = groupNode.items[1]
+
+        expect:
 
         when:
-        removeCloseableGradleConsoles()
-        focusTasksView()
         taskSelectorNode.doubleClick()
-        waitForConsoleOutput()
 
         then:
-        activeConsole.document.get().contains("Running task on root project")
+        consoles.activeConsoleContent.contains("Running task on root project")
     }
 
     private File sampleProject() {

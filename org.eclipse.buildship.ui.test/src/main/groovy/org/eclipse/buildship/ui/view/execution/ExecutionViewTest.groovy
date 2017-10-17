@@ -2,8 +2,6 @@ package org.eclipse.buildship.ui.view.execution
 
 import spock.lang.Issue
 
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem
-
 class ExecutionViewTest extends BaseExecutionViewTest {
 
     @Issue('https://github.com/eclipse/buildship/issues/586')

@@ -24,8 +24,7 @@ class TaskViewExecutionTest extends BaseTaskViewTest {
         groupNode.items[0].select()
         groupNode.items[0].doubleClick()
 
-        waitForConsoleOutput()
-        String consoleOutput = activeConsole.document.get()
+        String consoleOutput = consoles.activeConsoleContent
 
         then:
         consoleOutput.contains("Working Directory: ${project.canonicalPath}${LINE_SEP}")
@@ -52,8 +51,7 @@ class TaskViewExecutionTest extends BaseTaskViewTest {
         groupNode.items[1].select()
         groupNode.items[1].doubleClick()
 
-        waitForConsoleOutput()
-        String consoleOutput = activeConsole.document.get()
+        String consoleOutput = consoles.activeConsoleContent
 
         then:
         consoleOutput.contains("Working Directory: ${project.canonicalPath}${FILE_SEP}sub${LINE_SEP}")
@@ -85,8 +83,7 @@ class TaskViewExecutionTest extends BaseTaskViewTest {
         when:
         groupNode.items[0].select()
         groupNode.items[0].doubleClick()
-        waitForConsoleOutput()
-        String consoleOutput = activeConsole.document.get()
+        String consoleOutput = consoles.activeConsoleContent
 
         then:
         consoleOutput.contains("Working Directory: ${project.canonicalPath}${LINE_SEP}")
