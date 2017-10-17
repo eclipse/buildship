@@ -51,7 +51,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Launch Java application from src/main/java"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forLocalInstallation(new File('/Development/git/gradle/gradle/build/distributions/gradle-4.3-20171011160000+0000')))
+        importAndWait(createSampleProject('sample-project'), GradleDistribution.forLocalInstallation(new File('/Development/git/gradle/gradle/build/distributions/gradle-4.4-20171016160000+0000')))
 
         when:
         executeAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.Main'))
@@ -66,7 +66,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Launch Java application from src/test/java"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forLocalInstallation(new File('/Development/git/gradle/gradle/build/distributions/gradle-4.3-20171011160000+0000')))
+        importAndWait(createSampleProject('sample-project'), GradleDistribution.forLocalInstallation(new File('/Development/git/gradle/gradle/build/distributions/gradle-4.4-20171016160000+0000')))
 
         when:
         executeAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.JunitTest'))
@@ -81,7 +81,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Launch JUnit test with test method"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forLocalInstallation(new File('/Development/git/gradle/gradle/build/distributions/gradle-4.3-20171011160000+0000')))
+        importAndWait(createSampleProject('sample-project'), GradleDistribution.forLocalInstallation(new File('/Development/git/gradle/gradle/build/distributions/gradle-4.4-20171016160000+0000')))
 
         when:
         executeAndWait(createJUnitLaunchConfiguration('sample-project', 'pkg.JunitTest', 'test'))
@@ -96,7 +96,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Launch JUnit test with project"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forLocalInstallation(new File('/Development/git/gradle/gradle/build/distributions/gradle-4.3-20171011160000+0000')))
+        importAndWait(createSampleProject('sample-project'), GradleDistribution.forLocalInstallation(new File('/Development/git/gradle/gradle/build/distributions/gradle-4.4-20171016160000+0000')))
 
         when:
         executeAndWait(createJUnitLaunchConfiguration('sample-project'))
