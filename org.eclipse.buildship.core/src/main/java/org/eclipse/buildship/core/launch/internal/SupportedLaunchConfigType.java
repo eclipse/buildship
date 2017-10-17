@@ -61,7 +61,7 @@ public enum SupportedLaunchConfigType {
 
     },
 
-    JUNIT_JUNIT("org.eclipse.jdt.junit.launchconfig") {
+    JDT_JUNIT("org.eclipse.jdt.junit.launchconfig") {
 
         @Override
         protected Set<IPackageFragmentRoot> getSourceFolders(ILaunchConfiguration configuration) throws CoreException {

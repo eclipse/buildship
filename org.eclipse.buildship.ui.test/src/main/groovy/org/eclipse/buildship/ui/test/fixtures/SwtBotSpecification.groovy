@@ -16,6 +16,7 @@ import org.junit.Rule
 import org.junit.rules.ExternalResource
 
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException
@@ -127,8 +128,8 @@ abstract class SwtBotSpecification extends ProjectSynchronizationSpecification {
 
         public void waitForConsoleOutput() {
             SwtBotSpecification.this.waitFor {
-                activeConsole != null && 
-                (!(activeConsole instanceof GradleConsole) || activeConsole.closeable)  &&
+                activeConsole != null &&
+                (!(activeConsole instanceof GradleConsole) || (activeConsole.closeable && activeConsole.processDescription.get().job.state == Job.NONE)) &&
                 activeConsole.partitioner.pendingPartitions.empty
             }
         }

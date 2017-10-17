@@ -1,5 +1,8 @@
 package org.eclipse.buildship.core.launch.internal
 
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy
@@ -7,6 +10,8 @@ import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants
 
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.event.Event
+import org.eclipse.buildship.core.event.EventListener
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 
@@ -19,7 +24,7 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
             SupportedLaunchConfigType.JDT_JAVA_APPLICATION.id,
             'launch config for' + GradleClasspathProviderUpdateTest.class.simpleName)
         launchConfigWorkingCopy.setAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, 'project-name')
-        launchConfiguration = launchConfigWorkingCopy.doSave();
+        launchConfiguration = launchConfigWorkingCopy.doSave()
     }
 
     def "Project added"() {
@@ -79,10 +84,20 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         hasGradleClasspathProvider(launchConfiguration)
 
         when:
+        final CountDownLatch latch = new CountDownLatch(1)
+        // project deletion events created shortly after the the project is deleted
+        EventListener listener = new EventListener() {
+            void onEvent(Event event) { latch.countDown() }
+        }
+        CorePlugin.listenerRegistry().addEventListener(listener)
         findProject('project-name').delete(false, new NullProgressMonitor())
+        latch.await(3, TimeUnit.SECONDS)
 
         then:
         !hasGradleClasspathProvider(launchConfiguration)
+
+        cleanup:
+        CorePlugin.listenerRegistry().removeEventListener(listener)
     }
 
     def "Gradle nature added"() {
@@ -99,7 +114,7 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         hasGradleClasspathProvider(launchConfiguration)
     }
 
-    def "Gradle nature removed" () {
+    def "Gradle nature removed"() {
         setup:
         File projectDir = dir('project-name') {
             file 'build.gradle', "apply plugin: 'java'"

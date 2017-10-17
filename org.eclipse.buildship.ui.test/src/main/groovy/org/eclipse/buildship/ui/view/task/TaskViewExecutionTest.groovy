@@ -83,6 +83,8 @@ class TaskViewExecutionTest extends BaseTaskViewTest {
         when:
         groupNode.items[0].select()
         groupNode.items[0].doubleClick()
+        waitForGradleJobsToFinish()
+
         String consoleOutput = consoles.activeConsoleContent
 
         then:

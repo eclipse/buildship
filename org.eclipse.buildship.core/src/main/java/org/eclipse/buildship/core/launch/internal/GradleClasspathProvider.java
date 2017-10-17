@@ -36,11 +36,10 @@ import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.StandardClasspathProvider;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.Logger;
 
 /**
- * Classpath provider for Gradle projects which filters the project output folders based on the
- * Gradle source set information.
+ * Classpath provider for Gradle projects filtering the project output folders based on the Gradle
+ * dependency scope information.
  *
  * @author Donat Csikos
  */
@@ -49,7 +48,6 @@ public final class GradleClasspathProvider extends StandardClasspathProvider imp
 
     public static final String ID = "org.eclipse.buildship.core.classpathprovider";
 
-    private static final String TRACE_CATEGORY = "gradleClasspathProvider";
     private static final IRuntimeClasspathEntry[] EMPTY_RESULT = new IRuntimeClasspathEntry[0];
 
     public GradleClasspathProvider() {
@@ -78,23 +76,15 @@ public final class GradleClasspathProvider extends StandardClasspathProvider imp
             }
         }
 
-        traceResult(configuration, result);
         return result.toArray(new IRuntimeClasspathEntry[result.size()]);
-    }
-
-    private void traceResult(ILaunchConfiguration configuration, Set<IRuntimeClasspathEntry> result) {
-        Logger logger = CorePlugin.logger();
-        if (logger.isTraceCategoryEnabled(TRACE_CATEGORY)) {
-            logger.trace(TRACE_CATEGORY, String.format("Classpath for %s: %s", configuration.getName(), result));
-        }
     }
 
     private IRuntimeClasspathEntry[] resolveOther(IRuntimeClasspathEntry entry, ILaunchConfiguration configuration) throws CoreException {
         // The project dependency entries are represented with nonstandard IRuntimeClasspathEntry
         // and resolved by DefaultEntryResolver. The code below is a copy-paste of the
-        // DefaultEntryResolver except the inner resolveRuntimeClasspathEntry() method call is
-        // replaced with a resolveClasspath() call. This way we can intercept the project entry
-        // resolution and replace it with the resolveProject() method.
+        // DefaultEntryResolver except that the inner resolveRuntimeClasspathEntry() method call is
+        // replaced with a resolveClasspath(). This way we can intercept and update the project
+        // entry resolution using the resolveProject() method.
         if (entry instanceof DefaultProjectClasspathEntry) {
             List<IRuntimeClasspathEntry> result = new ArrayList<IRuntimeClasspathEntry>();
             for (IRuntimeClasspathEntry e : ((IRuntimeClasspathEntry2) entry).getRuntimeClasspathEntries(configuration)) {
@@ -134,7 +124,7 @@ public final class GradleClasspathProvider extends StandardClasspathProvider imp
             return EMPTY_RESULT;
         } else {
             throw new CoreException(new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID,
-                    String.format("The project: %s which is referenced by the classpath, does not \n" + " exist", entry.getPath().lastSegment())));
+                    String.format("The project: %s which is referenced by the classpath, does not exist", entry.getPath().lastSegment())));
         }
     }
 
@@ -162,8 +152,7 @@ public final class GradleClasspathProvider extends StandardClasspathProvider imp
                         if (path != null) {
                             outputLocations.add(path);
                         } else {
-                            // only use the default output if there's at least one source folder
-                            // that doesn't have a custom output location
+                            // only use the default output if there's at least one source folder that doesn't have a custom output location
                             hasSourceFolderWithoutCustomOutput = true;
                         }
                     }
