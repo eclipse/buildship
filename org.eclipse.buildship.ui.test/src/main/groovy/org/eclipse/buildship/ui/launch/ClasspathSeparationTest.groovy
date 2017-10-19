@@ -14,10 +14,8 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy
 import org.eclipse.debug.core.ILaunchManager
 
 import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification
+import org.eclipse.buildship.ui.util.widget.GradleDistributionGroup
 
-// TODO (donat) enable the test when there's a Gradle snapshot release that includes the classpath separation changes
-// TODO (donat) adjust the Gradle distributions used by the test methods
-@IgnoreIf({ !OperatingSystem.current.isMacOs() })
 class ClasspathSeparationTest extends SwtBotSpecification {
 
     def cleanup() {
@@ -41,7 +39,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Launch Java application from src/main/java"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forLocalInstallation(new File('/Development/git/gradle/gradle/build/distributions/gradle-4.4-20171018160000+0000')))
+        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4-20171019072836+0000'))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.Main'))
@@ -56,7 +54,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Launch Java application from src/test/java"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forLocalInstallation(new File('/Development/git/gradle/gradle/build/distributions/gradle-4.4-20171018160000+0000')))
+        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4-20171019072836+0000'))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.JunitTest'))
@@ -71,7 +69,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Launch JUnit test with test method"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forLocalInstallation(new File('/Development/git/gradle/gradle/build/distributions/gradle-4.4-20171018160000+0000')))
+        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4-20171019072836+0000'))
 
         when:
         launchAndWait(createJUnitLaunchConfiguration('sample-project', 'pkg.JunitTest', 'test'))
@@ -86,7 +84,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Launch JUnit test with project"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forLocalInstallation(new File('/Development/git/gradle/gradle/build/distributions/gradle-4.4-20171018160000+0000')))
+        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4-20171019072836+0000'))
 
         when:
         launchAndWait(createJUnitLaunchConfiguration('sample-project'))
