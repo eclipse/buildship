@@ -22,7 +22,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         DebugPlugin.default.launchManager.launchConfigurations.each { it.delete() }
     }
 
-    def "Gradle doesn't supply scope information"() {
+    def "All dependencies are available when Gradle doesn't supply scope information"() {
         setup:
         importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('3.5'))
 
@@ -37,7 +37,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         assertConsoleOutputContains('junit.framework.Test available')
     }
 
-    def "Launch Java application from src/main/java"() {
+    def "Only main dependencies are available when Java application launched from src/main/java folder"() {
         setup:
         importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4-20171019072836+0000'))
 
@@ -52,7 +52,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         assertConsoleOutputContains('junit.framework.Test inaccessible')
     }
 
-    def "Launch Java application from src/test/java"() {
+    def "Main and test dependencies are available when Java application launched from src/test/java folder"() {
         setup:
         importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4-20171019072836+0000'))
 
@@ -67,7 +67,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         assertConsoleOutputContains('junit.framework.Test available')
     }
 
-    def "Launch JUnit test with test method"() {
+    def "Main and test dependencies are available when JUnit test method executed"() {
         setup:
         importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4-20171019072836+0000'))
 
@@ -82,7 +82,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         assertConsoleOutputContains('junit.framework.Test available')
     }
 
-    def "Launch JUnit test with project"() {
+    def "Main and test dependencies are available when JUnit test project executedt"() {
         setup:
         importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4-20171019072836+0000'))
 
@@ -133,13 +133,6 @@ class ClasspathSeparationTest extends SwtBotSpecification {
                                 System.out.println(className + " inaccessible");
                             }
                         }
-                    }
-                '''
-                file 'TestInMain.java', '''
-                    package pkg;
-
-                    public class TestInMain {
-                        public @org.junit.Test void test() { }
                     }
                 '''
             }
