@@ -1,8 +1,5 @@
 package org.eclipse.buildship.core.launch.internal
 
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy
@@ -10,8 +7,6 @@ import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants
 
 import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.event.Event
-import org.eclipse.buildship.core.event.EventListener
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 
@@ -84,20 +79,11 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         hasGradleClasspathProvider(launchConfiguration)
 
         when:
-        final CountDownLatch latch = new CountDownLatch(1)
-        // project deletion events created shortly after the the project is deleted
-        EventListener listener = new EventListener() {
-            void onEvent(Event event) { latch.countDown() }
-        }
-        CorePlugin.listenerRegistry().addEventListener(listener)
         findProject('project-name').delete(false, new NullProgressMonitor())
-        latch.await(3, TimeUnit.SECONDS)
+        waitForResourceChangeEvents()
 
         then:
         !hasGradleClasspathProvider(launchConfiguration)
-
-        cleanup:
-        CorePlugin.listenerRegistry().removeEventListener(listener)
     }
 
     def "Gradle nature added"() {

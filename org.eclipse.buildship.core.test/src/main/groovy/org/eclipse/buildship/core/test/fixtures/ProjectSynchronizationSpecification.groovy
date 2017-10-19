@@ -1,16 +1,15 @@
 package org.eclipse.buildship.core.test.fixtures
 
-import java.io.File
-
 import com.google.common.util.concurrent.FutureCallback
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 import com.gradleware.tooling.toolingmodel.util.Pair
 
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IResource
+import org.eclipse.core.resources.IWorkspaceRunnable
 import org.eclipse.core.runtime.jobs.Job
 
 import org.eclipse.buildship.core.CorePlugin
@@ -29,11 +28,13 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
     protected void synchronizeAndWait(File location, NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
         startSynchronization(location, DEFAULT_DISTRIBUTION, newProjectHandler)
         waitForGradleJobsToFinish()
+        waitForResourceChangeEvents()
     }
 
     protected void importAndWait(File location, GradleDistribution distribution = DEFAULT_DISTRIBUTION) {
         startSynchronization(location, distribution, NewProjectHandler.IMPORT_AND_MERGE)
         waitForGradleJobsToFinish()
+        waitForResourceChangeEvents()
     }
 
     protected void startSynchronization(File location, GradleDistribution distribution = DEFAULT_DISTRIBUTION, NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
@@ -44,6 +45,7 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
     protected void synchronizeAndWait(IProject... projects) {
         CorePlugin.gradleWorkspaceManager().getGradleBuilds(projects as Set).synchronize(NewProjectHandler.IMPORT_AND_MERGE)
         waitForGradleJobsToFinish()
+        waitForResourceChangeEvents()
     }
 
     protected void previewAndWait(File location, FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> resultHandler) {
@@ -67,5 +69,9 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
 
     protected def waitForGradleJobsToFinish() {
         Job.jobManager.join(CorePlugin.GRADLE_JOB_FAMILY, null)
+    }
+
+    protected void waitForResourceChangeEvents() {
+        workspace.run({} as IWorkspaceRunnable, null, IResource.NONE, null);
     }
 }
