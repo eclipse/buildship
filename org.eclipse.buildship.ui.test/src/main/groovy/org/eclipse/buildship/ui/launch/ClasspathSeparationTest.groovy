@@ -41,7 +41,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Launch Java application from src/main/java"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forLocalInstallation(new File('/Development/git/gradle/gradle/build/distributions/gradle-4.4-20171016160000+0000')))
+        importAndWait(createSampleProject('sample-project'), GradleDistribution.forLocalInstallation(new File('/Development/git/gradle/gradle/build/distributions/gradle-4.4-20171018160000+0000')))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.Main'))
@@ -49,14 +49,14 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         then:
         assertConsoleOutputContains('pkg.Main available')
         assertConsoleOutputContains('pkg.JunitTest inaccessible')
-        assertConsoleOutputContains('org.apache.commons.io.IOUtils available')
+        assertConsoleOutputContains('org.apache.commons.io.IOUtils inaccessible')
         assertConsoleOutputContains('com.google.common.collect.ImmutableList available')
         assertConsoleOutputContains('junit.framework.Test inaccessible')
     }
 
     def "Launch Java application from src/test/java"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forLocalInstallation(new File('/Development/git/gradle/gradle/build/distributions/gradle-4.4-20171016160000+0000')))
+        importAndWait(createSampleProject('sample-project'), GradleDistribution.forLocalInstallation(new File('/Development/git/gradle/gradle/build/distributions/gradle-4.4-20171018160000+0000')))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.JunitTest'))
@@ -71,7 +71,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Launch JUnit test with test method"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forLocalInstallation(new File('/Development/git/gradle/gradle/build/distributions/gradle-4.4-20171016160000+0000')))
+        importAndWait(createSampleProject('sample-project'), GradleDistribution.forLocalInstallation(new File('/Development/git/gradle/gradle/build/distributions/gradle-4.4-20171018160000+0000')))
 
         when:
         launchAndWait(createJUnitLaunchConfiguration('sample-project', 'pkg.JunitTest', 'test'))
@@ -86,7 +86,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Launch JUnit test with project"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forLocalInstallation(new File('/Development/git/gradle/gradle/build/distributions/gradle-4.4-20171016160000+0000')))
+        importAndWait(createSampleProject('sample-project'), GradleDistribution.forLocalInstallation(new File('/Development/git/gradle/gradle/build/distributions/gradle-4.4-20171018160000+0000')))
 
         when:
         launchAndWait(createJUnitLaunchConfiguration('sample-project'))
@@ -94,7 +94,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         then:
         assertConsoleOutputContains('pkg.Main available')
         assertConsoleOutputContains('pkg.JunitTest available')
-        assertConsoleOutputContains('org.apache.commons.io.IOUtils available')
+        assertConsoleOutputContains('org.apache.commons.io.IOUtils inaccessible')
         assertConsoleOutputContains('com.google.common.collect.ImmutableList available')
         assertConsoleOutputContains('junit.framework.Test available')
     }
