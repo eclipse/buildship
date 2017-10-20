@@ -113,8 +113,9 @@ public final class GradleProjectSettingsComposite extends Composite {
 
     private void createAutoBuildCheckbox(Composite parent) {
         this.autoBuildCheckbox = new Button(parent, SWT.CHECK);
-        this.autoBuildCheckbox.setText("Automatically synchronize project when build script changes");
+        this.autoBuildCheckbox.setText("Automatic refresh");
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(2, 1).applyTo(this.autoBuildCheckbox);
+        HoverText.createAndAttach(this.autoBuildCheckbox, "Automatically synchronize project when build script changes");
     }
 
     private void addListeners() {
