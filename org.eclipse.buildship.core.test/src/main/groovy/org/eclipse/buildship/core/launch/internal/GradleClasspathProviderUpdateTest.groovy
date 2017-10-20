@@ -22,7 +22,7 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         launchConfiguration = launchConfigWorkingCopy.doSave()
     }
 
-    def "Project added"() {
+    def "Gradle classpath provider added when referenced project is a new Java project"() {
         setup:
         File projectDir = dir('project-name') {
             file 'build.gradle', "apply plugin: 'java'"
@@ -35,7 +35,7 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         hasGradleClasspathProvider(launchConfiguration)
     }
 
-    def "Non-Java project added"() {
+    def "Gradle classpath provider not not added for new jon-Java project"() {
         setup:
         File projectDir = dir('project-name')
 
@@ -46,7 +46,7 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         !hasGradleClasspathProvider(launchConfiguration)
     }
 
-    def "Project renamed"() {
+    def "Gradle classpath provider injected when Gradle project is moved under target name"() {
         setup:
         File settingsFile
         File projectDir = dir('root-project') {
@@ -63,12 +63,14 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
 
         when:
         settingsFile.text = 'include "project-name"'
+        synchronizeAndWait(projectDir)
+        waitForResourceChangeEvents()
 
         then:
-        !hasGradleClasspathProvider(launchConfiguration)
+        hasGradleClasspathProvider(launchConfiguration)
     }
 
-    def "Project deleted"() {
+    def "Gradle classpath provider removed when project deleted"() {
         setup:
         File projectDir = dir('project-name') {
             file 'build.gradle', "apply plugin: 'java'"
@@ -86,7 +88,7 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         !hasGradleClasspathProvider(launchConfiguration)
     }
 
-    def "Gradle nature added"() {
+    def "Gradle classpath provider added when Gradle nature added"() {
         setup:
         IJavaProject javaProject = newJavaProject('project-name')
 
@@ -100,7 +102,7 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         hasGradleClasspathProvider(launchConfiguration)
     }
 
-    def "Gradle nature removed"() {
+    def "Gradle classpath provider removed when Gradle nature removed"() {
         setup:
         File projectDir = dir('project-name') {
             file 'build.gradle', "apply plugin: 'java'"
