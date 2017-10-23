@@ -36,6 +36,7 @@ final class BuildConfigurationPersistence {
     private static final String PREF_KEY_GRADLE_USER_HOME = "gradle.user.home";
     private static final String PREF_KEY_BUILD_SCANS_ENABLED = "build.scans.enabled";
     private static final String PREF_KEY_OFFLINE_MODE = "offline.mode";
+    private static final String PREF_KEY_AUTO_REFRESH = "gradle.autosync";
 
     public DefaultBuildConfigurationProperties readBuildConfiguratonProperties(IProject project) {
         Preconditions.checkNotNull(project);
@@ -125,8 +126,9 @@ final class BuildConfigurationPersistence {
 
         boolean buildScansEnabled = preferences.readBoolean(PREF_KEY_BUILD_SCANS_ENABLED, false);
         boolean offlineMode = preferences.readBoolean(PREF_KEY_OFFLINE_MODE, false);
+        boolean autoRefresh = preferences.readBoolean(PREF_KEY_AUTO_REFRESH, false);
 
-        return new DefaultBuildConfigurationProperties(rootDir, distribution, gradleUserHome, overrideWorkspaceSettings, buildScansEnabled, offlineMode);
+        return new DefaultBuildConfigurationProperties(rootDir, distribution, gradleUserHome, overrideWorkspaceSettings, buildScansEnabled, offlineMode, autoRefresh);
     }
 
     private static void savePreferences(DefaultBuildConfigurationProperties properties, PreferenceStore preferences) {
@@ -137,12 +139,14 @@ final class BuildConfigurationPersistence {
             preferences.writeBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, properties.isOverrideWorkspaceSettings());
             preferences.writeBoolean(PREF_KEY_BUILD_SCANS_ENABLED, properties.isBuildScansEnabled());
             preferences.writeBoolean(PREF_KEY_OFFLINE_MODE, properties.isOfflineMode());
+            preferences.writeBoolean(PREF_KEY_AUTO_REFRESH, properties.isAutoRefresh());
         } else {
             preferences.delete(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
             preferences.delete(PREF_KEY_GRADLE_USER_HOME);
             preferences.delete(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS);
             preferences.delete(PREF_KEY_BUILD_SCANS_ENABLED);
             preferences.delete(PREF_KEY_OFFLINE_MODE);
+            preferences.delete(PREF_KEY_AUTO_REFRESH);
         }
         preferences.flush();
     }

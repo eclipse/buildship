@@ -2,6 +2,7 @@ package org.eclipse.buildship.core.workspace.internal
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject
 import com.gradleware.tooling.toolingmodel.OmniGradleProject
+import com.gradleware.tooling.toolingmodel.OmniGradleScript
 import com.gradleware.tooling.toolingmodel.util.Maybe
 
 import org.eclipse.core.resources.IProject
@@ -33,10 +34,14 @@ class BuildScriptLocationUpdaterTest extends WorkspaceSpecification {
     }
 
     OmniEclipseProject createEclipseModel(File projectDir, Maybe<File> buildScriptFile) {
+
         return Stub(OmniEclipseProject) {
+
             getProjectDirectory() >> projectDir
             getGradleProject() >> Stub(OmniGradleProject) {
-                getBuildDirectory() >> buildScriptFile
+                getBuildScript() >> Maybe.of(Stub(OmniGradleScript) {
+                    getSourceFile() >> (buildScriptFile.present ? buildScriptFile.get() : null)
+                })
             }
         }
    }

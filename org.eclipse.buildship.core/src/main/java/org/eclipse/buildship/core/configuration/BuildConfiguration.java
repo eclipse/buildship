@@ -33,5 +33,7 @@ public interface BuildConfiguration {
 
     boolean isOfflineMode();
 
+    boolean isAutoRefresh();
+
     GradleArguments toGradleArguments();
 }
