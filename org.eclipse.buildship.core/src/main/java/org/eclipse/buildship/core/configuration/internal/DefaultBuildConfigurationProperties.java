@@ -28,15 +28,17 @@ final class DefaultBuildConfigurationProperties {
     private final boolean overrideWorkspaceSettings;
     private final boolean buildScansEnabled;
     private final boolean offlineMode;
+    private final boolean autoRefresh;
 
     public DefaultBuildConfigurationProperties(File rootProjectDirectory, GradleDistribution gradleDistribution, File gradleUserHome, boolean overrideWorkspaceSettings, boolean buildScansEnabled,
-            boolean offlineMode) {
+            boolean offlineMode, boolean autoRefresh) {
         this.rootProjectDirectory = canonicalize(rootProjectDirectory);
         this.gradleDistribution = gradleDistribution;
         this.gradleUserHome = gradleUserHome;
         this.overrideWorkspaceSettings = overrideWorkspaceSettings;
         this.buildScansEnabled = buildScansEnabled;
         this.offlineMode = offlineMode;
+        this.autoRefresh = autoRefresh;
     }
 
     private static File canonicalize(File file) {
@@ -69,6 +71,10 @@ final class DefaultBuildConfigurationProperties {
 
     public boolean isOfflineMode() {
         return this.offlineMode;
+    }
+
+    public boolean isAutoRefresh() {
+        return this.autoRefresh;
     }
 
     @Override

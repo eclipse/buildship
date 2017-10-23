@@ -11,6 +11,7 @@ package org.eclipse.buildship.core.workspace.internal;
 import java.io.File;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
+import com.gradleware.tooling.toolingmodel.OmniGradleScript;
 import com.gradleware.tooling.toolingmodel.util.Maybe;
 
 import org.eclipse.core.runtime.IPath;
@@ -27,11 +28,11 @@ import org.eclipse.buildship.core.util.file.RelativePathUtils;
 final class BuildScriptLocationUpdater {
 
     public static void update(OmniEclipseProject eclipseProject, PersistentModelBuilder persistentModel, IProgressMonitor monitor) {
-        Maybe<File> buildDirectory = eclipseProject.getGradleProject().getBuildDirectory();
+        Maybe<OmniGradleScript> buildDirectory = eclipseProject.getGradleProject().getBuildScript();
         if (buildDirectory.isPresent() && buildDirectory.get() != null) {
             IPath projectPath = new Path(eclipseProject.getProjectDirectory().getAbsolutePath());
-            IPath buildDirPath = new Path(buildDirectory.get().getAbsolutePath());
-            persistentModel.buildScriptPath(RelativePathUtils.getRelativePath(projectPath, buildDirPath));
+            IPath buildScriptPath = new Path(buildDirectory.get().getSourceFile().getAbsolutePath());
+            persistentModel.buildScriptPath(RelativePathUtils.getRelativePath(projectPath, buildScriptPath));
         } else {
             persistentModel.buildScriptPath(new Path("build.gradle"));
         }

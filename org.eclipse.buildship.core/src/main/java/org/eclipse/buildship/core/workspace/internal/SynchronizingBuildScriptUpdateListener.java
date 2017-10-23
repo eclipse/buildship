@@ -27,7 +27,8 @@ import org.eclipse.core.runtime.Status;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.preferences.PersistentModel;
 
 /**
  * Executes project synchronization if the corresponding preference is enabled and the user changes
@@ -42,9 +43,6 @@ public final class SynchronizingBuildScriptUpdateListener implements IResourceCh
 
     @Override
     public void resourceChanged(IResourceChangeEvent event) {
-        if (!isEnabledInPreferences()) {
-            return;
-        }
 
         IResourceDelta delta = event.getDelta();
         if (delta != null) {
@@ -56,10 +54,9 @@ public final class SynchronizingBuildScriptUpdateListener implements IResourceCh
         }
     }
 
-    private boolean isEnabledInPreferences() {
-        // TODO (donat) use project configuration
-        WorkspaceConfiguration configuration = CorePlugin.configurationManager().loadWorkspaceConfiguration();
-        return configuration.isAutoSyncEnabled();
+    private boolean isEnabledInPreferences(IProject project) {
+        ProjectConfiguration configuration = CorePlugin.configurationManager().loadProjectConfiguration(project);
+        return configuration.getBuildConfiguration().isAutoRefresh();
     }
 
     private void visitDelta(IResourceDelta delta) throws CoreException {
@@ -80,7 +77,7 @@ public final class SynchronizingBuildScriptUpdateListener implements IResourceCh
         IResource resource = delta.getResource();
         if (resource instanceof IProject) {
             IProject project = (IProject) resource;
-            if (GradleProjectNature.isPresentOn(project)) {
+            if (GradleProjectNature.isPresentOn(project) && isEnabledInPreferences(project)) {
                 executeSyncIfBuildScriptChanged(project, delta);
             }
             return false;
@@ -96,9 +93,14 @@ public final class SynchronizingBuildScriptUpdateListener implements IResourceCh
     }
 
     private boolean hasBuildScriptFileChanged(IProject project, IResourceDelta[] deltas) {
-        IPath buildScriptPath = CorePlugin.modelPersistence().loadModel(project).getbuildScriptPath();
-        Set<IPath> affectedResourcePaths  = collectAffectedResourcePaths(deltas);
-        return affectedResourcePaths.contains(buildScriptPath);
+        PersistentModel model = CorePlugin.modelPersistence().loadModel(project);
+        if (!model.isPresent())  {
+            return false;
+        } else {
+            IPath buildScriptPath = model.getbuildScriptPath();
+            Set<IPath> affectedResourcePaths  = collectAffectedResourcePaths(deltas);
+            return affectedResourcePaths.contains(buildScriptPath);
+        }
     }
 
     private Set<IPath> collectAffectedResourcePaths(IResourceDelta[] children) {
