@@ -35,7 +35,7 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         hasGradleClasspathProvider(launchConfiguration)
     }
 
-    def "Gradle classpath provider not not added for new jon-Java project"() {
+    def "Gradle classpath provider not added for new non-Java project"() {
         setup:
         File projectDir = dir('project-name')
 
