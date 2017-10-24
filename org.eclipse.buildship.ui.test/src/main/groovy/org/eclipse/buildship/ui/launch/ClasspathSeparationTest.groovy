@@ -1,20 +1,15 @@
 package org.eclipse.buildship.ui.launch
 
-import spock.lang.IgnoreIf
-import spock.util.environment.OperatingSystem
-
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.debug.core.DebugPlugin
 import org.eclipse.debug.core.ILaunch
 import org.eclipse.debug.core.ILaunchConfiguration
-import org.eclipse.debug.core.ILaunchConfigurationType
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy
 import org.eclipse.debug.core.ILaunchManager
 
 import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification
-import org.eclipse.buildship.ui.util.widget.GradleDistributionGroup
 
 class ClasspathSeparationTest extends SwtBotSpecification {
 
@@ -35,6 +30,36 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         assertConsoleOutputContains('org.apache.commons.io.IOUtils available')
         assertConsoleOutputContains('com.google.common.collect.ImmutableList available')
         assertConsoleOutputContains('junit.framework.Test available')
+    }
+
+    def "All dependencies are available when target source folders doesn't supply scope information"() {
+        setup:
+        File projectDir = createSampleProject('sample-project')
+
+        importAndWait(projectDir, GradleDistribution.forVersion('4.4-20171019072836+0000'))
+
+        when:
+        launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.CustomMain'))
+
+        then:
+        assertConsoleOutputContains('pkg.Main available')
+        assertConsoleOutputContains('pkg.JunitTest available')
+        assertConsoleOutputContains('org.apache.commons.io.IOUtils available')
+        assertConsoleOutputContains('com.google.common.collect.ImmutableList available')
+        assertConsoleOutputContains('junit.framework.Test available')
+    }
+
+    def "Source folder is included in classpath if it doesn't supply scope information"() {
+        setup:
+        File projectDir = createSampleProject('sample-project')
+
+        importAndWait(projectDir, GradleDistribution.forVersion('4.4-20171019072836+0000'))
+
+        when:
+        launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.CustomMain'))
+
+        then:
+        assertConsoleOutputContains('pkg.CustomMain available')
     }
 
     def "Only main dependencies are available when Java application launched from src/main/java folder"() {
@@ -100,7 +125,10 @@ class ClasspathSeparationTest extends SwtBotSpecification {
     private File createSampleProject(String name) {
         dir(name) {
             file 'build.gradle', '''
+                import org.gradle.plugins.ide.eclipse.model.SourceFolder
+
                 apply plugin: 'java'
+                apply plugin: 'eclipse'
 
                 repositories {
                     jcenter()
@@ -111,6 +139,16 @@ class ClasspathSeparationTest extends SwtBotSpecification {
                     compileOnly 'commons-io:commons-io:1.4'
                     testCompile 'junit:junit:4.12'
                 }
+
+                eclipse {
+                    classpath {
+                        file {
+                            whenMerged {
+                                entries += new SourceFolder('src/custom', 'customOutputFolder')
+                            }
+                        }
+                    }
+                }
             '''
             dir('src/main/java/pkg') {
                 file 'Main.java', '''
@@ -119,6 +157,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
                     public class Main {
                         public static void main(String[] args) {
                             exists("pkg.Main");
+                            exists("pkg.CustomMain");
                             exists("pkg.JunitTest");
                             exists("com.google.common.collect.ImmutableList");
                             exists("org.apache.commons.io.IOUtils");
@@ -150,6 +189,19 @@ class ClasspathSeparationTest extends SwtBotSpecification {
                         public @org.junit.Test void test() {
                             System.out.println("pkg.JunitTest.test executed");
                             Main.main(new String[0]);
+                        }
+                    }
+                '''
+            }
+
+            dir('src/custom/pkg') {
+                file 'CustomMain.java', '''
+                    package pkg;
+
+                    public class CustomMain {
+
+                        public static void main(String[] args) {
+                            Main.main(args);
                         }
                     }
                 '''

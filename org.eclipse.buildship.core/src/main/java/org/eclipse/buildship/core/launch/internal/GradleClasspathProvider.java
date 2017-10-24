@@ -115,7 +115,7 @@ public final class GradleClasspathProvider extends StandardClasspathProvider imp
             return EMPTY_RESULT;
         }
 
-        Set<String> configurationScopes = GradleScopeUtils.collectScopes(configuration);
+        LaunchConfigurationScope configurationScopes = LaunchConfigurationScope.from(configuration);
         return resolveOutputLocations(projectEntry, javaProject, configurationScopes);
     }
 
@@ -137,7 +137,7 @@ public final class GradleClasspathProvider extends StandardClasspathProvider imp
         return false;
     }
 
-    private static IRuntimeClasspathEntry[] resolveOutputLocations(IRuntimeClasspathEntry projectEntry, IJavaProject project, Set<String> configurationScopes)
+    private static IRuntimeClasspathEntry[] resolveOutputLocations(IRuntimeClasspathEntry projectEntry, IJavaProject project, LaunchConfigurationScope configurationScopes)
             throws CoreException {
         List<IPath> outputLocations = Lists.newArrayList();
         boolean hasSourceFolderWithoutCustomOutput = false;
@@ -147,7 +147,7 @@ public final class GradleClasspathProvider extends StandardClasspathProvider imp
                 if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
 
                     // only add the output location if it's in the same source set
-                    if (GradleScopeUtils.isEntryUsedByScopes(entry, configurationScopes)) {
+                    if (configurationScopes.isEntryIncluded(entry)) {
                         IPath path = entry.getOutputLocation();
                         if (path != null) {
                             outputLocations.add(path);
