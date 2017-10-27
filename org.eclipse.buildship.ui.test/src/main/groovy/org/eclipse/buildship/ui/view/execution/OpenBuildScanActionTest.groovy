@@ -2,23 +2,6 @@ package org.eclipse.buildship.ui.view.execution
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
-import org.eclipse.debug.core.DebugPlugin
-import org.eclipse.debug.core.ILaunch
-import org.eclipse.debug.core.ILaunchConfigurationType
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy
-import org.eclipse.debug.core.ILaunchManager
-import org.eclipse.ui.IWorkbenchPage
-import org.eclipse.ui.console.ConsolePlugin
-import org.eclipse.ui.console.IConsole
-import org.eclipse.ui.console.IConsoleListener
-
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes
-import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate
-import org.eclipse.buildship.core.launch.RunGradleBuildLaunchRequestJob
-import org.eclipse.buildship.ui.console.GradleConsole
-import org.eclipse.buildship.ui.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils
-
 class OpenBuildScanActionTest extends BaseExecutionViewTest {
 
     def "Build doesn't publish build scans"() {
@@ -30,7 +13,7 @@ class OpenBuildScanActionTest extends BaseExecutionViewTest {
         when:
         synchronizeAndWait(projectDir)
         launchTaskAndWait(projectDir, 'foo')
-        waitForConsoleOutput()
+        consoles.waitForConsoleOutput()
 
         then:
         view.pages.size() == 1
@@ -53,7 +36,7 @@ class OpenBuildScanActionTest extends BaseExecutionViewTest {
         when:
         synchronizeAndWait(projectDir)
         launchTaskAndWait(projectDir, 'publishFakeBuildScan')
-        waitForConsoleOutput()
+        consoles.waitForConsoleOutput()
 
         then:
         view.pages.size() == 1
@@ -83,9 +66,9 @@ class OpenBuildScanActionTest extends BaseExecutionViewTest {
         when:
         synchronizeAndWait(projectDir)
         launchTaskAndWait(projectDir, 'publishFakeBuildScanA')
-        waitForConsoleOutput()
+        consoles.waitForConsoleOutput()
         launchTaskAndWait(projectDir, 'publishFakeBuildScanB')
-        waitForConsoleOutput()
+        consoles.waitForConsoleOutput()
 
         then:
         view.pages.size() == 2
@@ -116,7 +99,7 @@ class OpenBuildScanActionTest extends BaseExecutionViewTest {
         when:
         importAndWait(projectDir, GradleDistribution.forVersion(gradleVersion))
         launchTaskAndWait(projectDir, 'somethingFunky', arguments)
-        waitForConsoleOutput()
+        consoles.waitForConsoleOutput()
 
         then:
         view.pages.size() == 1

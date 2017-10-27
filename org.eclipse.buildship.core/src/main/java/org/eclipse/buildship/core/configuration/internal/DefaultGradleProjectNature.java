@@ -14,7 +14,10 @@ package org.eclipse.buildship.core.configuration.internal;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectBuilder;
+import org.eclipse.buildship.core.configuration.GradleProjectNatureConfiguredEvent;
+import org.eclipse.buildship.core.configuration.GradleProjectNatureDeconfiguredEvent;
 
 /**
  * Backing implementation class for the {@link org.eclipse.buildship.core.configuration.GradleProjectNature}.
@@ -40,11 +43,13 @@ public final class DefaultGradleProjectNature implements IProjectNature {
     @Override
     public void configure() {
         GradleProjectBuilder.configureOnProject(this.project);
+        CorePlugin.listenerRegistry().dispatch(new GradleProjectNatureConfiguredEvent(this.project));
     }
 
     @Override
     public void deconfigure() {
         GradleProjectBuilder.deconfigureOnProject(this.project);
+        CorePlugin.listenerRegistry().dispatch(new GradleProjectNatureDeconfiguredEvent(this.project));
     }
 
 }

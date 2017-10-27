@@ -77,6 +77,13 @@
              id="org.eclipse.buildship.core.classpathcontainerentryresolver">
        </runtimeClasspathEntryResolver>
     </extension>
+    <extension
+          point="org.eclipse.jdt.launching.classpathProviders">
+       <classpathProvider
+             class="org.eclipse.buildship.core.launch.internal.GradleClasspathProvider"
+             id="org.eclipse.buildship.core.classpathprovider">
+       </classpathProvider>
+    </extension>
 
     <extension point="org.eclipse.core.contenttype.contentTypes">
       <content-type

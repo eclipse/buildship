@@ -215,7 +215,7 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
         IJavaProject project = findJavaProject('a')
         project.setRawClasspath(project.rawClasspath + [JavaCore.newProjectEntry(new Path('/external-gradle-project'))] as IClasspathEntry[], null)
         IRuntimeClasspathEntry[] unresolvedClasspath = JavaRuntime.computeUnresolvedRuntimeClasspath(project)
-        IRuntimeClasspathEntry[] resolvedClasspath = JavaRuntime.resolveRuntimeClasspath(unresolvedClasspath, Mock(ILaunchConfiguration))
+        IRuntimeClasspathEntry[] resolvedClasspath = JavaRuntime.resolveRuntimeClasspath(unresolvedClasspath, createGradleLaunchConfig())
 
         expect:
         resolvedClasspath.find { it.path.lastSegment().contains 'guava' }

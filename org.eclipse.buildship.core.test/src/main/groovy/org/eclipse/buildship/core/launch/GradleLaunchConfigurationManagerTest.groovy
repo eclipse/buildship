@@ -26,22 +26,12 @@ import org.eclipse.debug.core.ILaunchManager
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager
+import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer
 
-class GradleLaunchConfigurationManagerTest extends Specification {
+class GradleLaunchConfigurationManagerTest extends WorkspaceSpecification {
     GradleRunConfigurationAttributes validAttribute = createValidAttributes()
     GradleLaunchConfigurationManager manager = new DefaultGradleLaunchConfigurationManager()
-
-    def setup() {
-        DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurations().each { it.delete() }
-        assert DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurations().size() == 0
-    }
-
-    def cleanup() {
-        DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurations().each { it.delete() }
-    }
-
-    // partition : null or not null
 
     def "Storing a new attribute produces a new launch configuration instance"() {
         when:

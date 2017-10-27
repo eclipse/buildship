@@ -23,12 +23,17 @@ import com.gradleware.tooling.toolingclient.GradleDistribution
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IWorkspace
 import org.eclipse.core.runtime.Path
+import org.eclipse.debug.core.DebugPlugin
+import org.eclipse.debug.core.ILaunchConfigurationType
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy
+import org.eclipse.debug.core.ILaunchManager
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.configuration.ConfigurationManager
+import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate
 import org.eclipse.buildship.core.preferences.PersistentModel
 import org.eclipse.buildship.core.preferences.internal.DefaultPersistentModel
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
@@ -53,6 +58,7 @@ abstract class WorkspaceSpecification extends Specification {
     }
 
     def cleanup() {
+        DebugPlugin.default.launchManager.launchConfigurations.each { it.delete() }
         deleteAllProjects(true)
     }
 
@@ -188,5 +194,15 @@ abstract class WorkspaceSpecification extends Specification {
 
     protected PersistentModel emptyPersistentModel(IProject project) {
         new DefaultPersistentModel(project, new Path("build"), [], [], [], [], [], [])
+    }
+
+    protected ILaunchConfigurationWorkingCopy createLaunchConfig(String id, String name = 'launch-config') {
+        ILaunchManager launchManager = DebugPlugin.default.launchManager
+        ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(id)
+        type.newInstance(null, launchManager.generateLaunchConfigurationName(name))
+    }
+
+    protected ILaunchConfigurationWorkingCopy createGradleLaunchConfig(String name = 'launch-config') {
+        createLaunchConfig(GradleRunConfigurationDelegate.ID, name)
     }
 }
