@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -56,7 +57,32 @@ public final class GradleClasspathProvider extends StandardClasspathProvider imp
 
     @Override
     public IRuntimeClasspathEntry[] computeUnresolvedClasspath(ILaunchConfiguration configuration) throws CoreException {
-        return super.computeUnresolvedClasspath(configuration);
+        return filterUnusedDependencies(configuration, super.computeUnresolvedClasspath(configuration));
+    }
+
+    private IRuntimeClasspathEntry[] filterUnusedDependencies(ILaunchConfiguration configuration, IRuntimeClasspathEntry[] entriesToFilter) throws CoreException {
+        // if the run configuration uses Java 9 then the library dependencies are already present in the
+        // unresolved classpath. That is because the Java 9 support calculates the class/module path from
+        // the result of IJavaProject.getResolvedClasspath(true). Unfortunately, the runtime entries don't
+        // have the source set attribute, so we have to filter them base on entry paths.
+        IJavaProject project = JavaRuntime.getJavaProject(configuration);
+        IClasspathEntry[] classpath = project.getResolvedClasspath(true);
+        LaunchConfigurationScope configurationScopes = LaunchConfigurationScope.from(configuration);
+        Set<IPath> excludedPaths = Sets.newHashSet();
+        for (IClasspathEntry entry : classpath) {
+            if (!configurationScopes.isEntryIncluded(entry)) {
+                excludedPaths.add(entry.getPath());
+            }
+        }
+
+        List<IRuntimeClasspathEntry> result = new ArrayList<IRuntimeClasspathEntry>(entriesToFilter.length);
+        for (IRuntimeClasspathEntry  entry : entriesToFilter) {
+            if (!excludedPaths.contains(entry.getPath())) {
+                result.add(entry);
+            }
+        }
+
+        return result.toArray(new IRuntimeClasspathEntry[0]);
     }
 
     @Override

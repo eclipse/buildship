@@ -1,7 +1,7 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import com.google.common.base.Predicate
-import com.google.common.collect.FluentIterable
+import org.gradle.api.JavaVersion
+import spock.lang.IgnoreIf
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
@@ -10,14 +10,12 @@ import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IWorkspaceRunnable
 import org.eclipse.core.resources.IncrementalProjectBuilder
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
 
+@IgnoreIf({ JavaVersion.current().isJava9Compatible() })
 class ReexportedDependencySpecification extends ProjectSynchronizationSpecification {
 
     def "Transitive dependencies are acessible from local project classpath when using Gradle 2.5+"(GradleDistribution distribution) {

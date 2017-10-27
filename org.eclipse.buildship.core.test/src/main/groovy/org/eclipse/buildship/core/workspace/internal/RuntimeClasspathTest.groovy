@@ -1,5 +1,8 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import groovy.lang.Closure
+import org.gradle.api.JavaVersion
+import spock.lang.IgnoreIf
 import spock.lang.Issue
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
@@ -100,6 +103,7 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
         !classpath.find { it.path.toPortableString().contains('commons-logging') }
     }
 
+    @IgnoreIf({ JavaVersion.current().isJava9Compatible() }) // https://github.com/eclipse/buildship/issues/601
     def "Can access transitive dependencies resolved via project dependency"(GradleDistribution distribution) {
         setup:
         buildFile << '''

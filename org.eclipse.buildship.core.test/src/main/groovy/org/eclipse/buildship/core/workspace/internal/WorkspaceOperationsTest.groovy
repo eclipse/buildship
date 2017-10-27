@@ -11,8 +11,6 @@
 
 package org.eclipse.buildship.core.workspace.internal
 
-import com.google.common.collect.ImmutableList
-
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject
 import com.gradleware.tooling.toolingmodel.OmniGradleProject
 import com.gradleware.tooling.toolingmodel.util.Maybe
@@ -36,7 +34,7 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
         def projectFolder = dir("sample-project-folder")
 
         when:
-        IProject project = workspaceOperations.createProject("sample-project", projectFolder, ImmutableList.of(GradleProjectNature.ID), null)
+        IProject project = workspaceOperations.createProject("sample-project", projectFolder, [GradleProjectNature.ID], null)
 
         then:
         project.exists()
@@ -51,7 +49,7 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
         def projectFolder = dir("sample-project-folder")
 
         when:
-        IProject project = workspaceOperations.createProject("sample-project", projectFolder, ImmutableList.of(), null)
+        IProject project = workspaceOperations.createProject("sample-project", projectFolder, [], null)
 
         then:
         project.getDescription().natureIds.length == 0
@@ -63,7 +61,7 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
         def projectFolder = dir("sample-project-folder")
 
         when:
-        IProject project = workspaceOperations.createProject("sample-project", projectFolder, ImmutableList.of(JavaCore.NATURE_ID, GradleProjectNature.ID), new NullProgressMonitor())
+        IProject project = workspaceOperations.createProject("sample-project", projectFolder, [JavaCore.NATURE_ID, GradleProjectNature.ID], new NullProgressMonitor())
 
         then:
         project.getDescription().natureIds.length == 2
@@ -74,7 +72,7 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
 
     def "Importing nonexisting folder fails"() {
         when:
-        workspaceOperations.createProject("projectname", new File("path-to-nonexisting-folder"), ImmutableList.of(), new NullProgressMonitor())
+        workspaceOperations.createProject("projectname", new File("path-to-nonexisting-folder"), [], new NullProgressMonitor())
 
         then:
         thrown(IllegalArgumentException.class)
@@ -82,7 +80,7 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
 
     def "Importing a file is considered invalid"() {
         when:
-        workspaceOperations.createProject("projectname", file("filename"), ImmutableList.of(), new NullProgressMonitor())
+        workspaceOperations.createProject("projectname", file("filename"), [], new NullProgressMonitor())
 
         then:
         thrown(IllegalArgumentException)
@@ -93,8 +91,8 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
         def projectFolder = dir("projectname")
 
         when:
-        workspaceOperations.createProject("projectname", projectFolder, ImmutableList.of(), new NullProgressMonitor())
-        workspaceOperations.createProject("projectname", projectFolder, ImmutableList.of(), new NullProgressMonitor())
+        workspaceOperations.createProject("projectname", projectFolder, [], new NullProgressMonitor())
+        workspaceOperations.createProject("projectname", projectFolder, [], new NullProgressMonitor())
 
         then:
         thrown IllegalStateException
@@ -105,7 +103,7 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
         def projectFolder = dir("projectname")
 
         when:
-        workspaceOperations.createProject("", projectFolder, ImmutableList.of(), new NullProgressMonitor())
+        workspaceOperations.createProject("", projectFolder, [], new NullProgressMonitor())
 
         then:
         thrown(IllegalArgumentException)
@@ -116,7 +114,7 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
         def projectFolder = dir("projectname")
 
         when:
-        workspaceOperations.createProject(null, projectFolder, ImmutableList.of(), new NullProgressMonitor())
+        workspaceOperations.createProject(null, projectFolder, [], new NullProgressMonitor())
 
         then:
         thrown(NullPointerException)

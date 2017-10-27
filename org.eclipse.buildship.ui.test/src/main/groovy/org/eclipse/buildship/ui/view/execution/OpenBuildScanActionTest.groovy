@@ -1,5 +1,8 @@
 package org.eclipse.buildship.ui.view.execution
 
+import org.gradle.api.JavaVersion
+import spock.lang.IgnoreIf
+
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
 class OpenBuildScanActionTest extends BaseExecutionViewTest {
@@ -78,6 +81,7 @@ class OpenBuildScanActionTest extends BaseExecutionViewTest {
         view.pages[1].openBuildScanAction.buildScanUrl == 'https://scans.gradle.com/s/B'
     }
 
+    @IgnoreIf({ JavaVersion.current().isJava9Compatible() }) // https://github.com/eclipse/buildship/issues/601
     def "Build publishes real build scan"(String gradleVersion, String buildScanVersion, List<String> arguments) {
         setup:
         File projectDir = dir('buildship-test-project-with-build-scan') {

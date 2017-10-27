@@ -1,8 +1,10 @@
 package org.eclipse.buildship.ui.workspace
 
+import org.gradle.api.JavaVersion
 import org.gradle.tooling.CancellationToken
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.model.eclipse.EclipseProject
+import spock.lang.IgnoreIf
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
@@ -26,6 +28,7 @@ import org.eclipse.buildship.ui.test.fixtures.WorkspaceSpecification
 
 class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
 
+    @IgnoreIf({ JavaVersion.current().isJava9Compatible() }) // https://github.com/eclipse/buildship/issues/601
     def "Uses configuration from workspace settings"() {
         setup:
         WorkspaceConfiguration originalWorkspaceConfig = configurationManager.loadWorkspaceConfiguration()
