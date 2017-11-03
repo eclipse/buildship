@@ -63,6 +63,7 @@ public class ProjectImportWizardController {
     private static final String SETTINGS_KEY_GRADLE_USER_HOME = "gradle_user_home"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_BUILD_SCANS = "build_scans"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_OFFLINE_MODE = "offline_mode"; //$NON-NLS-1$
+    private static final String SETTINGS_KEY_AUTO_REFRESH = "auto_refresh"; //$NON-NLS-1$
 
     private final ProjectImportConfiguration configuration;
 
@@ -88,6 +89,7 @@ public class ProjectImportWizardController {
         List<String> workingSets = ImmutableList.copyOf(CollectionsUtils.nullToEmpty(dialogSettings.getArray(SETTINGS_KEY_WORKING_SETS)));
         boolean buildScansEnabled = dialogSettings.getBoolean(SETTINGS_KEY_BUILD_SCANS);
         boolean offlineMode = dialogSettings.getBoolean(SETTINGS_KEY_OFFLINE_MODE);
+        boolean autoRefresh = dialogSettings.getBoolean(SETTINGS_KEY_AUTO_REFRESH);
 
         this.configuration.setProjectDir(projectDir.orNull());
         this.configuration.setOverwriteWorkspaceSettings(false);
@@ -97,6 +99,7 @@ public class ProjectImportWizardController {
         this.configuration.setWorkingSets(workingSets);
         this.configuration.setBuildScansEnabled(buildScansEnabled);
         this.configuration.setOfflineMode(offlineMode);
+        this.configuration.setAutoRefresh(autoRefresh);
 
         // store the values every time they change
         saveFilePropertyWhenChanged(dialogSettings, SETTINGS_KEY_PROJECT_DIR, this.configuration.getProjectDir());
@@ -106,6 +109,7 @@ public class ProjectImportWizardController {
         saveStringArrayPropertyWhenChanged(dialogSettings, SETTINGS_KEY_WORKING_SETS, this.configuration.getWorkingSets());
         saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_BUILD_SCANS, this.configuration.getBuildScansEnabled());
         saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_OFFLINE_MODE, this.configuration.getOfflineMode());
+        saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_AUTO_REFRESH, this.configuration.getAutoRefresh());
     }
 
     private GradleDistributionWrapper createGradleDistribution(Optional<String> gradleDistributionType, Optional<String> gradleDistributionConfiguration) {

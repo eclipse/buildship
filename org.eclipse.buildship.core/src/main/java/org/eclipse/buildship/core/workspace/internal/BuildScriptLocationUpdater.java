@@ -28,10 +28,10 @@ import org.eclipse.buildship.core.util.file.RelativePathUtils;
 final class BuildScriptLocationUpdater {
 
     public static void update(OmniEclipseProject eclipseProject, PersistentModelBuilder persistentModel, IProgressMonitor monitor) {
-        Maybe<OmniGradleScript> buildDirectory = eclipseProject.getGradleProject().getBuildScript();
-        if (buildDirectory.isPresent() && buildDirectory.get() != null) {
+        Maybe<OmniGradleScript> buildScript = eclipseProject.getGradleProject().getBuildScript();
+        if (buildScript.isPresent() && buildScript.get() != null) {
             IPath projectPath = new Path(eclipseProject.getProjectDirectory().getAbsolutePath());
-            IPath buildScriptPath = new Path(buildDirectory.get().getSourceFile().getAbsolutePath());
+            IPath buildScriptPath = new Path(buildScript.get().getSourceFile().getAbsolutePath());
             persistentModel.buildScriptPath(RelativePathUtils.getRelativePath(projectPath, buildScriptPath));
         } else {
             persistentModel.buildScriptPath(new Path("build.gradle"));

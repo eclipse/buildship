@@ -115,12 +115,16 @@ public final class ProjectImportConfiguration {
         return this.offlineMode;
     }
 
+    public void setOfflineMode(boolean offlineMode) {
+        this.offlineMode.setValue(Boolean.valueOf(offlineMode));
+    }
+
     public Property<Boolean> getAutoRefresh() {
         return this.autoRefresh;
     }
 
-    public void setOfflineMode(boolean offlineMode) {
-        this.offlineMode.setValue(Boolean.valueOf(offlineMode));
+    public void setAutoRefresh(boolean autoRefresh) {
+        this.autoRefresh.setValue(Boolean.valueOf(autoRefresh));
     }
 
     public BuildConfiguration toBuildConfig() {
