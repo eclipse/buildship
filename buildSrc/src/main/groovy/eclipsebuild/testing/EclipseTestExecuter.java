@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import eclipsebuild.Constants;
 import eclipsebuild.TestBundlePlugin;
 import org.gradle.api.GradleException;
+import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.internal.file.FileResolver;
@@ -40,7 +41,7 @@ import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.api.tasks.testing.TestOutputEvent;
 import org.gradle.internal.operations.BuildOperationExecutor;
-import org.gradle.internal.time.TrueTimeProvider;
+import org.gradle.internal.time.Time;
 import org.gradle.process.ExecResult;
 import org.gradle.process.internal.DefaultJavaExecAction;
 import org.gradle.process.internal.JavaExecAction;
@@ -164,6 +165,11 @@ public final class EclipseTestExecuter implements TestExecuter {
         jvmArgs.add("-Xms40m");
         jvmArgs.add("-Xmx1024m");
 
+        // Java 9 workaround from https://bugs.eclipse.org/bugs/show_bug.cgi?id=493761
+        // TODO we should remove this option when it is not required by Eclipse
+        if (JavaVersion.current().isJava9Compatible()) {
+            jvmArgs.add("--add-modules=ALL-SYSTEM");
+        }
         // uncomment to debug spawned Eclipse instance
         // jvmArgs.add("-Xdebug");
         // jvmArgs.add("-Xrunjdwp:transport=dt_socket,address=8998,server=y");
@@ -247,7 +253,7 @@ public final class EclipseTestExecuter implements TestExecuter {
             detector = new EclipsePluginTestClassScanner(testClassFiles, processor);
         }
 
-        new TestMainAction(detector, processor, new NoOpTestResultProcessor(), new TrueTimeProvider(), testTaskOperationId, rootTestSuiteId, String.format("Gradle Eclipse Test Run %s", testTask.getIdentityPath())).run();
+        new TestMainAction(detector, processor, new NoOpTestResultProcessor(), Time.clock(), testTaskOperationId, rootTestSuiteId, String.format("Gradle Eclipse Test Run %s", testTask.getIdentityPath())).run();
         LOGGER.info("collected test class names: {}", processor.classNames);
         return processor.classNames;
     }

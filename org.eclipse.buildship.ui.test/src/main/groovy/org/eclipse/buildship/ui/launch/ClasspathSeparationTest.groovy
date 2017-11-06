@@ -1,5 +1,8 @@
 package org.eclipse.buildship.ui.launch
 
+import org.gradle.api.JavaVersion
+import spock.lang.IgnoreIf
+
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
 import org.eclipse.core.runtime.NullProgressMonitor
@@ -17,6 +20,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         DebugPlugin.default.launchManager.launchConfigurations.each { it.delete() }
     }
 
+    @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
     def "All dependencies are available when Gradle doesn't supply scope information"() {
         setup:
         importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('3.5'))

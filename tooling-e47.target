@@ -2,27 +2,27 @@
 <?pde version="3.8"?><target name="Buildship Eclipse Neon Target Platform" sequenceNumber="1">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.sdk.ide" version="4.7.0.I20170612-0950"/>
 <unit id="org.eclipse.m2e.feature.feature.group" version="1.8.0.20160921-2002"/>
+<unit id="org.eclipse.sdk.ide" version="4.7.1.M20171009-0410"/>
 <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-oxygen/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.gradle.toolingapi" version="3.5.0.v20170801075239"/>
-<unit id="com.gradleware.tooling.utils" version="0.19.3.v20170801075239"/>
-<unit id="com.gradleware.tooling.client" version="0.19.3.v20170801075239"/>
-<unit id="com.gradleware.tooling.model" version="0.19.3.v20170801075239"/>
-<repository location="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.3/p2-repository-0.19.3.zip!/"/>
+<unit id="com.gradleware.tooling.client" version="0.19.4.v20171102075106"/>
+<unit id="com.gradleware.tooling.model" version="0.19.4.v20171102075106"/>
+<unit id="com.gradleware.tooling.utils" version="0.19.4.v20171102075106"/>
+<unit id="org.gradle.toolingapi" version="4.3.0.v20171102075106"/>
+<repository location="jar:https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/0.19.4-20171102075106/p2-repository-0.19.4-20171102075106.zip!/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.jetbrains.kotlin.feature.feature.group" version="0.8.2.v20170906-0933"/>
 <repository location="https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_EclipsePlugin/1160530:id/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="com.google.gson" version="2.2.4.v201311231704"/>
+<unit id="com.google.gson" version="2.7.0.v20170129-0911"/>
 <unit id="com.google.guava" version="15.0.0.v201403281430"/>
 <unit id="org.junit" version="4.12.0.v201504281640"/>
 <unit id="org.slf4j.api" version="1.7.2.v20121108-1250"/>
-<repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-m7/"/>
+<repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.swtbot.eclipse.feature.group" version="2.2.1.201402241301"/>
