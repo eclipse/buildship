@@ -52,6 +52,7 @@ import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 import org.eclipse.buildship.core.workspace.internal.DefaultGradleWorkspaceManager;
 import org.eclipse.buildship.core.workspace.internal.DefaultWorkspaceOperations;
 import org.eclipse.buildship.core.workspace.internal.ProjectChangeListener;
+import org.eclipse.buildship.core.workspace.internal.SynchronizingBuildScriptUpdateListener;
 
 /**
  * The plug-in runtime class for the Gradle integration plugin containing the non-UI elements.
@@ -103,6 +104,7 @@ public final class CorePlugin extends Plugin {
 
     private DefaultModelPersistence modelPersistence;
     private ProjectChangeListener projectChangeListener;
+    private SynchronizingBuildScriptUpdateListener buildScriptUpdateListener;
     private InvocationCustomizer invocationCustomizer;
     private ConfigurationManager configurationManager;
     private DefaultExternalLaunchConfigurationManager externalLaunchConfigurationManager;
@@ -160,6 +162,7 @@ public final class CorePlugin extends Plugin {
 
         this.modelPersistence = DefaultModelPersistence.createAndRegister();
         this.projectChangeListener = ProjectChangeListener.createAndRegister();
+        this.buildScriptUpdateListener = SynchronizingBuildScriptUpdateListener.createAndRegister();
         this.invocationCustomizer = new InvocationCustomizerCollector();
         this.configurationManager = new DefaultConfigurationManager();
         this.externalLaunchConfigurationManager = DefaultExternalLaunchConfigurationManager.createAndRegister();
@@ -218,6 +221,7 @@ public final class CorePlugin extends Plugin {
 
     private void unregisterServices() {
         this.externalLaunchConfigurationManager.unregister();
+        this.buildScriptUpdateListener.close();
         this.projectChangeListener.close();
         this.modelPersistence.close();
         this.userNotificationService.unregister();

@@ -116,4 +116,13 @@ class DefaultBuildConfiguration implements BuildConfiguration {
             Collections.<String>emptyList(), // arguments
             Collections.<String>emptyList()); // JVM arguments
     }
+
+    @Override
+    public boolean isAutoRefresh() {
+        if (this.properties.isOverrideWorkspaceSettings()) {
+            return this.properties.isAutoRefresh();
+        } else {
+            return this.workspaceConfiguration.isAutoSyncEnabled();
+        }
+    }
 }
