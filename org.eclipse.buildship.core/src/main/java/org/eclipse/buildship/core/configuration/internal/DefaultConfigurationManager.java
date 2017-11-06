@@ -52,13 +52,14 @@ public class DefaultConfigurationManager implements ConfigurationManager {
 
     @Override
     public BuildConfiguration createBuildConfiguration(File rootProjectDirectory, boolean overrideWorkspaceSettings, GradleDistribution gradleDistribution, File gradleUserHome,
-            boolean buildScansEnabled, boolean offlineMode) {
+            boolean buildScansEnabled, boolean offlineMode, boolean autoRefresh) {
         DefaultBuildConfigurationProperties persistentBuildConfigProperties = new DefaultBuildConfigurationProperties(rootProjectDirectory,
                                                                                                         gradleDistribution,
                                                                                                         gradleUserHome,
                                                                                                         overrideWorkspaceSettings,
                                                                                                         buildScansEnabled,
-                                                                                                        offlineMode);
+                                                                                                        offlineMode,
+                                                                                                        autoRefresh);
         return new DefaultBuildConfiguration(persistentBuildConfigProperties, loadWorkspaceConfiguration());
     }
 
@@ -166,7 +167,8 @@ public class DefaultConfigurationManager implements ConfigurationManager {
                     attributes.getGradleUserHome(),
                     attributes.isOverrideBuildSettings(),
                     attributes.isBuildScansEnabled(),
-                    attributes.isOffline());
+                    attributes.isOffline(),
+                    false);
             BuildConfiguration buildConfiguration = new DefaultBuildConfiguration(buildConfigProperties, loadWorkspaceConfiguration());
             projectConfiguration = new DefaultProjectConfiguration(canonicalize(attributes.getWorkingDir()), buildConfiguration);
         }

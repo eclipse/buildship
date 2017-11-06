@@ -18,6 +18,7 @@ class PersistentModelBuilderTest extends WorkspaceSpecification {
     def "Builder from existing model"() {
         setup:
         def buildDir = new Path('buildDir')
+        def buildScriptPath = new Path('build.gradle')
         def subProjectPaths = [new Path('subproject')]
         def classpath = [JavaCore.newProjectEntry(new Path('/project-path'))]
         def derivedResources = [new Path('derived')]
@@ -27,7 +28,7 @@ class PersistentModelBuilderTest extends WorkspaceSpecification {
         command.setBuilderName('custom-command')
         def managedBuilders = [command]
 
-        def previous = new DefaultPersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders)
+        def previous = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders)
         def model = new PersistentModelBuilder(previous).build()
 
         expect:
@@ -46,6 +47,7 @@ class PersistentModelBuilderTest extends WorkspaceSpecification {
     def "Null values cause NPE when the build method is called"() {
         setup:
         def buildDir = new Path('buildDir')
+        def buildScriptPath = new Path('build.gradle')
         def subProjectPaths = [new Path('subproject')]
         def classpath = [JavaCore.newProjectEntry(new Path('/project-path'))]
         def derivedResources = [new Path('derived')]
@@ -55,7 +57,7 @@ class PersistentModelBuilderTest extends WorkspaceSpecification {
         command.setBuilderName('custom-command')
         def managedBuilders = [command]
 
-        def previous = new DefaultPersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders)
+        def previous = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders)
         def builder = new PersistentModelBuilder(previous)
         builder."${method}"(null)
 

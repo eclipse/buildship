@@ -73,7 +73,10 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
 
     @Override
     public void createControl(Composite parent) {
-        this.gradleProjectSettingsComposite = GradleProjectSettingsComposite.withOverrideCheckbox(parent, CoreMessages.RunConfiguration_Label_OverrideProjectSettings, "Configure Project Settings");
+        this.gradleProjectSettingsComposite = GradleProjectSettingsComposite.builder(parent)
+                .withOverrideCheckbox(CoreMessages.RunConfiguration_Label_OverrideProjectSettings, "Configure Project Settings")
+                .build();
+
         GridLayoutFactory.swtDefaults().numColumns(2).applyTo(this.gradleProjectSettingsComposite);
         setControl(this.gradleProjectSettingsComposite);
         addListeners();

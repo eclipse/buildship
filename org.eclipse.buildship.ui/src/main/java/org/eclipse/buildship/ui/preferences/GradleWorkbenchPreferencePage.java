@@ -52,7 +52,9 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
 
     @Override
     protected Control createContents(Composite parent) {
-        this.gradleProjectSettingsComposite = GradleProjectSettingsComposite.withoutOverrideCheckbox(parent);
+        this.gradleProjectSettingsComposite = GradleProjectSettingsComposite.builder(parent)
+                .withAutoRefreshCheckbox()
+                .build();
 
         initValues();
         addListeners();

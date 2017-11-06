@@ -39,6 +39,7 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
             GradleDistribution.fromBuild(),
             buildBuildScansEnabled,
             buildOfflineMode,
+            false,
             buildGradleUserHome)
         RunConfiguration runConfig = configurationManager.createRunConfiguration(buildConfig,
                 tasks,
