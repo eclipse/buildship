@@ -40,7 +40,7 @@ class BuildScriptLocationUpdaterTest extends WorkspaceSpecification {
             getProjectDirectory() >> projectDir
             getGradleProject() >> Stub(OmniGradleProject) {
                 getBuildScript() >> Maybe.of(Stub(OmniGradleScript) {
-                    getSourceFile() >> buildScriptFile.get()
+                    getSourceFile() >> (buildScriptFile.present ? buildScriptFile.get() : null)
                 })
             }
         }

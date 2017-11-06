@@ -31,7 +31,12 @@ final class BuildScriptLocationUpdater {
         Maybe<OmniGradleScript> buildScript = eclipseProject.getGradleProject().getBuildScript();
         if (buildScript.isPresent() && buildScript.get() != null) {
             IPath projectPath = new Path(eclipseProject.getProjectDirectory().getAbsolutePath());
-            IPath buildScriptPath = new Path(buildScript.get().getSourceFile().getAbsolutePath());
+            IPath buildScriptPath;
+            if (buildScript.get().getSourceFile() != null) {
+                buildScriptPath = new Path(buildScript.get().getSourceFile().getAbsolutePath());
+            } else {
+                buildScriptPath = new Path(new File("build.gradle").getAbsolutePath());
+            }
             persistentModel.buildScriptPath(RelativePathUtils.getRelativePath(projectPath, buildScriptPath));
         } else {
             persistentModel.buildScriptPath(new Path("build.gradle"));

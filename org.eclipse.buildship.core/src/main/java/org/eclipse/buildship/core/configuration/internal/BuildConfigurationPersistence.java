@@ -139,12 +139,14 @@ final class BuildConfigurationPersistence {
             preferences.writeBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, properties.isOverrideWorkspaceSettings());
             preferences.writeBoolean(PREF_KEY_BUILD_SCANS_ENABLED, properties.isBuildScansEnabled());
             preferences.writeBoolean(PREF_KEY_OFFLINE_MODE, properties.isOfflineMode());
+            preferences.writeBoolean(PREF_KEY_AUTO_REFRESH, properties.isAutoRefresh());
         } else {
             preferences.delete(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
             preferences.delete(PREF_KEY_GRADLE_USER_HOME);
             preferences.delete(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS);
             preferences.delete(PREF_KEY_BUILD_SCANS_ENABLED);
             preferences.delete(PREF_KEY_OFFLINE_MODE);
+            preferences.delete(PREF_KEY_AUTO_REFRESH);
         }
         preferences.flush();
     }
