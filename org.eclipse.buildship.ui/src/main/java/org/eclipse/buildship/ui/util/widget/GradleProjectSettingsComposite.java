@@ -47,9 +47,9 @@ public final class GradleProjectSettingsComposite extends Composite {
     private GradleUserHomeGroup gradleUserHomeGroup;
     private Button offlineModeCheckbox;
     private Button buildScansCheckbox;
-    private Button autoBuildCheckbox;
+    private Button autoSyncCheckbox;
 
-    private GradleProjectSettingsComposite(Composite parent, boolean hasOverrideCheckbox, String overrideCheckboxLabel, String configureParentPrefsLinkLabel, boolean hasAutoRefreshCheckbox) {
+    private GradleProjectSettingsComposite(Composite parent, boolean hasOverrideCheckbox, String overrideCheckboxLabel, String configureParentPrefsLinkLabel, boolean hasAutoSyncCheckbox) {
         super(parent, SWT.NONE);
 
         this.overrideCheckboxLabel = overrideCheckboxLabel;
@@ -66,8 +66,8 @@ public final class GradleProjectSettingsComposite extends Composite {
         createGradleUserHomeGroup(this);
         createOfflineModeCheckbox(this);
         createBuildScansCheckbox(this);
-        if (hasAutoRefreshCheckbox) {
-            createAutoBuildCheckbox(this);
+        if (hasAutoSyncCheckbox) {
+            createAutoSyncCheckbox(this);
         }
 
         addListeners();
@@ -116,11 +116,11 @@ public final class GradleProjectSettingsComposite extends Composite {
         HoverText.createAndAttach(this.buildScansCheckbox, CoreMessages.Preference_Label_BuildScansHover);
     }
 
-    private void createAutoBuildCheckbox(Composite parent) {
-        this.autoBuildCheckbox = new Button(parent, SWT.CHECK);
-        this.autoBuildCheckbox.setText("Automatic Refresh");
-        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(2, 1).applyTo(this.autoBuildCheckbox);
-        HoverText.createAndAttach(this.autoBuildCheckbox, "Automatically synchronize project when build script changes");
+    private void createAutoSyncCheckbox(Composite parent) {
+        this.autoSyncCheckbox = new Button(parent, SWT.CHECK);
+        this.autoSyncCheckbox.setText("Automatic Refresh");
+        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(2, 1).applyTo(this.autoSyncCheckbox);
+        HoverText.createAndAttach(this.autoSyncCheckbox, CoreMessages.Preference_Label_AutoSyncHover);
     }
 
     private void addListeners() {
@@ -147,8 +147,8 @@ public final class GradleProjectSettingsComposite extends Composite {
             this.gradleUserHomeGroup.setEnabled(enabled);
             this.offlineModeCheckbox.setEnabled(enabled);
             this.buildScansCheckbox.setEnabled(enabled);
-            if (this.autoBuildCheckbox != null) {
-                this.autoBuildCheckbox.setEnabled(enabled);
+            if (this.autoSyncCheckbox != null) {
+                this.autoSyncCheckbox.setEnabled(enabled);
             }
         }
     }
@@ -182,10 +182,10 @@ public final class GradleProjectSettingsComposite extends Composite {
         return this.buildScansCheckbox;
     }
 
-    // TODO (donat) refactor factories and class hierarchy such that the autobuild checkbox is not available for the run configurations
-    public Button getAutoBuildCheckbox() {
-        return this.autoBuildCheckbox;
+    public Button getAutoSyncCheckbox() {
+        return this.autoSyncCheckbox;
     }
+
     public static final GradleProjectSettingsCompositeBuilder builder(Composite parent) {
         return new GradleProjectSettingsCompositeBuilder(parent);
     }
@@ -193,12 +193,12 @@ public final class GradleProjectSettingsComposite extends Composite {
     /**
      * Builder for building a {@link GradleProjectSettingsComposite}.
      *
-     * @author Christopher Bryan Boyd
+     * @author Christopher Bryan Boyd (wodencafe)
      *
      */
     public static class GradleProjectSettingsCompositeBuilder {
         private Maybe<Pair<String, String>> overrideCheckbox = Maybe.absent();
-        private boolean autoRefreshCheckbox = false;
+        private boolean autoSyncCheckbox = false;
         private Composite parent;
         private GradleProjectSettingsCompositeBuilder(Composite parent) {
             this.parent = parent;
@@ -207,15 +207,15 @@ public final class GradleProjectSettingsComposite extends Composite {
             this.overrideCheckbox = Maybe.of(new Pair<>(overrideCheckboxLabel, configureParentPrefsLinkLabel));
             return this;
         }
-        public GradleProjectSettingsCompositeBuilder withAutoRefreshCheckbox() {
-            this.autoRefreshCheckbox = true;
+        public GradleProjectSettingsCompositeBuilder withAutoSyncCheckbox() {
+            this.autoSyncCheckbox = true;
             return this;
         }
         public GradleProjectSettingsComposite build() {
             if (this.overrideCheckbox.isPresent()) {
-                return new GradleProjectSettingsComposite(this.parent, true, this.overrideCheckbox.get().getFirst(), this.overrideCheckbox.get().getSecond(), this.autoRefreshCheckbox);
+                return new GradleProjectSettingsComposite(this.parent, true, this.overrideCheckbox.get().getFirst(), this.overrideCheckbox.get().getSecond(), this.autoSyncCheckbox);
             } else {
-                return new GradleProjectSettingsComposite(this.parent, false, null, null, this.autoRefreshCheckbox);
+                return new GradleProjectSettingsComposite(this.parent, false, null, null, this.autoSyncCheckbox);
             }
         }
     }

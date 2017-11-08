@@ -35,7 +35,7 @@ public final class ProjectImportConfiguration {
     private final Property<List<String>> workingSets;
     private final Property<Boolean> buildScansEnabled;
     private final Property<Boolean> offlineMode;
-    private final Property<Boolean> autoRefresh;
+    private final Property<Boolean> autoSync;
 
     public ProjectImportConfiguration() {
         this(Validators.<File>noOp(), Validators.<GradleDistributionWrapper>noOp(), Validators.<File>noOp(), Validators.<Boolean>noOp(), Validators.<List<String>>noOp());
@@ -51,7 +51,7 @@ public final class ProjectImportConfiguration {
         this.workingSets = Property.create(workingSetsValidators);
         this.buildScansEnabled = Property.<Boolean>create(Validators.<Boolean>noOp());
         this.offlineMode = Property.<Boolean>create(Validators.<Boolean>noOp());
-        this.autoRefresh = Property.<Boolean>create(Validators.<Boolean>noOp());
+        this.autoSync = Property.<Boolean>create(Validators.<Boolean>noOp());
     }
 
     public Property<File> getProjectDir() {
@@ -119,12 +119,12 @@ public final class ProjectImportConfiguration {
         this.offlineMode.setValue(Boolean.valueOf(offlineMode));
     }
 
-    public Property<Boolean> getAutoRefresh() {
-        return this.autoRefresh;
+    public Property<Boolean> getAutoSync() {
+        return this.autoSync;
     }
 
-    public void setAutoRefresh(boolean autoRefresh) {
-        this.autoRefresh.setValue(Boolean.valueOf(autoRefresh));
+    public void setAutoSync(boolean autoSync) {
+        this.autoSync.setValue(Boolean.valueOf(autoSync));
     }
 
     public BuildConfiguration toBuildConfig() {
@@ -134,6 +134,6 @@ public final class ProjectImportConfiguration {
                 getGradleUserHome().getValue(),
                 getBuildScansEnabled().getValue(),
                 getOfflineMode().getValue(),
-                getAutoRefresh().getValue());
+                getAutoSync().getValue());
     }
 }

@@ -36,7 +36,7 @@ public final class WorkspaceConfigurationPersistence {
     private static final String GRADLE_USER_HOME = "gradle.user.home";
     private static final String GRADLE_OFFLINE_MODE = "gradle.offline.mode";
     private static final String GRADLE_BUILD_SCANS = "gradle.build.scans";
-    private static final String GRADLE_AUTO_SYNC = "gradle.autosync";
+    private static final String GRADLE_AUTO_SYNC = "auto.sync";
 
     public WorkspaceConfiguration readWorkspaceConfig() {
         IEclipsePreferences preferences = getPreferences();

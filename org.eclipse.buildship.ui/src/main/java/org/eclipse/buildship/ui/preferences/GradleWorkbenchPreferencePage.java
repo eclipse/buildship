@@ -53,7 +53,7 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
     @Override
     protected Control createContents(Composite parent) {
         this.gradleProjectSettingsComposite = GradleProjectSettingsComposite.builder(parent)
-                .withAutoRefreshCheckbox()
+                .withAutoSyncCheckbox()
                 .build();
 
         initValues();
@@ -72,7 +72,7 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
         this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().setText(gradleUserHomePath);
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(config.isOffline());
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(config.isBuildScansEnabled());
-        this.gradleProjectSettingsComposite.getAutoBuildCheckbox().setSelection(config.isAutoSyncEnabled());
+        this.gradleProjectSettingsComposite.getAutoSyncCheckbox().setSelection(config.isAutoSyncEnabled());
     }
 
     private void addListeners() {
@@ -88,8 +88,8 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
         File gradleUserHome = gradleUserHomeString.isEmpty() ? null : new File(gradleUserHomeString);
         boolean offlineMode = this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection();
         boolean buildScansEnabled = this.gradleProjectSettingsComposite.getBuildScansCheckbox().getSelection();
-        boolean autoBuildEnabled = this.gradleProjectSettingsComposite.getAutoBuildCheckbox().getSelection();
-        WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(distribution, gradleUserHome, offlineMode, buildScansEnabled, autoBuildEnabled);
+        boolean autoSyncEnabled = this.gradleProjectSettingsComposite.getAutoSyncCheckbox().getSelection();
+        WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(distribution, gradleUserHome, offlineMode, buildScansEnabled, autoSyncEnabled);
         CorePlugin.configurationManager().saveWorkspaceConfiguration(workspaceConfig);
         return super.performOk();
     }

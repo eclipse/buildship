@@ -14,15 +14,16 @@ class WorkspaceConfigurationTest extends WorkspaceSpecification {
         configuration.gradleUserHome == null
         configuration.offline == false
         configuration.buildScansEnabled == false
+        configuration.autoSyncEnabled == false
 
     }
-    def "Can save workpsace configuration"(GradleDistribution distribution, String gradleUserHome, boolean offlineMode, boolean buildScansEnabled, boolean autoRefresh) {
+    def "Can save workpsace configuration"(GradleDistribution distribution, String gradleUserHome, boolean offlineMode, boolean buildScansEnabled, boolean autoSync) {
         setup:
         WorkspaceConfiguration orignalConfiguration = configurationManager.loadWorkspaceConfiguration()
 
         when:
         File gradleUserHomeDir = dir(gradleUserHome)
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, gradleUserHomeDir, offlineMode, buildScansEnabled, autoRefresh))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, gradleUserHomeDir, offlineMode, buildScansEnabled, autoSync))
         WorkspaceConfiguration updatedConfiguration = configurationManager.loadWorkspaceConfiguration()
 
         then:
@@ -30,13 +31,13 @@ class WorkspaceConfigurationTest extends WorkspaceSpecification {
         updatedConfiguration.gradleUserHome == gradleUserHomeDir
         updatedConfiguration.offline == offlineMode
         updatedConfiguration.buildScansEnabled == buildScansEnabled
-        updatedConfiguration.autoSyncEnabled == autoRefresh
+        updatedConfiguration.autoSyncEnabled == autoSync
 
         cleanup:
         configurationManager.saveWorkspaceConfiguration(orignalConfiguration)
 
         where:
-        distribution                                                                 | gradleUserHome    | offlineMode  | buildScansEnabled | autoRefresh
+        distribution                                                                 | gradleUserHome    | offlineMode  | buildScansEnabled | autoSync
         GradleDistribution.fromBuild()                                               | 'customUserHome1' |  false       | false             | true
         GradleDistribution.forVersion("3.2.1")                                       | 'customUserHome2' |  false       | true              | false
         GradleDistribution.forLocalInstallation(new File('/').canonicalFile)         | 'customUserHome3' |  true        | true              | true

@@ -175,7 +175,7 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
         projectConfiguration == null
     }
 
-    def "load build configuration respecting workspaces settings"(GradleDistribution distribution, boolean buildScansEnabled, boolean offlineMode, boolean autoRefresh) {
+    def "load build configuration respecting workspaces settings"(GradleDistribution distribution, boolean buildScansEnabled, boolean offlineMode, boolean autoSync) {
         setup:
         WorkspaceConfiguration originalWsConfig = configurationManager.loadWorkspaceConfiguration()
         BuildConfiguration buildConfig =  createInheritingBuildConfiguration(rootProjectDir)
@@ -184,7 +184,7 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 
         when:
         configurationManager.saveProjectConfiguration(projectConfig)
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, gradleUserHome, offlineMode, buildScansEnabled, autoRefresh))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, gradleUserHome, offlineMode, buildScansEnabled, autoSync))
         projectConfig = configurationManager.loadProjectConfiguration(project)
 
         then:
@@ -193,29 +193,29 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
         projectConfig.buildConfiguration.gradleUserHome == gradleUserHome
         projectConfig.buildConfiguration.buildScansEnabled == buildScansEnabled
         projectConfig.buildConfiguration.offlineMode == offlineMode
-        projectConfig.buildConfiguration.autoRefresh == autoRefresh
+        projectConfig.buildConfiguration.autoSync == autoSync
 
         cleanup:
         configurationManager.saveWorkspaceConfiguration(originalWsConfig)
 
         where:
-        distribution                         | buildScansEnabled | offlineMode | autoRefresh
+        distribution                         | buildScansEnabled | offlineMode | autoSync
         GradleDistribution.forVersion('3.5') | false             | false       | true
         GradleDistribution.forVersion('3.4') | false             | true        | false
         GradleDistribution.forVersion('3.3') | true              | false       | false
         GradleDistribution.forVersion('3.2') | true              | true        | true
     }
 
-    def "load project configuration overriding workspace settings"(GradleDistribution distribution, boolean buildScansEnabled, boolean offlineMode, boolean autoRefresh) {
+    def "load project configuration overriding workspace settings"(GradleDistribution distribution, boolean buildScansEnabled, boolean offlineMode, boolean autoSync) {
         setup:
         WorkspaceConfiguration originalWsConfig = configurationManager.loadWorkspaceConfiguration()
         File gradleUserHome = dir('gradle-user-home').canonicalFile
-        BuildConfiguration buildConfig = createOverridingBuildConfiguration(rootProjectDir, distribution, buildScansEnabled, offlineMode, autoRefresh, gradleUserHome)
+        BuildConfiguration buildConfig = createOverridingBuildConfiguration(rootProjectDir, distribution, buildScansEnabled, offlineMode, autoSync, gradleUserHome)
         ProjectConfiguration projectConfig = configurationManager.createProjectConfiguration(buildConfig, projectDir);
 
         when:
         configurationManager.saveProjectConfiguration(projectConfig)
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(GradleDistribution.fromBuild(), null, !buildScansEnabled, !offlineMode, !autoRefresh))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(GradleDistribution.fromBuild(), null, !buildScansEnabled, !offlineMode, !autoSync))
         projectConfig = configurationManager.loadProjectConfiguration(project)
 
         then:
@@ -224,13 +224,13 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
         projectConfig.buildConfiguration.gradleUserHome == gradleUserHome
         projectConfig.buildConfiguration.buildScansEnabled == buildScansEnabled
         projectConfig.buildConfiguration.offlineMode == offlineMode
-        projectConfig.buildConfiguration.autoRefresh == autoRefresh
+        projectConfig.buildConfiguration.autoSync == autoSync
 
         cleanup:
         configurationManager.saveWorkspaceConfiguration(originalWsConfig)
 
         where:
-        distribution                         | buildScansEnabled | offlineMode | autoRefresh
+        distribution                         | buildScansEnabled | offlineMode | autoSync
         GradleDistribution.forVersion('3.5') | false             | false       | true
         GradleDistribution.forVersion('3.4') | false             | true        | false
         GradleDistribution.forVersion('3.3') | true              | false       | false

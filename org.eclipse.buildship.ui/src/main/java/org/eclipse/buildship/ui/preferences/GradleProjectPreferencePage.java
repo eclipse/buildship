@@ -53,7 +53,7 @@ public final class GradleProjectPreferencePage extends PropertyPage {
     @Override
     protected Control createContents(Composite parent) {
         this.gradleProjectSettingsComposite = GradleProjectSettingsComposite.builder(parent)
-                .withAutoRefreshCheckbox()
+                .withAutoSyncCheckbox()
                 .withOverrideCheckbox("Override workspace settings", "Configure Workspace Settings")
                 .build();
 
@@ -72,7 +72,7 @@ public final class GradleProjectPreferencePage extends PropertyPage {
         this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().setSelection(overrideWorkspaceSettings);
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(buildConfig.isBuildScansEnabled());
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(buildConfig.isOfflineMode());
-        this.gradleProjectSettingsComposite.getAutoBuildCheckbox().setSelection(buildConfig.isAutoRefresh());
+        this.gradleProjectSettingsComposite.getAutoSyncCheckbox().setSelection(buildConfig.isAutoSync());
         this.gradleProjectSettingsComposite.updateEnablement();
     }
 
@@ -94,7 +94,7 @@ public final class GradleProjectPreferencePage extends PropertyPage {
            this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHome(),
            this.gradleProjectSettingsComposite.getBuildScansCheckbox().getSelection(),
            this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection(),
-           this.gradleProjectSettingsComposite.getAutoBuildCheckbox().getSelection());
+           this.gradleProjectSettingsComposite.getAutoSyncCheckbox().getSelection());
        manager.saveBuildConfiguration(updatedConfig);
        return true;
     }

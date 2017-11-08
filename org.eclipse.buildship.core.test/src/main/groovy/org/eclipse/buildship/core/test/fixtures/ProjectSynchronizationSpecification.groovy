@@ -59,7 +59,7 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         configuration.gradleUserHome = null
         configuration.buildScansEnabled = false
         configuration.offlineMode = false
-        configuration.autoRefresh = false
+        configuration.autoSync = false
         configuration.projectDir = location
         configuration.applyWorkingSets = true
         configuration.workingSets = []

@@ -118,9 +118,9 @@ class DefaultBuildConfiguration implements BuildConfiguration {
     }
 
     @Override
-    public boolean isAutoRefresh() {
+    public boolean isAutoSync() {
         if (this.properties.isOverrideWorkspaceSettings()) {
-            return this.properties.isAutoRefresh();
+            return this.properties.isAutoSync();
         } else {
             return this.workspaceConfiguration.isAutoSyncEnabled();
         }

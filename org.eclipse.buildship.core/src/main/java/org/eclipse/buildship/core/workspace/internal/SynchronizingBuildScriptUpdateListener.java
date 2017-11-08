@@ -56,7 +56,7 @@ public final class SynchronizingBuildScriptUpdateListener implements IResourceCh
 
     private boolean isEnabledInPreferences(IProject project) {
         ProjectConfiguration configuration = CorePlugin.configurationManager().loadProjectConfiguration(project);
-        return configuration.getBuildConfiguration().isAutoRefresh();
+        return configuration.getBuildConfiguration().isAutoSync();
     }
 
     private void visitDelta(IResourceDelta delta) throws CoreException {

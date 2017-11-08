@@ -54,7 +54,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
         GridLayoutFactory.swtDefaults().applyTo(root);
         this.gradleProjectSettingsComposite = GradleProjectSettingsComposite.builder(root)
                 .withOverrideCheckbox("Override workspace settings", "Configure Workspace Settings")
-                .withAutoRefreshCheckbox()
+                .withAutoSyncCheckbox()
                 .build();
 
         GridDataFactory.fillDefaults().grab(true, false).applyTo(this.gradleProjectSettingsComposite);
@@ -70,7 +70,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
         this.gradleProjectSettingsComposite.getGradleUserHomeGroup().setGradleUserHome(getConfiguration().getGradleUserHome().getValue());
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(getConfiguration().getBuildScansEnabled().getValue());
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(getConfiguration().getOfflineMode().getValue());
-        this.gradleProjectSettingsComposite.getAutoBuildCheckbox().setSelection(getConfiguration().getAutoRefresh().getValue());
+        this.gradleProjectSettingsComposite.getAutoSyncCheckbox().setSelection(getConfiguration().getAutoSync().getValue());
         this.gradleProjectSettingsComposite.updateEnablement();
     }
 
@@ -131,17 +131,17 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
                 getConfiguration().getOfflineMode().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection());
             }
         });
-        this.gradleProjectSettingsComposite.getAutoBuildCheckbox().addSelectionListener(new SelectionListener() {
+        this.gradleProjectSettingsComposite.getAutoSyncCheckbox().addSelectionListener(new SelectionListener() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                getConfiguration().getAutoRefresh().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getAutoBuildCheckbox().getSelection());
+                getConfiguration().getAutoSync().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getAutoSyncCheckbox().getSelection());
 
             }
 
             @Override
             public void widgetDefaultSelected(SelectionEvent e) {
-                getConfiguration().getAutoRefresh().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getAutoBuildCheckbox().getSelection());
+                getConfiguration().getAutoSync().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getAutoSyncCheckbox().getSelection());
             }
         });
 
