@@ -25,13 +25,18 @@ import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IWorkspace
 import org.eclipse.core.resources.IWorkspaceRunnable
 import org.eclipse.core.runtime.jobs.Job
-import org.eclipse.jdt.core.IJavaProject
+import org.eclipse.debug.core.DebugPlugin
+import org.eclipse.debug.core.ILaunchConfigurationType
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy
+import org.eclipse.debug.core.ILaunchManager
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.ui.IWorkbenchWindow
 import org.eclipse.ui.PlatformUI
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.configuration.ConfigurationManager
+import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import org.eclipse.buildship.ui.view.execution.ExecutionsView
 
@@ -54,6 +59,7 @@ abstract class WorkspaceSpecification extends Specification {
     }
 
     def cleanup() {
+        DebugPlugin.default.launchManager.launchConfigurations.each { it.delete() }
         deleteAllProjects(true)
         waitForResourceChangeEvents()
         waitForGradleJobsToFinish()
@@ -207,5 +213,15 @@ abstract class WorkspaceSpecification extends Specification {
             ExecutionsView view = window.activePage.findView(ExecutionsView.ID)
             view?.removeAllPages()
         }
+    }
+
+    protected ILaunchConfigurationWorkingCopy createLaunchConfig(String id, String name = 'launch-config') {
+        ILaunchManager launchManager = DebugPlugin.default.launchManager
+        ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(id)
+        type.newInstance(null, launchManager.generateLaunchConfigurationName(name))
+    }
+
+    protected ILaunchConfigurationWorkingCopy createGradleLaunchConfig(String name = 'launch-config') {
+        createLaunchConfig(GradleRunConfigurationDelegate.ID, name)
     }
 }

@@ -12,27 +12,16 @@
 package org.eclipse.buildship.core.launch
 
 import spock.lang.Shared
-import spock.lang.Specification
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
-import com.gradleware.tooling.toolingmodel.Path;
 
-import org.eclipse.core.resources.IProject
-import org.eclipse.core.runtime.NullProgressMonitor
-import org.eclipse.debug.core.DebugPlugin
 import org.eclipse.debug.core.ILaunchConfiguration
-import org.eclipse.debug.core.ILaunchConfigurationType
-import org.eclipse.debug.core.ILaunchManager
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.test.fixtures.EclipseProjects
+import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType
 
-class GradleRunConfigurationAttributesTest extends Specification {
+class GradleRunConfigurationAttributesTest extends WorkspaceSpecification {
 
     @Shared def Attributes validAttributes = new Attributes (
         tasks : ['clean'],
@@ -51,12 +40,10 @@ class GradleRunConfigurationAttributesTest extends Specification {
 
     def "Can create an instance from empty run configuration"() {
         setup:
-        ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-        ILaunchConfigurationType launchConfigType = launchManager.getLaunchConfigurationType(GradleRunConfigurationDelegate.ID);
-        ILaunchConfiguration launchConfig = launchConfigType.newInstance(null, "empty-config")
+        ILaunchConfiguration eclipseConfig = createGradleLaunchConfig()
 
         when:
-        GradleRunConfigurationAttributes attributes = GradleRunConfigurationAttributes.from(launchConfig)
+        GradleRunConfigurationAttributes attributes = GradleRunConfigurationAttributes.from(eclipseConfig)
 
         then:
         attributes.tasks == []
@@ -204,9 +191,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
 
     def "All configuration can be saved to Eclipse settings"() {
         setup:
-        def launchManager = DebugPlugin.getDefault().getLaunchManager();
-        def type = launchManager.getLaunchConfigurationType(GradleRunConfigurationDelegate.ID);
-        def eclipseConfig = type.newInstance(null, "launch-config-name")
+        ILaunchConfiguration eclipseConfig = createGradleLaunchConfig()
 
         when:
         assert eclipseConfig.getAttributes().isEmpty()
@@ -219,9 +204,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
 
     def "All valid configuration settings can be stored and retrieved"(Attributes attributes) {
         setup:
-        def launchManager = DebugPlugin.getDefault().getLaunchManager();
-        def type = launchManager.getLaunchConfigurationType(GradleRunConfigurationDelegate.ID);
-        def eclipseConfig = type.newInstance(null, "launch-config-name")
+        ILaunchConfiguration eclipseConfig = createGradleLaunchConfig()
 
         when:
         def gradleConfig1 = attributes.toConfiguration()
@@ -250,9 +233,7 @@ class GradleRunConfigurationAttributesTest extends Specification {
 
     def "Saved Configuration attributes has same unique attributes"() {
         setup:
-        def launchManager = DebugPlugin.getDefault().getLaunchManager();
-        def type = launchManager.getLaunchConfigurationType(GradleRunConfigurationDelegate.ID);
-        def eclipseConfig = type.newInstance(null, "launch-config-name")
+        ILaunchConfiguration eclipseConfig = createGradleLaunchConfig()
 
         when:
         def gradleConfig = validAttributes.toConfiguration()

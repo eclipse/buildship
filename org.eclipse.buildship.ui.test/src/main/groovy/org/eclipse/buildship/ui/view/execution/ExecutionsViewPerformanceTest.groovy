@@ -55,16 +55,10 @@ class ExecutionsViewPerformanceTest extends ProjectSynchronizationSpecification 
     private ProcessDescription processDescription() {
         Stub(ProcessDescription) {
             getName() >> 'test-process-description-name'
-            getConfigurationAttributes() >> GradleRunConfigurationAttributes.from(emptyLaunchConfiguration())
+            getConfigurationAttributes() >> GradleRunConfigurationAttributes.from(createGradleLaunchConfig())
             getJob() >> new EmptyJob()
             isRerunnable() >> false
         }
-    }
-
-    private ILaunchConfiguration emptyLaunchConfiguration() {
-        ILaunchManager launchManager = DebugPlugin.default.launchManager
-        ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(GradleRunConfigurationDelegate.ID)
-        type.newInstance(null, "launch-config-name")
     }
 
     private ProgressEvent progressEvent() {

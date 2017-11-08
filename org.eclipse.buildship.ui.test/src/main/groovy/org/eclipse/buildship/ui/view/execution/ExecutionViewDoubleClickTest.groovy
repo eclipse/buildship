@@ -65,6 +65,7 @@ class ExecutionViewDoubleClickTest extends BaseExecutionViewTest {
 
         when:
         fileNode.doubleClick()
+        waitForGradleJobsToFinish()
 
         then:
         bot.editorByTitle('LibraryTest.java') != null

@@ -36,7 +36,9 @@ import org.eclipse.buildship.core.console.internal.StdProcessStreamsProvider;
 import org.eclipse.buildship.core.event.ListenerRegistry;
 import org.eclipse.buildship.core.event.internal.DefaultListenerRegistry;
 import org.eclipse.buildship.core.invocation.InvocationCustomizer;
+import org.eclipse.buildship.core.launch.ExternalLaunchConfigurationManager;
 import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
+import org.eclipse.buildship.core.launch.internal.DefaultExternalLaunchConfigurationManager;
 import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.notification.UserNotification;
 import org.eclipse.buildship.core.notification.internal.ConsoleUserNotification;
@@ -105,6 +107,7 @@ public final class CorePlugin extends Plugin {
     private SynchronizingBuildScriptUpdateListener buildScriptUpdateListener;
     private InvocationCustomizer invocationCustomizer;
     private ConfigurationManager configurationManager;
+    private DefaultExternalLaunchConfigurationManager externalLaunchConfigurationManager;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
@@ -162,6 +165,7 @@ public final class CorePlugin extends Plugin {
         this.buildScriptUpdateListener = SynchronizingBuildScriptUpdateListener.createAndRegister();
         this.invocationCustomizer = new InvocationCustomizerCollector();
         this.configurationManager = new DefaultConfigurationManager();
+        this.externalLaunchConfigurationManager = DefaultExternalLaunchConfigurationManager.createAndRegister();
     }
 
     private ServiceTracker createServiceTracker(BundleContext context, Class<?> clazz) {
@@ -217,6 +221,7 @@ public final class CorePlugin extends Plugin {
 
     private void unregisterServices() {
         this.buildScriptUpdateListener.close();
+        this.externalLaunchConfigurationManager.unregister();
         this.projectChangeListener.close();
         this.modelPersistence.close();
         this.userNotificationService.unregister();
@@ -296,5 +301,9 @@ public final class CorePlugin extends Plugin {
 
     public static ConfigurationManager configurationManager() {
         return getInstance().configurationManager;
+    }
+
+    public static ExternalLaunchConfigurationManager externalLaunchConfigurationManager() {
+        return getInstance().externalLaunchConfigurationManager;
     }
 }

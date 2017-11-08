@@ -1,8 +1,10 @@
 package org.eclipse.buildship.ui.workspace
 
+import org.gradle.api.JavaVersion
 import org.gradle.tooling.CancellationToken
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.model.eclipse.EclipseProject
+import spock.lang.IgnoreIf
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
@@ -26,6 +28,7 @@ import org.eclipse.buildship.ui.test.fixtures.WorkspaceSpecification
 
 class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
 
+    @IgnoreIf({ JavaVersion.current().isJava9Compatible() }) // https://github.com/eclipse/buildship/issues/601
     def "Uses configuration from workspace settings"() {
         setup:
         WorkspaceConfiguration originalWorkspaceConfig = configurationManager.loadWorkspaceConfiguration()
@@ -60,11 +63,10 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
         AddBuildshipNatureHandler handler = new AddBuildshipNatureHandler()
         handler.execute(projectSelectionEvent(project))
         waitForGradleJobsToFinish()
+        GradleNatureAddedEvent event = eventListener.events.find { it instanceof GradleNatureAddedEvent }
 
         then:
-        eventListener.events.size() == 1
-        eventListener.events[0] instanceof GradleNatureAddedEvent
-        eventListener.events[0].projects == [project] as Set
+        event.projects == [project] as Set
 
         cleanup:
         CorePlugin.listenerRegistry().removeEventListener(eventListener)

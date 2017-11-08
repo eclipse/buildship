@@ -23,6 +23,7 @@ class ClasspathContainerOrderingTest extends ProjectSynchronizationSpecification
     static IClasspathEntry CUSTOM_CONTAINER = JavaCore.newContainerEntry(new Path('custom.container'))
     static IClasspathEntry SOURCE_FOLDER = JavaCore.newSourceEntry(new Path('/sample-project/src/main/java'))
 
+    @IgnoreIf({ JavaVersion.current().isJava9Compatible() }) // https://github.com/eclipse/buildship/issues/601
     def "Without source folders and using old Gradle Version"() {
         setup:
         File location = dir('sample-project') {
@@ -43,6 +44,7 @@ class ClasspathContainerOrderingTest extends ProjectSynchronizationSpecification
         assertClasspatContent(project, JRE_CONTAINER, GRADLE_CONTAINER)
     }
 
+    @IgnoreIf({ JavaVersion.current().isJava9Compatible() }) // https://github.com/eclipse/buildship/issues/601
     def "With source folders and using old Gradle version"() {
         setup:
         File location = dir('sample-project') {
@@ -239,6 +241,7 @@ class ClasspathContainerOrderingTest extends ProjectSynchronizationSpecification
         assertClasspatContent(project, GRADLE_CONTAINER)
     }
 
+    @IgnoreIf({ JavaVersion.current().isJava9Compatible() }) // https://github.com/eclipse/buildship/issues/601
     def "Jre removed from project and using old Gradle version"() {
         setup:
         File location = dir('sample-project') {

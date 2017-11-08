@@ -1,5 +1,7 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import org.gradle.api.JavaVersion
+import spock.lang.IgnoreIf
 import spock.lang.Issue
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
@@ -104,6 +106,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         !hasFacetDescriptor(root)
     }
 
+    @IgnoreIf({ JavaVersion.current().java9Compatible })
     def "No classpath attributes for older Gradle versions"() {
         setup:
         File root = dir("project") {

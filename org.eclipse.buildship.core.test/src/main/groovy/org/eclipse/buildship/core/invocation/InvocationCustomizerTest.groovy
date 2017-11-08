@@ -5,14 +5,9 @@ import org.gradle.tooling.model.build.BuildEnvironment
 import org.gradle.tooling.model.build.GradleEnvironment
 
 import org.eclipse.core.resources.IProject
-import org.eclipse.debug.core.DebugPlugin
-import org.eclipse.debug.core.ILaunchConfiguration
-import org.eclipse.debug.core.ILaunchConfigurationType
-import org.eclipse.debug.core.ILaunchManager
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.BuildConfiguration
-import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.util.extension.InvocationCustomizerCollector
 
@@ -70,16 +65,10 @@ class InvocationCustomizerTest extends ProjectSynchronizationSpecification {
         BuildEnvironment buildEnvironment = defaultBuildEnvironment()
 
         when:
-        CorePlugin.configurationManager().loadRunConfiguration(emptyLaunchConfiguration()).toGradleArguments().applyTo(operation, buildEnvironment)
+        CorePlugin.configurationManager().loadRunConfiguration(createGradleLaunchConfig()).toGradleArguments().applyTo(operation, buildEnvironment)
 
         then:
         1 * operation.withArguments(EXTRA_ARGUMENTS)
-    }
-
-    private ILaunchConfiguration emptyLaunchConfiguration() {
-        ILaunchManager launchManager = DebugPlugin.default.launchManager
-        ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(GradleRunConfigurationDelegate.ID)
-        type.newInstance(null, "launch-config-name")
     }
 
     private BuildEnvironment defaultBuildEnvironment() {
