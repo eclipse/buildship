@@ -10,7 +10,9 @@ import com.gradleware.tooling.toolingmodel.OmniGradleBuild
 import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes
 import com.gradleware.tooling.toolingmodel.util.Pair
 
+import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IWorkspaceRunnable
 import org.eclipse.core.runtime.jobs.Job
 
 import org.eclipse.buildship.core.CorePlugin
@@ -64,6 +66,10 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         configuration.applyWorkingSets = true
         configuration.workingSets = []
         new ProjectPreviewJob(configuration, [], AsyncHandler.NO_OP, resultHandler)
+    }
+
+    protected void waitForResourceChangeEvents() {
+        workspace.run({} as IWorkspaceRunnable, null, IResource.NONE, null);
     }
 
     protected def waitForGradleJobsToFinish() {
