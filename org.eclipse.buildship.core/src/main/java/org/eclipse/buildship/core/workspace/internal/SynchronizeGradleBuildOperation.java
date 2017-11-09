@@ -196,7 +196,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
     }
 
     private void synchronizeOpenWorkspaceProject(OmniEclipseProject project, IProject workspaceProject, SubMonitor progress) throws CoreException {
-        progress.setWorkRemaining(9);
+        progress.setWorkRemaining(10);
 
         //currently lots of our synchronization logic assumes that the whole resource tree is readable.
         CorePlugin.workspaceOperations().refreshProject(workspaceProject, progress.newChild(1));
@@ -207,6 +207,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
 
         PersistentModelBuilder persistentModel = new PersistentModelBuilder(CorePlugin.modelPersistence().loadModel(workspaceProject));
 
+        BuildScriptLocationUpdater.update(project, persistentModel, progress.newChild(1));
         LinkedResourcesUpdater.update(workspaceProject, project.getLinkedResources(), persistentModel, progress.newChild(1));
         GradleFolderUpdater.update(workspaceProject, project, persistentModel, progress.newChild(1));
         ProjectNatureUpdater.update(workspaceProject, project.getProjectNatures(), persistentModel, progress.newChild(1));

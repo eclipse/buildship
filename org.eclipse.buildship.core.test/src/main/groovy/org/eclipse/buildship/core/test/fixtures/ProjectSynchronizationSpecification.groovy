@@ -7,8 +7,8 @@ import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild
 import com.gradleware.tooling.toolingmodel.util.Pair
 
-import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
+import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IWorkspaceRunnable
 import org.eclipse.core.runtime.jobs.Job
 
@@ -61,10 +61,15 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         configuration.gradleUserHome = null
         configuration.buildScansEnabled = false
         configuration.offlineMode = false
+        configuration.autoSync = false
         configuration.projectDir = location
         configuration.applyWorkingSets = true
         configuration.workingSets = []
         new ProjectPreviewJob(configuration, [], AsyncHandler.NO_OP, resultHandler)
+    }
+
+    protected void waitForResourceChangeEvents() {
+        workspace.run({} as IWorkspaceRunnable, null, IResource.NONE, null);
     }
 
     protected def waitForGradleJobsToFinish() {

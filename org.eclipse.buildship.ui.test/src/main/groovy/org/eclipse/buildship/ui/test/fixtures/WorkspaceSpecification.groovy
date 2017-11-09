@@ -21,7 +21,7 @@ import com.google.common.io.Files
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
 import org.eclipse.core.resources.IProject
-import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IWorkspace
 import org.eclipse.core.resources.IWorkspaceRunnable
 import org.eclipse.core.runtime.jobs.Job
