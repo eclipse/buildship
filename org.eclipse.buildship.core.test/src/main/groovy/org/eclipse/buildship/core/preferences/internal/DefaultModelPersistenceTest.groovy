@@ -44,6 +44,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
     def "Can store and load a model"() {
         setup:
         def buildDir = new Path('buildDir')
+        def buildScriptPath = new Path('build.gradle')
         def subProjectPaths = [new Path('subproject')]
         def classpath = [JavaCore.newProjectEntry(new Path('/project-path'))]
         def derivedResources = [new Path('derived')]
@@ -53,7 +54,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         command.setBuilderName('custom-command')
         def managedBuilders = [command]
 
-        PersistentModel model = new DefaultPersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders)
+        PersistentModel model = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders)
 
         when:
         CorePlugin.modelPersistence().saveModel(model)
@@ -72,6 +73,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
     def "Can delete a model"() {
         setup:
         def buildDir = new Path('buildDir')
+        def buildScriptPath = new Path('build.gradle')
         def subProjectPaths = [new Path('subproject')]
         def classpath = [JavaCore.newProjectEntry(new Path('/project-path'))]
         def derivedResources = [new Path('derived')]
@@ -81,7 +83,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         command.setBuilderName('custom-command')
         def managedBuilders = [command]
 
-        PersistentModel model = new DefaultPersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders)
+        PersistentModel model = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders)
         CorePlugin.modelPersistence().saveModel(model)
 
         when:
@@ -95,6 +97,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
     def "Model is still accessible if the referenced project is renamed"() {
         setup:
         def buildDir = new Path('buildDir')
+        def buildScriptPath = new Path('build.gradle')
         def subProjectPaths = [new Path('subproject')]
         def classpath = [JavaCore.newProjectEntry(new Path('/project-path'))]
         def derivedResources = [new Path('derived')]
@@ -104,7 +107,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         command.setBuilderName('custom-command')
         def managedBuilders = [command]
 
-        PersistentModel model = new DefaultPersistentModel(project, buildDir, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders)
+        PersistentModel model = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders)
         CorePlugin.modelPersistence().saveModel(model)
 
         when:

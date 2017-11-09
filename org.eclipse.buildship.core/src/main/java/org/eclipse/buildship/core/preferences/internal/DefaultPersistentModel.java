@@ -31,6 +31,7 @@ public final class DefaultPersistentModel implements PersistentModel {
 
     private final IProject project;
     private final IPath buildDir;
+    private final IPath buildScriptPath;
     private final Collection<IPath> subprojectPaths;
     private final List<IClasspathEntry> classpath;
     private final Collection<IPath> derivedResources;
@@ -38,12 +39,13 @@ public final class DefaultPersistentModel implements PersistentModel {
     private final List<String> managedNatures;
     private final List<ICommand> managedBuilders;
 
-    public DefaultPersistentModel(IProject project, IPath buildDir,
+    public DefaultPersistentModel(IProject project, IPath buildDir, IPath buildScriptPath,
                                   Collection<IPath> subprojectPaths, List<IClasspathEntry> classpath,
                                   Collection<IPath> derivedResources, Collection<IPath> linkedResources,
                                   Collection<String> managedNatures, Collection<ICommand> managedBuilders) {
         this.project = Preconditions.checkNotNull(project);
         this.buildDir = Preconditions.checkNotNull(buildDir);
+        this.buildScriptPath = Preconditions.checkNotNull(buildScriptPath);
         this.subprojectPaths = ImmutableList.copyOf(subprojectPaths);
         this.classpath = ImmutableList.copyOf(classpath);
         this.derivedResources = ImmutableList.copyOf(derivedResources);
@@ -65,6 +67,11 @@ public final class DefaultPersistentModel implements PersistentModel {
     @Override
     public IPath getBuildDir() {
         return this.buildDir;
+    }
+
+    @Override
+    public IPath getbuildScriptPath() {
+        return this.buildScriptPath;
     }
 
     @Override

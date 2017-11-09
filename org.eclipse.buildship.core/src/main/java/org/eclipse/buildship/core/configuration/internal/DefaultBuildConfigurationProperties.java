@@ -28,15 +28,17 @@ final class DefaultBuildConfigurationProperties {
     private final boolean overrideWorkspaceSettings;
     private final boolean buildScansEnabled;
     private final boolean offlineMode;
+    private final boolean autoSync;
 
     public DefaultBuildConfigurationProperties(File rootProjectDirectory, GradleDistribution gradleDistribution, File gradleUserHome, boolean overrideWorkspaceSettings, boolean buildScansEnabled,
-            boolean offlineMode) {
+            boolean offlineMode, boolean autoSync) {
         this.rootProjectDirectory = canonicalize(rootProjectDirectory);
         this.gradleDistribution = gradleDistribution;
         this.gradleUserHome = gradleUserHome;
         this.overrideWorkspaceSettings = overrideWorkspaceSettings;
         this.buildScansEnabled = buildScansEnabled;
         this.offlineMode = offlineMode;
+        this.autoSync = autoSync;
     }
 
     private static File canonicalize(File file) {
@@ -71,6 +73,10 @@ final class DefaultBuildConfigurationProperties {
         return this.offlineMode;
     }
 
+    public boolean isAutoSync() {
+        return this.autoSync;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof DefaultBuildConfigurationProperties) {
@@ -80,7 +86,8 @@ final class DefaultBuildConfigurationProperties {
                     && Objects.equal(this.gradleUserHome, other.gradleUserHome)
                     && Objects.equal(this.overrideWorkspaceSettings, other.overrideWorkspaceSettings)
                     && Objects.equal(this.buildScansEnabled, other.buildScansEnabled)
-                    && Objects.equal(this.offlineMode, other.offlineMode);
+                    && Objects.equal(this.offlineMode, other.offlineMode)
+                    && Objects.equal(this.autoSync, other.autoSync);
         }
         return false;
     }
@@ -92,6 +99,7 @@ final class DefaultBuildConfigurationProperties {
                 this.gradleUserHome,
                 this.overrideWorkspaceSettings,
                 this.buildScansEnabled,
-                this.offlineMode);
+                this.offlineMode,
+                this.autoSync);
     }
 }

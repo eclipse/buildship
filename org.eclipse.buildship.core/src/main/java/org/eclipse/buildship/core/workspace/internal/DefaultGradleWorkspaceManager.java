@@ -51,6 +51,7 @@ public class DefaultGradleWorkspaceManager implements GradleWorkspaceManager {
                 attributes.getGradleDistribution(),
                 attributes.getGradleUserHome(),
                 false,
+                false,
                 false);
         return getGradleBuild(configuration);
     }

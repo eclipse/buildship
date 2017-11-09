@@ -28,6 +28,8 @@ public interface PersistentModel {
 
     IPath getBuildDir();
 
+    IPath getbuildScriptPath();
+
     Collection<IPath> getSubprojectPaths();
 
     List<IClasspathEntry> getClasspath();
