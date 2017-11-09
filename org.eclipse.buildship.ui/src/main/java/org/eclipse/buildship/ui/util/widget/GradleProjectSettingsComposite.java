@@ -118,7 +118,7 @@ public final class GradleProjectSettingsComposite extends Composite {
 
     private void createAutoSyncCheckbox(Composite parent) {
         this.autoSyncCheckbox = new Button(parent, SWT.CHECK);
-        this.autoSyncCheckbox.setText("Automatic Refresh");
+        this.autoSyncCheckbox.setText(CoreMessages.Preference_Label_AutoSync);
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(2, 1).applyTo(this.autoSyncCheckbox);
         HoverText.createAndAttach(this.autoSyncCheckbox, CoreMessages.Preference_Label_AutoSyncHover);
     }
