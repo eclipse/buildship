@@ -220,8 +220,8 @@ public final class CorePlugin extends Plugin {
     }
 
     private void unregisterServices() {
-        this.buildScriptUpdateListener.close();
         this.externalLaunchConfigurationManager.unregister();
+        this.buildScriptUpdateListener.close();
         this.projectChangeListener.close();
         this.modelPersistence.close();
         this.userNotificationService.unregister();
