@@ -184,12 +184,13 @@ abstract class WorkspaceSpecification extends Specification {
     }
 
     protected BuildConfiguration createInheritingBuildConfiguration(File projectDir) {
-        configurationManager.createBuildConfiguration(projectDir, false, GradleDistribution.fromBuild(), null, false, false)
+        configurationManager.createBuildConfiguration(projectDir, false, GradleDistribution.fromBuild(), null, false, false, false)
     }
 
     protected BuildConfiguration createOverridingBuildConfiguration(File projectDir, GradleDistribution distribution = GradleDistribution.fromBuild(),
-                                                                  boolean buildScansEnabled = false, boolean offlineMode = false, File gradleUserHome = null) {
-        configurationManager.createBuildConfiguration(projectDir, true, distribution, gradleUserHome, buildScansEnabled, offlineMode)
+                                                                    boolean buildScansEnabled = false, boolean offlineMode = false,
+                                                                    boolean autoSync = false, File gradleUserHome = null) {
+        configurationManager.createBuildConfiguration(projectDir, true, distribution, gradleUserHome, buildScansEnabled, offlineMode, autoSync)
     }
 
     protected void waitFor(int timeout = 5000, Closure condition) {
