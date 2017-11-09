@@ -1,17 +1,12 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.jdt.core.JavaCore
+
 import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
-
-import java.io.File
-
-import org.eclipse.core.resources.IProject
-import org.eclipse.core.runtime.NullProgressMonitor
-import org.eclipse.jdt.core.IClasspathEntry
-import org.eclipse.jdt.core.IJavaProject
-import org.eclipse.jdt.core.JavaCore
 
 class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationSpecification {
 
@@ -25,50 +20,6 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         configurationManager.saveWorkspaceConfiguration(workspaceConfig)
     }
 
-    private void disableAutoSyncForWorkspace() {
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(workspaceConfig.gradleDistribution, workspaceConfig.gradleUserHome, workspaceConfig.gradleIsOffline, workspaceConfig.buildScansEnabled, false ))
-    }
-
-    private void enableAutoSyncForWorkspace() {
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(workspaceConfig.gradleDistribution, workspaceConfig.gradleUserHome, workspaceConfig.gradleIsOffline, workspaceConfig.buildScansEnabled, true))
-    }
-
-    private void disableAutoSyncForProject(IProject project) {
-        BuildConfiguration currentConfig = configurationManager.loadProjectConfiguration(project).buildConfiguration;
-        BuildConfiguration updatedConfig = configurationManager.createBuildConfiguration(currentConfig.getRootProjectDirectory(),
-            true,
-            currentConfig.gradleDistribution,
-            currentConfig.gradleUserHome,
-            currentConfig.buildScansEnabled,
-            currentConfig.offlineMode,
-            false)
-        configurationManager.saveBuildConfiguration(updatedConfig)
-    }
-
-    private void enableAutoSyncForProject(IProject project) {
-        BuildConfiguration currentConfig = configurationManager.loadProjectConfiguration(project).buildConfiguration;
-        BuildConfiguration updatedConfig = configurationManager.createBuildConfiguration(currentConfig.getRootProjectDirectory(),
-            true,
-            currentConfig.gradleDistribution,
-            currentConfig.gradleUserHome,
-            currentConfig.buildScansEnabled,
-            currentConfig.offlineMode,
-            true)
-        configurationManager.saveBuildConfiguration(updatedConfig)
-    }
-
-    private void enableAutoSyncNonOverrideForProject(IProject project) {
-        BuildConfiguration currentConfig = configurationManager.loadProjectConfiguration(project).buildConfiguration;
-        BuildConfiguration updatedConfig = configurationManager.createBuildConfiguration(currentConfig.getRootProjectDirectory(),
-            false,
-            currentConfig.gradleDistribution,
-            currentConfig.gradleUserHome,
-            currentConfig.buildScansEnabled,
-            currentConfig.offlineMode,
-            true)
-        configurationManager.saveBuildConfiguration(updatedConfig)
-    }
-
     def "Execute project synchronization when build.gradle file created"() {
         setup:
         File projectDir = dir('auto-sync-test-project') {
@@ -76,7 +27,7 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         }
         importAndWait(projectDir)
         IProject project = findProject('auto-sync-test-project')
-        enableAutoSyncForProject(project)
+        enableProjectAutoSync(project)
 
         when:
         String buildScript = '''
@@ -84,13 +35,12 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
             repositories { jcenter() }
             dependencies { compile "org.springframework:spring-beans:1.2.8" }
         '''
-
         project.getFile('build.gradle').create(new ByteArrayInputStream(buildScript.bytes), false, new NullProgressMonitor())
         waitForResourceChangeEvents()
         waitForGradleJobsToFinish()
 
         then:
-        JavaCore.create(project).getResolvedClasspath(false).find{ it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }.any()
+        JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
     }
 
     def "Execute project synchronization when build.gradle file changes"() {
@@ -107,7 +57,7 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
 
         importAndWait(projectDir)
         IProject project = findProject('auto-sync-test-project')
-        enableAutoSyncForProject(project)
+        enableProjectAutoSync(project)
 
         when:
         String buildScript = '''
@@ -121,28 +71,20 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         waitForGradleJobsToFinish()
 
         then:
-        JavaCore.create(project).getResolvedClasspath(false).find{ it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }.any()
+        JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
     }
 
     def "Execute project synchronization when build.gradle file deleted"() {
         setup:
         File projectDir = dir('auto-sync-test-project') {
             dir('src/main/java')
-            file 'build.gradle', '''
-                apply plugin: "java"
-                repositories { jcenter() }
-                dependencies { compile "org.springframework:spring-beans:1.2.8" }
-            '''
+            file 'build.gradle', 'apply plugin: "java"'
         }
         importAndWait(projectDir)
-
-        when:
         IProject project = findProject('auto-sync-test-project')
-        enableAutoSyncForProject(project)
-        waitForResourceChangeEvents()
-        waitForGradleJobsToFinish()
+        enableProjectAutoSync(project)
 
-        then:
+        expect:
         JavaCore.create(project).exists()
 
         when:
@@ -151,11 +93,10 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         waitForGradleJobsToFinish()
 
         then:
-        !(JavaCore.create(project).exists())
+        !JavaCore.create(project).exists()
     }
 
     def "Execute project synchronization when custom build script changes"() {
-
         setup:
         File projectDir = dir('auto-sync-test-project') {
             dir('src/main/java')
@@ -170,7 +111,7 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         }
         importAndWait(projectDir)
         IProject project = findProject('auto-sync-test-project')
-        enableAutoSyncForProject(project)
+        enableProjectAutoSync(project)
 
         when:
         String buildScript = '''
@@ -178,42 +119,32 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
             repositories { jcenter() }
             dependencies { compile "org.springframework:spring-beans:1.2.8" }
         '''
-
         project.getFile('custom.gradle').setContents(new ByteArrayInputStream(buildScript.bytes), 0, new NullProgressMonitor())
         waitForResourceChangeEvents()
         waitForGradleJobsToFinish()
 
         then:
-        JavaCore.create(project).getResolvedClasspath(false).find{ it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }.any()
-
+        JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
     }
 
     def "Synchronization can be disabled for the entire workspace"() {
         setup:
-        disableAutoSyncForWorkspace()
         File projectDir = dir('auto-sync-test-project') {
             dir('src/main/java')
         }
         importAndWait(projectDir)
         IProject project = findProject('auto-sync-test-project')
-        enableAutoSyncNonOverrideForProject(project)
+        disableWorkspaceAutoSync()
+        inheritWorkspacePreferences(project)
 
         when:
-        String buildScript = '''
-            apply plugin: "java"
-            repositories { jcenter() }
-            dependencies { compile "org.springframework:spring-beans:1.2.8" }
-        '''
-
+        String buildScript = 'apply plugin: "java"'
         project.getFile('build.gradle').create(new ByteArrayInputStream(buildScript.bytes), false, new NullProgressMonitor())
         waitForResourceChangeEvents()
         waitForGradleJobsToFinish()
 
         then:
-        !(JavaCore.create(project).exists())
-
-        cleanup:
-        enableAutoSyncForWorkspace()
+        !JavaCore.create(project).exists()
     }
 
     def "Synchronization can be disabled for a project"() {
@@ -230,7 +161,8 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
 
         importAndWait(projectDir)
         IProject project = findProject('auto-sync-test-project')
-        disableAutoSyncForProject(project)
+        enableWorkspaceAutoSync()
+        disableProjectAutoSync(project)
 
         when:
         String buildScript = '''
@@ -238,13 +170,60 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
             repositories { jcenter() }
             dependencies { compile "org.springframework:spring-beans:1.2.8" }
         '''
-
         project.getFile('build.gradle').setContents(new ByteArrayInputStream(buildScript.bytes), 0, new NullProgressMonitor())
         waitForResourceChangeEvents()
         waitForGradleJobsToFinish()
 
         then:
-        !(JavaCore.create(project).getResolvedClasspath(false).find{ it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }).any()
+        !JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
+    }
 
+    private void disableWorkspaceAutoSync() {
+        setWorkspaceAutoSync(false)
+    }
+
+    private void enableWorkspaceAutoSync() {
+        setWorkspaceAutoSync(true)
+    }
+
+    private void setWorkspaceAutoSync(boolean autoSync) {
+        WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(workspaceConfig.gradleDistribution,
+            workspaceConfig.gradleUserHome,
+            workspaceConfig.gradleIsOffline,
+            workspaceConfig.buildScansEnabled,
+            autoSync)
+        configurationManager.saveWorkspaceConfiguration(workspaceConfig)
+    }
+
+    private void disableProjectAutoSync(IProject project) {
+        setProjectAutoSync(project, false)
+    }
+
+    private void enableProjectAutoSync(IProject project) {
+        setProjectAutoSync(project, true)
+    }
+
+    private void setProjectAutoSync(IProject project, boolean autoSync) {
+        BuildConfiguration currentConfig = configurationManager.loadProjectConfiguration(project).buildConfiguration;
+        BuildConfiguration updatedConfig = configurationManager.createBuildConfiguration(currentConfig.getRootProjectDirectory(),
+            true,
+            currentConfig.gradleDistribution,
+            currentConfig.gradleUserHome,
+            currentConfig.buildScansEnabled,
+            currentConfig.offlineMode,
+            autoSync)
+        configurationManager.saveBuildConfiguration(updatedConfig)
+    }
+
+    private void inheritWorkspacePreferences(IProject project) {
+        BuildConfiguration currentConfig = configurationManager.loadProjectConfiguration(project).buildConfiguration;
+        BuildConfiguration updatedConfig = configurationManager.createBuildConfiguration(currentConfig.getRootProjectDirectory(),
+            false,
+            currentConfig.gradleDistribution,
+            currentConfig.gradleUserHome,
+            currentConfig.buildScansEnabled,
+            currentConfig.offlineMode,
+            true)
+        configurationManager.saveBuildConfiguration(updatedConfig)
     }
 }

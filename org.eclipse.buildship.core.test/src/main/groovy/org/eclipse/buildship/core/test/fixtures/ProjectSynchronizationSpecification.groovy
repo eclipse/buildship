@@ -68,10 +68,6 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         new ProjectPreviewJob(configuration, [], AsyncHandler.NO_OP, resultHandler)
     }
 
-    protected void waitForResourceChangeEvents() {
-        workspace.run({} as IWorkspaceRunnable, null, IResource.NONE, null);
-    }
-
     protected def waitForGradleJobsToFinish() {
         Job.jobManager.join(CorePlugin.GRADLE_JOB_FAMILY, null)
     }
