@@ -122,7 +122,7 @@ class DefaultBuildConfiguration implements BuildConfiguration {
         if (this.properties.isOverrideWorkspaceSettings()) {
             return this.properties.isAutoSync();
         } else {
-            return this.workspaceConfiguration.isAutoSyncEnabled();
+            return this.workspaceConfiguration.isAutoSync();
         }
     }
 }

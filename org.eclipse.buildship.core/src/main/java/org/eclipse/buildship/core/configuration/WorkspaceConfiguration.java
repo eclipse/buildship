@@ -27,14 +27,14 @@ public final class WorkspaceConfiguration {
     private final File gradleUserHome;
     private final boolean gradleIsOffline;
     private final boolean buildScansEnabled;
-    private final boolean autoSyncEnabled;
+    private final boolean autoSync;
 
-    public WorkspaceConfiguration(GradleDistribution gradleDistribution, File gradleUserHome, boolean gradleIsOffline, boolean buildScansEnabled, boolean autoSyncEnabled) {
+    public WorkspaceConfiguration(GradleDistribution gradleDistribution, File gradleUserHome, boolean gradleIsOffline, boolean buildScansEnabled, boolean autoSync) {
         this.gradleDistribution = gradleDistribution;
         this.gradleUserHome = gradleUserHome;
         this.gradleIsOffline = gradleIsOffline;
         this.buildScansEnabled = buildScansEnabled;
-        this.autoSyncEnabled = autoSyncEnabled;
+        this.autoSync = autoSync;
     }
 
     public GradleDistribution getGradleDistribution() {
@@ -54,8 +54,8 @@ public final class WorkspaceConfiguration {
         return this.buildScansEnabled;
     }
 
-    public boolean isAutoSyncEnabled() {
-        return this.autoSyncEnabled;
+    public boolean isAutoSync() {
+        return this.autoSync;
     }
 
     @Override
@@ -66,13 +66,13 @@ public final class WorkspaceConfiguration {
                     && Objects.equal(this.gradleUserHome, other.gradleUserHome)
                     && Objects.equal(this.gradleIsOffline, other.gradleIsOffline)
                     && Objects.equal(this.buildScansEnabled, other.buildScansEnabled)
-                    && Objects.equal(this.autoSyncEnabled, other.autoSyncEnabled);
+                    && Objects.equal(this.autoSync, other.autoSync);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.gradleDistribution, this.gradleUserHome, this.gradleIsOffline, this.buildScansEnabled, this.autoSyncEnabled);
+        return Objects.hashCode(this.gradleDistribution, this.gradleUserHome, this.gradleIsOffline, this.buildScansEnabled, this.autoSync);
     }
 }

@@ -66,7 +66,7 @@ public final class WorkspaceConfigurationPersistence {
         }
         preferences.putBoolean(GRADLE_OFFLINE_MODE, config.isOffline());
         preferences.putBoolean(GRADLE_BUILD_SCANS, config.isBuildScansEnabled());
-        preferences.putBoolean(GRADLE_AUTO_SYNC, config.isAutoSyncEnabled());
+        preferences.putBoolean(GRADLE_AUTO_SYNC, config.isAutoSync());
         try {
             preferences.flush();
         } catch (BackingStoreException e) {

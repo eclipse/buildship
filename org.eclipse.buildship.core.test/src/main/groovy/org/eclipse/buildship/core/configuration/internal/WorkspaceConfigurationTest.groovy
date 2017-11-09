@@ -14,7 +14,7 @@ class WorkspaceConfigurationTest extends WorkspaceSpecification {
         configuration.gradleUserHome == null
         configuration.offline == false
         configuration.buildScansEnabled == false
-        configuration.autoSyncEnabled == false
+        configuration.autoSync == false
 
     }
     def "Can save workpsace configuration"(GradleDistribution distribution, String gradleUserHome, boolean offlineMode, boolean buildScansEnabled, boolean autoSync) {
@@ -31,7 +31,7 @@ class WorkspaceConfigurationTest extends WorkspaceSpecification {
         updatedConfiguration.gradleUserHome == gradleUserHomeDir
         updatedConfiguration.offline == offlineMode
         updatedConfiguration.buildScansEnabled == buildScansEnabled
-        updatedConfiguration.autoSyncEnabled == autoSync
+        updatedConfiguration.autoSync == autoSync
 
         cleanup:
         configurationManager.saveWorkspaceConfiguration(orignalConfiguration)
