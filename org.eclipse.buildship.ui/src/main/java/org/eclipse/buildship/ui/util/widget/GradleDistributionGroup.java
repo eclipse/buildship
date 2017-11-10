@@ -111,7 +111,7 @@ public final class GradleDistributionGroup extends Group {
         uiBuilder.span(this);
 
         this.useGradleVersionOption = uiBuilder.newRadio(this).alignLeft().text(CoreMessages.GradleDistribution_Label_SpecificGradleVersion).control();
-        this.gradleVersionCombo = uiBuilder.newCombo(this).alignLeft(2).disabled().control();
+        this.gradleVersionCombo = uiBuilder.newCombo(this).alignFillHorizontal().disabled().control();
         this.gradleVersionCombo.setSize(150, this.gradleVersionCombo.getSize().y);
         this.gradleVersionCombo.setItems(getGradleVersions());
         if (this.gradleVersionCombo.getItemCount() > 0) {
