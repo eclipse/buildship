@@ -19,6 +19,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -27,6 +28,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.util.collections.AdapterFunction;
+import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleNatureAddedEvent;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
@@ -75,7 +77,11 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
     private void synchronize(Set<BuildConfiguration> buildConfigs) {
         for (BuildConfiguration buildConfig : buildConfigs) {
             GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);
-            gradleBuild.synchronize(NewProjectHandler.IMPORT_AND_MERGE);
+            try {
+                gradleBuild.synchronize(NewProjectHandler.IMPORT_AND_MERGE);
+            } catch (CoreException e) {
+                ToolingApiStatus.handleDefault("Project synchronization", e);
+            }
         }
     }
 

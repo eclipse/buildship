@@ -1,11 +1,11 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import spock.lang.Ignore
+import org.eclipse.core.runtime.CoreException
 
 import org.eclipse.buildship.core.Logger
 import org.eclipse.buildship.core.notification.UserNotification
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.test.fixtures.TestEnvironment
+import org.eclipse.buildship.core.util.progress.ToolingApiStatus.ToolingApiStatusType
 
 class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpecification {
 
@@ -19,6 +19,8 @@ class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpe
         importAndWait(secondProject)
 
         then:
+        CoreException e = thrown(CoreException)
+        e.status.code == ToolingApiStatusType.UNSUPPORTED_CONFIGURATION.code
         allProjects().size() == 1
         findProject('root')
     }
@@ -27,10 +29,6 @@ class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpe
     // ensure that the project synchronization is ordered
     def "Same subproject names in different builds interrupt the project synchronization"() {
         setup:
-        Logger logger = Mock(Logger)
-        registerService(Logger, logger)
-        registerService(UserNotification, Mock(UserNotification)) // suppress exception from test output
-
         def firstProject = dir('first') {
             dir 'sub/subsub'
             file 'settings.gradle', "include 'sub:subsub'"
@@ -48,12 +46,12 @@ class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpe
         findProject('first')
         findProject('sub')
         findProject('subsub')
-        0 * logger.error(*_)
 
         when:
         importAndWait(secondProject)
 
         then:
-        1 * logger.error(*_)
+        CoreException e = thrown(CoreException)
+        e.status.code == ToolingApiStatusType.UNSUPPORTED_CONFIGURATION.code
     }
 }

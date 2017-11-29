@@ -16,12 +16,15 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Sets;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -48,7 +51,15 @@ final class ProjectNatureUpdater {
 
         Result<String> result = ManagedModelMergingStrategy.calculate(existingNatures, modelNatures, managedNatures);
 
-        description.setNatureIds(result.getNextElements().toArray(new String[0]));
+        String[] natureIds = FluentIterable.from(result.getNextElements()).filter(new Predicate<String>() {
+
+            @Override
+            public boolean apply(String natureId) {
+                return ResourcesPlugin.getWorkspace().getNatureDescriptor(natureId) != null;
+            }
+        }).toArray(String.class);
+
+        description.setNatureIds(natureIds);
         project.setDescription(description, monitor);
         persistentModel.managedNatures(result.getNextManaged());
     }

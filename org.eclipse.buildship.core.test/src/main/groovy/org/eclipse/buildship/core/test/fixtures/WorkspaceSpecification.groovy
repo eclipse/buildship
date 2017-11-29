@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.core.test.fixtures
 
+import groovy.lang.Closure
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.AutoCleanup
@@ -204,5 +205,16 @@ abstract class WorkspaceSpecification extends Specification {
 
     protected ILaunchConfigurationWorkingCopy createGradleLaunchConfig(String name = 'launch-config') {
         createLaunchConfig(GradleRunConfigurationDelegate.ID, name)
+    }
+
+    protected void waitFor(int timeout = 5000, Closure condition) {
+        long start = System.currentTimeMillis()
+        while (!condition.call()) {
+            long elapsed = System.currentTimeMillis() - start
+            if (elapsed > timeout) {
+                throw new RuntimeException('timeout')
+            }
+            Thread.sleep(50)
+        }
     }
 }

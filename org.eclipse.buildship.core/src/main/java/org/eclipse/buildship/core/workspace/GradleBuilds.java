@@ -10,23 +10,29 @@ package org.eclipse.buildship.core.workspace;
 
 import java.util.Set;
 
+import org.eclipse.core.runtime.CoreException;
+
 /**
  * An aggregate of Gradle builds.
  *
  * @author Donat Csikos
  */
 public interface GradleBuilds extends Iterable<GradleBuild> {
+
     /**
      * Attempts to synchronize all contained builds with the workspace.
      * <p/>
      * If the synchronization fails on one Gradle build, the process stops and subsequent builds
      * won't be synchronized.
      * <p/>
-     * The synchronization happens asynchronously. In case of a failure, the user will be notified.
+     * The synchronization happens synchronously. In case of a failure, the method throws a
+     * {@link CoreException} which contains the necessary status and error message about the
+     * failure.
      *
      * @param newProjectHandler how to handle newly added projects
+     * @see org.eclipse.buildship.core.util.progress.ToolingApiStatus
      */
-    void synchronize(NewProjectHandler newProjectHandler);
+    void synchronize(NewProjectHandler newProjectHandler) throws CoreException;
 
     /**
      * Returns the contained {@link GradleBuild} instances.

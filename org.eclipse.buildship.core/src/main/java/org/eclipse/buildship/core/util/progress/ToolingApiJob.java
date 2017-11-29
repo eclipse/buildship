@@ -11,23 +11,19 @@
 
 package org.eclipse.buildship.core.util.progress;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-
 import java.util.concurrent.TimeUnit;
 
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.GradleConnector;
 
-import org.eclipse.core.runtime.jobs.Job;
-
-import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 
 /**
  * Base class for cancellable jobs that invoke the Gradle Tooling API.
  */
-public abstract class ToolingApiJob extends Job {
+public abstract class ToolingApiJob extends GradleJob {
 
     private final CancellationTokenSource tokenSource;
     private final String workName;
@@ -96,10 +92,4 @@ public abstract class ToolingApiJob extends Job {
     protected void canceling() {
         this.tokenSource.cancel();
     }
-
-    @Override
-    public boolean belongsTo(Object family) {
-        return CorePlugin.GRADLE_JOB_FAMILY.equals(family);
-    }
-
 }

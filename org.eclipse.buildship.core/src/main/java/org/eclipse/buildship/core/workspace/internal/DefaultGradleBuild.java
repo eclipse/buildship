@@ -18,9 +18,12 @@ import com.google.common.base.Preconditions;
 
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
@@ -44,18 +47,28 @@ public class DefaultGradleBuild implements GradleBuild {
     }
 
     @Override
-    public void synchronize() {
+    public void synchronize() throws CoreException {
         synchronize(NewProjectHandler.NO_OP);
     }
 
     @Override
-    public void synchronize(NewProjectHandler newProjectHandler) {
+    public void synchronize(NewProjectHandler newProjectHandler) throws CoreException {
         synchronize(newProjectHandler, AsyncHandler.NO_OP);
     }
 
     @Override
-    public void synchronize(NewProjectHandler newProjectHandler, AsyncHandler initializer) {
-        SynchronizeGradleBuildsJob.forSingleGradleBuild(this, newProjectHandler, initializer).schedule();
+    public void synchronize(NewProjectHandler newProjectHandler, AsyncHandler initializer) throws CoreException {
+        SynchronizeGradleBuildsJob syncJob = SynchronizeGradleBuildsJob.forSingleGradleBuild(this, newProjectHandler, initializer);
+        syncJob.schedule();
+        try {
+            syncJob.join();
+        } catch (InterruptedException e) {
+            throw new GradlePluginsRuntimeException("Interruption is not expected at this point", e);
+        }
+        IStatus status = syncJob.getResult();
+        if (!status.isOK()) {
+            throw new CoreException(status);
+        }
     }
 
     @Override

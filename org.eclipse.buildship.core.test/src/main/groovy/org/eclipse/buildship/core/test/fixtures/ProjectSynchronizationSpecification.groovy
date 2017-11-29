@@ -37,6 +37,10 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         waitForResourceChangeEvents()
     }
 
+    protected void importProject(File location, GradleDistribution distribution = DEFAULT_DISTRIBUTION) {
+        startSynchronization(location, distribution, NewProjectHandler.IMPORT_AND_MERGE)
+    }
+
     protected void startSynchronization(File location, GradleDistribution distribution = DEFAULT_DISTRIBUTION, NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
         BuildConfiguration buildConfiguration = createOverridingBuildConfiguration(location, distribution)
         CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfiguration).synchronize(newProjectHandler)

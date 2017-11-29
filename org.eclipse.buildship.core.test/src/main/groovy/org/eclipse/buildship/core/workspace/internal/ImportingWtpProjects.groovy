@@ -7,6 +7,7 @@ import spock.lang.Issue
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.CoreException
 import org.eclipse.jdt.core.IAccessRule
 import org.eclipse.jdt.core.IClasspathAttribute
 import org.eclipse.jdt.core.IClasspathEntry
@@ -14,6 +15,8 @@ import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.Logger
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.util.progress.ToolingApiStatus
+import org.eclipse.buildship.core.util.progress.ToolingApiStatus.ToolingApiStatusType
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 
@@ -261,8 +264,8 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         importAndWait(root)
 
         then:
-        0 * logger.error(*_)
-        1 * logger.warn(*_)
+        CoreException e = thrown(CoreException)
+        e.status.code == ToolingApiStatusType.UNSUPPORTED_CONFIGURATION.code
     }
 
     def "Does not override classpath container customisation"() {

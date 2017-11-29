@@ -14,6 +14,7 @@ package org.eclipse.buildship.core.workspace.internal;
 import com.google.common.base.Optional;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
 import org.eclipse.jdt.core.IClasspathContainer;
@@ -55,7 +56,11 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
             } else {
                 GradleBuild build = gradleBuild.get();
                 if (!build.isSyncRunning()) {
-                    build.synchronize();
+                    try {
+                        build.synchronize();
+                    } catch (CoreException e) {
+                        CorePlugin.getInstance().getLog().log(e.getStatus());
+                    }
                 }
             }
         }

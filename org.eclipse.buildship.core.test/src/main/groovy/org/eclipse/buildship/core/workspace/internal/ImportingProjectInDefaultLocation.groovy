@@ -1,9 +1,10 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import org.eclipse.buildship.core.Logger
-import org.eclipse.buildship.core.notification.UserNotification
+import org.eclipse.core.runtime.CoreException
+
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.test.fixtures.TestEnvironment.*
+import org.eclipse.buildship.core.util.progress.ToolingApiStatus.ToolingApiStatusType
 
 class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecification {
 
@@ -17,10 +18,6 @@ class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecificat
 
     def "Disallow importing projects located in workspace folder and with custom root name"() {
         setup:
-        Logger logger = Mock(Logger)
-        UserNotification notification = Mock(UserNotification)
-        environment.registerService(Logger, logger)
-        environment.registerService(UserNotification, notification)
         File rootProject = fileTree(workspaceDir('sample')) {
             file 'settings.gradle', "rootProject.name = 'my-project-name-is-different-than-the-folder'"
         }
@@ -29,55 +26,35 @@ class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecificat
         synchronizeAndWait(rootProject)
 
         then:
-        1 * logger.warn(*_)
-        1 * notification.errorOccurred(*_)
+        CoreException e = thrown(CoreException)
+        e.status.code == ToolingApiStatusType.UNSUPPORTED_CONFIGURATION.code
     }
 
     def "Disallow synchornizing projects located in workspace folder and with custom root name"() {
         setup:
-        Logger logger = Mock(Logger)
-        UserNotification notification = Mock(UserNotification)
-        environment.registerService(Logger, logger)
-        environment.registerService(UserNotification, notification)
         File rootProject = workspaceDir('sample2')
-
-        when:
         synchronizeAndWait(rootProject)
-
-        then:
-        0 * logger.warn(*_)
-        0 * notification.errorOccurred(*_)
 
         when:
         new File(rootProject, 'settings.gradle') << "rootProject.name = 'my-project-name-is-different-than-the-folder'"
         synchronizeAndWait(rootProject)
 
         then:
-        1 * logger.warn(*_)
-        1 * notification.errorOccurred(*_)
+        CoreException e = thrown(CoreException)
+        e.status.code == ToolingApiStatusType.UNSUPPORTED_CONFIGURATION.code
     }
 
     def "Disallow importing the workspace root"() {
-        setup:
-        Logger logger = Mock(Logger)
-        UserNotification notification = Mock(UserNotification)
-        environment.registerService(Logger, logger)
-        environment.registerService(UserNotification, notification)
-
         when:
         synchronizeAndWait(workspaceDir)
 
         then:
-        1 * logger.warn(*_)
-        1 * notification.errorOccurred(*_)
+        CoreException e = thrown(CoreException)
+        e.status.code == ToolingApiStatusType.UNSUPPORTED_CONFIGURATION.code
     }
 
     def "Disallow importing any modules located at the workspace root"() {
         setup:
-        Logger logger = Mock(Logger)
-        UserNotification notification = Mock(UserNotification)
-        environment.registerService(Logger, logger)
-        environment.registerService(UserNotification, notification)
         File rootProject = workspaceDir('sample2') {
             file 'settings.gradle', "include '..'"
         }
@@ -86,8 +63,8 @@ class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecificat
         synchronizeAndWait(workspaceDir)
 
         then:
-        1 * logger.warn(*_)
-        1 * notification.errorOccurred(*_)
+        CoreException e = thrown(CoreException)
+        e.status.code == ToolingApiStatusType.UNSUPPORTED_CONFIGURATION.code
     }
 
 }

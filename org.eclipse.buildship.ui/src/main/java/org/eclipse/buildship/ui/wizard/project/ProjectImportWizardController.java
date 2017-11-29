@@ -24,6 +24,7 @@ import com.gradleware.tooling.toolingutils.binding.ValidationListener;
 import com.gradleware.tooling.toolingutils.binding.Validator;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.ui.IWorkbenchPage;
@@ -168,8 +169,14 @@ public class ProjectImportWizardController {
         BuildConfiguration buildConfig = this.configuration.toBuildConfig();
         ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler = new ImportWizardNewProjectHandler(newProjectHandler, this.configuration);
         GradleBuild build = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);
-        build.synchronize(workingSetsAddingNewProjectHandler, initializer);
-        return true;
+        try {
+            build.synchronize(workingSetsAddingNewProjectHandler, initializer);
+            return true;
+        } catch (CoreException e) {
+            CorePlugin.getInstance().getLog().log(e.getStatus());
+            // TODO (donat) display error message in the wizard dialog unless the model loading was cancelled
+            return false;
+        }
     }
 
     /**

@@ -108,7 +108,7 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         reimportWithoutSynchronization(project)
 
         then:
-        !JavaCore.create(findProject("sample-project")).getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
+        waitFor { !JavaCore.create(findProject("sample-project")).getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') } }
     }
 
     private reimportWithoutSynchronization(IProject project) {

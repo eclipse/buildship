@@ -27,7 +27,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
-import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.GradleBuilds;
 import org.eclipse.buildship.core.workspace.ModelProvider;
@@ -36,14 +35,14 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
 /**
  * Synchronizes each of the given Gradle builds with the workspace.
  */
-public final class SynchronizeGradleBuildsJob extends ToolingApiJob {
+public final class SynchronizeGradleBuildsJob extends BaseGradleJob {
 
     private final ImmutableSet<GradleBuild> builds;
     private final NewProjectHandler newProjectHandler;
     private final AsyncHandler initializer;
 
     private SynchronizeGradleBuildsJob(Set<GradleBuild> builds, NewProjectHandler newProjectHandler, AsyncHandler initializer) {
-        super("Synchronize Gradle projects with workspace", true);
+        super("Synchronize Gradle projects with workspace");
         this.builds = ImmutableSet.copyOf(builds);
         this.newProjectHandler = Preconditions.checkNotNull(newProjectHandler);
         this.initializer = Preconditions.checkNotNull(initializer);
@@ -61,7 +60,7 @@ public final class SynchronizeGradleBuildsJob extends ToolingApiJob {
     }
 
     @Override
-    protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
+    protected void runInJob(IProgressMonitor monitor) throws Exception {
         final SubMonitor progress = SubMonitor.convert(monitor, this.builds.size() + 1);
 
         this.initializer.run(progress.newChild(1), getToken());

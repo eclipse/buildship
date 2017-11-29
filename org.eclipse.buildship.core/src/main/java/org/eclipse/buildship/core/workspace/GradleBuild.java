@@ -15,21 +15,12 @@ import org.gradle.tooling.TestLauncher;
 
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
+import org.eclipse.core.runtime.CoreException;
+
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
 //TODO this should eventually also contain the methods to launch tasks etc.
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
-
-/*
- * TODO The methods in this class highlight some problems with our current job-centric design:
- * - callers can't decide for themselves how they want to handle errors
- * - callers cannot embed any of the operations in another operation (providing cancellation etc.)
- * - callers do not know if and when the operations finish
- *
- * This API should evolve into a set of synchronous operations that provide progress,
- * cancellation and throw CoreExceptions with detailed IStatus, which will allow
- * any problems to be displayed to the user in the most accurate fashion.
- */
 
 /**
  * A Gradle build.
@@ -41,35 +32,42 @@ public interface GradleBuild {
     /**
      * Attempts to synchronize the build with the workspace.
      * <p/>
-     * The synchronization happens asynchronously. In case of a failure, the user will be notified
-     * once after the build has finished.
+     * The synchronization happens synchronously. In case of a failure, the method throws a
+     * {@link CoreException} which contains the necessary status and error message about the
+     * failure.
      * <p/>
      * This is equivalent to calling {@code synchronize(NewProjectHandler.NO_OP)}
+     *
+     * @see org.eclipse.buildship.core.util.progress.ToolingApiStatus
      */
-    void synchronize();
+    void synchronize() throws CoreException;
 
     /**
      * Attempts to synchronize the build with the workspace.
      * <p/>
-     * The synchronization happens asynchronously. In case of a failure, the user will be notified
-     * once the build has finished.
+     * The synchronization happens synchronously. In case of a failure, the method throws a
+     * {@link CoreException} which contains the necessary status and error message about the
+     * failure.
      * <p/>
      * This is equivalent to calling {@code synchronize(newProjectHandler, AsyncHandler.NO_OP)}
      *
      * @param newProjectHandler how to handle newly added projects
+     * @see org.eclipse.buildship.core.util.progress.ToolingApiStatus
      */
-    void synchronize(NewProjectHandler newProjectHandler);
+    void synchronize(NewProjectHandler newProjectHandler) throws CoreException;
 
     /**
      * Attempts to synchronize the build with the workspace.
      * <p/>
-     * The synchronization happens asynchronously. In case of a failure, the user will be notified
-     * once the build has finished.
+     * The synchronization happens synchronously. In case of a failure, the method throws a
+     * {@link CoreException} which contains the necessary status and error message about the
+     * failure.
      *
      * @param newProjectHandler how to handle newly added projects
      * @param initializer an initializer to run before synchronization, e.g. to create a new project
+     * @see org.eclipse.buildship.core.util.progress.ToolingApiStatus
      */
-    void synchronize(NewProjectHandler newProjectHandler, AsyncHandler initializer);
+    void synchronize(NewProjectHandler newProjectHandler, AsyncHandler initializer) throws CoreException;
 
     /**
      * Returns {@code true} if a synchronization job is already running for the same root project.
