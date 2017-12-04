@@ -41,6 +41,7 @@ final class ProjectNatureUpdater {
     public static void update(IProject project, Optional<List<OmniEclipseProjectNature>> projectNatures, PersistentModelBuilder persistentModel, IProgressMonitor monitor) throws CoreException {
         PersistentModel previousPersistentModel = persistentModel.getPrevious();
         Set<String> managedNatures = previousPersistentModel.isPresent() ? Sets.newLinkedHashSet(previousPersistentModel.getManagedNatures()) : Sets.<String>newLinkedHashSet();
+        managedNatures.add("org.eclipse.m2e.core.maven2Nature");
 
         Set<String> modelNatures = toNatures(projectNatures);
         IProjectDescription description = project.getDescription();
