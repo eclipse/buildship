@@ -1,5 +1,7 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import spock.lang.Issue
+
 import com.google.common.base.Optional
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature
@@ -108,6 +110,23 @@ class ProjectNatureUpdaterTest extends WorkspaceSpecification {
 
         then:
         hasNature(project, 'org.eclipse.pde.UpdateSiteNature')
+    }
+
+    @Issue("https://github.com/eclipse/buildship/issues/617")
+    def "M2E nature is never preserved"() {
+        given:
+        IProject project = newProject('sample-project')
+        IProjectDescription description = project.description
+        List manualNatures = ['org.eclipse.m2e.core.maven2Nature']
+        description.setNatureIds(manualNatures as String[])
+        project.setDescription(description, new NullProgressMonitor())
+        PersistentModelBuilder persistentModel = persistentModelBuilder(project)
+
+        when:
+        executeProjectNatureUpdater(project, persistentModel)
+
+        then:
+        !hasNature(project, 'org.eclipse.m2e.core.maven2Nature')
     }
 
     private void executeProjectNatureUpdaterWithAbsentModel(IProject project) {
