@@ -24,8 +24,6 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorInput;
@@ -34,7 +32,7 @@ import org.eclipse.ui.part.FileEditorInput;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.collections.AdapterFunction;
-import org.eclipse.buildship.core.util.progress.ToolingApiJob;
+import org.eclipse.buildship.core.util.progress.SynchronizationJob;
 import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuilds;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
@@ -54,7 +52,14 @@ public final class ProjectSynchronizer {
         }
 
         final GradleBuilds gradleBuilds = CorePlugin.gradleWorkspaceManager().getGradleBuilds(selectedProjects);
-        new SynchronizeJob(gradleBuilds).schedule();
+
+        new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, gradleBuilds) {
+
+            @Override
+            protected void handleStatus(ToolingApiStatus status) {
+                ToolingApiStatus.handleDefault("Project synchronization", status);
+            }
+        }.schedule();
     }
 
     private static Set<IProject> collectSelectedProjects(ExecutionEvent event) {
@@ -85,25 +90,4 @@ public final class ProjectSynchronizer {
         return projects;
     }
 
-    /**
-     * Job to execute synchronization.
-     */
-    private static class SynchronizeJob extends ToolingApiJob {
-
-        private final GradleBuilds gradleBuilds;
-
-        SynchronizeJob(GradleBuilds gradleBuilds) {
-            super("Synchronize projects");
-            this.gradleBuilds = gradleBuilds;
-        }
-
-        @Override
-        protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
-            try {
-                this.gradleBuilds.synchronize(NewProjectHandler.IMPORT_AND_MERGE, getToken(), monitor);
-            } catch (CoreException e) {
-                ToolingApiStatus.handleDefault("Project synchronization", e);
-            }
-        }
-    }
 }

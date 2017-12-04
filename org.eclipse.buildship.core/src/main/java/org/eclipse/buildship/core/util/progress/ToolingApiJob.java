@@ -13,10 +13,6 @@ package org.eclipse.buildship.core.util.progress;
 
 import java.util.concurrent.TimeUnit;
 
-import org.gradle.tooling.CancellationToken;
-import org.gradle.tooling.CancellationTokenSource;
-import org.gradle.tooling.GradleConnector;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 
@@ -25,7 +21,6 @@ import org.eclipse.core.runtime.IStatus;
  */
 public abstract class ToolingApiJob extends GradleJob {
 
-    private final CancellationTokenSource tokenSource;
     private final String workName;
     private final boolean notifyUserAboutBuildFailures;
 
@@ -50,13 +45,8 @@ public abstract class ToolingApiJob extends GradleJob {
      */
     protected ToolingApiJob(String name, boolean notifyUserAboutBuildFailures) {
         super(name);
-        this.tokenSource = GradleConnector.newCancellationTokenSource();
         this.workName = name;
         this.notifyUserAboutBuildFailures = notifyUserAboutBuildFailures;
-    }
-
-    protected CancellationToken getToken() {
-        return this.tokenSource.token();
     }
 
     @Override
@@ -87,9 +77,4 @@ public abstract class ToolingApiJob extends GradleJob {
      * @throws Exception thrown when an error happens during the execution
      */
     protected abstract void runToolingApiJob(IProgressMonitor monitor) throws Exception;
-
-    @Override
-    protected void canceling() {
-        this.tokenSource.cancel();
-    }
 }

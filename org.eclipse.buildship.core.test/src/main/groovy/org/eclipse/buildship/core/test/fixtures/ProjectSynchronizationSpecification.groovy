@@ -45,12 +45,13 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
     }
 
     protected void startSynchronization(File location, GradleDistribution distribution = DEFAULT_DISTRIBUTION, NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
+        // TODO (donat) the sync methods are now synchronous -> rename methods and revisit wait methods
         BuildConfiguration buildConfiguration = createOverridingBuildConfiguration(location, distribution)
         CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfiguration).synchronize(newProjectHandler, GradleConnector.newCancellationTokenSource().token(), new NullProgressMonitor())
     }
 
     protected void synchronizeAndWait(IProject... projects) {
-        CorePlugin.gradleWorkspaceManager().getGradleBuilds(projects as Set).synchronize(NewProjectHandler.IMPORT_AND_MERGE)
+        CorePlugin.gradleWorkspaceManager().getGradleBuilds(projects as Set).synchronize(NewProjectHandler.IMPORT_AND_MERGE, GradleConnector.newCancellationTokenSource().token(), new NullProgressMonitor())
         waitForGradleJobsToFinish()
         waitForResourceChangeEvents()
     }

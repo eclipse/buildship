@@ -24,9 +24,6 @@ import com.gradleware.tooling.toolingutils.binding.ValidationListener;
 import com.gradleware.tooling.toolingutils.binding.Validator;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.ui.IWorkbenchPage;
@@ -44,7 +41,8 @@ import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
-import org.eclipse.buildship.core.util.progress.ToolingApiJob;
+import org.eclipse.buildship.core.util.progress.SynchronizationJob;
+import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
@@ -169,19 +167,15 @@ public class ProjectImportWizardController {
     }
 
     public boolean performImportProject(final AsyncHandler initializer, final NewProjectHandler newProjectHandler) {
-        ToolingApiJob job = new ToolingApiJob("Import project") {
+        BuildConfiguration buildConfig = ProjectImportWizardController.this.configuration.toBuildConfig();
+        GradleBuild build = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);
+        ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler = new ImportWizardNewProjectHandler(newProjectHandler, ProjectImportWizardController.this.configuration);
+
+        SynchronizationJob job = new SynchronizationJob(workingSetsAddingNewProjectHandler, initializer, build) {
 
             @Override
-            protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
-                BuildConfiguration buildConfig = ProjectImportWizardController.this.configuration.toBuildConfig();
-                ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler = new ImportWizardNewProjectHandler(newProjectHandler, ProjectImportWizardController.this.configuration);
-                GradleBuild build = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);
-                try {
-                    build.synchronize(workingSetsAddingNewProjectHandler, initializer, getToken(), new NullProgressMonitor());
-                } catch (CoreException e) {
-                    CorePlugin.getInstance().getLog().log(e.getStatus());
-                    // TODO (donat) display error message in the wizard dialog unless the model loading was cancelled
-                }
+            protected void handleStatus(ToolingApiStatus status) {
+                CorePlugin.getInstance().getLog().log(status);
             }
         };
 
@@ -191,8 +185,8 @@ public class ProjectImportWizardController {
         } catch (InterruptedException e) {
         }
 
+        // TODO (donat) revisit this
         return job.getResult().isOK();
-
     }
 
     /**

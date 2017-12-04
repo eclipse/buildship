@@ -8,6 +8,10 @@
 
 package org.eclipse.buildship.core.util.progress;
 
+import org.gradle.tooling.CancellationToken;
+import org.gradle.tooling.CancellationTokenSource;
+import org.gradle.tooling.GradleConnector;
+
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
@@ -17,12 +21,23 @@ import org.eclipse.buildship.core.CorePlugin;
  */
 public abstract class GradleJob extends Job {
 
+    private final CancellationTokenSource tokenSource = GradleConnector.newCancellationTokenSource();
+
     public GradleJob(String name) {
         super(name);
+    }
+
+    protected CancellationToken getToken() {
+        return this.tokenSource.token();
     }
 
     @Override
     public boolean belongsTo(Object family) {
         return CorePlugin.GRADLE_JOB_FAMILY.equals(family);
+    }
+
+    @Override
+    protected void canceling() {
+        this.tokenSource.cancel();
     }
 }

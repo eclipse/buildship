@@ -19,7 +19,6 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
@@ -67,7 +66,7 @@ public final class ToolingApiStatus extends Status implements IStatus {
         super(type.getSeverity(), CorePlugin.PLUGIN_ID, type.getCode(), message, exception);
     }
 
-    public static IStatus from(String workName, Throwable failure) {
+    public static ToolingApiStatus from(String workName, Throwable failure) {
         if (failure instanceof OperationCanceledException) {
             return new ToolingApiStatus(ToolingApiStatusType.BUILD_CANCELLED, null, null);
         } else if (failure instanceof BuildCancelledException) {
@@ -99,8 +98,7 @@ public final class ToolingApiStatus extends Status implements IStatus {
      * @param workName The name of the task to display in the error dialog
      * @param status the status to present in the dialog
      */
-    public static void handleDefault(String workName, CoreException e) {
-        IStatus status = e.getStatus();
+    public static void handleDefault(String workName, ToolingApiStatus status) {
         CorePlugin.getInstance().getLog().log(status);
 
         if (status instanceof ToolingApiStatus) {

@@ -19,8 +19,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -29,7 +28,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.util.collections.AdapterFunction;
-import org.eclipse.buildship.core.util.progress.ToolingApiJob;
+import org.eclipse.buildship.core.util.progress.SynchronizationJob;
 import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.GradleNatureAddedEvent;
@@ -77,7 +76,19 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
     }
 
     private void synchronize(Set<BuildConfiguration> buildConfigs) {
-        SynchronizationJob job = new SynchronizationJob(buildConfigs);
+        Set<GradleBuild> gradleBuilds = Sets.newHashSet();
+        for (BuildConfiguration buildConfig : buildConfigs) {
+            gradleBuilds.add(CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig));
+        }
+
+        Job job = new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, gradleBuilds) {
+
+            @Override
+            protected void handleStatus(ToolingApiStatus status) {
+                // TODO (donat) revisit those name arguments once more
+                ToolingApiStatus.handleDefault("Project synchronization", status);
+            }
+        };
         job.schedule();
         // TODO (donat) should we join the job here?
     }
@@ -86,31 +97,4 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
         // TODO this could be solved in a more general way by publishing nature added and removed events during project synchronization
         CorePlugin.listenerRegistry().dispatch(new GradleNatureAddedEvent(projects));
     }
-
-
-    /**
-     * Job to execute synchronization.
-     */
-    private static class SynchronizationJob extends ToolingApiJob {
-
-        private final Set<BuildConfiguration> buildConfigs;
-
-        public SynchronizationJob(Set<BuildConfiguration> buildConfigs) {
-            super("Add buildship nature");
-            this.buildConfigs = buildConfigs;
-        }
-
-        @Override
-        protected void runToolingApiJob(IProgressMonitor monitor) {
-            for (BuildConfiguration buildConfig : this.buildConfigs) {
-                GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);
-                try {
-                    gradleBuild.synchronize(NewProjectHandler.IMPORT_AND_MERGE, getToken(), monitor);
-                } catch (CoreException e) {
-                    ToolingApiStatus.handleDefault("Project synchronization", e);
-                }
-            }
-        }
-    }
-
 }

@@ -14,16 +14,16 @@ package org.eclipse.buildship.core.workspace.internal;
 import com.google.common.base.Optional;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.util.progress.ToolingApiJob;
+import org.eclipse.buildship.core.util.progress.SynchronizationJob;
+import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 
 /**
@@ -56,7 +56,16 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
             if (!gradleBuild.isPresent()) {
                 GradleClasspathContainerUpdater.clear(javaProject, null);
             } else {
-                new ClasspathInitializerJob(gradleBuild.get()).schedule();
+                Job job = new SynchronizationJob(gradleBuild.get()) {
+
+                    @Override
+                    protected void handleStatus(ToolingApiStatus status) {
+                        CorePlugin.getInstance().getLog().log(status);
+                    }
+                };
+
+                job.setUser(false);
+                job.schedule();
             }
         }
     }
@@ -68,31 +77,5 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
     @Override
     public Object getComparisonID(IPath containerPath, IJavaProject project) {
         return project;
-    }
-
-    /**
-     * Job to execute synchronization.
-     */
-    private static class ClasspathInitializerJob extends ToolingApiJob {
-
-        private final GradleBuild build;
-
-        public ClasspathInitializerJob(GradleBuild gradleBuild) {
-            super("");
-            this.build = gradleBuild;
-            setUser(false);
-        }
-
-        @Override
-        protected void runToolingApiJob(IProgressMonitor monitor) {
-            // TODO (donat) the isSynchRunning should not be necessary. Instead, the job should have a proper scheduling rule.
-            if (!this.build.isSyncRunning()) {
-                try {
-                    this.build.synchronize(getToken(), monitor);
-                } catch (CoreException e) {
-                    CorePlugin.getInstance().getLog().log(e.getStatus());
-                }
-            }
-        }
     }
 }
