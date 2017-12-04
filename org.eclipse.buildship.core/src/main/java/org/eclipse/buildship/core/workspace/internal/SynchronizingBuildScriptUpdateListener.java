@@ -25,13 +25,12 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.preferences.PersistentModel;
-import org.eclipse.buildship.core.util.progress.GradleJob;
+import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 
 /**
  * Executes project synchronization if the corresponding preference is enabled and the user changes
@@ -91,20 +90,7 @@ public final class SynchronizingBuildScriptUpdateListener implements IResourceCh
 
     private void executeSyncIfBuildScriptChanged(final IProject project, IResourceDelta delta) {
         if (hasBuildScriptFileChanged(project, delta.getAffectedChildren())) {
-            Job job = new GradleJob("") {
-
-                @Override
-                protected IStatus run(IProgressMonitor monitor) {
-                    try {
-                        CorePlugin.gradleWorkspaceManager().getGradleBuild(project).get().synchronize();
-                    } catch (CoreException e) {
-                        CorePlugin.getInstance().getLog().log(e.getStatus());
-                    }
-                    return Status.OK_STATUS;
-                }
-            };
-            job.setSystem(true);
-            job.schedule();
+            new SynchronizeJob(project).schedule();
         }
     }
 
@@ -140,5 +126,29 @@ public final class SynchronizingBuildScriptUpdateListener implements IResourceCh
 
     public void close() {
         ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
+    }
+
+    /**
+     * Job to execute synchronization.
+     */
+    private static class SynchronizeJob extends ToolingApiJob {
+
+        private final IProject project;
+
+        SynchronizeJob(IProject project) {
+            super("");
+            setUser(false);
+            this.project = project;
+        }
+
+        @Override
+        protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
+            try {
+                CorePlugin.gradleWorkspaceManager().getGradleBuild(this.project).get().synchronize(getToken(), monitor);
+            } catch (CoreException e) {
+                CorePlugin.getInstance().getLog().log(e.getStatus());
+            }
+        }
+
     }
 }

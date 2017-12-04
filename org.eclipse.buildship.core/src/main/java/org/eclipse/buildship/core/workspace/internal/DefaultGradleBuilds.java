@@ -11,15 +11,17 @@ package org.eclipse.buildship.core.workspace.internal;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.gradle.tooling.CancellationToken;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.IProgressMonitor;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
+import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.GradleBuilds;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
@@ -40,17 +42,13 @@ public class DefaultGradleBuilds implements GradleBuilds {
     }
 
     @Override
-    public void synchronize(NewProjectHandler newProjectHandler) throws CoreException {
+    public void synchronize(NewProjectHandler newProjectHandler, CancellationToken token, IProgressMonitor monitor) throws CoreException {
         SynchronizeGradleBuildsJob syncJob = SynchronizeGradleBuildsJob.forMultipleGradleBuilds(this, newProjectHandler, AsyncHandler.NO_OP);
-        syncJob.schedule();
+
         try {
-            syncJob.join();
-        } catch (InterruptedException e) {
-            throw new GradlePluginsRuntimeException("Interruption is not expected at this point", e);
-        }
-        IStatus status = syncJob.getResult();
-        if (!status.isOK()) {
-            throw new CoreException(status);
+            syncJob.runInJob(monitor);
+        } catch (Exception e) {
+            throw new CoreException(ToolingApiStatus.from("Project synchronization", e));
         }
     }
 

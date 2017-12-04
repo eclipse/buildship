@@ -11,6 +11,7 @@ package org.eclipse.buildship.core.workspace.internal;
 import java.io.Writer;
 
 import org.gradle.tooling.BuildLauncher;
+import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.TestLauncher;
 
 import com.google.common.base.Objects;
@@ -19,14 +20,14 @@ import com.google.common.base.Preconditions;
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
+import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
@@ -47,32 +48,31 @@ public class DefaultGradleBuild implements GradleBuild {
     }
 
     @Override
-    public void synchronize() throws CoreException {
-        synchronize(NewProjectHandler.NO_OP);
+    public void synchronize(CancellationToken token, IProgressMonitor monitor) throws CoreException {
+        synchronize(NewProjectHandler.NO_OP, AsyncHandler.NO_OP, token, monitor);
     }
 
     @Override
-    public void synchronize(NewProjectHandler newProjectHandler) throws CoreException {
-        synchronize(newProjectHandler, AsyncHandler.NO_OP);
+    public void synchronize(NewProjectHandler newProjectHandler, CancellationToken token, IProgressMonitor monitor) throws CoreException {
+        synchronize(newProjectHandler, AsyncHandler.NO_OP, token, monitor);
     }
 
     @Override
-    public void synchronize(NewProjectHandler newProjectHandler, AsyncHandler initializer) throws CoreException {
+    public void synchronize(NewProjectHandler newProjectHandler, AsyncHandler initializer, CancellationToken token, IProgressMonitor monitor) throws CoreException {
         SynchronizeGradleBuildsJob syncJob = SynchronizeGradleBuildsJob.forSingleGradleBuild(this, newProjectHandler, initializer);
-        syncJob.schedule();
+
         try {
-            syncJob.join();
-        } catch (InterruptedException e) {
-            throw new GradlePluginsRuntimeException("Interruption is not expected at this point", e);
-        }
-        IStatus status = syncJob.getResult();
-        if (!status.isOK()) {
-            throw new CoreException(status);
+            syncJob.runInJob(monitor);
+        } catch (Exception e) {
+            throw new CoreException(ToolingApiStatus.from("Project synchronization", e));
         }
     }
 
     @Override
     public boolean isSyncRunning() {
+
+        // TODO (donat) this should be deleted
+
         Job[] syncJobs = Job.getJobManager().find(CorePlugin.GRADLE_JOB_FAMILY);
         for (Job job : syncJobs) {
             if (job instanceof SynchronizeGradleBuildsJob) {

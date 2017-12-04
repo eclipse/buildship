@@ -37,6 +37,9 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
  */
 public final class SynchronizeGradleBuildsJob extends BaseGradleJob {
 
+    // TODO (donat) don't inherit from Job
+    // TODO (donat) scheduling rule should be moved to callee jobs, preferably letting GradleBuild and GradleBuilds extend ISchedulingRule
+
     private final ImmutableSet<GradleBuild> builds;
     private final NewProjectHandler newProjectHandler;
     private final AsyncHandler initializer;

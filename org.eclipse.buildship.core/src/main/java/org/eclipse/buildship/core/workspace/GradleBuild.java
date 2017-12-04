@@ -11,11 +11,13 @@ package org.eclipse.buildship.core.workspace;
 import java.io.Writer;
 
 import org.gradle.tooling.BuildLauncher;
+import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.TestLauncher;
 
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
@@ -40,7 +42,7 @@ public interface GradleBuild {
      *
      * @see org.eclipse.buildship.core.util.progress.ToolingApiStatus
      */
-    void synchronize() throws CoreException;
+    void synchronize(CancellationToken token, IProgressMonitor monitor) throws CoreException;
 
     /**
      * Attempts to synchronize the build with the workspace.
@@ -52,9 +54,10 @@ public interface GradleBuild {
      * This is equivalent to calling {@code synchronize(newProjectHandler, AsyncHandler.NO_OP)}
      *
      * @param newProjectHandler how to handle newly added projects
+     * @param TODO
      * @see org.eclipse.buildship.core.util.progress.ToolingApiStatus
      */
-    void synchronize(NewProjectHandler newProjectHandler) throws CoreException;
+    void synchronize(NewProjectHandler newProjectHandler, CancellationToken token, IProgressMonitor monitor) throws CoreException;
 
     /**
      * Attempts to synchronize the build with the workspace.
@@ -65,9 +68,10 @@ public interface GradleBuild {
      *
      * @param newProjectHandler how to handle newly added projects
      * @param initializer an initializer to run before synchronization, e.g. to create a new project
+     * @param TODO
      * @see org.eclipse.buildship.core.util.progress.ToolingApiStatus
      */
-    void synchronize(NewProjectHandler newProjectHandler, AsyncHandler initializer) throws CoreException;
+    void synchronize(NewProjectHandler newProjectHandler, AsyncHandler initializer, CancellationToken token, IProgressMonitor monitor) throws CoreException;
 
     /**
      * Returns {@code true} if a synchronization job is already running for the same root project.

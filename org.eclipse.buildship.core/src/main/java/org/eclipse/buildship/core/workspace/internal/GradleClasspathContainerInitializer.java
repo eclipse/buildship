@@ -16,12 +16,14 @@ import com.google.common.base.Optional;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 
 /**
@@ -54,14 +56,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
             if (!gradleBuild.isPresent()) {
                 GradleClasspathContainerUpdater.clear(javaProject, null);
             } else {
-                GradleBuild build = gradleBuild.get();
-                if (!build.isSyncRunning()) {
-                    try {
-                        build.synchronize();
-                    } catch (CoreException e) {
-                        CorePlugin.getInstance().getLog().log(e.getStatus());
-                    }
-                }
+                new ClasspathInitializerJob(gradleBuild.get()).schedule();
             }
         }
     }
@@ -73,5 +68,31 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
     @Override
     public Object getComparisonID(IPath containerPath, IJavaProject project) {
         return project;
+    }
+
+    /**
+     * Job to execute synchronization.
+     */
+    private static class ClasspathInitializerJob extends ToolingApiJob {
+
+        private final GradleBuild build;
+
+        public ClasspathInitializerJob(GradleBuild gradleBuild) {
+            super("");
+            this.build = gradleBuild;
+            setUser(false);
+        }
+
+        @Override
+        protected void runToolingApiJob(IProgressMonitor monitor) {
+            // TODO (donat) the isSynchRunning should not be necessary. Instead, the job should have a proper scheduling rule.
+            if (!this.build.isSyncRunning()) {
+                try {
+                    this.build.synchronize(getToken(), monitor);
+                } catch (CoreException e) {
+                    CorePlugin.getInstance().getLog().log(e.getStatus());
+                }
+            }
+        }
     }
 }
