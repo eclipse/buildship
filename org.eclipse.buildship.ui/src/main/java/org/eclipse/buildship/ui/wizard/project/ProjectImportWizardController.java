@@ -190,8 +190,8 @@ public class ProjectImportWizardController {
                         CancellationToken token = GradleConnector.newCancellationTokenSource().token();
                         initializer.run(monitor, token);
                         build.synchronize(workingSetsAddingNewProjectHandler, token, monitor);
-                    } catch (CoreException e) {
-                        throw new InvocationTargetException(e);
+                    } catch (Exception e) {
+                       throw new InvocationTargetException(e);
                     }
                 }
             });

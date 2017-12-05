@@ -40,7 +40,7 @@ public interface GradleBuild {
      * @param token the cancellation token
      * @see org.eclipse.buildship.core.util.progress.ToolingApiStatus
      */
-    void synchronize(NewProjectHandler newProjectHandler, CancellationToken token, IProgressMonitor monitor) throws CoreException;
+    void synchronize(NewProjectHandler newProjectHandler, CancellationToken token, IProgressMonitor monitor) throws Exception;
 
     /**
      * Returns the model provider for this build.

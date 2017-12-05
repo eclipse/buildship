@@ -19,12 +19,10 @@ import com.google.common.base.Preconditions;
 
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
-import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
@@ -45,14 +43,9 @@ public class DefaultGradleBuild implements GradleBuild {
     }
 
     @Override
-    public void synchronize(NewProjectHandler newProjectHandler, CancellationToken token, IProgressMonitor monitor) throws CoreException {
+    public void synchronize(NewProjectHandler newProjectHandler, CancellationToken token, IProgressMonitor monitor) throws Exception {
         SynchronizeGradleBuildsOperation syncOperation = SynchronizeGradleBuildsOperation.forSingleGradleBuild(this, newProjectHandler);
-
-        try {
-            syncOperation.run(token, monitor);
-        } catch (Exception e) {
-            throw new CoreException(ToolingApiStatus.from("Project synchronization", e));
-        }
+        syncOperation.run(token, monitor);
     }
 
     @Override
