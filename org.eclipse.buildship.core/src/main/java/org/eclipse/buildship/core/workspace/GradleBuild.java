@@ -39,7 +39,7 @@ public interface GradleBuild {
      * This is equivalent to calling {@code synchronize(newProjectHandler, AsyncHandler.NO_OP)}
      *
      * @param newProjectHandler how to handle newly added projects
-     * @param TODO
+     * @param token the cancellation token
      * @see org.eclipse.buildship.core.util.progress.ToolingApiStatus
      */
     void synchronize(NewProjectHandler newProjectHandler, CancellationToken token, IProgressMonitor monitor) throws CoreException;

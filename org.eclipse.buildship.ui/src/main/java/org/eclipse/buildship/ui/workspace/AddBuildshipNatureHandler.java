@@ -29,7 +29,6 @@ import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.util.collections.AdapterFunction;
 import org.eclipse.buildship.core.util.progress.SynchronizationJob;
-import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.GradleNatureAddedEvent;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
@@ -81,14 +80,7 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
             gradleBuilds.add(CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig));
         }
 
-        Job job = new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, gradleBuilds) {
-
-            @Override
-            protected void handleStatus(ToolingApiStatus status) {
-                // TODO (donat) revisit those name arguments once more
-                ToolingApiStatus.handleDefault("Project synchronization", status);
-            }
-        };
+        Job job = new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, gradleBuilds);
         job.schedule();
         // TODO (donat) should we join the job here?
     }

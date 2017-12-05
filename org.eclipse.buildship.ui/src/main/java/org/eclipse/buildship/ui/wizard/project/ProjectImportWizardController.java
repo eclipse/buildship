@@ -198,9 +198,9 @@ public class ProjectImportWizardController {
         } catch (InvocationTargetException e) {
             Throwable cause = e.getCause();
             if (cause instanceof CoreException) {
-                ToolingApiStatus.handleDefault("Project synchronization", (((CoreException)cause).getStatus()));
+                ToolingApiStatus.handleDefault("Project import", (((CoreException)cause).getStatus()));
             } else {
-                UiPlugin.logger().error("Project synchronization failed", cause);
+                UiPlugin.logger().error("Project import failed", cause);
             }
             return false;
         } catch (InterruptedException ignored) {

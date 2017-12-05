@@ -53,13 +53,7 @@ public final class ProjectSynchronizer {
 
         final GradleBuilds gradleBuilds = CorePlugin.gradleWorkspaceManager().getGradleBuilds(selectedProjects);
 
-        new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, gradleBuilds) {
-
-            @Override
-            protected void handleStatus(ToolingApiStatus status) {
-                ToolingApiStatus.handleDefault("Project synchronization", status);
-            }
-        }.schedule();
+        new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, gradleBuilds).schedule();
     }
 
     private static Set<IProject> collectSelectedProjects(ExecutionEvent event) {

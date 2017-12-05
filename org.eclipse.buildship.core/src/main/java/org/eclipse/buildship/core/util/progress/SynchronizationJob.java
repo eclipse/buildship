@@ -32,7 +32,7 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
  *
  * @author Donat Csikos
  */
-public abstract class SynchronizationJob extends GradleJob {
+public class SynchronizationJob extends GradleJob {
 
     private final Iterable<GradleBuild> gradleBuilds;
     private final NewProjectHandler newProjectHandler;
@@ -84,7 +84,15 @@ public abstract class SynchronizationJob extends GradleJob {
         }
     }
 
-    protected abstract void handleStatus(ToolingApiStatus status);
+    /**
+     * Callback to handle synchronization result. Clients might override this method to provide custom error handling.
+     *
+     * @param status the result status to handle
+     * @see ToolingApiStatus
+     */
+    protected void handleStatus(ToolingApiStatus status) {
+        ToolingApiStatus.handleDefault("Project synchronization", status);
+    }
 
     /**
      * A {@link SynchronizationJob} is only scheduled if there is not already another one that
