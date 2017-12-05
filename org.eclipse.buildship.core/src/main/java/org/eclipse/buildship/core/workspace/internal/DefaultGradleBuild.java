@@ -45,11 +45,6 @@ public class DefaultGradleBuild implements GradleBuild {
     }
 
     @Override
-    public void synchronize(CancellationToken token, IProgressMonitor monitor) throws CoreException {
-        synchronize(NewProjectHandler.NO_OP, token, monitor);
-    }
-
-    @Override
     public void synchronize(NewProjectHandler newProjectHandler, CancellationToken token, IProgressMonitor monitor) throws CoreException {
         SynchronizeGradleBuildsOperation syncOperation = SynchronizeGradleBuildsOperation.forSingleGradleBuild(this, newProjectHandler);
 

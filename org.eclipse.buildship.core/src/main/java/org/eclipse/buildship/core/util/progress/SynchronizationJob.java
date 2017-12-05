@@ -12,6 +12,7 @@ package org.eclipse.buildship.core.util.progress;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -35,32 +36,18 @@ public abstract class SynchronizationJob extends GradleJob {
 
     private final Iterable<GradleBuild> gradleBuilds;
     private final NewProjectHandler newProjectHandler;
-    private final AsyncHandler initializer;
 
     public SynchronizationJob(GradleBuild gradleBuild) {
-        this(NewProjectHandler.NO_OP, gradleBuild);
-    }
-
-    public SynchronizationJob(Iterable<GradleBuild> gradleBuilds) {
-        this(NewProjectHandler.NO_OP, gradleBuilds);
+        this(NewProjectHandler.NO_OP, ImmutableList.of(gradleBuild));
     }
 
     public SynchronizationJob(NewProjectHandler newProjectHandler, GradleBuild gradleBuild) {
-        this(newProjectHandler, AsyncHandler.NO_OP, gradleBuild);
+        this(newProjectHandler, ImmutableList.of(gradleBuild));
     }
 
     public SynchronizationJob(NewProjectHandler newProjectHandler, Iterable<GradleBuild> gradleBuilds) {
-        this(newProjectHandler, AsyncHandler.NO_OP, gradleBuilds);
-    }
-
-    public SynchronizationJob(NewProjectHandler newProjectHandler, AsyncHandler initializer, GradleBuild gradleBuild) {
-        this(newProjectHandler, initializer, ImmutableSet.of(gradleBuild));
-    }
-
-    public SynchronizationJob(NewProjectHandler newProjectHandler, AsyncHandler initializer, Iterable<GradleBuild> gradleBuilds) {
         super("Synchronize Gradle projects with workspace");
         this.newProjectHandler = newProjectHandler;
-        this.initializer = initializer;
         this.gradleBuilds = ImmutableSet.copyOf(gradleBuilds);
 
         // explicitly show a dialog with the progress while the project synchronization is in process
@@ -86,8 +73,6 @@ public abstract class SynchronizationJob extends GradleJob {
         final SubMonitor progress = SubMonitor.convert(monitor, ImmutableSet.copyOf(this.gradleBuilds).size() + 1);
 
         try {
-            this.initializer.run(progress.newChild(1), getToken());
-
             for (GradleBuild build : this.gradleBuilds) {
                 if (monitor.isCanceled()) {
                     throw new OperationCanceledException();
@@ -110,7 +95,6 @@ public abstract class SynchronizationJob extends GradleJob {
      * <li>A synchronizes the same Gradle builds as B</li>
      * <li>A and B have the same {@link NewProjectHandler} or B's {@link NewProjectHandler} is a
      * no-op</li>
-     * <li>A and B have the same {@link AsyncHandler} or B's {@link AsyncHandler} is a no-op</li>
      * </ul>
      */
     @Override
@@ -124,7 +108,6 @@ public abstract class SynchronizationJob extends GradleJob {
     }
 
     private boolean isCoveredBy(SynchronizationJob other) {
-        return Objects.equal(this.gradleBuilds, other.gradleBuilds) && (this.newProjectHandler == NewProjectHandler.NO_OP || Objects.equal(this.newProjectHandler, other.newProjectHandler))
-                && (this.initializer == AsyncHandler.NO_OP || Objects.equal(this.initializer, other.initializer));
+        return Objects.equal(this.gradleBuilds, other.gradleBuilds) && (this.newProjectHandler == NewProjectHandler.NO_OP || Objects.equal(this.newProjectHandler, other.newProjectHandler));
     }
 }

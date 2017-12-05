@@ -176,12 +176,12 @@ public class ProjectImportWizardController {
 
     public boolean performImportProject(IWizardContainer container, final AsyncHandler initializer, final NewProjectHandler newProjectHandler) {
 
-
         try {
             container.run(true, true, new IRunnableWithProgress() {
 
                 @Override
                 public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+                    // TODO (donat) run in ICoreRunneable to provide the same synchronization rule SynchronizationJob uses
                     // TODO (donat) we should provide the connection attributes from here (and from the SynchronizeJob) to provide cancellation support
                     BuildConfiguration buildConfig = ProjectImportWizardController.this.configuration.toBuildConfig();
                     GradleBuild build = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);

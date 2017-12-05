@@ -36,19 +36,6 @@ public interface GradleBuild {
      * {@link CoreException} which contains the necessary status and error message about the
      * failure.
      * <p/>
-     * This is equivalent to calling {@code synchronize(NewProjectHandler.NO_OP)}
-     *
-     * @see org.eclipse.buildship.core.util.progress.ToolingApiStatus
-     */
-    void synchronize(CancellationToken token, IProgressMonitor monitor) throws CoreException;
-
-    /**
-     * Attempts to synchronize the build with the workspace.
-     * <p/>
-     * The synchronization happens synchronously. In case of a failure, the method throws a
-     * {@link CoreException} which contains the necessary status and error message about the
-     * failure.
-     * <p/>
      * This is equivalent to calling {@code synchronize(newProjectHandler, AsyncHandler.NO_OP)}
      *
      * @param newProjectHandler how to handle newly added projects
