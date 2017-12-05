@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.GradleBuilds;
 import org.eclipse.buildship.core.workspace.ModelProvider;
@@ -37,12 +36,10 @@ public final class SynchronizeGradleBuildsOperation {
 
     private final ImmutableSet<GradleBuild> builds;
     private final NewProjectHandler newProjectHandler;
-    private final AsyncHandler initializer;
 
-    private SynchronizeGradleBuildsOperation(Set<GradleBuild> builds, NewProjectHandler newProjectHandler, AsyncHandler initializer) {
+    private SynchronizeGradleBuildsOperation(Set<GradleBuild> builds, NewProjectHandler newProjectHandler) {
         this.builds = ImmutableSet.copyOf(builds);
         this.newProjectHandler = Preconditions.checkNotNull(newProjectHandler);
-        this.initializer = Preconditions.checkNotNull(initializer);
     }
 
     Set<GradleBuild> getBuilds() {
@@ -51,10 +48,6 @@ public final class SynchronizeGradleBuildsOperation {
 
     protected void run(CancellationToken token, IProgressMonitor monitor) throws Exception {
         final SubMonitor progress = SubMonitor.convert(monitor, this.builds.size() + 1);
-
-        // TODO (donat) This is the time to get rid of the initializer
-
-        this.initializer.run(progress.newChild(1), token);
 
         for (GradleBuild build : this.builds) {
             if (monitor.isCanceled()) {
@@ -81,12 +74,12 @@ public final class SynchronizeGradleBuildsOperation {
         return modelProvider.fetchEclipseGradleProjects(FetchStrategy.FORCE_RELOAD, token, progress);
     }
 
-    public static SynchronizeGradleBuildsOperation forSingleGradleBuild(GradleBuild build, NewProjectHandler newProjectHandler, AsyncHandler initializer) {
-        return new SynchronizeGradleBuildsOperation(ImmutableSet.of(build), newProjectHandler, initializer);
+    public static SynchronizeGradleBuildsOperation forSingleGradleBuild(GradleBuild build, NewProjectHandler newProjectHandler) {
+        return new SynchronizeGradleBuildsOperation(ImmutableSet.of(build), newProjectHandler);
     }
 
-    public static SynchronizeGradleBuildsOperation forMultipleGradleBuilds(GradleBuilds builds, NewProjectHandler newProjectHandler, AsyncHandler initializer) {
-        return new SynchronizeGradleBuildsOperation(builds.getGradleBuilds(), newProjectHandler, initializer);
+    public static SynchronizeGradleBuildsOperation forMultipleGradleBuilds(GradleBuilds builds, NewProjectHandler newProjectHandler) {
+        return new SynchronizeGradleBuildsOperation(builds.getGradleBuilds(), newProjectHandler);
     }
 
 }

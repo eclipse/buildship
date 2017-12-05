@@ -121,7 +121,7 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
 
         when:
         bot.button(IDialogConstants.FINISH_LABEL).click()
-        waitForGradleJobsToFinish()
+
         // after clicking finish the new elements for the working set are not immediately applied
         waitUntilWorkingSetIsAdded()
 
@@ -157,7 +157,7 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
             public String getFailureMessage() {
                 return "The Gradle workingset has not been added to the IWorkingSetManager, yet."
             }
-        }, 5000)
+        }, 60000)
     }
 
 }

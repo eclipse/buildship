@@ -86,14 +86,13 @@ public abstract class SynchronizationJob extends GradleJob {
         final SubMonitor progress = SubMonitor.convert(monitor, ImmutableSet.copyOf(this.gradleBuilds).size() + 1);
 
         try {
-            // TODO (donat) bug: we call initializer twice!
             this.initializer.run(progress.newChild(1), getToken());
 
             for (GradleBuild build : this.gradleBuilds) {
                 if (monitor.isCanceled()) {
                     throw new OperationCanceledException();
                 }
-                build.synchronize(this.newProjectHandler, this.initializer, getToken(), progress.newChild(1));
+                build.synchronize(this.newProjectHandler, getToken(), progress.newChild(1));
             }
         } catch (Exception e) {
             handleStatus(ToolingApiStatus.from("Synchronize Gradle projects with workspace", e));

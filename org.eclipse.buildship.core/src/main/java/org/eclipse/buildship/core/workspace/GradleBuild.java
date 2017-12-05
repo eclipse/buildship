@@ -21,8 +21,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
-//TODO this should eventually also contain the methods to launch tasks etc.
-import org.eclipse.buildship.core.util.progress.AsyncHandler;
 
 /**
  * A Gradle build.
@@ -58,20 +56,6 @@ public interface GradleBuild {
      * @see org.eclipse.buildship.core.util.progress.ToolingApiStatus
      */
     void synchronize(NewProjectHandler newProjectHandler, CancellationToken token, IProgressMonitor monitor) throws CoreException;
-
-    /**
-     * Attempts to synchronize the build with the workspace.
-     * <p/>
-     * The synchronization happens synchronously. In case of a failure, the method throws a
-     * {@link CoreException} which contains the necessary status and error message about the
-     * failure.
-     *
-     * @param newProjectHandler how to handle newly added projects
-     * @param initializer an initializer to run before synchronization, e.g. to create a new project
-     * @param TODO
-     * @see org.eclipse.buildship.core.util.progress.ToolingApiStatus
-     */
-    void synchronize(NewProjectHandler newProjectHandler, AsyncHandler initializer, CancellationToken token, IProgressMonitor monitor) throws CoreException;
 
     /**
      * Returns the model provider for this build.

@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.GradleBuilds;
@@ -43,7 +42,7 @@ public class DefaultGradleBuilds implements GradleBuilds {
 
     @Override
     public void synchronize(NewProjectHandler newProjectHandler, CancellationToken token, IProgressMonitor monitor) throws CoreException {
-        SynchronizeGradleBuildsOperation syncOperation = SynchronizeGradleBuildsOperation.forMultipleGradleBuilds(this, newProjectHandler, AsyncHandler.NO_OP);
+        SynchronizeGradleBuildsOperation syncOperation = SynchronizeGradleBuildsOperation.forMultipleGradleBuilds(this, newProjectHandler);
 
         try {
             syncOperation.run(token, monitor);
