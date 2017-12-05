@@ -86,6 +86,7 @@ public abstract class SynchronizationJob extends GradleJob {
         final SubMonitor progress = SubMonitor.convert(monitor, ImmutableSet.copyOf(this.gradleBuilds).size() + 1);
 
         try {
+            // TODO (donat) bug: we call initializer twice!
             this.initializer.run(progress.newChild(1), getToken());
 
             for (GradleBuild build : this.gradleBuilds) {

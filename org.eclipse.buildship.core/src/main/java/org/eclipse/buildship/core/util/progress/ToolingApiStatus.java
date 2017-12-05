@@ -98,7 +98,7 @@ public final class ToolingApiStatus extends Status implements IStatus {
      * @param workName The name of the task to display in the error dialog
      * @param status the status to present in the dialog
      */
-    public static void handleDefault(String workName, ToolingApiStatus status) {
+    public static void handleDefault(String workName, IStatus status) {
         CorePlugin.getInstance().getLog().log(status);
 
         if (status instanceof ToolingApiStatus) {

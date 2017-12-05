@@ -135,7 +135,7 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
 
     @Override
     public boolean performFinish() {
-        return this.controller.performImportProject(AsyncHandler.NO_OP, NewProjectHandler.IMPORT_AND_MERGE);
+        return this.controller.performImportProject(getContainer(), AsyncHandler.NO_OP, NewProjectHandler.IMPORT_AND_MERGE);
     }
 
     @Override

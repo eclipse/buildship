@@ -12,7 +12,10 @@
 package org.eclipse.buildship.ui.wizard.project;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+
+import org.gradle.tooling.GradleConnector;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
@@ -24,8 +27,12 @@ import com.gradleware.tooling.toolingutils.binding.ValidationListener;
 import com.gradleware.tooling.toolingutils.binding.Validator;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizard;
+import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
@@ -41,10 +48,10 @@ import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
-import org.eclipse.buildship.core.util.progress.SynchronizationJob;
 import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
+import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
 import org.eclipse.buildship.ui.view.execution.ExecutionsView;
@@ -166,27 +173,38 @@ public class ProjectImportWizardController {
         return this.configuration;
     }
 
-    public boolean performImportProject(final AsyncHandler initializer, final NewProjectHandler newProjectHandler) {
-        BuildConfiguration buildConfig = ProjectImportWizardController.this.configuration.toBuildConfig();
-        GradleBuild build = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);
-        ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler = new ImportWizardNewProjectHandler(newProjectHandler, ProjectImportWizardController.this.configuration);
+    public boolean performImportProject(IWizardContainer container, final AsyncHandler initializer, final NewProjectHandler newProjectHandler) {
 
-        SynchronizationJob job = new SynchronizationJob(workingSetsAddingNewProjectHandler, initializer, build) {
 
-            @Override
-            protected void handleStatus(ToolingApiStatus status) {
-                CorePlugin.getInstance().getLog().log(status);
-            }
-        };
-
-        job.schedule();
         try {
-            job.join();
-        } catch (InterruptedException e) {
+            container.run(true, true, new IRunnableWithProgress() {
+
+                @Override
+                public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+                    // TODO (donat) we should provide the connection attributes from here (and from the SynchronizeJob) to provide cancellation support
+                    BuildConfiguration buildConfig = ProjectImportWizardController.this.configuration.toBuildConfig();
+                    GradleBuild build = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);
+                    ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler = new ImportWizardNewProjectHandler(newProjectHandler, ProjectImportWizardController.this.configuration);
+                    try {
+                        build.synchronize(workingSetsAddingNewProjectHandler, GradleConnector.newCancellationTokenSource().token(), monitor);
+                    } catch (CoreException e) {
+                        throw new InvocationTargetException(e);
+                    }
+                }
+            });
+        } catch (InvocationTargetException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof CoreException) {
+                ToolingApiStatus.handleDefault("Project synchronization", (((CoreException)cause).getStatus()));
+            } else {
+                UiPlugin.logger().error("Project synchronization failed", cause);
+            }
+            return false;
+        } catch (InterruptedException ignored) {
+            return false;
         }
 
-        // TODO (donat) revisit this
-        return job.getResult().isOK();
+        return true;
     }
 
     /**
