@@ -74,13 +74,6 @@ public interface GradleBuild {
     void synchronize(NewProjectHandler newProjectHandler, AsyncHandler initializer, CancellationToken token, IProgressMonitor monitor) throws CoreException;
 
     /**
-     * Returns {@code true} if a synchronization job is already running for the same root project.
-     *
-     * @return true if a synchronization is running.
-     */
-    boolean isSyncRunning();
-
-    /**
      * Returns the model provider for this build.
      *
      * @return the model provider, never null

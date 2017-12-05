@@ -5,6 +5,8 @@ import com.gradleware.tooling.toolingclient.GradleDistribution
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.util.progress.AsyncHandler
+import org.eclipse.buildship.core.util.progress.SynchronizationJob
+import org.eclipse.buildship.core.util.progress.ToolingApiStatus
 import org.eclipse.buildship.core.workspace.NewProjectHandler
 
 class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecification {
@@ -18,8 +20,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         def buildConfiguration = createOverridingBuildConfiguration(projectLocation)
         def gradleBuild = new DefaultGradleBuild(buildConfiguration)
         def jobs = [
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP),
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP)
+            new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP, gradleBuild) { void handleStatus(ToolingApiStatus status) {} } ,
+            new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP, gradleBuild) { void handleStatus(ToolingApiStatus status) {} } ,
         ]
 
         when:
@@ -38,8 +40,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         def buildConfiguration = createOverridingBuildConfiguration(projectLocation)
         def gradleBuild = new DefaultGradleBuild(buildConfiguration)
         def jobs = [
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP),
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.NO_OP, AsyncHandler.NO_OP)
+            new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP, gradleBuild) { void handleStatus(ToolingApiStatus status) {} } ,
+            new SynchronizationJob(NewProjectHandler.NO_OP, AsyncHandler.NO_OP, gradleBuild) { void handleStatus(ToolingApiStatus status) {} } ,
         ]
 
         when:
@@ -58,8 +60,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         def buildConfiguration = createOverridingBuildConfiguration(projectLocation)
         def gradleBuild = new DefaultGradleBuild(buildConfiguration)
         def jobs = [
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP),
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, Mock(NewProjectHandler), AsyncHandler.NO_OP)
+            new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP, gradleBuild) { void handleStatus(ToolingApiStatus status) {} } ,
+            new SynchronizationJob(Mock(NewProjectHandler), AsyncHandler.NO_OP, gradleBuild) { void handleStatus(ToolingApiStatus status) {} } ,
         ]
 
         when:
@@ -78,8 +80,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         def buildConfiguration = createOverridingBuildConfiguration(projectLocation)
         def gradleBuild = new DefaultGradleBuild(buildConfiguration)
         def jobs = [
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, {monitor, token -> "Foo"}),
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP)
+            new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, {monitor, token -> "Foo"}, gradleBuild) { void handleStatus(ToolingApiStatus status) {} } ,
+            new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP, gradleBuild) { void handleStatus(ToolingApiStatus status) {} } ,
         ]
 
         when:
@@ -98,8 +100,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         def buildConfiguration = createOverridingBuildConfiguration(projectLocation)
         def gradleBuild = new DefaultGradleBuild(buildConfiguration)
         def jobs = [
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, {monitor, token -> "Foo"}),
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, {monitor, token -> "Bar"})
+            new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, {monitor, token -> "Foo"}, gradleBuild) { void handleStatus(ToolingApiStatus status) {} } ,
+            new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, {monitor, token -> "Bar"}, gradleBuild) { void handleStatus(ToolingApiStatus status) {} } ,
         ]
 
         when:
@@ -119,8 +121,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         def buildConfiguration2 = createOverridingBuildConfiguration(project2)
         def gradleBuild2 = new DefaultGradleBuild(buildConfiguration2)
         def jobs = [
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild1, NewProjectHandler.NO_OP, AsyncHandler.NO_OP),
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild2, NewProjectHandler.NO_OP, AsyncHandler.NO_OP)
+            new SynchronizationJob(NewProjectHandler.NO_OP, AsyncHandler.NO_OP, gradleBuild1) { void handleStatus(ToolingApiStatus status) {} } ,
+            new SynchronizationJob(NewProjectHandler.NO_OP, AsyncHandler.NO_OP, gradleBuild2) { void handleStatus(ToolingApiStatus status) {} } ,
         ]
 
         when:

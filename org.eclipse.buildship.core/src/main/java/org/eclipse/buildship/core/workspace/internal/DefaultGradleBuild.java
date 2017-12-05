@@ -21,9 +21,7 @@ import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.jobs.Job;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
@@ -59,31 +57,13 @@ public class DefaultGradleBuild implements GradleBuild {
 
     @Override
     public void synchronize(NewProjectHandler newProjectHandler, AsyncHandler initializer, CancellationToken token, IProgressMonitor monitor) throws CoreException {
-        SynchronizeGradleBuildsJob syncJob = SynchronizeGradleBuildsJob.forSingleGradleBuild(this, newProjectHandler, initializer);
+        SynchronizeGradleBuildsOperation syncOperation = SynchronizeGradleBuildsOperation.forSingleGradleBuild(this, newProjectHandler, initializer);
 
         try {
-            syncJob.runInJob(monitor);
+            syncOperation.run(token, monitor);
         } catch (Exception e) {
             throw new CoreException(ToolingApiStatus.from("Project synchronization", e));
         }
-    }
-
-    @Override
-    public boolean isSyncRunning() {
-
-        // TODO (donat) this should be deleted
-
-        Job[] syncJobs = Job.getJobManager().find(CorePlugin.GRADLE_JOB_FAMILY);
-        for (Job job : syncJobs) {
-            if (job instanceof SynchronizeGradleBuildsJob) {
-                for (GradleBuild gradleBuild : ((SynchronizeGradleBuildsJob) job).getBuilds()) {
-                    if (gradleBuild.getBuildConfig().getRootProjectDirectory().equals(this.buildConfig.getRootProjectDirectory())) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
     }
 
     @Override

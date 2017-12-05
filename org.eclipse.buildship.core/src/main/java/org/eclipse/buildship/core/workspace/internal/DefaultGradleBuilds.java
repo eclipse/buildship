@@ -43,10 +43,10 @@ public class DefaultGradleBuilds implements GradleBuilds {
 
     @Override
     public void synchronize(NewProjectHandler newProjectHandler, CancellationToken token, IProgressMonitor monitor) throws CoreException {
-        SynchronizeGradleBuildsJob syncJob = SynchronizeGradleBuildsJob.forMultipleGradleBuilds(this, newProjectHandler, AsyncHandler.NO_OP);
+        SynchronizeGradleBuildsOperation syncOperation = SynchronizeGradleBuildsOperation.forMultipleGradleBuilds(this, newProjectHandler, AsyncHandler.NO_OP);
 
         try {
-            syncJob.runInJob(monitor);
+            syncOperation.run(token, monitor);
         } catch (Exception e) {
             throw new CoreException(ToolingApiStatus.from("Project synchronization", e));
         }

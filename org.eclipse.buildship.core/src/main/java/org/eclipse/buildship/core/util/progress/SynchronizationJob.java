@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSet;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -61,6 +62,12 @@ public abstract class SynchronizationJob extends GradleJob {
         this.newProjectHandler = newProjectHandler;
         this.initializer = initializer;
         this.gradleBuilds = ImmutableSet.copyOf(gradleBuilds);
+
+        // explicitly show a dialog with the progress while the project synchronization is in process
+        setUser(true);
+
+        // guarantee sequential order of synchronize jobs
+        setRule(ResourcesPlugin.getWorkspace().getRoot());
 
     }
 
