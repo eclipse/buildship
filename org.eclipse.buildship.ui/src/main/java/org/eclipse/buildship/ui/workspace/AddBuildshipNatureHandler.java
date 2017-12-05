@@ -19,7 +19,6 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -80,9 +79,7 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
             gradleBuilds.add(CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig));
         }
 
-        Job job = new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, gradleBuilds);
-        job.schedule();
-        // TODO (donat) should we join the job here?
+        new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, gradleBuilds).schedule();
     }
 
     private void publishNatureAddedEvent(Set<IProject> projects) {

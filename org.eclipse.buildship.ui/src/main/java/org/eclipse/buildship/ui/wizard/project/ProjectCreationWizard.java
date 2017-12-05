@@ -177,10 +177,6 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
 
     @Override
     public boolean performFinish() {
-        // TODO (donat) this should be executed in the container
-        //  - if the sync is successful return true
-        //  - if not, present the problem in the wizard
-        // enhancement: always import the project; upon problem place an error marker on it
         return this.importController.performImportProject(getContainer(), new NewGradleProjectInitializer(this.importController.getConfiguration()), NewProjectHandler.IMPORT_AND_MERGE);
     }
 
