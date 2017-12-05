@@ -30,6 +30,8 @@ import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.preferences.PersistentModel;
 import org.eclipse.buildship.core.util.progress.SynchronizationJob;
+import org.eclipse.buildship.core.util.progress.ToolingApiOperationResultHandler;
+import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 
 /**
@@ -94,9 +96,9 @@ public final class SynchronizingBuildScriptUpdateListener implements IResourceCh
             new SynchronizationJob(gradleBuild) {
 
                 @Override
-                protected void handleStatus(IStatus status) {
-                    CorePlugin.getInstance().getLog().log(status);
-                }
+                public ToolingApiOperationResultHandler<Void> getResultHandler() {
+                    return new ResultHander();
+                };
             }.schedule();
         }
     }
@@ -133,5 +135,20 @@ public final class SynchronizingBuildScriptUpdateListener implements IResourceCh
 
     public void close() {
         ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
+    }
+
+    /**
+     * Custom result handler that only logs the failure.
+     */
+    private static final class ResultHander implements ToolingApiOperationResultHandler<Void> {
+
+        @Override
+        public void onSuccess(Void result) {
+        }
+
+        @Override
+        public void onFailure(ToolingApiStatus status) {
+            CorePlugin.getInstance().getLog().log(status);
+        }
     }
 }

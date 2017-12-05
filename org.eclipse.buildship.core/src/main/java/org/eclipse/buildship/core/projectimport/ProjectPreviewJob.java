@@ -23,76 +23,70 @@ import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.util.Pair;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.util.progress.ToolingApiOperation;
+import org.eclipse.buildship.core.util.progress.ToolingApiOperationResultHandler;
 import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 
 /**
  * A job that fetches the models required for the project import preview.
  */
-//TODO this job is a clear candidate to be turned into a synchronous operation instead
-//then we could make use of our new ModelProvider very easily
-public final class ProjectPreviewJob extends ToolingApiJob {
+public final class ProjectPreviewJob extends ToolingApiJob<Pair<OmniBuildEnvironment, OmniGradleBuild>> {
 
     private final BuildConfiguration buildConfig;
     private final AsyncHandler initializer;
-
-    private Pair<OmniBuildEnvironment, OmniGradleBuild> result;
+    // TODO (donat) do we need this callback?
+    private final FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> resultHandler;
 
     public ProjectPreviewJob(ProjectImportConfiguration configuration, List<ProgressListener> listeners, AsyncHandler initializer,
                              final FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> resultHandler) {
         super("Loading Gradle project preview");
+        this.resultHandler = resultHandler;
 
         this.buildConfig = configuration.toBuildConfig();
         this.initializer = Preconditions.checkNotNull(initializer);
-        this.result = null;
-
-        // TODO (donat) ToolingApiOperation should provide functionality to handle success and failure
-
-        addJobChangeListener(new JobChangeAdapter() {
-
-            @Override
-            public void done(IJobChangeEvent event) {
-                if (event.getResult().isOK()) {
-                    resultHandler.onSuccess(ProjectPreviewJob.this.result);
-                } else {
-                    resultHandler.onFailure(event.getResult().getException());
-                }
-            }
-        });
     }
 
     @Override
-    public ToolingApiOperation getOperation() {
-        return new ToolingApiOperation() {
+    public ToolingApiOperation<Pair<OmniBuildEnvironment, OmniGradleBuild>> getOperation() {
+        return new ToolingApiOperation<Pair<OmniBuildEnvironment, OmniGradleBuild>>() {
 
             @Override
-            public void run(IProgressMonitor monitor) throws CoreException {
-                try {
-                    loadPreview(monitor);
-                } catch (Exception e) {
-                    throw new CoreException(ToolingApiStatus.from("Loading Gradle project preview", e));
-                }
+            public Pair<OmniBuildEnvironment, OmniGradleBuild> run(IProgressMonitor monitor) throws Exception {
+                return loadPreview(monitor);
             }
         };
     }
 
-    protected void loadPreview(IProgressMonitor monitor) throws Exception {
+    @Override
+    public ToolingApiOperationResultHandler<Pair<OmniBuildEnvironment, OmniGradleBuild>> getResultHandler() {
+        return new ToolingApiOperationResultHandler<Pair<OmniBuildEnvironment, OmniGradleBuild>>() {
+
+            @Override
+            public void onSuccess(Pair<OmniBuildEnvironment, OmniGradleBuild> result) {
+                ProjectPreviewJob.this.resultHandler.onSuccess(result);
+            }
+
+            @Override
+            public void onFailure(ToolingApiStatus status) {
+                ProjectPreviewJob.this.resultHandler.onFailure(status.getException());
+            }
+        };
+    }
+
+    protected Pair<OmniBuildEnvironment, OmniGradleBuild> loadPreview(IProgressMonitor monitor) throws Exception {
         SubMonitor progress = SubMonitor.convert(monitor, 20);
         this.initializer.run(progress.newChild(10), getToken());
         OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(progress.newChild(2));
         OmniGradleBuild gradleBuild = fetchGradleBuildStructure(progress.newChild(8));
-        this.result = new Pair<OmniBuildEnvironment, OmniGradleBuild>(buildEnvironment, gradleBuild);
+        return new Pair<OmniBuildEnvironment, OmniGradleBuild>(buildEnvironment, gradleBuild);
     }
 
     private OmniBuildEnvironment fetchBuildEnvironment(IProgressMonitor monitor) {

@@ -14,7 +14,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
@@ -29,7 +28,7 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
  *
  * @author Donat Csikos
  */
-public class SynchronizationJob extends ToolingApiJob {
+public class SynchronizationJob extends ToolingApiJob<Void> {
 
     private final Iterable<GradleBuild> gradleBuilds;
     private final NewProjectHandler newProjectHandler;
@@ -60,11 +59,11 @@ public class SynchronizationJob extends ToolingApiJob {
     }
 
     @Override
-    public ToolingApiOperation getOperation() {
-        return new ToolingApiOperation() {
+    public ToolingApiOperation<Void> getOperation() {
+        return new ToolingApiOperation<Void>() {
 
             @Override
-            public void run(IProgressMonitor monitor) throws CoreException {
+            public Void run(IProgressMonitor monitor) throws Exception {
                 final SubMonitor progress = SubMonitor.convert(monitor, ImmutableSet.copyOf(SynchronizationJob.this.gradleBuilds).size() + 1);
 
                 for (GradleBuild build : SynchronizationJob.this.gradleBuilds) {
@@ -73,6 +72,8 @@ public class SynchronizationJob extends ToolingApiJob {
                     }
                     build.synchronize(SynchronizationJob.this.newProjectHandler, getToken(), progress.newChild(1));
                 }
+
+                return null;
             }
         };
     }

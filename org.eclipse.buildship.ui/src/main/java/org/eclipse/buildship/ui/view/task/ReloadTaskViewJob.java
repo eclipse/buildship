@@ -26,7 +26,6 @@ import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.internal.DefaultOmniEclipseProject;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.PlatformUI;
@@ -35,6 +34,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.util.progress.ToolingApiOperation;
+import org.eclipse.buildship.core.util.progress.ToolingApiOperationResultHandler;
 import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.ModelProvider;
@@ -42,7 +42,7 @@ import org.eclipse.buildship.core.workspace.ModelProvider;
 /**
  * Loads the tasks for all projects into the cache and refreshes the task view afterwards.
  */
-final class ReloadTaskViewJob extends ToolingApiJob {
+final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
 
     private final TaskView taskView;
     private final FetchStrategy modelFetchStrategy;
@@ -54,23 +54,30 @@ final class ReloadTaskViewJob extends ToolingApiJob {
     }
 
     @Override
-    public ToolingApiOperation getOperation() {
-        return new ToolingApiOperation() {
+    public ToolingApiOperation<TaskViewContent> getOperation() {
+        return new ToolingApiOperation<TaskViewContent>() {
 
             @Override
-            public void run(IProgressMonitor monitor) throws CoreException {
-                try {
-                    runToolingApiJob(monitor);
-                } catch (Exception e) {
-                    throw new CoreException(ToolingApiStatus.from("Loading Gradle project preview", e));
-                }
+            public TaskViewContent run(IProgressMonitor monitor) throws Exception {
+               return loadContent(monitor);
             }
         };
     }
 
-    protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
-        TaskViewContent content = loadContent(monitor);
-        refreshTaskView(content);
+    @Override
+    public ToolingApiOperationResultHandler<TaskViewContent> getResultHandler() {
+        return new ToolingApiOperationResultHandler<TaskViewContent>() {
+
+            @Override
+            public void onSuccess(TaskViewContent content) {
+                refreshTaskView(content);
+            }
+
+            @Override
+            public void onFailure(ToolingApiStatus status) {
+                CorePlugin.getInstance().getLog().log(status);
+            }
+        };
     }
 
     private TaskViewContent loadContent(IProgressMonitor monitor) {
@@ -84,11 +91,10 @@ final class ReloadTaskViewJob extends ToolingApiJob {
                      faultyProjects.remove(eclipseProject.getName());
                  }
                  projects.addAll(eclipseProjects);
-             } catch (RuntimeException e) {
-                 CorePlugin.logger().warn("Tasks can't be loaded for project located at " + gradleBuild.getBuildConfig().getRootProjectDirectory().getAbsolutePath(), e);
+             } catch (RuntimeException ignore) {
+                 // faulty projects will be represented as empty nodes
              }
          }
-
         return new TaskViewContent(projects, Lists.newArrayList(faultyProjects.values()));
     }
 

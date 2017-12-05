@@ -39,7 +39,8 @@ class TaskViewContentTest extends BaseTaskViewTest {
         waitForTaskView()
 
         then:
-        taskTree.root.custom.contains('foo')
+        waitFor { taskTree.root.custom.contains('foo') }
+
     }
 
     def "Task selectors are aggregated from subprojects"() {
@@ -58,8 +59,8 @@ class TaskViewContentTest extends BaseTaskViewTest {
         waitForTaskView()
 
         then:
-        taskTree.root.custom.contains('foo')
-        taskTree.a.custom.contains('foo')
+        waitFor { taskTree.root.custom.contains('foo') }
+        waitFor { taskTree.a.custom.contains('foo') }
     }
 
     def "If a project has errors, it is still visible in the task view"() {
@@ -72,7 +73,7 @@ class TaskViewContentTest extends BaseTaskViewTest {
         reloadTaskView()
 
         then:
-        taskTree == ['a']
+        waitFor { taskTree == ['a'] }
     }
 
     def "Faulty projects are listed below non-faulty ones"() {
@@ -87,7 +88,7 @@ class TaskViewContentTest extends BaseTaskViewTest {
         reloadTaskView()
 
         then:
-        taskTree.collect { k, v -> k } == ['b', 'a']
+        waitFor { taskTree.collect { k, v -> k } == ['b', 'a'] }
     }
 
     def "Faulty projects are ordered lexicographically"() {
@@ -103,7 +104,7 @@ class TaskViewContentTest extends BaseTaskViewTest {
         reloadTaskView()
 
         then:
-        taskTree == ['a', 'b']
+        waitFor { taskTree == ['a', 'b'] }
     }
 
     def "If one project has invalid build script then tasks from other projects are still visible"() {
@@ -121,9 +122,8 @@ class TaskViewContentTest extends BaseTaskViewTest {
         reloadTaskView()
 
         then:
-        !taskTree.a
-        taskTree.b
-        0 * notification.errorOccurred(*_)
+        waitFor { !taskTree.a }
+        waitFor { taskTree.b }
     }
 
     def "If one project has invalid configuration then tasks from other projects are still visible"(String config) {
@@ -146,9 +146,8 @@ class TaskViewContentTest extends BaseTaskViewTest {
         reloadTaskView()
 
         then:
-        !taskTree.a
-        taskTree.b
-        0 * notification.errorOccurred(*_)
+        waitFor { !taskTree.a }
+        waitFor { taskTree.b }
 
         where:
         config << ['', 'connection.project.dir=invalid']
@@ -167,8 +166,8 @@ class TaskViewContentTest extends BaseTaskViewTest {
         waitForTaskView()
 
         then:
-        taskTree.find { it == 'a' }
-        !taskTree.find { it == 'b' }
+        waitFor { taskTree.find { it == 'a' } }
+        waitFor { !taskTree.find { it == 'b' } }
     }
 
     private def getTaskTree() {

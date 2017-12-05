@@ -26,7 +26,6 @@ import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
@@ -40,7 +39,6 @@ import org.eclipse.buildship.core.launch.internal.DefaultExecuteLaunchRequestEve
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.util.progress.ToolingApiOperation;
-import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 
 /**
@@ -48,23 +46,20 @@ import org.eclipse.buildship.core.workspace.GradleBuild;
  *
  * @param <T> the operation type the subclasses can create and execute
  */
-public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> extends ToolingApiJob {
+public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> extends ToolingApiJob<Void> {
 
     protected BaseLaunchRequestJob(String name) {
         super(name);
     }
 
     @Override
-    public final ToolingApiOperation getOperation() {
-        return new ToolingApiOperation() {
+    public final ToolingApiOperation<Void> getOperation() {
+        return new ToolingApiOperation<Void>() {
 
             @Override
-            public void run(IProgressMonitor monitor) throws CoreException {
-               try {
-                   executeLaunch(monitor);
-                } catch (Exception e) {
-                    throw new CoreException(ToolingApiStatus.from(getJobTaskName(), e));
-                }
+            public Void run(IProgressMonitor monitor) throws Exception {
+               executeLaunch(monitor);
+               return null;
             }
         };
     }

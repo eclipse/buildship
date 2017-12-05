@@ -15,7 +15,6 @@ import com.google.common.base.Optional;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
 import org.eclipse.jdt.core.IClasspathContainer;
@@ -24,6 +23,8 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.progress.SynchronizationJob;
+import org.eclipse.buildship.core.util.progress.ToolingApiOperationResultHandler;
+import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 
 /**
@@ -58,9 +59,9 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
             } else {
                 Job job = new SynchronizationJob(gradleBuild.get()) {
 
-                    @Override
-                    protected void handleStatus(IStatus status) {
-                        CorePlugin.getInstance().getLog().log(status);
+                   @Override
+                    public ToolingApiOperationResultHandler<Void> getResultHandler() {
+                        return new ResultHander();
                     }
                 };
 
@@ -77,5 +78,20 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
     @Override
     public Object getComparisonID(IPath containerPath, IJavaProject project) {
         return project;
+    }
+
+    /**
+     * Custom result handler that only logs the failure.
+     */
+    private static final class ResultHander implements ToolingApiOperationResultHandler<Void> {
+
+        @Override
+        public void onSuccess(Void result) {
+        }
+
+        @Override
+        public void onFailure(ToolingApiStatus status) {
+            CorePlugin.getInstance().getLog().log(status);
+        }
     }
 }
