@@ -26,6 +26,7 @@ import com.google.common.collect.ImmutableList;
 
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
@@ -38,6 +39,8 @@ import org.eclipse.buildship.core.launch.internal.BuildExecutionParticipants;
 import org.eclipse.buildship.core.launch.internal.DefaultExecuteLaunchRequestEvent;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
+import org.eclipse.buildship.core.util.progress.ToolingApiOperation;
+import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 
 /**
@@ -47,12 +50,26 @@ import org.eclipse.buildship.core.workspace.GradleBuild;
  */
 public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> extends ToolingApiJob {
 
-    protected BaseLaunchRequestJob(String name, boolean notifyUserAboutBuildFailures) {
-        super(name, notifyUserAboutBuildFailures);
+    protected BaseLaunchRequestJob(String name) {
+        super(name);
     }
 
     @Override
-    protected final void runToolingApiJob(final IProgressMonitor monitor) throws Exception {
+    public final ToolingApiOperation getOperation() {
+        return new ToolingApiOperation() {
+
+            @Override
+            public void run(IProgressMonitor monitor) throws CoreException {
+               try {
+                   executeLaunch(monitor);
+                } catch (Exception e) {
+                    throw new CoreException(ToolingApiStatus.from(getJobTaskName(), e));
+                }
+            }
+        };
+    }
+
+    protected final void executeLaunch(final IProgressMonitor monitor) throws Exception {
         // todo (etst) close streams when done
 
         BuildExecutionParticipants.activateParticipantPlugins();

@@ -26,6 +26,7 @@ import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.repository.internal.DefaultOmniEclipseProject;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.PlatformUI;
@@ -33,6 +34,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
+import org.eclipse.buildship.core.util.progress.ToolingApiOperation;
+import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 
@@ -51,6 +54,20 @@ final class ReloadTaskViewJob extends ToolingApiJob {
     }
 
     @Override
+    public ToolingApiOperation getOperation() {
+        return new ToolingApiOperation() {
+
+            @Override
+            public void run(IProgressMonitor monitor) throws CoreException {
+                try {
+                    runToolingApiJob(monitor);
+                } catch (Exception e) {
+                    throw new CoreException(ToolingApiStatus.from("Loading Gradle project preview", e));
+                }
+            }
+        };
+    }
+
     protected void runToolingApiJob(IProgressMonitor monitor) throws Exception {
         TaskViewContent content = loadContent(monitor);
         refreshTaskView(content);

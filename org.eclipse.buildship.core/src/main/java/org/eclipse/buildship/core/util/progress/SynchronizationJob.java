@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 the original author or authors.
+ * Copyright (c) 2017 the original author or authors.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,17 +9,14 @@
 package org.eclipse.buildship.core.util.progress;
 
 
-import java.util.concurrent.TimeUnit;
-
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
@@ -32,7 +29,7 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
  *
  * @author Donat Csikos
  */
-public class SynchronizationJob extends GradleJob {
+public class SynchronizationJob extends ToolingApiJob {
 
     private final Iterable<GradleBuild> gradleBuilds;
     private final NewProjectHandler newProjectHandler;
@@ -63,35 +60,21 @@ public class SynchronizationJob extends GradleJob {
     }
 
     @Override
-    public final IStatus run(final IProgressMonitor monitor) {
-        final IProgressMonitor efficientMonitor = new RateLimitingProgressMonitor(monitor, 500, TimeUnit.MILLISECONDS);
-        synchronize(efficientMonitor);
-        return Status.OK_STATUS;
-    }
+    public ToolingApiOperation getOperation() {
+        return new ToolingApiOperation() {
 
-    private void synchronize(IProgressMonitor monitor)  {
-        final SubMonitor progress = SubMonitor.convert(monitor, ImmutableSet.copyOf(this.gradleBuilds).size() + 1);
+            @Override
+            public void run(IProgressMonitor monitor) throws CoreException {
+                final SubMonitor progress = SubMonitor.convert(monitor, ImmutableSet.copyOf(SynchronizationJob.this.gradleBuilds).size() + 1);
 
-        try {
-            for (GradleBuild build : this.gradleBuilds) {
-                if (monitor.isCanceled()) {
-                    throw new OperationCanceledException();
+                for (GradleBuild build : SynchronizationJob.this.gradleBuilds) {
+                    if (monitor.isCanceled()) {
+                        throw new OperationCanceledException();
+                    }
+                    build.synchronize(SynchronizationJob.this.newProjectHandler, getToken(), progress.newChild(1));
                 }
-                build.synchronize(this.newProjectHandler, getToken(), progress.newChild(1));
             }
-        } catch (Exception e) {
-            handleStatus(ToolingApiStatus.from("Synchronize Gradle projects with workspace", e));
-        }
-    }
-
-    /**
-     * Callback to handle synchronization result. Clients might override this method to provide custom error handling.
-     *
-     * @param status the result status to handle
-     * @see ToolingApiStatus
-     */
-    protected void handleStatus(ToolingApiStatus status) {
-        ToolingApiStatus.handleDefault("Project synchronization", status);
+        };
     }
 
     /**

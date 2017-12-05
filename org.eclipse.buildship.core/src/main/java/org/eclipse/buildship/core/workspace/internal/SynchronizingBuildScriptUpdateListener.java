@@ -30,7 +30,6 @@ import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.preferences.PersistentModel;
 import org.eclipse.buildship.core.util.progress.SynchronizationJob;
-import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 
 /**
@@ -95,7 +94,7 @@ public final class SynchronizingBuildScriptUpdateListener implements IResourceCh
             new SynchronizationJob(gradleBuild) {
 
                 @Override
-                protected void handleStatus(ToolingApiStatus status) {
+                protected void handleStatus(IStatus status) {
                     CorePlugin.getInstance().getLog().log(status);
                 }
             }.schedule();

@@ -49,7 +49,7 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob<Te
     private final RunConfiguration runConfig;
 
     public RunGradleTestLaunchRequestJob(List<TestOperationDescriptor> testDescriptors, RunConfiguration configurationAttributes) {
-        super("Launching Gradle tests", false);
+        super("Launching Gradle tests");
         this.testDescriptors = ImmutableList.copyOf(testDescriptors);
         this.runConfig = Preconditions.checkNotNull(configurationAttributes);
     }

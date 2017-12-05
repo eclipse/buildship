@@ -44,7 +44,7 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
     private final RunConfiguration runConfig;
 
     public RunGradleJvmTestLaunchRequestJob(List<TestTarget> testTargets, RunConfiguration runConfig) {
-        super("Launching Gradle Tests", false);
+        super("Launching Gradle Tests");
         this.testTargets = ImmutableList.copyOf(testTargets);
         this.runConfig = Preconditions.checkNotNull(runConfig);
     }

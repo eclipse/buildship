@@ -15,6 +15,7 @@ import com.google.common.base.Optional;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
 import org.eclipse.jdt.core.IClasspathContainer;
@@ -23,7 +24,6 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.progress.SynchronizationJob;
-import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 
 /**
@@ -59,7 +59,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
                 Job job = new SynchronizationJob(gradleBuild.get()) {
 
                     @Override
-                    protected void handleStatus(ToolingApiStatus status) {
+                    protected void handleStatus(IStatus status) {
                         CorePlugin.getInstance().getLog().log(status);
                     }
                 };
