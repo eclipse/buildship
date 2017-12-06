@@ -15,7 +15,6 @@ import com.google.common.base.Optional;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IJavaProject;
@@ -23,7 +22,7 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.progress.SynchronizationJob;
-import org.eclipse.buildship.core.util.progress.ToolingApiOperationResultHandler;
+import org.eclipse.buildship.core.util.progress.ToolingApiJobResultHandler;
 import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 
@@ -57,14 +56,8 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
             if (!gradleBuild.isPresent()) {
                 GradleClasspathContainerUpdater.clear(javaProject, null);
             } else {
-                Job job = new SynchronizationJob(gradleBuild.get()) {
-
-                   @Override
-                    public ToolingApiOperationResultHandler<Void> getResultHandler() {
-                        return new ResultHander();
-                    }
-                };
-
+                SynchronizationJob job = new SynchronizationJob(gradleBuild.get());
+                job.setResultHandler(new ResultHander());
                 job.setUser(false);
                 job.schedule();
             }
@@ -83,7 +76,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
     /**
      * Custom result handler that only logs the failure.
      */
-    private static final class ResultHander implements ToolingApiOperationResultHandler<Void> {
+    private static final class ResultHander implements ToolingApiJobResultHandler<Void> {
 
         @Override
         public void onSuccess(Void result) {

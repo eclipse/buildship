@@ -38,7 +38,6 @@ import org.eclipse.buildship.core.launch.internal.BuildExecutionParticipants;
 import org.eclipse.buildship.core.launch.internal.DefaultExecuteLaunchRequestEvent;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
-import org.eclipse.buildship.core.util.progress.ToolingApiOperation;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 
 /**
@@ -53,15 +52,9 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
     }
 
     @Override
-    public final ToolingApiOperation<Void> getOperation() {
-        return new ToolingApiOperation<Void>() {
-
-            @Override
-            public Void run(IProgressMonitor monitor) throws Exception {
-               executeLaunch(monitor);
-               return null;
-            }
-        };
+    public Void runInToolingApi(IProgressMonitor monitor) throws Exception {
+        executeLaunch(monitor);
+        return null;
     }
 
     protected final void executeLaunch(final IProgressMonitor monitor) throws Exception {

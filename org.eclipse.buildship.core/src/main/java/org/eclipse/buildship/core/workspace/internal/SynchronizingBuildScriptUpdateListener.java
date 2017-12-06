@@ -30,7 +30,7 @@ import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.preferences.PersistentModel;
 import org.eclipse.buildship.core.util.progress.SynchronizationJob;
-import org.eclipse.buildship.core.util.progress.ToolingApiOperationResultHandler;
+import org.eclipse.buildship.core.util.progress.ToolingApiJobResultHandler;
 import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 
@@ -93,13 +93,9 @@ public final class SynchronizingBuildScriptUpdateListener implements IResourceCh
     private void executeSyncIfBuildScriptChanged(final IProject project, IResourceDelta delta) {
         if (hasBuildScriptFileChanged(project, delta.getAffectedChildren())) {
             GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(project).get();
-            new SynchronizationJob(gradleBuild) {
-
-                @Override
-                public ToolingApiOperationResultHandler<Void> getResultHandler() {
-                    return new ResultHander();
-                };
-            }.schedule();
+            SynchronizationJob job = new SynchronizationJob(gradleBuild);
+            job.setResultHandler(new ResultHander());
+            job.schedule();
         }
     }
 
@@ -140,7 +136,7 @@ public final class SynchronizingBuildScriptUpdateListener implements IResourceCh
     /**
      * Custom result handler that only logs the failure.
      */
-    private static final class ResultHander implements ToolingApiOperationResultHandler<Void> {
+    private static final class ResultHander implements ToolingApiJobResultHandler<Void> {
 
         @Override
         public void onSuccess(Void result) {

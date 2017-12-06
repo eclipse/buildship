@@ -14,6 +14,8 @@ import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.GradleConnector;
 
+import com.google.common.base.Preconditions;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -32,30 +34,38 @@ public abstract class ToolingApiJob<T> extends Job {
 
     private final CancellationTokenSource tokenSource = GradleConnector.newCancellationTokenSource();
 
+    private ToolingApiJobResultHandler<T> resultHandler = new DefaultResultHandler<T>();
+
     public ToolingApiJob(String name) {
         super(name);
+    }
+
+    public void setResultHandler(ToolingApiJobResultHandler<T> resultHandler) {
+        this.resultHandler = Preconditions.checkNotNull(resultHandler);
     }
 
     @Override
     public final IStatus run(final IProgressMonitor monitor) {
         final IProgressMonitor efficientMonitor = new RateLimitingProgressMonitor(monitor, 500, TimeUnit.MILLISECONDS);
-        ToolingApiOperation<T> operation = getOperation();
-        ToolingApiOperationResultHandler<T> resultHandler = getResultHandler();
 
+     // TODO (donat) execute as IWorkspaceRunnable
         try {
-            T result = operation.run(efficientMonitor);
-            resultHandler.onSuccess(result);
+            T result = runInToolingApi(efficientMonitor);
+            this.resultHandler.onSuccess(result);
         } catch (Exception e) {
-            resultHandler.onFailure(ToolingApiStatus.from(getName(), e));
+            this.resultHandler.onFailure(ToolingApiStatus.from(getName(), e));
         }
         return Status.OK_STATUS;
     }
 
-    public abstract ToolingApiOperation<T> getOperation();
-
-    public ToolingApiOperationResultHandler<T> getResultHandler() {
-        return new DefaultResultHandler<T>();
-    }
+    /**
+     * Method to be executed in {@link Job#run(IProgressMonitor)}.
+     *
+     * @param monitor the monitor to report progress on
+     * @return the job result passed to the {@link ToolingApiJobResultHandler}.
+     * @throws Exception if an error occurs
+     */
+    public abstract T runInToolingApi(IProgressMonitor monitor) throws Exception;
 
     protected CancellationTokenSource getTokenSource() {
         return this.tokenSource;
@@ -80,7 +90,7 @@ public abstract class ToolingApiJob<T> extends Job {
      *
      * @param <T> the result type
      */
-    private static final class DefaultResultHandler<T> implements ToolingApiOperationResultHandler<T> {
+    private static final class DefaultResultHandler<T> implements ToolingApiJobResultHandler<T> {
 
         public DefaultResultHandler() {
         }

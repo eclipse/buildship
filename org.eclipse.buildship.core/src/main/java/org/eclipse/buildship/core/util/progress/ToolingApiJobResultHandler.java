@@ -9,13 +9,13 @@
 package org.eclipse.buildship.core.util.progress;
 
 /**
- * Callback to execute when a {@link ToolingApiOperation} finishes.
+ * Callback to execute when a {@link ToolingApiJob} finishes.
  *
  * @author Donat Csikos
  *
  * @param <T> the result type
  */
-public interface ToolingApiOperationResultHandler<T> {
+public interface ToolingApiJobResultHandler<T> {
 
     void onSuccess(T result);
 

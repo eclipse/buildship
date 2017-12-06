@@ -59,23 +59,17 @@ public class SynchronizationJob extends ToolingApiJob<Void> {
     }
 
     @Override
-    public ToolingApiOperation<Void> getOperation() {
-        return new ToolingApiOperation<Void>() {
+    public Void runInToolingApi(IProgressMonitor monitor) throws Exception {
+        final SubMonitor progress = SubMonitor.convert(monitor, ImmutableSet.copyOf(SynchronizationJob.this.gradleBuilds).size() + 1);
 
-            @Override
-            public Void run(IProgressMonitor monitor) throws Exception {
-                final SubMonitor progress = SubMonitor.convert(monitor, ImmutableSet.copyOf(SynchronizationJob.this.gradleBuilds).size() + 1);
-
-                for (GradleBuild build : SynchronizationJob.this.gradleBuilds) {
-                    if (monitor.isCanceled()) {
-                        throw new OperationCanceledException();
-                    }
-                    build.synchronize(SynchronizationJob.this.newProjectHandler, getTokenSource(), progress.newChild(1));
-                }
-
-                return null;
+        for (GradleBuild build : SynchronizationJob.this.gradleBuilds) {
+            if (monitor.isCanceled()) {
+                throw new OperationCanceledException();
             }
-        };
+            build.synchronize(SynchronizationJob.this.newProjectHandler, getTokenSource(), progress.newChild(1));
+        }
+
+        return null;
     }
 
     /**

@@ -33,8 +33,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.util.progress.ToolingApiJob;
-import org.eclipse.buildship.core.util.progress.ToolingApiOperation;
-import org.eclipse.buildship.core.util.progress.ToolingApiOperationResultHandler;
+import org.eclipse.buildship.core.util.progress.ToolingApiJobResultHandler;
 import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.ModelProvider;
@@ -51,33 +50,12 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
         super("Loading tasks of all Gradle projects");
         this.taskView = Preconditions.checkNotNull(taskView);
         this.modelFetchStrategy = Preconditions.checkNotNull(modelFetchStrategy);
+        setResultHandler(new ResultHandler());
     }
 
     @Override
-    public ToolingApiOperation<TaskViewContent> getOperation() {
-        return new ToolingApiOperation<TaskViewContent>() {
-
-            @Override
-            public TaskViewContent run(IProgressMonitor monitor) throws Exception {
-               return loadContent(monitor);
-            }
-        };
-    }
-
-    @Override
-    public ToolingApiOperationResultHandler<TaskViewContent> getResultHandler() {
-        return new ToolingApiOperationResultHandler<TaskViewContent>() {
-
-            @Override
-            public void onSuccess(TaskViewContent content) {
-                refreshTaskView(content);
-            }
-
-            @Override
-            public void onFailure(ToolingApiStatus status) {
-                CorePlugin.getInstance().getLog().log(status);
-            }
-        };
+    public TaskViewContent runInToolingApi(IProgressMonitor monitor) throws Exception {
+        return loadContent(monitor);
     }
 
     private TaskViewContent loadContent(IProgressMonitor monitor) {
@@ -136,5 +114,21 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
             }
         }
         return true;
+    }
+
+    /**
+     * Custom result handler to present the results in the view.
+     */
+    private class ResultHandler implements ToolingApiJobResultHandler<TaskViewContent> {
+
+        @Override
+        public void onSuccess(TaskViewContent content) {
+            refreshTaskView(content);
+        }
+
+        @Override
+        public void onFailure(ToolingApiStatus status) {
+            CorePlugin.getInstance().getLog().log(status);
+        }
     }
 }

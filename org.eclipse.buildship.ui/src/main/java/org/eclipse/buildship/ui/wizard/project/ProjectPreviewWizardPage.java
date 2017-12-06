@@ -288,6 +288,9 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
                 @Override
                 public void run(IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {
+
+                    // TODO (donat) shall we execute it as IWorkspaceRunnable?
+
                     SubMonitor progress = SubMonitor.convert(monitor);
                     progress.setTaskName("Loading project preview");
                     progress.setWorkRemaining(3);
