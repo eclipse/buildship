@@ -2,6 +2,7 @@ package org.eclipse.buildship.core.workspace.internal
 
 import org.eclipse.core.runtime.CoreException
 
+import org.eclipse.buildship.core.UnsupportedConfigurationException
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.test.fixtures.TestEnvironment.*
 import org.eclipse.buildship.core.util.progress.ToolingApiStatus.ToolingApiStatusType
@@ -26,8 +27,7 @@ class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecificat
         synchronizeAndWait(rootProject)
 
         then:
-        CoreException e = thrown(CoreException)
-        e.status.code == ToolingApiStatusType.UNSUPPORTED_CONFIGURATION.code
+        thrown(UnsupportedConfigurationException)
     }
 
     def "Disallow synchornizing projects located in workspace folder and with custom root name"() {
@@ -40,8 +40,7 @@ class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecificat
         synchronizeAndWait(rootProject)
 
         then:
-        CoreException e = thrown(CoreException)
-        e.status.code == ToolingApiStatusType.UNSUPPORTED_CONFIGURATION.code
+        thrown(UnsupportedConfigurationException)
     }
 
     def "Disallow importing the workspace root"() {
@@ -49,8 +48,7 @@ class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecificat
         synchronizeAndWait(workspaceDir)
 
         then:
-        CoreException e = thrown(CoreException)
-        e.status.code == ToolingApiStatusType.UNSUPPORTED_CONFIGURATION.code
+        thrown(UnsupportedConfigurationException)
     }
 
     def "Disallow importing any modules located at the workspace root"() {
@@ -63,8 +61,7 @@ class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecificat
         synchronizeAndWait(workspaceDir)
 
         then:
-        CoreException e = thrown(CoreException)
-        e.status.code == ToolingApiStatusType.UNSUPPORTED_CONFIGURATION.code
+        thrown(UnsupportedConfigurationException)
     }
 
 }

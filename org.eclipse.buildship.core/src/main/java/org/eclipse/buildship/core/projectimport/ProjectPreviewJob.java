@@ -91,11 +91,11 @@ public final class ProjectPreviewJob extends ToolingApiJob<Pair<OmniBuildEnviron
 
     private OmniBuildEnvironment fetchBuildEnvironment(IProgressMonitor monitor) {
         ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.buildConfig).getModelProvider();
-        return modelProvider.fetchBuildEnvironment(FetchStrategy.FORCE_RELOAD, getToken(), monitor);
+        return modelProvider.fetchBuildEnvironment(FetchStrategy.FORCE_RELOAD, getTokenSource(), monitor);
     }
 
     private OmniGradleBuild fetchGradleBuildStructure(IProgressMonitor monitor) {
         ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.buildConfig).getModelProvider();
-        return modelProvider.fetchGradleBuild(FetchStrategy.FORCE_RELOAD, getToken(), monitor);
+        return modelProvider.fetchGradleBuild(FetchStrategy.FORCE_RELOAD, getTokenSource(), monitor);
     }
 }

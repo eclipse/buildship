@@ -11,7 +11,7 @@ package org.eclipse.buildship.core.workspace;
 import java.util.Collection;
 import java.util.Set;
 
-import org.gradle.tooling.CancellationToken;
+import org.gradle.tooling.CancellationTokenSource;
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
@@ -32,50 +32,50 @@ public interface ModelProvider {
      *
      * @param model the model to query
      * @param strategy the fetch strategy
-     * @param token the cancellation token
+     * @param tokenSource the cancellation token source
      * @param monitor the monitor to report the progress on
      * @return the returned model
      */
-    <T> T fetchModel(Class<T> model, FetchStrategy strategy, CancellationToken token, IProgressMonitor monitor);
+    <T> T fetchModel(Class<T> model, FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor);
 
     /**
      * Synchronously queries a target model from this build and from all included builds.
      *
      * @param model the model to query
      * @param strategy the fetch strategy
-     * @param token the cancellation token
+     * @param tokenSource the cancellation token source
      * @param monitor the monitor to report the progress on
      * @return the returned models
      */
-    <T> Collection<T> fetchModels(Class<T> model, FetchStrategy strategy, CancellationToken token, IProgressMonitor monitor);
+    <T> Collection<T> fetchModels(Class<T> model, FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor);
 
     /**
      * Synchronously queries The {@link OmniBuildEnvironment} model from this build.
      *
      * @param strategy the fetch strategy
-     * @param token the cancellation token
+     * @param tokenSource the cancellation token source
      * @param monitor the monitor to report the progress on
      * @return the returned model
      */
-    OmniBuildEnvironment fetchBuildEnvironment(FetchStrategy strategy, CancellationToken token, IProgressMonitor monitor);
+    OmniBuildEnvironment fetchBuildEnvironment(FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor);
 
     /**
      * Synchronously queries The {@link OmniGradleBuild} model from this build.
      *
      * @param strategy the fetch strategy
-     * @param token the cancellation token
+     * @param tokenSource the cancellation token source
      * @param monitor the monitor to report the progress on
      * @return the returned model
      */
-    OmniGradleBuild fetchGradleBuild(FetchStrategy strategy, CancellationToken token, IProgressMonitor monitor);
+    OmniGradleBuild fetchGradleBuild(FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor);
 
     /**
      * Synchronously queries The {@link OmniEclipseProject} models from this build.
      *
      * @param strategy the fetch strategy
-     * @param token the cancellation token
+     * @param tokenSource the cancellation token source
      * @param monitor the monitor to report the progress on
      * @return the returned model
      */
-    Set<OmniEclipseProject> fetchEclipseGradleProjects(FetchStrategy strategy, CancellationToken token, IProgressMonitor monitor);
+    Set<OmniEclipseProject> fetchEclipseGradleProjects(FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor);
 }

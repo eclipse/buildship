@@ -70,7 +70,7 @@ public class SynchronizationJob extends ToolingApiJob<Void> {
                     if (monitor.isCanceled()) {
                         throw new OperationCanceledException();
                     }
-                    build.synchronize(SynchronizationJob.this.newProjectHandler, getToken(), progress.newChild(1));
+                    build.synchronize(SynchronizationJob.this.newProjectHandler, getTokenSource(), progress.newChild(1));
                 }
 
                 return null;

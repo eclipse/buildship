@@ -11,7 +11,7 @@ package org.eclipse.buildship.core.workspace.internal;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.gradle.tooling.CancellationToken;
+import org.gradle.tooling.CancellationTokenSource;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
@@ -41,11 +41,11 @@ public class DefaultGradleBuilds implements GradleBuilds {
     }
 
     @Override
-    public void synchronize(NewProjectHandler newProjectHandler, CancellationToken token, IProgressMonitor monitor) throws CoreException {
+    public void synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) throws CoreException {
         SynchronizeGradleBuildsOperation syncOperation = SynchronizeGradleBuildsOperation.forMultipleGradleBuilds(this, newProjectHandler);
 
         try {
-            syncOperation.run(token, monitor);
+            syncOperation.run(tokenSource, monitor);
         } catch (Exception e) {
             throw new CoreException(ToolingApiStatus.from("Project synchronization", e));
         }

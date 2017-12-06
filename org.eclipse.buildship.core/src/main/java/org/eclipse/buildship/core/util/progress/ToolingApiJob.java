@@ -57,6 +57,10 @@ public abstract class ToolingApiJob<T> extends Job {
         return new DefaultResultHandler<T>(getName());
     }
 
+    protected CancellationTokenSource getTokenSource() {
+        return this.tokenSource;
+    }
+
     protected CancellationToken getToken() {
         return this.tokenSource.token();
     }

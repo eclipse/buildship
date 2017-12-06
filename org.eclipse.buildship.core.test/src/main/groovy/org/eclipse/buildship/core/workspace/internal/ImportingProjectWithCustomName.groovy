@@ -22,8 +22,7 @@ import org.eclipse.core.runtime.CoreException
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
-import org.eclipse.buildship.core.Logger
-import org.eclipse.buildship.core.notification.UserNotification
+import org.eclipse.buildship.core.UnsupportedConfigurationException
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.util.progress.ToolingApiStatus.ToolingApiStatusType
 
@@ -67,8 +66,7 @@ class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification
 
         then:
         allProjects().isEmpty()
-        CoreException e = thrown(CoreException)
-        e.status.code == ToolingApiStatusType.UNSUPPORTED_CONFIGURATION.code
+        thrown(UnsupportedConfigurationException)
     }
 
     def "Custom project naming is honoured on the non-root projects when the root is under the workspace root"() {

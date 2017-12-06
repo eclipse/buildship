@@ -10,7 +10,7 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.Set;
 
-import org.gradle.tooling.CancellationToken;
+import org.gradle.tooling.CancellationTokenSource;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
@@ -46,32 +46,32 @@ public final class SynchronizeGradleBuildsOperation {
         return this.builds;
     }
 
-    protected void run(CancellationToken token, IProgressMonitor monitor) throws Exception {
+    protected void run(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
         final SubMonitor progress = SubMonitor.convert(monitor, this.builds.size() + 1);
 
         for (GradleBuild build : this.builds) {
             if (monitor.isCanceled()) {
                 throw new OperationCanceledException();
             }
-            synchronizeBuild(build, token, progress.newChild(1));
+            synchronizeBuild(build, tokenSource, progress.newChild(1));
         }
     }
 
-    private void synchronizeBuild(GradleBuild build, CancellationToken token, SubMonitor progress) throws CoreException {
+    private void synchronizeBuild(GradleBuild build, CancellationTokenSource tokenSource, SubMonitor progress) throws CoreException {
         BuildConfiguration buildConfig = build.getBuildConfig();
         progress.setTaskName((String.format("Synchronizing Gradle build at %s with workspace", buildConfig.getRootProjectDirectory())));
         progress.setWorkRemaining(4);
-        Set<OmniEclipseProject> allProjects = fetchEclipseProjects(build, token, progress.newChild(1));
+        Set<OmniEclipseProject> allProjects = fetchEclipseProjects(build, tokenSource, progress.newChild(1));
         new ValidateProjectLocationOperation(allProjects).run(progress.newChild(1));
-        new SynchronizeBuildConfigurationOperation(buildConfig).run(progress.newChild(1), token);
-        new RunOnImportTasksOperation(allProjects, buildConfig).run(progress.newChild(1), token);
+        new SynchronizeBuildConfigurationOperation(buildConfig).run(progress.newChild(1), tokenSource.token());
+        new RunOnImportTasksOperation(allProjects, buildConfig).run(progress.newChild(1), tokenSource.token());
         new SynchronizeGradleBuildOperation(allProjects, buildConfig, SynchronizeGradleBuildsOperation.this.newProjectHandler).run(progress.newChild(1));
     }
 
-    private Set<OmniEclipseProject> fetchEclipseProjects(GradleBuild build, CancellationToken token, SubMonitor progress) {
+    private Set<OmniEclipseProject> fetchEclipseProjects(GradleBuild build, CancellationTokenSource tokenSource, SubMonitor progress) {
         progress.setTaskName("Loading Gradle project models");
         ModelProvider modelProvider = build.getModelProvider();
-        return modelProvider.fetchEclipseGradleProjects(FetchStrategy.FORCE_RELOAD, token, progress);
+        return modelProvider.fetchEclipseGradleProjects(FetchStrategy.FORCE_RELOAD, tokenSource, progress);
     }
 
     public static SynchronizeGradleBuildsOperation forSingleGradleBuild(GradleBuild build, NewProjectHandler newProjectHandler) {

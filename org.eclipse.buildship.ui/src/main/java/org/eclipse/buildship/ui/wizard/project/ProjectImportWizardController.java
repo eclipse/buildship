@@ -15,7 +15,7 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import org.gradle.tooling.CancellationToken;
+import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.GradleConnector;
 
 import com.google.common.base.Optional;
@@ -187,9 +187,9 @@ public class ProjectImportWizardController {
                     GradleBuild build = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);
                     ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler = new ImportWizardNewProjectHandler(newProjectHandler, ProjectImportWizardController.this.configuration);
                     try {
-                        CancellationToken token = GradleConnector.newCancellationTokenSource().token();
-                        initializer.run(monitor, token);
-                        build.synchronize(workingSetsAddingNewProjectHandler, token, monitor);
+                        CancellationTokenSource tokenSource = GradleConnector.newCancellationTokenSource();
+                        initializer.run(monitor, tokenSource.token());
+                        build.synchronize(workingSetsAddingNewProjectHandler, tokenSource, monitor);
                     } catch (Exception e) {
                        throw new InvocationTargetException(e);
                     }

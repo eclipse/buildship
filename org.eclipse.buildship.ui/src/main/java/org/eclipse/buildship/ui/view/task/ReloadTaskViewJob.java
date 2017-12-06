@@ -109,7 +109,7 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
     }
 
     private Set<OmniEclipseProject> fetchEclipseGradleProjects(ModelProvider modelProvider, IProgressMonitor monitor) {
-        Collection<EclipseProject> models = modelProvider.fetchModels(EclipseProject.class, this.modelFetchStrategy, getToken(), monitor);
+        Collection<EclipseProject> models = modelProvider.fetchModels(EclipseProject.class, this.modelFetchStrategy, getTokenSource(), monitor);
         LinkedHashSet<OmniEclipseProject> projects = Sets.newLinkedHashSet();
         for (EclipseProject model : models) {
             projects.addAll(DefaultOmniEclipseProject.from(model).getAll());

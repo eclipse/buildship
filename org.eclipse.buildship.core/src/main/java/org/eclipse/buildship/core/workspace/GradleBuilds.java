@@ -10,7 +10,7 @@ package org.eclipse.buildship.core.workspace;
 
 import java.util.Set;
 
-import org.gradle.tooling.CancellationToken;
+import org.gradle.tooling.CancellationTokenSource;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -33,10 +33,10 @@ public interface GradleBuilds extends Iterable<GradleBuild> {
      * failure.
      *
      * @param newProjectHandler how to handle newly added projects
-     * @param token the cancellation token
+     * @param tokenSource the cancellation token source
      * @see org.eclipse.buildship.core.util.progress.ToolingApiStatus
      */
-    void synchronize(NewProjectHandler newProjectHandler, CancellationToken token, IProgressMonitor monitor) throws CoreException;
+    void synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) throws CoreException;
 
     /**
      * Returns the contained {@link GradleBuild} instances.

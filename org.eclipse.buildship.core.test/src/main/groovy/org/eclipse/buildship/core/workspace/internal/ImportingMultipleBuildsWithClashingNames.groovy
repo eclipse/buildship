@@ -1,11 +1,7 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import org.eclipse.core.runtime.CoreException
-
-import org.eclipse.buildship.core.Logger
-import org.eclipse.buildship.core.notification.UserNotification
+import org.eclipse.buildship.core.UnsupportedConfigurationException
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.util.progress.ToolingApiStatus.ToolingApiStatusType
 
 class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpecification {
 
@@ -19,8 +15,7 @@ class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpe
         importAndWait(secondProject)
 
         then:
-        CoreException e = thrown(CoreException)
-        e.status.code == ToolingApiStatusType.UNSUPPORTED_CONFIGURATION.code
+        thrown(UnsupportedConfigurationException)
         allProjects().size() == 1
         findProject('root')
     }
@@ -51,7 +46,6 @@ class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpe
         importAndWait(secondProject)
 
         then:
-        CoreException e = thrown(CoreException)
-        e.status.code == ToolingApiStatusType.UNSUPPORTED_CONFIGURATION.code
+        thrown(UnsupportedConfigurationException)
     }
 }

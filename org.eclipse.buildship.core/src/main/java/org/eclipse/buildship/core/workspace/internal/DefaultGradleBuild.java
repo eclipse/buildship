@@ -11,7 +11,7 @@ package org.eclipse.buildship.core.workspace.internal;
 import java.io.Writer;
 
 import org.gradle.tooling.BuildLauncher;
-import org.gradle.tooling.CancellationToken;
+import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.TestLauncher;
 
 import com.google.common.base.Objects;
@@ -43,9 +43,9 @@ public class DefaultGradleBuild implements GradleBuild {
     }
 
     @Override
-    public void synchronize(NewProjectHandler newProjectHandler, CancellationToken token, IProgressMonitor monitor) throws Exception {
+    public void synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
         SynchronizeGradleBuildsOperation syncOperation = SynchronizeGradleBuildsOperation.forSingleGradleBuild(this, newProjectHandler);
-        syncOperation.run(token, monitor);
+        syncOperation.run(tokenSource, monitor);
     }
 
     @Override

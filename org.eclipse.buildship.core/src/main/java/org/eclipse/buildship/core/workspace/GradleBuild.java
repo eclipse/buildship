@@ -11,7 +11,7 @@ package org.eclipse.buildship.core.workspace;
 import java.io.Writer;
 
 import org.gradle.tooling.BuildLauncher;
-import org.gradle.tooling.CancellationToken;
+import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.TestLauncher;
 
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
@@ -37,10 +37,10 @@ public interface GradleBuild {
      * failure.
      *
      * @param newProjectHandler how to handle newly added projects
-     * @param token the cancellation token
+     * @param tokenSource the cancellation token source
      * @see org.eclipse.buildship.core.util.progress.ToolingApiStatus
      */
-    void synchronize(NewProjectHandler newProjectHandler, CancellationToken token, IProgressMonitor monitor) throws Exception;
+    void synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception;
 
     /**
      * Returns the model provider for this build.
