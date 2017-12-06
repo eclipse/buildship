@@ -314,7 +314,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
             if (ToolingApiStatusType.BUILD_CANCELLED.getCode() == status.getCode()) {
                 displayCancellationWarning();
             } else {
-                ToolingApiStatus.handleDefault("Project preview", status);
+                status.handleDefault();
                 clearTree();
             }
         } catch (InterruptedException ignored) {

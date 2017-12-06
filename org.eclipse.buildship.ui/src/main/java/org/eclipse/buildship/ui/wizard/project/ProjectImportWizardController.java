@@ -200,7 +200,7 @@ public class ProjectImportWizardController {
             } else {
                 status = ToolingApiStatus.from("Project import", throwable);
             }
-            ToolingApiStatus.handleDefault("Project import", status);
+            status.handleDefault();
             return false;
         } catch (InterruptedException ignored) {
             return false;
@@ -208,19 +208,6 @@ public class ProjectImportWizardController {
 
         return true;
     }
-
-//    catch (InvocationTargetException e) {
-//        Throwable throwable = e.getTargetException() == null ? e : e.getTargetException();
-//        ToolingApiStatus status = ToolingApiStatus.from("Project preview", throwable);
-//        if (ToolingApiStatusType.BUILD_CANCELLED.getCode() == status.getCode()) {
-//            displayCancellationWarning();
-//        } else {
-//            ToolingApiStatus.handleDefault("Project preview", status);
-//        }
-//        clearTree();
-//    } catch (InterruptedException ignored) {
-//        displayCancellationWarning();
-//    }
 
     /**
      * A delegating {@link NewProjectHandler} which adds workingsets to the imported projects and

@@ -40,17 +40,19 @@ public final class ToolingApiStatus extends Status implements IStatus {
      */
     public static enum ToolingApiStatusType {
 
-        BUILD_CANCELLED(IStatus.CANCEL),
-        BUILD_FAILED(IStatus.WARNING),
-        CONNECTION_FAILED(IStatus.WARNING),
-        UNSUPPORTED_CONFIGURATION(IStatus.WARNING),
-        PLUGIN_FAILED(IStatus.ERROR),
-        UNKNOWN(IStatus.ERROR);
+        BUILD_CANCELLED(IStatus.CANCEL, "%s"),
+        BUILD_FAILED(IStatus.WARNING, "%s failed due to an error in the referenced Gradle build."),
+        CONNECTION_FAILED(IStatus.WARNING, "%s failed due to an error connecting to the Gradle build."),
+        UNSUPPORTED_CONFIGURATION(IStatus.WARNING, "%s failed due to an unsupported configuration in the referenced Gradle build."),
+        PLUGIN_FAILED(IStatus.ERROR, "%s failed due to an error configuring Eclipse."),
+        UNKNOWN(IStatus.ERROR, "%s failed due to an unexpected error.");
 
         private final int severity;
+        private final String messageTemplate;
 
-        private ToolingApiStatusType(int severity) {
+        private ToolingApiStatusType(int severity, String messageTemplate) {
             this.severity = severity;
+            this.messageTemplate = messageTemplate;
         }
 
         public int getSeverity() {
@@ -60,32 +62,35 @@ public final class ToolingApiStatus extends Status implements IStatus {
         public int getCode() {
             return this.ordinal();
         }
+
+        String messageTemplate() {
+            return this.messageTemplate;
+        }
     }
 
-    private ToolingApiStatus(ToolingApiStatusType type, String message, Throwable exception) {
-        super(type.getSeverity(), CorePlugin.PLUGIN_ID, type.getCode(), message, exception);
+    private String workName;
+
+    private ToolingApiStatus(ToolingApiStatusType type, String workName, Throwable exception) {
+        super(type.getSeverity(), CorePlugin.PLUGIN_ID, type.getCode(), String.format(type.messageTemplate(), workName), exception);
+        this.workName = workName;
     }
 
     public static ToolingApiStatus from(String workName, Throwable failure) {
+
         if (failure instanceof OperationCanceledException) {
-            return new ToolingApiStatus(ToolingApiStatusType.BUILD_CANCELLED, null, null);
+            return new ToolingApiStatus(ToolingApiStatusType.BUILD_CANCELLED, workName, null);
         } else if (failure instanceof BuildCancelledException) {
-            return new ToolingApiStatus(ToolingApiStatusType.BUILD_CANCELLED, null, null);
+            return new ToolingApiStatus(ToolingApiStatusType.BUILD_CANCELLED, workName, null);
         } else if (failure instanceof BuildException) {
-            String message = String.format("%s failed due to an error in the referenced Gradle build.", workName);
-            return new ToolingApiStatus(ToolingApiStatusType.BUILD_FAILED, message, (BuildException) failure);
+            return new ToolingApiStatus(ToolingApiStatusType.BUILD_FAILED, workName, (BuildException) failure);
         } else if (failure instanceof GradleConnectionException) {
-            String message = String.format("%s failed due to an error connecting to the Gradle build.", workName);
-            return new ToolingApiStatus(ToolingApiStatusType.CONNECTION_FAILED, message, (GradleConnectionException) failure);
+            return new ToolingApiStatus(ToolingApiStatusType.CONNECTION_FAILED, workName, (GradleConnectionException) failure);
         } else if (failure instanceof UnsupportedConfigurationException) {
-            String message = String.format("%s failed due to an unsupported configuration in the referenced Gradle build.", workName);
-            return new ToolingApiStatus(ToolingApiStatusType.UNSUPPORTED_CONFIGURATION, message, (UnsupportedConfigurationException) failure);
+            return new ToolingApiStatus(ToolingApiStatusType.UNSUPPORTED_CONFIGURATION, workName, (UnsupportedConfigurationException) failure);
         } else if (failure instanceof GradlePluginsRuntimeException) {
-            String message = String.format("%s failed due to an error configuring Eclipse.", workName);
-            return new ToolingApiStatus(ToolingApiStatusType.PLUGIN_FAILED, message, (GradlePluginsRuntimeException) failure);
+            return new ToolingApiStatus(ToolingApiStatusType.PLUGIN_FAILED, workName, (GradlePluginsRuntimeException) failure);
         } else {
-            String message = String.format("%s failed due to an unexpected error.", workName);
-            return new ToolingApiStatus(ToolingApiStatusType.UNKNOWN, message, failure);
+            return new ToolingApiStatus(ToolingApiStatusType.UNKNOWN, workName, failure);
         }
     }
 
@@ -99,19 +104,16 @@ public final class ToolingApiStatus extends Status implements IStatus {
      * @param status the status to present in the dialog
      */
 
-    // TODO (donat) workName should not be needed as it is passed to the static factory
-    public static void handleDefault(String workName, IStatus status) {
-        CorePlugin.getInstance().getLog().log(status);
+    public void handleDefault() {
+        CorePlugin.getInstance().getLog().log(this);
 
-        if (status instanceof ToolingApiStatus) {
-            if ((status.getSeverity() & (IStatus.WARNING | IStatus.ERROR)) != 0) {
-                CorePlugin.userNotification().errorOccurred(
-                        String.format("%s failed", workName),
-                        status.getMessage(),
-                        collectErrorMessages(status.getException()),
-                        status.getSeverity(),
-                        status.getException());
-            }
+        if ((getSeverity() & (IStatus.WARNING | IStatus.ERROR)) != 0) {
+            CorePlugin.userNotification().errorOccurred(
+                    String.format("%s failed", this.workName),
+                    getMessage(),
+                    collectErrorMessages(getException()),
+                    getSeverity(),
+                    getException());
         }
     }
 

@@ -54,7 +54,7 @@ public abstract class ToolingApiJob<T> extends Job {
     public abstract ToolingApiOperation<T> getOperation();
 
     public ToolingApiOperationResultHandler<T> getResultHandler() {
-        return new DefaultResultHandler<T>(getName());
+        return new DefaultResultHandler<T>();
     }
 
     protected CancellationTokenSource getTokenSource() {
@@ -82,10 +82,7 @@ public abstract class ToolingApiJob<T> extends Job {
      */
     private static final class DefaultResultHandler<T> implements ToolingApiOperationResultHandler<T> {
 
-        private final String name;
-
-        public DefaultResultHandler(String name) {
-            this.name = name;
+        public DefaultResultHandler() {
         }
 
         @Override
@@ -95,9 +92,7 @@ public abstract class ToolingApiJob<T> extends Job {
 
         @Override
         public void onFailure(ToolingApiStatus status) {
-            // TODO (donat) do we need the IStatus implementation? Seems like an unnecessary indirection
-            // maybe we can export the whole default error handling to this class
-            ToolingApiStatus.handleDefault(this.name, status);
+            status.handleDefault();
         }
     }
 }
