@@ -48,11 +48,9 @@ import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper.DistributionType;
-import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
-import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
 import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
 import org.eclipse.buildship.ui.view.execution.ExecutionsView;
@@ -174,34 +172,35 @@ public class ProjectImportWizardController {
         return this.configuration;
     }
 
-    public boolean performImportProject(IWizardContainer container, final AsyncHandler initializer, final NewProjectHandler newProjectHandler) {
-
+    public boolean performImportProject(IWizardContainer container, final NewProjectHandler newProjectHandler) {
         try {
             container.run(true, true, new IRunnableWithProgress() {
 
                 @Override
                 public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-                    // TODO (donat) run in ICoreRunneable to provide the same synchronization rule SynchronizationJob uses
-                    // TODO (donat) we should provide the connection attributes from here (and from the SynchronizeJob) to provide cancellation support
                     BuildConfiguration buildConfig = ProjectImportWizardController.this.configuration.toBuildConfig();
                     GradleBuild build = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);
-                    ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler = new ImportWizardNewProjectHandler(newProjectHandler, ProjectImportWizardController.this.configuration);
+                    ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler = new ImportWizardNewProjectHandler(newProjectHandler,
+                            ProjectImportWizardController.this.configuration);
                     try {
                         CancellationTokenSource tokenSource = GradleConnector.newCancellationTokenSource();
-                        initializer.run(monitor, tokenSource.token());
+                        NewGradleProjectInitializer.initProjectIfNotExists(buildConfig, tokenSource, monitor);
                         build.synchronize(workingSetsAddingNewProjectHandler, tokenSource, monitor);
                     } catch (Exception e) {
-                       throw new InvocationTargetException(e);
+                        throw new InvocationTargetException(e);
                     }
                 }
             });
         } catch (InvocationTargetException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof CoreException) {
-                ToolingApiStatus.handleDefault("Project import", (((CoreException)cause).getStatus()));
+            Throwable throwable = e.getTargetException() == null ? e : e.getTargetException();
+
+            ToolingApiStatus status;
+            if (throwable instanceof CoreException && ((CoreException) throwable).getStatus() instanceof ToolingApiStatus) {
+                status = (ToolingApiStatus) ((CoreException) throwable).getStatus();
             } else {
-                UiPlugin.logger().error("Project import failed", cause);
+                status = ToolingApiStatus.from("Project import", throwable);
             }
+            ToolingApiStatus.handleDefault("Project import", status);
             return false;
         } catch (InterruptedException ignored) {
             return false;
@@ -209,6 +208,19 @@ public class ProjectImportWizardController {
 
         return true;
     }
+
+//    catch (InvocationTargetException e) {
+//        Throwable throwable = e.getTargetException() == null ? e : e.getTargetException();
+//        ToolingApiStatus status = ToolingApiStatus.from("Project preview", throwable);
+//        if (ToolingApiStatusType.BUILD_CANCELLED.getCode() == status.getCode()) {
+//            displayCancellationWarning();
+//        } else {
+//            ToolingApiStatus.handleDefault("Project preview", status);
+//        }
+//        clearTree();
+//    } catch (InterruptedException ignored) {
+//        displayCancellationWarning();
+//    }
 
     /**
      * A delegating {@link NewProjectHandler} which adds workingsets to the imported projects and

@@ -11,20 +11,23 @@
 
 package org.eclipse.buildship.core.workspace.internal
 
+import org.gradle.tooling.GradleConnector
+
 import com.google.common.util.concurrent.FutureCallback
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 import com.gradleware.tooling.toolingmodel.util.Pair
 
 import org.eclipse.core.resources.IProject
-import org.eclipse.core.runtime.CoreException
+import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
+import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.UnsupportedConfigurationException
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.util.progress.ToolingApiStatus.ToolingApiStatusType
 
 class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification {
 
@@ -143,10 +146,9 @@ class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification
         FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> previewResultHandler = Mock()
 
         when:
-        previewAndWait(location, previewResultHandler)
+        OmniGradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(createInheritingBuildConfiguration(location)).modelProvider.fetchGradleBuild(FetchStrategy.FORCE_RELOAD, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
 
         then:
-        1 * previewResultHandler.onSuccess { it.second.rootProject.name == 'app' }
+        gradleBuild.rootProject.name == 'app'
     }
-
 }

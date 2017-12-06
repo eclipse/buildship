@@ -18,9 +18,7 @@ import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
-import org.eclipse.buildship.core.projectimport.ProjectPreviewJob
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
-import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.NewProjectHandler
 
 
@@ -53,26 +51,6 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         CorePlugin.gradleWorkspaceManager().getGradleBuilds(projects as Set).synchronize(NewProjectHandler.IMPORT_AND_MERGE, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
         waitForGradleJobsToFinish()
         waitForResourceChangeEvents()
-    }
-
-    protected void previewAndWait(File location, FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> resultHandler) {
-        def job = newProjectPreviewJob(location, DEFAULT_DISTRIBUTION, resultHandler)
-        job.schedule()
-        job.join()
-    }
-
-    private ProjectPreviewJob newProjectPreviewJob(File location, GradleDistribution distribution, FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> resultHandler) {
-        ProjectImportConfiguration configuration = new ProjectImportConfiguration()
-        configuration.overwriteWorkspaceSettings = false
-        configuration.gradleDistribution = GradleDistributionWrapper.from(distribution)
-        configuration.gradleUserHome = null
-        configuration.buildScansEnabled = false
-        configuration.offlineMode = false
-        configuration.autoSync = false
-        configuration.projectDir = location
-        configuration.applyWorkingSets = true
-        configuration.workingSets = []
-        new ProjectPreviewJob(configuration, [], AsyncHandler.NO_OP, resultHandler)
     }
 
     protected def waitForGradleJobsToFinish() {

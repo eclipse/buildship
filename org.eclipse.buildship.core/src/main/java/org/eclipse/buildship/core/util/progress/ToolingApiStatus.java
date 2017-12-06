@@ -98,6 +98,8 @@ public final class ToolingApiStatus extends Status implements IStatus {
      * @param workName The name of the task to display in the error dialog
      * @param status the status to present in the dialog
      */
+
+    // TODO (donat) workName should not be needed as it is passed to the static factory
     public static void handleDefault(String workName, IStatus status) {
         CorePlugin.getInstance().getLog().log(status);
 

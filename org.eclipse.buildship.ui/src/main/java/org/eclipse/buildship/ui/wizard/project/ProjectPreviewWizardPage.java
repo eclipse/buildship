@@ -13,28 +13,25 @@ package org.eclipse.buildship.ui.wizard.project;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
-import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.CancellationTokenSource;
+import org.gradle.tooling.GradleConnector;
 import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.FutureCallback;
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
 import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 import com.gradleware.tooling.toolingmodel.util.Pair;
 import com.gradleware.tooling.toolingutils.binding.Property;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -55,14 +52,17 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.gradle.MissingFeatures;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
-import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
-import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
+import org.eclipse.buildship.core.util.progress.ToolingApiStatus.ToolingApiStatusType;
+import org.eclipse.buildship.core.workspace.ModelProvider;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.layout.LayoutUtils;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
@@ -72,7 +72,6 @@ import org.eclipse.buildship.ui.util.widget.UiBuilder;
  */
 public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
-    private final ProjectPreviewLoader projectPreviewLoader;
     private final Font keyFont;
     private final Font valueFont;
     private final String pageContextInformation;
@@ -85,17 +84,16 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     private Label javaHomeLabel;
     private Tree projectPreviewTree;
 
-    public ProjectPreviewWizardPage(ProjectImportConfiguration configuration, ProjectPreviewLoader previewLoader) {
-        this(configuration, previewLoader,
-                ProjectWizardMessages.Title_PreviewImportWizardPage,
-                ProjectWizardMessages.InfoMessage_GradlePreviewWizardPageDefault,
-                ProjectWizardMessages.InfoMessage_GradlePreviewWizardPageContext);
+    public ProjectPreviewWizardPage(ProjectImportConfiguration configuration) {
+        this(configuration,
+             ProjectWizardMessages.Title_PreviewImportWizardPage,
+             ProjectWizardMessages.InfoMessage_GradlePreviewWizardPageDefault,
+             ProjectWizardMessages.InfoMessage_GradlePreviewWizardPageContext);
     }
 
-    public ProjectPreviewWizardPage(ProjectImportConfiguration configuration, ProjectPreviewLoader previewLoader, String title, String defaultMessage,
+    public ProjectPreviewWizardPage(ProjectImportConfiguration configuration, String title, String defaultMessage,
             String pageContextInformation) {
-        super("ProjectPreview", title, defaultMessage, configuration, ImmutableList.<Property<?>> of()); //$NON-NLS-1$
-        this.projectPreviewLoader = Preconditions.checkNotNull(previewLoader);
+        super("ProjectPreview", title, defaultMessage, configuration, ImmutableList.<Property<?>>of()); //$NON-NLS-1$
         this.keyFont = FontUtils.getCustomDialogFont(SWT.BOLD);
         this.valueFont = FontUtils.getCustomDialogFont(SWT.NONE);
         this.pageContextInformation = pageContextInformation;
@@ -286,146 +284,125 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         }
 
         try {
-            // once cancellation has been requested by the user, do not block any longer
-            // this way, the user can continue with the import wizard even if the preview is still
-            // loading a no-longer-of-interest model in the background
             container.run(true, true, new IRunnableWithProgress() {
 
                 @Override
-                public void run(IProgressMonitor monitor) throws InterruptedException {
-                    monitor.beginTask("Loading project preview", IProgressMonitor.UNKNOWN); //$NON-NLS-1$
-                    final CountDownLatch latch = new CountDownLatch(1);
-                    final ProgressListener listener = DelegatingProgressListener.withFullOutput(monitor);
-                    final Job job = ProjectPreviewWizardPage.this.projectPreviewLoader.loadPreview(new ProjectPreviewJobResultHandler(latch), ImmutableList.<ProgressListener> of(listener));
-                    while (!latch.await(500, TimeUnit.MILLISECONDS)) {
-                        // regularly check if the job was cancelled until
-                        // the job has either finished successfully or failed
-                        if (monitor.isCanceled()) {
-                            job.cancel();
-                            throw new InterruptedException();
-                        }
+                public void run(IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {
+                    SubMonitor progress = SubMonitor.convert(monitor);
+                    progress.setTaskName("Loading project preview");
+                    progress.setWorkRemaining(3);
+
+                    try {
+                        CancellationTokenSource tokenSource = GradleConnector.newCancellationTokenSource();
+                        BuildConfiguration buildConfig = getConfiguration().toBuildConfig();
+
+                        NewGradleProjectInitializer.initProjectIfNotExists(buildConfig, tokenSource, progress.newChild(1));
+                        OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(buildConfig, tokenSource, progress.newChild(1));
+                        OmniGradleBuild gradleBuild = fetchGradleBuildStructure(buildConfig, tokenSource, progress.newChild(1));
+
+                        updateSummary(buildEnvironment);
+                        populateTree(gradleBuild);
+
+                    } catch (Exception e) {
+                        throw new InvocationTargetException(e);
                     }
                 }
             });
         } catch (InvocationTargetException e) {
-            UiPlugin.logger().error("Failed to load preview.", e.getCause()); //$NON-NLS-1$
+            Throwable throwable = e.getTargetException() == null ? e : e.getTargetException();
+            ToolingApiStatus status = ToolingApiStatus.from("Project preview", throwable);
+            if (ToolingApiStatusType.BUILD_CANCELLED.getCode() == status.getCode()) {
+                displayCancellationWarning();
+            } else {
+                ToolingApiStatus.handleDefault("Project preview", status);
+                clearTree();
+            }
         } catch (InterruptedException ignored) {
+            displayCancellationWarning();
         }
     }
 
-    /**
-     * Loads the Gradle project data required to populate the preview page. Having the logic to load
-     * the data outside of the actual project preview wizard page allows the wizard that is using
-     * the preview page to do additional things in preparation of showing the preview.
-     */
-    public interface ProjectPreviewLoader {
+    private void updateSummary(final OmniBuildEnvironment buildEnvironment) {
+        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
-        /**
-         * Loads the Gradle project data required to populate the preview page.
-         *
-         * @param resultHandler the handler that is called once the project data has been loaded or
-         *            a failure occurred
-         * @param listeners the progress listeners to register when calling Gradle
-         * @return the job in which the Gradle project data is loaded
-         */
-        Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> resultHandler, List<ProgressListener> listeners);
+            @Override
+            public void run() {
+                if (!getControl().isDisposed()) {
+                    // update Gradle user home
+                    if (buildEnvironment.getGradle().getGradleUserHome().isPresent()) {
+                        String gradleUserHome = buildEnvironment.getGradle().getGradleUserHome().get().getAbsolutePath();
+                        ProjectPreviewWizardPage.this.gradleUserHomeLabel.setText(gradleUserHome);
+                    }
+
+                    // update Gradle version
+                    String gradleVersion = buildEnvironment.getGradle().getGradleVersion();
+                    ProjectPreviewWizardPage.this.gradleVersionLabel.setText(gradleVersion);
+                    updateGradleVersionWarningLabel();
+
+                    // update Java home
+                    String javaHome = buildEnvironment.getJava().getJavaHome().getAbsolutePath();
+                    ProjectPreviewWizardPage.this.javaHomeLabel.setText(javaHome);
+                }
+            }
+        });
     }
 
-    /**
-     * Updates the project preview once the necessary Gradle models have been loaded.
-     */
-    private final class ProjectPreviewJobResultHandler implements FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> {
+    private void populateTree(final OmniGradleBuild buildStructure) {
+        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
-        private final CountDownLatch latch;
-
-        private ProjectPreviewJobResultHandler(CountDownLatch latch) {
-            this.latch = latch;
-        }
-
-        @Override
-        public void onSuccess(Pair<OmniBuildEnvironment, OmniGradleBuild> result) {
-            // the job has already taken care of logging the success
-            this.latch.countDown();
-
-            updateSummary(result.getFirst());
-            populateTree(result.getSecond());
-        }
-
-        @Override
-        public void onFailure(Throwable t) {
-            // the job has already taken care of logging and displaying the error
-            this.latch.countDown();
-
-            clearTree();
-        }
-
-        private void updateSummary(final OmniBuildEnvironment buildEnvironment) {
-            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-
-                @Override
-                public void run() {
-                    if (!getControl().isDisposed()) {
-                        // update Gradle user home
-                        if (buildEnvironment.getGradle().getGradleUserHome().isPresent()) {
-                            String gradleUserHome = buildEnvironment.getGradle().getGradleUserHome().get().getAbsolutePath();
-                            ProjectPreviewWizardPage.this.gradleUserHomeLabel.setText(gradleUserHome);
-                        }
-
-                        // update Gradle version
-                        String gradleVersion = buildEnvironment.getGradle().getGradleVersion();
-                        ProjectPreviewWizardPage.this.gradleVersionLabel.setText(gradleVersion);
-                        updateGradleVersionWarningLabel();
-
-                        // update Java home
-                        String javaHome = buildEnvironment.getJava().getJavaHome().getAbsolutePath();
-                        ProjectPreviewWizardPage.this.javaHomeLabel.setText(javaHome);
-                    }
+            @Override
+            public void run() {
+                if (!getControl().isDisposed()) {
+                    ProjectPreviewWizardPage.this.projectPreviewTree.removeAll();
+                    populateRecursively(buildStructure, ProjectPreviewWizardPage.this.projectPreviewTree);
                 }
-            });
-        }
-
-        private void populateTree(final OmniGradleBuild buildStructure) {
-            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-
-                @Override
-                public void run() {
-                    if (!getControl().isDisposed()) {
-                        ProjectPreviewWizardPage.this.projectPreviewTree.removeAll();
-                        populateRecursively(buildStructure, ProjectPreviewWizardPage.this.projectPreviewTree);
-                    }
-                }
-            });
-        }
-
-        private void clearTree() {
-            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-
-                @Override
-                public void run() {
-                    if (!getControl().isDisposed()) {
-                        ProjectPreviewWizardPage.this.projectPreviewTree.removeAll();
-                    }
-                }
-            });
-        }
-
-        private void populateRecursively(OmniGradleBuild gradleBuild, Tree parent) {
-            OmniGradleProjectStructure rootProject = gradleBuild.getRootProject();
-            TreeItem rootTreeItem = new TreeItem(ProjectPreviewWizardPage.this.projectPreviewTree, SWT.NONE);
-            rootTreeItem.setExpanded(true);
-            rootTreeItem.setText(rootProject.getName());
-            populateRecursively(rootProject, rootTreeItem);
-            for (OmniGradleBuild includedBuilds : gradleBuild.getIncludedBuilds()) {
-                populateRecursively(includedBuilds, parent);
             }
-        }
+        });
+    }
 
-        private void populateRecursively(OmniGradleProjectStructure gradleProjectStructure, TreeItem parent) {
-            for (OmniGradleProjectStructure childProject : gradleProjectStructure.getChildren()) {
-                TreeItem treeItem = new TreeItem(parent, SWT.NONE);
-                treeItem.setText(childProject.getName());
-                populateRecursively(childProject, treeItem);
+    private void clearTree() {
+        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+
+            @Override
+            public void run() {
+                if (!getControl().isDisposed()) {
+                    ProjectPreviewWizardPage.this.projectPreviewTree.removeAll();
+                }
             }
+        });
+    }
+
+    private void displayCancellationWarning() {
+        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+
+            @Override
+            public void run() {
+                if (!getControl().isDisposed()) {
+                    ProjectPreviewWizardPage.this.projectPreviewTree.removeAll();
+                    TreeItem root = new TreeItem(ProjectPreviewWizardPage.this.projectPreviewTree, SWT.NONE);
+                    root.setText("Preview cancelled");
+
+                }
+            }
+        });
+    }
+
+    private void populateRecursively(OmniGradleBuild gradleBuild, Tree parent) {
+        OmniGradleProjectStructure rootProject = gradleBuild.getRootProject();
+        TreeItem rootTreeItem = new TreeItem(ProjectPreviewWizardPage.this.projectPreviewTree, SWT.NONE);
+        rootTreeItem.setExpanded(true);
+        rootTreeItem.setText(rootProject.getName());
+        populateRecursively(rootProject, rootTreeItem);
+        for (OmniGradleBuild includedBuilds : gradleBuild.getIncludedBuilds()) {
+            populateRecursively(includedBuilds, parent);
+        }
+    }
+
+    private void populateRecursively(OmniGradleProjectStructure gradleProjectStructure, TreeItem parent) {
+        for (OmniGradleProjectStructure childProject : gradleProjectStructure.getChildren()) {
+            TreeItem treeItem = new TreeItem(parent, SWT.NONE);
+            treeItem.setText(childProject.getName());
+            populateRecursively(childProject, treeItem);
         }
     }
 
@@ -439,6 +416,16 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         this.keyFont.dispose();
         this.valueFont.dispose();
         super.dispose();
+    }
+
+    private static OmniBuildEnvironment fetchBuildEnvironment(BuildConfiguration buildConfig, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig).getModelProvider();
+        return modelProvider.fetchBuildEnvironment(FetchStrategy.FORCE_RELOAD, tokenSource, monitor);
+    }
+
+    private static OmniGradleBuild fetchGradleBuildStructure(BuildConfiguration buildConfig, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig).getModelProvider();
+        return modelProvider.fetchGradleBuild(FetchStrategy.FORCE_RELOAD, tokenSource, monitor);
     }
 
 }

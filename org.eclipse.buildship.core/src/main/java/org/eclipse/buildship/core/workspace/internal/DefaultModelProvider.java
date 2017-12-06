@@ -17,7 +17,6 @@ import org.gradle.tooling.BuildActionExecuter;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.ProgressListener;
-import org.gradle.tooling.events.ProgressEvent;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.gradle.GradleBuild;
@@ -45,6 +44,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.util.progress.CancellationForwardingListener;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 
@@ -175,37 +175,5 @@ final class DefaultModelProvider implements ModelProvider {
         List<ProgressListener> progressListeners = ImmutableList.<ProgressListener>of(delegatingProgressListener, cancellationListener);
         ImmutableList<org.gradle.tooling.events.ProgressListener> eventListeners = ImmutableList.<org.gradle.tooling.events.ProgressListener>of(cancellationListener);
         return new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), progressListeners, eventListeners, tokenSource.token());
-    }
-
-    /**
-     * Progress listener canceling the build if the progress monitor is cancelled.
-     */
-    private static class CancellationForwardingListener implements ProgressListener, org.gradle.tooling.events.ProgressListener {
-
-        private final IProgressMonitor monitor;
-        private final CancellationTokenSource tokenSource;
-        private boolean cancelRequested;
-
-        CancellationForwardingListener(IProgressMonitor monitor, CancellationTokenSource tokenSource) {
-            this.monitor = monitor;
-            this.tokenSource = tokenSource;
-        }
-
-        @Override
-        public void statusChanged(ProgressEvent ignore) {
-            forwardCancellation();
-        }
-
-        @Override
-        public void statusChanged(org.gradle.tooling.ProgressEvent ignore) {
-            forwardCancellation();
-        }
-
-        private void forwardCancellation() {
-            if (!this.cancelRequested && this.monitor.isCanceled()) {
-                this.tokenSource.cancel();
-                this.cancelRequested = true;
-            }
-        }
     }
 }

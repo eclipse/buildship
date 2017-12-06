@@ -14,21 +14,6 @@ package org.eclipse.buildship.ui.wizard.project;
 import java.io.File;
 import java.util.List;
 
-import org.gradle.tooling.CancellationToken;
-import org.gradle.tooling.ProgressListener;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.io.CharStreams;
-import com.google.common.util.concurrent.FutureCallback;
-
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
-import com.gradleware.tooling.toolingmodel.util.Pair;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.IPageChangeProvider;
 import org.eclipse.jface.dialogs.IPageChangedListener;
@@ -39,16 +24,8 @@ import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.configuration.RunConfiguration;
-import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
 import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.core.util.progress.AsyncHandler;
-import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
-import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
@@ -71,12 +48,6 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
      * Preference key that flags whether the welcome page should be shown as part of the creation wizard.
      */
     private static final String PREF_SHOW_WELCOME_PAGE = "org.eclipse.buildship.ui.wizard.project.creation.showWelcomePage"; //$NON-NLS-1$
-
-    /**
-     * The Gradle tasks to run to initialize a new Gradle Java project, i.e.
-     * <code>gradle init --type java-library</code>.
-     */
-    private static final ImmutableList<String> GRADLE_INIT_TASK_CMD_LINE = ImmutableList.of("init", "--type", "java-library");
 
     // the pages to display in the wizard
     private final GradleWelcomeWizardPage welcomeWizardPage;
@@ -125,14 +96,10 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
                 ProjectWizardMessages.Title_NewGradleProjectOptionsWizardPage,
                 ProjectWizardMessages.InfoMessage_NewGradleProjectOptionsWizardPageDefault,
                 ProjectWizardMessages.InfoMessage_NewGradleProjectOptionsWizardPageContext);
-        this.projectPreviewPage = new ProjectPreviewWizardPage(importConfiguration, new ProjectPreviewWizardPage.ProjectPreviewLoader() {
-            @Override
-            public Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> resultHandler, List<ProgressListener> listeners) {
-                ProjectPreviewJob projectPreviewJob = new ProjectPreviewJob(importConfiguration, listeners, new NewGradleProjectInitializer(importConfiguration, listeners), resultHandler);
-                projectPreviewJob.schedule();
-                return projectPreviewJob;
-            }
-        }, ProjectWizardMessages.Title_NewGradleProjectPreviewWizardPage, ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageDefault, ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageContext);
+        this.projectPreviewPage = new ProjectPreviewWizardPage(importConfiguration,
+                ProjectWizardMessages.Title_NewGradleProjectPreviewWizardPage,
+                ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageDefault,
+                ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageContext);
     }
 
     @Override
@@ -177,7 +144,7 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
 
     @Override
     public boolean performFinish() {
-        return this.importController.performImportProject(getContainer(), new NewGradleProjectInitializer(this.importController.getConfiguration()), NewProjectHandler.IMPORT_AND_MERGE);
+        return this.importController.performImportProject(getContainer(), NewProjectHandler.IMPORT_AND_MERGE);
     }
 
     @Override
@@ -250,50 +217,4 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
         }
 
     }
-
-    /**
-     * Initializes a new Gradle project from the given configuration.
-     */
-    private static final class NewGradleProjectInitializer implements AsyncHandler {
-
-        private final BuildConfiguration buildConfig;
-        private final Optional<List<ProgressListener>> listeners;
-
-        private NewGradleProjectInitializer(ProjectImportConfiguration configuration) {
-            this.buildConfig = configuration.toBuildConfig();
-            this.listeners = Optional.absent();
-        }
-
-        private NewGradleProjectInitializer(ProjectImportConfiguration configuration, List<ProgressListener> listeners) {
-            this.buildConfig = configuration.toBuildConfig();
-            this.listeners = Optional.of((List<ProgressListener>) ImmutableList.copyOf(listeners));
-        }
-
-        @Override
-        public void run(IProgressMonitor monitor, CancellationToken token) {
-            monitor.beginTask("Init Gradle project", IProgressMonitor.UNKNOWN);
-            try {
-                File projectDir = this.buildConfig.getRootProjectDirectory().getAbsoluteFile();
-                if (!projectDir.exists()) {
-                    if (projectDir.mkdir()) {
-                        final List<String> tasks = GRADLE_INIT_TASK_CMD_LINE;
-                        List<ProgressListener> progressListeners = this.listeners.isPresent() ? this.listeners.get() : ImmutableList.of(DelegatingProgressListener.withFullOutput(monitor));
-                        GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.buildConfig);
-                        TransientRequestAttributes transientAttributes = getTransientRequestAttributes(progressListeners, token, monitor);
-                        RunConfiguration runConfiguration = CorePlugin.configurationManager().createDefaultRunConfiguration(this.buildConfig);
-                        gradleBuild.newBuildLauncher(runConfiguration, CharStreams.nullWriter(), transientAttributes).forTasks(tasks.toArray(new String[tasks.size()])).run();
-                    }
-                }
-            } finally {
-                monitor.done();
-            }
-        }
-    }
-
-    private static TransientRequestAttributes getTransientRequestAttributes(List<ProgressListener> progressListeners, CancellationToken token, IProgressMonitor monitor) {
-        ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-        ImmutableList<org.gradle.tooling.events.ProgressListener> noEventListeners = ImmutableList.<org.gradle.tooling.events.ProgressListener> of();
-        return new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), progressListeners, noEventListeners, token);
-    }
-
 }
