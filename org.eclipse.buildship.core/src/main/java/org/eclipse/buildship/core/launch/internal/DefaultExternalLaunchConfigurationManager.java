@@ -182,12 +182,15 @@ public final class DefaultExternalLaunchConfigurationManager implements External
         }
 
         @Override
-        public void launchConfigurationChanged(ILaunchConfiguration configuration) {
+        public synchronized void launchConfigurationChanged(ILaunchConfiguration configuration) {
             if (this.configChangeCalled) {
                 return;
-            } else {
+            }
+
+            try {
                 this.configChangeCalled = true;
                 updateClasspathProvider(configuration);
+            } finally {
                 this.configChangeCalled = false;
             }
         }
