@@ -16,6 +16,8 @@ import org.gradle.tooling.GradleConnector;
 
 import com.google.common.base.Preconditions;
 
+import org.eclipse.core.resources.WorkspaceJob;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -28,7 +30,7 @@ import org.eclipse.buildship.core.CorePlugin;
  *
  * @param <T> the result type of the operation the job executes
  */
-public abstract class ToolingApiJob<T> extends Job {
+public abstract class ToolingApiJob<T> extends WorkspaceJob {
 
     // TODO (donat) rename package to org.eclipse.buildship.core.operation
 
@@ -45,7 +47,7 @@ public abstract class ToolingApiJob<T> extends Job {
     }
 
     @Override
-    public final IStatus run(final IProgressMonitor monitor) {
+    public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
         final IProgressMonitor efficientMonitor = new RateLimitingProgressMonitor(monitor, 500, TimeUnit.MILLISECONDS);
 
      // TODO (donat) execute as IWorkspaceRunnable
