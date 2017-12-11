@@ -170,11 +170,17 @@ public final class DefaultExternalLaunchConfigurationManager implements External
      */
     private class LaunchConfigurationListener implements ILaunchConfigurationListener, EventListener {
 
+
         // If another ILaunchConfigurationListener changes the target launch configuration then
         // a new change event is generated. That event is handled synchronously invoking this
         // listener again and causing a stack overflow error.
         // see https://github.com/eclipse/buildship/issues/617
-        private boolean configChangeCalled;
+        private final ThreadLocal<Boolean> configChangeCalled = new ThreadLocal<Boolean>() {
+            @Override
+            protected Boolean initialValue() {
+                return Boolean.FALSE;
+            }
+        };
 
         @Override
         public void launchConfigurationAdded(ILaunchConfiguration configuration) {
@@ -182,16 +188,16 @@ public final class DefaultExternalLaunchConfigurationManager implements External
         }
 
         @Override
-        public synchronized void launchConfigurationChanged(ILaunchConfiguration configuration) {
-            if (this.configChangeCalled) {
+        public void launchConfigurationChanged(ILaunchConfiguration configuration) {
+            if (this.configChangeCalled.get()) {
                 return;
             }
 
             try {
-                this.configChangeCalled = true;
+                this.configChangeCalled.set(Boolean.TRUE);
                 updateClasspathProvider(configuration);
             } finally {
-                this.configChangeCalled = false;
+                this.configChangeCalled.set(Boolean.FALSE);
             }
         }
 
