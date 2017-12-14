@@ -69,8 +69,9 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
                      faultyProjects.remove(eclipseProject.getName());
                  }
                  projects.addAll(eclipseProjects);
-             } catch (RuntimeException ignore) {
+             } catch (RuntimeException e) {
                  // faulty projects will be represented as empty nodes
+                 CorePlugin.logger().warn("Tasks can't be loaded for project located at " + gradleBuild.getBuildConfig().getRootProjectDirectory().getAbsolutePath(), e);
              }
          }
         return new TaskViewContent(projects, Lists.newArrayList(faultyProjects.values()));
