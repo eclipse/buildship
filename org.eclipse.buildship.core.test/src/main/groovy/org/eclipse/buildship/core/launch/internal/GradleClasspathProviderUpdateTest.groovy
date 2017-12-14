@@ -32,7 +32,7 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         importAndWait(projectDir)
 
         then:
-        waitFor { hasGradleClasspathProvider(launchConfiguration) }
+        hasGradleClasspathProvider(launchConfiguration)
     }
 
     def "Gradle classpath provider not added for new non-Java project"() {
@@ -43,7 +43,7 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         importAndWait(projectDir)
 
         then:
-        waitFor { !hasGradleClasspathProvider(launchConfiguration) }
+        !hasGradleClasspathProvider(launchConfiguration)
     }
 
     def "Gradle classpath provider injected when Gradle project is moved under target name"() {
@@ -59,7 +59,7 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
 
         expect:
         findProject('old-name')
-        waitFor { !hasGradleClasspathProvider(launchConfiguration) }
+        !hasGradleClasspathProvider(launchConfiguration)
 
 
         when:
@@ -67,7 +67,7 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         synchronizeAndWait(projectDir)
 
         then:
-        waitFor { hasGradleClasspathProvider(launchConfiguration) }
+        hasGradleClasspathProvider(launchConfiguration)
     }
 
     def "Gradle classpath provider removed when project deleted"() {
@@ -78,13 +78,13 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         importAndWait(projectDir)
 
         expect:
-        waitFor { hasGradleClasspathProvider(launchConfiguration) }
+        hasGradleClasspathProvider(launchConfiguration)
 
         when:
         findProject('project-name').delete(false, new NullProgressMonitor())
 
         then:
-        waitFor { !hasGradleClasspathProvider(launchConfiguration) }
+        !hasGradleClasspathProvider(launchConfiguration)
     }
 
     def "Gradle classpath provider added when Gradle nature added"() {
@@ -92,13 +92,13 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         IJavaProject javaProject = newJavaProject('project-name')
 
         expect:
-        waitFor { !hasGradleClasspathProvider(launchConfiguration) }
+        !hasGradleClasspathProvider(launchConfiguration)
 
         when:
         CorePlugin.workspaceOperations().addNature(javaProject.project, GradleProjectNature.ID, new NullProgressMonitor())
 
         then:
-        waitFor { hasGradleClasspathProvider(launchConfiguration) }
+        hasGradleClasspathProvider(launchConfiguration)
     }
 
     def "Gradle classpath provider removed when Gradle nature removed"() {
@@ -109,13 +109,13 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         importAndWait(projectDir)
 
         expect:
-        waitFor { hasGradleClasspathProvider(launchConfiguration) }
+        hasGradleClasspathProvider(launchConfiguration)
 
         when:
         CorePlugin.workspaceOperations().removeNature(findProject('project-name'), GradleProjectNature.ID, new NullProgressMonitor())
 
         then:
-        waitFor { !hasGradleClasspathProvider(launchConfiguration) }
+        !hasGradleClasspathProvider(launchConfiguration)
     }
 
     private boolean hasGradleClasspathProvider(ILaunchConfiguration configuration) {
