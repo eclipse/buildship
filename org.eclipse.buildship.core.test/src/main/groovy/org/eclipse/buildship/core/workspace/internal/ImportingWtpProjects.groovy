@@ -385,7 +385,10 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         boolean recognizeWtpComponentNature
 
         boolean isNatureRecognizedByEclipse(String nature) {
-            nature == WTP_COMPONENT_NATURE ? recognizeWtpComponentNature : delegate.isNatureRecognizedByEclipse(nature)
+            // hacky way to ensure the ProjectNatureUpdater doesn't actually set the WTP nature
+            // as it is not part of the test target platform and makes the synchronization fail
+            def natureUpdaterCalled = new Exception().stackTrace.find { StackTraceElement element -> element.className == ProjectNatureUpdater.class.name && element.methodName == 'toNatures' }
+            nature == WTP_COMPONENT_NATURE && !natureUpdaterCalled ? recognizeWtpComponentNature : delegate.isNatureRecognizedByEclipse(nature)
         }
     }
 
