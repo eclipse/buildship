@@ -3,10 +3,10 @@ package org.eclipse.buildship.core.workspace.internal
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.operation.ToolingApiStatus
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.util.progress.SynchronizationJob
-import org.eclipse.buildship.core.util.progress.ToolingApiStatus
 import org.eclipse.buildship.core.workspace.NewProjectHandler
+import org.eclipse.buildship.core.workspace.SynchronizationJob
 
 class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecification {
 

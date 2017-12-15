@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.util.progress;
+package org.eclipse.buildship.core.workspace;
 
 
 import org.gradle.tooling.CancellationTokenSource;
@@ -22,8 +22,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.workspace.GradleBuild;
-import org.eclipse.buildship.core.workspace.NewProjectHandler;
+import org.eclipse.buildship.core.operation.ToolingApiJob;
 
 /**
  * Base job to execute project synchronization.

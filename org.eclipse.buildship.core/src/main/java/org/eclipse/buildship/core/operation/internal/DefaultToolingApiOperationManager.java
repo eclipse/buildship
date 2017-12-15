@@ -20,8 +20,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.operation.ToolingApiOperation;
 import org.eclipse.buildship.core.operation.ToolingApiOperationManager;
+import org.eclipse.buildship.core.operation.ToolingApiStatus;
 import org.eclipse.buildship.core.util.progress.RateLimitingProgressMonitor;
-import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
 
 /**
  * Default {@link ToolingApiOperationManager} implementation.

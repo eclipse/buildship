@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.util.progress;
+package org.eclipse.buildship.core.operation;
 
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.GradleConnector;
@@ -20,8 +20,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.operation.BaseToolingApiOperation;
-import org.eclipse.buildship.core.operation.ToolingApiOperation;
 
 /**
  * Job that belongs to the Gradle job family.

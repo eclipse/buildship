@@ -12,7 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.runtime.CoreException;
 
-import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
+import org.eclipse.buildship.core.operation.ToolingApiStatus;
 
 /**
  * Helper method for the import wizards.

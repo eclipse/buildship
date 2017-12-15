@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.util.progress;
+package org.eclipse.buildship.core.operation;
 
 /**
  * Callback to execute when a {@link ToolingApiJob} finishes.

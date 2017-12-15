@@ -33,9 +33,9 @@ import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.util.progress.ToolingApiJob;
-import org.eclipse.buildship.core.util.progress.ToolingApiJobResultHandler;
-import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
+import org.eclipse.buildship.core.operation.ToolingApiJob;
+import org.eclipse.buildship.core.operation.ToolingApiJobResultHandler;
+import org.eclipse.buildship.core.operation.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 

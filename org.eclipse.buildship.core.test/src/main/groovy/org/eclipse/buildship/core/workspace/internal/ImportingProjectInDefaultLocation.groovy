@@ -3,9 +3,9 @@ package org.eclipse.buildship.core.workspace.internal
 import org.eclipse.core.runtime.CoreException
 
 import org.eclipse.buildship.core.UnsupportedConfigurationException
+import org.eclipse.buildship.core.operation.ToolingApiStatus.ToolingApiStatusType
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.test.fixtures.TestEnvironment.*
-import org.eclipse.buildship.core.util.progress.ToolingApiStatus.ToolingApiStatusType
 
 class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecification {
 

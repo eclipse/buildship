@@ -21,10 +21,10 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.util.progress.SynchronizationJob;
-import org.eclipse.buildship.core.util.progress.ToolingApiJobResultHandler;
-import org.eclipse.buildship.core.util.progress.ToolingApiStatus;
+import org.eclipse.buildship.core.operation.ToolingApiJobResultHandler;
+import org.eclipse.buildship.core.operation.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
+import org.eclipse.buildship.core.workspace.SynchronizationJob;
 
 /**
  * Updates the Gradle classpath container of the given Java workspace project.

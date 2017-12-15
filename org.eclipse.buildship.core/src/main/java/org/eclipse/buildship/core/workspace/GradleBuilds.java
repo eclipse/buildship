@@ -34,7 +34,7 @@ public interface GradleBuilds extends Iterable<GradleBuild> {
      *
      * @param newProjectHandler how to handle newly added projects
      * @param tokenSource the cancellation token source
-     * @see org.eclipse.buildship.core.util.progress.ToolingApiStatus
+     * @see org.eclipse.buildship.core.operation.ToolingApiStatus
      */
     void synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) throws CoreException;
 
