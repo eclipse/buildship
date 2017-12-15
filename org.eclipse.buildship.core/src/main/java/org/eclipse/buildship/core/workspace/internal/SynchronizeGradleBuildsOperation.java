@@ -46,7 +46,7 @@ public final class SynchronizeGradleBuildsOperation {
         return this.builds;
     }
 
-    protected void run(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
+    protected void run(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws CoreException {
         final SubMonitor progress = SubMonitor.convert(monitor, this.builds.size() + 1);
 
         for (GradleBuild build : this.builds) {
