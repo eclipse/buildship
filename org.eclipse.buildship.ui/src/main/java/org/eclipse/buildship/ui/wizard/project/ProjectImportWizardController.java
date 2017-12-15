@@ -16,7 +16,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.gradle.tooling.CancellationTokenSource;
-import org.gradle.tooling.GradleConnector;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
@@ -28,7 +27,6 @@ import com.gradleware.tooling.toolingutils.binding.ValidationListener;
 import com.gradleware.tooling.toolingutils.binding.Validator;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -41,6 +39,9 @@ import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.operation.BaseToolingApiOperation;
+import org.eclipse.buildship.core.operation.ToolingApiOperation;
+import org.eclipse.buildship.core.operation.ToolingApiOperations;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
@@ -180,26 +181,20 @@ public class ProjectImportWizardController {
                 public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
                     BuildConfiguration buildConfig = ProjectImportWizardController.this.configuration.toBuildConfig();
                     GradleBuild build = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);
-                    ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler = new ImportWizardNewProjectHandler(newProjectHandler,
-                            ProjectImportWizardController.this.configuration);
+                    ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler = new ImportWizardNewProjectHandler(newProjectHandler, ProjectImportWizardController.this.configuration);
+
+                    InitializeNewProjectOperation initializeOperation = new InitializeNewProjectOperation(buildConfig);
+                    ToolingApiOperation synchronizeOperation = new SynchronizeOperation(build, workingSetsAddingNewProjectHandler);
+
                     try {
-                        CancellationTokenSource tokenSource = GradleConnector.newCancellationTokenSource();
-                        NewGradleProjectInitializer.initProjectIfNotExists(buildConfig, tokenSource, monitor);
-                        build.synchronize(workingSetsAddingNewProjectHandler, tokenSource, monitor);
+                        CorePlugin.operationManager().run(ToolingApiOperations.concat(initializeOperation, synchronizeOperation), monitor);
                     } catch (Exception e) {
                         throw new InvocationTargetException(e);
                     }
                 }
             });
         } catch (InvocationTargetException e) {
-            Throwable throwable = e.getTargetException() == null ? e : e.getTargetException();
-
-            ToolingApiStatus status;
-            if (throwable instanceof CoreException && ((CoreException) throwable).getStatus() instanceof ToolingApiStatus) {
-                status = (ToolingApiStatus) ((CoreException) throwable).getStatus();
-            } else {
-                status = ToolingApiStatus.from("Project import", throwable);
-            }
+            ToolingApiStatus status = WizardHelper.containerExceptionToToolingApiStatus(e);
             status.handleDefault();
             return false;
         } catch (InterruptedException ignored) {
@@ -207,6 +202,26 @@ public class ProjectImportWizardController {
         }
 
         return true;
+    }
+
+    /**
+     * Executes the synchronization on the target Gradle build.
+     */
+    private static class SynchronizeOperation extends BaseToolingApiOperation {
+
+        private final GradleBuild gradleBuild;
+        private final ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler;
+
+        public SynchronizeOperation(GradleBuild gradleBuild, ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler) {
+            super("Synchronize project " + gradleBuild.getBuildConfig().getRootProjectDirectory().getName());
+            this.gradleBuild = gradleBuild;
+            this.workingSetsAddingNewProjectHandler = workingSetsAddingNewProjectHandler;
+        }
+
+        @Override
+        public void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
+            this.gradleBuild.synchronize(this.workingSetsAddingNewProjectHandler, tokenSource, monitor);
+        }
     }
 
     /**

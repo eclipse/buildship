@@ -15,7 +15,6 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
 import org.gradle.tooling.CancellationTokenSource;
-import org.gradle.tooling.GradleConnector;
 import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Function;
@@ -57,6 +56,8 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.gradle.MissingFeatures;
 import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.operation.BaseToolingApiOperation;
+import org.eclipse.buildship.core.operation.ToolingApiOperations;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
@@ -288,32 +289,18 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
                 @Override
                 public void run(IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {
-
-                    // TODO (donat) shall we execute it as IWorkspaceRunnable?
-
-                    SubMonitor progress = SubMonitor.convert(monitor);
-                    progress.setTaskName("Loading project preview");
-                    progress.setWorkRemaining(3);
-
                     try {
-                        CancellationTokenSource tokenSource = GradleConnector.newCancellationTokenSource();
                         BuildConfiguration buildConfig = getConfiguration().toBuildConfig();
-
-                        NewGradleProjectInitializer.initProjectIfNotExists(buildConfig, tokenSource, progress.newChild(1));
-                        OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(buildConfig, tokenSource, progress.newChild(1));
-                        OmniGradleBuild gradleBuild = fetchGradleBuildStructure(buildConfig, tokenSource, progress.newChild(1));
-
-                        updateSummary(buildEnvironment);
-                        populateTree(gradleBuild);
-
+                        InitializeNewProjectOperation initializeOperation = new InitializeNewProjectOperation(buildConfig);
+                        UpdatePreviewOperation updatePreviewOperation = new UpdatePreviewOperation(buildConfig);
+                        CorePlugin.operationManager().run(ToolingApiOperations.concat(initializeOperation, updatePreviewOperation), monitor);
                     } catch (Exception e) {
                         throw new InvocationTargetException(e);
                     }
                 }
             });
         } catch (InvocationTargetException e) {
-            Throwable throwable = e.getTargetException() == null ? e : e.getTargetException();
-            ToolingApiStatus status = ToolingApiStatus.from("Project preview", throwable);
+            ToolingApiStatus status = WizardHelper.containerExceptionToToolingApiStatus(e);
             if (ToolingApiStatusType.BUILD_CANCELLED.getCode() == status.getCode()) {
                 displayCancellationWarning();
             } else {
@@ -431,4 +418,28 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         return modelProvider.fetchGradleBuild(FetchStrategy.FORCE_RELOAD, tokenSource, monitor);
     }
 
+    /**
+     * Loads the preview and presents the results on the UI.
+     */
+    private class UpdatePreviewOperation extends BaseToolingApiOperation {
+
+        private final BuildConfiguration buildConfig;
+
+        public UpdatePreviewOperation(BuildConfiguration buildConfig) {
+            super("Update preview");
+            this.buildConfig = buildConfig;
+        }
+
+        @Override
+        public void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
+            SubMonitor progress = SubMonitor.convert(monitor);
+            progress.setWorkRemaining(2);
+
+            OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(this.buildConfig, tokenSource, progress.newChild(1));
+            OmniGradleBuild gradleBuild = fetchGradleBuildStructure(this.buildConfig, tokenSource, progress.newChild(1));
+
+            updateSummary(buildEnvironment);
+            populateTree(gradleBuild);
+        }
+    }
 }

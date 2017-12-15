@@ -25,6 +25,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.operation.BaseToolingApiOperation;
 import org.eclipse.buildship.core.util.progress.CancellationForwardingListener;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.workspace.GradleBuild;
@@ -34,12 +35,22 @@ import org.eclipse.buildship.core.workspace.GradleBuild;
  *
  * @author Donat Csikos
  */
-public class NewGradleProjectInitializer {
+public class InitializeNewProjectOperation extends BaseToolingApiOperation {
 
-    private NewGradleProjectInitializer() {
+    private final BuildConfiguration buildConfiguration;
+
+    public InitializeNewProjectOperation(BuildConfiguration buildConfiguration) {
+        super("Initialize project " + buildConfiguration.getRootProjectDirectory().getName());
+        this.buildConfiguration = buildConfiguration;
     }
 
-    public static void initProjectIfNotExists(BuildConfiguration buildConfig, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+    @Override
+    public void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
+        initProjectIfNotExists(this.buildConfiguration, tokenSource, monitor);
+
+    }
+
+    private static void initProjectIfNotExists(BuildConfiguration buildConfig, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         File projectDir = buildConfig.getRootProjectDirectory().getAbsoluteFile();
         if (!projectDir.exists()) {
             if (projectDir.mkdir()) {

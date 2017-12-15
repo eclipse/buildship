@@ -42,6 +42,8 @@ import org.eclipse.buildship.core.launch.internal.DefaultExternalLaunchConfigura
 import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.notification.UserNotification;
 import org.eclipse.buildship.core.notification.internal.ConsoleUserNotification;
+import org.eclipse.buildship.core.operation.ToolingApiOperationManager;
+import org.eclipse.buildship.core.operation.internal.DefaultToolingApiOperationManager;
 import org.eclipse.buildship.core.preferences.ModelPersistence;
 import org.eclipse.buildship.core.preferences.internal.DefaultModelPersistence;
 import org.eclipse.buildship.core.util.extension.InvocationCustomizerCollector;
@@ -108,6 +110,7 @@ public final class CorePlugin extends Plugin {
     private InvocationCustomizer invocationCustomizer;
     private ConfigurationManager configurationManager;
     private DefaultExternalLaunchConfigurationManager externalLaunchConfigurationManager;
+    private ToolingApiOperationManager operationManager;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
@@ -166,6 +169,7 @@ public final class CorePlugin extends Plugin {
         this.invocationCustomizer = new InvocationCustomizerCollector();
         this.configurationManager = new DefaultConfigurationManager();
         this.externalLaunchConfigurationManager = DefaultExternalLaunchConfigurationManager.createAndRegister();
+        this.operationManager = new DefaultToolingApiOperationManager();
     }
 
     private ServiceTracker createServiceTracker(BundleContext context, Class<?> clazz) {
@@ -305,5 +309,9 @@ public final class CorePlugin extends Plugin {
 
     public static ExternalLaunchConfigurationManager externalLaunchConfigurationManager() {
         return getInstance().externalLaunchConfigurationManager;
+    }
+
+    public static ToolingApiOperationManager operationManager() {
+        return getInstance().operationManager;
     }
 }

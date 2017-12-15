@@ -9,6 +9,8 @@
 package org.eclipse.buildship.core.util.progress;
 
 
+import org.gradle.tooling.CancellationTokenSource;
+
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -59,14 +61,14 @@ public class SynchronizationJob extends ToolingApiJob<Void> {
     }
 
     @Override
-    public Void runInToolingApi(IProgressMonitor monitor) throws Exception {
+    public Void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
         final SubMonitor progress = SubMonitor.convert(monitor, ImmutableSet.copyOf(SynchronizationJob.this.gradleBuilds).size() + 1);
 
         for (GradleBuild build : SynchronizationJob.this.gradleBuilds) {
             if (monitor.isCanceled()) {
                 throw new OperationCanceledException();
             }
-            build.synchronize(SynchronizationJob.this.newProjectHandler, getTokenSource(), progress.newChild(1));
+            build.synchronize(SynchronizationJob.this.newProjectHandler, tokenSource, progress.newChild(1));
         }
 
         return null;

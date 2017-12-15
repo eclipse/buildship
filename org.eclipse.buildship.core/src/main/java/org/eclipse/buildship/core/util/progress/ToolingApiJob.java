@@ -8,15 +8,11 @@
 
 package org.eclipse.buildship.core.util.progress;
 
-import java.util.concurrent.TimeUnit;
-
-import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.GradleConnector;
 
 import com.google.common.base.Preconditions;
 
-import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -24,13 +20,15 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.operation.BaseToolingApiOperation;
+import org.eclipse.buildship.core.operation.ToolingApiOperation;
 
 /**
  * Job that belongs to the Gradle job family.
  *
  * @param <T> the result type of the operation the job executes
  */
-public abstract class ToolingApiJob<T> extends WorkspaceJob {
+public abstract class ToolingApiJob<T> extends Job {
 
     // TODO (donat) rename package to org.eclipse.buildship.core.operation
 
@@ -47,35 +45,40 @@ public abstract class ToolingApiJob<T> extends WorkspaceJob {
     }
 
     @Override
-    public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
-        final IProgressMonitor efficientMonitor = new RateLimitingProgressMonitor(monitor, 500, TimeUnit.MILLISECONDS);
+    protected IStatus run(IProgressMonitor monitor) {
 
-     // TODO (donat) execute as IWorkspaceRunnable
+        ToolingApiOperation operation = new BaseToolingApiOperation(getName()) {
+
+            @Override
+            public void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
+                T result = ToolingApiJob.this.runInToolingApi(tokenSource, monitor);
+                ToolingApiJob.this.resultHandler.onSuccess(result);
+            }
+        };
+
         try {
-            T result = runInToolingApi(efficientMonitor);
-            this.resultHandler.onSuccess(result);
-        } catch (Exception e) {
-            this.resultHandler.onFailure(ToolingApiStatus.from(getName(), e));
+            CorePlugin.operationManager().run(operation, this.tokenSource, monitor);
+        } catch (CoreException e) {
+            IStatus status = e.getStatus();
+            if (status instanceof ToolingApiStatus) {
+                this.resultHandler.onFailure((ToolingApiStatus) status);
+            } else {
+                return status;
+            }
         }
+
         return Status.OK_STATUS;
     }
 
     /**
      * Method to be executed in {@link Job#run(IProgressMonitor)}.
      *
+     * @param tokenSource the Tooling API cancellation token source
      * @param monitor the monitor to report progress on
      * @return the job result passed to the {@link ToolingApiJobResultHandler}.
-     * @throws Exception if an error occurs
+     * @throws Exception if any error occurs
      */
-    public abstract T runInToolingApi(IProgressMonitor monitor) throws Exception;
-
-    protected CancellationTokenSource getTokenSource() {
-        return this.tokenSource;
-    }
-
-    protected CancellationToken getToken() {
-        return this.tokenSource.token();
-    }
+    public abstract T runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception;
 
     @Override
     public boolean belongsTo(Object family) {

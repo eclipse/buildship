@@ -17,6 +17,7 @@ import java.io.Writer;
 import java.util.Collections;
 import java.util.List;
 
+import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProgressListener;
 
@@ -52,12 +53,12 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
     }
 
     @Override
-    public Void runInToolingApi(IProgressMonitor monitor) throws Exception {
-        executeLaunch(monitor);
+    public Void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
+        executeLaunch(tokenSource, monitor);
         return null;
     }
 
-    protected final void executeLaunch(final IProgressMonitor monitor) throws Exception {
+    protected final void executeLaunch(CancellationTokenSource tokenSource, final IProgressMonitor monitor) throws Exception {
         // todo (etst) close streams when done
 
         BuildExecutionParticipants.activateParticipantPlugins();
@@ -69,7 +70,7 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
         RunConfiguration runConfig = getRunConfig();
         List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(DelegatingProgressListener.withFullOutput(monitor));
         TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, processStreams.getOutput(), processStreams.getError(), processStreams.getInput(),
-                listeners, Collections.<org.gradle.tooling.events.ProgressListener>emptyList(), getToken());
+                listeners, Collections.<org.gradle.tooling.events.ProgressListener>emptyList(), tokenSource.token());
 
         // TODO (donat) configWriter and TransientRequestAttributes should be merged into a new type
         OutputStreamWriter configWriter = new OutputStreamWriter(processStreams.getConfiguration());
