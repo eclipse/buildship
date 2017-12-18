@@ -27,9 +27,10 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.util.collections.AdapterFunction;
-import org.eclipse.buildship.core.workspace.GradleNatureAddedEvent;
 import org.eclipse.buildship.core.workspace.GradleBuild;
+import org.eclipse.buildship.core.workspace.GradleNatureAddedEvent;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
+import org.eclipse.buildship.core.workspace.SynchronizationJob;
 
 /**
  * Synchronizes the given projects as if the user had run the import wizard on their location.
@@ -73,15 +74,16 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
     }
 
     private void synchronize(Set<BuildConfiguration> buildConfigs) {
+        Set<GradleBuild> gradleBuilds = Sets.newHashSet();
         for (BuildConfiguration buildConfig : buildConfigs) {
-            GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);
-            gradleBuild.synchronize(NewProjectHandler.IMPORT_AND_MERGE);
+            gradleBuilds.add(CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig));
         }
+
+        new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, gradleBuilds).schedule();
     }
 
     private void publishNatureAddedEvent(Set<IProject> projects) {
         // TODO this could be solved in a more general way by publishing nature added and removed events during project synchronization
         CorePlugin.listenerRegistry().dispatch(new GradleNatureAddedEvent(projects));
     }
-
 }

@@ -34,6 +34,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.collections.AdapterFunction;
 import org.eclipse.buildship.core.workspace.GradleBuilds;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
+import org.eclipse.buildship.core.workspace.SynchronizationJob;
 
 /**
  * Collects all selected, Gradle-aware {@link IProject} instances and schedules a
@@ -49,8 +50,9 @@ public final class ProjectSynchronizer {
             return;
         }
 
-        GradleBuilds gradleBuilds = CorePlugin.gradleWorkspaceManager().getGradleBuilds(selectedProjects);
-        gradleBuilds.synchronize(NewProjectHandler.IMPORT_AND_MERGE);
+        final GradleBuilds gradleBuilds = CorePlugin.gradleWorkspaceManager().getGradleBuilds(selectedProjects);
+
+        new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, gradleBuilds).schedule();
     }
 
     private static Set<IProject> collectSelectedProjects(ExecutionEvent event) {

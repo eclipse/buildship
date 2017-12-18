@@ -11,6 +11,7 @@ package org.eclipse.buildship.core.workspace.internal;
 import java.io.Writer;
 
 import org.gradle.tooling.BuildLauncher;
+import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.TestLauncher;
 
 import com.google.common.base.Objects;
@@ -18,12 +19,11 @@ import com.google.common.base.Preconditions;
 
 import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
 
-import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
-import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
@@ -44,33 +44,9 @@ public class DefaultGradleBuild implements GradleBuild {
     }
 
     @Override
-    public void synchronize() {
-        synchronize(NewProjectHandler.NO_OP);
-    }
-
-    @Override
-    public void synchronize(NewProjectHandler newProjectHandler) {
-        synchronize(newProjectHandler, AsyncHandler.NO_OP);
-    }
-
-    @Override
-    public void synchronize(NewProjectHandler newProjectHandler, AsyncHandler initializer) {
-        SynchronizeGradleBuildsJob.forSingleGradleBuild(this, newProjectHandler, initializer).schedule();
-    }
-
-    @Override
-    public boolean isSyncRunning() {
-        Job[] syncJobs = Job.getJobManager().find(CorePlugin.GRADLE_JOB_FAMILY);
-        for (Job job : syncJobs) {
-            if (job instanceof SynchronizeGradleBuildsJob) {
-                for (GradleBuild gradleBuild : ((SynchronizeGradleBuildsJob) job).getBuilds()) {
-                    if (gradleBuild.getBuildConfig().getRootProjectDirectory().equals(this.buildConfig.getRootProjectDirectory())) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
+    public void synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) throws CoreException {
+        SynchronizeGradleBuildsOperation syncOperation = SynchronizeGradleBuildsOperation.forSingleGradleBuild(this, newProjectHandler);
+        syncOperation.run(tokenSource, monitor);
     }
 
     @Override

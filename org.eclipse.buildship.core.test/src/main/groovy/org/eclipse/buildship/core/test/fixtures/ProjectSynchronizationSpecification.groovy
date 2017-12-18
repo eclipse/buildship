@@ -1,5 +1,7 @@
 package org.eclipse.buildship.core.test.fixtures
 
+import org.gradle.tooling.GradleConnector
+
 import com.google.common.util.concurrent.FutureCallback
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
@@ -7,17 +9,16 @@ import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild
 import com.gradleware.tooling.toolingmodel.util.Pair
 
-import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IWorkspaceRunnable
+import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.jobs.Job
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration
-import org.eclipse.buildship.core.projectimport.ProjectPreviewJob
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper
-import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.NewProjectHandler
 
 
@@ -37,35 +38,19 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         waitForResourceChangeEvents()
     }
 
+    protected void importProject(File location, GradleDistribution distribution = DEFAULT_DISTRIBUTION) {
+        startSynchronization(location, distribution, NewProjectHandler.IMPORT_AND_MERGE)
+    }
+
     protected void startSynchronization(File location, GradleDistribution distribution = DEFAULT_DISTRIBUTION, NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
         BuildConfiguration buildConfiguration = createOverridingBuildConfiguration(location, distribution)
-        CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfiguration).synchronize(newProjectHandler)
+        CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfiguration).synchronize(newProjectHandler, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
     }
 
     protected void synchronizeAndWait(IProject... projects) {
-        CorePlugin.gradleWorkspaceManager().getGradleBuilds(projects as Set).synchronize(NewProjectHandler.IMPORT_AND_MERGE)
+        CorePlugin.gradleWorkspaceManager().getGradleBuilds(projects as Set).synchronize(NewProjectHandler.IMPORT_AND_MERGE, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
         waitForGradleJobsToFinish()
         waitForResourceChangeEvents()
-    }
-
-    protected void previewAndWait(File location, FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> resultHandler) {
-        def job = newProjectPreviewJob(location, DEFAULT_DISTRIBUTION, resultHandler)
-        job.schedule()
-        job.join()
-    }
-
-    private ProjectPreviewJob newProjectPreviewJob(File location, GradleDistribution distribution, FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> resultHandler) {
-        ProjectImportConfiguration configuration = new ProjectImportConfiguration()
-        configuration.overwriteWorkspaceSettings = false
-        configuration.gradleDistribution = GradleDistributionWrapper.from(distribution)
-        configuration.gradleUserHome = null
-        configuration.buildScansEnabled = false
-        configuration.offlineMode = false
-        configuration.autoSync = false
-        configuration.projectDir = location
-        configuration.applyWorkingSets = true
-        configuration.workingSets = []
-        new ProjectPreviewJob(configuration, [], AsyncHandler.NO_OP, resultHandler)
     }
 
     protected def waitForGradleJobsToFinish() {

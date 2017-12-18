@@ -11,18 +11,22 @@
 
 package org.eclipse.buildship.core.workspace.internal
 
+import org.gradle.tooling.GradleConnector
+
 import com.google.common.util.concurrent.FutureCallback
 
 import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
 import com.gradleware.tooling.toolingmodel.OmniGradleBuild
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
 import com.gradleware.tooling.toolingmodel.util.Pair
 
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
-import org.eclipse.buildship.core.Logger
-import org.eclipse.buildship.core.notification.UserNotification
+import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.UnsupportedConfigurationException
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 
 class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification {
@@ -49,10 +53,6 @@ class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification
 
     def "Custom project naming is disallowed on the root project when imported from the workspace root"() {
         setup:
-        Logger logger = Mock(Logger)
-        environment.registerService(Logger, logger)
-        environment.registerService(UserNotification, Mock(UserNotification))
-
         def location = workspaceDir('app') {
             file 'build.gradle', '''
                 apply plugin: 'eclipse'
@@ -69,7 +69,7 @@ class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification
 
         then:
         allProjects().isEmpty()
-        1 * logger.warn(*_)
+        thrown(UnsupportedConfigurationException)
     }
 
     def "Custom project naming is honoured on the non-root projects when the root is under the workspace root"() {
@@ -87,7 +87,6 @@ class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification
                 '''
             }
         }
-
 
         when:
         importAndWait(location)
@@ -147,10 +146,9 @@ class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification
         FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> previewResultHandler = Mock()
 
         when:
-        previewAndWait(location, previewResultHandler)
+        OmniGradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(createInheritingBuildConfiguration(location)).modelProvider.fetchGradleBuild(FetchStrategy.FORCE_RELOAD, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
 
         then:
-        1 * previewResultHandler.onSuccess { it.second.rootProject.name == 'app' }
+        gradleBuild.rootProject.name == 'app'
     }
-
 }

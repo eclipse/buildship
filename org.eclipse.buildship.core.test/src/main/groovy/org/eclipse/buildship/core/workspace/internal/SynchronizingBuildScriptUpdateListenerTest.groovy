@@ -40,7 +40,7 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         waitForGradleJobsToFinish()
 
         then:
-        JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
+        waitFor { JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') } }
     }
 
     def "Execute project synchronization when build.gradle file changes"() {
@@ -71,7 +71,7 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         waitForGradleJobsToFinish()
 
         then:
-        JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
+        waitFor { JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') } }
     }
 
     def "Execute project synchronization when build.gradle file deleted"() {
@@ -124,7 +124,7 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         waitForGradleJobsToFinish()
 
         then:
-        JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
+        waitFor { JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') } }
     }
 
     def "Synchronization can be disabled for the entire workspace"() {
@@ -175,7 +175,7 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         waitForGradleJobsToFinish()
 
         then:
-        !JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
+        waitFor { !JavaCore.create(project).getResolvedClasspath(false).find { it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') } }
     }
 
     private void disableWorkspaceAutoSync() {

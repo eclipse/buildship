@@ -17,6 +17,7 @@ import java.io.Writer;
 import java.util.Collections;
 import java.util.List;
 
+import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProgressListener;
 
@@ -36,8 +37,8 @@ import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.launch.internal.BuildExecutionParticipants;
 import org.eclipse.buildship.core.launch.internal.DefaultExecuteLaunchRequestEvent;
+import org.eclipse.buildship.core.operation.ToolingApiJob;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
-import org.eclipse.buildship.core.util.progress.ToolingApiJob;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 
 /**
@@ -45,14 +46,19 @@ import org.eclipse.buildship.core.workspace.GradleBuild;
  *
  * @param <T> the operation type the subclasses can create and execute
  */
-public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> extends ToolingApiJob {
+public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> extends ToolingApiJob<Void> {
 
-    protected BaseLaunchRequestJob(String name, boolean notifyUserAboutBuildFailures) {
-        super(name, notifyUserAboutBuildFailures);
+    protected BaseLaunchRequestJob(String name) {
+        super(name);
     }
 
     @Override
-    protected final void runToolingApiJob(final IProgressMonitor monitor) throws Exception {
+    public Void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
+        executeLaunch(tokenSource, monitor);
+        return null;
+    }
+
+    protected final void executeLaunch(CancellationTokenSource tokenSource, final IProgressMonitor monitor) throws Exception {
         // todo (etst) close streams when done
 
         BuildExecutionParticipants.activateParticipantPlugins();
@@ -64,7 +70,7 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
         RunConfiguration runConfig = getRunConfig();
         List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(DelegatingProgressListener.withFullOutput(monitor));
         TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, processStreams.getOutput(), processStreams.getError(), processStreams.getInput(),
-                listeners, Collections.<org.gradle.tooling.events.ProgressListener>emptyList(), getToken());
+                listeners, Collections.<org.gradle.tooling.events.ProgressListener>emptyList(), tokenSource.token());
 
         // TODO (donat) configWriter and TransientRequestAttributes should be merged into a new type
         OutputStreamWriter configWriter = new OutputStreamWriter(processStreams.getConfiguration());

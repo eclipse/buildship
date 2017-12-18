@@ -61,10 +61,10 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         findProject('old-name')
         !hasGradleClasspathProvider(launchConfiguration)
 
+
         when:
         settingsFile.text = 'include "project-name"'
         synchronizeAndWait(projectDir)
-        waitForResourceChangeEvents()
 
         then:
         hasGradleClasspathProvider(launchConfiguration)
@@ -82,7 +82,6 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
 
         when:
         findProject('project-name').delete(false, new NullProgressMonitor())
-        waitForResourceChangeEvents()
 
         then:
         !hasGradleClasspathProvider(launchConfiguration)

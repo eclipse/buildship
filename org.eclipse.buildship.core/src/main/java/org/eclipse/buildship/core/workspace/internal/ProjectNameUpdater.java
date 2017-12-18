@@ -23,7 +23,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
 import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.UnsupportedConfigurationException;
 import org.eclipse.buildship.core.gradle.Predicates;
 
 /**
@@ -80,7 +80,7 @@ final class ProjectNameUpdater {
                 renameTemporarily(duplicate, monitor);
             } else {
                 String message = String.format("A project with the name %s already exists.", normalizedProjectName);
-                throw new GradlePluginsRuntimeException(message);
+                throw new UnsupportedConfigurationException(message);
             }
         }
     }

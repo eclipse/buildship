@@ -13,23 +13,12 @@ package org.eclipse.buildship.ui.wizard.project;
 
 import java.util.List;
 
-import org.gradle.tooling.ProgressListener;
-
-import com.google.common.util.concurrent.FutureCallback;
-
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
-import com.gradleware.tooling.toolingmodel.util.Pair;
-
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IImportWizard;
 import org.eclipse.ui.IWorkbench;
 
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.core.projectimport.ProjectPreviewJob;
-import org.eclipse.buildship.core.util.progress.AsyncHandler;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 import org.eclipse.buildship.ui.HelpContext;
 import org.eclipse.buildship.ui.UiPlugin;
@@ -91,15 +80,7 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
         this.welcomeWizardPage = new GradleWelcomeWizardPage(configuration, welcomePageContent);
         this.gradleProjectPage = new GradleProjectWizardPage(configuration);
         this.gradleOptionsPage = new GradleOptionsWizardPage(configuration);
-        this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller.getConfiguration(),
-                new ProjectPreviewWizardPage.ProjectPreviewLoader() {
-                    @Override
-                    public Job loadPreview(FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> resultHandler, List<ProgressListener> listeners) {
-                        ProjectPreviewJob projectPreviewJob = new ProjectPreviewJob(configuration, listeners, AsyncHandler.NO_OP, resultHandler);
-                        projectPreviewJob.schedule();
-                        return projectPreviewJob;
-                    }
-                });
+        this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller.getConfiguration());
     }
 
     @Override
@@ -135,7 +116,7 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
 
     @Override
     public boolean performFinish() {
-        return this.controller.performImportProject(AsyncHandler.NO_OP, NewProjectHandler.IMPORT_AND_MERGE);
+        return this.controller.performImportProject(getContainer(), NewProjectHandler.IMPORT_AND_MERGE);
     }
 
     @Override

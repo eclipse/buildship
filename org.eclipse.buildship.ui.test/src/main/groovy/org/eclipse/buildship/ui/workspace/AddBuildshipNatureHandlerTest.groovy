@@ -1,7 +1,7 @@
 package org.eclipse.buildship.ui.workspace
 
 import org.gradle.api.JavaVersion
-import org.gradle.tooling.CancellationToken
+import org.gradle.tooling.CancellationTokenSource
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.model.eclipse.EclipseProject
 import spock.lang.IgnoreIf
@@ -81,9 +81,9 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
 
     private boolean eclipseModelLoadedWithWorkspacePreferences(File projectLocation) {
         BuildConfiguration buildConfig = createInheritingBuildConfiguration(projectLocation)
-        CancellationToken token = GradleConnector.newCancellationTokenSource().token()
+        CancellationTokenSource tokenSource = GradleConnector.newCancellationTokenSource()
         IProgressMonitor monitor = new NullProgressMonitor()
-        return CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig).getModelProvider().fetchModels(EclipseProject.class, FetchStrategy.FROM_CACHE_ONLY, token, monitor) != null
+        return CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig).getModelProvider().fetchModels(EclipseProject.class, FetchStrategy.FROM_CACHE_ONLY, tokenSource, monitor) != null
     }
 
     private class TestEventListener implements EventListener {

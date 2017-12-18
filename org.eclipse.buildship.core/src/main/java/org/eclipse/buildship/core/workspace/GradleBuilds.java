@@ -10,23 +10,33 @@ package org.eclipse.buildship.core.workspace;
 
 import java.util.Set;
 
+import org.gradle.tooling.CancellationTokenSource;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+
 /**
  * An aggregate of Gradle builds.
  *
  * @author Donat Csikos
  */
 public interface GradleBuilds extends Iterable<GradleBuild> {
+
     /**
      * Attempts to synchronize all contained builds with the workspace.
      * <p/>
      * If the synchronization fails on one Gradle build, the process stops and subsequent builds
      * won't be synchronized.
      * <p/>
-     * The synchronization happens asynchronously. In case of a failure, the user will be notified.
+     * The synchronization happens synchronously. In case of a failure, the method throws a
+     * {@link CoreException} which contains the necessary status and error message about the
+     * failure.
      *
      * @param newProjectHandler how to handle newly added projects
+     * @param tokenSource the cancellation token source
+     * @see org.eclipse.buildship.core.operation.ToolingApiStatus
      */
-    void synchronize(NewProjectHandler newProjectHandler);
+    void synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) throws CoreException;
 
     /**
      * Returns the contained {@link GradleBuild} instances.

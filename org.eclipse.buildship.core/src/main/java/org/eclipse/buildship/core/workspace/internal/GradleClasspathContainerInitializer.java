@@ -21,7 +21,10 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.operation.ToolingApiJobResultHandler;
+import org.eclipse.buildship.core.operation.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
+import org.eclipse.buildship.core.workspace.SynchronizationJob;
 
 /**
  * Updates the Gradle classpath container of the given Java workspace project.
@@ -53,10 +56,10 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
             if (!gradleBuild.isPresent()) {
                 GradleClasspathContainerUpdater.clear(javaProject, null);
             } else {
-                GradleBuild build = gradleBuild.get();
-                if (!build.isSyncRunning()) {
-                    build.synchronize();
-                }
+                SynchronizationJob job = new SynchronizationJob(gradleBuild.get());
+                job.setResultHandler(new ResultHander());
+                job.setUser(false);
+                job.schedule();
             }
         }
     }
@@ -68,5 +71,20 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
     @Override
     public Object getComparisonID(IPath containerPath, IJavaProject project) {
         return project;
+    }
+
+    /**
+     * Custom result handler that only logs the failure.
+     */
+    private static final class ResultHander implements ToolingApiJobResultHandler<Void> {
+
+        @Override
+        public void onSuccess(Void result) {
+        }
+
+        @Override
+        public void onFailure(ToolingApiStatus status) {
+            CorePlugin.getInstance().getLog().log(status);
+        }
     }
 }

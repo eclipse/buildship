@@ -11,11 +11,16 @@ package org.eclipse.buildship.core.workspace.internal;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.gradle.tooling.CancellationTokenSource;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.util.progress.AsyncHandler;
+import org.eclipse.buildship.core.operation.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.GradleBuilds;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
@@ -36,8 +41,14 @@ public class DefaultGradleBuilds implements GradleBuilds {
     }
 
     @Override
-    public void synchronize(NewProjectHandler newProjectHandler) {
-        SynchronizeGradleBuildsJob.forMultipleGradleBuilds(this, newProjectHandler, AsyncHandler.NO_OP).schedule();
+    public void synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) throws CoreException {
+        SynchronizeGradleBuildsOperation syncOperation = SynchronizeGradleBuildsOperation.forMultipleGradleBuilds(this, newProjectHandler);
+
+        try {
+            syncOperation.run(tokenSource, monitor);
+        } catch (Exception e) {
+            throw new CoreException(ToolingApiStatus.from("Project synchronization", e));
+        }
     }
 
     @Override

@@ -3,9 +3,10 @@ package org.eclipse.buildship.core.workspace.internal
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.operation.ToolingApiStatus
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.util.progress.AsyncHandler
 import org.eclipse.buildship.core.workspace.NewProjectHandler
+import org.eclipse.buildship.core.workspace.SynchronizationJob
 
 class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecification {
 
@@ -18,8 +19,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         def buildConfiguration = createOverridingBuildConfiguration(projectLocation)
         def gradleBuild = new DefaultGradleBuild(buildConfiguration)
         def jobs = [
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP),
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP)
+            new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, gradleBuild),
+            new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, gradleBuild),
         ]
 
         when:
@@ -38,8 +39,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         def buildConfiguration = createOverridingBuildConfiguration(projectLocation)
         def gradleBuild = new DefaultGradleBuild(buildConfiguration)
         def jobs = [
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP),
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.NO_OP, AsyncHandler.NO_OP)
+            new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, gradleBuild),
+            new SynchronizationJob(NewProjectHandler.NO_OP, gradleBuild),
         ]
 
         when:
@@ -58,48 +59,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         def buildConfiguration = createOverridingBuildConfiguration(projectLocation)
         def gradleBuild = new DefaultGradleBuild(buildConfiguration)
         def jobs = [
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP),
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, Mock(NewProjectHandler), AsyncHandler.NO_OP)
-        ]
-
-        when:
-        jobs.each { it.schedule() }
-        waitForGradleJobsToFinish()
-
-        then:
-        jobs.findAll { it.result != null }.size() == 2
-    }
-
-    def "A no-op initializer is covered by any other"() {
-        setup:
-        File projectLocation = dir("sample-project") {
-            file 'settings.gradle'
-        }
-        def buildConfiguration = createOverridingBuildConfiguration(projectLocation)
-        def gradleBuild = new DefaultGradleBuild(buildConfiguration)
-        def jobs = [
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, {monitor, token -> "Foo"}),
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, AsyncHandler.NO_OP)
-        ]
-
-        when:
-        jobs.each { it.schedule() }
-        waitForGradleJobsToFinish()
-
-        then:
-        jobs.findAll { it.result != null }.size() == 1
-    }
-
-    def "A job with a different initializer is not covered"() {
-        setup:
-        File projectLocation = dir("sample-project") {
-            file 'settings.gradle'
-        }
-        def buildConfiguration = createOverridingBuildConfiguration(projectLocation)
-        def gradleBuild = new DefaultGradleBuild(buildConfiguration)
-        def jobs = [
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, {monitor, token -> "Foo"}),
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild, NewProjectHandler.IMPORT_AND_MERGE, {monitor, token -> "Bar"})
+            new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, gradleBuild),
+            new SynchronizationJob(Mock(NewProjectHandler), gradleBuild),
         ]
 
         when:
@@ -119,8 +80,8 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         def buildConfiguration2 = createOverridingBuildConfiguration(project2)
         def gradleBuild2 = new DefaultGradleBuild(buildConfiguration2)
         def jobs = [
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild1, NewProjectHandler.NO_OP, AsyncHandler.NO_OP),
-            SynchronizeGradleBuildsJob.forSingleGradleBuild(gradleBuild2, NewProjectHandler.NO_OP, AsyncHandler.NO_OP)
+            new SynchronizationJob(NewProjectHandler.NO_OP, gradleBuild1),
+            new SynchronizationJob(NewProjectHandler.NO_OP, gradleBuild2),
         ]
 
         when:

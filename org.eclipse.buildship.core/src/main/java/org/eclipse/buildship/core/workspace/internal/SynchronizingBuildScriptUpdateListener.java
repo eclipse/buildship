@@ -28,7 +28,11 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.operation.ToolingApiJobResultHandler;
+import org.eclipse.buildship.core.operation.ToolingApiStatus;
 import org.eclipse.buildship.core.preferences.PersistentModel;
+import org.eclipse.buildship.core.workspace.GradleBuild;
+import org.eclipse.buildship.core.workspace.SynchronizationJob;
 
 /**
  * Executes project synchronization if the corresponding preference is enabled and the user changes
@@ -86,9 +90,12 @@ public final class SynchronizingBuildScriptUpdateListener implements IResourceCh
         }
     }
 
-    private void executeSyncIfBuildScriptChanged(IProject project, IResourceDelta delta) {
+    private void executeSyncIfBuildScriptChanged(final IProject project, IResourceDelta delta) {
         if (hasBuildScriptFileChanged(project, delta.getAffectedChildren())) {
-            CorePlugin.gradleWorkspaceManager().getGradleBuild(project).get().synchronize();
+            GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(project).get();
+            SynchronizationJob job = new SynchronizationJob(gradleBuild);
+            job.setResultHandler(new ResultHander());
+            job.schedule();
         }
     }
 
@@ -124,5 +131,20 @@ public final class SynchronizingBuildScriptUpdateListener implements IResourceCh
 
     public void close() {
         ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
+    }
+
+    /**
+     * Custom result handler that only logs the failure.
+     */
+    private static final class ResultHander implements ToolingApiJobResultHandler<Void> {
+
+        @Override
+        public void onSuccess(Void result) {
+        }
+
+        @Override
+        public void onFailure(ToolingApiStatus status) {
+            CorePlugin.getInstance().getLog().log(status);
+        }
     }
 }

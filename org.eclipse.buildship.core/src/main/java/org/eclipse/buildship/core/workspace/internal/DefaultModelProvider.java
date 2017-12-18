@@ -14,8 +14,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.gradle.tooling.BuildActionExecuter;
-import org.gradle.tooling.CancellationToken;
-import org.gradle.tooling.GradleConnector;
+import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.model.build.BuildEnvironment;
@@ -45,6 +44,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.util.progress.CancellationForwardingListener;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 
@@ -63,16 +63,16 @@ final class DefaultModelProvider implements ModelProvider {
     }
 
     @Override
-    public <T> T fetchModel(Class<T> model, FetchStrategy strategy, CancellationToken token, IProgressMonitor monitor) {
-        TransientRequestAttributes transientAttributes = getTransientRequestAttributes(token, monitor);
+    public <T> T fetchModel(Class<T> model, FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+        TransientRequestAttributes transientAttributes = getTransientRequestAttributes(tokenSource, monitor);
         ModelBuilder<T> builder = ConnectionAwareLauncherProxy.newModelBuilder(model, this.buildConfiguration.toGradleArguments(), transientAttributes);
         return executeModelBuilder(builder, strategy, model);
     }
 
     @Override
-    public <T> Collection<T> fetchModels(Class<T> model, FetchStrategy strategy, CancellationToken token, IProgressMonitor monitor) {
-        TransientRequestAttributes transientAttributes = getTransientRequestAttributes(token, monitor);
-        if (supportsCompositeBuilds(token, monitor)) {
+    public <T> Collection<T> fetchModels(Class<T> model, FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+        TransientRequestAttributes transientAttributes = getTransientRequestAttributes(tokenSource, monitor);
+        if (supportsCompositeBuilds(tokenSource, monitor)) {
             final BuildActionExecuter<Collection<T>> executer = ConnectionAwareLauncherProxy
                     .newCompositeModelQueryExecuter(model, DefaultModelProvider.this.buildConfiguration.toGradleArguments(), transientAttributes);
             return executeBuildActionExecuter(executer, strategy, model);
@@ -83,20 +83,20 @@ final class DefaultModelProvider implements ModelProvider {
     }
 
     @Override
-    public OmniBuildEnvironment fetchBuildEnvironment(FetchStrategy strategy, CancellationToken token, IProgressMonitor monitor) {
-        BuildEnvironment model = fetchModel(BuildEnvironment.class, strategy, token, monitor);
+    public OmniBuildEnvironment fetchBuildEnvironment(FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+        BuildEnvironment model = fetchModel(BuildEnvironment.class, strategy, tokenSource, monitor);
         return DefaultOmniBuildEnvironment.from(model);
     }
 
     @Override
-    public OmniGradleBuild fetchGradleBuild(FetchStrategy strategy, CancellationToken token, IProgressMonitor monitor) {
-        GradleBuild model = fetchModel(GradleBuild.class, strategy, token, monitor);
+    public OmniGradleBuild fetchGradleBuild(FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+        GradleBuild model = fetchModel(GradleBuild.class, strategy, tokenSource, monitor);
         return DefaultOmniGradleBuild.from(model);
     }
 
     @Override
-    public Set<OmniEclipseProject> fetchEclipseGradleProjects(FetchStrategy strategy, CancellationToken token, IProgressMonitor monitor) {
-        Collection<EclipseProject> models = fetchModels(EclipseProject.class, strategy, token, monitor);
+    public Set<OmniEclipseProject> fetchEclipseGradleProjects(FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+        Collection<EclipseProject> models = fetchModels(EclipseProject.class, strategy, tokenSource, monitor);
         ImmutableSet.Builder<OmniEclipseProject> result = ImmutableSet.builder();
         for (EclipseProject model : models) {
             result.addAll(DefaultOmniEclipseProject.from(model).getAll());
@@ -161,19 +161,19 @@ final class DefaultModelProvider implements ModelProvider {
         }
     }
 
-    private boolean supportsCompositeBuilds(CancellationToken token, IProgressMonitor monitor) {
-        BuildEnvironment buildEnvironment = fetchModel(BuildEnvironment.class, FetchStrategy.FORCE_RELOAD, token, monitor);
+    private boolean supportsCompositeBuilds(CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+        BuildEnvironment buildEnvironment = fetchModel(BuildEnvironment.class, FetchStrategy.FORCE_RELOAD, tokenSource, monitor);
         GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
         return gradleVersion.getBaseVersion().compareTo(GradleVersion.version("3.3")) >= 0;
     }
 
-    private static TransientRequestAttributes getTransientRequestAttributes(CancellationToken token, IProgressMonitor monitor) {
+    private static TransientRequestAttributes getTransientRequestAttributes(CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-        List<ProgressListener> progressListeners = ImmutableList.<ProgressListener>of(DelegatingProgressListener.withoutDuplicateLifecycleEvents(monitor));
-        ImmutableList<org.gradle.tooling.events.ProgressListener> noEventListeners = ImmutableList.<org.gradle.tooling.events.ProgressListener>of();
-        if (token == null) {
-            token = GradleConnector.newCancellationTokenSource().token();
-        }
-        return new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), progressListeners, noEventListeners, token);
+        ProgressListener delegatingProgressListener = DelegatingProgressListener.withoutDuplicateLifecycleEvents(monitor);
+        CancellationForwardingListener cancellationListener = new CancellationForwardingListener(monitor, tokenSource);
+
+        List<ProgressListener> progressListeners = ImmutableList.<ProgressListener>of(delegatingProgressListener, cancellationListener);
+        ImmutableList<org.gradle.tooling.events.ProgressListener> eventListeners = ImmutableList.<org.gradle.tooling.events.ProgressListener>of(cancellationListener);
+        return new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), progressListeners, eventListeners, tokenSource.token());
     }
 }
