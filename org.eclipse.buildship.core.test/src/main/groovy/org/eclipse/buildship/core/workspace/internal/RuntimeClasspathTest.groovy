@@ -158,7 +158,6 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
         IRuntimeClasspathEntry[] classpath = projectRuntimeClasspath(javaProject)
 
         then:
-        classpath.length == 4
         classpath.find { it.type == IRuntimeClasspathEntry.PROJECT && it.path.lastSegment() == 'a' }
         classpath.find { it.type == IRuntimeClasspathEntry.PROJECT && it.path.lastSegment() == 'b' }
         classpath.find { it.type == IRuntimeClasspathEntry.ARCHIVE && it.path.lastSegment() == 'log4j-1.2.17.jar' }

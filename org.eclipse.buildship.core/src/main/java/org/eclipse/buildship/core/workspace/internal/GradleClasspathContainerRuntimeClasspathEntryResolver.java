@@ -84,6 +84,9 @@ public class GradleClasspathContainerRuntimeClasspathEntryResolver implements IR
                     if (candidate.isPresent()) {
                         IJavaProject dependencyProject = JavaCore.create(candidate.get());
                         IRuntimeClasspathEntry projectRuntimeEntry = JavaRuntime.newProjectRuntimeClasspathEntry(dependencyProject);
+                        // add the project entry itself so that the source lookup can find the classes
+                        // see https://github.com/eclipse/buildship/issues/383
+                        result.add(projectRuntimeEntry);
                         Collections.addAll(result, JavaRuntime.resolveRuntimeClasspathEntry(projectRuntimeEntry, dependencyProject));
                         collectContainerRuntimeClasspathIfPresent(dependencyProject, result, true, configurationScopes);
                     }
