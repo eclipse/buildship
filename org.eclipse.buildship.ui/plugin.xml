@@ -558,4 +558,33 @@
          </enabledWhen>
        </page>
     </extension>
+    <extension
+          point="org.eclipse.ui.propertyPages">
+       <page
+             class="org.eclipse.buildship.ui.marker.MarkersPropertyPage"
+             id="org.eclipse.buildship.ui.propertypages.markers"
+             name="Gradle">
+          <enabledWhen>
+            <adapt
+                  type="org.eclipse.core.resources.IMarker">
+              <test
+                   forcePluginActivation="true"
+                   property="org.eclipse.buildship.ui.marker.gradlemarker"
+                   value="true">
+              </test>
+            </adapt>
+          </enabledWhen>
+       </page>
+    </extension>
+    
+    <extension
+          point="org.eclipse.core.expressions.propertyTesters">
+       <propertyTester
+             id="org.eclipse.buildship.ui.properties.markerpropertytester"
+             class="org.eclipse.buildship.ui.marker.MarkerProperyTester"
+             namespace="org.eclipse.buildship.ui.marker"
+             properties="gradlemarker"
+             type="org.eclipse.core.resources.IMarker">
+       </propertyTester>
+    </extension>
 </plugin>

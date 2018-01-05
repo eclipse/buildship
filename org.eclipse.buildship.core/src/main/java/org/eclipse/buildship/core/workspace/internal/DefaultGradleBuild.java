@@ -21,9 +21,12 @@ import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
+import org.eclipse.buildship.core.marker.GradleMarkerManager;
+import org.eclipse.buildship.core.operation.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
@@ -46,7 +49,17 @@ public class DefaultGradleBuild implements GradleBuild {
     @Override
     public void synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) throws CoreException {
         SynchronizeGradleBuildsOperation syncOperation = SynchronizeGradleBuildsOperation.forSingleGradleBuild(this, newProjectHandler);
-        syncOperation.run(tokenSource, monitor);
+        try {
+            syncOperation.run(tokenSource, monitor);
+            GradleMarkerManager.clear(this);
+        } catch (Exception e) {
+            GradleMarkerManager.clear(this);
+            ToolingApiStatus status = ToolingApiStatus.from("Project synchronization" , e);
+            if (status.severityMatches(IStatus.WARNING | IStatus.ERROR)) {
+                GradleMarkerManager.addError(this, status);
+            }
+            throw e;
+        }
     }
 
     @Override
