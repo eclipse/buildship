@@ -50,10 +50,9 @@ public class DefaultGradleBuild implements GradleBuild {
     public void synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) throws CoreException {
         SynchronizeGradleBuildsOperation syncOperation = SynchronizeGradleBuildsOperation.forSingleGradleBuild(this, newProjectHandler);
         try {
+            GradleMarkerManager.clear(this);
             syncOperation.run(tokenSource, monitor);
-            GradleMarkerManager.clear(this);
         } catch (Exception e) {
-            GradleMarkerManager.clear(this);
             ToolingApiStatus status = ToolingApiStatus.from("Project synchronization" , e);
             if (status.severityMatches(IStatus.WARNING | IStatus.ERROR)) {
                 GradleMarkerManager.addError(this, status);
