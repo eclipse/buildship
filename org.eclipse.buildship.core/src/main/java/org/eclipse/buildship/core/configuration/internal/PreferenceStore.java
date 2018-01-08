@@ -11,16 +11,30 @@
 
 package org.eclipse.buildship.core.configuration.internal;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
+
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
-import java.io.*;
-import java.util.Properties;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
  * Unifies how to access preferences in the Eclipse API and in a properties file.
@@ -178,7 +192,7 @@ abstract class PreferenceStore {
         private void loadProperties() {
             InputStreamReader reader = null;
             try {
-                this.properties = new Properties();
+                this.properties = new SortedProperties();
                 if (this.propertiesFile.exists()) {
                     reader = new InputStreamReader(new FileInputStream(this.propertiesFile), Charsets.UTF_8);
                     this.properties.load(reader);
@@ -223,20 +237,24 @@ abstract class PreferenceStore {
 
         @Override
         void flush() {
-            OutputStreamWriter writer = null;
+            this.properties.put("eclipse.preferences.version", "1");
+            OutputStream output = null;
             try {
                 if (!this.propertiesFile.exists()) {
                     this.propertiesFile.getParentFile().mkdirs();
                     Files.touch(this.propertiesFile);
                 }
-                writer = new OutputStreamWriter(new FileOutputStream(this.propertiesFile), Charsets.UTF_8);
-                getProperties().store(writer, null);
+
+                output = new FileOutputStream(this.propertiesFile);
+
+                output.write(removeTimestampFromTable(this.properties).getBytes("UTF-8")); //$NON-NLS-1$
+                output.flush();
             } catch (IOException e) {
                 throw new GradlePluginsRuntimeException(String.format("Cannot store preferences in file %s", this.propertiesFile.getAbsolutePath()), e);
             } finally {
                 try {
-                    if (writer != null) {
-                        writer.close();
+                    if (output != null) {
+                        output.close();
                     }
                 } catch (IOException e) {
                     // ignore
@@ -244,5 +262,58 @@ abstract class PreferenceStore {
             }
         }
 
+        /*
+         * From org.eclipse.core.internal.preference.EclipsePreferences.
+         */
+        protected static String removeTimestampFromTable(Properties properties) throws IOException {
+            // store the properties in a string and then skip the first line (date/timestamp)
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            try {
+                properties.store(output, null);
+            } finally {
+                output.close();
+            }
+            String string = output.toString("UTF-8");
+            String separator = System.getProperty("line.separator");
+            return string.substring(string.indexOf(separator) + separator.length());
+        }
     }
+
+    /**
+     * Properties with sorted key set.
+     * <p/>
+     * Taken from org.eclipse.core.internal.preferences; the e42 defines this class at a different
+     * location.
+     */
+    public class SortedProperties extends Properties {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public synchronized Enumeration<Object> keys() {
+            TreeSet<Object> set = new TreeSet<>();
+            for (Enumeration<?> e = super.keys(); e.hasMoreElements();) {
+                set.add(e.nextElement());
+            }
+            return Collections.enumeration(set);
+        }
+
+        @Override
+        public Set<Entry<Object, Object>> entrySet() {
+            TreeSet<Entry<Object, Object>> set = new TreeSet<>(new Comparator<Entry<Object, Object>>() {
+
+                @Override
+                public int compare(Entry<Object, Object> e1, Entry<Object, Object> e2) {
+                    String s1 = (String) e1.getKey();
+                    String s2 = (String) e2.getKey();
+                    return s1.compareTo(s2);
+                }
+            });
+            for (Iterator<Entry<Object, Object>> i = super.entrySet().iterator(); i.hasNext();) {
+                set.add(i.next());
+            }
+            return set;
+        }
+    }
+
 }
