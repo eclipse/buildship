@@ -8,6 +8,9 @@
 
 package org.eclipse.buildship.ui.marker;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -72,15 +75,6 @@ public class MarkersPropertyPage extends PropertyPage {
     }
 
     public static int countLines(String str) {
-        String lineSeparator = System.lineSeparator();
-        if (str == null || str.isEmpty()) {
-            return 0;
-        }
-        int lines = 1;
-        int pos = 0;
-        while ((pos = str.indexOf(lineSeparator, pos) + 1) != 0) {
-            lines++;
-        }
-        return lines;
+        return Lists.newArrayList(Splitter.on(System.lineSeparator()).split(str)).size();
     }
 }
