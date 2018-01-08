@@ -2,10 +2,6 @@ package org.eclipse.buildship.core.marker
 
 import org.gradle.tooling.BuildException
 
-import org.eclipse.core.resources.IMarker
-import org.eclipse.core.resources.IResource
-import org.eclipse.core.resources.ResourcesPlugin
-
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 
 class GradleErrorMarkerTest extends ProjectSynchronizationSpecification {
@@ -90,5 +86,34 @@ class GradleErrorMarkerTest extends ProjectSynchronizationSpecification {
         then:
         numOfGradleErrorMarkers == 1
         findProject('error-marker-test-2').findMember(gradleErrorMarkers[0].resource.projectRelativePath)
+    }
+
+    def "Unlinking a project cleans up error markers too"() {
+        setup:
+        File projectDir = dir('error-marker-test') {
+            file 'build.gradle', ''
+            file 'settings.gradle', 'include "sub"'
+            dir('sub')
+        }
+        importAndWait(projectDir)
+        File buildFile = new File(projectDir, 'build.gradle')
+        File settingsFile = new File(projectDir, 'settings.gradle')
+        File subBuildFile = new File(projectDir, 'sub/build.gradle')
+        subBuildFile.text = 'I_AM_ERROR'
+
+        when:
+        synchronizeAndWait(projectDir)
+
+        then:
+        thrown BuildException
+        numOfGradleErrorMarkers == 1
+
+        when:
+        settingsFile.text = ''
+        synchronizeAndWait(projectDir)
+
+        then:
+        findProject('sub')
+        numOfGradleErrorMarkers == 0
     }
 }
