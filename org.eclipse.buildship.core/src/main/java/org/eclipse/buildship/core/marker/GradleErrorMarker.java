@@ -57,7 +57,6 @@ public class GradleErrorMarker {
         marker.setAttribute(IMarker.MESSAGE, collectErrorMessages(exception));
         marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
         marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-        marker.setAttribute(IMarker.LOCATION, "Gradle build script");
         marker.setAttribute(ATTRIBUTE_ROOT_DIR, gradleBuild.getBuildConfig().getRootProjectDirectory().getAbsolutePath());
         if (exception != null) {
             marker.setAttribute(GradleErrorMarker.ATTRIBUTE_STACKTRACE, collectStacktrace(exception));
