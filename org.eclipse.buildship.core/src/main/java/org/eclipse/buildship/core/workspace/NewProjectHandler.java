@@ -26,7 +26,7 @@ public interface NewProjectHandler {
     NewProjectHandler NO_OP = new NewProjectHandler() {
 
         @Override
-        public boolean shouldImport(OmniEclipseProject projectModel) {
+        public boolean shouldImport() {
             return false;
         };
 
@@ -41,7 +41,7 @@ public interface NewProjectHandler {
     NewProjectHandler IMPORT_AND_MERGE = new NewProjectHandler() {
 
         @Override
-        public boolean shouldImport(OmniEclipseProject projectModel) {
+        public boolean shouldImport() {
             return true;
         };
 
@@ -54,10 +54,9 @@ public interface NewProjectHandler {
      * Determines whether the given project that was found in the Gradle model should be imported
      * into the workspace.
      *
-     * @param projectModel the Gradle model of the project
      * @return true if the project should be imported, false otherwise
      */
-    boolean shouldImport(OmniEclipseProject projectModel);
+    boolean shouldImport();
 
     /**
      * Called after a project is newly imported into the workspace and all Gradle configuration has

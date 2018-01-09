@@ -243,8 +243,8 @@ public class ProjectImportWizardController {
         }
 
         @Override
-        public boolean shouldImport(OmniEclipseProject projectModel) {
-            return this.importedBuildDelegate.shouldImport(projectModel);
+        public boolean shouldImport() {
+            return this.importedBuildDelegate.shouldImport();
         }
 
         @Override

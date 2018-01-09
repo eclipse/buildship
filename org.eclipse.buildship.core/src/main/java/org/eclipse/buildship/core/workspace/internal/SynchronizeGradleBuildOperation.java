@@ -175,7 +175,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         if (workspaceProject.isPresent()) {
             synchronizeWorkspaceProject(project, workspaceProject.get(), childProgress);
         } else {
-            if (project.getProjectDirectory().exists() && this.newProjectHandler.shouldImport(project)) {
+            if (project.getProjectDirectory().exists() && this.newProjectHandler.shouldImport()) {
                 synchronizeNonWorkspaceProject(project, childProgress);
             }
         }
