@@ -106,7 +106,7 @@ public final class ToolingApiStatus extends Status implements IStatus {
     public void handleDefault() {
         CorePlugin.getInstance().getLog().log(this);
 
-        if ((getSeverity() & (IStatus.WARNING | IStatus.ERROR)) != 0) {
+        if (severityMatches(IStatus.WARNING | IStatus.ERROR)) {
             CorePlugin.userNotification().errorOccurred(
                     String.format("%s failed", this.workName),
                     getMessage(),
@@ -114,6 +114,10 @@ public final class ToolingApiStatus extends Status implements IStatus {
                     getSeverity(),
                     getException());
         }
+    }
+
+    public boolean severityMatches(int severity) {
+        return (getSeverity() & severity) != 0;
     }
 
     private static String collectErrorMessages(Throwable t) {

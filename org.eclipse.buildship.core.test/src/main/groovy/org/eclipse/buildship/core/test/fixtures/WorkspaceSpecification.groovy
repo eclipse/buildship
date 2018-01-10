@@ -11,7 +11,6 @@
 
 package org.eclipse.buildship.core.test.fixtures
 
-import groovy.lang.Closure
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.AutoCleanup
@@ -21,7 +20,9 @@ import com.google.common.io.Files
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
 
+import org.eclipse.core.resources.IMarker
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IWorkspace
 import org.eclipse.core.runtime.Path
 import org.eclipse.debug.core.DebugPlugin
@@ -35,6 +36,7 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.configuration.ConfigurationManager
 import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate
+import org.eclipse.buildship.core.marker.GradleErrorMarker
 import org.eclipse.buildship.core.preferences.PersistentModel
 import org.eclipse.buildship.core.preferences.internal.DefaultPersistentModel
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
@@ -61,6 +63,7 @@ abstract class WorkspaceSpecification extends Specification {
     def cleanup() {
         DebugPlugin.default.launchManager.launchConfigurations.each { it.delete() }
         deleteAllProjects(true)
+        deleteAllGradleErrorMarkers()
     }
 
     protected void deleteAllProjects(boolean includingContent) {
@@ -216,5 +219,17 @@ abstract class WorkspaceSpecification extends Specification {
             }
             Thread.sleep(50)
         }
+    }
+
+    protected int getNumOfGradleErrorMarkers() {
+        gradleErrorMarkers.size()
+    }
+
+    private void deleteAllGradleErrorMarkers() {
+        gradleErrorMarkers.each { it.delete() }
+    }
+
+    protected List<IMarker> getGradleErrorMarkers() {
+        workspace.root.findMarkers(GradleErrorMarker.ID, false, IResource.DEPTH_INFINITE) as List
     }
 }

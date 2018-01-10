@@ -13,19 +13,16 @@ import java.util.Set;
 import org.gradle.tooling.CancellationTokenSource;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 
 import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.workspace.GradleBuild;
-import org.eclipse.buildship.core.workspace.GradleBuilds;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
@@ -34,34 +31,20 @@ import org.eclipse.buildship.core.workspace.NewProjectHandler;
  */
 public final class SynchronizeGradleBuildsOperation {
 
-    private final ImmutableSet<GradleBuild> builds;
+    private final GradleBuild build;
     private final NewProjectHandler newProjectHandler;
 
-    private SynchronizeGradleBuildsOperation(Set<GradleBuild> builds, NewProjectHandler newProjectHandler) {
-        this.builds = ImmutableSet.copyOf(builds);
+    private SynchronizeGradleBuildsOperation(GradleBuild build, NewProjectHandler newProjectHandler) {
+        this.build = Preconditions.checkNotNull(build);
         this.newProjectHandler = Preconditions.checkNotNull(newProjectHandler);
     }
 
-    Set<GradleBuild> getBuilds() {
-        return this.builds;
-    }
-
     protected void run(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws CoreException {
-        final SubMonitor progress = SubMonitor.convert(monitor, this.builds.size() + 1);
-
-        for (GradleBuild build : this.builds) {
-            if (monitor.isCanceled()) {
-                throw new OperationCanceledException();
-            }
-            synchronizeBuild(build, tokenSource, progress.newChild(1));
-        }
-    }
-
-    private void synchronizeBuild(GradleBuild build, CancellationTokenSource tokenSource, SubMonitor progress) throws CoreException {
-        BuildConfiguration buildConfig = build.getBuildConfig();
+        SubMonitor progress = SubMonitor.convert(monitor, 4);
+        BuildConfiguration buildConfig = this.build.getBuildConfig();
         progress.setTaskName((String.format("Synchronizing Gradle build at %s with workspace", buildConfig.getRootProjectDirectory())));
-        progress.setWorkRemaining(4);
-        Set<OmniEclipseProject> allProjects = fetchEclipseProjects(build, tokenSource, progress.newChild(1));
+
+        Set<OmniEclipseProject> allProjects = fetchEclipseProjects(this.build, tokenSource, progress.newChild(1));
         new ValidateProjectLocationOperation(allProjects).run(progress.newChild(1));
         new SynchronizeBuildConfigurationOperation(buildConfig).run(progress.newChild(1), tokenSource.token());
         new RunOnImportTasksOperation(allProjects, buildConfig).run(progress.newChild(1), tokenSource.token());
@@ -75,11 +58,6 @@ public final class SynchronizeGradleBuildsOperation {
     }
 
     public static SynchronizeGradleBuildsOperation forSingleGradleBuild(GradleBuild build, NewProjectHandler newProjectHandler) {
-        return new SynchronizeGradleBuildsOperation(ImmutableSet.of(build), newProjectHandler);
+        return new SynchronizeGradleBuildsOperation(build, newProjectHandler);
     }
-
-    public static SynchronizeGradleBuildsOperation forMultipleGradleBuilds(GradleBuilds builds, NewProjectHandler newProjectHandler) {
-        return new SynchronizeGradleBuildsOperation(builds.getGradleBuilds(), newProjectHandler);
-    }
-
 }
