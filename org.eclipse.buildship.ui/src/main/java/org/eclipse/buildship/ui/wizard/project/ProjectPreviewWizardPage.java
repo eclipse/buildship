@@ -301,7 +301,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
             });
         } catch (InvocationTargetException e) {
             ToolingApiStatus status = WizardHelper.containerExceptionToToolingApiStatus(e);
-            if (ToolingApiStatusType.BUILD_CANCELLED.getCode() == status.getCode()) {
+            if (ToolingApiStatusType.BUILD_CANCELLED.matches(status)) {
                 displayCancellationWarning();
             } else {
                 status.handleDefault();
