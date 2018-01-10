@@ -42,6 +42,7 @@ import org.eclipse.buildship.core.operation.BaseToolingApiOperation;
 import org.eclipse.buildship.core.operation.ToolingApiOperation;
 import org.eclipse.buildship.core.operation.ToolingApiOperations;
 import org.eclipse.buildship.core.operation.ToolingApiStatus;
+import org.eclipse.buildship.core.operation.ToolingApiStatus.ToolingApiStatusType;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
@@ -195,7 +196,7 @@ public class ProjectImportWizardController {
         } catch (InvocationTargetException e) {
             ToolingApiStatus status = WizardHelper.containerExceptionToToolingApiStatus(e);
             status.handleDefault();
-            return false;
+            return !ToolingApiStatusType.IMPORT_ROOT_DIR_FAILED.matches(status);
         } catch (InterruptedException ignored) {
             return false;
         }

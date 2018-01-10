@@ -45,7 +45,15 @@ public final class ImportRootProjectOperation {
         this.newProjectHandler = Preconditions.checkNotNull(newProjectHandler);
     }
 
-    public void run(IProgressMonitor monitor) throws CoreException {
+    public void run(IProgressMonitor monitor) {
+        try {
+            runInWorkspace(monitor);
+        } catch (Exception e) {
+            throw new ImportRootProjectException(e);
+        }
+    }
+
+    private void runInWorkspace(IProgressMonitor monitor) throws CoreException {
         ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
 
             @Override
@@ -99,5 +107,17 @@ public final class ImportRootProjectOperation {
     private String findFreeProjectName(String baseName) {
         Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByName(baseName);
         return workspaceProject.isPresent() ? findFreeProjectName(baseName + "_") : baseName;
+    }
+
+    /**
+     * Exception type marking root import failure.
+     */
+    public static class ImportRootProjectException extends RuntimeException {
+
+        private static final long serialVersionUID = 1L;
+
+        public ImportRootProjectException(Exception cause) {
+            super(cause);
+        }
     }
 }

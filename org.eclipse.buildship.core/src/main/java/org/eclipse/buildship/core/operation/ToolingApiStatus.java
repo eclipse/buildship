@@ -27,6 +27,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.UnsupportedConfigurationException;
 import org.eclipse.buildship.core.util.string.StringUtils;
+import org.eclipse.buildship.core.workspace.internal.ImportRootProjectOperation.ImportRootProjectException;
 
 /**
  * Custom {@link IStatus} implementation to represent Gradle-related statuses.
@@ -41,6 +42,7 @@ public final class ToolingApiStatus extends Status implements IStatus {
     public static enum ToolingApiStatusType {
 
         BUILD_CANCELLED(IStatus.CANCEL, "%s"),
+        IMPORT_ROOT_DIR_FAILED(IStatus.WARNING, "%s failed due to an error while importing the root project."),
         BUILD_FAILED(IStatus.WARNING, "%s failed due to an error in the referenced Gradle build."),
         CONNECTION_FAILED(IStatus.WARNING, "%s failed due to an error connecting to the Gradle build."),
         UNSUPPORTED_CONFIGURATION(IStatus.WARNING, "%s failed due to an unsupported configuration in the referenced Gradle build."),
@@ -61,6 +63,10 @@ public final class ToolingApiStatus extends Status implements IStatus {
 
         public int getCode() {
             return this.ordinal();
+        }
+
+        public boolean matches(ToolingApiStatus status) {
+            return getCode() == status.getCode();
         }
 
         String messageTemplate() {
@@ -84,6 +90,8 @@ public final class ToolingApiStatus extends Status implements IStatus {
             return new ToolingApiStatus(ToolingApiStatusType.BUILD_FAILED, workName, (BuildException) failure);
         } else if (failure instanceof GradleConnectionException) {
             return new ToolingApiStatus(ToolingApiStatusType.CONNECTION_FAILED, workName, (GradleConnectionException) failure);
+        } else if (failure instanceof ImportRootProjectException) {
+            return new ToolingApiStatus(ToolingApiStatusType.IMPORT_ROOT_DIR_FAILED, workName, (ImportRootProjectException) failure);
         } else if (failure instanceof UnsupportedConfigurationException) {
             return new ToolingApiStatus(ToolingApiStatusType.UNSUPPORTED_CONFIGURATION, workName, (UnsupportedConfigurationException) failure);
         } else if (failure instanceof GradlePluginsRuntimeException) {
