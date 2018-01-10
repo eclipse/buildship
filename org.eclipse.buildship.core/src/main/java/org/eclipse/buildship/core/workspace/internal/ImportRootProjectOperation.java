@@ -76,18 +76,23 @@ public final class ImportRootProjectOperation {
 
     private void importRootProject(File rootDir, IProgressMonitor monitor) throws CoreException {
         SubMonitor progress = SubMonitor.convert(monitor);
-        progress.setWorkRemaining(1);
+        progress.setWorkRemaining(3);
 
         WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations();
         Optional<IProject> projectOrNull = workspaceOperations.findProjectByLocation(rootDir);
         if (projectOrNull.isPresent()) {
             IProject project = projectOrNull.get();
             workspaceOperations.addNature(project, GradleProjectNature.ID, progress.newChild(1));
-            project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
         } else if (this.newProjectHandler.shouldImport()) {
             String projectName = findFreeProjectName(rootDir.getName());
-            IProject project = workspaceOperations.createProject(projectName, rootDir, ImmutableList.<String>of(GradleProjectNature.ID), progress.newChild(1));
-            project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+            projectOrNull = Optional.of(workspaceOperations.createProject(projectName, rootDir, ImmutableList.<String>of(GradleProjectNature.ID), progress.newChild(1)));
+        }
+
+        if (projectOrNull.isPresent()) {
+            IProject project = projectOrNull.get();
+            project.refreshLocal(IResource.DEPTH_INFINITE, progress.newChild(1));
+            this.newProjectHandler.afterImport(project);
+            progress.worked(1);
         }
     }
 

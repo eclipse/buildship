@@ -21,7 +21,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingutils.binding.Property;
 import com.gradleware.tooling.toolingutils.binding.ValidationListener;
 import com.gradleware.tooling.toolingutils.binding.Validator;
@@ -248,8 +247,8 @@ public class ProjectImportWizardController {
         }
 
         @Override
-        public void afterImport(IProject project, OmniEclipseProject projectModel) {
-            this.importedBuildDelegate.afterImport(project, projectModel);
+        public void afterImport(IProject project) {
+            this.importedBuildDelegate.afterImport(project);
             addWorkingSets(project);
             ensureGradleViewsAreVisible();
         }

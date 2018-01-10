@@ -271,7 +271,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
             workspaceProject = addNewEclipseProjectToWorkspace(project, progress.newChild(1));
         }
 
-        this.newProjectHandler.afterImport(workspaceProject, project);
+        this.newProjectHandler.afterImport(workspaceProject);
     }
 
     private IProject addExistingEclipseProjectToWorkspace(OmniEclipseProject project, IProjectDescription projectDescription, SubMonitor progress) throws CoreException {
