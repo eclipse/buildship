@@ -88,17 +88,16 @@ public final class ImportRootProjectOperation {
 
         WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations();
         Optional<IProject> projectOrNull = workspaceOperations.findProjectByLocation(rootDir);
-        if (projectOrNull.isPresent()) {
-            IProject project = projectOrNull.get();
-            workspaceOperations.addNature(project, GradleProjectNature.ID, progress.newChild(1));
-        } else if (this.newProjectHandler.shouldImport()) {
+
+        if (!projectOrNull.isPresent() && this.newProjectHandler.shouldImport()) {
             String projectName = findFreeProjectName(rootDir.getName());
-            projectOrNull = Optional.of(workspaceOperations.createProject(projectName, rootDir, ImmutableList.<String>of(GradleProjectNature.ID), progress.newChild(1)));
+            projectOrNull = Optional.of(workspaceOperations.createProject(projectName, rootDir, ImmutableList.<String>of(), progress.newChild(1)));
         }
 
         if (projectOrNull.isPresent()) {
             IProject project = projectOrNull.get();
             project.refreshLocal(IResource.DEPTH_INFINITE, progress.newChild(1));
+            CorePlugin.workspaceOperations().addNature(project, GradleProjectNature.ID, progress.newChild(1));
             this.newProjectHandler.afterImport(project);
             progress.worked(1);
         }
