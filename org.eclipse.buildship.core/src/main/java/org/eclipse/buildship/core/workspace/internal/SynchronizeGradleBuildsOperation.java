@@ -40,13 +40,12 @@ public final class SynchronizeGradleBuildsOperation {
     }
 
     protected void run(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws CoreException {
-        SubMonitor progress = SubMonitor.convert(monitor, 4);
+        SubMonitor progress = SubMonitor.convert(monitor, 5);
         BuildConfiguration buildConfig = this.build.getBuildConfig();
         progress.setTaskName((String.format("Synchronizing Gradle build at %s with workspace", buildConfig.getRootProjectDirectory())));
-
-        Set<OmniEclipseProject> allProjects = fetchEclipseProjects(this.build, tokenSource, progress.newChild(1));
+        new ImportRootProjectOperation(buildConfig, this.newProjectHandler).run(progress.newChild(1));
+        Set<OmniEclipseProject> allProjects = fetchEclipseProjects(build, tokenSource, progress.newChild(1));
         new ValidateProjectLocationOperation(allProjects).run(progress.newChild(1));
-        new SynchronizeBuildConfigurationOperation(buildConfig).run(progress.newChild(1), tokenSource.token());
         new RunOnImportTasksOperation(allProjects, buildConfig).run(progress.newChild(1), tokenSource.token());
         new SynchronizeGradleBuildOperation(allProjects, buildConfig, SynchronizeGradleBuildsOperation.this.newProjectHandler).run(progress.newChild(1));
     }

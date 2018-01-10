@@ -21,7 +21,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 import com.gradleware.tooling.toolingutils.binding.Property;
 import com.gradleware.tooling.toolingutils.binding.ValidationListener;
 import com.gradleware.tooling.toolingutils.binding.Validator;
@@ -43,6 +42,7 @@ import org.eclipse.buildship.core.operation.BaseToolingApiOperation;
 import org.eclipse.buildship.core.operation.ToolingApiOperation;
 import org.eclipse.buildship.core.operation.ToolingApiOperations;
 import org.eclipse.buildship.core.operation.ToolingApiStatus;
+import org.eclipse.buildship.core.operation.ToolingApiStatus.ToolingApiStatusType;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
@@ -196,7 +196,7 @@ public class ProjectImportWizardController {
         } catch (InvocationTargetException e) {
             ToolingApiStatus status = WizardHelper.containerExceptionToToolingApiStatus(e);
             status.handleDefault();
-            return false;
+            return !ToolingApiStatusType.IMPORT_ROOT_DIR_FAILED.matches(status);
         } catch (InterruptedException ignored) {
             return false;
         }
@@ -243,13 +243,13 @@ public class ProjectImportWizardController {
         }
 
         @Override
-        public boolean shouldImport(OmniEclipseProject projectModel) {
-            return this.importedBuildDelegate.shouldImport(projectModel);
+        public boolean shouldImport() {
+            return this.importedBuildDelegate.shouldImport();
         }
 
         @Override
-        public void afterImport(IProject project, OmniEclipseProject projectModel) {
-            this.importedBuildDelegate.afterImport(project, projectModel);
+        public void afterImport(IProject project) {
+            this.importedBuildDelegate.afterImport(project);
             addWorkingSets(project);
             ensureGradleViewsAreVisible();
         }

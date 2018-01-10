@@ -6,6 +6,7 @@ import org.eclipse.buildship.core.UnsupportedConfigurationException
 import org.eclipse.buildship.core.operation.ToolingApiStatus.ToolingApiStatusType
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.test.fixtures.TestEnvironment.*
+import org.eclipse.buildship.core.workspace.internal.ImportRootProjectOperation.ImportRootProjectException
 
 class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecification {
 
@@ -48,7 +49,7 @@ class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecificat
         synchronizeAndWait(workspaceDir)
 
         then:
-        thrown(UnsupportedConfigurationException)
+        thrown(ImportRootProjectException)
     }
 
     def "Disallow importing any modules located at the workspace root"() {
@@ -61,7 +62,7 @@ class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecificat
         synchronizeAndWait(workspaceDir)
 
         then:
-        thrown(UnsupportedConfigurationException)
+        thrown(ImportRootProjectException)
     }
 
 }
