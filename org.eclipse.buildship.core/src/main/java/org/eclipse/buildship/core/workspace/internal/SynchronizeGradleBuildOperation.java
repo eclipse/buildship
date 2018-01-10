@@ -244,6 +244,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         JavaSourceSettingsUpdater.update(javaProject, project, progress.newChild(1));
         GradleClasspathContainerUpdater.updateFromModel(javaProject, project, SynchronizeGradleBuildOperation.this.allProjects, persistentModel, progress.newChild(1));
         WtpClasspathUpdater.update(javaProject, project, progress.newChild(1));
+        CorePlugin.externalLaunchConfigurationManager().updateClasspathProviders(workspaceProject);
     }
 
     private boolean isJavaProject(OmniEclipseProject project) {
