@@ -14,7 +14,11 @@ import com.google.common.base.Preconditions;
 
 import com.gradleware.tooling.toolingclient.GradleDistribution;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 
 import org.eclipse.buildship.core.CorePlugin;
@@ -53,6 +57,7 @@ final class BuildConfigurationPersistence {
     public void saveBuildConfiguration(IProject project, DefaultBuildConfigurationProperties properties) {
         Preconditions.checkNotNull(project);
         Preconditions.checkNotNull(properties);
+        syncPreferenceStorage(project);
         PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
         savePreferences(properties, preferences);
     }
@@ -87,9 +92,25 @@ final class BuildConfigurationPersistence {
     public void savePathToRoot(IProject project, String pathToRoot) {
         Preconditions.checkNotNull(project);
         Preconditions.checkNotNull(pathToRoot);
+        syncPreferenceStorage(project);
         PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
         saveRootDirPreference(pathToRoot, preferences);
+    }
 
+    private void syncPreferenceStorage(IProject p) {
+        // When importing an existing project with a generic import wizard, the Gradle classpath
+        // container can trigger the synchronization before the the project could be in sync with
+        // the file system resulting in a BackingStoreException. To avoid that, we preemptively
+        // refresh the corresponding files. See https://github.com/eclipse/buildship/issues/638
+        try {
+            p.refreshLocal(IResource.DEPTH_ONE, new NullProgressMonitor());
+            IFolder settings = p.getFolder(".settings");
+            if (settings.exists()) {
+                settings.refreshLocal(IResource.DEPTH_ONE, new NullProgressMonitor());
+            }
+        } catch (CoreException e) {
+            CorePlugin.logger().warn("Cannot sync preferences for project " + p.getName(), e);
+        }
     }
 
     public void savePathToRoot(File projectDir, String pathToRoot) {
