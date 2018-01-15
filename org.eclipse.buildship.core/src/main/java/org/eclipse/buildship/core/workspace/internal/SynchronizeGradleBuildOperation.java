@@ -189,17 +189,21 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
 
     private void synchronizeWorkspaceProject(OmniEclipseProject project, IProject workspaceProject, SubMonitor progress) throws CoreException {
         if (workspaceProject.isAccessible()) {
-            synchronizeOpenWorkspaceProject(project, workspaceProject, progress);
+            synchronizeOpenWorkspaceProject(project, workspaceProject, true, progress);
         } else {
             synchronizeClosedWorkspaceProject(progress);
         }
     }
 
-    private void synchronizeOpenWorkspaceProject(OmniEclipseProject project, IProject workspaceProject, SubMonitor progress) throws CoreException {
+    private void synchronizeOpenWorkspaceProject(OmniEclipseProject project, IProject workspaceProject, boolean refreshNeeded, SubMonitor progress) throws CoreException {
         progress.setWorkRemaining(10);
 
         //currently lots of our synchronization logic assumes that the whole resource tree is readable.
-        CorePlugin.workspaceOperations().refreshProject(workspaceProject, progress.newChild(1));
+        if (refreshNeeded) {
+            CorePlugin.workspaceOperations().refreshProject(workspaceProject, progress.newChild(1));
+        } else {
+            progress.worked(1);
+        }
 
         workspaceProject = ProjectNameUpdater.updateProjectName(workspaceProject, project, this.allProjects, progress.newChild(1));
 
@@ -273,7 +277,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         progress.setWorkRemaining(3);
         ProjectNameUpdater.ensureProjectNameIsFree(project, this.allProjects, progress.newChild(1));
         IProject workspaceProject = CorePlugin.workspaceOperations().includeProject(projectDescription, ImmutableList.<String>of(), progress.newChild(1));
-        synchronizeOpenWorkspaceProject(project, workspaceProject, progress.newChild(1));
+        synchronizeOpenWorkspaceProject(project, workspaceProject, false, progress.newChild(1));
         return workspaceProject;
     }
 
@@ -281,7 +285,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         progress.setWorkRemaining(3);
         ProjectNameUpdater.ensureProjectNameIsFree(project, this.allProjects, progress.newChild(1));
         IProject workspaceProject = CorePlugin.workspaceOperations().createProject(project.getName(), project.getProjectDirectory(), ImmutableList.<String>of(), progress.newChild(1));
-        synchronizeOpenWorkspaceProject(project, workspaceProject, progress.newChild(1));
+        synchronizeOpenWorkspaceProject(project, workspaceProject, false, progress.newChild(1));
         return workspaceProject;
     }
 

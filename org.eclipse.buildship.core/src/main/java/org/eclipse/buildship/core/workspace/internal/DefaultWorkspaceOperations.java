@@ -113,7 +113,7 @@ public class DefaultWorkspaceOperations implements WorkspaceOperations {
             project.create(projectDescription, progress.newChild(1));
 
             // open the project
-            project.open(IResource.BACKGROUND_REFRESH, progress.newChild(1));
+            project.open(IResource.NONE, progress.newChild(1));
 
             // add project natures separately to trigger IProjectNature#configure
             // the project needs to be open while the natures are added
@@ -145,7 +145,7 @@ public class DefaultWorkspaceOperations implements WorkspaceOperations {
             project.create(projectDescription, progress.newChild(1));
 
             // open the project
-            project.open(IResource.BACKGROUND_REFRESH, progress.newChild(1));
+            project.open(IResource.NONE, progress.newChild(1));
 
             // add project natures separately to trigger IProjectNature#configure
             // the project needs to be open while the natures are added
