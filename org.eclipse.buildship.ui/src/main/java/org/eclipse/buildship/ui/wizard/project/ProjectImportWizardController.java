@@ -243,13 +243,13 @@ public class ProjectImportWizardController {
         }
 
         @Override
-        public boolean shouldImport() {
-            return this.importedBuildDelegate.shouldImport();
+        public boolean shouldImportNewProjects() {
+            return this.importedBuildDelegate.shouldImportNewProjects();
         }
 
         @Override
-        public void afterImport(IProject project) {
-            this.importedBuildDelegate.afterImport(project);
+        public void afterProjectImported(IProject project) {
+            this.importedBuildDelegate.afterProjectImported(project);
             addWorkingSets(project);
             ensureGradleViewsAreVisible();
         }

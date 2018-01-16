@@ -24,12 +24,12 @@ public interface NewProjectHandler {
     NewProjectHandler NO_OP = new NewProjectHandler() {
 
         @Override
-        public boolean shouldImport() {
+        public boolean shouldImportNewProjects() {
             return false;
         };
 
         @Override
-        public void afterImport(IProject project) {
+        public void afterProjectImported(IProject project) {
         }
     };
 
@@ -39,12 +39,12 @@ public interface NewProjectHandler {
     NewProjectHandler IMPORT_AND_MERGE = new NewProjectHandler() {
 
         @Override
-        public boolean shouldImport() {
+        public boolean shouldImportNewProjects() {
             return true;
         };
 
         @Override
-        public void afterImport(IProject project) {
+        public void afterProjectImported(IProject project) {
         }
     };
 
@@ -54,7 +54,7 @@ public interface NewProjectHandler {
      *
      * @return true if the project should be imported, false otherwise
      */
-    boolean shouldImport();
+    boolean shouldImportNewProjects();
 
     /**
      * Called after a project is newly imported into the workspace and all Gradle configuration has
@@ -62,6 +62,6 @@ public interface NewProjectHandler {
      *
      * @param project the newly imported project
      */
-    void afterImport(IProject project);
+    void afterProjectImported(IProject project);
 
 }

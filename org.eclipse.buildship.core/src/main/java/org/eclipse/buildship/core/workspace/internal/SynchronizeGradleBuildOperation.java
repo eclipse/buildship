@@ -175,7 +175,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         if (workspaceProject.isPresent()) {
             synchronizeWorkspaceProject(project, workspaceProject.get(), childProgress);
         } else {
-            if (project.getProjectDirectory().exists() && this.newProjectHandler.shouldImport()) {
+            if (project.getProjectDirectory().exists() && this.newProjectHandler.shouldImportNewProjects()) {
                 synchronizeNonWorkspaceProject(project, childProgress);
             }
         }
@@ -271,7 +271,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
             workspaceProject = addNewEclipseProjectToWorkspace(project, progress.newChild(1));
         }
 
-        this.newProjectHandler.afterImport(workspaceProject);
+        this.newProjectHandler.afterProjectImported(workspaceProject);
     }
 
     private IProject addExistingEclipseProjectToWorkspace(OmniEclipseProject project, IProjectDescription projectDescription, SubMonitor progress) throws CoreException {
