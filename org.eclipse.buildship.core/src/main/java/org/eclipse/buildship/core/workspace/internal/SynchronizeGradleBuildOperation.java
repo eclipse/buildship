@@ -168,12 +168,6 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
 
     private void synchronizeGradleProjectWithWorkspaceProject(OmniEclipseProject project, SubMonitor progress) throws CoreException {
         progress.setWorkRemaining(1);
-
-        // save the project configuration
-        ConfigurationManager configManager = CorePlugin.configurationManager();
-        ProjectConfiguration projectConfig = configManager.createProjectConfiguration(this.buildConfig, project.getProjectDirectory());
-        configManager.saveProjectConfiguration(projectConfig);
-
         progress.subTask(String.format("Synchronize Gradle project %s with workspace project", project.getName()));
         // check if a project already exists in the workspace at the location of the Gradle project to import
         Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(project.getProjectDirectory());
@@ -204,6 +198,12 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         } else {
             progress.worked(1);
         }
+
+        // save the project configuration; has to be called after workspace project is in sync with the file system
+        // otherwise the Eclipse preferences API will throw BackingStoreException
+        ConfigurationManager configManager = CorePlugin.configurationManager();
+        ProjectConfiguration projectConfig = configManager.createProjectConfiguration(this.buildConfig, project.getProjectDirectory());
+        configManager.saveProjectConfiguration(projectConfig);
 
         workspaceProject = ProjectNameUpdater.updateProjectName(workspaceProject, project, this.allProjects, progress.newChild(1));
 
