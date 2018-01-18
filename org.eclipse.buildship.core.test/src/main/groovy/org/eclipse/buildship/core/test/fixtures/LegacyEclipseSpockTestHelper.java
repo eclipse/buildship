@@ -29,4 +29,7 @@ public abstract class LegacyEclipseSpockTestHelper {
         return ResourcesPlugin.getWorkspace();
     }
 
+    public static Object getAutoRefreshJobFamily() {
+        return ResourcesPlugin.FAMILY_AUTO_REFRESH;
+    }
 }
