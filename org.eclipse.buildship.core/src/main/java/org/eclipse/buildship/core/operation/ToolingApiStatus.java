@@ -90,17 +90,7 @@ public final class ToolingApiStatus extends Status implements IStatus {
         }
     }
 
-    /**
-     * Default way of presenting {@link ToolingApiStatus} instances.
-     * <p>
-     * TODO this method should disappear once we successfully convert all error dialogs
-     * displays to markers and log messages.
-     *
-     * @param workName The name of the task to display in the error dialog
-     * @param status the status to present in the dialog
-     */
-
-    public void handleDefault() {
+    public void log() {
         CorePlugin.getInstance().getLog().log(this);
     }
 

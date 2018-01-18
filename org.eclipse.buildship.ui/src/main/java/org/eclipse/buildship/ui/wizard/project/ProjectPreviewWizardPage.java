@@ -19,6 +19,7 @@ import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Throwables;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
@@ -46,10 +47,12 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.PageBook;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
@@ -83,7 +86,9 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     private Label gradleVersionLabel;
     private Label gradleVersionWarningLabel;
     private Label javaHomeLabel;
-    private Tree projectPreviewTree;
+    private PageBook previewResultPages;
+    private Tree previewResultSuccessTree;
+    private Text previewResultErrorText;
 
     public ProjectPreviewWizardPage(ProjectImportConfiguration configuration) {
         this(configuration,
@@ -189,8 +194,11 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
             }
         });
 
-        // add the preview tree
-        this.projectPreviewTree = uiBuilderFactory.newTree(container).alignFillBoth(2).control();
+        this.previewResultPages = new PageBook(container, SWT.NONE);
+        GridDataFactory.fillDefaults().span(2, 1).grab(true, true).applyTo(this.previewResultPages);
+        this.previewResultSuccessTree = new Tree(this.previewResultPages, SWT.NONE);
+        this.previewResultErrorText = new Text(this.previewResultPages, SWT.MULTI | SWT.READ_ONLY | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+        this.previewResultPages.showPage(this.previewResultSuccessTree);
     }
 
     private void createSpacingRow(Composite container, int horizontalSpan) {
@@ -254,7 +262,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         } catch (IllegalArgumentException e) {
             this.gradleVersionWarningLabel.setVisible(false);
         }
-        ProjectPreviewWizardPage.this.gradleVersionLabel.getParent().layout();
+        this.gradleVersionLabel.getParent().layout();
     }
 
     @Override
@@ -302,84 +310,96 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         } catch (InvocationTargetException e) {
             ToolingApiStatus status = WizardHelper.containerExceptionToToolingApiStatus(e);
             if (ToolingApiStatusType.BUILD_CANCELLED.matches(status)) {
-                displayCancellationWarning();
+                previewCancelled();
             } else {
-                status.handleDefault();
-                clearTree();
+                previewFailed(status);
             }
         } catch (InterruptedException ignored) {
-            displayCancellationWarning();
+            previewCancelled();
         }
     }
 
-    private void updateSummary(final OmniBuildEnvironment buildEnvironment) {
+    private void previewFinished(final OmniBuildEnvironment buildEnvironment, final OmniGradleBuild gradleBuild) {
         PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
             @Override
             public void run() {
-                if (!getControl().isDisposed()) {
-                    // update Gradle user home
-                    if (buildEnvironment.getGradle().getGradleUserHome().isPresent()) {
-                        String gradleUserHome = buildEnvironment.getGradle().getGradleUserHome().get().getAbsolutePath();
-                        ProjectPreviewWizardPage.this.gradleUserHomeLabel.setText(gradleUserHome);
-                    }
-
-                    // update Gradle version
-                    String gradleVersion = buildEnvironment.getGradle().getGradleVersion();
-                    ProjectPreviewWizardPage.this.gradleVersionLabel.setText(gradleVersion);
-                    updateGradleVersionWarningLabel();
-
-                    // update Java home
-                    String javaHome = buildEnvironment.getJava().getJavaHome().getAbsolutePath();
-                    ProjectPreviewWizardPage.this.javaHomeLabel.setText(javaHome);
-                }
+                setErrorMessage(null);
+                updateSummary(buildEnvironment);
+                showResultTree(gradleBuild);
             }
         });
     }
 
-    private void populateTree(final OmniGradleBuild buildStructure) {
+    private void previewCancelled() {
         PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
             @Override
             public void run() {
-                if (!getControl().isDisposed()) {
-                    ProjectPreviewWizardPage.this.projectPreviewTree.removeAll();
-                    populateRecursively(buildStructure, ProjectPreviewWizardPage.this.projectPreviewTree);
-                }
+                setErrorMessage(ProjectWizardMessages.Preview_Cancelled);
+                showEmptyResultTree();
             }
         });
     }
 
-    private void clearTree() {
+    private void previewFailed(final ToolingApiStatus status) {
+        status.log();
+        Throwable t = status.getException();
+        final String stacktrace = t == null ? ProjectWizardMessages.Preview_No_Stacktrace : Throwables.getStackTraceAsString(t);
         PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
             @Override
             public void run() {
-                if (!getControl().isDisposed()) {
-                    ProjectPreviewWizardPage.this.projectPreviewTree.removeAll();
-                }
+                setErrorMessage(ProjectWizardMessages.Preview_Failed);
+                showExceptionText(stacktrace);
             }
         });
     }
 
-    private void displayCancellationWarning() {
-        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-
-            @Override
-            public void run() {
-                if (!getControl().isDisposed()) {
-                    ProjectPreviewWizardPage.this.projectPreviewTree.removeAll();
-                    TreeItem root = new TreeItem(ProjectPreviewWizardPage.this.projectPreviewTree, SWT.NONE);
-                    root.setText("Preview cancelled");
-
-                }
+    private void updateSummary(OmniBuildEnvironment buildEnvironment) {
+        if (!getControl().isDisposed()) {
+            // update Gradle user home
+            if (buildEnvironment.getGradle().getGradleUserHome().isPresent()) {
+                String gradleUserHome = buildEnvironment.getGradle().getGradleUserHome().get().getAbsolutePath();
+                this.gradleUserHomeLabel.setText(gradleUserHome);
             }
-        });
+
+            // update Gradle version
+            String gradleVersion = buildEnvironment.getGradle().getGradleVersion();
+            this.gradleVersionLabel.setText(gradleVersion);
+            updateGradleVersionWarningLabel();
+
+            // update Java home
+            String javaHome = buildEnvironment.getJava().getJavaHome().getAbsolutePath();
+            this.javaHomeLabel.setText(javaHome);
+        }
+    }
+
+    private void showResultTree(OmniGradleBuild buildStructure) {
+        if (!getControl().isDisposed()) {
+            this.previewResultSuccessTree.removeAll();
+            populateRecursively(buildStructure, this.previewResultSuccessTree);
+            this.previewResultPages.showPage(this.previewResultSuccessTree);
+        }
+    }
+
+    private void showEmptyResultTree() {
+        if (!getControl().isDisposed()) {
+            this.previewResultSuccessTree.removeAll();
+            this.previewResultPages.showPage(this.previewResultSuccessTree);
+        }
+    }
+
+    private void showExceptionText(String stackTrace) {
+        if (!getControl().isDisposed()) {
+            this.previewResultErrorText.setText(stackTrace);
+            this.previewResultPages.showPage(this.previewResultErrorText);
+        }
     }
 
     private void populateRecursively(OmniGradleBuild gradleBuild, Tree parent) {
         OmniGradleProjectStructure rootProject = gradleBuild.getRootProject();
-        TreeItem rootTreeItem = new TreeItem(ProjectPreviewWizardPage.this.projectPreviewTree, SWT.NONE);
+        TreeItem rootTreeItem = new TreeItem(this.previewResultSuccessTree, SWT.NONE);
         rootTreeItem.setExpanded(true);
         rootTreeItem.setText(rootProject.getName());
         populateRecursively(rootProject, rootTreeItem);
@@ -437,9 +457,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
             OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(this.buildConfig, tokenSource, progress.newChild(1));
             OmniGradleBuild gradleBuild = fetchGradleBuildStructure(this.buildConfig, tokenSource, progress.newChild(1));
-
-            updateSummary(buildEnvironment);
-            populateTree(gradleBuild);
+            previewFinished(buildEnvironment, gradleBuild);
         }
     }
 }
