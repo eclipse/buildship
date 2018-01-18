@@ -4,7 +4,6 @@ import com.google.common.base.Optional
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IProjectDescription
-import org.eclipse.core.resources.ResourcesPlugin
 import org.eclipse.core.runtime.ILogListener
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Platform
@@ -13,7 +12,6 @@ import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.Logger
-import org.eclipse.buildship.core.notification.UserNotification
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 
@@ -63,12 +61,7 @@ class ImportingProjectWithExistingDescriptor extends SingleProjectSynchronizatio
         deleteAllProjects(false)
 
         Logger logger = Mock(Logger)
-        UserNotification notification = Mock(UserNotification)
         environment.registerService(Logger, logger)
-        environment.registerService(UserNotification, notification)
-
-        ILogListener logListener = Mock(ILogListener)
-        Platform.addLogListener(logListener)
 
         expect:
         !findProject('sample-project')
@@ -80,13 +73,9 @@ class ImportingProjectWithExistingDescriptor extends SingleProjectSynchronizatio
 
         then:
         findProject('sample-project')
+        platformLogErrors.empty
         0 * logger.warn(*_)
         0 * logger.error(*_)
-        0 * notification.errorOccurred(*_)
-        0 * logListener.logging(*_)
-
-        cleanup:
-        Platform.removeLogListener(logListener)
     }
 
     @Override

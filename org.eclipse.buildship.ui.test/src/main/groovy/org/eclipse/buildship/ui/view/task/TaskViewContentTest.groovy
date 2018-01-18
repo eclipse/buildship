@@ -22,7 +22,6 @@ import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem
 
 import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.notification.UserNotification
 
 class TaskViewContentTest extends BaseTaskViewTest {
 
@@ -109,9 +108,6 @@ class TaskViewContentTest extends BaseTaskViewTest {
 
     def "If one project has invalid build script then tasks from other projects are still visible"() {
         given:
-        UserNotification notification = Mock(UserNotification)
-        registerService(UserNotification, notification)
-
         def first = dir("a") { file 'build.gradle' }
         def second = dir("b") { file 'build.gradle' }
         importAndWait(first)
@@ -128,9 +124,6 @@ class TaskViewContentTest extends BaseTaskViewTest {
 
     def "If one project has invalid configuration then tasks from other projects are still visible"(String config) {
         given:
-        UserNotification notification = Mock(UserNotification)
-        registerService(UserNotification, notification)
-
         def first = dir("a") { file 'build.gradle' }
         def second = dir("b") { file 'build.gradle' }
         importAndWait(first)

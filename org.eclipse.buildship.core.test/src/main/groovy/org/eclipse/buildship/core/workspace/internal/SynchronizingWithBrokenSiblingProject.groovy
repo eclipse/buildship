@@ -6,7 +6,6 @@ import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
 
 import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.notification.UserNotification
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 
 class SynchronizingWithBrokenSiblingProject extends ProjectSynchronizationSpecification {
@@ -16,8 +15,6 @@ class SynchronizingWithBrokenSiblingProject extends ProjectSynchronizationSpecif
         setup:
         def first = dir('first')
         def second = dir('second')
-        UserNotification notification = Mock(UserNotification)
-        environment.registerService(UserNotification, notification)
 
         importAndWait(first)
         importAndWait(second)
@@ -29,6 +26,7 @@ class SynchronizingWithBrokenSiblingProject extends ProjectSynchronizationSpecif
         synchronizeAndWait(first)
 
         then:
-        0 * notification.errorOccurred(*_)
+        platformLogErrors.empty
+        gradleErrorMarkers.empty
     }
 }

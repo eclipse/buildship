@@ -15,7 +15,6 @@ class CorePluginTest extends Specification {
         CorePlugin.configurationManager() != null
         CorePlugin.processStreamsProvider() != null
         CorePlugin.gradleLaunchConfigurationManager() != null
-        CorePlugin.userNotification() != null
     }
 
 }
