@@ -8,10 +8,6 @@
  */
 package org.eclipse.buildship.core.workspace;
 
-import java.util.Set;
-
-import com.google.common.collect.ImmutableSet;
-
 import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.event.Event;
@@ -23,13 +19,13 @@ import org.eclipse.buildship.core.event.Event;
  */
 public final class GradleNatureAddedEvent implements Event {
 
-    private final Set<IProject> projects;
+    private final IProject project;
 
-    public GradleNatureAddedEvent(Set<IProject> projects) {
-        this.projects = ImmutableSet.copyOf(projects);
+    public GradleNatureAddedEvent(IProject project) {
+        this.project = project;
     }
 
-    public Set<IProject> getProjects() {
-        return this.projects;
+    public IProject getProject() {
+        return this.project;
     }
 }

@@ -68,8 +68,8 @@ class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification
         importAndWait(location)
 
         then:
-        allProjects().isEmpty()
         thrown(UnsupportedConfigurationException)
+        findProject('app')
     }
 
     def "Custom project naming is honoured on the non-root projects when the root is under the workspace root"() {

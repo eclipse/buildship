@@ -16,8 +16,9 @@ class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpe
 
         then:
         thrown(UnsupportedConfigurationException)
-        allProjects().size() == 1
+        allProjects().size() == 2
         findProject('root')
+        findProject('second')
     }
 
     // TODO (donat) the test randomly imports subprojects from project 'second'

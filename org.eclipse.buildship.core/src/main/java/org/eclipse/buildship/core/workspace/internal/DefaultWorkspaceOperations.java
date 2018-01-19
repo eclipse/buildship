@@ -36,8 +36,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.UnsupportedConfigurationException;
+import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.workspace.GradleNatureAddedEvent;
 import org.eclipse.buildship.core.workspace.WorkspaceOperations;
 
 /**
@@ -220,6 +223,11 @@ public class DefaultWorkspaceOperations implements WorkspaceOperations {
 
             // save the updated description
             project.setDescription(description, progress.newChild(1));
+
+            // if the currently set nature is the Gradle nature then publish the appropriate event
+            if (GradleProjectNature.ID.equals(natureId)) {
+                CorePlugin.listenerRegistry().dispatch(new GradleNatureAddedEvent(project));
+            }
         } catch (CoreException e) {
             String message = String.format("Cannot add nature %s to Eclipse project %s.", natureId, project.getName());
             throw new GradlePluginsRuntimeException(message, e);
