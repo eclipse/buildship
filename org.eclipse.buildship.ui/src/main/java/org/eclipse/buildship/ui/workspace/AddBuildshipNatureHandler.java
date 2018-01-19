@@ -28,7 +28,6 @@ import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.util.collections.AdapterFunction;
 import org.eclipse.buildship.core.workspace.GradleBuild;
-import org.eclipse.buildship.core.workspace.GradleNatureAddedEvent;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 import org.eclipse.buildship.core.workspace.SynchronizationJob;
 
@@ -48,7 +47,6 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
             Set<IProject> projects = collectProjects(elements);
             Set<BuildConfiguration> buildConfigs = createBuildConfigsFor(projects);
             synchronize(buildConfigs);
-            publishNatureAddedEvent(projects);
         }
         return null;
     }
@@ -80,10 +78,5 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
         }
 
         new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, gradleBuilds).schedule();
-    }
-
-    private void publishNatureAddedEvent(Set<IProject> projects) {
-        // TODO this could be solved in a more general way by publishing nature added and removed events during project synchronization
-        CorePlugin.listenerRegistry().dispatch(new GradleNatureAddedEvent(projects));
     }
 }
