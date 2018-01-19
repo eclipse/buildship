@@ -26,7 +26,6 @@ class SynchronizingWithBrokenSiblingProject extends ProjectSynchronizationSpecif
         synchronizeAndWait(first)
 
         then:
-        platformLogErrors.empty
-        gradleErrorMarkers.empty
+        getGradleErrorMarkers(findProject('first')).empty
     }
 }

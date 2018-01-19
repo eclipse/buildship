@@ -238,8 +238,8 @@ abstract class WorkspaceSpecification extends Specification {
         gradleErrorMarkers.each { it.delete() }
     }
 
-    protected List<IMarker> getGradleErrorMarkers() {
-        workspace.root.findMarkers(GradleErrorMarker.ID, false, IResource.DEPTH_INFINITE) as List
+    protected List<IMarker> getGradleErrorMarkers(IResource rootResource = workspace.root) {
+        rootResource.findMarkers(GradleErrorMarker.ID, false, IResource.DEPTH_INFINITE) as List
     }
 
     protected List<IStatus> getPlatformLogErrors() {
