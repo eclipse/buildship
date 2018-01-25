@@ -11,7 +11,8 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import com.google.common.collect.ImmutableList;
+
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
@@ -26,8 +27,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 
-import com.google.common.collect.ImmutableList;
-import com.gradleware.tooling.toolingutils.binding.Property;
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.util.binding.Property;
 
 /**
  * Page on a {@link AbstractProjectWizard} that welcomes the user and provides some information about the wizard.

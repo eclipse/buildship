@@ -13,9 +13,9 @@ package org.eclipse.buildship.ui.view.task;
 
 import java.util.List;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-
 import org.eclipse.core.resources.IProject;
+
+import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
 
 /**
  * Encapsulates the content backing the {@link TaskView}.

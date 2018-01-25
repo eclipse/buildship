@@ -3,8 +3,6 @@ package org.eclipse.buildship.core.workspace.internal
 import org.gradle.api.JavaVersion
 import spock.lang.IgnoreIf
 
-import com.gradleware.tooling.toolingclient.GradleDistribution
-
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.IClasspathEntry
@@ -13,6 +11,7 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.launching.JavaRuntime
 
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.util.gradle.GradleDistribution
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 
 

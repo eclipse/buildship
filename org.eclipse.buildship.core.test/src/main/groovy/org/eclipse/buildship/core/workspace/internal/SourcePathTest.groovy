@@ -1,7 +1,5 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import com.gradleware.tooling.toolingclient.GradleDistribution
-
 import org.eclipse.core.resources.IProject
 import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.jdt.core.JavaCore
@@ -10,6 +8,7 @@ import org.eclipse.jdt.launching.JavaRuntime
 
 import org.eclipse.buildship.core.launch.internal.SupportedLaunchConfigType
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.util.gradle.GradleDistribution
 
 class SourcePathTest extends ProjectSynchronizationSpecification {
 

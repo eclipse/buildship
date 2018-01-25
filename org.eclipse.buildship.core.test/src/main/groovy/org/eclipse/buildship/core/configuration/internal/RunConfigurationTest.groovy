@@ -2,8 +2,6 @@ package org.eclipse.buildship.core.configuration.internal
 
 import spock.lang.Issue
 
-import com.gradleware.tooling.toolingclient.GradleDistribution
-
 import org.eclipse.core.variables.IStringVariableManager
 import org.eclipse.core.variables.IValueVariable
 import org.eclipse.core.variables.VariablesPlugin
@@ -18,6 +16,7 @@ import org.eclipse.buildship.core.configuration.RunConfiguration
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes
 import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.util.gradle.GradleDistribution
 
 class RunConfigurationTest extends ProjectSynchronizationSpecification {
 

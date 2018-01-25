@@ -2,10 +2,6 @@ package org.eclipse.buildship.core.workspace.internal
 
 import com.google.common.base.Optional
 
-import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute
-import com.gradleware.tooling.toolingmodel.OmniEclipseSourceDirectory
-import com.gradleware.tooling.toolingmodel.util.Maybe
-
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.NullProgressMonitor
@@ -15,8 +11,11 @@ import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
+import org.eclipse.buildship.core.omnimodel.OmniClasspathAttribute
+import org.eclipse.buildship.core.omnimodel.OmniEclipseSourceDirectory
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.util.file.FileUtils
+import org.eclipse.buildship.core.util.gradle.Maybe
 
 class SourceFolderUpdaterTest extends WorkspaceSpecification {
 

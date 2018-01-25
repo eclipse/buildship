@@ -15,6 +15,10 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
 import org.gradle.tooling.CancellationTokenSource;
+import org.gradle.tooling.model.build.BuildEnvironment;
+import org.gradle.tooling.model.build.GradleEnvironment;
+import org.gradle.tooling.model.gradle.BasicGradleProject;
+import org.gradle.tooling.model.gradle.GradleBuild;
 import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Function;
@@ -23,12 +27,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
-import com.gradleware.tooling.toolingmodel.OmniGradleProjectStructure;
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.util.Pair;
-import com.gradleware.tooling.toolingutils.binding.Property;
+import org.eclipse.buildship.core.util.gradle.Pair;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
@@ -64,8 +63,10 @@ import org.eclipse.buildship.core.operation.ToolingApiOperations;
 import org.eclipse.buildship.core.operation.ToolingApiStatus;
 import org.eclipse.buildship.core.operation.ToolingApiStatus.ToolingApiStatusType;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.util.binding.Property;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
+import org.eclipse.buildship.core.workspace.FetchStrategy;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.layout.LayoutUtils;
@@ -319,7 +320,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         }
     }
 
-    private void previewFinished(final OmniBuildEnvironment buildEnvironment, final OmniGradleBuild gradleBuild) {
+    private void previewFinished(final BuildEnvironment buildEnvironment, final GradleBuild gradleBuild) {
         PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
             @Override
@@ -356,26 +357,37 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         });
     }
 
-    private void updateSummary(OmniBuildEnvironment buildEnvironment) {
+    private void updateSummary(BuildEnvironment buildEnvironment) {
         if (!getControl().isDisposed()) {
             // update Gradle user home
-            if (buildEnvironment.getGradle().getGradleUserHome().isPresent()) {
-                String gradleUserHome = buildEnvironment.getGradle().getGradleUserHome().get().getAbsolutePath();
-                this.gradleUserHomeLabel.setText(gradleUserHome);
-            }
+            String gradleUserHome = getGradleUserHomePath(buildEnvironment);
+            ProjectPreviewWizardPage.this.gradleUserHomeLabel.setText(gradleUserHome);
 
             // update Gradle version
             String gradleVersion = buildEnvironment.getGradle().getGradleVersion();
-            this.gradleVersionLabel.setText(gradleVersion);
+            ProjectPreviewWizardPage.this.gradleVersionLabel.setText(gradleVersion);
             updateGradleVersionWarningLabel();
 
             // update Java home
             String javaHome = buildEnvironment.getJava().getJavaHome().getAbsolutePath();
-            this.javaHomeLabel.setText(javaHome);
+            ProjectPreviewWizardPage.this.javaHomeLabel.setText(javaHome);
         }
     }
 
-    private void showResultTree(OmniGradleBuild buildStructure) {
+    private String getGradleUserHomePath(BuildEnvironment buildEnvironment) {
+        File gradleUserHome = getGradleUserHome(buildEnvironment.getGradle());
+        return gradleUserHome == null ? "" : gradleUserHome.getAbsolutePath();
+    }
+
+    private File getGradleUserHome(GradleEnvironment gradleEnvironment) {
+        try {
+            return gradleEnvironment.getGradleUserHome();
+        } catch (Exception ignore) {
+            return null;
+        }
+    }
+
+    private void showResultTree(GradleBuild buildStructure) {
         if (!getControl().isDisposed()) {
             this.previewResultSuccessTree.removeAll();
             populateRecursively(buildStructure, this.previewResultSuccessTree);
@@ -397,19 +409,19 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         }
     }
 
-    private void populateRecursively(OmniGradleBuild gradleBuild, Tree parent) {
-        OmniGradleProjectStructure rootProject = gradleBuild.getRootProject();
+    private void populateRecursively(GradleBuild gradleBuild, Tree parent) {
+        BasicGradleProject rootProject = gradleBuild.getRootProject();
         TreeItem rootTreeItem = new TreeItem(this.previewResultSuccessTree, SWT.NONE);
         rootTreeItem.setExpanded(true);
         rootTreeItem.setText(rootProject.getName());
         populateRecursively(rootProject, rootTreeItem);
-        for (OmniGradleBuild includedBuilds : gradleBuild.getIncludedBuilds()) {
+        for (GradleBuild includedBuilds : gradleBuild.getIncludedBuilds()) {
             populateRecursively(includedBuilds, parent);
         }
     }
 
-    private void populateRecursively(OmniGradleProjectStructure gradleProjectStructure, TreeItem parent) {
-        for (OmniGradleProjectStructure childProject : gradleProjectStructure.getChildren()) {
+    private void populateRecursively(BasicGradleProject gradleProject, TreeItem parent) {
+        for (BasicGradleProject childProject : gradleProject.getChildren()) {
             TreeItem treeItem = new TreeItem(parent, SWT.NONE);
             treeItem.setText(childProject.getName());
             populateRecursively(childProject, treeItem);
@@ -428,14 +440,14 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         super.dispose();
     }
 
-    private static OmniBuildEnvironment fetchBuildEnvironment(BuildConfiguration buildConfig, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+    private static BuildEnvironment fetchBuildEnvironment(BuildConfiguration buildConfig, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig).getModelProvider();
-        return modelProvider.fetchBuildEnvironment(FetchStrategy.FORCE_RELOAD, tokenSource, monitor);
+        return modelProvider.fetchModel(BuildEnvironment.class, FetchStrategy.FORCE_RELOAD, tokenSource, monitor);
     }
 
-    private static OmniGradleBuild fetchGradleBuildStructure(BuildConfiguration buildConfig, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+    private static GradleBuild fetchGradleBuildStructure(BuildConfiguration buildConfig, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig).getModelProvider();
-        return modelProvider.fetchGradleBuild(FetchStrategy.FORCE_RELOAD, tokenSource, monitor);
+        return modelProvider.fetchModel(GradleBuild.class, FetchStrategy.FORCE_RELOAD, tokenSource, monitor);
     }
 
     /**
@@ -455,8 +467,8 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
             SubMonitor progress = SubMonitor.convert(monitor);
             progress.setWorkRemaining(2);
 
-            OmniBuildEnvironment buildEnvironment = fetchBuildEnvironment(this.buildConfig, tokenSource, progress.newChild(1));
-            OmniGradleBuild gradleBuild = fetchGradleBuildStructure(this.buildConfig, tokenSource, progress.newChild(1));
+            BuildEnvironment buildEnvironment = fetchBuildEnvironment(this.buildConfig, tokenSource, progress.newChild(1));
+            GradleBuild gradleBuild = fetchGradleBuildStructure(this.buildConfig, tokenSource, progress.newChild(1));
             previewFinished(buildEnvironment, gradleBuild);
         }
     }

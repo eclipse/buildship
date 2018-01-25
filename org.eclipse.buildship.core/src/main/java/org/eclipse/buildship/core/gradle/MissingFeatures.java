@@ -17,7 +17,7 @@ import org.gradle.util.GradleVersion;
 
 import com.google.common.collect.ImmutableList;
 
-import com.gradleware.tooling.toolingmodel.util.Pair;
+import org.eclipse.buildship.core.util.gradle.Pair;
 
 /**
  * Provides the Buildship features that are missing for a given target Gradle version.

@@ -2,14 +2,13 @@ package org.eclipse.buildship.core.workspace.internal
 
 import com.google.common.base.Optional
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject
-
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
+import org.eclipse.buildship.core.omnimodel.OmniEclipseProject
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
 class LibraryFilterTest extends WorkspaceSpecification {

@@ -11,10 +11,6 @@
 
 package org.eclipse.buildship.core.workspace.internal
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject
-import com.gradleware.tooling.toolingmodel.OmniGradleProject
-import com.gradleware.tooling.toolingmodel.util.Maybe
-
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.JavaCore
@@ -23,8 +19,11 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.UnsupportedConfigurationException
 import org.eclipse.buildship.core.configuration.GradleProjectNature
+import org.eclipse.buildship.core.omnimodel.OmniEclipseProject
+import org.eclipse.buildship.core.omnimodel.OmniGradleProject
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.util.gradle.Maybe
 
 class WorkspaceOperationsTest extends WorkspaceSpecification {
 

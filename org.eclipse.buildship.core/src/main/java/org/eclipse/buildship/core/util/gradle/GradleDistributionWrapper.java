@@ -20,8 +20,6 @@ import org.gradle.tooling.GradleConnector;
 
 import com.google.common.base.Preconditions;
 
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-
 /**
  * Wraps the type of Gradle distribution and its configurations, e.g. using a fixed Gradle version
  * (type) in version 2.1 (configuration).

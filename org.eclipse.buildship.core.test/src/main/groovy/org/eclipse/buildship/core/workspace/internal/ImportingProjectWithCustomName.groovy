@@ -12,13 +12,10 @@
 package org.eclipse.buildship.core.workspace.internal
 
 import org.gradle.tooling.GradleConnector
+import org.gradle.tooling.model.build.BuildEnvironment
+import org.gradle.tooling.model.gradle.GradleBuild
 
 import com.google.common.util.concurrent.FutureCallback
-
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment
-import com.gradleware.tooling.toolingmodel.OmniGradleBuild
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
-import com.gradleware.tooling.toolingmodel.util.Pair
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
@@ -28,6 +25,8 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.UnsupportedConfigurationException
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.util.gradle.Pair
+import org.eclipse.buildship.core.workspace.FetchStrategy
 
 class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification {
 
@@ -143,10 +142,10 @@ class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification
             '''
         }
 
-        FutureCallback<Pair<OmniBuildEnvironment, OmniGradleBuild>> previewResultHandler = Mock()
+        FutureCallback<Pair<BuildEnvironment, GradleBuild>> previewResultHandler = Mock()
 
         when:
-        OmniGradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(createInheritingBuildConfiguration(location)).modelProvider.fetchGradleBuild(FetchStrategy.FORCE_RELOAD, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
+        GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(createInheritingBuildConfiguration(location)).modelProvider.fetchModel(GradleBuild, FetchStrategy.FORCE_RELOAD, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
 
         then:
         gradleBuild.rootProject.name == 'app'

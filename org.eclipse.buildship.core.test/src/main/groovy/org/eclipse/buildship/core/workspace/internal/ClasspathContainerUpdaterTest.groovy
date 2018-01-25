@@ -2,13 +2,6 @@ package org.eclipse.buildship.core.workspace.internal
 
 import com.google.common.base.Optional
 
-import com.gradleware.tooling.toolingmodel.OmniAccessRule
-import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute
-import com.gradleware.tooling.toolingmodel.OmniEclipseClasspathContainer
-import com.gradleware.tooling.toolingmodel.OmniJavaRuntime
-import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings
-import com.gradleware.tooling.toolingmodel.OmniJavaVersion
-
 import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
@@ -19,6 +12,12 @@ import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.launching.JavaRuntime
 
+import org.eclipse.buildship.core.omnimodel.OmniAccessRule
+import org.eclipse.buildship.core.omnimodel.OmniClasspathAttribute
+import org.eclipse.buildship.core.omnimodel.OmniEclipseClasspathContainer
+import org.eclipse.buildship.core.omnimodel.OmniJavaRuntime
+import org.eclipse.buildship.core.omnimodel.OmniJavaSourceSettings
+import org.eclipse.buildship.core.omnimodel.OmniJavaVersion
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 

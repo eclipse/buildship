@@ -10,15 +10,14 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.File;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.OmniGradleScript;
-import com.gradleware.tooling.toolingmodel.util.Maybe;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 
+import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
+import org.eclipse.buildship.core.omnimodel.OmniGradleScript;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
+import org.eclipse.buildship.core.util.gradle.Maybe;
 
 /**
  * Updates the build script location in the persistent model.

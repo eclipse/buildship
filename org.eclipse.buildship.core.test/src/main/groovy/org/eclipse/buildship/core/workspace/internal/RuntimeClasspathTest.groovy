@@ -1,14 +1,10 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import groovy.lang.Closure
 import org.gradle.api.JavaVersion
 import spock.lang.IgnoreIf
 import spock.lang.Issue
 
-import com.gradleware.tooling.toolingclient.GradleDistribution
-
 import org.eclipse.core.runtime.Path
-import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
@@ -16,6 +12,7 @@ import org.eclipse.jdt.launching.IRuntimeClasspathEntry
 import org.eclipse.jdt.launching.JavaRuntime
 
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.util.gradle.GradleDistribution
 
 class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
 

@@ -18,8 +18,6 @@ import java.net.URISyntaxException;
 
 import com.google.common.base.Preconditions;
 
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-
 /**
  * Serializes / deserializes a {@link GradleDistribution} to / from a {@link String}.
  */

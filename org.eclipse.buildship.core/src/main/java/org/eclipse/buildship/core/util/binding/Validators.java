@@ -19,9 +19,6 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 
-import com.gradleware.tooling.toolingutils.binding.Property;
-import com.gradleware.tooling.toolingutils.binding.Validator;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.osgi.util.NLS;
@@ -33,8 +30,22 @@ import org.eclipse.buildship.core.i18n.CoreMessages;
  */
 public final class Validators {
 
+    private static final Validator<Object> NO_OP = new Validator<Object>() {
+        @Override
+        public Optional<String> validate(Object value) {
+            return Optional.absent();
+        }
+    };
+
     private Validators() {
     }
+
+    public static <T> Validator<T> noOp() {
+        @SuppressWarnings("unchecked")
+        Validator<T> noOp = (Validator<T>) NO_OP;
+        return noOp;
+    }
+
 
     public static Validator<File> requiredDirectoryValidator(final String prefix) {
         return new Validator<File>() {

@@ -2,13 +2,12 @@ package org.eclipse.buildship.core.workspace.internal
 
 import com.google.common.base.Optional
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseBuildCommand
-
 import org.eclipse.core.resources.ICommand
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 
 import org.eclipse.buildship.core.configuration.GradleProjectBuilder
+import org.eclipse.buildship.core.omnimodel.OmniEclipseBuildCommand
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
 class BuildCommandUpdaterTest extends WorkspaceSpecification {

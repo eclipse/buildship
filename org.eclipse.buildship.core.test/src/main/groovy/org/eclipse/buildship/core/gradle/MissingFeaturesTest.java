@@ -19,7 +19,7 @@ import java.util.List;
 import org.gradle.util.GradleVersion;
 import org.junit.Test;
 
-import com.gradleware.tooling.toolingmodel.util.Pair;
+import org.eclipse.buildship.core.util.gradle.Pair;
 
 /**
  * MissingFeatures test.

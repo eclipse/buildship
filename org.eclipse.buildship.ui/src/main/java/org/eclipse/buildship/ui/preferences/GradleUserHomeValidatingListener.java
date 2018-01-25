@@ -13,12 +13,11 @@ import java.io.File;
 
 import com.google.common.base.Optional;
 
-import com.gradleware.tooling.toolingutils.binding.Validator;
-
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 
+import org.eclipse.buildship.core.util.binding.Validator;
 import org.eclipse.buildship.ui.util.widget.GradleUserHomeGroup;
 
 /**

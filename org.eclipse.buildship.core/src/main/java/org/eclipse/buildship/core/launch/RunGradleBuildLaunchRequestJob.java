@@ -25,7 +25,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
+import org.eclipse.buildship.core.util.gradle.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;

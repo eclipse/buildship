@@ -1,8 +1,5 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseLinkedResource
-
-import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
@@ -10,8 +7,7 @@ import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
 
-import org.eclipse.buildship.core.preferences.PersistentModel
-import org.eclipse.buildship.core.preferences.internal.DefaultPersistentModel
+import org.eclipse.buildship.core.omnimodel.OmniEclipseLinkedResource
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
 class LinkedResourcesUpdaterTest extends WorkspaceSpecification {

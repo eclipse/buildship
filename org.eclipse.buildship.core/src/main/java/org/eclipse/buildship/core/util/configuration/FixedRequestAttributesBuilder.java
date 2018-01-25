@@ -11,20 +11,20 @@ package org.eclipse.buildship.core.util.configuration;
 import java.io.File;
 import java.util.List;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
+import org.eclipse.buildship.core.util.gradle.FixedRequestAttributes;
+import org.eclipse.buildship.core.util.gradle.GradleDistribution;
 
 /**
  * Builder object for {@link FixedRequestAttributes}. The {@link #fromEmptySettings(File)} creates an empty builder object,
  * whereas the object created by {@link #fromWorkspaceSettings(File)} is preconfigured with the workspace settings.
  *
  * @author Donat Csikos
- * 
+ *
  * @deprecated This class only exists to provide compatibility with existing releases of the Spring
  *             Tool Suite and will be removed in Buildship 3.0.
  */

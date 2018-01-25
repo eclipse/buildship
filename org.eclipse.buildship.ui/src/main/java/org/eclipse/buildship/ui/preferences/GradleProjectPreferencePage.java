@@ -10,8 +10,6 @@ package org.eclipse.buildship.ui.preferences;
 
 import java.io.File;
 
-import com.gradleware.tooling.toolingutils.binding.Validator;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.events.SelectionEvent;
@@ -25,6 +23,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.ConfigurationManager;
 import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.util.binding.Validator;
 import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;

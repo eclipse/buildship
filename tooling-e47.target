@@ -7,9 +7,6 @@
 <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-oxygen/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="com.gradleware.tooling.client" version="0.19.4.v20171108133209"/>
-<unit id="com.gradleware.tooling.model" version="0.19.4.v20171108133209"/>
-<unit id="com.gradleware.tooling.utils" version="0.19.4.v20171108133209"/>
 <unit id="org.gradle.toolingapi" version="4.3.0.v20171108133209"/>
 <repository location="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
 </location>

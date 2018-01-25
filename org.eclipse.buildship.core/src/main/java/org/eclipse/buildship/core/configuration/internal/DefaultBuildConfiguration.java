@@ -13,11 +13,10 @@ import java.util.Collections;
 
 import com.google.common.base.Objects;
 
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.GradleArguments;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
+import org.eclipse.buildship.core.util.gradle.GradleDistribution;
 
 /**
  * Default implementation for {@link BuildConfiguration}.

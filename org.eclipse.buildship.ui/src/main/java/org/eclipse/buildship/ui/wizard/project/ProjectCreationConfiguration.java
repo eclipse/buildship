@@ -11,10 +11,11 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import com.google.common.base.Preconditions;
-import com.gradleware.tooling.toolingutils.binding.Property;
-
 import java.io.File;
+
+import com.google.common.base.Preconditions;
+
+import org.eclipse.buildship.core.util.binding.Property;
 
 /**
  * Serves as the extra data model of the project creation wizard.

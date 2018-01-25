@@ -300,14 +300,8 @@
           name="com.google.guava"
           versionRange="15.0.0"/>
       <requirement
-          name="com.gradleware.tooling.client"
-          versionRange="0.19.4"/>
-      <requirement
-          name="com.gradleware.tooling.model"
-          versionRange="0.19.4"/>
-      <requirement
-          name="com.gradleware.tooling.utils"
-          versionRange="0.19.4"/>
+          name="org.gradle.toolingapi"
+          versionRange="4.3.0"/>
       <requirement
           name="org.jetbrains.kotlin.feature.feature.group"
           versionRange="0.8.2"/>

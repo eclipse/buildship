@@ -31,7 +31,7 @@ import org.gradle.tooling.ResultHandler;
 import org.gradle.tooling.TestLauncher;
 import org.gradle.tooling.model.build.BuildEnvironment;
 
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
+import org.eclipse.buildship.core.util.gradle.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;

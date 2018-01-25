@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 the original author or authors.
+ * Copyright (c) 2018 the original author or authors.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,9 +7,6 @@
  */
 
 package org.eclipse.buildship.ui.util.widget;
-
-import com.gradleware.tooling.toolingmodel.util.Maybe;
-import com.gradleware.tooling.toolingmodel.util.Pair;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -24,6 +21,8 @@ import org.eclipse.swt.widgets.Link;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.util.gradle.Maybe;
+import org.eclipse.buildship.core.util.gradle.Pair;
 
 /**
  * Widget containing the following Gradle configuration elements.

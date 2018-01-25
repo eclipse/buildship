@@ -3,7 +3,7 @@ package org.eclipse.buildship.ui.view.execution
 import org.gradle.api.JavaVersion
 import spock.lang.IgnoreIf
 
-import com.gradleware.tooling.toolingclient.GradleDistribution
+import org.eclipse.buildship.core.util.gradle.GradleDistribution
 
 class OpenBuildScanActionTest extends BaseExecutionViewTest {
 

@@ -13,12 +13,11 @@ package org.eclipse.buildship.ui.view.task.adapter;
 
 import com.google.common.base.Preconditions;
 
-import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
-
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
+import org.eclipse.buildship.core.omnimodel.OmniTaskSelector;
 import org.eclipse.buildship.ui.view.task.TaskSelectorNode;
 
 /**

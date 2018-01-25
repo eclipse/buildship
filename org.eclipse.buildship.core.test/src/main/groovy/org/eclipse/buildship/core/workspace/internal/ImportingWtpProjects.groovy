@@ -4,8 +4,6 @@ import org.gradle.api.JavaVersion
 import spock.lang.IgnoreIf
 import spock.lang.Issue
 
-import com.gradleware.tooling.toolingclient.GradleDistribution
-
 import org.eclipse.core.resources.IProject
 import org.eclipse.jdt.core.IAccessRule
 import org.eclipse.jdt.core.IClasspathAttribute
@@ -15,6 +13,7 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.buildship.core.Logger
 import org.eclipse.buildship.core.UnsupportedConfigurationException
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.util.gradle.GradleDistribution
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 

@@ -6,9 +6,6 @@ import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.model.eclipse.EclipseProject
 import spock.lang.IgnoreIf
 
-import com.gradleware.tooling.toolingclient.GradleDistribution
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
-
 import org.eclipse.core.commands.Command
 import org.eclipse.core.commands.ExecutionEvent
 import org.eclipse.core.expressions.IEvaluationContext
@@ -22,6 +19,8 @@ import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration
 import org.eclipse.buildship.core.event.Event
 import org.eclipse.buildship.core.event.EventListener
+import org.eclipse.buildship.core.util.gradle.GradleDistribution
+import org.eclipse.buildship.core.workspace.FetchStrategy
 import org.eclipse.buildship.core.workspace.GradleNatureAddedEvent
 import org.eclipse.buildship.ui.test.fixtures.EclipseProjects
 import org.eclipse.buildship.ui.test.fixtures.WorkspaceSpecification

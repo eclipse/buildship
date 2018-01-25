@@ -11,15 +11,17 @@
 
 package org.eclipse.buildship.core.util.gradle;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
-import com.gradleware.tooling.toolingutils.binding.Validator;
-import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.osgi.util.NLS;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+
+import org.eclipse.osgi.util.NLS;
+
+import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.util.binding.Validator;
 
 /**
  * Factory class for {@link com.gradleware.tooling.toolingutils.binding.Validator} instances that

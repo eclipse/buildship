@@ -19,8 +19,6 @@ import spock.lang.Specification
 import com.google.common.collect.ImmutableList
 import com.google.common.io.Files
 
-import com.gradleware.tooling.toolingclient.GradleDistribution
-
 import org.eclipse.core.resources.IMarker
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
@@ -43,6 +41,7 @@ import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate
 import org.eclipse.buildship.core.marker.GradleErrorMarker
 import org.eclipse.buildship.core.preferences.PersistentModel
 import org.eclipse.buildship.core.preferences.internal.DefaultPersistentModel
+import org.eclipse.buildship.core.util.gradle.GradleDistribution
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import org.eclipse.buildship.core.workspace.internal.PersistentModelBuilder
 

@@ -11,8 +11,6 @@
 
 package org.eclipse.buildship.core.configuration.internal
 
-import com.gradleware.tooling.toolingclient.GradleDistribution
-
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 
@@ -20,6 +18,7 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
+import org.eclipse.buildship.core.util.gradle.GradleDistribution
 
 @SuppressWarnings("GroovyAccessibility")
 class BuildConfigurationTest extends ProjectSynchronizationSpecification {

@@ -16,8 +16,6 @@ import java.util.List;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -31,6 +29,7 @@ import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
+import org.eclipse.buildship.core.util.gradle.GradleDistribution;
 
 /**
  * Default implementation for {@link ConfigurationManager}.

@@ -18,15 +18,13 @@ import org.gradle.util.GradleVersion;
 
 import com.google.common.collect.ImmutableList;
 
-import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions;
-import com.gradleware.tooling.toolingutils.distribution.PublishedGradleVersions.LookupStrategy;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.util.gradle.PublishedGradleVersions.LookupStrategy;
 
 /**
  * Wraps the {@link PublishedGradleVersions} functionality in a background job that handles all

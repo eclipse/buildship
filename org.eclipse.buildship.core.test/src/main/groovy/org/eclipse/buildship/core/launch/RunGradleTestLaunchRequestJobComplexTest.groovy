@@ -6,8 +6,6 @@ import org.gradle.tooling.events.test.TestOperationDescriptor
 
 import com.google.common.collect.Lists
 
-import com.gradleware.tooling.toolingclient.GradleDistribution
-
 import org.eclipse.core.resources.IProject
 import org.eclipse.debug.core.ILaunch
 import org.eclipse.debug.core.ILaunchConfiguration
@@ -17,6 +15,7 @@ import org.eclipse.buildship.core.configuration.RunConfiguration
 import org.eclipse.buildship.core.event.Event
 import org.eclipse.buildship.core.event.EventListener
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
+import org.eclipse.buildship.core.util.gradle.GradleDistribution
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer
 
 class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpecification {

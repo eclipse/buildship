@@ -15,15 +15,14 @@ import java.io.File;
 
 import com.google.common.base.Preconditions;
 
-import com.gradleware.tooling.toolingmodel.OmniGradleProject;
-import com.gradleware.tooling.toolingmodel.OmniGradleScript;
-import com.gradleware.tooling.toolingmodel.util.Maybe;
-
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
+import org.eclipse.buildship.core.omnimodel.OmniGradleProject;
+import org.eclipse.buildship.core.omnimodel.OmniGradleScript;
 import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.core.util.gradle.Maybe;
 import org.eclipse.buildship.ui.view.task.ProjectNode;
 
 /**

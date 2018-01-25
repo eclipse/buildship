@@ -10,10 +10,9 @@ package org.eclipse.buildship.ui.preferences;
 
 import com.google.common.base.Optional;
 
-import com.gradleware.tooling.toolingutils.binding.Validator;
-
 import org.eclipse.jface.preference.PreferencePage;
 
+import org.eclipse.buildship.core.util.binding.Validator;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.ui.util.widget.GradleDistributionGroup.DistributionChangedListener;
 

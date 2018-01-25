@@ -13,9 +13,6 @@ package org.eclipse.buildship.ui.wizard.project;
 
 import java.util.List;
 
-import com.gradleware.tooling.toolingutils.binding.Property;
-import com.gradleware.tooling.toolingutils.binding.ValidationListener;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
@@ -34,6 +31,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.util.binding.Property;
+import org.eclipse.buildship.core.util.binding.ValidationListener;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;
 

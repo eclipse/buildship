@@ -10,9 +10,6 @@ package org.eclipse.buildship.ui.preferences;
 
 import java.io.File;
 
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-import com.gradleware.tooling.toolingutils.binding.Validator;
-
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Composite;
@@ -23,7 +20,9 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.util.binding.Validator;
 import org.eclipse.buildship.core.util.binding.Validators;
+import org.eclipse.buildship.core.util.gradle.GradleDistribution;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.ui.util.font.FontUtils;

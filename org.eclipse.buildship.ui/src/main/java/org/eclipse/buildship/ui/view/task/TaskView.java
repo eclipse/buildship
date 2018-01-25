@@ -14,9 +14,6 @@ package org.eclipse.buildship.ui.view.task;
 
 import java.util.List;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
@@ -43,6 +40,8 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.wizards.IWizardDescriptor;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
+import org.eclipse.buildship.core.workspace.FetchStrategy;
 import org.eclipse.buildship.ui.UiPluginConstants;
 import org.eclipse.buildship.ui.external.viewer.FilteredTree;
 import org.eclipse.buildship.ui.external.viewer.PatternFilter;

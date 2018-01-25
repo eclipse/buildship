@@ -2,11 +2,6 @@ package org.eclipse.buildship.core.workspace.internal
 
 import com.google.common.base.Optional
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject
-import com.gradleware.tooling.toolingmodel.OmniJavaRuntime
-import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings
-import com.gradleware.tooling.toolingmodel.OmniJavaVersion
-
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
 import org.eclipse.core.runtime.jobs.IJobChangeEvent
@@ -17,6 +12,10 @@ import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.launching.JavaRuntime
 
+import org.eclipse.buildship.core.omnimodel.OmniEclipseProject
+import org.eclipse.buildship.core.omnimodel.OmniJavaRuntime
+import org.eclipse.buildship.core.omnimodel.OmniJavaSourceSettings
+import org.eclipse.buildship.core.omnimodel.OmniJavaVersion
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 

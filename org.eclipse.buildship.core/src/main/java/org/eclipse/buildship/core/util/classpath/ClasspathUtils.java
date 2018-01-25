@@ -11,14 +11,14 @@ package org.eclipse.buildship.core.util.classpath;
 import java.util.Collections;
 import java.util.List;
 
-import com.gradleware.tooling.toolingmodel.OmniAccessRule;
-import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
-import com.gradleware.tooling.toolingmodel.OmniClasspathEntry;
-
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.JavaCore;
+
+import org.eclipse.buildship.core.omnimodel.OmniAccessRule;
+import org.eclipse.buildship.core.omnimodel.OmniClasspathAttribute;
+import org.eclipse.buildship.core.omnimodel.OmniClasspathEntry;
 
 /**
  * Contains helper methods for JDT classpath manipulation.

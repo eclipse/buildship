@@ -18,11 +18,10 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
+import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 
 /**

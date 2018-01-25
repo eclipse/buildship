@@ -11,12 +11,12 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.io.File;
 import java.util.Set;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -24,7 +24,7 @@ import org.eclipse.core.runtime.SubMonitor;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.UnsupportedConfigurationException;
-import org.eclipse.buildship.core.gradle.Predicates;
+import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
 
 /**
  * Updates project names to match the Gradle model. Moves other projects out of the way if necessary.
@@ -90,7 +90,7 @@ final class ProjectNameUpdater {
             return false;
         }
 
-        Optional<OmniEclipseProject> duplicateEclipseProject = Iterables.tryFind(allProjects, Predicates.eclipseProjectMatchesProjectDir(duplicate.getLocation().toFile()));
+        Optional<OmniEclipseProject> duplicateEclipseProject = Iterables.tryFind(allProjects, eclipseProjectMatchesProjectDir(duplicate.getLocation().toFile()));
         if (!duplicateEclipseProject.isPresent()) {
             return false;
         }
@@ -106,6 +106,16 @@ final class ProjectNameUpdater {
     private static String checkProjectName(OmniEclipseProject project) {
         CorePlugin.workspaceOperations().validateProjectName(project.getName(), project.getProjectDirectory());
         return project.getName();
+    }
+
+    private static Predicate<OmniEclipseProject> eclipseProjectMatchesProjectDir(final File projectDir) {
+        return new Predicate<OmniEclipseProject>() {
+
+            @Override
+            public boolean apply(OmniEclipseProject candidate) {
+                return candidate.getProjectDirectory().equals(projectDir);
+            }
+        };
     }
 
 }
