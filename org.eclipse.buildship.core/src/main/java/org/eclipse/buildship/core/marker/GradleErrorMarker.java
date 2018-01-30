@@ -8,13 +8,12 @@
 
 package org.eclipse.buildship.core.marker;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.List;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
 import org.eclipse.core.resources.IMarker;
@@ -23,7 +22,6 @@ import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.util.string.StringUtils;
-
 import org.eclipse.buildship.core.workspace.GradleBuild;
 
 /**
@@ -59,7 +57,8 @@ public class GradleErrorMarker {
         marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
         marker.setAttribute(ATTRIBUTE_ROOT_DIR, gradleBuild.getBuildConfig().getRootProjectDirectory().getAbsolutePath());
         if (exception != null) {
-            marker.setAttribute(GradleErrorMarker.ATTRIBUTE_STACKTRACE, collectStacktrace(exception));
+            String stackTrace = Throwables.getStackTraceAsString(exception);
+            marker.setAttribute(GradleErrorMarker.ATTRIBUTE_STACKTRACE, stackTrace);
         }
     }
 
@@ -82,12 +81,5 @@ public class GradleErrorMarker {
         if (cause != null) {
             collectCausesRecursively(cause, messages);
         }
-    }
-
-    private static String collectStacktrace(Throwable t) {
-        StringWriter stringWriter = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(stringWriter);
-        t.printStackTrace(printWriter);
-        return stringWriter.toString();
     }
 }

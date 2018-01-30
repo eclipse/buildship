@@ -6,7 +6,6 @@ import org.eclipse.core.runtime.CoreException
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.notification.UserNotification
 import org.eclipse.buildship.core.operation.ToolingApiStatus
 import org.eclipse.buildship.core.operation.ToolingApiStatus.ToolingApiStatusType
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
@@ -24,7 +23,6 @@ class ImportingBrokenProject extends ProjectSynchronizationSpecification {
                 file 'build.gradle', 'I_AM_ERROR'
             }
         }
-        registerService(UserNotification, Mock(UserNotification))
     }
 
     def "can import the root project of a broken build"() {

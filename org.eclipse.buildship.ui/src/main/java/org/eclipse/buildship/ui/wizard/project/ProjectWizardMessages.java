@@ -92,6 +92,11 @@ public final class ProjectWizardMessages extends NLS {
     public static String Creation_Wizard_Paragraph_Title_Advanced_Options;
     public static String Creation_Wizard_Paragraph_Content_Advanced_Options;
 
+    public static String Preview_Failed;
+    public static String Preview_No_Stacktrace;
+    public static String Preview_Cancelled;
+
+
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, ProjectWizardMessages.class);

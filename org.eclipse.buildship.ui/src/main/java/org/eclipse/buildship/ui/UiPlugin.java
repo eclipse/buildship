@@ -29,12 +29,10 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.Logger;
 import org.eclipse.buildship.core.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
-import org.eclipse.buildship.core.notification.UserNotification;
 import org.eclipse.buildship.core.util.logging.EclipseLogger;
 import org.eclipse.buildship.ui.console.ConsoleProcessStreamsProvider;
 import org.eclipse.buildship.ui.launch.ConsoleShowingLaunchListener;
 import org.eclipse.buildship.ui.launch.UiGradleLaunchConfigurationManager;
-import org.eclipse.buildship.ui.notification.DialogUserNotification;
 import org.eclipse.buildship.ui.view.execution.ExecutionShowingLaunchRequestListener;
 import org.eclipse.buildship.ui.workspace.ShutdownListener;
 
@@ -90,7 +88,6 @@ public final class UiPlugin extends AbstractUIPlugin {
         // register all services (override the ProcessStreamsProvider registered in the core plugin)
         this.loggerService = registerService(context, Logger.class, createLogger(), preferences);
         this.processStreamsProviderService = registerService(context, ProcessStreamsProvider.class, createConsoleProcessStreamsProvider(), priorityPreferences);
-        this.dialogUserNotificationService = registerService(context, UserNotification.class, createUserNotification(), priorityPreferences);
         this.gradleLaunchConfigurationService = registerService(context, GradleLaunchConfigurationManager.class, createLaunchConfigurationManager(), priorityPreferences);
     }
 
@@ -104,10 +101,6 @@ public final class UiPlugin extends AbstractUIPlugin {
 
     private ProcessStreamsProvider createConsoleProcessStreamsProvider() {
         return new ConsoleProcessStreamsProvider();
-    }
-
-    private UserNotification createUserNotification() {
-        return new DialogUserNotification();
     }
 
     private GradleLaunchConfigurationManager createLaunchConfigurationManager() {

@@ -16,6 +16,7 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.AutoCleanup
 import spock.lang.Specification
 
+import com.google.common.collect.ImmutableList
 import com.google.common.io.Files
 
 import com.gradleware.tooling.toolingclient.GradleDistribution
@@ -24,7 +25,10 @@ import org.eclipse.core.resources.IMarker
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IWorkspace
+import org.eclipse.core.runtime.ILogListener
+import org.eclipse.core.runtime.IStatus
 import org.eclipse.core.runtime.Path
+import org.eclipse.core.runtime.Platform
 import org.eclipse.debug.core.DebugPlugin
 import org.eclipse.debug.core.ILaunchConfigurationType
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy
@@ -56,11 +60,16 @@ abstract class WorkspaceSpecification extends Specification {
 
     private File externalTestDir
 
+    private LogCollector logCollector = new LogCollector()
+
     def setup() {
         externalTestDir = tempFolderProvider.newFolder('external')
+        Platform.addLogListener(logCollector)
     }
 
     def cleanup() {
+        Platform.removeLogListener(logCollector)
+        logCollector.clear()
         DebugPlugin.default.launchManager.launchConfigurations.each { it.delete() }
         deleteAllProjects(true)
         deleteAllGradleErrorMarkers()
@@ -229,7 +238,29 @@ abstract class WorkspaceSpecification extends Specification {
         gradleErrorMarkers.each { it.delete() }
     }
 
-    protected List<IMarker> getGradleErrorMarkers() {
-        workspace.root.findMarkers(GradleErrorMarker.ID, false, IResource.DEPTH_INFINITE) as List
+    protected List<IMarker> getGradleErrorMarkers(IResource rootResource = workspace.root) {
+        rootResource.findMarkers(GradleErrorMarker.ID, false, IResource.DEPTH_INFINITE) as List
+    }
+
+    protected List<IStatus> getPlatformLogErrors() {
+        logCollector.all
+    }
+
+    private class LogCollector implements ILogListener {
+
+        private final List<IStatus> entries = new ArrayList()
+
+        @Override
+        public synchronized void logging(IStatus status, String plugin) {
+            entries.add(status)
+        }
+
+        synchronized void clear() {
+            entries.clear()
+        }
+
+        synchronized List<IStatus> getAll() {
+            ImmutableList.copyOf(entries)
+        }
     }
 }

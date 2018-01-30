@@ -12,7 +12,6 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.UnsupportedConfigurationException
-import org.eclipse.buildship.core.notification.UserNotification
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification
 
@@ -36,7 +35,6 @@ class ProjectImportWizardUiTest extends SwtBotSpecification {
 
     def "import wizard closes even project import fails and only imports the root project"() {
         setup:
-        environment.registerService(UserNotification, Mock(UserNotification))
         File projectDir = dir('broken-project') {
             file 'build.gradle', ''
             file 'settings.gradle', 'include "sub"'
@@ -57,7 +55,6 @@ class ProjectImportWizardUiTest extends SwtBotSpecification {
 
     def "import wizard does not close if the root project import fails"() {
         setup:
-        environment.registerService(UserNotification, Mock(UserNotification))
         environment.registerService(WorkspaceOperations, new FaultyWorkspaceOperations())
         File projectDir = dir('broken-project')
 

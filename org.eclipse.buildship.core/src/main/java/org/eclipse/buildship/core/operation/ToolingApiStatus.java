@@ -8,16 +8,9 @@
 
 package org.eclipse.buildship.core.operation;
 
-import java.util.List;
-
 import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.BuildException;
 import org.gradle.tooling.GradleConnectionException;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -26,7 +19,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.UnsupportedConfigurationException;
-import org.eclipse.buildship.core.util.string.StringUtils;
 import org.eclipse.buildship.core.workspace.internal.ImportRootProjectOperation.ImportRootProjectException;
 
 /**
@@ -74,11 +66,8 @@ public final class ToolingApiStatus extends Status implements IStatus {
         }
     }
 
-    private String workName;
-
     private ToolingApiStatus(ToolingApiStatusType type, String workName, Throwable exception) {
         super(type.getSeverity(), CorePlugin.PLUGIN_ID, type.getCode(), String.format(type.messageTemplate(), workName), exception);
-        this.workName = workName;
     }
 
     public static ToolingApiStatus from(String workName, Throwable failure) {
@@ -101,55 +90,11 @@ public final class ToolingApiStatus extends Status implements IStatus {
         }
     }
 
-    /**
-     * Default way of presenting {@link ToolingApiStatus} instances.
-     * <p>
-     * TODO this method should disappear once we successfully convert all error dialogs
-     * displays to markers and log messages.
-     *
-     * @param workName The name of the task to display in the error dialog
-     * @param status the status to present in the dialog
-     */
-
-    public void handleDefault() {
+    public void log() {
         CorePlugin.getInstance().getLog().log(this);
-
-        if (severityMatches(IStatus.WARNING | IStatus.ERROR)) {
-            CorePlugin.userNotification().errorOccurred(
-                    String.format("%s failed", this.workName),
-                    getMessage(),
-                    collectErrorMessages(getException()),
-                    getSeverity(),
-                    getException());
-        }
     }
 
     public boolean severityMatches(int severity) {
         return (getSeverity() & severity) != 0;
-    }
-
-    private static String collectErrorMessages(Throwable t) {
-        if (t == null) {
-            return "";
-        }
-
-        // recursively collect the error messages going up the stacktrace
-        // avoid the same message showing twice in a row
-        List<String> messages = Lists.newArrayList();
-        Throwable cause = t.getCause();
-        if (cause != null) {
-            collectCausesRecursively(cause, messages);
-        }
-        String messageStack = Joiner.on('\n').join(StringUtils.removeAdjacentDuplicates(messages));
-        return t.getMessage() + (messageStack.isEmpty() ? "" : "\n\n" + messageStack);
-    }
-
-    private static void collectCausesRecursively(Throwable t, List<String> messages) {
-        List<String> singleLineMessages = Splitter.on('\n').omitEmptyStrings().splitToList(Strings.nullToEmpty(t.getMessage()));
-        messages.addAll(singleLineMessages);
-        Throwable cause = t.getCause();
-        if (cause != null) {
-            collectCausesRecursively(cause, messages);
-        }
     }
 }

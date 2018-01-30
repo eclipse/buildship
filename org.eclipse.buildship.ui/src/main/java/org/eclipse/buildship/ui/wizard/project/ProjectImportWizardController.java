@@ -195,7 +195,7 @@ public class ProjectImportWizardController {
             });
         } catch (InvocationTargetException e) {
             ToolingApiStatus status = WizardHelper.containerExceptionToToolingApiStatus(e);
-            status.handleDefault();
+            status.log();
             return !ToolingApiStatusType.IMPORT_ROOT_DIR_FAILED.matches(status);
         } catch (InterruptedException ignored) {
             return false;

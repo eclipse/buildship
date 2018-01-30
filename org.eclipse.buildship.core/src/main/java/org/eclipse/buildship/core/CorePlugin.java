@@ -40,8 +40,6 @@ import org.eclipse.buildship.core.launch.ExternalLaunchConfigurationManager;
 import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.launch.internal.DefaultExternalLaunchConfigurationManager;
 import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager;
-import org.eclipse.buildship.core.notification.UserNotification;
-import org.eclipse.buildship.core.notification.internal.ConsoleUserNotification;
 import org.eclipse.buildship.core.operation.ToolingApiOperationManager;
 import org.eclipse.buildship.core.operation.internal.DefaultToolingApiOperationManager;
 import org.eclipse.buildship.core.preferences.ModelPersistence;
@@ -89,7 +87,6 @@ public final class CorePlugin extends Plugin {
     private ServiceRegistration processStreamsProviderService;
     private ServiceRegistration gradleLaunchConfigurationService;
     private ServiceRegistration listenerRegistryService;
-    private ServiceRegistration userNotificationService;
 
     // service tracker for each service to allow to register other service implementations of the
     // same type but with higher prioritization, useful for testing
@@ -102,7 +99,6 @@ public final class CorePlugin extends Plugin {
     private ServiceTracker processStreamsProviderServiceTracker;
     private ServiceTracker gradleLaunchConfigurationServiceTracker;
     private ServiceTracker listenerRegistryServiceTracker;
-    private ServiceTracker userNotificationServiceTracker;
 
     private DefaultModelPersistence modelPersistence;
     private ProjectChangeListener projectChangeListener;
@@ -149,7 +145,6 @@ public final class CorePlugin extends Plugin {
         this.processStreamsProviderServiceTracker = createServiceTracker(context, ProcessStreamsProvider.class);
         this.gradleLaunchConfigurationServiceTracker = createServiceTracker(context, GradleLaunchConfigurationManager.class);
         this.listenerRegistryServiceTracker = createServiceTracker(context, ListenerRegistry.class);
-        this.userNotificationServiceTracker = createServiceTracker(context, UserNotification.class);
 
         // register all services
         this.loggerService = registerService(context, Logger.class, createLogger(), preferences);
@@ -161,7 +156,6 @@ public final class CorePlugin extends Plugin {
         this.processStreamsProviderService = registerService(context, ProcessStreamsProvider.class, createProcessStreamsProvider(), preferences);
         this.gradleLaunchConfigurationService = registerService(context, GradleLaunchConfigurationManager.class, createGradleLaunchConfigurationManager(), preferences);
         this.listenerRegistryService = registerService(context, ListenerRegistry.class, createListenerRegistry(), preferences);
-        this.userNotificationService = registerService(context, UserNotification.class, createUserNotification(), preferences);
 
         this.modelPersistence = DefaultModelPersistence.createAndRegister();
         this.projectChangeListener = ProjectChangeListener.createAndRegister();
@@ -219,16 +213,11 @@ public final class CorePlugin extends Plugin {
         return new DefaultListenerRegistry();
     }
 
-    private UserNotification createUserNotification() {
-        return new ConsoleUserNotification();
-    }
-
     private void unregisterServices() {
         this.externalLaunchConfigurationManager.unregister();
         this.buildScriptUpdateListener.close();
         this.projectChangeListener.close();
         this.modelPersistence.close();
-        this.userNotificationService.unregister();
         this.listenerRegistryService.unregister();
         this.gradleLaunchConfigurationService.unregister();
         this.processStreamsProviderService.unregister();
@@ -239,7 +228,6 @@ public final class CorePlugin extends Plugin {
         this.publishedGradleVersionsService.unregister();
         this.loggerService.unregister();
 
-        this.userNotificationServiceTracker.close();
         this.listenerRegistryServiceTracker.close();
         this.gradleLaunchConfigurationServiceTracker.close();
         this.processStreamsProviderServiceTracker.close();
@@ -289,10 +277,6 @@ public final class CorePlugin extends Plugin {
 
     public static ListenerRegistry listenerRegistry() {
         return (ListenerRegistry) getInstance().listenerRegistryServiceTracker.getService();
-    }
-
-    public static UserNotification userNotification() {
-        return (UserNotification) getInstance().userNotificationServiceTracker.getService();
     }
 
     public static ModelPersistence modelPersistence() {

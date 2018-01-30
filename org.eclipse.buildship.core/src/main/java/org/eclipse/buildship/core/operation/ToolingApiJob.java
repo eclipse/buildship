@@ -105,7 +105,7 @@ public abstract class ToolingApiJob<T> extends Job {
 
         @Override
         public void onFailure(ToolingApiStatus status) {
-            status.handleDefault();
+            status.log();
         }
     }
 }
