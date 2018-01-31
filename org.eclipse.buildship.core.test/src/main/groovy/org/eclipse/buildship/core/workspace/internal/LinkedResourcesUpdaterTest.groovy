@@ -1,5 +1,7 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import org.gradle.tooling.model.eclipse.EclipseLinkedResource
+
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
@@ -7,7 +9,6 @@ import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
 
-import org.eclipse.buildship.core.omnimodel.OmniEclipseLinkedResource
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
 class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
@@ -16,7 +17,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         given:
         File externalDir = dir('another')
         IProject project = newProject('project-name')
-        OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource(externalDir.name, externalDir)
+        EclipseLinkedResource linkedResource =  newFolderLinkedResource(externalDir.name, externalDir)
         PersistentModelBuilder persistentModel = persistentModelBuilder(project)
 
         when:
@@ -34,7 +35,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         given:
             File externalDir = getDir('another')
             IProject project = newProject('project-name')
-            OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource(externalDir.name, externalDir)
+            EclipseLinkedResource linkedResource =  newFolderLinkedResource(externalDir.name, externalDir)
             PersistentModelBuilder persistentModel = persistentModelBuilder(project)
 
             when:
@@ -52,7 +53,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         given:
         File externalDir = dir('another')
         IProject project = newProject('project-name')
-        OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource(linkName, externalDir)
+        EclipseLinkedResource linkedResource =  newFolderLinkedResource(linkName, externalDir)
         PersistentModelBuilder persistentModel = persistentModelBuilder(project)
         LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, new NullProgressMonitor())
         linkedResource = newFolderLinkedResource(linkName, externalDir)
@@ -84,9 +85,9 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         File externalDir = dir('another')
         File externalFile = file('file')
         IProject project = newProject('project-name')
-        OmniEclipseLinkedResource localFolder =  newFolderLinkedResource(externalDir.name, externalDir)
-        OmniEclipseLinkedResource localFile =  newFileLinkedResource(externalFile.name, externalFile)
-        OmniEclipseLinkedResource virtualResource =  newVirtualLinkedResource()
+        EclipseLinkedResource localFolder =  newFolderLinkedResource(externalDir.name, externalDir)
+        EclipseLinkedResource localFile =  newFileLinkedResource(externalFile.name, externalFile)
+        EclipseLinkedResource virtualResource =  newVirtualLinkedResource()
         PersistentModelBuilder persistentModel = persistentModelBuilder(project)
 
         when:
@@ -101,7 +102,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         IProject project = newProject('project-name')
         project.getFolder('foldername').create(true, true, null)
         File externalDir = dir('foldername')
-        OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource(externalDir.name, externalDir)
+        EclipseLinkedResource linkedResource =  newFolderLinkedResource(externalDir.name, externalDir)
         PersistentModelBuilder persistentModel = persistentModelBuilder(project)
 
         when:
@@ -118,8 +119,8 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         File externalDirA = dir('another1')
         File externalDirB = dir('another2')
         IProject project = newProject('project-name')
-        OmniEclipseLinkedResource linkedResourceA =  newFolderLinkedResource(linkName, externalDirA)
-        OmniEclipseLinkedResource linkedResourceB =  newFolderLinkedResource(externalDirB.name, externalDirB)
+        EclipseLinkedResource linkedResourceA =  newFolderLinkedResource(linkName, externalDirA)
+        EclipseLinkedResource linkedResourceB =  newFolderLinkedResource(externalDirB.name, externalDirB)
         PersistentModelBuilder persistentModel = persistentModelBuilder(project)
         LinkedResourcesUpdater.update(project, [linkedResourceA], persistentModel, new NullProgressMonitor())
 
@@ -145,8 +146,8 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         File externalDirA = dir('another1')
         File externalDirB = dir('another2')
         IProject project = newProject('project-name')
-        OmniEclipseLinkedResource linkedResourceA =  newFolderLinkedResource(externalDirA.name, externalDirA)
-        OmniEclipseLinkedResource linkedResourceB =  newFolderLinkedResource(externalDirB.name, externalDirB)
+        EclipseLinkedResource linkedResourceA =  newFolderLinkedResource(externalDirA.name, externalDirA)
+        EclipseLinkedResource linkedResourceB =  newFolderLinkedResource(externalDirB.name, externalDirB)
         PersistentModelBuilder persistentModel = persistentModelBuilder(project)
         LinkedResourcesUpdater.update(project, [linkedResourceA], persistentModel, new NullProgressMonitor())
 
@@ -171,7 +172,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         PersistentModelBuilder persistentModel = persistentModelBuilder(project)
         IFolder manuallyDefinedLinkedFolder = project.getFolder(externalDir.name)
         manuallyDefinedLinkedFolder.createLink(linkedFolderPath, IResource.NONE, null);
-        OmniEclipseLinkedResource linkedResource = newFolderLinkedResource(externalDir.name, externalDir)
+        EclipseLinkedResource linkedResource = newFolderLinkedResource(externalDir.name, externalDir)
         LinkedResourcesUpdater.update(project, [linkedResource], persistentModel, new NullProgressMonitor())
 
         persistentModel = persistentModelBuilder(persistentModel.build())
@@ -187,7 +188,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         given:
         File externalDir = dir('ext')
         IProject project = newProject('project-name')
-        OmniEclipseLinkedResource linkedResource =  newFolderLinkedResource('links/link-to-ext', externalDir)
+        EclipseLinkedResource linkedResource =  newFolderLinkedResource('links/link-to-ext', externalDir)
         PersistentModelBuilder persistentModel = persistentModelBuilder(project)
 
         when:
@@ -198,8 +199,8 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         project.getFolder('links/link-to-ext').isLinked()
     }
 
-    private OmniEclipseLinkedResource newFolderLinkedResource(String name, File location) {
-        OmniEclipseLinkedResource linkedResource = Mock()
+    private EclipseLinkedResource newFolderLinkedResource(String name, File location) {
+        EclipseLinkedResource linkedResource = Mock()
         linkedResource.name >> name
         linkedResource.type >> '2'
         linkedResource.location >> location.path
@@ -207,8 +208,8 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         linkedResource
     }
 
-    private OmniEclipseLinkedResource newVirtualLinkedResource() {
-        OmniEclipseLinkedResource linkedResource = Mock()
+    private EclipseLinkedResource newVirtualLinkedResource() {
+        EclipseLinkedResource linkedResource = Mock()
         linkedResource.name >> 'example'
         linkedResource.type >> '1'
         linkedResource.location >> null
@@ -216,9 +217,9 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         linkedResource
     }
 
-    private OmniEclipseLinkedResource newFileLinkedResource(String name, File file) {
+    private EclipseLinkedResource newFileLinkedResource(String name, File file) {
         assert file.isFile()
-        OmniEclipseLinkedResource linkedResource = Mock()
+        EclipseLinkedResource linkedResource = Mock()
         linkedResource.name >> name
         linkedResource.type >> '1'
         linkedResource.location >> file.path

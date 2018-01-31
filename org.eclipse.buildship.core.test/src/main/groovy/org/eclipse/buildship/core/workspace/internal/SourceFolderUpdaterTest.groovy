@@ -1,6 +1,8 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import com.google.common.base.Optional
+import org.gradle.tooling.model.eclipse.ClasspathAttribute
+import org.gradle.tooling.model.eclipse.EclipseSourceDirectory
+import org.gradle.tooling.model.internal.ImmutableDomainObjectSet
 
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.runtime.IPath
@@ -11,8 +13,9 @@ import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
-import org.eclipse.buildship.core.omnimodel.OmniClasspathAttribute
-import org.eclipse.buildship.core.omnimodel.OmniEclipseSourceDirectory
+import org.eclipse.buildship.core.model.CompatEclipseSourceDirectory
+
+import com.google.common.base.Optional
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.util.file.FileUtils
 import org.eclipse.buildship.core.util.gradle.Maybe
@@ -118,8 +121,8 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
     def "User-defined attributes are overwritten if present in the Gradle model"() {
         given:
         addSourceFolder("src", ['manual-inclusion-pattern'], ['manual-exclusion-pattern'], 'foo', attributes(["foo" : "bar"]))
-        def newModelSourceFolders = gradleSourceFolders(['src'], Optional.of(['model-excludes']),
-            Optional.of(['model-includes']), Optional.of(['model-key' : 'model-value']), Maybe.of('model-output'))
+        def newModelSourceFolders = gradleSourceFolders(['src'], ['model-excludes'],
+            ['model-includes'], ['model-key' : 'model-value'], 'model-output')
 
         when:
         SourceFolderUpdater.update(javaProject, newModelSourceFolders, null)
@@ -147,7 +150,7 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
 
     def "Can configure exclude and include patterns"() {
         given:
-        def sourceFolders = gradleSourceFolders(['src'], Optional.of(['java/**']), Optional.of(['**/Test*']))
+        def sourceFolders = gradleSourceFolders(['src'], ['java/**'], ['**/Test*'])
 
         expect:
         javaProject.rawClasspath.length == 0
@@ -164,7 +167,7 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
 
     def "Can configure extra attributes"() {
         given:
-        def sourceFolders = gradleSourceFolders(['src'], Optional.absent(), Optional.absent(), Optional.of(['customKey': 'customValue']))
+        def sourceFolders = gradleSourceFolders(['src'], [], [], ['customKey': 'customValue'])
 
         when:
         SourceFolderUpdater.update(javaProject, sourceFolders, null)
@@ -175,7 +178,7 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
 
     def "Can configure custom output location"() {
         given:
-        def sourceFolders = gradleSourceFolders(['src'], Optional.absent(), Optional.absent(), Optional.absent(), modelLocation)
+        def sourceFolders = gradleSourceFolders(['src'], [], [], [:], modelLocation)
 
         when:
         SourceFolderUpdater.update(javaProject, sourceFolders, null)
@@ -184,38 +187,31 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         javaProject.rawClasspath[0].outputLocation?.toPortableString() == expectedLocation
 
         where:
-        modelLocation              | expectedLocation
-        Maybe.absent()             | null
-        Maybe.of(null)             | null
-        Maybe.of('target/classes') | '/project-name/target/classes'
-
+        modelLocation    | expectedLocation
+        null             | null
+        'target/classes' | '/project-name/target/classes'
     }
 
-    private List<OmniEclipseSourceDirectory> gradleSourceFolders(List<String> folderPaths, Optional excludes = Optional.absent(),
-                                                                 Optional includes = Optional.absent(), Optional attributes = Optional.absent(),
-                                                                 Maybe<String> output = Maybe.absent()) {
+    private List<CompatEclipseSourceDirectory> gradleSourceFolders(List<String> folderPaths, List excludes = null,
+                                                             List includes = null, Map attributes = null,
+                                                             String output = null) {
         folderPaths.collect { String folderPath ->
-            OmniEclipseSourceDirectory sourceDirectory = Mock(OmniEclipseSourceDirectory)
+            CompatEclipseSourceDirectory sourceDirectory = Mock(CompatEclipseSourceDirectory)
             sourceDirectory.getPath() >> folderPath
-            sourceDirectory.getClasspathAttributes() >> gradleClasspathAttributes(attributes)
-            sourceDirectory.getExcludes() >> excludes
-            sourceDirectory.getIncludes() >> includes
-            sourceDirectory.getOutput() >> output
+            sourceDirectory.getClasspathAttributesOrAbsent() >> (attributes ? Optional.of(ImmutableDomainObjectSet.of(gradleClasspathAttributes(attributes))) : Optional.absent())
+            sourceDirectory.getExcludesOrAbsent() >> Optional.fromNullable(excludes)
+            sourceDirectory.getIncludesOrAbsent() >> Optional.fromNullable(includes)
+            sourceDirectory.getOutputMaybe() >> (output ? Maybe.of(output) : Maybe.absent())
             sourceDirectory
         }
     }
 
-    private Optional<List<OmniClasspathAttribute>> gradleClasspathAttributes(Optional attributes) {
-        if (!attributes.present) {
-            return Optional.absent()
-        } else {
-            def result = attributes.get().collect { k, v ->
-                OmniClasspathAttribute attribute = Mock(OmniClasspathAttribute)
-                attribute.getName() >> k
-                attribute.getValue() >> v
-                attribute
-            }
-            return Optional.of(result)
+    private List<ClasspathAttribute> gradleClasspathAttributes(Map attributes) {
+        attributes.collect { k, v ->
+            ClasspathAttribute attribute = Mock(ClasspathAttribute)
+            attribute.getName() >> k
+            attribute.getValue() >> v
+            attribute
         }
     }
 

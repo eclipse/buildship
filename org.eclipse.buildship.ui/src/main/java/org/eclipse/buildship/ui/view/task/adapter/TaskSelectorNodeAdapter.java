@@ -17,7 +17,7 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
-import org.eclipse.buildship.core.omnimodel.OmniTaskSelector;
+import org.eclipse.buildship.ui.view.task.OmniTaskSelector;
 import org.eclipse.buildship.ui.view.task.TaskSelectorNode;
 
 /**

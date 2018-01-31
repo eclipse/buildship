@@ -11,6 +11,9 @@
 
 package org.eclipse.buildship.core.workspace.internal
 
+import org.gradle.tooling.model.GradleProject
+import org.gradle.tooling.model.eclipse.EclipseProject
+
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.JavaCore
@@ -19,8 +22,6 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.UnsupportedConfigurationException
 import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.omnimodel.OmniEclipseProject
-import org.eclipse.buildship.core.omnimodel.OmniGradleProject
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.util.gradle.Maybe
@@ -433,8 +434,8 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
     }
 
     private def model(IProject project, String buildDir = 'build') {
-        OmniEclipseProject eclipseProject = Mock(OmniEclipseProject)
-        OmniGradleProject gradleProject = Mock(OmniGradleProject)
+        EclipseProject eclipseProject = Mock(EclipseProject)
+        GradleProject gradleProject = Mock(GradleProject)
         gradleProject.buildDirectory >> Maybe.of(new File(project.location.toFile(), buildDir))
         eclipseProject.gradleProject >> gradleProject
         eclipseProject

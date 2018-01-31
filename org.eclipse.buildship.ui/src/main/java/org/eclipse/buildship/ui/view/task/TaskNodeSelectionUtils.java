@@ -25,6 +25,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.model.CompatEclipseProject;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
@@ -84,7 +85,7 @@ public final class TaskNodeSelectionUtils {
 
     private static GradleRunConfigurationAttributes runConfigAttributesForTask(NodeSelection selection, List<String> tasks) {
         TaskNode taskNode = selection.getFirstElement(TaskNode.class);
-        File rootDir = taskNode.getParentProjectNode().getEclipseProject().getRoot().getProjectDirectory();
+        File rootDir = CompatEclipseProject.getRoot(taskNode.getParentProjectNode().getEclipseProject()).getProjectDirectory();
         File workingDir = workingDirForTask(taskNode, rootDir);
         return createARunConfigAttributes(rootDir, workingDir, tasks);
     }
@@ -101,7 +102,7 @@ public final class TaskNodeSelectionUtils {
 
     private static GradleRunConfigurationAttributes runConfigAttributesForProject(NodeSelection selection, List<String> tasks) {
         ProjectNode projectNode = selection.getFirstElement(ProjectNode.class);
-        File rootDir = projectNode.getEclipseProject().getRoot().getProjectDirectory();
+        File rootDir = CompatEclipseProject.getRoot(projectNode.getEclipseProject()).getProjectDirectory();
         return createARunConfigAttributes(rootDir, rootDir, tasks);
     }
 

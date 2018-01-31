@@ -8,6 +8,7 @@
  */
 package org.eclipse.buildship.core.workspace.internal;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -17,15 +18,15 @@ import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.model.build.BuildEnvironment;
+import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Supplier;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.UncheckedExecutionException;
-
-import org.eclipse.buildship.core.util.gradle.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -33,6 +34,8 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.model.CompatEclipseProject;
+import org.eclipse.buildship.core.util.gradle.TransientRequestAttributes;
 import org.eclipse.buildship.core.util.progress.CancellationForwardingListener;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.workspace.FetchStrategy;
@@ -53,14 +56,35 @@ final class DefaultModelProvider implements ModelProvider {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T fetchModel(Class<T> model, FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+        if (model.equals(CompatEclipseProject.class)) {
+            EclipseProject rawResult = doFetchModel(EclipseProject.class, strategy, tokenSource, monitor);
+            return ((T) new CompatEclipseProject(rawResult));
+        }
+        return doFetchModel(model, strategy, tokenSource, monitor);
+    }
+
+    public <T> T doFetchModel(Class<T> model, FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         TransientRequestAttributes transientAttributes = getTransientRequestAttributes(tokenSource, monitor);
         ModelBuilder<T> builder = ConnectionAwareLauncherProxy.newModelBuilder(model, this.buildConfiguration.toGradleArguments(), transientAttributes);
         return executeModelBuilder(builder, strategy, model);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> Collection<T> fetchModels(Class<T> model, FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+        if (model.equals(CompatEclipseProject.class)) {
+            ArrayList<CompatEclipseProject> result = Lists.newArrayList();
+            for (EclipseProject eclipseProject : doFetchModels(EclipseProject.class, strategy, tokenSource, monitor)) {
+                result.add(new CompatEclipseProject(eclipseProject));
+            }
+            return (Collection<T>) result;
+        }
+        return doFetchModels(model, strategy, tokenSource, monitor);
+    }
+
+    public <T> Collection<T> doFetchModels(Class<T> model, FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         TransientRequestAttributes transientAttributes = getTransientRequestAttributes(tokenSource, monitor);
         if (supportsCompositeBuilds(tokenSource, monitor)) {
             final BuildActionExecuter<Collection<T>> executer = ConnectionAwareLauncherProxy

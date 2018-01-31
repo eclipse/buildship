@@ -23,9 +23,11 @@
 package org.eclipse.buildship.ui.view;
 
 import com.google.common.base.Preconditions;
+
+import org.eclipse.jface.action.Action;
+
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.jface.action.Action;
 
 /**
  * Removes all {@link Page} elements from the target {@link MultiPageView}.

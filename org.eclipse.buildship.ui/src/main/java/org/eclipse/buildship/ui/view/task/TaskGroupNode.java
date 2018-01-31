@@ -13,10 +13,6 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import org.eclipse.buildship.core.omnimodel.OmniProjectTask;
-import org.eclipse.buildship.core.omnimodel.OmniTaskSelector;
-import org.eclipse.buildship.core.util.gradle.Maybe;
-
 /**
  * Tree node in the {@link TaskView} representing a task group.
  */
@@ -47,7 +43,7 @@ public final class TaskGroupNode {
 
     private List<OmniProjectTask> getProjectTasks() {
         List<OmniProjectTask> projectTasks = Lists.newArrayList();
-        for (OmniProjectTask projectTask : this.getProjectNode().getGradleProject().getProjectTasks()) {
+        for (OmniProjectTask projectTask : this.getProjectNode().getInvocations().getProjectTasks()) {
             if (this.contains(projectTask)) {
                 projectTasks.add(projectTask);
             }
@@ -57,7 +53,7 @@ public final class TaskGroupNode {
 
     private List<OmniTaskSelector> getTaskSelectors() {
         List<OmniTaskSelector> taskSelectors = Lists.newArrayList();
-        for (OmniTaskSelector taskSelector : this.getProjectNode().getGradleProject().getTaskSelectors()) {
+        for (OmniTaskSelector taskSelector : this.getProjectNode().getInvocations().getTaskSelectors()) {
             if (this.contains(taskSelector)) {
                 taskSelectors.add(taskSelector);
             }
@@ -81,25 +77,13 @@ public final class TaskGroupNode {
         return matches(taskSelector.getGroup());
     }
 
-    private boolean matches(Maybe<String> group) {
-        if (!group.isPresent()) {
-            return isDefault();
-        }
-        String name = group.get();
-        if (name == null) {
-            return isDefault();
-        } else {
-            return normalizeGroupName(name).equals(this.name);
-        }
+    private boolean matches(String group) {
+        return normalizeGroupName(group).equals(this.name);
     }
 
     public List<TaskNode> getTaskNodes() {
         return this.taskNodes;
     };
-
-    private boolean isDefault() {
-        return DEFAULT_NAME.equals(this.name);
-    }
 
     @Override
     public String toString() {
@@ -128,16 +112,9 @@ public final class TaskGroupNode {
         return new TaskGroupNode(projectNode, DEFAULT_NAME);
     }
 
-    public static TaskGroupNode forName(ProjectNode projectNode, Maybe<String> groupName) {
+    public static TaskGroupNode forName(ProjectNode projectNode, String groupName) {
         Preconditions.checkNotNull(groupName);
-        String name = null;
-        if (groupName.isPresent()) {
-            name = groupName.get();
-        }
-        if (name == null) {
-            name = TaskGroupNode.DEFAULT_NAME;
-        }
-        return new TaskGroupNode(projectNode, normalizeGroupName(name));
+        return new TaskGroupNode(projectNode, normalizeGroupName(groupName));
     }
 
     private static String normalizeGroupName(String groupName) {

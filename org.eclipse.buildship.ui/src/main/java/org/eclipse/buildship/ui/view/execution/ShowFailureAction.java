@@ -11,21 +11,24 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
+import java.util.List;
+
+import org.gradle.tooling.events.FailureResult;
+import org.gradle.tooling.events.FinishEvent;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
-import org.eclipse.buildship.ui.util.nodeselection.NodeSelectionProvider;
-import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
-import org.gradle.tooling.events.FailureResult;
-import org.gradle.tooling.events.FinishEvent;
 
-import java.util.List;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
+import org.eclipse.buildship.ui.util.nodeselection.NodeSelectionProvider;
+import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
 
 /**
  * Opens a dialog which displays the {@link FailureResult} in a dialog.

@@ -1,6 +1,12 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import com.google.common.base.Optional
+import org.gradle.api.JavaVersion
+import org.gradle.tooling.model.eclipse.AccessRule
+import org.gradle.tooling.model.eclipse.ClasspathAttribute
+import org.gradle.tooling.model.eclipse.EclipseClasspathContainer
+import org.gradle.tooling.model.eclipse.EclipseJavaSourceSettings
+import org.gradle.tooling.model.internal.ImmutableDomainObjectSet
+import org.gradle.tooling.model.java.InstalledJdk
 
 import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.NullProgressMonitor
@@ -12,12 +18,6 @@ import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.launching.JavaRuntime
 
-import org.eclipse.buildship.core.omnimodel.OmniAccessRule
-import org.eclipse.buildship.core.omnimodel.OmniClasspathAttribute
-import org.eclipse.buildship.core.omnimodel.OmniEclipseClasspathContainer
-import org.eclipse.buildship.core.omnimodel.OmniJavaRuntime
-import org.eclipse.buildship.core.omnimodel.OmniJavaSourceSettings
-import org.eclipse.buildship.core.omnimodel.OmniJavaVersion
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 
@@ -114,15 +114,15 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
         setup:
         IJavaProject project = newJavaProject('project-with-classpath-container')
 
-        OmniClasspathAttribute attribute = Mock(OmniClasspathAttribute)
+        ClasspathAttribute attribute = Mock(ClasspathAttribute)
         attribute.getName() >> 'customname'
         attribute.getValue() >> 'customvalue'
 
-        OmniAccessRule rule = Mock(OmniAccessRule)
+        AccessRule rule = Mock(AccessRule)
         rule.getKind() >> IAccessRule.K_DISCOURAGED
         rule.getPattern() >> 'custompattern'
 
-        executeContainerUpdate(project, container(path, true, Optional.of(Arrays.asList(attribute)), Optional.of(Arrays.asList(rule))))
+        executeContainerUpdate(project, container(path, true, [attribute], [rule]))
         IClasspathEntry entry = findContainer(project, path)
 
         expect:
@@ -247,7 +247,7 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
         project.setRawClasspath(project.rawClasspath + JavaCore.newContainerEntry(CUSTOM_USER_CONTAINER) as IClasspathEntry[], null)
 
         when:
-        def containers = containerPaths.collect { container(it) } as OmniEclipseClasspathContainer[]
+        def containers = containerPaths.collect { container(it) } as EclipseClasspathContainer[]
         executeContainerUpdate(project, containers)
         def containerIndexes = containerPaths.collect { path -> project.rawClasspath.findIndexOf { it.path == path } ?: -1 }
 
@@ -306,38 +306,32 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
     }
 
     private def executeContainerUpdateWithOldGradle(IJavaProject project) {
-        ClasspathContainerUpdater.update(project, Optional.absent(), sourceSettings('1.6', '1.6'), new NullProgressMonitor())
+        ClasspathContainerUpdater.update(project, null, sourceSettings('1.6', '1.6'), new NullProgressMonitor())
     }
 
-    private def executeContainerUpdate(IJavaProject project, OmniEclipseClasspathContainer... containers) {
-        ClasspathContainerUpdater.update(project, Optional.of(Arrays.asList(containers)), sourceSettings('1.6', '1.6'), new NullProgressMonitor())
+    private def executeContainerUpdate(IJavaProject project, EclipseClasspathContainer... containers) {
+        ClasspathContainerUpdater.update(project, Arrays.asList(containers), sourceSettings('1.6', '1.6'), new NullProgressMonitor())
     }
 
-    private OmniJavaSourceSettings sourceSettings(String sourceVersion, String targetVersion) {
-        OmniJavaRuntime rt = Mock(OmniJavaRuntime)
-        rt.homeDirectory >> new File(System.getProperty('java.home'))
-        rt.javaVersion >> Mock(OmniJavaVersion)
+    private EclipseJavaSourceSettings sourceSettings(String sourceVersion, String targetVersion) {
+        InstalledJdk jdk = Mock(InstalledJdk)
+        jdk.javaHome >> new File(System.getProperty('java.home'))
+        jdk.javaVersion >> JavaVersion.current()
 
-        OmniJavaVersion target = Mock(OmniJavaVersion)
-        target.name >> targetVersion
-
-        OmniJavaVersion source = Mock(OmniJavaVersion)
-        source.name >> sourceVersion
-
-        OmniJavaSourceSettings settings = Mock(OmniJavaSourceSettings)
-        settings.targetRuntime >> rt
-        settings.targetBytecodeLevel >> target
-        settings.sourceLanguageLevel >> source
+        EclipseJavaSourceSettings settings = Mock(EclipseJavaSourceSettings)
+        settings.jdk >> jdk
+        settings.sourceLanguageLevel >> JavaVersion.toVersion(sourceVersion)
+        settings.targetBytecodeVersion >> JavaVersion.toVersion(targetVersion)
 
         settings
     }
 
-    private def container(IPath path, boolean exported = false, attributes = Optional.of([]), rules = Optional.of([])) {
-        OmniEclipseClasspathContainer container = Mock(OmniEclipseClasspathContainer)
+    private def container(IPath path, boolean exported = false, attributes = [], rules = []) {
+        EclipseClasspathContainer container = Mock(EclipseClasspathContainer)
         container.getPath() >> path.toPortableString()
         container.exported >> exported
-        container.getClasspathAttributes() >> attributes
-        container.getAccessRules() >> rules
+        container.getClasspathAttributes() >> ImmutableDomainObjectSet.of(attributes)
+        container.getAccessRules() >> ImmutableDomainObjectSet.of(rules)
         container
     }
 

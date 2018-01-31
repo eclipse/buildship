@@ -10,6 +10,8 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.Arrays;
 
+import org.gradle.tooling.model.eclipse.EclipseProject;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 
@@ -17,8 +19,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
-
-import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
 
 /**
  * Updater responsible for adjusting the project's raw classpath.
@@ -30,7 +30,7 @@ import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
  */
 final class LibraryFilter {
 
-    public static void update(IJavaProject eclipseProject, OmniEclipseProject modelProject, IProgressMonitor monitor) throws JavaModelException {
+    public static void update(IJavaProject eclipseProject, EclipseProject modelProject, IProgressMonitor monitor) throws JavaModelException {
         if (supportsClasspathCustomization(modelProject)) {
             IClasspathEntry[] newClasspath = filterLibraries(eclipseProject.getRawClasspath());
             eclipseProject.setRawClasspath(newClasspath, monitor);
@@ -47,8 +47,8 @@ final class LibraryFilter {
         }).toArray(IClasspathEntry.class);
     }
 
-    private static boolean supportsClasspathCustomization(OmniEclipseProject modelProject) {
+    private static boolean supportsClasspathCustomization(EclipseProject modelProject) {
         // classpath customization was introduced in Gradle 3.0 along with classpath containers
-        return modelProject.getClasspathContainers().isPresent();
+        return modelProject.getClasspathContainers() != null;
     }
 }

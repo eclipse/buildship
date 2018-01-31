@@ -8,9 +8,12 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
+
+import org.gradle.tooling.model.eclipse.ClasspathAttribute;
+import org.gradle.tooling.model.eclipse.EclipseExternalDependency;
+import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.collect.Lists;
 
@@ -22,9 +25,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.UnsupportedConfigurationException;
-import org.eclipse.buildship.core.omnimodel.OmniClasspathAttribute;
-import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
-import org.eclipse.buildship.core.omnimodel.OmniExternalDependency;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
 /**
@@ -40,8 +40,8 @@ final class WtpClasspathUpdater {
     private static final String DEPLOYMENT_ATTRIBUTE = "org.eclipse.jst.component.dependency";
     private static final String NON_DEPLOYMENT_ATTRIBUTE = "org.eclipse.jst.component.nondependency";
 
-    public static void update(IJavaProject javaProject, OmniEclipseProject project, SubMonitor progress) throws JavaModelException {
-        List<OmniExternalDependency> dependencies = project.getExternalDependencies();
+    public static void update(IJavaProject javaProject, EclipseProject project, SubMonitor progress) throws JavaModelException {
+        List<EclipseExternalDependency> dependencies = Lists.newArrayList(project.getClasspath());
         String deploymentPath = getDeploymentPath(dependencies);
         if (deploymentPath != null) {
             updateDeploymentPath(javaProject, deploymentPath, progress);
@@ -50,12 +50,10 @@ final class WtpClasspathUpdater {
         }
     }
 
-    private static String getDeploymentPath(List<OmniExternalDependency> dependencies) {
+    private static String getDeploymentPath(List<EclipseExternalDependency> dependencies) {
         String deploymentPath = null;
-        for (OmniExternalDependency dependency : dependencies) {
-            List<OmniClasspathAttribute> attributes = dependency.getClasspathAttributes().isPresent() ? dependency.getClasspathAttributes().get()
-                    : Collections.<OmniClasspathAttribute>emptyList();
-            for (OmniClasspathAttribute attribute : attributes) {
+        for (EclipseExternalDependency dependency : dependencies) {
+            for (ClasspathAttribute attribute : dependency.getClasspathAttributes()) {
                 if (attribute.getName().equals(DEPLOYMENT_ATTRIBUTE)) {
                     if (deploymentPath != null && !deploymentPath.equals(attribute.getValue())) {
                         throw new UnsupportedConfigurationException("WTP currently does not support mixed deployment paths.");
@@ -67,11 +65,9 @@ final class WtpClasspathUpdater {
         return deploymentPath;
     }
 
-    private static boolean hasNonDeploymentAttributes(List<OmniExternalDependency> dependencies) {
-        for (OmniExternalDependency dependency : dependencies) {
-            List<OmniClasspathAttribute> attributes = dependency.getClasspathAttributes().isPresent() ? dependency.getClasspathAttributes().get()
-                    : Collections.<OmniClasspathAttribute>emptyList();
-            for (OmniClasspathAttribute attribute : attributes) {
+    private static boolean hasNonDeploymentAttributes(List<EclipseExternalDependency> dependencies) {
+        for (EclipseExternalDependency dependency : dependencies) {
+            for (ClasspathAttribute attribute : dependency.getClasspathAttributes()) {
                 if (attribute.getName().equals(NON_DEPLOYMENT_ATTRIBUTE)) {
                     return true;
                 }
@@ -88,7 +84,8 @@ final class WtpClasspathUpdater {
         replaceGradleClasspathContainerAttribute(javaProject, NON_DEPLOYMENT_ATTRIBUTE, "", DEPLOYMENT_ATTRIBUTE, progress);
     }
 
-    private static void replaceGradleClasspathContainerAttribute(IJavaProject project, String plusKey, String plusValue, String minusKey, SubMonitor progress) throws JavaModelException {
+    private static void replaceGradleClasspathContainerAttribute(IJavaProject project, String plusKey, String plusValue, String minusKey, SubMonitor progress)
+            throws JavaModelException {
         IClasspathEntry[] oldClasspath = project.getRawClasspath();
         IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length];
         for (int i = 0; i < oldClasspath.length; i++) {
@@ -111,7 +108,7 @@ final class WtpClasspathUpdater {
         List<IClasspathAttribute> attributesList = Lists.newArrayList(attributes);
         ListIterator<IClasspathAttribute> iterator = attributesList.listIterator();
         boolean plusPresent = false;
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             IClasspathAttribute attribute = iterator.next();
             if (attribute.getName().equals(minusKey)) {
                 iterator.remove();

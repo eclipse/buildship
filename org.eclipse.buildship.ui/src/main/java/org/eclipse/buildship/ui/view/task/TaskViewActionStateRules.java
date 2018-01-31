@@ -13,6 +13,8 @@ package org.eclipse.buildship.ui.view.task;
 
 import java.util.List;
 
+import org.gradle.tooling.model.eclipse.EclipseProject;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
@@ -21,7 +23,7 @@ import com.google.common.collect.Iterables;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
-import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
+import org.eclipse.buildship.core.model.CompatEclipseProject;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 
 /**
@@ -111,10 +113,10 @@ public final class TaskViewActionStateRules {
 
             @Override
             public boolean apply(TaskNode node) {
-                OmniEclipseProject project = node.getParentProjectNode().getEclipseProject();
+                EclipseProject project = node.getParentProjectNode().getEclipseProject();
                 Path projectPath = new Path(project.getProjectDirectory().getPath());
                 IPath masterPath = projectPath.removeLastSegments(1).append("master");
-                Path rootPath = new Path(project.getRoot().getProjectDirectory().getPath());
+                Path rootPath = new Path(CompatEclipseProject.getRoot(project).getProjectDirectory().getPath());
                 return rootPath.isPrefixOf(projectPath) || rootPath.equals(masterPath);
             }
         });

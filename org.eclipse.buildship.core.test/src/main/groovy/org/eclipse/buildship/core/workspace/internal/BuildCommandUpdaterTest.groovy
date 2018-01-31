@@ -1,13 +1,12 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import com.google.common.base.Optional
+import org.gradle.tooling.model.eclipse.EclipseBuildCommand
 
 import org.eclipse.core.resources.ICommand
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 
 import org.eclipse.buildship.core.configuration.GradleProjectBuilder
-import org.eclipse.buildship.core.omnimodel.OmniEclipseBuildCommand
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
 class BuildCommandUpdaterTest extends WorkspaceSpecification {
@@ -139,24 +138,24 @@ class BuildCommandUpdaterTest extends WorkspaceSpecification {
         hasBuildCommand(project, 'manuallyCreatedBuildCommand')
     }
 
-    private Optional unsupportedBuildCommands() {
-        Optional.absent()
+    private List unsupportedBuildCommands() {
+        []
     }
 
-    private Optional zeroBuildCommands() {
-        Optional.of([])
+    private List zeroBuildCommands() {
+        []
     }
 
-    private Optional oneBuildCommand(name, arguments = [:]) {
-        Optional.of([buildCommand(name, arguments)])
+    private List oneBuildCommand(name, arguments = [:]) {
+        [buildCommand(name, arguments)]
     }
 
-    private Optional twoBuildCommands(name1, arguments1, name2, arguments2) {
-        Optional.of([buildCommand(name1, arguments1), buildCommand(name2, arguments2)])
+    private List twoBuildCommands(name1, arguments1, name2, arguments2) {
+        [buildCommand(name1, arguments1), buildCommand(name2, arguments2)]
     }
 
-    private OmniEclipseBuildCommand buildCommand(name, arguments = [:]) {
-        OmniEclipseBuildCommand mockedBuildCommand = Mock(OmniEclipseBuildCommand)
+    private EclipseBuildCommand buildCommand(name, arguments = [:]) {
+        EclipseBuildCommand mockedBuildCommand = Mock(EclipseBuildCommand)
         mockedBuildCommand.name >> name
         mockedBuildCommand.arguments >> arguments
         mockedBuildCommand

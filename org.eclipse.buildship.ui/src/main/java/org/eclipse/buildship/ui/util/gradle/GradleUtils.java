@@ -11,11 +11,12 @@
 
 package org.eclipse.buildship.ui.util.gradle;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
+
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.test.TestOperationDescriptor;
 
-import java.util.List;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Contains helper methods related to Gradle.

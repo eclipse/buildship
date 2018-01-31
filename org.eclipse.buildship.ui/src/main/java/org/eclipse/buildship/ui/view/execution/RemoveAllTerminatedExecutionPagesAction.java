@@ -22,10 +22,11 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
-import org.eclipse.buildship.ui.view.RemoveAllPagesAction;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+
+import org.eclipse.buildship.ui.view.RemoveAllPagesAction;
 
 /**
  * Removes all {@link org.eclipse.buildship.ui.view.Page} elements from the target {@link org.eclipse.buildship.ui.view.MultiPageView}.

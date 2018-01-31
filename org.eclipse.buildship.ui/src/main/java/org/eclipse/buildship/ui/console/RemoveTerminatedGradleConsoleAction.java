@@ -14,7 +14,6 @@ package org.eclipse.buildship.ui.console;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
-import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -22,6 +21,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 
+import org.eclipse.buildship.core.console.ProcessDescription;
 import org.eclipse.buildship.ui.PluginImage;
 import org.eclipse.buildship.ui.PluginImages;
 

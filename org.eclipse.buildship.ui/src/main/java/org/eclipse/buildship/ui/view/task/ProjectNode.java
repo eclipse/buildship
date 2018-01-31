@@ -11,14 +11,15 @@
 
 package org.eclipse.buildship.ui.view.task;
 
+import org.gradle.tooling.model.GradleProject;
+import org.gradle.tooling.model.eclipse.EclipseProject;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 import org.eclipse.core.resources.IProject;
 
-import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
-import org.eclipse.buildship.core.omnimodel.OmniGradleProject;
 
 /**
  * Tree node in the {@link TaskView} representing a Gradle project.
@@ -26,17 +27,18 @@ import org.eclipse.buildship.core.omnimodel.OmniGradleProject;
 public final class ProjectNode extends BaseProjectNode {
 
     private final ProjectNode parentProjectNode;
-    private final OmniEclipseProject eclipseProject;
-    private final OmniGradleProject gradleProject;
+    private final EclipseProject eclipseProject;
+    private final GradleProject gradleProject;
     private final boolean includedProject;
+    private final OmniBuildInvocations invocations;
 
-
-    public ProjectNode(ProjectNode parentProjectNode, OmniEclipseProject eclipseProject, OmniGradleProject gradleProject, Optional<IProject> workspaceProject, boolean includedProject) {
+    public ProjectNode(ProjectNode parentProjectNode, EclipseProject eclipseProject, GradleProject gradleProject, Optional<IProject> workspaceProject, boolean includedProject, OmniBuildInvocations invocations) {
         super(workspaceProject);
         this.parentProjectNode = parentProjectNode; // is null for root project
         this.eclipseProject = Preconditions.checkNotNull(eclipseProject);
         this.gradleProject = Preconditions.checkNotNull(gradleProject);
         this.includedProject = includedProject;
+        this.invocations = Preconditions.checkNotNull(invocations);
     }
 
     public ProjectNode getRootProjectNode() {
@@ -51,12 +53,16 @@ public final class ProjectNode extends BaseProjectNode {
         return this.parentProjectNode;
     }
 
-    public OmniEclipseProject getEclipseProject() {
+    public EclipseProject getEclipseProject() {
         return this.eclipseProject;
     }
 
-    public OmniGradleProject getGradleProject() {
+    public GradleProject getGradleProject() {
         return this.gradleProject;
+    }
+
+    public OmniBuildInvocations getInvocations() {
+        return this.invocations;
     }
 
     public boolean isIncludedProject() {

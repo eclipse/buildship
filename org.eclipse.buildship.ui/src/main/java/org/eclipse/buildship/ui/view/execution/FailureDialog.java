@@ -11,13 +11,20 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
+import java.net.URI;
+import java.util.List;
+
+import org.gradle.tooling.Failure;
+import org.gradle.tooling.events.FailureResult;
+import org.gradle.tooling.events.FinishEvent;
+
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -28,17 +35,19 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
-import org.gradle.tooling.Failure;
-import org.gradle.tooling.events.FailureResult;
-import org.gradle.tooling.events.FinishEvent;
 
-import java.net.URI;
-import java.util.List;
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
  * Dialog presenting a list of {@link Failure} instances.

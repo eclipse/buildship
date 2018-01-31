@@ -15,7 +15,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import com.google.common.base.Optional;
+import org.gradle.tooling.model.eclipse.EclipseProjectNature;
+
 import com.google.common.collect.Sets;
 
 import org.eclipse.core.resources.IProject;
@@ -25,7 +26,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.omnimodel.OmniEclipseProjectNature;
 import org.eclipse.buildship.core.preferences.PersistentModel;
 import org.eclipse.buildship.core.workspace.internal.ManagedModelMergingStrategy.Result;
 
@@ -37,7 +37,7 @@ final class ProjectNatureUpdater {
     private ProjectNatureUpdater() {
     }
 
-    public static void update(IProject project, Optional<List<OmniEclipseProjectNature>> projectNatures, PersistentModelBuilder persistentModel, IProgressMonitor monitor) throws CoreException {
+    public static void update(IProject project, List<EclipseProjectNature> projectNatures, PersistentModelBuilder persistentModel, IProgressMonitor monitor) throws CoreException {
         PersistentModel previousPersistentModel = persistentModel.getPrevious();
         Set<String> managedNatures = previousPersistentModel.isPresent() ? Sets.newLinkedHashSet(previousPersistentModel.getManagedNatures()) : Sets.<String>newLinkedHashSet();
 
@@ -52,23 +52,15 @@ final class ProjectNatureUpdater {
         persistentModel.managedNatures(result.getNextManaged());
     }
 
-    private static Set<String> toNatures(Optional<List<OmniEclipseProjectNature>> projectNatures) {
+    private static Set<String> toNatures(List<EclipseProjectNature> projectNatures) {
         Set<String> natures = Sets.newLinkedHashSet();
-        if (projectNatures.isPresent()) {
-            natures.addAll(toNatures(projectNatures.get()));
-        }
-        natures.add(GradleProjectNature.ID);
-        return natures;
-    }
-
-    private static Set<? extends String> toNatures(List<OmniEclipseProjectNature> projectNatures) {
-        Set<String> natures = Sets.newLinkedHashSet();
-        for (OmniEclipseProjectNature projectNature : projectNatures) {
-            String id = projectNature.getId();
-            if (CorePlugin.workspaceOperations().isNatureRecognizedByEclipse(id)) {
-                natures.add(id);
+        for (EclipseProjectNature projectNature : projectNatures) {
+            String natureId = projectNature.getId();
+            if (CorePlugin.workspaceOperations().isNatureRecognizedByEclipse(natureId)) {
+                natures.add(natureId);
             }
         }
+        natures.add(GradleProjectNature.ID);
         return natures;
     }
 }

@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.omnimodel.internal;
+package org.eclipse.buildship.ui.view.task;
 
 import java.util.Comparator;
 import java.util.Set;
@@ -30,29 +30,26 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.google.common.collect.TreeBasedTable;
 
-import org.eclipse.buildship.core.omnimodel.OmniBuildInvocations;
-import org.eclipse.buildship.core.omnimodel.OmniProjectTask;
-import org.eclipse.buildship.core.omnimodel.OmniTaskSelector;
 import org.eclipse.buildship.core.util.gradle.Path;
 
 /**
- * Builds a {@code DefaultOmniBuildInvocationsContainer} from a given Gradle project.
+ * TODO This class should be merged with the TaskViewContentProvider.
  *
- * @author Etienne Studer
+ * @author Donat Csikos
  */
-public final class DefaultOmniBuildInvocationsContainerBuilder {
+public final class OmniBuildInvocationsContainerBuilder {
 
     /**
-     * Converts a {@link GradleProject} to a {@link DefaultOmniBuildInvocationsContainer}.
+     * Converts a {@link GradleProject} to a {@link OmniBuildInvocationsContainer}.
      *
      * @param project the Gradle project to convert
      * @return the build invocations container
      */
-    public static DefaultOmniBuildInvocationsContainer build(GradleProject project) {
+    public static OmniBuildInvocationsContainer build(GradleProject project) {
         ImmutableMultimap<Path, OmniProjectTask> tasks = getAllProjectTasksByProjectPath(project);
         ImmutableMultimap<Path, OmniTaskSelector> taskSelectors = getAllTaskSelectorsByProjectPath(project);
         ImmutableSortedMap<Path, OmniBuildInvocations> buildInvocationsPerProject = buildBuildInvocationsMapping(project, tasks, taskSelectors);
-        return DefaultOmniBuildInvocationsContainer.from(buildInvocationsPerProject);
+        return OmniBuildInvocationsContainer.from(buildInvocationsPerProject);
     }
 
     private static ImmutableSortedMap<Path, OmniBuildInvocations> buildBuildInvocationsMapping(GradleProject project,
@@ -65,7 +62,7 @@ public final class DefaultOmniBuildInvocationsContainerBuilder {
         for (Path projectPath : taskSelectors.keySet()) {
             ImmutableList<OmniProjectTask> projectTasksOfProject = ImmutableSortedSet.orderedBy(TaskComparator.INSTANCE).addAll(projectTasks.get(projectPath)).build().asList();
             ImmutableList<OmniTaskSelector> taskSelectorsOfProject = ImmutableSortedSet.orderedBy(TaskSelectorComparator.INSTANCE).addAll(taskSelectors.get(projectPath)).build().asList();
-            mapping.put(projectPath, DefaultOmniBuildInvocations.from(projectTasksOfProject, taskSelectorsOfProject));
+            mapping.put(projectPath, OmniBuildInvocations.from(projectTasksOfProject, taskSelectorsOfProject));
         }
 
         // create additional mappings for all those projects which do not contain any task selectors
@@ -73,7 +70,7 @@ public final class DefaultOmniBuildInvocationsContainerBuilder {
         // these additional mappings ensure the caller never gets back null for any project in the hierarchy
         Set<Path> projectsWithoutTaskSelectors = Sets.difference(getAllProjectPaths(project), taskSelectors.keySet());
         for (Path projectPath : projectsWithoutTaskSelectors) {
-            mapping.put(projectPath, DefaultOmniBuildInvocations.from(ImmutableList.<OmniProjectTask>of(), ImmutableList.<OmniTaskSelector>of()));
+            mapping.put(projectPath, OmniBuildInvocations.from(ImmutableList.<OmniProjectTask>of(), ImmutableList.<OmniTaskSelector>of()));
         }
 
         return mapping.build();
@@ -93,7 +90,7 @@ public final class DefaultOmniBuildInvocationsContainerBuilder {
         Builder<Path, OmniProjectTask> tasks = ImmutableMultimap.builder();
 
         for (GradleTask task : project.getTasks()) {
-            tasks.put(Path.from(project.getPath()), DefaultOmniProjectTask.from(task));
+            tasks.put(Path.from(project.getPath()), OmniProjectTask.from(task));
         }
 
         for (GradleProject child : project.getChildren()) {
@@ -119,7 +116,7 @@ public final class DefaultOmniBuildInvocationsContainerBuilder {
             });
             SortedSet<Path> selectedPaths = ImmutableSortedSet.copyOf(tasksByPath.comparator(), tasksByPath.keySet());
 
-            OmniTaskSelector taskSelector = DefaultOmniTaskSelector.from(
+            OmniTaskSelector taskSelector = OmniTaskSelector.from(
                     selectorName,
                     taskWithShortestPath.getDescription(),
                     Path.from(project.getPath()),
@@ -140,7 +137,7 @@ public final class DefaultOmniBuildInvocationsContainerBuilder {
     private static TreeBasedTable<String, Path, OmniProjectTask> getAllProjectTasksByNameAndPath(GradleProject project) {
         TreeBasedTable<String, Path, OmniProjectTask> tasks = TreeBasedTable.create(Ordering.natural(), Path.Comparator.INSTANCE);
         for (GradleTask task : project.getTasks()) {
-            OmniProjectTask projectTask = DefaultOmniProjectTask.from(task);
+            OmniProjectTask projectTask = OmniProjectTask.from(task);
             tasks.put(projectTask.getName(), projectTask.getPath(), projectTask);
         }
 
@@ -151,7 +148,7 @@ public final class DefaultOmniBuildInvocationsContainerBuilder {
     }
 
     /**
-     * Singleton comparator to compare {@code OmniProjectTask} instances by their name.
+     * Singleton comparator to compare {@code DefaultOmniProjectTask} instances by their name.
      */
     private enum TaskComparator implements Comparator<OmniProjectTask> {
 
@@ -165,7 +162,7 @@ public final class DefaultOmniBuildInvocationsContainerBuilder {
     }
 
     /**
-     * Singleton comparator to compare {@code OmniTaskSelector} instances by their name.
+     * Singleton comparator to compare {@code DefaultOmniTaskSelector} instances by their name.
      */
     private enum TaskSelectorComparator implements Comparator<OmniTaskSelector> {
 
