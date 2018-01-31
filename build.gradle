@@ -269,6 +269,8 @@ subprojects {
     plugins.withType(eclipsebuild.TestBundlePlugin) {
         dependencies {
             compile "org.codehaus.groovy:groovy-all:$groovyLibVersion"
+            bundled "org.codehaus.groovy:groovy-all:$groovyLibVersion"
+            bundled "org.objenesis:objenesis:$objenesisLibVersion"
             bundled "org.spockframework:spock-core:$spockLibVersion"
             bundled "cglib:cglib-nodep:$cglibLibVersion"
             bundled "org.slf4j:slf4j-simple:$slf4jLibVersion"
