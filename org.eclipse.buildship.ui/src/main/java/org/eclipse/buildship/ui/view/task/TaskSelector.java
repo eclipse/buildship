@@ -14,7 +14,12 @@ import com.google.common.collect.ImmutableSortedSet;
 
 import org.eclipse.buildship.core.util.gradle.Path;
 
-public class OmniTaskSelector {
+/**
+ * TODO (donat) javadoc.
+ * 
+ * @author Donat Csikos
+ */
+public class TaskSelector {
 
     private String name;
     private String description;
@@ -71,8 +76,8 @@ public class OmniTaskSelector {
         this.selectedTaskPaths = ImmutableSortedSet.copyOfSorted(selectedTaskPaths);
     }
 
-    public static OmniTaskSelector from(String name, String description, Path projectPath, boolean isPublic, String group, SortedSet<Path> selectedTaskPaths) {
-        OmniTaskSelector taskSelector = new OmniTaskSelector();
+    public static TaskSelector from(String name, String description, Path projectPath, boolean isPublic, String group, SortedSet<Path> selectedTaskPaths) {
+        TaskSelector taskSelector = new TaskSelector();
         taskSelector.setName(name);
         taskSelector.setDescription(description);
         taskSelector.setProjectPath(projectPath);

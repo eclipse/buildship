@@ -57,11 +57,11 @@ public final class TaskDescriptionLabelProvider extends ColumnLabelProvider {
     }
 
     private String getProjectTaskText(ProjectTaskNode projectTask) {
-        return projectTask.getProjectTask().getDescription();
+        return projectTask.getDescription();
     }
 
     private String getTaskSelectorText(TaskSelectorNode taskSelector) {
-        return taskSelector.getTaskSelector().getDescription();
+        return taskSelector.getDescription();
     }
 
     @Override

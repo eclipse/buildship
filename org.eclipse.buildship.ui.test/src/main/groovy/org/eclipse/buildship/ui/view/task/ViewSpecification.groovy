@@ -20,14 +20,14 @@ abstract class ViewSpecification extends WorkspaceSpecification {
   }
 
   protected ProjectTaskNode newProjectTaskNode(ProjectNode parent, String taskPath) {
-    OmniProjectTask projectTask = Stub(OmniProjectTask) {
+    ProjectTask projectTask = Stub(ProjectTask) {
         getPath() >> Path.from(taskPath)
     }
     new ProjectTaskNode(parent, projectTask)
   }
 
   protected TaskSelectorNode newTaskSelectorNode(ProjectNode parent) {
-    OmniTaskSelector taskSelector = Stub(OmniTaskSelector)
+    TaskSelector taskSelector = Stub(TaskSelector)
     new TaskSelectorNode(parent, taskSelector)
   }
 

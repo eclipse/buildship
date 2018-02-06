@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2018 the original author or authors.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.eclipse.buildship.core.model;
 
 import org.gradle.tooling.model.DomainObjectSet;
@@ -7,7 +15,15 @@ import org.gradle.tooling.model.eclipse.EclipseClasspathEntry;
 
 import com.google.common.base.Optional;
 
-public class CompatEclipseClasspathEntry <T extends EclipseClasspathEntry> implements EclipseClasspathEntry {
+/**
+ * Decorated {@link EclipseClasspathEntry} providing some backward compatibility.
+ *
+ * @param <T> the decorated type
+ *
+ * @author Donat Csikos
+ *
+ */
+public class CompatEclipseClasspathEntry<T extends EclipseClasspathEntry> implements EclipseClasspathEntry {
 
     protected final T delegate;
 
@@ -36,7 +52,7 @@ public class CompatEclipseClasspathEntry <T extends EclipseClasspathEntry> imple
 
     public Optional<DomainObjectSet<? extends ClasspathAttribute>> getClasspathAttributesOrAbsent() {
         try {
-            return Optional.<DomainObjectSet<? extends ClasspathAttribute>>of(this.delegate.getClasspathAttributes());
+            return Optional.<DomainObjectSet<? extends ClasspathAttribute>> of(this.delegate.getClasspathAttributes());
         } catch (Exception ignore) {
             return Optional.absent();
         }

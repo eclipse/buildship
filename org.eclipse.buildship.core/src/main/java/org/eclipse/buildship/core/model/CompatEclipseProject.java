@@ -130,7 +130,7 @@ public final class CompatEclipseProject implements EclipseProject {
     }
 
     /**
-     * Returns the 'bin' folder for Gradle versions < 3.0
+     * Returns the 'bin' folder for Gradle versions < 3.0.
      */
     @Override
     public EclipseOutputLocation getOutputLocation() {
@@ -143,7 +143,7 @@ public final class CompatEclipseProject implements EclipseProject {
 
     @Override
     public EclipseProject getParent() {
-        EclipseProject parent  = this.delegate.getParent();
+        EclipseProject parent = this.delegate.getParent();
         return parent == null ? parent : new CompatEclipseProject(parent);
     }
 
@@ -187,7 +187,7 @@ public final class CompatEclipseProject implements EclipseProject {
         for (EclipseSourceDirectory directory : directories) {
             result.add(new CompatEclipseSourceDirectory(directory));
         }
-        return CompatHelper.<CompatEclipseSourceDirectory>asDomainSet(result);
+        return CompatHelper.<CompatEclipseSourceDirectory> asDomainSet(result);
     }
 
     public static EclipseProject getRoot(EclipseProject project) {
@@ -207,15 +207,24 @@ public final class CompatEclipseProject implements EclipseProject {
         return hierarchyHelper.getAll();
     }
 
+    /**
+     * Supplies a default output location for older Gradle versions.
+     *
+     */
     private static final class FallbackOutputLocation implements EclipseOutputLocation {
 
         @Override
         public String getPath() {
             return "bin";
         }
-
     }
 
+    /**
+     * Compares two {@link EclipseProject}s based on their paths.
+     *
+     * @author donat
+     *
+     */
     private static enum EclipseProjectComparator implements Comparator<EclipseProject> {
 
         INSTANCE;
@@ -229,6 +238,9 @@ public final class CompatEclipseProject implements EclipseProject {
 
     }
 
+    /**
+     * Source settings to use for older Gradle distributions.
+     */
     private static final class FallbackJavaSourceSettings implements EclipseJavaSourceSettings {
 
         @Override

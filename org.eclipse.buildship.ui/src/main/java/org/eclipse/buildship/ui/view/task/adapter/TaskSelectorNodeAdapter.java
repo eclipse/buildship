@@ -17,7 +17,6 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
-import org.eclipse.buildship.ui.view.task.OmniTaskSelector;
 import org.eclipse.buildship.ui.view.task.TaskSelectorNode;
 
 /**
@@ -31,10 +30,10 @@ final class TaskSelectorNodeAdapter implements IPropertySource {
     private static final String PROPERTY_PUBLIC = "task.public";
     private static final String PROPERTY_TYPE = "task.type";
 
-    private final OmniTaskSelector taskSelector;
+    private final TaskSelectorNode taskSelector;
 
     TaskSelectorNodeAdapter(TaskSelectorNode taskNode) {
-        this.taskSelector = Preconditions.checkNotNull(taskNode).getTaskSelector();
+        this.taskSelector = Preconditions.checkNotNull(taskNode);
     }
 
     @Override
@@ -62,7 +61,7 @@ final class TaskSelectorNodeAdapter implements IPropertySource {
         } else if (id.equals(PROPERTY_DESCRIPTION)) {
             return this.taskSelector.getDescription();
         } else if (id.equals(PROPERTY_PROJECT_PATH)) {
-            return this.taskSelector.getProjectPath().getPath();
+            return this.taskSelector.getProjectPath();
         } else if (id.equals(PROPERTY_PUBLIC)) {
             return this.taskSelector.isPublic();
         } else if (id.equals(PROPERTY_TYPE)) {

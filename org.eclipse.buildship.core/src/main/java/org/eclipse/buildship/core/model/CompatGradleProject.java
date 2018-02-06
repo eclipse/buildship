@@ -136,6 +136,9 @@ public final class CompatGradleProject implements GradleProject {
         return hierarchyHelper.getAll();
     }
 
+    /**
+     * Compares projects based on their paths.
+     */
     private enum GradleProjectComparator implements Comparator<GradleProject> {
 
         INSTANCE;

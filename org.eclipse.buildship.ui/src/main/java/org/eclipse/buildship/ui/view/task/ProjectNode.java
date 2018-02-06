@@ -30,15 +30,15 @@ public final class ProjectNode extends BaseProjectNode {
     private final EclipseProject eclipseProject;
     private final GradleProject gradleProject;
     private final boolean includedProject;
-    private final OmniBuildInvocations invocations;
+    private final BuildInvocations buildInvociations;
 
-    public ProjectNode(ProjectNode parentProjectNode, EclipseProject eclipseProject, GradleProject gradleProject, Optional<IProject> workspaceProject, boolean includedProject, OmniBuildInvocations invocations) {
+    public ProjectNode(ProjectNode parentProjectNode, EclipseProject eclipseProject, GradleProject gradleProject, Optional<IProject> workspaceProject, boolean includedProject, BuildInvocations buildInvociations) {
         super(workspaceProject);
         this.parentProjectNode = parentProjectNode; // is null for root project
         this.eclipseProject = Preconditions.checkNotNull(eclipseProject);
         this.gradleProject = Preconditions.checkNotNull(gradleProject);
         this.includedProject = includedProject;
-        this.invocations = Preconditions.checkNotNull(invocations);
+        this.buildInvociations = buildInvociations;
     }
 
     public ProjectNode getRootProjectNode() {
@@ -61,12 +61,13 @@ public final class ProjectNode extends BaseProjectNode {
         return this.gradleProject;
     }
 
-    public OmniBuildInvocations getInvocations() {
-        return this.invocations;
-    }
-
     public boolean isIncludedProject() {
         return this.includedProject;
+    }
+
+
+    public BuildInvocations getInvocations() {
+        return this.buildInvociations;
     }
 
     @Override
@@ -87,11 +88,12 @@ public final class ProjectNode extends BaseProjectNode {
         return Objects.equal(this.parentProjectNode, that.parentProjectNode)
                 && Objects.equal(this.eclipseProject, that.eclipseProject)
                 && Objects.equal(this.gradleProject, that.gradleProject)
-                && Objects.equal(this.includedProject, that.includedProject);
+                && Objects.equal(this.includedProject, that.includedProject)
+                && Objects.equal(this.buildInvociations, that.buildInvociations);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getWorkspaceProject(), this.parentProjectNode, this.eclipseProject, this.gradleProject, this.includedProject);
+        return Objects.hashCode(getWorkspaceProject(), this.parentProjectNode, this.eclipseProject, this.gradleProject, this.includedProject, this.buildInvociations);
     }
 }

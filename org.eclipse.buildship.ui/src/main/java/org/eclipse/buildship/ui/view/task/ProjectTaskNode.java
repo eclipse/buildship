@@ -20,11 +20,17 @@ import com.google.common.base.Preconditions;
 public final class ProjectTaskNode implements TaskNode {
 
     private final ProjectNode parentProjectNode;
-    private final OmniProjectTask projectTask;
+    private String name;
+    private String description;
+    private boolean isPublic;
+    private String path;
 
-    public ProjectTaskNode(ProjectNode parentProjectNode, OmniProjectTask projectTask) {
+    public ProjectTaskNode(ProjectNode parentProjectNode, String name, String description, boolean isPublic, String path) {
         this.parentProjectNode = Preconditions.checkNotNull(parentProjectNode);
-        this.projectTask = Preconditions.checkNotNull(projectTask);
+        this.name = Preconditions.checkNotNull(name);
+        this.description = Preconditions.checkNotNull(description);
+        this.isPublic = Preconditions.checkNotNull(isPublic);
+        this.path = Preconditions.checkNotNull(path);
     }
 
     @Override
@@ -32,13 +38,9 @@ public final class ProjectTaskNode implements TaskNode {
         return this.parentProjectNode;
     }
 
-    public OmniProjectTask getProjectTask() {
-        return this.projectTask;
-    }
-
     @Override
     public String getName() {
-        return this.projectTask.getName();
+        return this.name;
     }
 
     @Override
@@ -48,12 +50,12 @@ public final class ProjectTaskNode implements TaskNode {
 
     @Override
     public boolean isPublic() {
-        return this.projectTask.isPublic();
+        return this.isPublic;
     }
 
     @Override
     public String toString() {
-        return this.projectTask.getName();
+        return this.name;
     }
 
     @Override
@@ -66,12 +68,23 @@ public final class ProjectTaskNode implements TaskNode {
         }
 
         ProjectTaskNode that = (ProjectTaskNode) other;
-        return Objects.equal(this.parentProjectNode, that.parentProjectNode) && Objects.equal(this.projectTask, that.projectTask);
+        return Objects.equal(this.parentProjectNode, that.parentProjectNode)
+                && Objects.equal(this.name, that.name)
+                && Objects.equal(this.description, that.description)
+                && Objects.equal(this.isPublic, that.isPublic)
+                && Objects.equal(this.path, that.path);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.parentProjectNode, this.projectTask);
+        return Objects.hashCode(this.parentProjectNode, this.name, this.description, this.isPublic, this.path);
     }
 
+    public String getDescription() {
+        return this.description;
+    }
+
+    public String getPath() {
+        return this.path;
+    }
 }

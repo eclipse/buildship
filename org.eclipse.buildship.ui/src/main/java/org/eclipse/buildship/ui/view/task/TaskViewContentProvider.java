@@ -13,6 +13,7 @@ package org.eclipse.buildship.ui.view.task;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.gradle.tooling.model.GradleProject;
@@ -73,7 +74,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         for (EclipseProject project : projects) {
             GradleProject gradleProject = project.getGradleProject();
             if (gradleProject.getParent() == null) {
-                OmniBuildInvocationsContainer invocations = OmniBuildInvocationsContainerBuilder.build(gradleProject);
+                Map<Path, BuildInvocations> invocations = BuildInvocations.collectAll(gradleProject);
                 collectProjectNodesRecursively(project, null, allProjectNodes, invocations);
             }
         }
@@ -84,16 +85,19 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         return allProjectNodes;
     }
 
-    private void collectProjectNodesRecursively(EclipseProject eclipseProject, ProjectNode parentProjectNode, List<BaseProjectNode> allProjectNodes, OmniBuildInvocationsContainer invocationsContainer) {
+    private void collectProjectNodesRecursively(EclipseProject eclipseProject, ProjectNode parentProjectNode, List<BaseProjectNode> allProjectNodes,
+            Map<Path, BuildInvocations> invocationsContainer) {
         GradleProject gradleProject = eclipseProject.getGradleProject();
-        OmniBuildInvocations invocations = invocationsContainer.asMap().get(Path.from(gradleProject.getPath()));
+        BuildInvocations invocations = invocationsContainer.get(Path.from(gradleProject.getPath()));
 
         // find the corresponding Eclipse project in the workspace
-        // (find by location rather than by name since the Eclipse project name does not always correspond to the Gradle project name)
+        // (find by location rather than by name since the Eclipse project name does not always
+        // correspond to the Gradle project name)
         Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByName(eclipseProject.getName());
 
         // create a new node for the given Eclipse project and then recurse into the children
-        ProjectNode projectNode = new ProjectNode(parentProjectNode, eclipseProject, gradleProject, workspaceProject, isIncludedProject(workspaceProject, eclipseProject), invocations);
+        ProjectNode projectNode = new ProjectNode(parentProjectNode, eclipseProject, gradleProject, workspaceProject, isIncludedProject(workspaceProject, eclipseProject),
+                invocations);
         allProjectNodes.add(projectNode);
         for (EclipseProject childProject : eclipseProject.getChildren()) {
             collectProjectNodesRecursively(childProject, projectNode, allProjectNodes, invocationsContainer);
@@ -125,7 +129,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
     public Object[] getChildren(Object parent) {
         if (parent instanceof ProjectNode) {
             return childrenOf((ProjectNode) parent);
-        } else if (parent instanceof TaskGroupNode){
+        } else if (parent instanceof TaskGroupNode) {
             return childrenOf((TaskGroupNode) parent);
         } else {
             return NO_CHILDREN;
@@ -140,25 +144,26 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         }
     }
 
-    private Set<TaskGroupNode> groupNodesFor(ProjectNode projectNode) {
+    public static Set<TaskGroupNode> groupNodesFor(ProjectNode projectNode) {
         Set<TaskGroupNode> result = Sets.newHashSet();
         result.add(TaskGroupNode.getDefault(projectNode));
-        for (OmniProjectTask projectTask : projectNode.getInvocations().getProjectTasks()) {
+        for (ProjectTask projectTask : projectNode.getInvocations().getProjectTasks()) {
             result.add(TaskGroupNode.forName(projectNode, projectTask.getGroup()));
         }
-        for (OmniTaskSelector taskSelector : projectNode.getInvocations().getTaskSelectors()) {
+        for (TaskSelector taskSelector : projectNode.getInvocations().getTaskSelectors()) {
             result.add(TaskGroupNode.forName(projectNode, taskSelector.getGroup()));
         }
         return result;
     }
 
-    private List<TaskNode> taskNodesFor(ProjectNode projectNode) {
+    public static List<TaskNode> taskNodesFor(ProjectNode projectNode) {
         List<TaskNode> taskNodes = Lists.newArrayList();
-        for (OmniProjectTask projectTask : projectNode.getInvocations().getProjectTasks()) {
-            taskNodes.add(new ProjectTaskNode(projectNode, projectTask));
+        for (ProjectTask projectTask : projectNode.getInvocations().getProjectTasks()) {
+            taskNodes.add(new ProjectTaskNode(projectNode, projectTask.getName(), projectTask.getDescription(), projectTask.isPublic(), projectTask.getPath().getPath()));
         }
-        for (OmniTaskSelector taskSelector : projectNode.getInvocations().getTaskSelectors()) {
-            taskNodes.add(new TaskSelectorNode(projectNode, taskSelector));
+        for (TaskSelector taskSelector : projectNode.getInvocations().getTaskSelectors()) {
+            taskNodes.add(new TaskSelectorNode(projectNode, taskSelector.getName(), taskSelector.getDescription(), taskSelector.isPublic(),
+                    taskSelector.getProjectPath().getPath()));
         }
         return taskNodes;
     }

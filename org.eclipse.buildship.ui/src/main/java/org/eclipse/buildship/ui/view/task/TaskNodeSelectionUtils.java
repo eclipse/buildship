@@ -145,10 +145,10 @@ public final class TaskNodeSelectionUtils {
                 TaskNode.TaskNodeType type = node.getType();
                 switch (type) {
                     case PROJECT_TASK_NODE:
-                        taskStrings.add(((ProjectTaskNode) node).getProjectTask().getPath().getPath());
+                        taskStrings.add(((ProjectTaskNode) node).getPath());
                         break;
                     case TASK_SELECTOR_NODE:
-                        taskStrings.add(((TaskSelectorNode) node).getTaskSelector().getName());
+                        taskStrings.add(((TaskSelectorNode) node).getName());
                         break;
                     default:
                         throw new IllegalStateException("Unsupported Task node type: " + type);

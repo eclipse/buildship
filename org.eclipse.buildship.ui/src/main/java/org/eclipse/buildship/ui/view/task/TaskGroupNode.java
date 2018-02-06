@@ -32,18 +32,18 @@ public final class TaskGroupNode {
 
     private List<TaskNode> createTaskNodes(ProjectNode projectNode) {
         List<TaskNode> taskNodes = Lists.newArrayList();
-        for (OmniProjectTask projectTask : getProjectTasks()) {
-            taskNodes.add(new ProjectTaskNode(projectNode, projectTask));
+        for (ProjectTask projectTask : getProjectTasks()) {
+            taskNodes.add(new ProjectTaskNode(projectNode, projectTask.getName(), projectTask.getDescription(), projectTask.isPublic(), projectTask.getPath().getPath()));
         }
-        for (OmniTaskSelector taskSelector : getTaskSelectors()) {
-            taskNodes.add(new TaskSelectorNode(projectNode, taskSelector));
+        for (TaskSelector taskSelector : getTaskSelectors()) {
+            taskNodes.add(new TaskSelectorNode(projectNode, taskSelector.getName(), taskSelector.getDescription(), taskSelector.isPublic(), taskSelector.getProjectPath().getPath()));
         }
         return taskNodes;
     }
 
-    private List<OmniProjectTask> getProjectTasks() {
-        List<OmniProjectTask> projectTasks = Lists.newArrayList();
-        for (OmniProjectTask projectTask : this.getProjectNode().getInvocations().getProjectTasks()) {
+    private List<ProjectTask> getProjectTasks() {
+        List<ProjectTask> projectTasks = Lists.newArrayList();
+        for (ProjectTask projectTask : this.getProjectNode().getInvocations().getProjectTasks()) {
             if (this.contains(projectTask)) {
                 projectTasks.add(projectTask);
             }
@@ -51,9 +51,9 @@ public final class TaskGroupNode {
         return projectTasks;
     }
 
-    private List<OmniTaskSelector> getTaskSelectors() {
-        List<OmniTaskSelector> taskSelectors = Lists.newArrayList();
-        for (OmniTaskSelector taskSelector : this.getProjectNode().getInvocations().getTaskSelectors()) {
+    private List<TaskSelector> getTaskSelectors() {
+        List<TaskSelector> taskSelectors = Lists.newArrayList();
+        for (TaskSelector taskSelector : this.getProjectNode().getInvocations().getTaskSelectors()) {
             if (this.contains(taskSelector)) {
                 taskSelectors.add(taskSelector);
             }
@@ -69,11 +69,11 @@ public final class TaskGroupNode {
         return this.name;
     }
 
-    public boolean contains(OmniProjectTask projectTask) {
+    public boolean contains(ProjectTask projectTask) {
         return matches(projectTask.getGroup());
     }
 
-    public boolean contains(OmniTaskSelector taskSelector) {
+    public boolean contains(TaskSelector taskSelector) {
         return matches(taskSelector.getGroup());
     }
 

@@ -17,11 +17,11 @@ import org.eclipse.buildship.core.util.gradle.Path;
  *
  * @author Donat Csikos
  */
-public class OmniProjectTask {
+public class ProjectTask {
 
     private Task task;
 
-    public OmniProjectTask(Task task) {
+    public ProjectTask(Task task) {
         this.task = task;
     }
 
@@ -49,7 +49,7 @@ public class OmniProjectTask {
         return this.task.getGroup();
     }
 
-    public static OmniProjectTask from(Task task) {
-        return new OmniProjectTask(task);
+    public static ProjectTask from(Task task) {
+        return new ProjectTask(task);
     }
 }

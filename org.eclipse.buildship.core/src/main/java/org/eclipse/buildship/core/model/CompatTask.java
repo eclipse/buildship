@@ -12,8 +12,14 @@ import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.GradleTask;
 import org.gradle.tooling.model.ProjectIdentifier;
 
+/**
+ * Decorated {@link GradleTask} providing some backward compatibility.
+ *
+ * @author Donat Csikos
+ */
 public final class CompatTask implements GradleTask {
 
+    private static final String DEFAULT_DESCRIPTION = "";
     private static final String DEFAULT_GROUP_NAME = "other";
 
     private final GradleTask delegate;
@@ -24,7 +30,12 @@ public final class CompatTask implements GradleTask {
 
     @Override
     public String getDescription() {
-        return this.delegate.getDescription();
+        try {
+            String description = this.delegate.getDescription();
+            return description == null ? DEFAULT_DESCRIPTION : description;
+        } catch (Exception e) {
+            return DEFAULT_DESCRIPTION;
+        }
     }
 
     @Override

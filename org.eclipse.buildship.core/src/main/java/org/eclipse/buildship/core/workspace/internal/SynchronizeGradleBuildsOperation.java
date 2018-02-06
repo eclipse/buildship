@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.gradle.tooling.CancellationTokenSource;
-import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
