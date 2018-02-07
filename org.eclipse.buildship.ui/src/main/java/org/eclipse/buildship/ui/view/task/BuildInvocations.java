@@ -38,7 +38,7 @@ import org.eclipse.buildship.core.util.gradle.Path;
  *
  * @author Etienne Studer
  */
-final class BuildInvocations {
+class BuildInvocations {
 
     private final ImmutableList<ProjectTask> projectTasks;
     private final ImmutableList<TaskSelector> taskSelectors;

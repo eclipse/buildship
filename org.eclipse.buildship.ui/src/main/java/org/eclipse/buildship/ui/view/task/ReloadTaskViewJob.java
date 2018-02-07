@@ -33,6 +33,7 @@ import org.eclipse.buildship.core.model.CompatEclipseProject;
 import org.eclipse.buildship.core.operation.ToolingApiJob;
 import org.eclipse.buildship.core.operation.ToolingApiJobResultHandler;
 import org.eclipse.buildship.core.operation.ToolingApiStatus;
+import org.eclipse.buildship.core.util.gradle.ModelUtils;
 import org.eclipse.buildship.core.workspace.FetchStrategy;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.ModelProvider;
@@ -90,7 +91,7 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
         Collection<CompatEclipseProject> models = modelProvider.fetchModels(CompatEclipseProject.class, this.modelFetchStrategy, tokenSource, monitor);
         LinkedHashSet<EclipseProject> projects = Sets.newLinkedHashSet();
         for (EclipseProject model : models) {
-            projects.addAll(CompatEclipseProject.getAll(model));
+            projects.addAll(ModelUtils.getAll(model));
         }
         return projects;
     }

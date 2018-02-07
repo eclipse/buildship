@@ -33,10 +33,10 @@ public final class TaskGroupNode {
     private List<TaskNode> createTaskNodes(ProjectNode projectNode) {
         List<TaskNode> taskNodes = Lists.newArrayList();
         for (ProjectTask projectTask : getProjectTasks()) {
-            taskNodes.add(new ProjectTaskNode(projectNode, projectTask.getName(), projectTask.getDescription(), projectTask.isPublic(), projectTask.getPath().getPath()));
+            taskNodes.add(new ProjectTaskNode(projectNode, projectTask));
         }
         for (TaskSelector taskSelector : getTaskSelectors()) {
-            taskNodes.add(new TaskSelectorNode(projectNode, taskSelector.getName(), taskSelector.getDescription(), taskSelector.isPublic(), taskSelector.getProjectPath().getPath()));
+            taskNodes.add(new TaskSelectorNode(projectNode, taskSelector));
         }
         return taskNodes;
     }

@@ -5,8 +5,6 @@ import org.gradle.tooling.model.eclipse.EclipseProject
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency
 import org.gradle.tooling.model.internal.ImmutableDomainObjectSet
 
-import com.google.common.base.Optional
-
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
@@ -14,8 +12,8 @@ import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
-import org.eclipse.buildship.core.model.CompatEclipseProject
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.util.gradle.ModelUtils
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 
 class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
@@ -41,7 +39,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         PersistentModelBuilder persistentModel = persistentModelBuilder(project.project)
 
         when:
-        Set allProjects = CompatEclipseProject.getAll(gradleProject).toSet()
+        Set allProjects = ModelUtils.getAll(gradleProject).toSet()
         GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null)
 
         then:
@@ -57,7 +55,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         PersistentModelBuilder persistentModel = persistentModelBuilder(project.project)
 
         when:
-        Set allProjects = CompatEclipseProject.getAll(gradleProject).toSet()
+        Set allProjects = ModelUtils.getAll(gradleProject).toSet()
         GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null)
 
         then:
@@ -73,7 +71,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         PersistentModelBuilder persistentModel = persistentModelBuilder(project.project)
 
         when:
-        Set allProjects = CompatEclipseProject.getAll(gradleProject).toSet()
+        Set allProjects = ModelUtils.getAll(gradleProject).toSet()
         GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null)
 
         then:
@@ -92,7 +90,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         PersistentModelBuilder persistentModel = persistentModelBuilder(project.project)
 
         when:
-        Set allProjects = CompatEclipseProject.getAll(gradleProject).toSet()
+        Set allProjects = ModelUtils.getAll(gradleProject).toSet()
         GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null)
 
         then:
@@ -116,7 +114,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         initialContainer
 
         when:
-        Set allProjects = CompatEclipseProject.getAll(gradleProject).toSet()
+        Set allProjects = ModelUtils.getAll(gradleProject).toSet()
         GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null)
 
         then:
@@ -125,7 +123,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
         when:
         persistentModel = persistentModelBuilder(persistentModel.build())
-        allProjects = CompatEclipseProject.getAll(gradleProject).toSet()
+        allProjects = ModelUtils.getAll(gradleProject).toSet()
         GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null)
 
         then:

@@ -31,9 +31,9 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.model.CompatEclipseProject;
 import org.eclipse.buildship.core.preferences.PersistentModel;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
+import org.eclipse.buildship.core.util.gradle.ModelUtils;
 
 /**
  * Updates the derived resource markers on a project. Stores the last state in the preferences, so
@@ -80,7 +80,7 @@ final class GradleFolderUpdater {
         List<IPath> nestedBuildDirPaths = Lists.newArrayList();
 
 
-        for (EclipseProject project : CompatEclipseProject.getAll(this.modelProject)) {
+        for (EclipseProject project : ModelUtils.getAll(this.modelProject)) {
             GradleProject gradleProject = project.getGradleProject();
             IPath projectPath = Path.fromOSString(project.getProjectDirectory().getPath());
             if (currentProjectPath.isPrefixOf(projectPath)) {

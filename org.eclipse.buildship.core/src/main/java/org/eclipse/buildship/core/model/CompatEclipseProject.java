@@ -9,7 +9,6 @@
 package org.eclipse.buildship.core.model;
 
 import java.io.File;
-import java.util.Comparator;
 import java.util.List;
 
 import org.gradle.api.JavaVersion;
@@ -29,12 +28,9 @@ import org.gradle.tooling.model.eclipse.EclipseProjectNature;
 import org.gradle.tooling.model.eclipse.EclipseSourceDirectory;
 import org.gradle.tooling.model.java.InstalledJdk;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.Lists;
-
-import org.eclipse.buildship.core.util.gradle.Path;
 
 /**
  * {@link EclipseProject} decorator that provide default values when the model is returned from
@@ -190,23 +186,6 @@ public final class CompatEclipseProject implements EclipseProject {
         return CompatHelper.<CompatEclipseSourceDirectory> asDomainSet(result);
     }
 
-    public static EclipseProject getRoot(EclipseProject project) {
-        // TODO (donat) remove duplication
-        HierarchyHelper<EclipseProject> hierarchyHelper = new HierarchyHelper<EclipseProject>(project, Preconditions.checkNotNull(EclipseProjectComparator.INSTANCE));
-        return hierarchyHelper.getRoot();
-    }
-
-    // TODO (donat) move it inside CompatEclipseProject
-    public static List<EclipseProject> getAll(EclipseProject project) {
-        HierarchyHelper<EclipseProject> hierarchyHelper = new HierarchyHelper<EclipseProject>(project, Preconditions.checkNotNull(EclipseProjectComparator.INSTANCE));
-        return hierarchyHelper.getAll();
-    }
-
-    public List<CompatEclipseProject> getAll() {
-        HierarchyHelper<CompatEclipseProject> hierarchyHelper = new HierarchyHelper<CompatEclipseProject>(this, Preconditions.checkNotNull(EclipseProjectComparator.INSTANCE));
-        return hierarchyHelper.getAll();
-    }
-
     /**
      * Supplies a default output location for older Gradle versions.
      *
@@ -217,25 +196,6 @@ public final class CompatEclipseProject implements EclipseProject {
         public String getPath() {
             return "bin";
         }
-    }
-
-    /**
-     * Compares two {@link EclipseProject}s based on their paths.
-     *
-     * @author donat
-     *
-     */
-    private static enum EclipseProjectComparator implements Comparator<EclipseProject> {
-
-        INSTANCE;
-
-        @Override
-        public int compare(EclipseProject o1, EclipseProject o2) {
-            Path p1 = Path.from(o1.getGradleProject().getPath());
-            Path p2 = Path.from(o2.getGradleProject().getPath());
-            return p1.compareTo(p2);
-        }
-
     }
 
     /**

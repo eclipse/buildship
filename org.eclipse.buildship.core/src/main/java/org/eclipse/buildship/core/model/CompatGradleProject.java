@@ -9,8 +9,6 @@
 package org.eclipse.buildship.core.model;
 
 import java.io.File;
-import java.util.Comparator;
-import java.util.List;
 
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.GradleProject;
@@ -20,7 +18,6 @@ import org.gradle.tooling.model.UnsupportedMethodException;
 import org.gradle.tooling.model.gradle.GradleScript;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -124,28 +121,5 @@ public final class CompatGradleProject implements GradleProject {
             }
         }).toList();
         return CompatHelper.asDomainSet(tasks);
-    }
-
-    public static GradleProject getRoot(GradleProject project) {
-        HierarchyHelper<GradleProject> hierarchyHelper = new HierarchyHelper<GradleProject>(project, Preconditions.checkNotNull(GradleProjectComparator.INSTANCE));
-        return hierarchyHelper.getRoot();
-    }
-
-    public static List<GradleProject> getAll(GradleProject project) {
-        HierarchyHelper<GradleProject> hierarchyHelper = new HierarchyHelper<GradleProject>(project, Preconditions.checkNotNull(GradleProjectComparator.INSTANCE));
-        return hierarchyHelper.getAll();
-    }
-
-    /**
-     * Compares projects based on their paths.
-     */
-    private enum GradleProjectComparator implements Comparator<GradleProject> {
-
-        INSTANCE;
-
-        @Override
-        public int compare(GradleProject o1, GradleProject o2) {
-            return o1.getPath().compareTo(o2.getPath());
-        }
     }
 }

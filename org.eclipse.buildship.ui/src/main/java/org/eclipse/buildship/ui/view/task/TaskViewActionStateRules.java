@@ -23,7 +23,7 @@ import com.google.common.collect.Iterables;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
-import org.eclipse.buildship.core.model.CompatEclipseProject;
+import org.eclipse.buildship.core.util.gradle.ModelUtils;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 
 /**
@@ -116,7 +116,7 @@ public final class TaskViewActionStateRules {
                 EclipseProject project = node.getParentProjectNode().getEclipseProject();
                 Path projectPath = new Path(project.getProjectDirectory().getPath());
                 IPath masterPath = projectPath.removeLastSegments(1).append("master");
-                Path rootPath = new Path(CompatEclipseProject.getRoot(project).getProjectDirectory().getPath());
+                Path rootPath = new Path(ModelUtils.getRoot(project).getProjectDirectory().getPath());
                 return rootPath.isPrefixOf(projectPath) || rootPath.equals(masterPath);
             }
         });

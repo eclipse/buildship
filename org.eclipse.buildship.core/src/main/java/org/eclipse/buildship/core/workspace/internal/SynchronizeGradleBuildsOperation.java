@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.gradle.tooling.CancellationTokenSource;
+import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
@@ -22,6 +23,7 @@ import org.eclipse.core.runtime.SubMonitor;
 
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.model.CompatEclipseProject;
+import org.eclipse.buildship.core.util.gradle.ModelUtils;
 import org.eclipse.buildship.core.workspace.FetchStrategy;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.ModelProvider;
@@ -58,7 +60,10 @@ public final class SynchronizeGradleBuildsOperation {
         Collection<CompatEclipseProject> models = modelProvider.fetchModels(CompatEclipseProject.class, FetchStrategy.FORCE_RELOAD, tokenSource, progress);
         ImmutableSet.Builder<CompatEclipseProject> result = ImmutableSet.builder();
         for (CompatEclipseProject model : models) {
-            result.addAll(model.getAll());
+            for (EclipseProject project : ModelUtils.getAll(model)) {
+                // TODO (donat) don't use CompatEclipseProject anywhere outside of the ModelProvider
+                result.add((CompatEclipseProject) project);
+            }
         }
         return result.build();
     }

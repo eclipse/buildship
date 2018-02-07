@@ -20,17 +20,11 @@ import com.google.common.base.Preconditions;
 public final class TaskSelectorNode implements TaskNode {
 
     private final ProjectNode parentProjectNode;
-    private final String name;
-    private final String description;
-    private final boolean isPublic;
-    private final String projectPath;
+    private final TaskSelector taskSelector;
 
-    public TaskSelectorNode(ProjectNode parentProjectNode, String name, String description, boolean isPublic, String projectPath) {
+    public TaskSelectorNode(ProjectNode parentProjectNode, TaskSelector taskSelector) {
         this.parentProjectNode = Preconditions.checkNotNull(parentProjectNode);
-        this.name = Preconditions.checkNotNull(name);
-        this.description = Preconditions.checkNotNull(description);
-        this.isPublic = Preconditions.checkNotNull(isPublic);
-        this.projectPath = Preconditions.checkNotNull(projectPath);
+        this.taskSelector = Preconditions.checkNotNull(taskSelector);
     }
 
     @Override
@@ -40,11 +34,11 @@ public final class TaskSelectorNode implements TaskNode {
 
     @Override
     public String getName() {
-        return this.name;
+        return this.taskSelector.getName();
     }
 
     public String getDescription() {
-        return this.description;
+        return this.taskSelector.getDescription();
     }
 
     @Override
@@ -54,12 +48,12 @@ public final class TaskSelectorNode implements TaskNode {
 
     @Override
     public boolean isPublic() {
-        return this.isPublic;
+        return this.taskSelector.isPublic();
     }
 
     @Override
     public String toString() {
-        return this.name;
+        return this.taskSelector.getName();
     }
 
     @Override
@@ -72,17 +66,16 @@ public final class TaskSelectorNode implements TaskNode {
         }
 
         TaskSelectorNode that = (TaskSelectorNode) other;
-        return Objects.equal(this.parentProjectNode, that.parentProjectNode) && Objects.equal(this.projectPath, that.projectPath) && Objects.equal(this.name, that.name)
-                && Objects.equal(this.description, that.description) && Objects.equal(this.isPublic, that.isPublic);
+        return Objects.equal(this.parentProjectNode, that.parentProjectNode) && Objects.equal(this.taskSelector, that.taskSelector);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.parentProjectNode, this.projectPath, this.name, this.description, this.isPublic);
+        return Objects.hashCode(this.parentProjectNode, this.taskSelector, this.taskSelector);
     }
 
     public String getProjectPath() {
-        return this.projectPath;
+        return this.taskSelector.getProjectPath().getPath();
     }
 
 }
